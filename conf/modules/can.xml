@@ -10,7 +10,7 @@
     <define name="USE_CANx" value="FALSE" description="Enable the CANx port"/>
   </doc>
   <dep>
-    <depends>mcu</depends>
+    <depends>mcu,threads</depends>
   </dep>
   <header>
     <file name="can.h" dir="mcu_periph"/>

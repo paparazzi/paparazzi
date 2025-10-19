@@ -7,6 +7,9 @@
       To activate a specific I2C peripheral, define flag USE_I2CX where X is your I2C peripheral number
     </description>
   </doc>
+  <dep>
+    <depends>mcu,threads</depends>
+  </dep>
   <header>
     <file name="i2c.h" dir="mcu_periph"/>
   </header>

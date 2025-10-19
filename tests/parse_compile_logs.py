@@ -6,6 +6,10 @@
 import os
 import sys
 import re
+from os import path
+
+sys.path.append(path.normpath(path.join(path.dirname(path.abspath(__file__)), 'modules')))
+from TAP import Builder
 
 def parse_log(log_file):
     with open(log_file, 'r') as f:
@@ -41,8 +45,9 @@ def parse_log(log_file):
 def print_errors(errors):
     last_conf = ''
     last_airframe = ''
+    ok = Builder.create(1).ok
     if len(errors) == 0:
-        print(' - everything looks OK!')
+        ok(True,' - everything looks OK!')
         return
     for conf, airframe, error in errors:
         if conf != last_conf:
@@ -56,7 +61,8 @@ def print_errors(errors):
             print(' - ',airframe)
             last_airframe = airframe
 
-        print('\t- [ ] ```',error, '```')
+        print('\t- [ ] ```',error,'```')
+    ok(False,f'- found {len(errors)} errors')
 
 
 if __name__ == '__main__':
