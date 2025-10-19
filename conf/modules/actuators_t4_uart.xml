@@ -1,0 +1,42 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="actuators_t4_uart" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Actuators Driver using T4 protocol to a T4 actuators board via UART bus.
+
+      If you have a T4 Actuator Board, use this module to set serialbus servos, PWM ESC's, DShot ESC's and PWM servos connected to a T4 Actuators Board.
+      Prominent use-case is that one can use status information that is returned in the autopilot control loop. 
+      All the information like: RPM, Angle, Torque, Temperature, Current, usable state information for more precisly contolled flights.
+
+      For the hardware and software used to make your own T4 Actuators board, find all information here: https://github.com/tudelft/t4_actuators_board/
+    </description>
+    <configure name="ACTUATORS_T4_PORT" value="UARTX" description="UART port the T4 board is connected to (default uart2)"/>
+    <configure name="ACTUATORS_T4_BAUD" value="B921600" description="Baudrate for the Flightcontroller to T4 actuators board, make they are the same (default B1500000)"/>
+  </doc>
+  <header>
+    <file name="actuators_t4_uart.h"/>
+  </header>
+  <init fun="actuators_t4_uart_init()"/>
+  <event fun="actuators_t4_uart_event()"/>
+  <makefile target="ap|fbw">
+    <configure name="ACTUATORS_T4_PORT" default="uart2" case="upper|lower"/>
+    <configure name="ACTUATORS_T4_BAUD" default="B1500000"/>
+    <define name="USE_$(ACTUATORS_T4_PORT_UPPER)"/>
+    <define name="USE_$(ACTUATORS_T4_PORT_UPPER)_TX" value="TRUE"/>
+    <define name="ACTUATORS_T4_PORT" value="$(ACTUATORS_T4_PORT_LOWER)"/>
+    <define name="$(ACTUATORS_T4_PORT_UPPER)_BAUD" value="$(ACTUATORS_T4_BAUD)"/>
+    <file name="actuators_t4_uart.c" dir="modules/actuators"/>
+  </makefile>
+  <makefile target="sim|nps">
+    <define name="ACTUATORS_T4_SIM" value="TRUE"/>
+    <configure name="ACTUATORS_T4_PORT" default="UART4" case="upper|lower"/>
+    <configure name="ACTUATORS_T4_BAUD" default="B1500000"/>
+    <define name="ACTUATORS_T4_PORT" value="$(ACTUATORS_T4_PORT_LOWER)"/>
+    <file name="actuators_t4_uart.c" dir="modules/actuators"/>
+    <test>
+        <define name="USE_UART2"/>
+        <define name="PERIODIC_FREQUENCY" value="500"/>
+        <define name="ACTUATORS_T4_PORT" value="uart2"/>
+    </test>
+  </makefile>
+</module>

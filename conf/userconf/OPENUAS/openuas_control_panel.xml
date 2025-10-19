@@ -36,8 +36,6 @@
     </program>
     <program name="Hardware in the Loop" command="sw/simulator/simhitl"/>
     <program name="Environment Simulator" command="sw/simulator/gaia"/>
-
-
     <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
     <program name="App Server" command="sw/ground_segment/tmtc/app_server"/>
     <program name="Ivy2Nmea" command="sw/ground_segment/tmtc/ivy2nmea">
@@ -165,33 +163,6 @@
       </program>
       <program name="Link Combiner"/>
     </session>
-    <session name="OpenUAS testflights 2020">
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-layout" constant="OPENUAS/openuas_bottom_settings.xml"/>
-        <arg flag="-maximize"/>
-        <arg flag="-maps_fill"/>
-        <arg flag="-center_ac"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="200"/>
-        <arg flag="-zoom" constant="0.5"/>
-        <arg flag="-no_confirm_kill"/>
-        <arg flag="-srtm"/>
-      </program>
-      <program name="Data Link">
-        <arg flag="-d" constant="/dev/ttyUSB0"/>
-        <arg flag="-s" constant="57600"/>
-      </program>
-      <program name="Server"/>
-    </session>
-    <session name="Flight USB-serial@9600">
-      <program name="Data Link">
-        <arg flag="-d" constant="/dev/ttyUSB0"/>
-      </program>
-      <program name="Server"/>
-      <program name="GCS"/>
-    </session>
     <session name="SupperBitRF cable telemetry">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyACM1"/>
@@ -199,7 +170,6 @@
       </program>
       <program name="Server"/>
       <program name="GCS"/>
-      <program name="Messages"/>
       <program name="Messages"/>
     </session>
     <session name="Accelo only Debug Graphs">
@@ -246,7 +216,7 @@
     </session>
     <session name="OU Simulation">
       <program name="Simulator">
-        <arg flag="-a" constant="VivifyMK1"/>
+        <arg flag="-a" constant="@AIRCRAFT"/>
         <arg flag="-t" constant="sim"/>
         <arg flag="--boot"/>
         <arg flag="--norc"/>
@@ -257,6 +227,35 @@
       </program>
       <program name="Environment Simulator"/>
       <program name="Messages"/>
+    </session>
+    <session name="OUAS Replay flight">
+      <program name="Log Plotter"/>
+      <program name="Log File Player"/>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="OPENUAS/openuas_bottom_settings.xml"/>
+        <arg flag="-maximize"/>
+        <arg flag="-maps_fill"/>
+        <arg flag="-center_ac"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="200"/>
+        <arg flag="-zoom" constant="0.5"/>
+        <arg flag="-no_confirm_kill"/>
+        <arg flag="-srtm"/>
+      </program>
+    </session>
+    <session name="OpenUAS Forward AC via UDP">
+      <program name="Ivy2Udp">
+        <arg flag="-b" constant="127:2010"/>
+        <arg flag="-h" constant="192.168.78.1"/>
+        <arg flag="-p" constant="4242"/>
+        <arg flag="-dp" constant="4243"/>
+        <arg flag="-id" constant="16"/>
+      </program>
     </session>
     <session name="OpenUAS Simulation with OBC GUI">
       <program name="GCS">
@@ -271,11 +270,41 @@
         <arg flag="-n"/>
       </program>
       <program name="Simulator">
-        <arg flag="-a" constant="VivfifyMK1"/>
+        <arg flag="-a" constant="@AIRCRAFT"/>
         <arg flag="-boot"/>
         <arg flag="-norc"/>
       </program>
       <program name="Environment Simulator"/>
+    </session>
+    <session name="OpenUAS testflights 2024">
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="OPENUAS/openuas_bottom_settings.xml"/>
+        <arg flag="-maximize"/>
+        <arg flag="-maps_fill"/>
+        <arg flag="-center_ac"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="200"/>
+        <arg flag="-zoom" constant="0.5"/>
+        <arg flag="-no_confirm_kill"/>
+        <arg flag="-srtm"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+    </session>
+    <session name="Desktest">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Messages"/>
+      <program name="Real-time Plotter"/>
     </session>
     <session name="Raw Sensors">
       <program name="Data Link">
