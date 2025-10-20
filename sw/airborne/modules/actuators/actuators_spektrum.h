@@ -42,12 +42,13 @@ struct ActuatorsSpektrum {
 /* Functions used in actuator macros */
 extern struct ActuatorsSpektrum actuators_spektrum;
 extern void actuators_spektrum_init(void);
-extern void actuators_spektrum_set(void);
+extern void actuators_spektrum_commit(void);
+extern void actuators_spektrum_set(uint8_t idx, int16_t value);
 
 /* Actuator macros */
-#define ActuatorSpektrumSet(_i, _v) { actuators_spektrum.cmds[_i] = _v; }
+#define ActuatorSpektrumSet actuators_spektrum_set
 #define ActuatorsSpektrumInit() actuators_spektrum_init()
-#define ActuatorsSpektrumCommit() actuators_spektrum_set()
+#define ActuatorsSpektrumCommit() actuators_spektrum_commit()
 
 
 #endif /* ACTUATORS_SPEKTRUM_H */

@@ -29,3 +29,4 @@ void actuators_uavcan_arch_init(void)
 {
 
 }
+

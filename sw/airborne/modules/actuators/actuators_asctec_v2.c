@@ -48,7 +48,7 @@ void actuators_asctec_v2_init(void)
 }
 
 
-void actuators_asctec_v2_set(void)
+void actuators_asctec_v2_commit(void)
 {
 #if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
@@ -128,5 +128,10 @@ void actuators_asctec_v2_set(void)
   actuators_asctec_v2.i2c_trans.type = I2CTransTx;   // Can be reset I2C driver
   i2c_submit(&ACTUATORS_ASCTEC_V2_I2C_DEV, &actuators_asctec_v2.i2c_trans);
 
+}
+
+void actuators_asctec_v2_set(uint8_t idx, int16_t value)
+{
+  actuators_asctec_v2.cmds[idx] = value;
 }
 
