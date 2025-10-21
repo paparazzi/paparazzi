@@ -28,7 +28,7 @@
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define ActuatorUavcanSet(_i, _v) {}
+#define ActuatorUavcanSet NULL
 #define ActuatorsUavcanCommit() {}
 
 extern void actuators_uavcan_arch_init(void);

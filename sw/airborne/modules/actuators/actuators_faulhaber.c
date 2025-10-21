@@ -470,3 +470,11 @@ void actuators_faulhaber_SetMode(uint8_t mode)
   faulhaber.mode = mode;
   faulhaber.state = 0;
 }
+
+void actuators_faulhaber_set(uint8_t idx UNUSED, int16_t value UNUSED)
+{
+#if !USE_NPS
+  faulhaber.setpoint_position = ((get_servo_max_FAULHABER(0) - value)
+      + get_servo_min_FAULHABER(0))*ACTUATORS_FAULHABER_COMMAND_SCALE;
+#endif
+}

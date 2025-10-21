@@ -19,7 +19,7 @@ extern struct video_config_t front_camera;
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "boards/ardrone/actuators.h"
-#define ActuatorDefaultSet(_x,_y) ActuatorArdroneSet(_x,_y)
+#define ActuatorDefaultSet ActuatorArdroneSet
 #define ActuatorsDefaultInit() ActuatorsArdroneInit()
 #define ActuatorsDefaultCommit() ActuatorsArdroneCommit()
 

@@ -25,7 +25,7 @@
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define Actuator4015Set(_i, _v) {}
+#define Actuator4015Set NULL
 #define Actuators4015Init() {}
 #define Actuators4015Commit() {}
 
