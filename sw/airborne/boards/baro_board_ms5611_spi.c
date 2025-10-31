@@ -46,6 +46,12 @@
 PRINT_CONFIG_VAR(BB_MS5611_SLAVE_IDX)
 PRINT_CONFIG_VAR(BB_MS5611_SPI_DEV)
 
+#if USE_BARO_MEDIAN_FILTER
+#include "filters/median_filter.h"
+struct MedianFilterFloat board_baro_median_temp;
+struct MedianFilterFloat board_baro_median_pressure;
+#endif
+
 /// set to TRUE if baro is actually a MS5607
 #ifndef BB_MS5611_TYPE_MS5607
 #define BB_MS5611_TYPE_MS5607 FALSE
@@ -55,6 +61,11 @@ struct Ms5611_Spi bb_ms5611;
 
 void baro_init(void)
 {
+#if USE_BARO_MEDIAN_FILTER
+  init_median_filter_f(&board_baro_median_temp, MEDIAN_DEFAULT_SIZE);
+  init_median_filter_f(&board_baro_median_pressure, MEDIAN_DEFAULT_SIZE);
+#endif
+
   ms5611_spi_init(&bb_ms5611, &BB_MS5611_SPI_DEV, BB_MS5611_SLAVE_IDX, BB_MS5611_TYPE_MS5607);
 
 #ifdef BARO_LED
@@ -91,9 +102,18 @@ void baro_event(void)
 
     if (bb_ms5611.data_available) {
       uint32_t now_ts = get_sys_time_usec();
-      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, bb_ms5611.data.pressure);
-      float temp = bb_ms5611.data.temperature / 100.0f;
+
+      #if USE_BARO_MEDIAN_FILTER
+      bb_ms5611.data.temperature = update_median_filter_f(&board_baro_median_temp, bb_ms5611.data.temperature);
+      #endif  
+      float temp = bb_ms5611.data.temperature / 100.0f;    
       AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
+
+      #if USE_BARO_MEDIAN_FILTER
+      bb_ms5611.data.pressure = update_median_filter_f(&board_baro_median_pressure, bb_ms5611.data.pressure);
+      #endif
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, bb_ms5611.data.pressure);
+
       bb_ms5611.data_available = false;
 
 #ifdef BARO_LED
