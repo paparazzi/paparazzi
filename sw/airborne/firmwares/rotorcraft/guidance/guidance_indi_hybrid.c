@@ -879,6 +879,7 @@ void guidance_indi_propagate_filters(void)
 
   update_butterworth_2_low_pass(&roll_filt, eulers_zxy.phi);
   update_butterworth_2_low_pass(&pitch_filt, eulers_zxy.theta);
+  update_butterworth_2_low_pass(&yaw_filt, eulers_zxy.psi);
 
   // Propagate filter for sideslip correction
   float accely = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->y);
