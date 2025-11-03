@@ -17,8 +17,8 @@
         <define name="IYY_WING"              value="0.1949"/>
         <define name="M"                     value="6.67"/>
 
-        <define name="DM_DPPRZ_HOVER_PITCH"  value="{15.37287553553,0.0}"/>
-        <define name="DM_DPPRZ_HOVER_ROLL"   value="{5.86747416762564,0.000968063}"/>
+        <define name="DM_DPPRZ_HOVER_PITCH"  value="{1.1938, 0.0015}"/>
+        <define name="DM_DPPRZ_HOVER_ROLL"   value="{1.1938, 0.0018}"/>
 
         <define name="HOVER_ROLL_PITCH_COEF" value="{0.001418491625685,-0.000649367806611}"/>
         <define name="HOVER_ROLL_ROLL_COEF"  value="{-0.0000839259143513,-0.0000478083}"/>
@@ -114,15 +114,15 @@
     <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
 
         <!-- G1 and G2 7 kg-->
-        <define name="G1_ROLL"      value="{   0.0,  -15.0,    0.0,   15.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
-        <define name="G1_PITCH"     value="{   1.5,    0.0,   -1.5,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
-        <define name="G1_YAW"       value="{  -0.3,    0.3,   -0.3,    0.3, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
-        <define name="G1_THRUST"    value="{-0.575, -0.575, -0.575, -0.575, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_ROLL"      value="{   0.0,  -20.0,    0.0,   20.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_PITCH"     value="{   2.0,    0.0,   -2.0,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_YAW"       value="{  -0.26,    0.26,   -0.26,    0.26, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_THRUST"    value="{-0.534, -0.534, -0.534, -0.534, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
         <define name="G1_THRUST_X"  value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.55}"/>
         <define name="G2"           value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
 
         <!-- Actuator dynamics -->
-        <define name="ACT_FREQ"             value="{22.0, 22.0, 22.0, 22.0, 52.7, 52.7, 52.7, 52.7, 30.0}"/>
+        <define name="ACT_FREQ"             value="{18.0, 18.0, 18.0, 18.0, 52.7, 52.7, 52.7, 52.7, 30.0}"/>
         <define name="ACT_IS_SERVO"         value="{   0,    0,    0,    0,    1,    1,    1,    1,    0}"/>
         <define name="ACT_IS_THRUSTER_X"    value="{   0,    0,    0,    0,    0,    0,    0,    0,    1}"/>
 
