@@ -10,6 +10,9 @@
     </section>
 
     <section name="CTRL_EFF_SCHED" prefix="ROTWING_EFF_SCHED_">
+        <define name="RPM_CONTROL"              value="TRUE"/>
+        <define name="RPM_CTRL_HOVER_LIM_COEF"  value="{366.9, 1400.0}"/>
+
         <define name="IXX_BODY"              value="0.04780"/>
         <define name="IYY_BODY"              value="0.7546"/>
         <define name="IZZ"                   value="0.9752"/>
@@ -17,8 +20,8 @@
         <define name="IYY_WING"              value="0.1949"/>
         <define name="M"                     value="6.67"/>
 
-        <define name="DM_DPPRZ_HOVER_PITCH"  value="{1.1938, 0.0015}"/>
-        <define name="DM_DPPRZ_HOVER_ROLL"   value="{1.1938, 0.0018}"/>
+        <define name="DM_DPPRZ_HOVER_PITCH"  value="{0.4, 0.00115}"/>
+        <define name="DM_DPPRZ_HOVER_ROLL"   value="{0.4, 0.00155}"/>
 
         <define name="HOVER_ROLL_PITCH_COEF" value="{0.001418491625685,-0.000649367806611}"/>
         <define name="HOVER_ROLL_ROLL_COEF"  value="{-0.0000839259143513,-0.0000478083}"/>
@@ -131,10 +134,10 @@
 
         <!-- Reference -->
         <define name="REF_ERR_P"                    value="30.0"/>
-        <define name="REF_ERR_Q"                    value="70.0"/>
+        <define name="REF_ERR_Q"                    value="30.0"/>
         <define name="REF_ERR_R"                    value="23.0"/>
         <define name="REF_RATE_P"                   value="7.0"/>
-        <define name="REF_RATE_Q"                   value="9.0"/>
+        <define name="REF_RATE_Q"                   value="7.0"/>
         <define name="REF_RATE_R"                   value="3.9"/>
 
         <define name="MAX_R"                        value="30.0" unit="deg/s"/>
