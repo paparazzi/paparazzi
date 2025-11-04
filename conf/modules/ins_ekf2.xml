@@ -7,6 +7,7 @@
     </description>
     <define name="INS_EKF2_OPTITRACK" value="false" description="Easy configuration of full optitrack (position- and yaw fusion, height, init origin)"/>
     <define name="INS_EKF2_FUSION_MODE" value="(MASK_USE_GPS)" description="The sensor that are used for position fusion"/>
+    <define name="INS_EKF2_MAG_FUSION_MODE" value="MAG_FUSE_TYPE_AUTO" description="Default magnetometer fusion type"/>
     <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_BARO" description="Primary sensor used for vertical distance"/>
     <define name="INS_EKF2_GPS_CHECK_MASK" value="(MASK_GPS_NSATS | MASK_GPS_HACC | MASK_GPS_SACC)" description="GPS checks enabled before initialization of the global positioning"/>
     <define name="INS_EKF2_EVP_NOISE" value="0.1" description="External vision position noise [m]"/>
@@ -49,7 +50,6 @@
       <dl_settings name="ekf2">
         <dl_setting var="ekf2.qnh" min="500" step="0.1" max="1500" shortname="QNH"/>
         <dl_setting var="ekf2.temp" min="-50" step="0.1" max="80" shortname="temperature"/>
-        <dl_setting var="ekf2.mag_fusion_type" min="0" step="1" max="5" shortname="mag_fusion" values="AUTO|HEADING|3D|AUTOFW|INDOOR|NONE" module="modules/ins/ins_ekf2" handler="change_param"/>
         <dl_setting var="ekf2.fusion_mode" min="0" max="1" step="1" shortname="remove_gps_yaw" values="FALSE|TRUE" module="modules/ins/ins_ekf2" handler="remove_gps" type="bool"/>
       </dl_settings>
     </dl_settings>
