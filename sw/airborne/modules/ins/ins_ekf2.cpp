@@ -551,7 +551,7 @@ void ins_ekf2_init(void)
   /* Get the ekf parameters */
   ekf_params = ekf.getParamHandle();
   ekf_params->fusion_mode = INS_EKF2_FUSION_MODE;
-  ekf_params->mag_fusion_type = ekf2.mag_fusion_type = INS_EKF2_MAG_FUSION_TYPE;
+  ekf_params->mag_fusion_type = INS_EKF2_MAG_FUSION_TYPE;
   ekf_params->vdist_sensor_type = INS_EKF2_VDIST_SENSOR_TYPE;
   ekf_params->gps_check_mask = INS_EKF2_GPS_CHECK_MASK;
 

@@ -55,7 +55,6 @@ struct ekf2_t {
   struct LtpDef_i ltp_def;        ///< Latest LTP definition from the quat_reset_counter EKF2
   bool got_imu_data;              ///< If we received valid IMU data (any sensor)
 
-  int32_t mag_fusion_type;
   int32_t fusion_mode;
 };
 
