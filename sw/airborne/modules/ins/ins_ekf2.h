@@ -55,13 +55,11 @@ struct ekf2_t {
   struct LtpDef_i ltp_def;        ///< Latest LTP definition from the quat_reset_counter EKF2
   bool got_imu_data;              ///< If we received valid IMU data (any sensor)
 
-  int32_t mag_fusion_type;
   int32_t fusion_mode;
 };
 
 extern void ins_ekf2_init(void);
 extern void ins_ekf2_update(void);
-extern void ins_ekf2_change_param(int32_t unk);
 extern void ins_ekf2_remove_gps(int32_t mode);
 extern void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf);
 extern void ins_ekf2_parse_EXTERNAL_POSE_SMALL(uint8_t *buf);

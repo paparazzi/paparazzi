@@ -59,6 +59,9 @@
 #ifndef INS_EKF2_FUSION_MODE
 #define INS_EKF2_FUSION_MODE (MASK_USE_EVPOS | MASK_USE_EVVEL | MASK_USE_EVYAW)
 #endif
+#ifndef INS_EKF2_MAG_FUSION_TYPE
+#define INS_EKF2_MAG_FUSION_TYPE MAG_FUSE_TYPE_INDOOR
+#endif
 #ifndef INS_EKF2_VDIST_SENSOR_TYPE
 #define INS_EKF2_VDIST_SENSOR_TYPE VDIST_SENSOR_EV
 #endif
@@ -69,6 +72,12 @@
 #define INS_EKF2_FUSION_MODE (MASK_USE_GPS)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_FUSION_MODE)
+
+/** The EKF2 magnetometer fusion type */
+#ifndef INS_EKF2_MAG_FUSION_TYPE
+#define INS_EKF2_MAG_FUSION_TYPE MAG_FUSE_TYPE_AUTO
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_MAG_FUSION_TYPE)
 
 /** The EKF2 primary vertical distance sensor type */
 #ifndef INS_EKF2_VDIST_SENSOR_TYPE
@@ -394,7 +403,7 @@ static void send_ins_ekf2(struct transport_tx *trans, struct link_device *dev)
   ekf.get_ekf_soln_status(&soln_status);
 
   uint16_t innov_test_status;
-  float mag, vel, pos, hgt, tas, hagl, flow, beta, mag_decl;
+  float mag, vel, pos, hgt, tas, hagl, flow, beta, mag_decl = 0.0f;
   uint8_t terrain_valid, dead_reckoning;
   ekf.get_innovation_test_status(innov_test_status, mag, vel, pos, hgt, tas, hagl, beta);
   //ekf.get_flow_innov(&flow);
@@ -542,6 +551,7 @@ void ins_ekf2_init(void)
   /* Get the ekf parameters */
   ekf_params = ekf.getParamHandle();
   ekf_params->fusion_mode = INS_EKF2_FUSION_MODE;
+  ekf_params->mag_fusion_type = INS_EKF2_MAG_FUSION_TYPE;
   ekf_params->vdist_sensor_type = INS_EKF2_VDIST_SENSOR_TYPE;
   ekf_params->gps_check_mask = INS_EKF2_GPS_CHECK_MASK;
 
@@ -774,11 +784,6 @@ void ins_ekf2_update(void)
 #endif
 
   ekf2.got_imu_data = false;
-}
-
-void ins_ekf2_change_param(int32_t unk)
-{
-  ekf_params->mag_fusion_type = ekf2.mag_fusion_type = unk;
 }
 
 void ins_ekf2_remove_gps(int32_t mode)
