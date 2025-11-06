@@ -16,7 +16,7 @@ try:
 
     from pprzlink.message import PprzMessage
     from pprz_connect import PprzConnect, PprzConfig
-    import calibration_utils
+
 
     class MagViewer(QtWidgets.QWidget):
 
@@ -169,6 +169,7 @@ try:
                 self.gl_widget.setCameraPosition(distance=self.mean_norm*5)
         
         def calibrate(self):
+            import calibration_utils
             calib_text = ""
             try:
                 p0 = calibration_utils.get_min_max_guess(self.mag_data, 1.)
