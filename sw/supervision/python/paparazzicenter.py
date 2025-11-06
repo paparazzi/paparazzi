@@ -69,7 +69,7 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.resize(window_size)
         self.configuration_panel.init()
         self.operation_panel.session.init()
-        self.header.update_sets()
+        QtCore.QTimer.singleShot(100, self.header.update_sets)
 
     def programs_state_changed(self, state: TabProgramsState, tab_index):
         self.tabwidget.setTabIcon(tab_index, TAB_ICONS[state])
