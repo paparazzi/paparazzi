@@ -36,7 +36,7 @@ def get_ids_in_log(filename):
     """Returns available ac_id from a log."""
     f = open(filename, 'r')
     ids = []
-    pattern = re.compile("\S+ (\S+)")
+    pattern = re.compile(r"\S+ (\S+)")
     while True:
         line = f.readline().strip()
         if line == '':
@@ -52,9 +52,9 @@ def get_sensor_ids(ac_id, filename, sensor):
     f = open(filename, 'r')
     ids = []
     if sensor == 'MAG':
-        pattern = re.compile("\S+ "+ac_id+" IMU_"+sensor+"_RAW (\S+) \S+ \S+ \S+")
+        pattern = re.compile(r"\S+ "+ac_id+" IMU_"+sensor+r"_RAW (\S+) \S+ \S+ \S+")
     else:
-        pattern = re.compile("\S+ "+ac_id+" IMU_"+sensor+"_RAW (\S+) \S+ \S+ \S+ \S+")
+        pattern = re.compile(r"\S+ "+ac_id+" IMU_"+sensor+r"_RAW (\S+) \S+ \S+ \S+ \S+")
     while True:
         line = f.readline().strip()
         if line == '':
@@ -70,9 +70,9 @@ def read_log(ac_id, filename, sensor, sensor_id):
     """Extracts raw sensor measurements from a log."""
     f = open(filename, 'r')
     if sensor == 'MAG':
-        pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+" (\S+) (\S+) (\S+)")
+        pattern = re.compile(r"(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+r" (\S+) (\S+) (\S+)")
     else:
-        pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+" \S+ (\S+) (\S+) (\S+)")
+        pattern = re.compile(r"(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+r" \S+ (\S+) (\S+) (\S+)")
     list_meas = []
     while True:
         line = f.readline().strip()
@@ -87,7 +87,7 @@ def read_log(ac_id, filename, sensor, sensor_id):
 def read_log_scaled(ac_id, filename, sensor, sensor_id, t_start, t_end):
     """Extracts scaled sensor measurements from a log."""
     f = open(filename, 'r')
-    pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_SCALED "+sensor_id+" (\S+) (\S+) (\S+)")
+    pattern = re.compile(r"(\S+) "+ac_id+" IMU_"+sensor+"_SCALED "+sensor_id+r" (\S+) (\S+) (\S+)")
     list_meas = []
     while True:
         line = f.readline().strip()
@@ -103,7 +103,7 @@ def read_log_scaled(ac_id, filename, sensor, sensor_id, t_start, t_end):
 def read_log_mag_current(ac_id, filename):
     """Extracts raw magnetometer and current measurements from a log."""
     f = open(filename, 'r')
-    pattern = re.compile("(\S+) "+ac_id+" IMU_MAG_CURRENT_CALIBRATION (\S+) (\S+) (\S+) (\S+)")
+    pattern = re.compile(r"(\S+) "+ac_id+r" IMU_MAG_CURRENT_CALIBRATION (\S+) (\S+) (\S+) (\S+)")
     list_meas = []
     while True:
         line = f.readline().strip()
@@ -395,8 +395,8 @@ def read_turntable_log(ac_id, tt_id, filename, _min, _max):
     return an array which first column is turnatble and next 3 are gyro
     """
     f = open(filename, 'r')
-    pattern_g = re.compile("(\S+) "+str(ac_id)+" IMU_GYRO_RAW (\S+) (\S+) (\S+)")
-    pattern_t = re.compile("(\S+) "+str(tt_id)+" IMU_TURNTABLE (\S+)")
+    pattern_g = re.compile(r"(\S+) "+str(ac_id)+r" IMU_GYRO_RAW (\S+) (\S+) (\S+)")
+    pattern_t = re.compile(r"(\S+) "+str(tt_id)+r" IMU_TURNTABLE (\S+)")
     last_tt = None
     list_tt = []
     while True:
