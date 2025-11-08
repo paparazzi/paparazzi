@@ -386,19 +386,6 @@ static inline void mt9v117_config(struct mt9v117_t *mt)
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YEND_OFFSET, 47, 2);
 }
 
-
-
-
-
-void filter_laser(float dst)
-{
-  // No filtering on bebop
-}
-
-
-
-
-
 /**
  * Initialisation of the Aptina MT9V117 CMOS sensor
  * (1/6 inch VGA, bottom camera)
