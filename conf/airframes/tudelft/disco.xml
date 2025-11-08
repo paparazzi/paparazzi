@@ -71,6 +71,8 @@ ffmpeg -f concat -safe 0 -i images.txt -c:v libx264 -crf 18 -profile:v baseline 
 
     <module name="bebop_cam">
       <define name="MT9V117_TARGET_FPS" value="4" />
+      <define name="MT9V117_CROP_WIDTH" value="320" />
+      <define name="MT9V117_CROP_HEIGHT" value="240" />
     </module>
 
     <module name="video_exif"/>
