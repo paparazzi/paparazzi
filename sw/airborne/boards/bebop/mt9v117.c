@@ -44,21 +44,34 @@
 #endif
 
 
+#ifndef MS9v117_CROP_WIDTH
+#define MS9v117_CROP_WIDTH 240
+#endif
+
+#ifndef MS9v117_CROP_HEIGHT
+#define MS9v117_CROP_HEIGHT 240
+#endif
+
+#if MS9v117_CROP_WIDTH > 320 || MS9v117_CROP_HEIGHT > 240
+#error "MT9V117 crop size too large: set up the sensor for higher resolution"
+#endif
+
+
 /* Camera structure */
 struct video_config_t bottom_camera = {
   .output_size = {
-    .w = 240,
-    .h = 240
+    .w = MS9v117_CROP_WIDTH,
+    .h = MS9v117_CROP_HEIGHT
   },
   .sensor_size = {
     .w = 320,
     .h = 240,
   },
   .crop = {
-    .x = 40,
+    .x = ((320 - MS9v117_CROP_WIDTH) / 2),
     .y = 0,
-    .w = 240,
-    .h = 240
+    .w = MS9v117_CROP_WIDTH,
+    .h = MS9v117_CROP_HEIGHT
   },
   .dev_name = "/dev/video0",
   .subdev_name = "/dev/v4l-subdev0",
@@ -372,6 +385,19 @@ static inline void mt9v117_config(struct mt9v117_t *mt)
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_XEND_OFFSET, 63, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YEND_OFFSET, 47, 2);
 }
+
+
+
+
+
+void filter_laser(float dst)
+{
+  // No filtering on bebop
+}
+
+
+
+
 
 /**
  * Initialisation of the Aptina MT9V117 CMOS sensor
