@@ -6,6 +6,24 @@
 
 <airframe name="Disco">
 
+  <description>
+    Parrot Disco Photogrammeyty (with bottom camera recoring)
+    
+    Checklist:
+    - tune your servo deflections per airframe (symmetric)
+    - calibrate your magnetometer for the given battery
+    - remove previous images before flight
+    - trigger snapping images manually or in the flightplan
+    - use Open Drone Map / ODMWeb (or similar)
+    - make a movie with
+
+<!--
+ls *.jpg | xargs -I {} echo "file '{}'" > images.txt
+ffmpeg -f concat -safe 0 -i images.txt -c:v libx264 -crf 18 -profile:v baseline -level 3.0 -pix_fmt yuv420p -movflags faststart ./flight.mp4
+-->
+
+  </description>
+
   <firmware name="fixedwing">
     <configure name="USE_MAGNETOMETER" value="TRUE"/>
     <define name="USE_BAROMETER" value="TRUE"/>
@@ -45,10 +63,25 @@
     <module name="actuators" type="disco"/>
     <module name="control" type="new"/>
     <module name="navigation"/>
+    <module name="geo_mag"/>
     <module name="sonar_bebop">
       <define name="USE_SONAR"/>
       <define name="SENSOR_SYNC_SEND_SONAR"/>
     </module>
+
+    <module name="bebop_cam">
+      <define name="MT9V117_TARGET_FPS" value="4" />
+    </module>
+
+    <module name="video_exif"/>
+
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
+      <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images/"/>
+      <define name="VIDEO_CAPTURE_FPS" value="4" />
+    </module>
+
+
   </firmware>
 
   <servos>
