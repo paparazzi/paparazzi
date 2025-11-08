@@ -656,11 +656,11 @@ Safety
 
   <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.30" unit="%/(m/s)"/>
   <!-- Climb loop (throttle) -->
-  <define name="AUTO_THROTTLE_PGAIN" value="0.01" unit="%/(m/s)"/>
+  <define name="AUTO_THROTTLE_PGAIN" value="0.005" unit="%/(m/s)"/>
   <define name="AUTO_THROTTLE_IGAIN" value="0.001"/>
   <define name="AUTO_THROTTLE_DGAIN" value="0.001"/>
-  <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.01" unit="rad/(m/s)"/>
-  <define name="AUTO_THROTTLE_NOMINAL_CRUISE_PITCH" value="0." unit="rad"/> <!-- default 0 -->
+  <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.03" unit="rad/(m/s)"/>
+  <define name="AUTO_THROTTLE_NOMINAL_CRUISE_PITCH" value="0.25" unit="rad"/> <!-- default 0 -->
 
   <define name="THROTTLE_SLEW_LIMITER" value="0.8" unit="m/s/s"/>  <!-- Limiter for e.g. a powerful motor -->
 
@@ -810,10 +810,10 @@ Safety
     <define name="NAV_GLIDE_PITCH_TRIM" value="-2.0" unit="deg"/>
 
     <define name="KILL_MODE_DISTANCE" value="MAX_DIST_FROM_HOME*1.3+HOME_RADIUS" unit="m"/>
-    <define name="DEFAULT_CIRCLE_RADIUS" value="60.0" unit="m"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="100.0" unit="m"/>
     <define name="HOME_RADIUS" value="DEFAULT_CIRCLE_RADIUS" unit="m"/>
-    <define name="LANDING_CIRCLE_RADIUS" value="55.0" unit="m"/>
-    <define name="MIN_CIRCLE_RADIUS" value="45.0" unit="m"/>
+    <define name="LANDING_CIRCLE_RADIUS" value="75.0" unit="m"/>
+    <define name="MIN_CIRCLE_RADIUS" value="60.0" unit="m"/>
 
     <define name="CARROT" value="5.0" unit="s"/>
 
