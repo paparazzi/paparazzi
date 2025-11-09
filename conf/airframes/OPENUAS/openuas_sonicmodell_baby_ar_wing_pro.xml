@@ -147,7 +147,6 @@ Safety
       <!-- We are using aspirin 2.2, so we set the following barometer configuration: -->
       <configure name="LISA_M_BARO" value="BARO_MS5611_SPI"/>
       <configure name="USE_BARO_BOARD" value="TRUE"/><!-- already true per default -->
-      <!-- <configure name="USE_BARO_MEDIAN_FILTER" value="TRUE"/> -->
       <define name="USE_BARO_MEDIAN_FILTER" value="TRUE"/>
 
       <!-- <configure name="USE_MAGNETOMETER" value="TRUE"/> -->
@@ -171,20 +170,13 @@ Safety
       <module name="imu" type="aspirin_v2.1">
         <define name="ASPIRIN_2_DISABLE_MAG" value="TRUE"/>
         <define name="LISA_M_LONGITUDINAL_X" value="TRUE"/>
-        <!-- <define name="IMU_MPU_CHAN_X" value="1"/>
-        <define name="IMU_MPU_CHAN_Y" value="0"/>
-        <define name="IMU_MPU_CHAN_Z" value="2"/>
-        <define name="IMU_MPU_X_SIGN" value="+1"/>
-        <define name="IMU_MPU_Y_SIGN" value="-1"/>
-        <define name="IMU_MPU_Z_SIGN" value="=1"/>
-        <define name="ASPIRIN_2_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000"/>
+        <!-- <define name="ASPIRIN_2_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000"/>
         <define name="ASPIRIN_2_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G"/>
         <define name="ASPIRIN_2_LOWPASS_FILTER" value="MPU60X0_DLPF_42HZ"/>
         <define name="ASPIRIN_2_SMPLRT_DIV" value="0"/>
         <define name="ASPIRIN_2_ACCEL_LOWPASS_FILTER" value="MPU60X0_DLPF_ACC_44HZ"/> -->
       </module>
 
-      <!-- should have been in default board, but is not? -->
       <module name="baro_ms5611_spi">
         <!-- <configure name="BARO_PERIODIC_FREQUENCY" value="10"/> -->
         <configure name="MS5611_SPI_DEV" value="spi1"/>
@@ -221,6 +213,7 @@ Safety
         <define name="MODULE_QMC5883L_SYNC_SEND" value="TRUE"/>
       </module> -->
 
+     <!-- Optional remote magnetometer in the wing tip --> 
      <!-- MEDIAN_FILTER Enabled to avoid sporadic spikes in output--> 
       <!-- <module name="mag" type="rm3100">
         <configure name="MAG_RM3100_I2C_DEV" value="i2c2"/>
@@ -264,8 +257,7 @@ Safety
 
       <module name="sys_mon"/>
 
-      <!-- An simple SD reader converter SD card slot connected over SPI bus to the MCU -->
-      <!-- For testflights this might come in handy to analyze flight data, when needed , enable it -->
+      <!-- Simple SD reader converter SD card slot connected over SPI bus to the MCU -->
       <!-- <module name="tlsf"/>
       <module name="pprzlog"/>
       <module name="logger" type="sd_chibios">
@@ -401,7 +393,6 @@ Safety
 
     <module name="photogrammetry_calculator"/>
 
-    <!-- Can be handy to be used in flightplan during landing or terrain hugging flights -->
     <!-- <module name="agl_dist">
       <define name="AGL_DIST_ID" value="AGL_RANGER_VB50A_ID"/>
       <define name="AGL_DIST_MAX_RANGE" value="30.0"/>
@@ -417,7 +408,6 @@ Safety
   </firmware>
 
   <servos driver="Pwm">
-    <!-- Define here to which CONNECTOR NUMBER the servo is connected to, on the autopilot circuit board -->
     <servo name="S_THROTTLE"       no="0" min="1074" neutral="1088" max="1900"/>
     <servo name="S_ELEVON_LEFT"    no="1" min="1900" neutral="1580" max="1100"/>
     <servo name="S_ELEVON_RIGHT"   no="2" min="1100" neutral="1420" max="1900"/>
@@ -433,7 +423,7 @@ Safety
   </rc_commands>
 
   <auto_rc_commands>
-    <set command="YAW" value="@YAW*0.8"/>  <!-- TODO: Disable later -->
+    <set command="YAW" value="@YAW*0.8"/>  <!-- Manual override -->
   </auto_rc_commands>
 
   <commands>    
@@ -445,7 +435,7 @@ Safety
   </commands>
 
   <section name="ServoPositions">
-    <!--  Just name a few, these definitions terms can be used in e.g. flightplan -->
+    <!--  Definitions terms for e.g. flightplan -->
     <define name="LANDINGGEAR_EXTEND" value="MIN_PPRZ"/>
     <define name="LANDINGGEAR_RETRACT" value="MAX_PPRZ"/>
     <define name="FLAP_FULL" value="MIN_PPRZ"/>
@@ -457,10 +447,6 @@ Safety
     <define name="SERVO_BRAKE_FULL" value="MIN_PPRZ"/>
     <define name="SERVO_HATCH_OPEN" value="0"/>
     <define name="SERVO_HATCH_CLOSED" value="MIN_PPRZ"/>
-    <!-- <define name="AirbrakesOff()" value="(commands[COMMAND_BRAKE]=0)"/> -->
-    <!-- <define name="AirbrakesOn()" value="(commands[COMMAND_BRAKE]=SERVO_BRAKE_FULL)"/> -->
-    <!-- <define name="Fly()" value="(commands[COMMAND_FORCECRASH]=0)"/> -->
-    <!-- <define name="ForceCrash()" value="(commands[COMMAND_FORCECRASH]=9600)" /> -->
     <define name="ThrottleHigh()" value="(commands[COMMAND_THROTTLE]>MAX_PPRZ/2)"/>
     <define name="SPOILERON_BRAKE_FULL" value="MIN_PPRZ"/>
     <define name="FLAPERON_BRAKE_FULL" value="MAX_PPRZ"/>
@@ -484,11 +470,8 @@ Safety
     <set servo="S_ELEVON_LEFT"  value="$elevator - $aileron + $rudderleft"/>
     <set servo="S_ELEVON_RIGHT" value="$elevator + $aileron + $rudderright "/>
     <set servo="S_LIGHT" value="((autopilot.mode == AP_MODE_AUTO2) ? MAX_PPRZ : @ACTIVELIGHTS)"/>
-    <!-- <set servo="S_LIGHT" value="@ACTIVELIGHTS"/> -->
   </command_laws>
 
-  <!-- Do not set MAX_ROLL, MAX_PITCH to small of a value, otherwise one can NOT control the plane very well manually -->
-  <!-- If you have dual rate swith it of with same switch as mode switch thus auto1 means dualrate is switched off also -->
   <section name="AUTO1" prefix="AUTO1_">
     <define name="MAX_ROLL" value="0.8726646"/> <!-- in rad is ~50 deg More authority while testflying for first time -->
     <define name="MAX_PITCH" value="0.8726646"/> <!-- in rad is ~50 deg More authority while testflying for first time -->
@@ -511,14 +494,6 @@ Safety
   </section>
 
   <section name="IMU" prefix="IMU_">
-    <!-- Accelero -->
-    <!-- <define name="ACCEL_X_NEUTRAL" value="0"/>
-    <define name="ACCEL_Y_NEUTRAL" value="0"/>
-    <define name="ACCEL_Z_NEUTRAL" value="0"/>
-    <define name="ACCEL_X_SENS" value="7.5" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="7.5" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="7.5" integer="16"/> -->
-
     <!-- External IST8310 TODO: Calibrate -->
     <!-- External QMC5338L TODO: Calibrate -->
     <!-- External RM3100 TODO: Calibrate -->
@@ -527,12 +502,6 @@ Safety
     <define name="MAG_X_NEUTRAL" value="0"/>
     <define name="MAG_Y_NEUTRAL" value="0"/>
     <define name="MAG_Z_NEUTRAL" value="0"/>
-     
-    <!-- <define name="MAG_X_SENS" value="0.1" integer="16"/>
-    <define name="MAG_Y_SENS" value="0.1" integer="16"/>
-    <define name="MAG_Z_SENS" value="0.1" integer="16"/>  -->
-
-    <!--define name="MAG_OFFSET" value="-1.0" unit="deg"--> <!--  TODO: at least 3 axis in worst case -->
 
     <!-- IMU adust if needed -->
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
@@ -540,7 +509,6 @@ Safety
     <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
   </section>
 
-  <!-- TODO: not set yet -->
   <!-- For e.g. Rotation between sensor frame and IMU frame (phi angle) -->
   <section name="MAG_QMC" prefix="QMC5883L_">
     <define name="MAG_TO_IMU_PHI" value="0.0"/>
@@ -548,12 +516,11 @@ Safety
     <define name="MAG_TO_IMU_PSI" value="0.0"/>
   </section>
 
-  <!-- TODO: not set yet -->
-  <!-- <section name="MAG_RM3100" prefix="RM3100_">
+  <section name="MAG_RM3100" prefix="RM3100_">
     <define name="MAG_TO_IMU_PHI" value="0.0"/>
     <define name="MAG_TO_IMU_THETA" value="0.0"/>
     <define name="MAG_TO_IMU_PSI" value="0.0"/>
-  </section> -->
+  </section>
 
   <section name="AHRS" prefix="AHRS_">
     <!-- Local Magnetic field DE2025 >
@@ -630,7 +597,7 @@ Safety
   <define name="ROLL_KFFD" value="10"/>
 
   <!--<define name="PITCH_OF_ROLL" value="4." unit="deg"/>-->
-  <define name="AILERON_OF_THROTTLE" value="0.0"/><!-- TODO: in case of some pusher prop over control flap -->
+  <define name="AILERON_OF_THROTTLE" value="0.0"/>
 </section>
 
 <!--  We have value of Classic as well as ETECS, this since airframe is first flown "Classic" the ETECS, make tunng a bit easier
@@ -862,14 +829,12 @@ Safety
 
     <define name="PIXELS_WIDTH" value="320"/><!-- can be cropped to 240-->
 
-    <!-- Photogrammetry Parameters. Can also be defined in a flightplan instead
+    <!-- Photogrammetry Parameters. -->
     <define name="OVERLAP" value="0.3" unit="%"/>
     <define name="SIDELAP" value="0.2" unit="%"/>
     <define name="RESOLUTION" value="50" unit="mm pixel projection"/>
-    -->
 
-    <!-- Flight bounds Parameters when photoscanning
-    depents on your missions goals or restriction rules at eg competitions -->
+    <!-- Flight bounds Parameters when photoscanning -->
     <define name="HEIGHT_MIN" value="25." unit="m"/>
     <define name="HEIGHT_MAX" value="120." unit="m"/>
     <define name="RADIUS_MIN" value="70." unit="m"/>
