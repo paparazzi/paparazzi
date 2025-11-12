@@ -1,5 +1,16 @@
 <conf>
   <aircraft
+   name="Ziggy"
+   ac_id="121"
+   airframe="airframes/OPENUAS/openuas_zohd_talon_nano.xml"
+   radio="radios/OPENUAS/openuas_openrxsr_sbus_16_out.xml"
+   telemetry="telemetry/OPENUAS/openuas_fixedwing_imu_rc.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/fixedwing_basic.xml [settings/estimation/ac_char.xml] [settings/control/ctl_energy.xml] [settings/control/tune_agr_climb.xml] [settings/control/ctl_energyadaptive.xml] settings/control/ctl_new.xml"
+   settings_modules="modules/ahrs_float_cmpl_quat.xml modules/air_data.xml modules/electrical.xml modules/geo_mag.xml modules/gps.xml modules/gps_ublox.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/photogrammetry_calculator.xml modules/stabilization_adaptive_fw.xml"
+   gui_color="yellow"
+  />
+  <aircraft
    name="Seal_EVO"
    ac_id="136"
    airframe="airframes/OPENUAS/openuas_atomrc_seal_evo.xml"
