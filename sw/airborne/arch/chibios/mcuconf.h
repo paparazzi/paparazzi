@@ -22,7 +22,7 @@
 #ifndef CHIBIOS_MCUCONF_H
 #define CHIBIOS_MCUCONF_H
 
-#include "board.h"
+#include BOARD_CONFIG
 
 #if defined(MCUCONF_H7)
 #include "mcuconf_h7.h"
