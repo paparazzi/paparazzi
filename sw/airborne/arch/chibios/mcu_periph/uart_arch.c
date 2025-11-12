@@ -1143,7 +1143,7 @@ void uart_put_buffer(struct uart_periph *p, long fd, const uint8_t *data, uint16
     if (space <= 0) {
       space += UART_TX_BUFFER_SIZE;
     }
-    if ((uint16_t)(space - 1) < len) {
+    if ((uint16_t)(space) < len+1) {
       chMtxUnlock(init_struct->tx_mtx);
       return;  // no room
     }
