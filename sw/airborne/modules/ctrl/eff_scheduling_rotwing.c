@@ -346,21 +346,24 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
   float roll_motor_p_eff_left = (dM_dpprz_left * eff_sched_var.cosr) / eff_sched_var.Ixx;
   roll_motor_p_eff_left = bound_or_zero(roll_motor_p_eff_left, 0.00001f, 1.f);
 
+  float pitch_motor_q_eff_front = dM_dpprz[0] / eff_sched_var.Iyy;
+  float pitch_motor_q_eff_back  = -dM_dpprz[2] / eff_sched_var.Iyy;
+
   float roll_motor_q_eff_right = (dM_dpprz_right * eff_sched_var.sinr) / eff_sched_var.Iyy;
-  roll_motor_q_eff_right = bound_or_zero(roll_motor_q_eff_right, 0.00001f, 1.f);
+  roll_motor_q_eff_right = bound_or_zero(roll_motor_q_eff_right, 0.00001f, pitch_motor_q_eff_front);
   
   float roll_motor_q_eff_left = -(dM_dpprz_left * eff_sched_var.sinr) / eff_sched_var.Iyy;
-  roll_motor_q_eff_left = bound_or_zero(roll_motor_q_eff_left, -1.f, -0.00001f);
+  roll_motor_q_eff_left = bound_or_zero(roll_motor_q_eff_left, pitch_motor_q_eff_back, -0.00001f);
 
   // pitch motor has roll effectiveness due to z offset from c.g. and tilt (FIX HARDCODED VALUE BEFORE PR)
   static const float roll_eff_pitch_motor_scaling = 0.09 / 0.375 * sinf(RadOfDeg(10.0)); 
 
   // Update front pitch motor p and q effectiveness
-  g1g2[1][0] = dM_dpprz[0] / eff_sched_var.Iyy;   // pitch effectiveness front motor
+  g1g2[1][0] = pitch_motor_q_eff_front;   // pitch effectiveness front motor
   g1g2[0][0] = dM_dpprz[0] * roll_eff_pitch_motor_scaling / eff_sched_var.Ixx;   // Roll effectiveness front motor
 
   // Update back motor p and q effectiveness
-  g1g2[1][2] = -dM_dpprz[2] / eff_sched_var.Iyy;  // pitch effectiveness back motor
+  g1g2[1][2] = pitch_motor_q_eff_back;  // pitch effectiveness back motor
   g1g2[0][2] = -dM_dpprz[2] * roll_eff_pitch_motor_scaling / eff_sched_var.Ixx;  // Roll effectiveness back motor
 
   // Update right motor p and q effectiveness
