@@ -131,7 +131,7 @@
         <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="8191"/>
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="8191"/>
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="8191"/>
-        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="1000" max="7372"/>
+        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="1000" max="8191"/>
         <servo no="5"  name="ROTATION_MECH"   min="-1671" neutral="188"  max="2048"/>
     </servos>
 
@@ -308,7 +308,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="763"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -317,7 +317,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="763"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -326,7 +326,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="763"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -335,7 +335,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="763"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -344,7 +344,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="2000"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="3200"/>
+                <field name="high_feedback" value="2800"/>
                 <field name="timeout" value="3"/>
             </field>
         </define>
