@@ -154,7 +154,8 @@ struct rotwing_eff_sched_param_t eff_sched_p = {
   .k_lift_wing              = ROTWING_EFF_SCHED_K_LIFT_WING,
   .k_lift_fuselage          = ROTWING_EFF_SCHED_K_LIFT_FUSELAGE,
   .k_lift_tail              = ROTWING_EFF_SCHED_K_LIFT_TAIL,
-  .hover_rpm_lim_coef       = ROTWING_EFF_SCHED_RPM_CTRL_HOVER_LIM_COEF
+  .hover_rpm_lim_coef       = ROTWING_EFF_SCHED_RPM_CTRL_HOVER_LIM_COEF,
+  .pusher_rpm_lim_coef      = ROTWING_EFF_SCHED_RPM_CTRL_PUSH_LIM_COEF
 };
 
 int32_t rw_flap_offset = 0;
@@ -497,9 +498,8 @@ void stabilization_indi_set_wls_settings(void)
       wls_stab_p.u_min[i] = actuators_pprz[i] - max_increment;
       wls_stab_p.u_max[i] = actuators_pprz[i] + max_increment;
 
-      // TODO: IMPLEMENT VOLTAGE BASED LIMIT FOR PUSHER WITH RPM CONTROL
-      if (ROTWING_EFF_SCHED_RPM_CONTROL) {
-        wls_stab_p.u_max[i] = MAX_PPRZ;
+      if (ROTWING_EFF_SCHED_RPM_CONTROL) { // With RPM control we need to limit the max command to the hover motors based on the battery voltage
+        wls_stab_p.u_max[i] = electrical.vsupply * eff_sched_p.pusher_rpm_lim_coef[0] + eff_sched_p.pusher_rpm_lim_coef[1];
       } 
     }
 

@@ -12,6 +12,7 @@
     <section name="CTRL_EFF_SCHED" prefix="ROTWING_EFF_SCHED_">
         <define name="RPM_CONTROL"              value="TRUE"/>
         <define name="RPM_CTRL_HOVER_LIM_COEF"  value="{366.9, 1400.0}"/>
+        <define name="RPM_CTRL_PUSH_LIM_COEF"  value="{327.1, 1800.0}"/>
 
         <define name="IXX_BODY"              value="0.04780"/>
         <define name="IYY_BODY"              value="0.7546"/>
