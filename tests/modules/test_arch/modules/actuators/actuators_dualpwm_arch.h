@@ -28,7 +28,7 @@
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define ActuatorDualpwmSet(_i, _v) {}
+#define ActuatorDualpwmSet NULL
 #define ActuatorsDualPwmCommit() {}
 
 extern void actuators_dualpwm_arch_init(void);

@@ -89,8 +89,6 @@ PRINT_CONFIG_VAR(SERVO_HZ)
 #define PWM_CMD_TO_US(_t) (PWM_FREQUENCY * _t / 1000000)
 #endif
 
-int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
-
 /**
  * PWM callback function
  *
@@ -374,7 +372,7 @@ void actuators_pwm_arch_init(void)
 }
 
 
-void actuators_pwm_commit(void)
+void actuators_pwm_arch_commit(void)
 {
 #ifdef PWM_SERVO_0
   pwmEnableChannel(&PWM_SERVO_0_DRIVER, PWM_SERVO_0_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_0]));
@@ -428,3 +426,4 @@ void actuators_pwm_commit(void)
   pwmEnableChannel(&PWM_SERVO_16_DRIVER, PWM_SERVO_16_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_16]));
 #endif
 }
+

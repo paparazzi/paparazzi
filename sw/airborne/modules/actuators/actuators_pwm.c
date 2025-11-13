@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2025 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi
  *
@@ -19,18 +19,19 @@
  */
 
 /**
- * @file "modules/actuators/actuators_dshot_arch.h"
+ * @file "modules/actuators/actuators_pwm.c"
  * @author Gautier Hattenberger
- * Driver for DSHOT speed controller protocol
- * Arch dependent part
  */
 
-#ifndef ACTUATORS_DSHOT_H
-#define ACTUATORS_DSHOT_H
+#include "modules/actuators/actuators_pwm.h"
 
-#include "std.h"
-#include <hal.h>
+int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
-#include BOARD_CONFIG
+void actuators_pwm_set(uint8_t idx, int16_t value)
+{
+  if (idx < ACTUATORS_PWM_NB) {
+    actuators_pwm_values[idx] = value;
+  }
+}
 
-#endif /* ACTUATORS_DSHOT_ARCH_H */
+

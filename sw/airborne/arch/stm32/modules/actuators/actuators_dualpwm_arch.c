@@ -167,6 +167,10 @@ void dual_pwm_isr(void)
   }
 }
 
+void actuators_dualpwm_set(uint8_t idx, int16_t value)
+{
+  actuators_dualpwm_values[idx] = value;
+}
 
 /** Set pulse widths from actuator values, assumed to be in us
  */

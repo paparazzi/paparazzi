@@ -35,8 +35,9 @@
 extern int32_t actuators_t4_values[ACTUATORS_T4_NB];
 
 extern void actuators_t4_commit(void);
+extern void actuators_t4_set(uint8_t idx, int16_t value);
 
-#define ActuatorT4Set(_i, _v) { actuators_t4_values[_i] = _v; }
+#define ActuatorT4Set actuators_t4_set
 #define ActuatorsT4Commit  actuators_t4_commit
 
 #endif /* ACTUATORS_T4_ARCH_H */

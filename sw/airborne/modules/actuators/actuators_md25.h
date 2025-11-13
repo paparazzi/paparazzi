@@ -48,10 +48,11 @@ extern struct ActuatorsMD25 actuators_md25;
 extern void actuators_md25_init(void);
 extern void actuators_md25_periodic(void);
 extern void actuators_md25_event(void);
-extern void actuators_md25_set(void);
+extern void actuators_md25_commit(void);
+extern void actuators_md25_set(uint8_t idx, int16_t value);
 
 /* Actuator macros */
-#define ActuatorMD25Set(_i, _v) { actuators_md25.cmds[_i] = _v; }
+#define ActuatorMD25Set actuators_md25_set
 #define ActuatorsMD25Init() actuators_md25_init()
 #define ActuatorsMD25Commit() actuators_md25_set()
 

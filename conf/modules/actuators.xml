@@ -16,7 +16,11 @@
   <makefile>
     <define name="ACTUATORS"/>
     <file name="actuators.c"/>
-    <test/>
+    <test>
+      <define name="ACTUATORS_NB"/>
+      <define name="ACTUATORS_CONFIG" value="{0}"/>
+      <define name="USE_SHELL"/>
+    </test>
   </makefile>
 </module>
 

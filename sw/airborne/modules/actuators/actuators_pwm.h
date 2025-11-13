@@ -22,13 +22,32 @@
 #ifndef ACTUATORS_PWM_H
 #define ACTUATORS_PWM_H
 
+#include "std.h"
 #include "modules/actuators/actuators_pwm_arch.h"
 
-/** Arch dependent init file.
+#ifndef ACTUATORS_PWM_NB
+#define ACTUATORS_PWM_NB 8
+#endif
+
+extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
+
+/** Arch dependent init function.
  * implemented in arch files
  */
 extern void actuators_pwm_arch_init(void);
 
-#define ActuatorsPwmInit() actuators_pwm_arch_init()
+/** Arch dependent commit function.
+ */
+extern void actuators_pwm_arch_commit(void);
+
+/** Set actuator value in array
+ */
+extern void actuators_pwm_set(uint8_t idx, int16_t value);
+
+/** Compatibility macros
+ */
+#define ActuatorPwmSet actuators_pwm_set
+#define ActuatorsPwmInit actuators_pwm_arch_init
+#define ActuatorsPwmCommit actuators_pwm_arch_commit
 
 #endif /* ACTUATORS_PWM_H */

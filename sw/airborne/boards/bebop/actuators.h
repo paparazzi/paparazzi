@@ -52,12 +52,13 @@ struct ActuatorsBebop {
   uint8_t led;                        ///< Current led status
 };
 
-#define ActuatorsBebopSet(_i, _v) { actuators_bebop.rpm_ref[_i] = _v; }
+#define ActuatorsBebopSet actuators_bebop_set
 #define ActuatorsBebopCommit() actuators_bebop_commit();
 #define ActuatorsBebopInit() actuators_bebop_init();
 
 extern struct ActuatorsBebop actuators_bebop;
 extern void actuators_bebop_commit(void);
 extern void actuators_bebop_init(void);
+extern void actuators_bebop_set(uint8_t idx, int16_t val);
 
 #endif /* ACTUATORS_BEBOP_RAW_H_ */

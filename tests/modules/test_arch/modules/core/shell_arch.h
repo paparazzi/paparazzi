@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2012 Gautier Hattenberger
+ * Copyright (C) Alexandre Bustico <alexandre.bustico@enac.fr>
  *
- * This file is part of paparazzi.
+ * This file is part of paparazzi
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,21 +14,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SERVOS_4017_HW_H
-#define SERVOS_4017_HW_H
+/** @file "modules/core/shell_arch.h"
+ * Dummy test file
+ */
 
-#define SERVOS_TICS_OF_USEC(_v) (_v)
+#ifndef SHELL_ARCH_H
+#define SHELL_ARCH_H
 
-#define Actuator4017Set NULL
-#define Actuators4017Init() {}
-#define Actuators4017Commit() {}
+typedef void shell_stream_t;
+extern void shell_init_arch(void);
 
-#endif
+extern void chprintf(shell_stream_t *lchp, const char *fmt, ...) ;
 
-
+#endif  // SHELL_ARCH_H

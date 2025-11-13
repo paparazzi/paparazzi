@@ -105,7 +105,7 @@ void actuators_md25_periodic(void)
   }
 }
 
-void actuators_md25_set(void)
+void actuators_md25_commit(void)
 {
   if (actuators_md25.initialized && actuators_md25.trans_cmd.status == I2CTransDone) {
     actuators_md25.trans_cmd.buf[0] = MD25_REG_SPEED1;
@@ -113,6 +113,11 @@ void actuators_md25_set(void)
     actuators_md25.trans_cmd.buf[2] = actuators_md25.cmds[1];
     i2c_transmit(&(ACTUATORS_MD25_DEV), &actuators_md25.trans_cmd, ACTUATORS_MD25_I2C_ADDR, 3);
   }
+}
+
+void actuators_md25_set(uint8_t idx, int16_t value)
+{
+  actuators_md25.cmds[idx] = value;
 }
 
 #define Int32FromBuf(_buf,_idx) ((int32_t)(((uint32_t)_buf[_idx]<<24) | ((uint32_t)_buf[_idx+1]<<16) | ((uint32_t)_buf[_idx+2]<<8) | _buf[_idx+3]))

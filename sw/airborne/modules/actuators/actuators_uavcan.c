@@ -59,15 +59,35 @@ struct actuators_uavcan_telem_t {
 /* The transmitted actuator values */
 #ifdef SERVOS_UAVCAN1_NB
 int16_t actuators_uavcan1_values[SERVOS_UAVCAN1_NB];
+
+void actuators_uavcan1_set(uint8_t idx, int16_t value)
+{
+  actuators_uavcan1_values[idx] = value;
+}
 #endif
 #ifdef SERVOS_UAVCAN2_NB
 int16_t actuators_uavcan2_values[SERVOS_UAVCAN2_NB];
+
+void actuators_uavcan2_set(uint8_t idx, int16_t value)
+{
+  actuators_uavcan2_values[idx] = value;
+}
 #endif
 #ifdef SERVOS_UAVCAN1CMD_NB
 int16_t actuators_uavcan1cmd_values[SERVOS_UAVCAN1CMD_NB];
+
+void actuators_uavcan1cmd_set(uint8_t idx, int16_t value)
+{
+  actuators_uavcan1cmd_values[idx] = value;
+}
 #endif
 #ifdef SERVOS_UAVCAN2CMD_NB
 int16_t actuators_uavcan2cmd_values[SERVOS_UAVCAN2CMD_NB];
+
+void actuators_uavcan2cmd_set(uint8_t idx, int16_t value)
+{
+  actuators_uavcan2cmd_values[idx] = value;
+}
 #endif
 
 /* Set the actual telemetry length (ID's from actuators can't collide with the command version) */

@@ -67,11 +67,12 @@ extern struct ActuatorsAsctecV2 actuators_asctec_v2;
   }
 
 extern void actuators_asctec_v2_init(void);
-extern void actuators_asctec_v2_set(void);
+extern void actuators_asctec_v2_commit(void);
+extern void actuators_asctec_v2_set(uint8_t idx, int16_t value);
 
-#define ActuatorAsctec_v2Set(_i, _v) { actuators_asctec_v2.cmds[_i] = _v; }
+#define ActuatorAsctec_v2Set actuators_asctec_v2_set
 #define ActuatorsAsctec_v2Init() actuators_asctec_v2_init()
-#define ActuatorsAsctec_v2Commit() actuators_asctec_v2_set()
+#define ActuatorsAsctec_v2Commit() actuators_asctec_v2_commit()
 
 
 #endif /* ACTUATORS_ASCTEC_H */

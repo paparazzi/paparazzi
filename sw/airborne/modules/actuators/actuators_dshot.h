@@ -28,7 +28,6 @@
 #define ACTUATORS_DSHOT_H
 
 #include "std.h"
-#include "modules/actuators/actuators_dshot_arch.h"
 
 /** In normal DSHOT, first 48 values are special commands
  *  this offset allow to use 0 as the no-throttle command
@@ -60,14 +59,12 @@ extern struct dshot actuators_dshot_values[ACTUATORS_DSHOT_NB];
  */
 extern void actuators_dshot_arch_init(void);
 extern void actuators_dshot_arch_commit(void);
+extern void actuators_dshot_set(uint8_t idx, int16_t value);
 
 /* Actuator macros */
-#define ActuatorDShotSet(_i, _v) { \
- if (_v == 0) { actuators_dshot_values[_i].cmd  = 0; } \
- else { actuators_dshot_values[_i].cmd = _v + ACTUATORS_DSHOT_OFFSET; } \
-}
-#define ActuatorsDShotInit() actuators_dshot_arch_init()
-#define ActuatorsDShotCommit() actuators_dshot_arch_commit()
+#define ActuatorDShotSet actuators_dshot_set
+#define ActuatorsDShotInit actuators_dshot_arch_init
+#define ActuatorsDShotCommit actuators_dshot_arch_commit
 
 #endif
 
