@@ -126,7 +126,7 @@
         <define name="G2"           value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
 
         <!-- Actuator dynamics -->
-        <define name="ACT_FREQ"             value="{18.0, 18.0, 18.0, 18.0, 52.7, 52.7, 52.7, 52.7, 30.0}"/>
+        <define name="ACT_FREQ"             value="{18.0, 18.0, 18.0, 18.0, 52.7, 52.7, 52.7, 52.7, 18.0}"/>
         <define name="ACT_IS_SERVO"         value="{   0,    0,    0,    0,    1,    1,    1,    1,    0}"/>
         <define name="ACT_IS_THRUSTER_X"    value="{   0,    0,    0,    0,    0,    0,    0,    0,    1}"/>
 
