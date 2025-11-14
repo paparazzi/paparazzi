@@ -17,6 +17,7 @@
     <configure name="DSHOT_BIDIR" value="FALSE" description="Bidirectionnal DSHOT for fast rpm feedback"/>
     <define name="DSHOT_SPEED" value="600" description="DSHOT speed (150,300,600,1200)"/>
     <configure name="DSHOT1_GPT_TIM" value="7" description="GPT driver used for telemetry timeout"/>
+    <define name="DSHOT_MOTOR_POLES" value="14" description="number of motor poles to compute real RPM from eRPM"/>
   </doc>
   <dep>
     <depends>actuators,@commands</depends>
