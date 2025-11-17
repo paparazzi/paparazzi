@@ -51,6 +51,8 @@ struct dshot {
   float rpm;      ///< rpm
   float current;  ///< current
   float voltage;  ///< motor current
+  float energy;   ///< energy (from dshot telemetry)
+  float temp;     ///< temperature
   bool activated; ///< current dshot channel is activated
 };
 

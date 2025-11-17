@@ -37,6 +37,13 @@
 #include "modules/energy/electrical.h"
 #endif
 
+// Default number of poles in a motor
+// Used to convert electrical RPM to physical RPM
+// by dividing eRPM by (MOTOR_POLES/2)
+#ifndef DSHOT_MOTOR_POLES
+#define DSHOT_MOTOR_POLES 14
+#endif
+
 struct dshot_private {
   DSHOTDriver *driver;
   uint32_t channel;
@@ -106,23 +113,8 @@ static DSHOTConfig dshotcfg9 = DSHOT_CONF9_DEF;
 static void esc_msg_send(struct transport_tx *trans, struct link_device *dev) {
   for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
     if (actuators_dshot_values[i].activated) {
-      DshotTelemetry dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
-
-      actuators_dshot_values[i].current = (float)dtelem.frame.current * 0.01f;
-      actuators_dshot_values[i].voltage = (float)dtelem.frame.voltage * 0.01f;
-      actuators_dshot_values[i].rpm = (float)dtelem.frame.rpm;
-
-#if DSHOT_BIDIR
-    const uint32_t erpm = dshotGetRpm(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
-    if(erpm != DSHOT_BIDIR_ERR_CRC && erpm != DSHOT_BIDIR_TLM_EDT) {
-      actuators_dshot_values[i].rpm = (float) erpm;
-    }
-#endif
-
       float bat_voltage = electrical.vsupply;
       float power = actuators_dshot_values[i].current * bat_voltage;
-      float energy = (float)dtelem.frame.consumption;
-      float temp = dtelem.frame.temp;
       float temp_dev = 0;
       pprz_msg_send_ESC(trans, dev, AC_ID,
           &actuators_dshot_values[i].current,
@@ -130,8 +122,8 @@ static void esc_msg_send(struct transport_tx *trans, struct link_device *dev) {
           &power,
           &actuators_dshot_values[i].rpm,
           &actuators_dshot_values[i].voltage,
-          &energy,
-          &temp,
+          &actuators_dshot_values[i].energy,
+          &actuators_dshot_values[i].temp,
           &temp_dev,
           &i,
           &i);
@@ -358,21 +350,30 @@ void actuators_dshot_arch_commit(void)
   dshotSendFrame(&DSHOTD9);
 #endif
 
-
+  // update public structure with latest telemetry data
+  // and send actuator feedback message
   struct act_feedback_t feedback[ACTUATORS_DSHOT_NB] = { 0 };
   for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
     feedback[i].idx = get_servo_idx_DSHOT(i);
     if (actuators_dshot_values[i].activated) {
       DshotTelemetry dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
-      feedback[i].rpm = dtelem.frame.rpm;
+      // RPM in telemetry is electrical RMP with a scale of 100,
+      // so physical value is 2 * 100 / motor_poles
+      const int32_t rpm = dtelem.frame.rpm * 200 / DSHOT_MOTOR_POLES;
+      feedback[i].rpm = rpm;
       feedback[i].set.rpm = true;
+      actuators_dshot_values[i].rpm = (float)rpm;
+      actuators_dshot_values[i].current = (float)dtelem.frame.current * 0.01f;
+      actuators_dshot_values[i].voltage = (float)dtelem.frame.voltage * 0.01f;
+      actuators_dshot_values[i].energy = (float)dtelem.frame.consumption;
+      actuators_dshot_values[i].temp = (float)dtelem.frame.temp;
 #if DSHOT_BIDIR
+      // overwrite RPM if DSHOT_BIDIR is used as it provides faster update
       const uint32_t erpm = dshotGetRpm(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
-      if(erpm != DSHOT_BIDIR_ERR_CRC) {
-        if(erpm != DSHOT_BIDIR_TLM_EDT) {
-          feedback[i].rpm = (float) erpm;
-          feedback[i].set.rpm = true;
-        }
+      if ((erpm != DSHOT_BIDIR_ERR_CRC) && (erpm != DSHOT_BIDIR_TLM_EDT)) {
+        feedback[i].rpm = erpm * 2 / DSHOT_MOTOR_POLES;
+        feedback[i].set.rpm = true;
+        actuators_dshot_values[i].rpm = (float)feedback[i].rpm;
       } else {
         feedback[i].set.rpm = false;
       }
