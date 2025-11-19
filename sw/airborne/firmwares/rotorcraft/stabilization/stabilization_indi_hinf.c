@@ -20,6 +20,7 @@
 
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #include "math/pprz_algebra_float.h"
+#include "autopilot.h"
 
 static struct FloatRates rate_state;
 static struct FloatRates att_state;

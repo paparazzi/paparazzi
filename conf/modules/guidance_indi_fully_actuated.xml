@@ -7,6 +7,7 @@
     </description>
 
     <section name="GUIDANCE_INDI_FULLY_ACTUATED" prefix="GUIDANCE_INDI_">
+      <define name="MASS" value="1." description="mass of the aircraft in kg"/>
       <define name="MAX_H_THRUST" value="1." description="maximum horizontal force in Newtons"/>
       <define name="MAX_V_THRUST" value="15." description="maximum vertical force in Newtons"/>
     </section>
@@ -17,6 +18,12 @@
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="guidance_indi_fully_actuated.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <define name="GUIDANCE_INDI_USE_WLS"/>
-    <test firmware="rotorcraft"/>
+    <define name="GUIDANCE_INDI_NU" value="6"/>
+    <test firmware="rotorcraft">
+      <define name="INDI_OUTPUTS" value="4"/>
+      <define name="INDI_NUM_ACT" value="4"/>
+      <define name="GUIDANCE_INDI_MASS" value="1"/>
+      <define name="GUIDANCE_INDI_NU" value="6"/>
+    </test>
   </makefile>
 </module>

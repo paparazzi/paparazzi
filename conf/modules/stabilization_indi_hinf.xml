@@ -22,6 +22,9 @@
   </dep>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="stabilization_indi_hinf.c" dir="$(SRC_FIRMWARE)/stabilization"/>
-    <test firmware="rotorcraft"/>
+    <test firmware="rotorcraft">
+      <define name="INDI_OUTPUTS" default="4"/>
+      <define name="INDI_NUM_ACT" default="4"/>
+    </test>
   </makefile>
 </module>

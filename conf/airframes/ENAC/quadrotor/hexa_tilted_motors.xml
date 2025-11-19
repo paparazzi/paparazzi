@@ -221,7 +221,6 @@
   </section>
 
   <section name="GUIDANCE_INDI" prefix="GUIDANCE_INDI_">
-    <define name="NU" value="6"/> <!-- 6 for force alloc, 3 for quadrotor -->
     <define name="MASS" value="0.8"/>
     <define name="POS_GAIN" value="0.1"/>
     <define name="SPEED_GAIN" value="0.4"/>
