@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stabilization_indi_hinf" dir="stabilization" task="control">
+  <doc>
+    <description>
+      Hinfinity controller for INDI stabilization outer loop
+    </description>
+
+    <section name="STABILIZATION_ATTITUDE_INDI_HINF" prefix="STABILIZATION_INDI_HINF_">
+      <define name="Ap" value="x" description="proportional A coef"/>
+      <define name="Bp" value="x" description="proportional B coef"/>
+      <define name="Cp" value="x" description="proportional C coef"/>
+      <define name="Dp" value="x" description="proportional D coef"/>
+      <define name="Ad" value="x" description="derivative A coef"/>
+      <define name="Bd" value="x" description="derivative B coef"/>
+      <define name="Cd" value="x" description="derivative C coef"/>
+      <define name="Dd" value="x" description="derivative D coef"/>
+    </section>
+  </doc>
+  <dep>
+    <depends>stabilization_indi</depends>
+  </dep>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="stabilization_indi_hinf.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <test firmware="rotorcraft"/>
+  </makefile>
+</module>
