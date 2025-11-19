@@ -1,0 +1,35 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_indi_hinf" dir="guidance" task="control">
+  <doc>
+    <description>
+      Hinfinity controller for INDI guidance outer loop
+    </description>
+
+    <section name="GUIDANCE_INDI_HINF" prefix="GUIDANCE_INDI_HINF_">
+      <define name="Ap" value="x" description="proportional A coef (horizontal)"/>
+      <define name="Bp" value="x" description="proportional B coef (horizontal)"/>
+      <define name="Cp" value="x" description="proportional C coef (horizontal)"/>
+      <define name="Dp" value="x" description="proportional D coef (horizontal)"/>
+      <define name="Ad" value="x" description="derivative A coef (horizontal)"/>
+      <define name="Bd" value="x" description="derivative B coef (horizontal)"/>
+      <define name="Cd" value="x" description="derivative C coef (horizontal)"/>
+      <define name="Dd" value="x" description="derivative D coef (horizontal)"/>
+      <define name="Apz" value="x" description="proportional A coef (vertical)"/>
+      <define name="Bpz" value="x" description="proportional B coef (vertical)"/>
+      <define name="Cpz" value="x" description="proportional C coef (vertical)"/>
+      <define name="Dpz" value="x" description="proportional D coef (vertical)"/>
+      <define name="Adz" value="x" description="derivative A coef (vertical)"/>
+      <define name="Bdz" value="x" description="derivative B coef (vertical)"/>
+      <define name="Cdz" value="x" description="derivative C coef (vertical)"/>
+      <define name="Ddz" value="x" description="derivative D coef (vertical)"/>
+    </section>
+  </doc>
+  <dep>
+    <depends>guidance_indi</depends>
+  </dep>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="guidance_indi_hinf.c" dir="$(SRC_FIRMWARE)/guidance"/>
+    <test firmware="rotorcraft"/>
+  </makefile>
+</module>
