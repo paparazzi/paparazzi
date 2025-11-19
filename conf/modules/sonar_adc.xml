@@ -10,7 +10,7 @@
 
     Notes:
     + The maximum useful detection distance is 4m for common simple sonar based small sized sensors, even if datasheet e.g. states 7m.
-    For most ADC sonar range devices, a sampling rate of at least 15Hz is supported. However, if measurements are taken at longer distances, 
+    For most ADC sonar rangefinder sensor devices, a sampling rate of at least 15Hz is supported. However, if measurements are taken at longer distances, 
     the time required for the ultrasonic pulse to return increases, which may limit the maximum achievable sampling rate. 
     It is recommended to adjust the SONAR_ADC_PERIODIC_FREQUENCY parameter according to the sensor's capabilities and the expected measurement range to ensure reliable readings.
 
@@ -32,14 +32,14 @@
     
     + Distance compensation for pressure and temperature are not implemented, keep in mind that sonar sensors are susceptible to temperature and pressure changes.
     </description>
-    <configure name="SONAR_ADC_DEV" value="ADC_X" description="Set ADC device port the sonar is connected to, defaults to ADC_3"/>
+    <configure name="SONAR_ADC_PORT" value="ADC_X" description="Set the ADC port the sonar sensor is connected to on your flightcontroller, defaults to ADC_3"/>
     <configure name="USE_SONAR_ADC_AGL" value="TRUE|FALSE" description="Updates the AGL value in state,if not defined, defaults to FALSE"/>
     <configure name="SONAR_ADC_COMPENSATE_ROTATION" value="TRUE|FALSE" description="Compensate AGL measurements for body rotation. Disabled by default"/>
     <configure name="SONAR_ADC_USE_FILTER" value="TRUE|FALSE" description="Enable or disable a filter on the sonar output values, defaults to TRUE"/>
     <configure name="SONAR_ADC_PERIODIC_FREQUENCY" value="30" description="Sensor readings in HZ"/>
     <configure name="SONAR_ADC_LOWPASS_TAU" value="0.11" description="If filtering is enabled, then one optionally can set this value to filter the output more(or less). Defaults to 0.16"/>
     <configure name="SONAR_ADC_SCALE" value="0.001789" description="Sensor scale factor [m/adc], defaults to 0.001855"/>
-    <define name="USE_SONAR_ADC" value="TRUE|FALSE" description="Activate use of sonar in INS extended filter (only rotorcraft), defaults to FALSE"/>
+    <define name="USE_SONAR" value="TRUE|FALSE" description="Activate use of sonar in INS extended filter (only rotorcraft), defaults to FALSE"/>
     <define name="SONAR_ADC_OFFSET" value="0.56"  description="Sensor offset in meters, as in where one wants zero to be, default is 0.0"/>
     <define name="SONAR_ADC_MIN_RANGE" value="0.31" unit="m" description="If defined, set limit to minimum value the sensor can reliably measure, default 0.15m"/>
     <define name="SONAR_ADC_MAX_RANGE" value="3.1" unit="m" description="If defined, set limit to maximum value the sensor can reliably measure, default 4.0m"/>
@@ -65,22 +65,18 @@
   <periodic fun="sonar_adc_periodic()" freq="SONAR_ADC_PERIODIC_FREQUENCY"/>
   <periodic fun="sonar_adc_report()" freq="SONAR_ADC_PERIODIC_FREQUENCY" autorun="FALSE"/>
   <makefile target="ap">
-    <configure name="SONAR_ADC_DEV" default="ADC_3" case="lower|upper"/>
+    <configure name="SONAR_ADC_PORT" default="ADC_3" case="lower|upper"/>
     <configure name="USE_SONAR_ADC_AGL" default="0"/>
     <configure name="SONAR_ADC_COMPENSATE_ROTATION" default="0"/>
     <configure name="SONAR_ADC_USE_FILTER" default="1"/>
     <configure name="SONAR_ADC_PERIODIC_FREQUENCY" default="30"/>
     <configure name="SONAR_ADC_LOWPASS_TAU" default="0.16"/>
     <configure name="SONAR_ADC_SCALE" default="0.001855"/>
-    <define name="USE_$(SONAR_ADC_DEV_UPPER)"/>
-    <define name="SONAR_ADC_DEV" value="$(SONAR_ADC_DEV_UPPER)"/>
+    <define name="USE_$(SONAR_ADC_PORT_UPPER)"/>
+    <define name="SONAR_ADC_PORT" value="$(SONAR_ADC_PORT_UPPER)"/>
     <define name="USE_SONAR_ADC_AGL" value="$(USE_SONAR_ADC_AGL)"/>
     <define name="SONAR_ADC_PERIODIC_FREQUENCY" value="$(SONAR_ADC_PERIODIC_FREQUENCY)"/>
     <define name="SONAR_ADC_USE_FILTER" value="$(SONAR_ADC_USE_FILTER)"/>
     <file name="sonar_adc.c"/>
   </makefile>
-  <makefile target="sim|nps">
-    <define name="USE_SONAR_ADC" value="TRUE"/><!-- in NPS use a virtual sonar to simulate rangeing measurements -->
-  </makefile>
-
 </module>

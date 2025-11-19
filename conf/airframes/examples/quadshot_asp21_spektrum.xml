@@ -356,10 +356,10 @@
     </load>
 
     <load name="sonar_adc.xml">
-      <configure name="ADC_SONAR" value="ADC_2"/>
+      <configure name="SONAR_ADC_PORT" value="ADC_2"/>
 <!--       <define name="USE_SONAR"/> -->
       <define name="SENSOR_SYNC_SEND_SONAR"/>
-      <define name="SONAR_SCALE" value="0.0032"/>
+      <define name="SONAR_ADC_SCALE" value="0.0032"/>
     </load>
 
   <!--Use an airspeed sensor and get the measured airspeed in the messages-->

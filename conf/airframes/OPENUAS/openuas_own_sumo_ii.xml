@@ -101,7 +101,7 @@ NOTES:
 
       <module name="sonar_adc">
         <configure name="USE_ADC_4" value="TRUE"/>
-        <configure name="ADC_SONAR" value="ADC_4"/>
+        <configure name="SONAR_ADC_PORT" value="ADC_4"/>
         <define name="SENSOR_SYNC_SEND_SONAR"/> <!-- TODO Disable after first 10 test flights -->
       </module>
 

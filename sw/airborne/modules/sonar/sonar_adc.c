@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010  Gautier Hattenberger, 2013 Tobias Münch, 2020 OpenUAS
+ * Copyright (C) 2010  Gautier Hattenberger, 2013 Tobias Münch, 2025 OpenUAS
  *
  * This file is part of paparazzi.
  *
@@ -40,10 +40,10 @@
 #endif
 
 // Check if an ADC device port is in the airframe configuration
-#ifndef SONAR_ADC_DEV
-#error  sonar_adc module error: please add and configure SONAR_ADC_DEV e.g. ADC_3 in your airframe
+#ifndef SONAR_ADC_PORT
+#error  sonar_adc module error: please add and configure SONAR_ADC_PORT, the port your sensor is connected to e.g. ADC_3 and save in your airframe file.
 #endif
-PRINT_CONFIG_VAR(SONAR_ADC_DEV)
+PRINT_CONFIG_VAR(SONAR_ADC_PORT)
 
 #include "mcu_periph/adc.h"
 
@@ -131,7 +131,7 @@ void sonar_adc_init(void)
 #endif
 
 #ifndef SITL
-  adc_buf_channel(SONAR_ADC_DEV, &sonar_adc_buf, DEFAULT_AV_NB_SAMPLE);
+  adc_buf_channel(SONAR_ADC_PORT, &sonar_adc_buf, DEFAULT_AV_NB_SAMPLE);
 #endif
 }
 
@@ -186,7 +186,7 @@ void sonar_adc_periodic(void)
 
 #else // SITL
   sonar_adc.distance = stateGetPositionEnu_f()->z;
-  Bound(sonar_adc.distance, (float)SONAR_ADC_MIN_RANGE,
+  Bound(sonar_adc.distance, 0.0f,
         (float)SONAR_ADC_MAX_RANGE); // Sim should also use airframe defined limits since can interact with AGL in simmed flightplan
 #endif // SITL
 
