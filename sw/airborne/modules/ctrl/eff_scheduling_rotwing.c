@@ -502,7 +502,7 @@ void stabilization_indi_set_wls_settings(void)
       wls_stab_p.u_max[i] = actuators_pprz[i] + max_increment;
 
       if (ROTWING_EFF_SCHED_RPM_CONTROL) { // With RPM control we need to limit the max command to the hover motors based on the battery voltage
-        wls_stab_p.u_max[i] = electrical.vsupply * eff_sched_p.pusher_rpm_lim_coef[0] + eff_sched_p.pusher_rpm_lim_coef[1];
+        wls_stab_p.u_max[i] = Min(electrical.vsupply * eff_sched_p.pusher_rpm_lim_coef[0] + eff_sched_p.pusher_rpm_lim_coef[1], wls_stab_p.u_max[i]);
       } 
     }
 
