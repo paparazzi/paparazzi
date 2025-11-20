@@ -20,24 +20,35 @@
  *
  */
 
-/** @file sonar_adc.h
- *  @brief simple driver to deal with one sonar sensor on ADC
+/**
+ * @file sonar_adc.h
+ * @brief Driver module for an analog rangefinder sensor connected to an ADC channel
+ *
+ * This module reads the ADC values from a rangefinder sensor and converts those values to a distance in meters or fractions thereof.
+ *
+ * Options include:
+ * - Using a low-pass filter to smooth the distance output
+ * - Updating AGL (Above Ground Level) in the state with the distance value.
+ * - Rotation compensation, which compensates the AGL distance based on the current attitude of the aircraft.
+ * - Use sensor simulation SITL (Software In The Loop).
+ * - Sending periodic telemetry debug messages with the raw ADC value and the calculated distance.
  */
 
 #ifndef SONAR_ADC_H
 #define SONAR_ADC_H
 
 #include "std.h"
-
-struct SonarAdc {
-  uint16_t meas;          ///< Raw ADC value
-  uint16_t offset;        ///< Sonar offset in ADC units
-  float distance;         ///< Distance measured in meters
+struct SonarADC {
+  uint16_t raw;    ///< raw measuread non scaled range value from sensor
+  float scale;     ///< Scaling factor to convert raw value to a distance in SI unit (meters)
+  float distance;  ///< Distance measured in meters
+  bool update_agl; ///< Do or don't update AGL ABI message
 };
 
-extern struct SonarAdc sonar_adc;
+extern struct SonarADC sonar_adc;
 
 extern void sonar_adc_init(void);
-extern void sonar_adc_read(void);
+extern void sonar_adc_periodic(void);
+extern void sonar_adc_report(void);
 
-#endif
+#endif  /* SONAR_ADC_H */
