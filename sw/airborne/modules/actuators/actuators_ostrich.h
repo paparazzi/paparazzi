@@ -39,9 +39,10 @@ extern struct ActuatorsOstrich actuators_ostrich;
 
 extern void actuators_ostrich_init(void);
 extern void actuators_ostrich_periodic(void);
+extern void actuators_ostrich_set(uint8_t idx, int16_t value);
 
 /* Actuator macros */
-#define ActuatorOSTRICHSet(_i, _v) { actuators_ostrich.cmds[_i] = _v; }
+#define ActuatorOSTRICHSet actuators_ostrich_set
 #define ActuatorsOSTRICHInit() actuators_ostrich_init()
 #define ActuatorsOSTRICHCommit() {}
 

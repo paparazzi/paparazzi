@@ -101,3 +101,9 @@ void actuators_t4_commit(void) {
     // Send ABI message
     AbiSendMsgACTUATORS_T4_OUT(ABI_ACTUATORS_T4_OUT_ID, &actuators_t4_out_local, &actuators_t4_extra_data_out_local[0]);
 }
+
+void actuators_t4_set(uint8_t idx, int16_t value)
+{
+  actuators_t4_values[idx] = value;
+}
+

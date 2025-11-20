@@ -28,6 +28,7 @@
   </header>
   <makefile>
     <configure name="DSHOT_BIDIR" default="FALSE"/>
+    <file name="actuators_dshot.c"/>
     <file_arch name="actuators_dshot_arch.c"/>
     <file_arch name="esc_dshot.c" cond="ifeq ($(RTOS),chibios)"/>
     <file_arch name="hal_stm32_dma.c" dir="mcu_periph" cond="ifeq ($(RTOS),chibios)"/>
