@@ -378,16 +378,291 @@
 #define STM32_I2C_I2C4_DMA_PRIORITY         3
 #define STM32_I2C_DMA_ERROR_HOOK(i2cp)      osalSysHalt("DMA failure")
 
+/* Automatic timer enabling */
+#if (SERVO1_TIM == 1 && USE_ICU_SERVO1) || \
+    (SERVO2_TIM == 1 && USE_ICU_SERVO2) || \
+    (SERVO3_TIM == 1 && USE_ICU_SERVO3) || \
+    (SERVO4_TIM == 1 && USE_ICU_SERVO4) || \
+    (SERVO5_TIM == 1 && USE_ICU_SERVO5) || \
+    (SERVO6_TIM == 1 && USE_ICU_SERVO6) || \
+    (SERVO7_TIM == 1 && USE_ICU_SERVO7) || \
+    (SERVO8_TIM == 1 && USE_ICU_SERVO8) || \
+    (SERVO9_TIM == 1 && USE_ICU_SERVO9) || \
+    (SERVO10_TIM == 1 && USE_ICU_SERVO10) || \
+    (SERVO11_TIM == 1 && USE_ICU_SERVO11) || \
+    (SERVO12_TIM == 1 && USE_ICU_SERVO12) || \
+    (SERVO13_TIM == 1 && USE_ICU_SERVO13) || \
+    (SERVO14_TIM == 1 && USE_ICU_SERVO14) || \
+    (SERVO15_TIM == 1 && USE_ICU_SERVO15) || \
+    (SERVO16_TIM == 1 && USE_ICU_SERVO16)
+#define USE_ICU_TIM1                        TRUE
+#elif (SERVO1_TIM == 1 && USE_PWM_SERVO1) || \
+    (SERVO2_TIM == 1 && USE_PWM_SERVO2) || \
+    (SERVO3_TIM == 1 && USE_PWM_SERVO3) || \
+    (SERVO4_TIM == 1 && USE_PWM_SERVO4) || \
+    (SERVO5_TIM == 1 && USE_PWM_SERVO5) || \
+    (SERVO6_TIM == 1 && USE_PWM_SERVO6) || \
+    (SERVO7_TIM == 1 && USE_PWM_SERVO7) || \
+    (SERVO8_TIM == 1 && USE_PWM_SERVO8) || \
+    (SERVO9_TIM == 1 && USE_PWM_SERVO9) || \
+    (SERVO10_TIM == 1 && USE_PWM_SERVO10) || \
+    (SERVO11_TIM == 1 && USE_PWM_SERVO11) || \
+    (SERVO12_TIM == 1 && USE_PWM_SERVO12) || \
+    (SERVO13_TIM == 1 && USE_PWM_SERVO13) || \
+    (SERVO14_TIM == 1 && USE_PWM_SERVO14) || \
+    (SERVO15_TIM == 1 && USE_PWM_SERVO15) || \
+    (SERVO16_TIM == 1 && USE_PWM_SERVO16)
+#define USE_PWM_TIM1                        TRUE
+#endif
+#if (SERVO1_TIM == 2 && USE_ICU_SERVO1) || \
+    (SERVO2_TIM == 2 && USE_ICU_SERVO2) || \
+    (SERVO3_TIM == 2 && USE_ICU_SERVO3) || \
+    (SERVO4_TIM == 2 && USE_ICU_SERVO4) || \
+    (SERVO5_TIM == 2 && USE_ICU_SERVO5) || \
+    (SERVO6_TIM == 2 && USE_ICU_SERVO6) || \
+    (SERVO7_TIM == 2 && USE_ICU_SERVO7) || \
+    (SERVO8_TIM == 2 && USE_ICU_SERVO8) || \
+    (SERVO9_TIM == 2 && USE_ICU_SERVO9) || \
+    (SERVO10_TIM == 2 && USE_ICU_SERVO10) || \
+    (SERVO11_TIM == 2 && USE_ICU_SERVO11) || \
+    (SERVO12_TIM == 2 && USE_ICU_SERVO12) || \
+    (SERVO13_TIM == 2 && USE_ICU_SERVO13) || \
+    (SERVO14_TIM == 2 && USE_ICU_SERVO14) || \
+    (SERVO15_TIM == 2 && USE_ICU_SERVO15) || \
+    (SERVO16_TIM == 2 && USE_ICU_SERVO16)
+#define USE_ICU_TIM2                        TRUE
+#elif (SERVO1_TIM == 2 && USE_PWM_SERVO1) || \
+    (SERVO2_TIM == 2 && USE_PWM_SERVO2) || \
+    (SERVO3_TIM == 2 && USE_PWM_SERVO3) || \
+    (SERVO4_TIM == 2 && USE_PWM_SERVO4) || \
+    (SERVO5_TIM == 2 && USE_PWM_SERVO5) || \
+    (SERVO6_TIM == 2 && USE_PWM_SERVO6) || \
+    (SERVO7_TIM == 2 && USE_PWM_SERVO7) || \
+    (SERVO8_TIM == 2 && USE_PWM_SERVO8) || \
+    (SERVO9_TIM == 2 && USE_PWM_SERVO9) || \
+    (SERVO10_TIM == 2 && USE_PWM_SERVO10) || \
+    (SERVO11_TIM == 2 && USE_PWM_SERVO11) || \
+    (SERVO12_TIM == 2 && USE_PWM_SERVO12) || \
+    (SERVO13_TIM == 2 && USE_PWM_SERVO13) || \
+    (SERVO14_TIM == 2 && USE_PWM_SERVO14) || \
+    (SERVO15_TIM == 2 && USE_PWM_SERVO15) || \
+    (SERVO16_TIM == 2 && USE_PWM_SERVO16)
+#define USE_PWM_TIM2                        TRUE
+#endif
+#if (SERVO1_TIM == 3 && USE_ICU_SERVO1) || \
+    (SERVO2_TIM == 3 && USE_ICU_SERVO2) || \
+    (SERVO3_TIM == 3 && USE_ICU_SERVO3) || \
+    (SERVO4_TIM == 3 && USE_ICU_SERVO4) || \
+    (SERVO5_TIM == 3 && USE_ICU_SERVO5) || \
+    (SERVO6_TIM == 3 && USE_ICU_SERVO6) || \
+    (SERVO7_TIM == 3 && USE_ICU_SERVO7) || \
+    (SERVO8_TIM == 3 && USE_ICU_SERVO8) || \
+    (SERVO9_TIM == 3 && USE_ICU_SERVO9) || \
+    (SERVO10_TIM == 3 && USE_ICU_SERVO10) || \
+    (SERVO11_TIM == 3 && USE_ICU_SERVO11) || \
+    (SERVO12_TIM == 3 && USE_ICU_SERVO12) || \
+    (SERVO13_TIM == 3 && USE_ICU_SERVO13) || \
+    (SERVO14_TIM == 3 && USE_ICU_SERVO14) || \
+    (SERVO15_TIM == 3 && USE_ICU_SERVO15) || \
+    (SERVO16_TIM == 3 && USE_ICU_SERVO16)
+#define USE_ICU_TIM3                        TRUE
+#elif (SERVO1_TIM == 3 && USE_PWM_SERVO1) || \
+    (SERVO2_TIM == 3 && USE_PWM_SERVO2) || \
+    (SERVO3_TIM == 3 && USE_PWM_SERVO3) || \
+    (SERVO4_TIM == 3 && USE_PWM_SERVO4) || \
+    (SERVO5_TIM == 3 && USE_PWM_SERVO5) || \
+    (SERVO6_TIM == 3 && USE_PWM_SERVO6) || \
+    (SERVO7_TIM == 3 && USE_PWM_SERVO7) || \
+    (SERVO8_TIM == 3 && USE_PWM_SERVO8) || \
+    (SERVO9_TIM == 3 && USE_PWM_SERVO9) || \
+    (SERVO10_TIM == 3 && USE_PWM_SERVO10) || \
+    (SERVO11_TIM == 3 && USE_PWM_SERVO11) || \
+    (SERVO12_TIM == 3 && USE_PWM_SERVO12) || \
+    (SERVO13_TIM == 3 && USE_PWM_SERVO13) || \
+    (SERVO14_TIM == 3 && USE_PWM_SERVO14) || \
+    (SERVO15_TIM == 3 && USE_PWM_SERVO15) || \
+    (SERVO16_TIM == 3 && USE_PWM_SERVO16)
+#define USE_PWM_TIM3                        TRUE
+#endif
+#if (SERVO1_TIM == 4 && USE_ICU_SERVO1) || \
+    (SERVO2_TIM == 4 && USE_ICU_SERVO2) || \
+    (SERVO3_TIM == 4 && USE_ICU_SERVO3) || \
+    (SERVO4_TIM == 4 && USE_ICU_SERVO4) || \
+    (SERVO5_TIM == 4 && USE_ICU_SERVO5) || \
+    (SERVO6_TIM == 4 && USE_ICU_SERVO6) || \
+    (SERVO7_TIM == 4 && USE_ICU_SERVO7) || \
+    (SERVO8_TIM == 4 && USE_ICU_SERVO8) || \
+    (SERVO9_TIM == 4 && USE_ICU_SERVO9) || \
+    (SERVO10_TIM == 4 && USE_ICU_SERVO10) || \
+    (SERVO11_TIM == 4 && USE_ICU_SERVO11) || \
+    (SERVO12_TIM == 4 && USE_ICU_SERVO12) || \
+    (SERVO13_TIM == 4 && USE_ICU_SERVO13) || \
+    (SERVO14_TIM == 4 && USE_ICU_SERVO14) || \
+    (SERVO15_TIM == 4 && USE_ICU_SERVO15) || \
+    (SERVO16_TIM == 4 && USE_ICU_SERVO16)
+#define USE_ICU_TIM4                        TRUE
+#elif (SERVO1_TIM == 4 && USE_PWM_SERVO1) || \
+    (SERVO2_TIM == 4 && USE_PWM_SERVO2) || \
+    (SERVO3_TIM == 4 && USE_PWM_SERVO3) || \
+    (SERVO4_TIM == 4 && USE_PWM_SERVO4) || \
+    (SERVO5_TIM == 4 && USE_PWM_SERVO5) || \
+    (SERVO6_TIM == 4 && USE_PWM_SERVO6) || \
+    (SERVO7_TIM == 4 && USE_PWM_SERVO7) || \
+    (SERVO8_TIM == 4 && USE_PWM_SERVO8) || \
+    (SERVO9_TIM == 4 && USE_PWM_SERVO9) || \
+    (SERVO10_TIM == 4 && USE_PWM_SERVO10) || \
+    (SERVO11_TIM == 4 && USE_PWM_SERVO11) || \
+    (SERVO12_TIM == 4 && USE_PWM_SERVO12) || \
+    (SERVO13_TIM == 4 && USE_PWM_SERVO13) || \
+    (SERVO14_TIM == 4 && USE_PWM_SERVO14) || \
+    (SERVO15_TIM == 4 && USE_PWM_SERVO15) || \
+    (SERVO16_TIM == 4 && USE_PWM_SERVO16)
+#define USE_PWM_TIM4                        TRUE
+#endif
+#if (SERVO1_TIM == 5 && USE_ICU_SERVO1) || \
+    (SERVO2_TIM == 5 && USE_ICU_SERVO2) || \
+    (SERVO3_TIM == 5 && USE_ICU_SERVO3) || \
+    (SERVO4_TIM == 5 && USE_ICU_SERVO4) || \
+    (SERVO5_TIM == 5 && USE_ICU_SERVO5) || \
+    (SERVO6_TIM == 5 && USE_ICU_SERVO6) || \
+    (SERVO7_TIM == 5 && USE_ICU_SERVO7) || \
+    (SERVO8_TIM == 5 && USE_ICU_SERVO8) || \
+    (SERVO9_TIM == 5 && USE_ICU_SERVO9) || \
+    (SERVO10_TIM == 5 && USE_ICU_SERVO10) || \
+    (SERVO11_TIM == 5 && USE_ICU_SERVO11) || \
+    (SERVO12_TIM == 5 && USE_ICU_SERVO12) || \
+    (SERVO13_TIM == 5 && USE_ICU_SERVO13) || \
+    (SERVO14_TIM == 5 && USE_ICU_SERVO14) || \
+    (SERVO15_TIM == 5 && USE_ICU_SERVO15) || \
+    (SERVO16_TIM == 5 && USE_ICU_SERVO16)
+#define USE_ICU_TIM5                        TRUE
+#elif (SERVO1_TIM == 5 && USE_PWM_SERVO1) || \
+    (SERVO2_TIM == 5 && USE_PWM_SERVO2) || \
+    (SERVO3_TIM == 5 && USE_PWM_SERVO3) || \
+    (SERVO4_TIM == 5 && USE_PWM_SERVO4) || \
+    (SERVO5_TIM == 5 && USE_PWM_SERVO5) || \
+    (SERVO6_TIM == 5 && USE_PWM_SERVO6) || \
+    (SERVO7_TIM == 5 && USE_PWM_SERVO7) || \
+    (SERVO8_TIM == 5 && USE_PWM_SERVO8) || \
+    (SERVO9_TIM == 5 && USE_PWM_SERVO9) || \
+    (SERVO10_TIM == 5 && USE_PWM_SERVO10) || \
+    (SERVO11_TIM == 5 && USE_PWM_SERVO11) || \
+    (SERVO12_TIM == 5 && USE_PWM_SERVO12) || \
+    (SERVO13_TIM == 5 && USE_PWM_SERVO13) || \
+    (SERVO14_TIM == 5 && USE_PWM_SERVO14) || \
+    (SERVO15_TIM == 5 && USE_PWM_SERVO15) || \
+    (SERVO16_TIM == 5 && USE_PWM_SERVO16)
+#define USE_PWM_TIM5                        TRUE
+#endif
+#if (SERVO1_TIM == 8 && USE_ICU_SERVO1) || \
+    (SERVO2_TIM == 8 && USE_ICU_SERVO2) || \
+    (SERVO3_TIM == 8 && USE_ICU_SERVO3) || \
+    (SERVO4_TIM == 8 && USE_ICU_SERVO4) || \
+    (SERVO5_TIM == 8 && USE_ICU_SERVO5) || \
+    (SERVO6_TIM == 8 && USE_ICU_SERVO6) || \
+    (SERVO7_TIM == 8 && USE_ICU_SERVO7) || \
+    (SERVO8_TIM == 8 && USE_ICU_SERVO8) || \
+    (SERVO9_TIM == 8 && USE_ICU_SERVO9) || \
+    (SERVO10_TIM == 8 && USE_ICU_SERVO10) || \
+    (SERVO11_TIM == 8 && USE_ICU_SERVO11) || \
+    (SERVO12_TIM == 8 && USE_ICU_SERVO12) || \
+    (SERVO13_TIM == 8 && USE_ICU_SERVO13) || \
+    (SERVO14_TIM == 8 && USE_ICU_SERVO14) || \
+    (SERVO15_TIM == 8 && USE_ICU_SERVO15) || \
+    (SERVO16_TIM == 8 && USE_ICU_SERVO16)
+#define USE_ICU_TIM8                        TRUE
+#elif (SERVO1_TIM == 8 && USE_PWM_SERVO1) || \
+    (SERVO2_TIM == 8 && USE_PWM_SERVO2) || \
+    (SERVO3_TIM == 8 && USE_PWM_SERVO3) || \
+    (SERVO4_TIM == 8 && USE_PWM_SERVO4) || \
+    (SERVO5_TIM == 8 && USE_PWM_SERVO5) || \
+    (SERVO6_TIM == 8 && USE_PWM_SERVO6) || \
+    (SERVO7_TIM == 8 && USE_PWM_SERVO7) || \
+    (SERVO8_TIM == 8 && USE_PWM_SERVO8) || \
+    (SERVO9_TIM == 8 && USE_PWM_SERVO9) || \
+    (SERVO10_TIM == 8 && USE_PWM_SERVO10) || \
+    (SERVO11_TIM == 8 && USE_PWM_SERVO11) || \
+    (SERVO12_TIM == 8 && USE_PWM_SERVO12) || \
+    (SERVO13_TIM == 8 && USE_PWM_SERVO13) || \
+    (SERVO14_TIM == 8 && USE_PWM_SERVO14) || \
+    (SERVO15_TIM == 8 && USE_PWM_SERVO15) || \
+    (SERVO16_TIM == 8 && USE_PWM_SERVO16)
+#define USE_PWM_TIM8                        TRUE
+#endif
+#if (SERVO1_TIM == 12 && USE_ICU_SERVO1) || \
+    (SERVO2_TIM == 12 && USE_ICU_SERVO2) || \
+    (SERVO3_TIM == 12 && USE_ICU_SERVO3) || \
+    (SERVO4_TIM == 12 && USE_ICU_SERVO4) || \
+    (SERVO5_TIM == 12 && USE_ICU_SERVO5) || \
+    (SERVO6_TIM == 12 && USE_ICU_SERVO6) || \
+    (SERVO7_TIM == 12 && USE_ICU_SERVO7) || \
+    (SERVO8_TIM == 12 && USE_ICU_SERVO8) || \
+    (SERVO9_TIM == 12 && USE_ICU_SERVO9) || \
+    (SERVO10_TIM == 12 && USE_ICU_SERVO10) || \
+    (SERVO11_TIM == 12 && USE_ICU_SERVO11) || \
+    (SERVO12_TIM == 12 && USE_ICU_SERVO12) || \
+    (SERVO13_TIM == 12 && USE_ICU_SERVO13) || \
+    (SERVO14_TIM == 12 && USE_ICU_SERVO14) || \
+    (SERVO15_TIM == 12 && USE_ICU_SERVO15) || \
+    (SERVO16_TIM == 12 && USE_ICU_SERVO16)
+#define USE_ICU_TIM12                       TRUE
+#elif (SERVO1_TIM == 12 && USE_PWM_SERVO1) || \
+    (SERVO2_TIM == 12 && USE_PWM_SERVO2) || \
+    (SERVO3_TIM == 12 && USE_PWM_SERVO3) || \
+    (SERVO4_TIM == 12 && USE_PWM_SERVO4) || \
+    (SERVO5_TIM == 12 && USE_PWM_SERVO5) || \
+    (SERVO6_TIM == 12 && USE_PWM_SERVO6) || \
+    (SERVO7_TIM == 12 && USE_PWM_SERVO7) || \
+    (SERVO8_TIM == 12 && USE_PWM_SERVO8) || \
+    (SERVO9_TIM == 12 && USE_PWM_SERVO9) || \
+    (SERVO10_TIM == 12 && USE_PWM_SERVO10) || \
+    (SERVO11_TIM == 12 && USE_PWM_SERVO11) || \
+    (SERVO12_TIM == 12 && USE_PWM_SERVO12) || \
+    (SERVO13_TIM == 12 && USE_PWM_SERVO13) || \
+    (SERVO14_TIM == 12 && USE_PWM_SERVO14) || \
+    (SERVO15_TIM == 12 && USE_PWM_SERVO15) || \
+    (SERVO16_TIM == 12 && USE_PWM_SERVO16)
+#define USE_PWM_TIM12                       TRUE
+#endif
+
 /*
  * ICU driver system settings.
  */
+#if USE_ICU_TIM1
+#define STM32_ICU_USE_TIM1                  TRUE
+#else
 #define STM32_ICU_USE_TIM1                  FALSE
+#endif
+#if USE_ICU_TIM2
+#define STM32_ICU_USE_TIM2                  TRUE
+#else
 #define STM32_ICU_USE_TIM2                  FALSE
+#endif
+#if USE_ICU_TIM3
+#define STM32_ICU_USE_TIM3                  TRUE
+#else
 #define STM32_ICU_USE_TIM3                  FALSE
+#endif
+#if USE_ICU_TIM4
+#define STM32_ICU_USE_TIM4                  TRUE
+#else
 #define STM32_ICU_USE_TIM4                  FALSE
+#endif
+#if USE_ICU_TIM5
+#define STM32_ICU_USE_TIM5                  TRUE
+#else
 #define STM32_ICU_USE_TIM5                  FALSE
+#endif
+#if USE_ICU_TIM8
+#define STM32_ICU_USE_TIM8                  TRUE
+#else
 #define STM32_ICU_USE_TIM8                  FALSE
+#endif
+#if USE_ICU_TIM12
+#define STM32_ICU_USE_TIM12                 TRUE
+#else
 #define STM32_ICU_USE_TIM12                 FALSE
+#endif
 #define STM32_ICU_USE_TIM13                 FALSE
 #define STM32_ICU_USE_TIM14                 FALSE
 #define STM32_ICU_USE_TIM15                 FALSE

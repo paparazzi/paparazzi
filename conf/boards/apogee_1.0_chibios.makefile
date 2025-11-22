@@ -64,6 +64,8 @@ RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART2
 
 SBUS_PORT ?= UART2
 
+PPM_INPUT ?= SERVO7
+
 #
 # default actuator configuration
 #
