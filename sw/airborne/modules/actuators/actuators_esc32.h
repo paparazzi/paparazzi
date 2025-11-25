@@ -199,10 +199,10 @@ extern struct ESC32 actuators_esc32;
 
 extern void actuators_esc32_init(void);
 extern void actuators_esc32_commit(void);
-extern void actuators_esc32_set(uint8_t i, uint16_t v);
+extern void actuators_esc32_set(uint8_t i, int16_t v);
 extern void actuators_esc32_config_cmd(uint8_t i);
 
-#define ActuatorESC32Set(_i, _v) { actuators_esc32_set(_i, _v); }
+#define ActuatorESC32Set actuators_esc32_set
 #define ActuatorsESC32Init() actuators_esc32_init()
 #define ActuatorsESC32Commit() actuators_esc32_commit()
 

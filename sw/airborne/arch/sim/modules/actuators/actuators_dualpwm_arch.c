@@ -25,8 +25,7 @@
 
 #include "modules/actuators/actuators_dualpwm_arch.h"
 
-void actuators_dualpwm_arch_init(void)
-{
+void actuators_dualpwm_arch_init(void) {}
 
-}
+void actuators_dualpwm_set(uint8_t idx UNUSED, int16_t value UNUSED) {}
 
