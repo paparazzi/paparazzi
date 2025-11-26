@@ -43,7 +43,7 @@
     <define name="SONAR_ADC_OFFSET" value="0.56"  description="Sensor offset in meters, as in where one wants zero to be, default is 0.0"/>
     <define name="SONAR_ADC_MIN_RANGE" value="0.31" unit="m" description="If defined, set limit to minimum value the sensor can reliably measure, default 0.15m"/>
     <define name="SONAR_ADC_MAX_RANGE" value="3.1" unit="m" description="If defined, set limit to maximum value the sensor can reliably measure, default 4.0m"/>
-    <define name="MODULE_SONAR_ADC_SYNC_SEND" value="TRUE|FALSE" description="Send RAW and scaled message with each new measurement,useful for debugging sensor issues (default: FALSE)"/> 
+    <define name="SONAR_ADC_SYNC_SEND" value="TRUE|FALSE" description="Send RAW and scaled message with each new measurement,useful for debugging sensor issues (default: FALSE)"/> 
     <define name="SONAR_ADC_RAW_OFFSET" value="0"  description="sensor offset in [adc] units, defaults to 0"/>
   </doc>
   <settings>
