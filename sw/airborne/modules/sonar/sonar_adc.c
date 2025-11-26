@@ -35,6 +35,10 @@
 #include "pprzlink/messages.h"
 #endif
 
+#if defined(SENSOR_SYNC_SEND_SONAR) && (!defined(SONAR_ADC_SYNC_SEND))
+#define SONAR_ADC_SYNC_SEND
+#endif
+
 #ifdef SONAR_ADC_SYNC_SEND
 #include "modules/datalink/downlink.h"
 #endif
