@@ -35,6 +35,10 @@
 #include "pprzlink/messages.h"
 #endif
 
+#if defined(SENSOR_SYNC_SEND_SONAR) && (!defined(SONAR_ADC_SYNC_SEND))
+#define SONAR_ADC_SYNC_SEND 1
+#endif
+
 #ifdef SONAR_ADC_SYNC_SEND
 #include "modules/datalink/downlink.h"
 #endif
@@ -191,7 +195,7 @@ void sonar_adc_periodic(void)
 #endif // SITL
 
 // Fast data output for debugging purposes, one can it have temporary enabled to see what the sensor give as output in detail
-#if MODULE_SONAR_ADC_SYNC_SEND
+#if SONAR_ADC_SYNC_SEND
   sonar_adc_report();
 #endif
 
@@ -202,7 +206,7 @@ void sonar_adc_periodic(void)
  */
 void sonar_adc_report(void)
 {
-#if MODULE_SONAR_ADC_SYNC_SEND
+#if SONAR_ADC_SYNC_SEND
   DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &sonar_adc.raw, &sonar_adc.distance);
 #endif
 }
