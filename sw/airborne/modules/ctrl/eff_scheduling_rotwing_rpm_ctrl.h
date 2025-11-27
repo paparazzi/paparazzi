@@ -1,0 +1,92 @@
+/*
+ * Copyright (C) 2023 Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
+ *
+ * This file is part of paparazzi
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/** @file "modules/ctrl/eff_scheduling_rotwing.h"
+ * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
+ * The control effectiveness scheduler for the rotating wing drone type
+ */
+
+#ifndef CTRL_EFF_SCHED_ROTWING_H
+#define CTRL_EFF_SCHED_ROTWING_H
+
+#include "std.h"
+
+struct rotwing_eff_sched_param_t {
+  float Ixx_body;                 // body MMOI around roll axis [kgm²]
+  float Iyy_body;                 // body MMOI around pitch axis [kgm²]
+  float Izz;                      // total MMOI around yaw axis [kgm²]
+  float Ixx_wing;                 // wing MMOI around the chordwise direction of the wing [kgm²]
+  float Iyy_wing;                 // wing MMOI around the spanwise direction of the wing [kgm²]
+  float m;                        // mass [kg]
+  float CT_hover;                    // Thrust coefficient for hover motors in the form of T = CT * RPM^2!
+  float CT_pusher;                   // Thrust coefficient for pusher motor in the form of T = CT * RPM^2!
+  float hover_max_rpm_squared;   // max RPM limit for hover motors as configured in ESC
+  float pusher_max_rpm_squared;  // max RPM limit for pusher motor as configured in ESC
+  float k_elevator[3];
+  float k_rudder[3];
+  float k_aileron;
+  float k_flaperon;
+  float k_pusher[2];
+  float k_elevator_deflection[2];
+  float d_rudder_d_pprz;
+  float k_rpm_pprz_pusher[3];
+  float k_lift_wing[2];
+  float k_lift_fuselage;
+  float k_lift_tail;
+  float hover_rpm_lim_coef[2]; // Coefficients for limiting max RPM based on voltage level (following a linear relation)
+  float pusher_rpm_lim_coef[2]; // Coefficients for limiting max RPM based on voltage level (following a linear relation)
+};
+extern struct rotwing_eff_sched_param_t eff_sched_p;
+
+struct rotwing_eff_sched_var_t {
+  float Ixx;                  // Total MMOI around roll axis [kgm²]
+  float Iyy;                  // Total MMOI around pitch axis [kgm²]
+  float wing_rotation_rad;    // Wing rotation angle in radians: from ABI message
+  float wing_rotation_deg;    // Wing rotation angle in degrees: (clone in degrees)
+  float cosr;                 // cosine of wing rotation angle
+  float sinr;                 // sine of wing rotation angle
+  float cosr2;                // cosine² of wing rotation angle
+  float sinr2;                // sine² of wing rotation angle
+  float sinr3;                // sine³ of wing rotation angle
+
+  // commands
+  float cmd_elevator;
+  float cmd_pusher;
+  float cmd_pusher_scaled;
+  float cmd_T_mean_scaled;
+
+  // airspeed
+  float airspeed;
+  float airspeed2;
+};
+
+extern int32_t rw_flap_offset;
+
+extern float rotation_angle_setpoint_deg;
+extern int16_t rotation_cmd;
+
+extern float eff_sched_pusher_time;
+extern float roll_eff_slider;
+
+extern void eff_scheduling_rotwing_init(void);
+extern void eff_scheduling_rotwing_periodic(void);
+
+#endif  // CTRL_EFF_SCHED_ROTWING_H
+
