@@ -119,7 +119,7 @@
             <define name="WLS_N_V_MAX" value="5"/>
         </module>
 
-        <module name="eff_scheduling_rotwing"/>
+        <module name="eff_scheduling_rotwing_rpm_ctrl"/>
 
         <module name="guidance" type="indi_hybrid_quadplane"/>
         <module name="nav" type="hybrid">
@@ -233,6 +233,11 @@
 
         <define name="CHIRP_AXES" value="{0,1,2,3}"/>
         <define name="CHIRP_RADIO_CHANNEL" value="9"/>
+    </section>
+
+<section name="ROTWING" prefix="ROTWING_">
+        <!-- Necessary for RPM control -->
+        <define name="QUAD_IDLE_MIN_THRUST" value="250"/>
     </section>
 
     <section name="MISC">
