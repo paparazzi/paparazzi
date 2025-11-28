@@ -23,8 +23,8 @@
  * The control effectiveness scheduler for the rotating wing drone type
  */
 
-#ifndef CTRL_EFF_SCHED_ROTWING_H
-#define CTRL_EFF_SCHED_ROTWING_H
+#ifndef CTRL_EFF_SCHED_ROTWING_RPM_CTRL_H
+#define CTRL_EFF_SCHED_ROTWING_RPM_CTRL_H
 
 #include "std.h"
 
@@ -88,5 +88,5 @@ extern float roll_eff_slider;
 extern void eff_scheduling_rotwing_init(void);
 extern void eff_scheduling_rotwing_periodic(void);
 
-#endif  // CTRL_EFF_SCHED_ROTWING_H
+#endif  // CTRL_EFF_SCHED_ROTWING_RPM_CTRL_H
 
