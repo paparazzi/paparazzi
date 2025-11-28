@@ -472,11 +472,19 @@ void stabilization_indi_set_wls_settings(void)
     wls_stab_p.u_max[i] = MAX_PPRZ;
     wls_stab_p.u_pref[i] = act_pref[i];
 
-    // Quick and dirty motor bounding 
-    if (i <= 3) { // With RPM control we need to limit the max command to the hover motors based on the battery voltage
+    if (i == 0) { // With RPM control we need to limit the max command to the hover motors based on the battery voltage
       wls_stab_p.u_max[i] = eff_sched_p.hover_rpm_lim_coef[0] + electrical.vsupply * eff_sched_p.hover_rpm_lim_coef[1];
       wls_stab_p.u_min[i] = (int16_t)((float)SERVO_MOTOR_FRONT_NEUTRAL * ((float)SERVO_MOTOR_FRONT_NEUTRAL * ((float)MAX_PPRZ / (float)SERVO_MOTOR_FRONT_MAX) / (float)SERVO_MOTOR_FRONT_MAX));
-    } 
+    } else if (i == 1) {
+      wls_stab_p.u_max[i] = eff_sched_p.hover_rpm_lim_coef[0] + electrical.vsupply * eff_sched_p.hover_rpm_lim_coef[1];
+      wls_stab_p.u_min[i] = (int16_t)((float)SERVO_MOTOR_RIGHT_NEUTRAL * ((float)SERVO_MOTOR_RIGHT_NEUTRAL * ((float)MAX_PPRZ / (float)SERVO_MOTOR_RIGHT_MAX) / (float)SERVO_MOTOR_RIGHT_MAX));
+    } else if (i == 2) {
+      wls_stab_p.u_max[i] = eff_sched_p.hover_rpm_lim_coef[0] + electrical.vsupply * eff_sched_p.hover_rpm_lim_coef[1];
+      wls_stab_p.u_min[i] = (int16_t)((float)SERVO_MOTOR_BACK_NEUTRAL * ((float)SERVO_MOTOR_BACK_NEUTRAL * ((float)MAX_PPRZ / (float)SERVO_MOTOR_BACK_MAX) / (float)SERVO_MOTOR_BACK_MAX));
+    } else if (i == 3) {
+      wls_stab_p.u_max[i] = eff_sched_p.hover_rpm_lim_coef[0] + electrical.vsupply * eff_sched_p.hover_rpm_lim_coef[1];
+      wls_stab_p.u_min[i] = (int16_t)((float)SERVO_MOTOR_LEFT_NEUTRAL * ((float)SERVO_MOTOR_LEFT_NEUTRAL * ((float)MAX_PPRZ / (float)SERVO_MOTOR_LEFT_MAX) / (float)SERVO_MOTOR_LEFT_MAX));
+    }
     
     if (i == 5) { // elevator
       wls_stab_p.u_pref[i] = actuator_state_filt_vect[i]; // Set change in prefered state to 0 for elevator
@@ -502,9 +510,8 @@ void stabilization_indi_set_wls_settings(void)
       wls_stab_p.u_max[i] = Min(eff_sched_p.pusher_rpm_lim_coef[0] + electrical.vsupply * eff_sched_p.pusher_rpm_lim_coef[1], wls_stab_p.u_max[i]);
     }
 
-    Bound(wls_stab_p.u_pref[i], -MAX_PPRZ, MAX_PPRZ);
-    Bound(wls_stab_p.u_min[i], -MAX_PPRZ, MAX_PPRZ);
-    Bound(wls_stab_p.u_max[i], -MAX_PPRZ, MAX_PPRZ);
+    Bound(wls_stab_p.u_min[i], -MAX_PPRZ*act_is_servo[i], MAX_PPRZ);
+    Bound(wls_stab_p.u_max[i], -MAX_PPRZ*act_is_servo[i], MAX_PPRZ);
   }
 }
 
