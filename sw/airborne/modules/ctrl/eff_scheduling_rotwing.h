@@ -50,8 +50,6 @@ struct rotwing_eff_sched_param_t {
   float k_lift_wing[2];
   float k_lift_fuselage;
   float k_lift_tail;
-  float hover_rpm_lim_coef[2]; // Coefficients for limiting max RPM based on voltage level (following a linear relation)
-  float pusher_rpm_lim_coef[2]; // Coefficients for limiting max RPM based on voltage level (following a linear relation)
 };
 extern struct rotwing_eff_sched_param_t eff_sched_p;
 
