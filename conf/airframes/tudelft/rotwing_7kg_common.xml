@@ -10,10 +10,6 @@
     </section>
 
     <section name="CTRL_EFF_SCHED" prefix="ROTWING_EFF_SCHED_">
-        <define name="RPM_CONTROL"              value="TRUE"/>
-        <define name="RPM_CTRL_HOVER_LIM_COEF"  value="{366.9, 1400.0}"/>
-        <define name="RPM_CTRL_PUSH_LIM_COEF"  value="{327.1, 1800.0}"/>
-
         <define name="IXX_BODY"              value="0.04780"/>
         <define name="IYY_BODY"              value="0.7546"/>
         <define name="IZZ"                   value="0.9752"/>
@@ -21,11 +17,23 @@
         <define name="IYY_WING"              value="0.1949"/>
         <define name="M"                     value="6.67"/>
 
-        <define name="DM_DPPRZ_HOVER_PITCH"  value="{0.4, 0.00115}"/>
-        <define name="DM_DPPRZ_HOVER_ROLL"   value="{0.4, 0.00155}"/>
+        <!-- Voltage control variables -->
+        <define name="DM_DPPRZ_HOVER_PITCH"  value="{15.37287553553,0.0}"/>
+        <define name="DM_DPPRZ_HOVER_ROLL"   value="{5.86747416762564,0.000968063}"/>
 
         <define name="HOVER_ROLL_PITCH_COEF" value="{0.001418491625685,-0.000649367806611}"/>
         <define name="HOVER_ROLL_ROLL_COEF"  value="{-0.0000839259143513,-0.0000478083}"/>
+
+        <!-- RPM control variables -->
+        <define name="RPM_CTRL_HOVER_LIM_COEF"  value="{-5400, 680.7}"/>
+        <define name="RPM_CTRL_PUSH_LIM_COEF"  value="{-4400, 595.8}"/>
+        <define name="CT_HOVER"              value="8.9661e-7"/>
+        <define name="CT_PUSHER"             value="3.5e-7"/>
+        <define name="ROLL_ARM"              value="0.375"/> <!-- Distance from CG to hover motors -->
+        <define name="PITCH_ARM"             value="0.40"/>  <!-- Distance from CG to pitch motors -->
+        <define name="ROLL_ARM_PITCH_MOTORS" value="0.09"/> <!-- Z-offset for pitch motors -->
+        <define name="HOVER_MAX_RPM"         value="6250.0"/> <!-- RPM range for hover motors as configured in ESC -->
+        <define name="PUSHER_MAX_RPM"        value="9200.0"/> <!-- RPM range for pusher motor as configured in ESC -->
 
         <define name="K_ELEVATOR"            value="{0.4603,-4.81466,-28.8464}"/>
         <define name="K_RUDDER"              value="{-26.1434,-0.336403,-5.9}"/>
@@ -120,7 +128,7 @@
         <!-- G1 and G2 7 kg-->
         <define name="G1_ROLL"      value="{   0.0,  -20.0,    0.0,   20.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
         <define name="G1_PITCH"     value="{   2.0,    0.0,   -2.0,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
-        <define name="G1_YAW"       value="{  -0.26,    0.26,   -0.26,    0.26, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_YAW"       value="{  -0.29,    0.29,   -0.29,    0.29, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
         <define name="G1_THRUST"    value="{-0.534, -0.534, -0.534, -0.534, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
         <define name="G1_THRUST_X"  value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.55}"/>
         <define name="G2"           value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
