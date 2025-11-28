@@ -23,7 +23,7 @@
  * The control effectiveness scheduler for the rotating wing drone type
  */
 
-#include "modules/ctrl/eff_scheduling_rotwing.h"
+#include "modules/ctrl/eff_scheduling_rotwing_rpm_ctrl.h"
 
 #include "generated/airframe.h"
 #include "state.h"
@@ -142,6 +142,10 @@
 
 #ifndef ROTWING_EFF_SCHED_RPM_CTRL_PUSH_LIM_COEF
 #error "USING RPM CONTROL BUT NO ROTWING_EFF_SCHED_RPM_CTRL_PUSH_LIM_COEF defined"
+#endif
+
+#ifndef ROTWING_PITCH_MOTOR_TILT_ANGLE_DEG
+#define ROTWING_PITCH_MOTOR_TILT_ANGLE_DEG 10.0
 #endif
 
 struct rotwing_eff_sched_param_t eff_sched_p = {
@@ -335,10 +339,10 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
   float front_motor_pitch_eff = dMdu_pitch / eff_sched_var.Iyy;
   float back_motor_pitch_eff  = -dMdu_pitch / eff_sched_var.Iyy;
 
-  // pitch motor has roll effectiveness due to z offset from c.g. and tilt (FIX HARDCODED VALUE BEFORE PR)
-  static const float roll_eff_pitch_motor_scaling = ROTWING_EFF_SCHED_ROLL_ARM_PITCH_MOTORS / ROTWING_EFF_SCHED_ROLL_ARM * sinf(RadOfDeg(10.0)); 
+  // pitch motor has roll effectiveness due to z offset from c.g. and tilt
+  static const float roll_eff_pitch_motor_scaling = ROTWING_EFF_SCHED_ROLL_ARM_PITCH_MOTORS / ROTWING_EFF_SCHED_ROLL_ARM * sinf(RadOfDeg(ROTWING_PITCH_MOTOR_TILT_ANGLE_DEG)); 
 
-  // Update front pitch motor roll and pitch effectiveness
+  // Update front motor roll and pitch effectiveness
   g1g2[1][0] = front_motor_pitch_eff;   // pitch effectiveness front motor
   g1g2[0][0] = dMdu_pitch * roll_eff_pitch_motor_scaling / eff_sched_var.Ixx; // Roll effectiveness front motor
   
