@@ -1,8 +1,8 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 <module name="eff_scheduling_rotwing_rpm_ctrl" dir="ctrl">
   <doc>
-    <description>T
-      he control effectiveness scheduler for the rotating wing quadplane drone type
+    <description>
+    The control effectiveness scheduler for the rotating wing quadplane drone type
      - it requires a servo called ROTATION_MECH
     </description>
     <section name="ROTWING" prefix="ROTWING_EFF_SCHED_">
@@ -14,8 +14,6 @@
       <define name="M" value="0"         description=""/>
       <define name="ROLL_ARM" value="0"  description=""/>
       <define name="PITCH_ARM" value="0" description=""/>
-      <define name="HOVER_DF_DPPRZ" value="0" description=""/>
-      <define name="HOVER_ROLL_PITCH_COEF" value="{0,0}" description=""/>
     </section>
   </doc>
   <settings>
@@ -37,7 +35,7 @@
   <init fun="eff_scheduling_rotwing_init()"/>
   <periodic fun="eff_scheduling_rotwing_periodic()"/>
   <makefile>
-    <file name="eff_scheduling_rotwing.c"/>
+    <file name="eff_scheduling_rotwing_rpm_ctrl.c"/>
     <test firmware="rotorcraft">
       <define name="ACTUATORS_NB" value="10"/>
       <define name="SERVO_ROTATION_MECH_IDX" value="8"/>
@@ -55,10 +53,6 @@
       <define name="ROTWING_EFF_SCHED_IXX_WING" value="1"/>
       <define name="ROTWING_EFF_SCHED_IYY_WING" value="1"/>
       <define name="ROTWING_EFF_SCHED_M" value="1"/>
-      <define name="ROTWING_EFF_SCHED_DM_DPPRZ_HOVER_PITCH" value="{1,1}"/>
-      <define name="ROTWING_EFF_SCHED_DM_DPPRZ_HOVER_ROLL" value="{1,1}"/>
-      <define name="ROTWING_EFF_SCHED_HOVER_ROLL_PITCH_COEF" value="{1,1}"/>
-      <define name="ROTWING_EFF_SCHED_HOVER_ROLL_ROLL_COEF" value="{1,1}"/>
       <define name="ROTWING_EFF_SCHED_K_ELEVATOR" value="{1,1,1}"/>
       <define name="ROTWING_EFF_SCHED_K_RUDDER" value="{1,1,1}"/>
       <define name="ROTWING_EFF_SCHED_K_AILERON" value="1"/>
