@@ -452,7 +452,7 @@ if __name__ == '__main__':
     parser.add_argument('-dp', '--data_port', dest='data_port', type=int, default=1511, help="NatNet server data socket UDP port")
     parser.add_argument('-cp', '--command_port', dest='command_port', type=int, default=1510, help="NatNet server command socket UDP port")
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help="display debug messages")
-    parser.add_argument('-f', '--freq', dest='freq', default=10, type=int, help="transmit frequency")
+    parser.add_argument('-f', '--freq', dest='freq', default=100, type=int, help="transmit frequency")
     parser.add_argument('-gr', '--ground_ref', dest='ground_ref', action='store_true', help="also send the GROUND_REF message")
     parser.add_argument('-vs', '--vel_samples', dest='vel_samples', default=4, type=int, help="amount of samples to compute velocity (should be greater than 2)")
     parser.add_argument('-rg', '--remote_gps', dest='rgl_msg', action='store_true', help="use the old REMOTE_GPS_LOCAL message")
