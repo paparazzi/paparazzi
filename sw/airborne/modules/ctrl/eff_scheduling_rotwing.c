@@ -565,3 +565,48 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   wls_guid_p.u_pref[2] = wls_guid_p.u_max[2]; // Low thrust better for efficiency
   wls_guid_p.u_pref[3] = body_v[0]; // solve the body acceleration
 }
+
+// Rotation order ZXY
+void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float body_v[GUIDANCE_INDI_HYBRID_V]) {  
+  /*Pre-calculate sines and cosines*/
+  float sphi = sinf(roll_filt.o[0]);
+  float cphi = cosf(roll_filt.o[0]);
+  float stheta = sinf(pitch_filt.o[0]);
+  float ctheta = cosf(pitch_filt.o[0]);
+  float spsi = sinf(yaw_filt.o[0]);
+  float cpsi = cosf(yaw_filt.o[0]);
+
+#ifndef GUIDANCE_INDI_PITCH_EFF_SCALING
+#define GUIDANCE_INDI_PITCH_EFF_SCALING 1.0
+#endif
+
+  /*Amount of lift produced by the wing*/
+  float lift_thrust_bz = accel_bodyz_filt.o[0]; // Sum of lift and thrust in boxy z axis (level flight)
+  float lift_thrust_bx = accel_bodyx_filt.o[0]; // Sum of lift and thrust in boxy x axis (level flight)
+
+  // get the derivative of the lift wrt to theta
+  float liftd = guidance_indi_get_liftd(0.0f, 0.0f);
+
+  Gmat[0][0] = 0;
+  Gmat[1][0] = -cphi * lift_thrust_bz;
+  Gmat[2][0] = sphi*stheta*lift_thrust_bx - sphi*ctheta*lift_thrust_bz;
+
+  Gmat[0][1] = lift_thrust_bz;
+  Gmat[1][1] = sphi*(-liftd + lift_thrust_bx);
+  Gmat[2][1] = -cphi * (-liftd + lift_thrust_bx);
+
+  Gmat[0][2] =  stheta;
+  Gmat[1][2] =  -ctheta * sphi;
+  Gmat[2][2] =  cphi * ctheta;
+
+  Gmat[0][3] =  ctheta;
+  Gmat[1][3] =  sphi*stheta;
+  Gmat[2][3] = -cphi*stheta;
+  // Make this term zero to prevent switching 'exploits'
+  // Gmat[2][3] = 0;
+
+  // Convert acceleration error to body axis system
+  body_v[0] =  cpsi * a_diff.x + spsi * a_diff.y;
+  body_v[1] = -spsi * a_diff.x + cpsi * a_diff.y;
+  body_v[2] =  a_diff.z;
+}
