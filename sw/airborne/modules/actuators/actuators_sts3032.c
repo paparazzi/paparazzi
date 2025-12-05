@@ -91,7 +91,7 @@ void actuators_sts3032_init(void)
   sts.rx_state = STS3032_RX_IDLE;
   sts.nb_bytes_expected = 1;
   sts.nb_failed_checksum = 0;
-  circular_buffer_init(&sts.msg_buf, cbuf, sizeof(cbuf));
+  framed_ring_buffer_init(&sts.msg_buf, cbuf, sizeof(cbuf));
 
   static const uint8_t tmp_ids[SERVOS_STS3032_NB] = STS3032_IDS;
   memcpy(sts.ids, tmp_ids, sizeof(tmp_ids));
@@ -129,7 +129,7 @@ static void sts3032_event(struct sts3032 *sts)
   uint32_t dt = now - sts->time_last_msg;
   if ((!sts->wait_reply && dt > STS3032_DELAY_MSG_MIN) || dt > STS3032_DELAY_MSG) {
     uint8_t buf[BUF_MAX_LENGHT];
-    int size = circular_buffer_get(&sts->msg_buf, buf, BUF_MAX_LENGHT);
+    int size = framed_ring_buffer_get(&sts->msg_buf, buf, BUF_MAX_LENGHT);
     if (size > 0) {
       // first byte of the buffer indicate whether or not a replay is expected
       // the rest is the message itself
@@ -307,7 +307,7 @@ static void write_buf(struct sts3032 *sts, uint8_t id, uint8_t *data, uint8_t le
   }
   buf[len + 6] = ~checksum;
 
-  circular_buffer_put(&sts->msg_buf, buf, len + 7);
+  framed_ring_buffer_put(&sts->msg_buf, buf, len + 7);
 }
 
 
