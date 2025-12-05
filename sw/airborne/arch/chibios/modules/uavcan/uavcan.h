@@ -30,7 +30,7 @@
 #include <string.h>
 #include "mcu_periph/can.h"
 #include "modules/core/threads.h"
-#include "utils/circular_buffer.h"
+#include "utils/framed_ring_buffer.h"
 
 
 #ifndef UAVCAN_TX_FIFO_SIZE
@@ -62,7 +62,7 @@ struct uavcan_iface_t {
   uint8_t canard_memory_pool[1024 * 2];
 
   uint8_t _tx_fifo_buffer[UAVCAN_TX_FIFO_SIZE];
-  struct circular_buffer _tx_fifo;
+  struct framed_ring_buffer _tx_fifo;
   pprz_mutex_t tx_fifo_mutex;
 
   uint8_t transfer_id;

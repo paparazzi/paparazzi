@@ -28,7 +28,7 @@
 
 #include <stdint.h>
 #include "mcu_periph/uart.h"
-#include "utils/circular_buffer.h"
+#include "utils/framed_ring_buffer.h"
 #include "generated/airframe.h"
 
 
@@ -59,7 +59,7 @@ struct sts3032 {
   bool wait_reply;
   uint16_t nb_failed_checksum;
 
-  struct circular_buffer msg_buf;
+  struct framed_ring_buffer msg_buf;
 };
 
 
