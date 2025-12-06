@@ -6,11 +6,11 @@
  * This file is part of paparazzi. See LICENCE file.
  */
 
-#include "circular_buffer.h"
+#include "framed_ring_buffer.h"
 #include <string.h>
 
 
-void circular_buffer_init(struct circular_buffer *cb, uint8_t *buffer, size_t len)
+void framed_ring_buffer_init(struct framed_ring_buffer *cb, uint8_t *buffer, size_t len)
 {
   cb->_buf = buffer;
   cb->_buf_len = len;
@@ -19,7 +19,7 @@ void circular_buffer_init(struct circular_buffer *cb, uint8_t *buffer, size_t le
 }
 
 
-int circular_buffer_get(struct circular_buffer *cb, uint8_t *buf, size_t len)
+int framed_ring_buffer_get(struct framed_ring_buffer *cb, uint8_t *buf, size_t len)
 {
   // buffer empty
   if (cb->read_offset == cb->write_offset) { return CIR_ERROR_NO_MSG; }
@@ -49,9 +49,9 @@ int circular_buffer_get(struct circular_buffer *cb, uint8_t *buf, size_t len)
   return nb_bytes;
 }
 
-int circular_buffer_put(struct circular_buffer *cb, const uint8_t *buf, size_t len)
+int framed_ring_buffer_put(struct framed_ring_buffer *cb, const uint8_t *buf, size_t len)
 {
-  size_t available = circular_buffer_available(cb);
+  size_t available = framed_ring_buffer_available(cb);
 
   if (len > available) {
     return CIR_ERROR_NO_SPACE_AVAILABLE;
@@ -87,7 +87,7 @@ int circular_buffer_put(struct circular_buffer *cb, const uint8_t *buf, size_t l
   return 0;
 }
 
-int circular_buffer_drop(struct circular_buffer *cb) {
+int framed_ring_buffer_drop_last(struct framed_ring_buffer *cb) {
   // buffer empty
   if (cb->read_offset == cb->write_offset) { return CIR_ERROR_NO_MSG; }
 
@@ -107,7 +107,7 @@ int circular_buffer_drop(struct circular_buffer *cb) {
   return 0;
 }
 
-size_t circular_buffer_available(struct circular_buffer *cb) {
+size_t framed_ring_buffer_available(struct framed_ring_buffer *cb) {
   // write_offset == read_offset is considered an empty buffer. => 3= 2 (lenght) + 1 (margin)
   int available = 0;
   if (cb->read_offset > cb->write_offset) {
@@ -119,7 +119,7 @@ size_t circular_buffer_available(struct circular_buffer *cb) {
   return available > 0 ? (size_t)available : 0;
 }
 
-void circular_buffer_clear(struct circular_buffer *cb) {
+void framed_ring_buffer_clear(struct framed_ring_buffer *cb) {
   cb->read_offset = 0;
   cb->write_offset = 0;
 }
