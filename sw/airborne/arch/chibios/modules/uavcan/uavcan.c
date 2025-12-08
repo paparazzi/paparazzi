@@ -123,12 +123,12 @@ static void uavcan_tx(void* p)
     pprz_mtx_lock(&iface->tx_fifo_mutex);
     while(true) {
       struct uavcan_msg_header_t header;
-      int ret = circular_buffer_get(&iface->_tx_fifo, (uint8_t*)&header, sizeof(struct uavcan_msg_header_t));
+      int ret = framed_ring_buffer_get(&iface->_tx_fifo, (uint8_t*)&header, sizeof(struct uavcan_msg_header_t));
       if(ret < 0) {break;}
       if(header.payload_len >= UAVCAN_MSG_MAX_SIZE) {
         chSysHalt("UAVCAN_MSG_MAX_SIZE too small");
       }
-      ret = circular_buffer_get(&iface->_tx_fifo, msg_payload, UAVCAN_MSG_MAX_SIZE);
+      ret = framed_ring_buffer_get(&iface->_tx_fifo, msg_payload, UAVCAN_MSG_MAX_SIZE);
       if(ret < 0) {break;}
       pprz_mtx_lock(&iface->mutex);
       canardBroadcast(&iface->canard,
@@ -215,7 +215,7 @@ static void uavcanInitIface(struct uavcan_iface_t *iface)
   pprz_mtx_init(&iface->tx_fifo_mutex);
 
   // Initialize tx fifo
-  circular_buffer_init(&iface->_tx_fifo, iface->_tx_fifo_buffer, UAVCAN_TX_FIFO_SIZE);
+  framed_ring_buffer_init(&iface->_tx_fifo, iface->_tx_fifo_buffer, UAVCAN_TX_FIFO_SIZE);
 
   // Initialize canard
   canardInit(&iface->canard, iface->canard_memory_pool, sizeof(iface->canard_memory_pool),
@@ -276,15 +276,15 @@ void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature
     .payload_len = payload_len
   };
 
-  if(circular_buffer_put(&iface->_tx_fifo, (uint8_t*)&header, sizeof(struct uavcan_msg_header_t)) < 0) {
+  if(framed_ring_buffer_put(&iface->_tx_fifo, (uint8_t*)&header, sizeof(struct uavcan_msg_header_t)) < 0) {
     // fail to post header
     pprz_mtx_unlock(&iface->tx_fifo_mutex);
     return;
   }
 
-  if(circular_buffer_put(&iface->_tx_fifo, payload, payload_len) < 0) {
+  if(framed_ring_buffer_put(&iface->_tx_fifo, payload, payload_len) < 0) {
     // fail to post payload. Remove the header from the fifo
-    circular_buffer_drop(&iface->_tx_fifo);
+    framed_ring_buffer_drop_last(&iface->_tx_fifo);
     pprz_mtx_unlock(&iface->tx_fifo_mutex);
     return;
   }

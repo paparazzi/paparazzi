@@ -33,7 +33,7 @@ export PAPARAZZI_HOME
 
 #####################################################
 # If you add more test files you add their names here
-TESTS = test_circular_buffer.run
+TESTS = test_framed_ring_buffer.run
 
 ###################################################
 # You should not need to touch the rest of the file
@@ -52,7 +52,7 @@ build_tests: $(TESTS)
 test: build_tests
 	prove $(VERBOSE) --exec '' ./*.run
 
-test_circular_buffer.run: $(PAPARAZZI_SRC)/sw/airborne/utils/circular_buffer.c
+test_framed_ring_buffer.run: $(PAPARAZZI_SRC)/sw/airborne/utils/framed_ring_buffer.c
 
 %.run: %.c
 	@echo BUILD $@
