@@ -80,10 +80,6 @@
     <exception cond="Or(!InsideSoftGeofence(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 250.0) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
     <!-- Datalink timeout go to standby free -->
     <exception cond="datalink_time @GT 25 @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
-    <!-- Bat low return to standby-->
-    <exception cond="(electrical.bat_low @AND !(IndexOfBlock('Holding point') @GT nav_block) @AND !(nav_block >= IndexOfBlock('land here')) @AND (autopilot_in_flight() == true) )" deroute="Standby"/>
-    <!-- Bat critical land here-->
-    <exception cond="(electrical.bat_critical @AND !(IndexOfBlock('Holding point') @GT nav_block) @AND !(nav_block >= IndexOfBlock('land here')) @AND (autopilot_in_flight() == true) )" deroute="land here"/>
   </exceptions>
   <blocks>
    <block name="Wait GPS">
