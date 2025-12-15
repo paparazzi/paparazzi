@@ -1,0 +1,33 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_indi_base" dir="guidance" task="control">
+  <doc>
+    <description>
+      Base guidance controller for rotorcraft using INDI
+      Requires a model, e.g. quadrotor, fully_actuated, ...
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="guidance_indi">
+        <dl_setting var="guidance_indi_pos_gain" min="0" step="0.1" max="10.0" shortname="kp" param="GUIDANCE_INDI_POS_GAIN" persistent="true"/>
+        <dl_setting var="guidance_indi_speed_gain" min="0" step="0.1" max="10.0" shortname="kd" param="GUIDANCE_INDI_SPEED_GAIN" persistent="true"/>
+        <dl_setting var="guidance_indi_max_bank" min="0" step="0.1" max="80.0" shortname="max_bank" param="GUIDANCE_H_MAX_BANK" unit="rad" alt_unit="deg"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>@navigation,guidance_rotorcraft</depends>
+    <provides>guidance,attitude_command</provides>
+  </dep>
+  <header>
+    <file name="guidance_indi.h"/>
+  </header>
+  <init fun="guidance_indi_init()"/>
+  <init fun="guidance_indi_enter()"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="guidance_indi.c" dir="$(SRC_FIRMWARE)/guidance"/>
+    <define name="GUIDANCE_PID_USE_AS_DEFAULT" value="FALSE"/>
+    <define name="GUIDANCE_INDI_USE_AS_DEFAULT" value="TRUE"/>
+  </makefile>
+</module>
