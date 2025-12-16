@@ -41,27 +41,28 @@ PRINT_CONFIG_VAR(DISCO_MPU_I2C_DEV)
 #define AK8963_HZ 50
 #endif
 
-#if !defined DISCO_LOWPASS_FILTER && !defined  DISCO_SMPLRT_DIV
-#if (PERIODIC_FREQUENCY == 60) || (PERIODIC_FREQUENCY == 120)
+#if !defined DISCO_LOWPASS_FILTER && !defined DISCO_SMPLRT_DIV
+#if PERIODIC_FREQUENCY < 500
 /* Accelerometer: Bandwidth 44Hz, Delay 4.9ms
  * Gyroscope: Bandwidth 42Hz, Delay 4.8ms sampling 1kHz
  */
 #define DISCO_LOWPASS_FILTER MPU60X0_DLPF_42HZ
 #define DISCO_SMPLRT_DIV 9
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
-#elif PERIODIC_FREQUENCY == 512
+
+#else // PERIODIC_FREQUENCY >= 500
 /* Accelerometer: Bandwidth 260Hz, Delay 0ms
  * Gyroscope: Bandwidth 256Hz, Delay 0.98ms sampling 8kHz
  */
 #define DISCO_LOWPASS_FILTER MPU60X0_DLPF_256HZ
 #define DISCO_SMPLRT_DIV 3
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 2kHz at 8kHz internal sampling")
+
 #endif
 #endif
 
 PRINT_CONFIG_VAR(DISCO_SMPLRT_DIV)
 PRINT_CONFIG_VAR(DISCO_LOWPASS_FILTER)
-
 PRINT_CONFIG_VAR(DISCO_GYRO_RANGE)
 PRINT_CONFIG_VAR(DISCO_ACCEL_RANGE)
 
