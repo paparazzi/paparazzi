@@ -32,8 +32,8 @@
 #include "modules/core/abi.h"
 #include "generated/modules.h"
 
-#if !defined IMU_MPU9250_GYRO_LOWPASS_FILTER && !defined IMU_MPU9250_ACCEL_LOWPASS_FILTER && !defined  IMU_MPU9250_SMPLRT_DIV
-#if (PERIODIC_FREQUENCY >= 60) && (PERIODIC_FREQUENCY <= 120)
+#if !defined IMU_MPU9250_GYRO_LOWPASS_FILTER && !defined IMU_MPU9250_ACCEL_LOWPASS_FILTER && !defined IMU_MPU9250_SMPLRT_DIV
+#if PERIODIC_FREQUENCY < 500
 /* Accelerometer: Bandwidth 41Hz, Delay 5.9ms
  * Gyroscope: Bandwidth 41Hz, Delay 5.9ms sampling 1kHz
  * Output rate: 100Hz
@@ -42,7 +42,8 @@
 #define IMU_MPU9250_ACCEL_LOWPASS_FILTER MPU9250_DLPF_ACCEL_41HZ
 #define IMU_MPU9250_SMPLRT_DIV 9
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
-#elif (PERIODIC_FREQUENCY == 512) || (PERIODIC_FREQUENCY == 500)
+
+#else // PERIODIC_FREQUENCY >= 500
 /* Accelerometer: Bandwidth 184Hz, Delay 5.8ms
  * Gyroscope: Bandwidth 250Hz, Delay 0.97ms sampling 8kHz
  * Output rate: 2kHz
@@ -51,19 +52,13 @@ PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
 #define IMU_MPU9250_ACCEL_LOWPASS_FILTER MPU9250_DLPF_ACCEL_184HZ
 #define IMU_MPU9250_SMPLRT_DIV 3
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 2kHz at 8kHz internal sampling")
-#else
-/* By default, don't go too fast */
-#define IMU_MPU9250_SMPLRT_DIV 9
-#define IMU_MPU9250_GYRO_LOWPASS_FILTER MPU9250_DLPF_GYRO_41HZ
-#define IMU_MPU9250_ACCEL_LOWPASS_FILTER MPU9250_DLPF_ACCEL_41HZ
-PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
-#warning "Non-default PERIODIC_FREQUENCY: please define IMU_MPU9250_GYRO_LOWPASS_FILTER, IMU_MPU9250_ACCEL_LOWPASS_FILTER and IMU_MPU9250_SMPLRT_DIV."
+
 #endif
 #endif
+
 PRINT_CONFIG_VAR(IMU_MPU9250_SMPLRT_DIV)
 PRINT_CONFIG_VAR(IMU_MPU9250_GYRO_LOWPASS_FILTER)
 PRINT_CONFIG_VAR(IMU_MPU9250_ACCEL_LOWPASS_FILTER)
-
 PRINT_CONFIG_VAR(IMU_MPU9250_GYRO_RANGE)
 PRINT_CONFIG_VAR(IMU_MPU9250_ACCEL_RANGE)
 
