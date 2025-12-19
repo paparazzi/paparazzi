@@ -33,28 +33,28 @@
 #include "generated/modules.h"
 
 /* MPU60x0 gyro/accel internal lowpass frequency */
-#if !defined IMU_MPU60X0_LOWPASS_FILTER && !defined  IMU_MPU60X0_SMPLRT_DIV
-#if (PERIODIC_FREQUENCY == 60) || (PERIODIC_FREQUENCY == 120)
+#if !defined IMU_MPU60X0_LOWPASS_FILTER && !defined IMU_MPU60X0_SMPLRT_DIV
+#if PERIODIC_FREQUENCY < 500
 /* Accelerometer: Bandwidth 44Hz, Delay 4.9ms
  * Gyroscope: Bandwidth 42Hz, Delay 4.8ms sampling 1kHz
  */
 #define IMU_MPU60X0_LOWPASS_FILTER MPU60X0_DLPF_42HZ
 #define IMU_MPU60X0_SMPLRT_DIV 9
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
-#elif (PERIODIC_FREQUENCY == 500) || (PERIODIC_FREQUENCY == 512)
+
+#else // PERIODIC_FREQUENCY >= 500
 /* Accelerometer: Bandwidth 260Hz, Delay 0ms
  * Gyroscope: Bandwidth 256Hz, Delay 0.98ms sampling 8kHz
  */
 #define IMU_MPU60X0_LOWPASS_FILTER MPU60X0_DLPF_256HZ
 #define IMU_MPU60X0_SMPLRT_DIV 3
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 2kHz at 8kHz internal sampling")
-#else
-#error Non-default PERIODIC_FREQUENCY: please define IMU_MPU60X0_LOWPASS_FILTER and IMU_MPU60X0_SMPLRT_DIV.
+
 #endif
 #endif
+
 PRINT_CONFIG_VAR(IMU_MPU60X0_LOWPASS_FILTER)
 PRINT_CONFIG_VAR(IMU_MPU60X0_SMPLRT_DIV)
-
 PRINT_CONFIG_VAR(IMU_MPU60X0_GYRO_RANGE)
 PRINT_CONFIG_VAR(IMU_MPU60X0_ACCEL_RANGE)
 
