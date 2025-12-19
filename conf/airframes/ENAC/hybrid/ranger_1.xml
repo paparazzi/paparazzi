@@ -248,11 +248,11 @@
 
   <section name="STABILIZATION_PLANE" prefix="STABILIZATION_PLANE_">
     <define name="PHI_PGAIN" value="10000"/>
-    <define name="PHI_IGAIN" value="50"/>
-    <define name="PHI_DGAIN" value="600"/>
+    <define name="PHI_IGAIN" value="1300"/>
+    <define name="PHI_DGAIN" value="1300"/>
     <define name="THETA_PGAIN" value="8000"/>
-    <define name="THETA_IGAIN" value="30"/>
-    <define name="THETA_DGAIN" value="1000"/>
+    <define name="THETA_IGAIN" value="1300"/>
+    <define name="THETA_DGAIN" value="1300"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
