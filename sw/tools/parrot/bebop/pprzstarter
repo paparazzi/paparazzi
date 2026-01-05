@@ -61,6 +61,19 @@ try_join()
   done
 }
 
+# kill wpa_supplicant if needed and reset wifi chip
+# $1 error message
+reset_wifi()
+{
+  echo $1, reverting back to default
+  killall wpa_supplicant
+  /sbin/broadcom_reset.sh
+  BLDC_Test_Bench -n -M -2
+  echo "Reset broadcom: $1" > /data/ftp/internal_000/scripts/MSG_latest_Failed
+  echo "$(bcmwl status)" >> /data/ftp/internal_000/scripts/MSG_latest_Failed
+}
+
+
 if [ "$JOIN_WIFI" -gt "0" ]
 then
   sleep 2
@@ -88,11 +101,11 @@ then
       echo "Connect with wpa_supplicant"
       wpa_supplicant -B -D wext -i eth0 -c /data/ftp/internal_000/scripts/wpa_supplicant.conf
     fi
-    wait_join 10 3
-    echo $wait_ret > /data/ftp/internal_000/scripts/MSG_latest_Join
-    if [ $wait_ret == 1 ]; then
-      echo Join succeeded, setting IP
-      if [ "$WIFI_ADDRESS" == "dhcp" ]; then
+    if [ "$WIFI_ADDRESS" == "dhcp" ]; then
+      wait_join 10 3
+      echo $wait_ret > /data/ftp/internal_000/scripts/MSG_latest_Join
+      if [ $wait_ret == 1 ]; then
+        echo Join succeeded, setting IP
         # from the udhcpc message clip the leased IP address
         dhcpmsg=`udhcpc -n -b -i eth0 -s /data/ftp/internal_000/scripts/config_network.script -x hostname:$(hostname)`
         echo $dhcpmsg > /data/ftp/internal_000/scripts/MSG_latest_DHCP
@@ -104,26 +117,17 @@ then
           echo DHCP success, using IP $dhcpip
           BLDC_Test_Bench -n -M 2 # Make beep sound. You are connected!
         else
-          echo DHCP failed, reverting back to default
-          killall wpa_supplicant
-          /sbin/broadcom_reset.sh
-          BLDC_Test_Bench -n -M -2
-          echo "Reset broadcom: DHCP failed" > /data/ftp/internal_000/scripts/MSG_latest_Failed
+          reset_wifi "DHCP failed"
         fi
       else
-        ifconfigcmd="ifconfig eth0 $WIFI_ADDRESS"
-        eval $ifconfigcmd
-        sleep 1
-        echo Connected with static IP $WIFI_ADDRESS
-        BLDC_Test_Bench -n -M 2 # Make beep sound. You are connected!
+        reset_wifi "Join failed"
       fi
-    else
-      echo Join failed, reverting back to default
-      killall wpa_supplicant
-      /sbin/broadcom_reset.sh
-      BLDC_Test_Bench -n -M -2
-      echo "Reset broadcom: Join failed" > /data/ftp/internal_000/scripts/MSG_latest_Failed
-      echo "$(bcmwl status)" >> /data/ftp/internal_000/scripts/MSG_latest_Failed
+    else # Static IP
+      ifconfigcmd="ifconfig eth0 $WIFI_ADDRESS"
+      eval $ifconfigcmd
+      sleep 1
+      echo Connected with static IP $WIFI_ADDRESS
+      BLDC_Test_Bench -n -M 2 # Make beep sound. You are connected!
     fi
   else
     # print wifi status
