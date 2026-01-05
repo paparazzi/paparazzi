@@ -27,7 +27,7 @@ wait_join()
   join_ssid="none"
   wait_ret=0
   cpt_status=1
-  while [ $cpt_status -le $1 ] && [$wait_ret == 0]
+  while [ $cpt_status -le $1 ] && [ $wait_ret == 0 ]
   do
     join_ssid=$(bcmwl status | egrep $WIFI_SSID -o)
     sleep $2
@@ -105,6 +105,7 @@ then
           BLDC_Test_Bench -n -M 2 # Make beep sound. You are connected!
         else
           echo DHCP failed, reverting back to default
+          killall wpa_supplicant
           /sbin/broadcom_reset.sh
           BLDC_Test_Bench -n -M -2
           echo "Reset broadcom: DHCP failed" > /data/ftp/internal_000/scripts/MSG_latest_Failed
@@ -118,6 +119,7 @@ then
       fi
     else
       echo Join failed, reverting back to default
+      killall wpa_supplicant
       /sbin/broadcom_reset.sh
       BLDC_Test_Bench -n -M -2
       echo "Reset broadcom: Join failed" > /data/ftp/internal_000/scripts/MSG_latest_Failed
