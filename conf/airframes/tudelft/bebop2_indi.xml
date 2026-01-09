@@ -5,12 +5,22 @@
   </description>
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop2"/>
+    <target name="ap" board="bebop2">
 
-    <!--target name="nps" board="pc">
+      <!-- If flying with optitrack, uncomment the following: -->
+      <!-- <section name="OPTITRACK">
+        <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
+        <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+        <define name="INS_USE_GPS_ALT" value="1"/>
+        <define name="INS_USE_GPS_ALT_SPEED" value="1"/>
+        <define name="INS_VFF_R_GPS" value="0.01"/>
+      </section> -->
+    </target>
+
+    <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
-    </target-->
+    </target>
 
 	  <!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
@@ -20,6 +30,13 @@
     <module name="gps" type="ublox"/>
     <module name="stabilization" type="indi">
       <define name="STABILIZATION_INDI_RPM_FEEDBACK" value="TRUE"/>
+    </module>
+    <module name="guidance" type="indi">
+      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+      <define name="GUIDANCE_INDI_THRUST_DYNAMICS_FREQ" value="53.9"/>
+      <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
+      <define name="WLS_N_U_MAX" value="4"/>
+      <define name="WLS_N_V_MAX" value="4"/>
     </module>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
@@ -81,7 +98,6 @@
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
   </section>
-
 
   <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoint limits for attitude stabilization rc flight -->
@@ -151,7 +167,8 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
-    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
+    <define name="NO_MOTOR_MIXING" value="TRUE"/>
   </section>
 
   <section name="AUTOPILOT">
