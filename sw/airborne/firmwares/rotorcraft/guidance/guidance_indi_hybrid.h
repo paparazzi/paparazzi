@@ -93,7 +93,6 @@ struct guidance_indi_hybrid_params {
   float descend_vspeed_quad;
 };
 
-extern struct FloatVect3 sp_accel;
 extern struct FloatVect3 gi_speed_sp;
 extern struct guidance_indi_hybrid_params gih_params;
 
