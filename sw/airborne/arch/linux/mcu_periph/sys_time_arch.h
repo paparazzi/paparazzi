@@ -69,4 +69,14 @@ static inline unsigned int sys_time_elapsed_us(struct timespec *prev, struct tim
   return d_sec * 1000000 + d_nsec / 1000;
 }
 
+/**
+ * Get the time in milliseconds since the start of the week.
+ * If no GPS is connected this will return the time since startup
+ * @return Time of the week in milliseconds
+ */
+static inline uint32_t get_sys_time_tow(void)
+{
+  return sys_time.tow_sync + get_sys_time_msec();
+}
+
 #endif /* SYS_TIME_ARCH_H */
