@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<flight_plan alt="60" ground_alt="0" lat0="52.168212" lon0="4.412785" max_dist_from_home="5000" name="Cyclone2 Valkenburg Basic" security_height="2">
+  <header>
+#include "autopilot.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="46.647" y="13.326"/>
+    <waypoint name="CLIMB" x="62.27" y="93.518"/>
+    <waypoint name="STDBY" x="41.32" y="67.352"/>
+    <waypoint name="p1" x="116.277" y="108.925"/>
+    <waypoint name="p2" x="269.314" y="167.472"/>
+    <waypoint name="p3" x="334.002" y="3.987"/>
+    <waypoint name="p4" x="168.734" y="-53.325"/>
+    <waypoint name="WP_SPIRAL" x="217.232" y="56.711"/>
+    <waypoint name="TD" x="8.207" y="3.905"/>
+    <waypoint lat="52.1709" lon="4.41543" name="C1"/>
+    <waypoint lat="52.1708" lon="4.4124" name="C2"/>
+    <waypoint lat="52.1683" lon="4.40487" name="C3"/>
+    <waypoint lat="52.1633" lon="4.40672" name="C4"/>
+    <waypoint lat="52.1611" lon="4.40963" name="C5"/>
+    <waypoint lat="52.1621" lon="4.42081" name="C6"/>
+    <waypoint lat="52.1654" lon="4.42979" name="C7"/>
+    <waypoint lat="52.1707" lon="4.42876" name="C8"/>
+    <waypoint lat="52.1739" lon="4.4257" name="C9"/>
+  </waypoints>
+  <sectors>
+    <sector color="red" name="Flyzone">
+      <corner name="C1"/>
+      <corner name="C2"/>
+      <corner name="C3"/>
+      <corner name="C4"/>
+      <corner name="C5"/>
+      <corner name="C6"/>
+      <corner name="C7"/>
+      <corner name="C8"/>
+      <corner name="C9"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable var="climbrate" init="1." min="0." max="5." step="0.1"/>
+    <variable var="circle_radius" init="150." min="50." max="500." step="1."/>
+  </variables>
+  <exceptions>
+    <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 250) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point'))" deroute="Holding point"/>
+    <exception cond="datalink_time @GT 25 @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 1)"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="GetPosHeight() @GT 20.0" deroute="Standby"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <!-- <set value="false" var="force_forward"/> -->
+      <stay wp="STDBY"/>
+    </block>
+    <block name="stay_p1">
+      <!-- <set value="false" var="force_forward"/> -->
+      <stay wp="p1"/>
+    </block>
+    <block name="go_p2">
+      <!-- <set value="false" var="force_forward"/> -->
+      <go wp="p2"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="route">
+      <!-- <set value="true" var="force_forward"/> -->
+      <while cond="true">
+        <go from="p1" hmode="route" wp="p2"/>
+        <go from="p2" hmode="route" wp="p3"/>
+        <go from="p3" hmode="route" wp="p4"/>
+        <go from="p4" hmode="route" wp="p1"/>
+      </while>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="circle">
+      <circle radius="circle_radius" wp="WP_SPIRAL"/>
+    </block>
+    <block name="spiral_up">
+      <exception cond="GetPosHeight() @GT 100.0" deroute="spiral_down"/>
+      <circle radius="circle_radius" wp="WP_SPIRAL" vmode="climb" climb="climbrate"/>
+    </block>
+    <block name="spiral_down">
+      <exception cond="GetPosHeight() @LT 60.0" deroute="circle"/>
+      <circle radius="circle_radius" wp="WP_SPIRAL" vmode="climb" climb="-climbrate"/>
+    </block>
+    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="land">
+      <!-- <set value="false" var="force_forward"/> -->
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="landed">
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>
