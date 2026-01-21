@@ -80,7 +80,7 @@
 
         <!-- Herelink datalink -->
         <module name="telemetry" type="transparent">
-            <!--configure name="MODEM_PORT" value="usb_serial"/-->
+            <!-- <configure name="MODEM_PORT" value="usb_serial"/> -->
             <configure name="MODEM_BAUD" value="B460800"/>
         </module>
 
@@ -297,11 +297,12 @@
             <field type="struct">
                 <field name="abi_id" value="26"/>
                 <field name="calibrated" type="struct">
-                    <field name="neutral" value="false"/>
-                    <field name="scale" value="false"/>
-                    <field name="rotation" value="false"/>
-                    <field name="filter" value="true"/>
-                </field>
+                <field name="neutral" value="true"/>
+                <field name="scale_f" value="true"/>
+                <field name="filter" value="true"/>
+            </field>
+                <field name="neutral" value="-2,-3,48" type="int[]"/>
+                <field name="scale_f" value="{ 4.8973, 4.9059, 4.9063 }"/>
                 <field name="filter_sample_freq" value="4042"/>
                 <field name="filter_freq" value="30"/>
             </field>

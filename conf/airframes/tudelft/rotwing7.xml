@@ -80,8 +80,8 @@
 
         <!-- Herelink datalink -->
         <module name="telemetry" type="transparent">
-            <configure name="MODEM_PORT" value="usb_serial"/>
-            <!-- <configure name="MODEM_BAUD" value="B460800"/> -->
+            <!-- <configure name="MODEM_PORT" value="usb_serial"/> -->
+            <configure name="MODEM_BAUD" value="B460800"/>
         </module>
 
         <!-- Sensors -->
