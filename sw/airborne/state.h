@@ -1097,6 +1097,14 @@ static inline struct Int32Vect3 *stateGetAccelBody_i(void)
 }
 /** @}*/
 
+static inline struct FloatVect3 *stateGetAccelBody_f(void)
+{
+  static struct FloatVect3 body_accel_f;
+  body_accel_f.x = FLOAT_OF_BFP(state.body_accel_i.x, INT32_ACCEL_FRAC);
+  body_accel_f.y = FLOAT_OF_BFP(state.body_accel_i.y, INT32_ACCEL_FRAC);
+  body_accel_f.z = FLOAT_OF_BFP(state.body_accel_i.z, INT32_ACCEL_FRAC);
+  return &body_accel_f;
+}
 
 
 /******************************************************************************
