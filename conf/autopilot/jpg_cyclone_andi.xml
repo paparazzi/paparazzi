@@ -1,0 +1,200 @@
+<!DOCTYPE autopilot SYSTEM "autopilot.dtd">
+
+<autopilot name="ANDI Autopilot Cyclone">
+  <state_machine name="ap" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true" settings_handler="autopilot_generated|SetModeHandler">
+
+    <includes>
+      <include name="generated/airframe.h"/>
+      <include name="autopilot.h"/>
+      <include name="autopilot_rc_helpers.h"/>
+      <include name="navigation.h"/>
+      <include name="guidance.h"/>
+      <include name="stabilization.h"/>
+      <include name="stabilization/stabilization_attitude.h"/>
+      <include name="stabilization/stabilization_andi.h"/>
+      <include name="modules/radio_control/radio_control.h"/>
+      <include name="modules/actuators/actuators.h"/>
+      <include name="modules/actuators/actuators_t4.h"/><!-- should not be needed here fixme -->
+      <include name="modules/actuators/actuators_t4_uart.h"/>
+      <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" cond="ifndef MODE_MANUAL"/>
+      <define name="MODE_AUTO1" value="AP_MODE_RATE_DIRECT" cond="ifndef MODE_AUTO1"/>
+      <define name="MODE_AUTO2" value="AP_MODE_RATE_DIRECT" cond="ifndef MODE_AUTO2"/>
+      <define name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/>
+    </includes>
+
+    <settings>
+      <dl_setting var="autopilot.kill_throttle" min="0" step="1" max="1" values="Resurrect|Kill"/> <!-- handler="KillThrottle" -->
+    </settings>
+
+    <!-- Commit actuator commands. ANDI/INDI perform allocation themselves; retained so COMMAND_THRUST remains set -->
+    <control_block name="set_commands">
+      <call fun="SetRotorcraftCommands(stabilization.cmd, autopilot_in_flight(), autopilot_get_motors_on())"/>
+    </control_block>
+
+    <control_block name="run_rate_control">
+      <call fun="guidance_v_run(autopilot_in_flight())" store="struct ThrustSetpoint thrust_sp"/>
+      <call fun="stabilization_andi_run(true, autopilot_in_flight(), &stabilization.rc_sp, &thrust_sp, stabilization.cmd)"/>
+    </control_block>
+
+    <control_block name="run_attitude_control">
+      <call fun="guidance_v_run(autopilot_in_flight())" store="struct ThrustSetpoint thrust_sp"/>
+      <call fun="stabilization_andi_run(false, autopilot_in_flight(), &stabilization.rc_sp, &thrust_sp, stabilization.cmd)"/>
+    </control_block>
+
+    <mode_selection>
+      <mode_select cond="RCMode0()" mode="MODE_MANUAL"/>
+      <mode_select cond="RCMode1()" mode="MODE_AUTO1"/>
+      <mode_select cond="RCMode2()" mode="MODE_AUTO2"/>
+    </mode_selection>
+
+    <!-- <exceptions>
+      <exception cond="nav.too_far_from_home" deroute="HOME"/>
+      <exception cond="kill_switch_is_on()" deroute="KILL"/>
+    </exceptions> -->
+
+    <!-- KILL: 0 -->
+    <mode name="KILL">
+      <select cond="$DEFAULT_MODE"/>
+      <select cond="kill_switch_is_on()"/>
+      <on_enter>
+        <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>
+        <call fun="stabilization_mode_changed(STABILIZATION_MODE_NONE, 0)"/>
+        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_KILL)"/>
+        <call fun="autopilot_set_in_flight(false)"/>
+        <call fun="autopilot_set_motors_on(false)"/>
+      </on_enter>
+      <control>
+        <call fun="SetCommands(commands_failsafe)"/>
+      </control>
+    </mode>
+
+    <!-- FAILSAFE: 1 -->
+    <mode name="FAILSAFE" shortname="FAIL">    
+      <!-- Failsafe does not work needs to be fixed-->
+    </mode>
+
+    <!-- HOME: 2 (UNUSED) -->
+    <mode name="HOME">
+      <exception cond="GpsIsLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- RATE_DIRECT: 3 -->
+    <mode name="RATE_DIRECT" shortname="RATE">
+      <on_enter>
+        <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>
+        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT)"/>
+        <call fun="stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE, STABILIZATION_ATT_SUBMODE_HEADING)"/>
+        <call fun="stabilization_andi_enter()"/>
+      </on_enter>
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call_block name="run_rate_control"/>
+        <!-- <call_block name="set_commands"/> -->
+        <call_block name="set_commands"/>
+      </control>
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- ATITUDE_DIRECT: 4 -->
+    <mode name="ATTITUDE_DIRECT" shortname="ATT">
+      <on_enter>
+        <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>
+        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT)"/>
+        <call fun="stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE, STABILIZATION_ATT_SUBMODE_HEADING)"/>
+        <call fun="stabilization_andi_enter()"/>
+      </on_enter>
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call_block name="run_attitude_control"/>
+        <!-- <call fun="actuator_debug(true, false, 2)"/> For debugging actuators -->
+        <call_block name="set_commands"/>
+      </control>
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- RATE_RC_CLIMB: 5 (UNUSED) -->
+    <mode name="RATE_RC_CLIMB" shortname="RRCC">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- ATTITUDE_RC_CLIMB: 6 (UNUSED) -->
+    <mode name="ATTITUDE_RC_CLIMB" shortname="ATTITUDE_RC_CLIMB">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>    
+    </mode>
+
+    <!-- ATTITUDE_CLIMB: 7 (UNUSED) -->
+    <mode name="ATTITUDE_CLIMB" shortname="ATTITUDE_CLIMB">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- RATE_Z_HOLD: 8 (UNUSED) -->
+    <mode name="RATE_Z_HOLD" shortname="RATE_Z_HOLD">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- ATTITUDE_Z_HOLD: (UNUSED) 9 -->
+    <mode name="ATTITUDE_Z_HOLD" shortname="A_ZH">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- HOVER_DIRECT: 10 (UNUSED) -->
+    <mode name="HOVER_DIRECT" shortname="HOVER_DIRECT">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- HOVER_CLIMB: 11 (UNUSED) -->
+    <mode name="HOVER_CLIMB" shortname="HOVER_CLIMB">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- HOVER_Z_HOLD: 12 (UNUSED) -->
+    <mode name="HOVER_Z_HOLD" shortname="HOVER_Z_HOLD">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- NAV: 13 -->
+    <mode name="NAV" shortname="NAV">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- RC_DIRECT: 14 (UNUSED) -->
+    <mode name="RC_DIRECT" shortname="RC_DIRECT">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- CARE_FREE_DIRECT: 15 (UNUSED) -->
+    <mode name="CARE_FREE_DIRECT" shortname="CARE_FREE_DIRECT">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+    
+    <!-- FORWARD: 16 (UNUSED) -->
+    <mode name="FORWARD" shortname="FORWARD">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- MODULE: 17 (UNUSED) -->
+    <mode name="MODULE" shortname="MODULE">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- FLIP: 18 (UNUSED) -->
+    <mode name="FLIP" shortname="FLIP">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
+    <!-- GUIDED: 19 (UNUSED) -->
+    <mode name="GUIDED">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>  
+
+    <!-- ATTITUDE_DIRECT_FWD: 20 (UNUSED) -->
+    <mode name="ATTITUDE_DIRECT_FWD" shortname="ATT_Fwd">
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+  
+  </state_machine>
+</autopilot>
