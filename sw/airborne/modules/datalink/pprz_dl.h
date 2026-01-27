@@ -41,7 +41,9 @@
 #if USE_SYSLINK
 #include "modules/datalink/bitcraze/syslink_dl.h"
 #endif
-
+#if USE_UAVCAN_TUNNEL
+#include "modules/datalink/uavcan_tunnel.h"
+#endif
 /** PPRZ transport structure */
 extern struct pprz_transport pprz_tp;
 

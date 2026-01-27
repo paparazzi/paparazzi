@@ -30,6 +30,10 @@
 #include "mcu_periph/uart.h"
 #include "generated/airframe.h"
 
+#if USE_UAVCAN_TUNNEL
+#include "modules/datalink/uavcan_tunnel.h"
+#endif
+
 #define STR_(s) #s
 #define STR(s) STR_(s)
 
