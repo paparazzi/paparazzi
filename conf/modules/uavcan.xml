@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="uavcan" dir="uavcan">
+<module name="uavcan" dir="uavcan" task="core">
   <doc>
     <description>
       UAVCan interface for transmitting/receiving uavcan messages on CAN busses
@@ -17,6 +17,7 @@
     <file name="uavcan.h" dir="modules/uavcan"/>
   </header>
   <init fun="uavcan_init()"/>
+  <periodic fun="uavcan_reporting()" freq="2"/>
   <makefile target="ap">
     <!-- Enable the CAN busses if needed -->
     <configure name="UAVCAN_USE_CAN1" default="FALSE"/>
@@ -25,6 +26,7 @@
     <define name="USE_CAN2" cond="ifeq ($(UAVCAN_USE_CAN2), TRUE)"/>
     <define name="UAVCAN_USE_CAN1" value="$(UAVCAN_USE_CAN1)"/>
     <define name="UAVCAN_USE_CAN2" value="$(UAVCAN_USE_CAN2)"/>
+    <define name="CANARD_ALLOCATE_SEM"/>
 
     <!-- Load canard -->
     <include name="$(PAPARAZZI_SRC)/sw/ext/dronecan/libcanard"/>
@@ -37,7 +39,9 @@
     <file name="uavcan.protocol.GetNodeInfo_res.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
 
     <!-- Load uavcan itself -->
-    <file_arch name="uavcan.c" dir="modules/uavcan"/>
+    <file name="uavcan.c" dir="modules/uavcan"/>
+    <file name="uavcan_reporting.c" dir="modules/uavcan"/>
     <file name="framed_ring_buffer.c" dir="utils"/>
+    <file name="kv_store.c" dir="utils"/>
   </makefile>
 </module>
