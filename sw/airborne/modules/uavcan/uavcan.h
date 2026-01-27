@@ -45,8 +45,6 @@ struct uavcan_iface_t {
   struct pprzaddr_can can_net;
   uint32_t can_baudrate;
 
-  event_source_t tx_request;
-
   pprz_mutex_t rx_mutex;
   pprz_mutex_t tx_mutex;
   pprz_thread_t thread_tx;
