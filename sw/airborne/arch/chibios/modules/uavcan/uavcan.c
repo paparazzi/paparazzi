@@ -27,6 +27,9 @@
 #include "uavcan.h"
 #include "mcu_periph/can.h"
 #include "modules/core/threads.h"
+#include "uavcan.protocol.NodeStatus.h"
+#include "uavcan_reporting.h"
+#include "mcu_periph/sys_time.h"
 
 #ifndef UAVCAN_NODE_ID
 #define UAVCAN_NODE_ID    100
@@ -47,20 +50,10 @@ static uavcan_event *uavcan_event_hd = NULL;
 #define UAVCAN_CAN1_BAUDRATE UAVCAN_BAUDRATE
 #endif
 
-struct uavcan_msg_header_t {
-  uint64_t data_type_signature;
-  uint16_t data_type_id;
-  uint8_t priority;
-  uint16_t payload_len;
-  uint8_t *payload;
-};
-
-
 struct uavcan_iface_t uavcan1 = {
   .can_net = {.can_ifindex = 1},
   .can_baudrate = UAVCAN_CAN1_BAUDRATE,
   .node_id = UAVCAN_CAN1_NODE_ID,
-  .transfer_id = 0,
   .initialized = false
 };
 #endif
@@ -79,7 +72,6 @@ struct uavcan_iface_t uavcan2 = {
   .can_net = {.can_ifindex = 2},
   .can_baudrate = UAVCAN_CAN2_BAUDRATE,
   .node_id = UAVCAN_CAN2_NODE_ID,
-  .transfer_id = 0,
   .initialized = false
 };
 #endif
@@ -87,8 +79,6 @@ struct uavcan_iface_t uavcan2 = {
 
 static void can_frame_cb(struct pprzcan_frame* rx_msg, UNUSED struct pprzaddr_can* src_addr, void* user_data) {
   struct uavcan_iface_t *iface = (struct uavcan_iface_t *)user_data;
-
-  pprz_mtx_lock(&iface->mutex);
 
   CanardCANFrame rx_frame = {0};
   memcpy(rx_frame.data, rx_msg->data, 8);
@@ -101,12 +91,7 @@ static void can_frame_cb(struct pprzcan_frame* rx_msg, UNUSED struct pprzaddr_ca
 
   // Let canard handle the frame
   canardHandleRxFrame(&iface->canard, &rx_frame, rx_msg->timestamp);
-
-  pprz_mtx_unlock(&iface->mutex);
 }
-
-
-uint8_t msg_payload[UAVCAN_MSG_MAX_SIZE];
 
 /*
  * Transmitter thread.
@@ -117,29 +102,10 @@ static void uavcan_tx(void* p)
   uint8_t err_cnt = 0;
 
   while (true) {
+    // wait to be awaken
     pprz_bsem_wait(&iface->bsem);
 
-    // read the Tx FIFO to canard
-    pprz_mtx_lock(&iface->tx_fifo_mutex);
-    while(true) {
-      struct uavcan_msg_header_t header;
-      int ret = framed_ring_buffer_get(&iface->_tx_fifo, (uint8_t*)&header, sizeof(struct uavcan_msg_header_t));
-      if(ret < 0) {break;}
-      if(header.payload_len >= UAVCAN_MSG_MAX_SIZE) {
-        chSysHalt("UAVCAN_MSG_MAX_SIZE too small");
-      }
-      ret = framed_ring_buffer_get(&iface->_tx_fifo, msg_payload, UAVCAN_MSG_MAX_SIZE);
-      if(ret < 0) {break;}
-      pprz_mtx_lock(&iface->mutex);
-      canardBroadcast(&iface->canard,
-                    header.data_type_signature,
-                    header.data_type_id, &iface->transfer_id,
-                    header.priority, msg_payload, header.payload_len);
-      pprz_mtx_unlock(&iface->mutex);
-    }
-    pprz_mtx_unlock(&iface->tx_fifo_mutex);
-
-    pprz_mtx_lock(&iface->mutex);
+    pprz_mtx_lock(&iface->tx_mutex);
     for (const CanardCANFrame *txf = NULL; (txf = canardPeekTxQueue(&iface->canard)) != NULL;) {
       struct pprzcan_frame tx_msg;
       memcpy(tx_msg.data, txf->data, 8);
@@ -158,13 +124,13 @@ static void uavcan_tx(void* p)
         }
 
         // Timeout - just exit and try again later
-        pprz_mtx_unlock(&iface->mutex);
-        chThdSleepMilliseconds(++err_cnt);
-        pprz_mtx_lock(&iface->mutex);
+        pprz_mtx_unlock(&iface->tx_mutex);
+        sys_time_msleep(++err_cnt);
+        pprz_mtx_lock(&iface->tx_mutex);
         continue;
       }
     }
-    pprz_mtx_unlock(&iface->mutex);
+    pprz_mtx_unlock(&iface->tx_mutex);
   }
 }
 
@@ -205,21 +171,47 @@ static bool shouldAcceptTransfer(const CanardInstance *ins __attribute__((unused
 }
 
 
+
+#if CANARD_ALLOCATE_SEM
+
+void canard_allocate_sem_take(CanardPoolAllocator *allocator) {
+  if(allocator->semaphore == NULL) {
+    chSysHalt("semaphore not initialized");
+  }
+  pprz_bsem_t* bsem = (pprz_bsem_t*)allocator->semaphore;
+  pprz_bsem_wait(bsem);
+}
+
+void canard_allocate_sem_give(CanardPoolAllocator *allocator){
+  pprz_bsem_t* bsem = (pprz_bsem_t*)allocator->semaphore;
+  pprz_bsem_signal(bsem);
+}
+
+#endif
+
+
 /**
  * Initialize uavcan interface
  */
 static void uavcanInitIface(struct uavcan_iface_t *iface)
 {
-  pprz_mtx_init(&iface->mutex);
   pprz_bsem_init(&iface->bsem, true);
-  pprz_mtx_init(&iface->tx_fifo_mutex);
+  pprz_mtx_init(&iface->tx_mutex);
 
-  // Initialize tx fifo
-  framed_ring_buffer_init(&iface->_tx_fifo, iface->_tx_fifo_buffer, UAVCAN_TX_FIFO_SIZE);
+  kv_init(&iface->transfer_ids_store, UAVCAN_TID_STORE_CAPACITY, sizeof(uint8_t),
+          iface->transfer_ids_keys, iface->transfer_ids_values, iface->transfer_ids_used);
 
   // Initialize canard
   canardInit(&iface->canard, iface->canard_memory_pool, sizeof(iface->canard_memory_pool),
              onTransferReceived, shouldAcceptTransfer, iface);
+  
+
+#if CANARD_ALLOCATE_SEM
+  // must be initialized after canardInit
+  pprz_bsem_init(&iface->allocator_bsem, false);
+  iface->canard.allocator.semaphore = &iface->allocator_bsem;
+#endif
+
   // Update the uavcan node ID
   canardSetLocalNodeID(&iface->canard, iface->node_id);
 
@@ -242,6 +234,7 @@ void uavcan_init(void)
 #if UAVCAN_USE_CAN2
   uavcanInitIface(&uavcan2);
 #endif
+  uavcan_init_reporting();
 }
 
 /**
@@ -259,36 +252,72 @@ void uavcan_bind(uint16_t data_type_id, uint64_t data_type_signature, uavcan_eve
   uavcan_event_hd = ev;
 }
 
+static uint8_t* get_transfer_id(struct uavcan_iface_t *iface, uint8_t destination_node_id, CanardTxTransfer* transfer) {
+  uint32_t key = (destination_node_id << 24) | (iface->node_id <<16) | transfer->data_type_id;
+  uint8_t* transfer_id = (uint8_t*)kv_get(&iface->transfer_ids_store, key);
+
+  if (transfer_id == NULL) {
+    // key does not exists yet
+    uint8_t zero = 0;
+    kv_set(&iface->transfer_ids_store, key, &zero);
+  }
+
+  return transfer_id;
+}
+
 /**
+ * @param transfer should be initialized with canardInitTxTransfer.
+ */
+void uavcan_transfer(struct uavcan_iface_t *iface, CanardTxTransfer* transfer)
+{
+  if (!iface->initialized) { return; }
+  pprz_mtx_lock(&iface->tx_mutex);
+
+  transfer->transfer_type = CanardTransferTypeBroadcast;
+  transfer->inout_transfer_id = get_transfer_id(iface, 0, transfer);
+  if(canardBroadcastObj(&iface->canard, transfer) < 0) {
+    iface->nb_errors++;
+  }
+
+  pprz_mtx_unlock(&iface->tx_mutex);
+  
+  // Wake Tx thread
+  pprz_bsem_signal(&iface->bsem);
+}
+
+
+/**
+ * Legacy function
  * Broadcast an uavcan message to a specific interface
  */
 void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id,
                       uint8_t priority, const void *payload,
                       uint16_t payload_len)
 {
+  CanardTxTransfer transfer;
+  canardInitTxTransfer(&transfer);
+  transfer.data_type_signature = data_type_signature;
+  transfer.data_type_id = data_type_id;
+  transfer.priority = priority;
+  transfer.payload = payload;
+  transfer.payload_len = payload_len;
+
+  uavcan_transfer(iface, &transfer);
+}
+
+
+/**
+ * @param inout_transfer_id should be set to the request transfer id before calling this function
+ */
+void uavcan_response(struct uavcan_iface_t *iface, uint8_t destination_node_id, CanardTxTransfer* transfer)
+{
   if (!iface->initialized) { return; }
-  pprz_mtx_lock(&iface->tx_fifo_mutex);
+  pprz_mtx_lock(&iface->tx_mutex);
 
-  struct uavcan_msg_header_t header = {
-    .data_type_signature = data_type_signature,
-    .data_type_id = data_type_id,
-    .priority = priority,
-    .payload_len = payload_len
-  };
+  transfer->transfer_type = CanardTransferTypeResponse;
+  canardRequestOrRespondObj(&iface->canard, destination_node_id,  transfer);
 
-  if(framed_ring_buffer_put(&iface->_tx_fifo, (uint8_t*)&header, sizeof(struct uavcan_msg_header_t)) < 0) {
-    // fail to post header
-    pprz_mtx_unlock(&iface->tx_fifo_mutex);
-    return;
-  }
-
-  if(framed_ring_buffer_put(&iface->_tx_fifo, payload, payload_len) < 0) {
-    // fail to post payload. Remove the header from the fifo
-    framed_ring_buffer_drop_last(&iface->_tx_fifo);
-    pprz_mtx_unlock(&iface->tx_fifo_mutex);
-    return;
-  }
-  pprz_mtx_unlock(&iface->tx_fifo_mutex);
+  pprz_mtx_unlock(&iface->tx_mutex);
   
   // Wake Tx thread
   pprz_bsem_signal(&iface->bsem);
