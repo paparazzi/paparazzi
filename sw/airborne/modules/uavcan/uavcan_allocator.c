@@ -226,25 +226,30 @@ static void node_info_resp_cb(struct uavcan_iface_t *iface, CanardRxTransfer *tr
     return;   // decode error
   }
 
-  if(!uavcan_get_node_id_mapping(transfer->source_node_id)) {
-    struct uavcan_node_mapping_t* mapping = get_free_id_mapping();
-    mapping->allocated_id = transfer->source_node_id;
-    for(int i=0; i<16; i++) {
-      mapping->unique_id.data[i] = msg.hardware_version.unique_id[i];
-    }
-    mapping->unique_id.len = 16;
+  struct uavcan_node_mapping_t* mapping = uavcan_get_node_id_mapping(transfer->source_node_id);
+
+  if(!mapping) {
+    mapping = get_free_id_mapping();
   }
+
+  
+  mapping->allocated_id = transfer->source_node_id;
+  for(int i=0; i<16; i++) {
+    mapping->unique_id.data[i] = msg.hardware_version.unique_id[i];
+  }
+  mapping->unique_id.len = 16;
 
 }
 
-void request_node_info(struct uavcan_iface_t *iface) {
-  struct uavcan_protocol_GetNodeInfoRequest msg;
-  uint8_t msg_buffer[10];
-  uint32_t size = uavcan_protocol_GetNodeInfoRequest_encode(&msg, msg_buffer);
-  uavcan_broadcast(
-      iface,
-      UAVCAN_PROTOCOL_GETNODEINFO_REQUEST_SIGNATURE, UAVCAN_PROTOCOL_GETNODEINFO_REQUEST_ID,
-      CANARD_TRANSFER_PRIORITY_HIGH, msg_buffer, size);
+void request_node_info(struct uavcan_iface_t *iface, uint8_t destination_node_id) {
+  CanardTxTransfer transfer;
+  canardInitTxTransfer(&transfer);
+  transfer.data_type_id = UAVCAN_PROTOCOL_GETNODEINFO_REQUEST_ID;
+  transfer.data_type_signature = UAVCAN_PROTOCOL_GETNODEINFO_REQUEST_SIGNATURE;
+  transfer.payload = NULL;
+  transfer.payload_len = 0;
+  transfer.priority = CANARD_TRANSFER_PRIORITY_HIGH;
+  uavcan_request(iface, destination_node_id, &transfer);
 }
 
 

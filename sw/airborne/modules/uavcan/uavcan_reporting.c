@@ -7,15 +7,18 @@
 #include "mcu_periph/sys_time.h"
 #include "generated/airframe.h"
 #include "uavcan_reporting.h"
+#include "uavcan/uavcan_allocator.h"
 
 #define AC_CAN_NAME_PREFIX "org.pprz."
 
 static uavcan_event node_info_ev;
+static uavcan_event node_status_ev;
 
 char ac_can_name[50] = {0};
 uint8_t ac_can_name_len = 0;
 
 static void node_info_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer);
+static void node_status_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer);
 static void get_uavcan_status(struct uavcan_protocol_NodeStatus* status);
 static void get_uavcan_software_version (struct uavcan_protocol_SoftwareVersion* software_version);
 static void get_uavcan_hardware_version(struct uavcan_protocol_HardwareVersion* hardware_version);
@@ -28,6 +31,17 @@ void uavcan_init_reporting() {
   ac_can_name_len = prefix_len + strlen(AIRFRAME_NAME);
 
   uavcan_bind(UAVCAN_PROTOCOL_GETNODEINFO_REQUEST_ID, UAVCAN_PROTOCOL_GETNODEINFO_REQUEST_SIGNATURE, &node_info_ev, node_info_cb);
+  uavcan_bind(UAVCAN_PROTOCOL_NODESTATUS_ID, UAVCAN_PROTOCOL_NODESTATUS_SIGNATURE, &node_status_ev, node_status_cb);
+}
+
+/**
+ * request uniq_id of all nodes on the bus.
+ * Since nodes must periodicaly send a NodeStatus message, its a good place to do it.
+ */
+static void node_status_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer) {
+  if(!uavcan_get_node_id_mapping(transfer->source_node_id)) {
+    request_node_info(iface, transfer->source_node_id);
+  }
 }
 
 void uavcan_reporting(void) {

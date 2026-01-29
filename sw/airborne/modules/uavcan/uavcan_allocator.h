@@ -24,7 +24,7 @@ struct uavcan_node_mapping_t {
 };
 
 struct uavcan_node_mapping_t* uavcan_get_node_id_mapping(const uint8_t id);
-void request_node_info(struct uavcan_iface_t *iface);
+void request_node_info(struct uavcan_iface_t *iface, uint8_t destination_node_id);
 
 void uavcan_allocator_init(void);
 void uavcan_allocator_periodic(void);

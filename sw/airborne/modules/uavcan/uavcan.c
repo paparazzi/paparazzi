@@ -141,7 +141,6 @@ static void uavcan_tx(void* p)
 static void onTransferReceived(CanardInstance *ins, CanardRxTransfer *transfer)
 {
   struct uavcan_iface_t *iface = (struct uavcan_iface_t *)ins->user_reference;
-  
   // Go through all registered callbacks and call function callback if found
   for (uavcan_event *ev = uavcan_event_hd; ev; ev = ev->next) {
     if (transfer->data_type_id == ev->data_type_id) {
@@ -167,12 +166,6 @@ static bool shouldAcceptTransfer(const CanardInstance *ins __attribute__((unused
       return true;
     }
   }
-
-  if(source_node_id != 0 && !uavcan_get_node_id_mapping(source_node_id)) {
-    struct uavcan_iface_t *iface = (struct uavcan_iface_t *)ins->user_reference;
-    request_node_info(iface);
-  }
-
   return false;
 }
 
@@ -288,6 +281,29 @@ void uavcan_transfer(struct uavcan_iface_t *iface, CanardTxTransfer* transfer)
   // Wake Tx thread
   pprz_bsem_signal(&iface->bsem);
 }
+
+
+/**
+ * @param transfer should be initialized with canardInitTxTransfer.
+ */
+void uavcan_request(struct uavcan_iface_t *iface, uint8_t destination_node_id, CanardTxTransfer* transfer)
+{
+  if (!iface->initialized) { return; }
+  pprz_mtx_lock(&iface->tx_mutex);
+
+  transfer->transfer_type = CanardTransferTypeRequest;
+  transfer->inout_transfer_id = get_transfer_id(iface, destination_node_id, transfer);
+  if(canardRequestOrRespondObj(&iface->canard, destination_node_id, transfer) < 0) {
+    iface->nb_errors++;
+  }
+
+  pprz_mtx_unlock(&iface->tx_mutex);
+  
+  // Wake Tx thread
+  pprz_bsem_signal(&iface->bsem);
+}
+
+
 
 
 /**
