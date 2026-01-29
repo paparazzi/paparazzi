@@ -31,41 +31,39 @@
 #include "mcu_periph/can.h"
 #include "modules/core/threads.h"
 #include "utils/framed_ring_buffer.h"
+#include "utils/kv_store.h"
 
 
 #ifndef UAVCAN_TX_FIFO_SIZE
 #define UAVCAN_TX_FIFO_SIZE 1024
 #endif
 
-#ifndef UAVCAN_MSG_MAX_SIZE
-#define UAVCAN_MSG_MAX_SIZE 256
-#endif
-
+#define UAVCAN_TID_STORE_CAPACITY   30
 
 /** uavcan interface structure */
 struct uavcan_iface_t {
   struct pprzaddr_can can_net;
   uint32_t can_baudrate;
 
-  event_source_t tx_request;
-
-  pprz_mutex_t mutex;
+  pprz_mutex_t rx_mutex;
+  pprz_mutex_t tx_mutex;
   pprz_thread_t thread_tx;
-  // void *thread_tx_wa;
-  // void *thread_uavcan_wa;
-  // size_t thread_tx_wa_size;
-  // size_t thread_uavcan_wa_size;
-  pprz_bsem_t bsem;
 
+  pprz_bsem_t bsem;
+  
   uint8_t node_id;
   CanardInstance canard;
   uint8_t canard_memory_pool[1024 * 2];
+  #if CANARD_ALLOCATE_SEM
+  pprz_bsem_t allocator_bsem;
+  #endif
+  uint16_t nb_errors;
 
-  uint8_t _tx_fifo_buffer[UAVCAN_TX_FIFO_SIZE];
-  struct framed_ring_buffer _tx_fifo;
-  pprz_mutex_t tx_fifo_mutex;
-
-  uint8_t transfer_id;
+  //uint8_t transfer_id;  // TODO see comment: The Transfer ID value cannot be shared between requests that have different descriptors!
+  uint32_t transfer_ids_keys[UAVCAN_TID_STORE_CAPACITY];
+  uint8_t transfer_ids_values[UAVCAN_TID_STORE_CAPACITY];
+  uint8_t transfer_ids_used[UAVCAN_TID_STORE_CAPACITY];
+  kv_store_t transfer_ids_store;
   bool initialized;
 };
 
@@ -91,8 +89,11 @@ extern struct uavcan_iface_t uavcan2;
 
 /** uavcan external functions */
 void uavcan_init(void);
+void uavcan_reporting(void);
 void uavcan_bind(uint16_t data_type_id, uint64_t data_type_signature, uavcan_event *ev, uavcan_callback cb);
+void uavcan_transfer(struct uavcan_iface_t *iface, CanardTxTransfer* transfer);
 void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id,
                       uint8_t priority, const void *payload, uint16_t payload_len);
+void uavcan_response(struct uavcan_iface_t *iface, uint8_t destination_node_id, CanardTxTransfer* transfer);
 
 #endif /* MODULES_UAVCAN_ARCH_H */

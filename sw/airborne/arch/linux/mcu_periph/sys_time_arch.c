@@ -215,3 +215,7 @@ uint32_t get_sys_time_msec(void)
   }
   return d_sec * 1000 + d_nsec / 1000000;
 }
+
+void sys_time_msleep(uint32_t ms) {
+  sys_time_usleep(ms*1000);
+}
