@@ -91,6 +91,7 @@ extern struct uavcan_iface_t uavcan2;
 void uavcan_init(void);
 void uavcan_reporting(void);
 void uavcan_bind(uint16_t data_type_id, uint64_t data_type_signature, uavcan_event *ev, uavcan_callback cb);
+void uavcan_transfer(struct uavcan_iface_t *iface, CanardTxTransfer* transfer);
 void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id,
                       uint8_t priority, const void *payload, uint16_t payload_len);
 void uavcan_response(struct uavcan_iface_t *iface, uint8_t destination_node_id, CanardTxTransfer* transfer);

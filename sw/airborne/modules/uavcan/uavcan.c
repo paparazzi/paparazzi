@@ -175,9 +175,6 @@ static bool shouldAcceptTransfer(const CanardInstance *ins __attribute__((unused
 #if CANARD_ALLOCATE_SEM
 
 void canard_allocate_sem_take(CanardPoolAllocator *allocator) {
-  if(allocator->semaphore == NULL) {
-    chSysHalt("semaphore not initialized");
-  }
   pprz_bsem_t* bsem = (pprz_bsem_t*)allocator->semaphore;
   pprz_bsem_wait(bsem);
 }
@@ -218,7 +215,7 @@ static void uavcanInitIface(struct uavcan_iface_t *iface)
   // Start the receiver and transmitter thread
   can_register_callback(can_frame_cb, &iface->can_net, (void *)iface);
 
-  if(!pprz_thread_create(&iface->thread_tx, 2048, "uavcan_tx", NORMALPRIO+7, uavcan_tx, (void *)iface)) {
+  if(!pprz_thread_create(&iface->thread_tx, 2048, "uavcan_tx", PPRZ_NORMAL_PRIO +7, uavcan_tx, (void *)iface)) {
     iface->initialized = true;
   }
 }

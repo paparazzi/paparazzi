@@ -18,7 +18,7 @@
   </header>
   <init fun="uavcan_init()"/>
   <periodic fun="uavcan_reporting()" freq="2"/>
-  <makefile target="ap">
+  <makefile>
     <!-- Enable the CAN busses if needed -->
     <configure name="UAVCAN_USE_CAN1" default="FALSE"/>
     <configure name="UAVCAN_USE_CAN2" default="FALSE"/>
