@@ -125,7 +125,7 @@ void sys_time_usleep(uint32_t us)
   }
 }
 
-void sys_time_msleep(uint16_t ms)
+void sys_time_msleep(uint32_t ms)
 {
   chThdSleepMilliseconds(ms);
 }

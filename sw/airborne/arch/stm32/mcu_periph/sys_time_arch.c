@@ -96,3 +96,7 @@ void sys_tick_handler(void)
     }
   }
 }
+
+void sys_time_msleep(uint32_t ms) {
+  sys_time_usleep(ms*1000);
+}

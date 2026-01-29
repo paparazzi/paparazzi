@@ -82,6 +82,16 @@ struct sys_time {
 
 extern struct sys_time sys_time;
 
+/**
+ * Sleep @param us microseconds
+ */
+void sys_time_usleep(uint32_t us);
+
+/**
+ * Sleep @param ms milliseconds
+ */
+void sys_time_msleep(uint32_t ms);
+
 
 extern void sys_time_init(void);
 
