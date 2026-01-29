@@ -26,6 +26,7 @@
  */
 
 #include "mcu_periph/sys_time.h"
+#include "mcu_periph/sys_time_arch.h"
 
 
 void sys_time_arch_init(void)
@@ -55,6 +56,7 @@ void sys_tick_handler(void)
   }
 }
 
+void sys_time_usleep(uint32_t us __attribute__((unused))) {}
 
 void sys_time_msleep(uint32_t ms) {
   sys_time_usleep(ms*1000);

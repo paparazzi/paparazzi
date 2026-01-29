@@ -25,6 +25,7 @@
  */
 
 #include "mcu_periph/sys_time.h"
+#include "mcu_periph/sys_time_arch.h"
 #include <stdio.h>
 #include <pthread.h>
 #include <sys/timerfd.h>
@@ -214,6 +215,11 @@ uint32_t get_sys_time_msec(void)
     d_nsec += 1000000000L;
   }
   return d_sec * 1000 + d_nsec / 1000000;
+}
+
+void sys_time_usleep(uint32_t us)
+{
+  usleep(us);
 }
 
 void sys_time_msleep(uint32_t ms) {

@@ -29,6 +29,7 @@
 #define SYS_TIME_ARCH_H
 
 #include "std.h"
+#include "mcu_periph/sys_time.h"
 
 extern void sys_tick_handler(void);
 
@@ -61,8 +62,5 @@ static inline uint32_t get_sys_time_msec(void)
   return sys_time.nb_sec * 1000 +
          msec_of_cpu_ticks(sys_time.nb_sec_rem);
 }
-
-
-static inline void sys_time_usleep(uint32_t us __attribute__((unused))) {}
 
 #endif /* SYS_TIME_ARCH_H */

@@ -30,6 +30,7 @@
 
 #include "std.h"
 #include <unistd.h>
+#include "mcu_periph/sys_time.h"
 
 /**
  * Get the time in microseconds since startup.
@@ -51,10 +52,6 @@ extern uint32_t get_sys_time_usec100(void);
  */
 extern uint32_t get_sys_time_msec(void);
 
-static inline void sys_time_usleep(uint32_t us)
-{
-  usleep(us);
-}
 
 /** elapsed time in microsecs between two timespecs */
 static inline unsigned int sys_time_elapsed_us(struct timespec *prev, struct timespec *now)
