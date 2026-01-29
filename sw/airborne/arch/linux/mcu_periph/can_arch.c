@@ -18,7 +18,7 @@ void can_hw_init(void) {
   
 }
 
-int can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* addr) {
+int can_transmit_frame(struct pprzcan_frame* txframe __attribute__((__unused__)), struct pprzaddr_can* addr __attribute__((__unused__))) {
   // TODO
   return 0;
 }
