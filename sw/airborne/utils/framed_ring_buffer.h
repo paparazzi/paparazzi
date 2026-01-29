@@ -31,7 +31,6 @@ enum cir_error {
   CIR_ERROR_NO_MSG = -1,                /**< circular buffer is empty */
   CIR_ERROR_BUFFER_TOO_SMALL = -2,      /**< destination buffer is too small */
   CIR_ERROR_NO_SPACE_AVAILABLE = -3,    /**< no space available in the circular buffer */
-  CIR_ERROR_LOCKED = -4,                /**< mutex locked */
 };
 
 /**
