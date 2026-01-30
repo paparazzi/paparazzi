@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -51,6 +50,25 @@ enum GuidanceIndi_VMode {
 
 extern struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accep_sp, float heading_sp);
 extern struct StabilizationSetpoint guidance_indi_run_mode(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv, enum GuidanceIndi_HMode h_mode, enum GuidanceIndi_VMode v_mode);
+
+extern struct FloatVect3 guidance_indi_controller(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv, enum GuidanceIndi_HMode h_mode, enum GuidanceIndi_VMode v_mode);
+
+// Default number of virtual commands (e.g. [dax, day, daz])
+#ifndef GUIDANCE_INDI_NV
+#define GUIDANCE_INDI_NV 3
+#endif
+
+// Default number of outputs (e.g. [dtheta, dphi, dthrust])
+#ifndef GUIDANCE_INDI_NU
+#define GUIDANCE_INDI_NU 3
+#endif
+
+// Function to compute efficiency matrix G
+extern void guidance_indi_calcG(float Gmat[GUIDANCE_INDI_NV][GUIDANCE_INDI_NU], struct FloatEulers att);
+#if GUIDANCE_INDI_USE_WLS
+#include "math/wls/wls_alloc.h"
+extern void guidance_indi_set_wls_settings(struct WLS_t *wls, struct FloatEulers *euler_yxz, float heading_sp);
+#endif
 
 extern float guidance_indi_specific_force_gain;
 

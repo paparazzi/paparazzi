@@ -87,12 +87,6 @@ struct actuator_t {
  * */
 extern struct actuator_t actuators[ACTUATORS_NB];
 
-/** PPRZ command to each actuator
- * Can be used to directly control actuators from the control algorithm
- * if the command_laws are set up appropriately in the airframe file
- */
-extern int16_t actuators_pprz[ACTUATORS_NB];
-
 /** Set actuators.
  * @param pprz_idx general actuators index
  * @param pprz_value actuator's value in pprz unit

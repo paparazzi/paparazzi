@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #ifndef STABILIZATION_INDI
@@ -33,6 +32,16 @@
 
 extern float g1g2[INDI_OUTPUTS][INDI_NUM_ACT];
 extern float actuator_state_filt_vect[INDI_NUM_ACT];
+extern struct FloatVect3 stab_thrust_filt;
+
+/** PPRZ command to each actuator
+ * Can be used to directly control actuators from the control algorithm
+ * if the command_laws are set up appropriately in the airframe file
+ *
+ * FIXME add an extra slot for specific case (e.g. rotwing in simulation)
+ */
+extern int16_t actuators_pprz[INDI_NUM_ACT+1];
+
 extern bool act_is_servo[INDI_NUM_ACT];
 
 extern bool indi_use_adaptive;
@@ -62,6 +71,11 @@ extern void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetp
 extern void stabilization_indi_attitude_run(bool in_flight, struct StabilizationSetpoint *att_sp, struct ThrustSetpoint *thrust, int32_t *cmd);
 extern void stabilization_indi_set_wls_settings(void);
 extern void stabilization_indi_update_filt_freq(float freq); // setting handler
+
+// outer-loop indi controller, a simple PD by default
+// but can be redefined elsewhere
+extern struct FloatRates stabilization_indi_attitude_controller(struct FloatQuat att, struct FloatQuat att_sp, struct FloatRates rates_ff);
+extern struct FloatRates stabilization_indi_rate_controller(struct FloatRates rates, struct FloatRates sp);
 
 #if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
 #include "math/wls/wls_alloc.h"

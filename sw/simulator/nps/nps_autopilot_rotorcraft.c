@@ -27,6 +27,7 @@
 #include "nps_electrical.h"
 #include "nps_fdm.h"
 
+#include "generated/modules.h"
 #include "modules/radio_control/radio_control.h"
 #include "modules/imu/imu.h"
 #include "mcu_periph/sys_time.h"

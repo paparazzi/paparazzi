@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_indi_quadrotor" dir="guidance" task="control">
+  <doc>
+    <description>
+      Basic quadrotor model for INDI guidance
+    </description>
+  </doc>
+  <dep>
+    <depends>guidance_indi_base</depends>
+  </dep>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="guidance_indi_quadrotor.c" dir="$(SRC_FIRMWARE)/guidance"/>
+    <test firmware="rotorcraft"/>
+  </makefile>
+</module>
