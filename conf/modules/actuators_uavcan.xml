@@ -26,5 +26,7 @@
     <file name="uavcan.equipment.actuator.ArrayCommand.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
     <file name="uavcan.equipment.device.Temperature.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
   </makefile>
+  <makefile target="sim|nps">
+    <file_arch name="actuators_uavcan_arch.c"/>
+  </makefile>
 </module>
-

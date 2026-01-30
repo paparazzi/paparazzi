@@ -664,6 +664,10 @@
 #define RADIO_CONTROL_INTERMCU_ID 9
 #endif
 
+#ifndef RADIO_CONTROL_UAVCAN_ID
+#define RADIO_CONTROL_UAVCAN_ID 10
+#endif
+
 /*
  * IDs of VEL_SP senders
  */

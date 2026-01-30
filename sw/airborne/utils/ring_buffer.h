@@ -28,7 +28,7 @@ void ring_buffer_init (ring_buffer_t *ring_buffer, uint8_t *buf, size_t size);
  * Write @param data of size @param len in @param ring_buffer.
  * @returns the number of byte effectively written in the ring_buffer.
  */
-size_t ring_buffer_write(ring_buffer_t *ring_buffer, uint8_t* data, size_t len);
+size_t ring_buffer_write(ring_buffer_t *ring_buffer, const uint8_t* data, size_t len);
 
 /**
  * Read @param len bytes from @param ring_buffer into @param read_buffer.

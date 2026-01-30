@@ -52,7 +52,4 @@ static inline uint32_t get_sys_time_msec(void)
          msec_of_cpu_ticks(sys_time.nb_sec_rem);
 }
 
-
-static inline void sys_time_usleep(uint32_t us __attribute__((unused))) {}
-
 #endif /* SYS_TIME_ARCH_H */
