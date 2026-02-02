@@ -26,7 +26,7 @@
 
 #include "modules/px4_flash/px4_flash.h"
 #include "modules/px4_flash/protocol.h"
-#include "mcu_periph/sys_time_arch.h"
+#include "mcu_periph/sys_time.h"
 #include "modules/intermcu/intermcu_ap.h"
 
 // Serial Port

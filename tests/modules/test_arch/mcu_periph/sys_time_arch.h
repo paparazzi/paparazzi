@@ -28,28 +28,4 @@
 #ifndef SYS_TIME_ARCH_H
 #define SYS_TIME_ARCH_H
 
-#include "std.h"
-
-extern void sys_tick_handler(void);
-
-/**
- * Get the time in microseconds since startup.
- * @return microseconds since startup as uint32_t
- */
-static inline uint32_t get_sys_time_usec(void)
-{
-  return sys_time.nb_sec * 1000000 +
-         usec_of_cpu_ticks(sys_time.nb_sec_rem);
-}
-
-/**
- * Get the time in milliseconds since startup.
- * @return milliseconds since startup as uint32_t
- */
-static inline uint32_t get_sys_time_msec(void)
-{
-  return sys_time.nb_sec * 1000 +
-         msec_of_cpu_ticks(sys_time.nb_sec_rem);
-}
-
 #endif /* SYS_TIME_ARCH_H */
