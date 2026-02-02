@@ -25,12 +25,14 @@
  */
 
 #include "mcu_periph/sys_time.h"
-#include "mcu_periph/sys_time_arch.h"
 #include <stdio.h>
 #include <pthread.h>
 #include <sys/timerfd.h>
 #include <time.h>
 #include "rt_priority.h"
+
+#include "std.h"
+#include <unistd.h>
 
 #ifdef SYS_TIME_LED
 #include "led.h"

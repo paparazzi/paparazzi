@@ -40,7 +40,7 @@
 
 #include "mcu_periph/usb_serial.h"
 
-#include "mcu_periph/sys_time_arch.h"
+#include "mcu_periph/sys_time.h"
 
 /* Max packet size for USB transfer */
 #define MAX_PACKET_SIZE          64
