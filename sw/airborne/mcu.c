@@ -67,9 +67,6 @@
 #if USE_SPI
 #include "mcu_periph/spi.h"
 #endif
-#ifdef USE_DAC
-#include "mcu_periph/dac.h"
-#endif
 #ifdef USE_RNG
 #include "mcu_periph/rng.h"
 #endif
@@ -251,10 +248,6 @@ void mcu_init(void)
   spi_slave_hs_init();
 #endif
 #endif // USE_SPI
-
-#ifdef USE_DAC
-  dac_init();
-#endif
 
 #if USE_UDP0 || USE_UDP1 || USE_UDP2
   udp_arch_init();
