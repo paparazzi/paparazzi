@@ -165,9 +165,9 @@ void imu_heater_periodic(void)
   // Set the GPIO heating resistor (using random noise for the magnetometer)
 #if defined(IMU_HEATER_GPIO) && defined(IMU_HEATER_GPIO_PIN)
   if (imu_heater.heat_cmd != 0 && rand_uniform() * 100 <= imu_heater.heat_cmd) {
-    gpio_set(IMU_HEATER_GPIO, IMU_HEATER_GPIO_PIN);
+    pprz_gpio_set(IMU_HEATER_GPIO, IMU_HEATER_GPIO_PIN);
   } else {
-    gpio_clear(IMU_HEATER_GPIO, IMU_HEATER_GPIO_PIN);
+    pprz_gpio_clear(IMU_HEATER_GPIO, IMU_HEATER_GPIO_PIN);
   }
 #endif
 }

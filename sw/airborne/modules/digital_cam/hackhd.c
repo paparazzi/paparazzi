@@ -45,8 +45,8 @@
 #include "mcu_periph/sys_time.h"
 
 /** Trigger button is active low */
-#define HACKHD_PUSH gpio_clear
-#define HACKHD_RELEASE gpio_set
+#define HACKHD_PUSH pprz_gpio_clear
+#define HACKHD_RELEASE pprz_gpio_set
 
 #ifndef HACKHD_GPIO
 #error HACKHD: Please specify at least a HACKHD_GPIO (e.g. <define name="HACKHD_GPIO" value="GPIOC,GPIO5"/>)
@@ -151,7 +151,7 @@ void hackhd_init(void)
   hackhd.log_delay = 0;
 
 #ifndef SITL
-  gpio_setup_output(HACKHD_GPIO);
+  pprz_gpio_setup_output(HACKHD_GPIO);
   // set gpio as open-drain, only possible on stm32f4
   gpio_set_output_options(
     port_of_gpio(HACKHD_GPIO),

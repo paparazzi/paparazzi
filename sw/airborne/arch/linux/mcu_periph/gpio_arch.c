@@ -23,18 +23,19 @@
  * @file arch/linux/mcu_periph/gpio_arch.c
  *
  * GPIO helper functions for linux/omap.
- * @todo implement gpio_set|clear
+ * @todo implement pprz_gpio_set|clear
  */
 
-#include "arch/linux/mcu_periph/gpio_arch.h"
+#include "mcu_periph/gpio.h"
+#include "mcu_periph/gpio_arch.h"
 
-void gpio_setup_output(uint32_t port, uint16_t gpios) {}
+void pprz_gpio_setup_output(uint32_t port, uint16_t gpios) {}
 
-void gpio_setup_input(uint32_t port, uint16_t gpios) {}
+void pprz_gpio_setup_input(uint32_t port, uint16_t gpios) {}
 
-void gpio_set(uint32_t port, uint16_t pin) {}
+void pprz_gpio_set(uint32_t port, uint16_t pin) {}
 
-void gpio_clear(uint32_t port, uint16_t pin) {}
+void pprz_gpio_clear(uint32_t port, uint16_t pin) {}
 
 uint16_t gpio_get(uint32_t gpioport, uint16_t gpios) { return 0; }
 

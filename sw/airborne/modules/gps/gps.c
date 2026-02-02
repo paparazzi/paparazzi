@@ -391,7 +391,7 @@ void gps_init(void)
   gps_disable_fix = 0;
 
 #ifdef GPS_POWER_GPIO
-  gpio_setup_output(GPS_POWER_GPIO);
+  pprz_gpio_setup_output(GPS_POWER_GPIO);
   GPS_POWER_GPIO_ON(GPS_POWER_GPIO);
 #endif
 #ifdef GPS_LED

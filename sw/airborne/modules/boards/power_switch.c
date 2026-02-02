@@ -37,11 +37,11 @@ bool power_switch_status = false;
  * This sets the power switch pins to te initial state
  */
 void power_switch_init(void) {
-  gpio_setup_output(POWER_SWITCH_GPIO);
+  pprz_gpio_setup_output(POWER_SWITCH_GPIO);
 #ifdef POWER_SWITCH_ENABLE
   power_switch_set(POWER_SWITCH_ENABLE);
 #else
-  gpio_clear(POWER_SWITCH_GPIO);
+  pprz_gpio_clear(POWER_SWITCH_GPIO);
 #endif
 }
 
@@ -52,9 +52,9 @@ void power_switch_init(void) {
  */
 void power_switch_set(bool val) {
   if(val) {
-    gpio_set(POWER_SWITCH_GPIO);
+    pprz_gpio_set(POWER_SWITCH_GPIO);
   } else {
-    gpio_clear(POWER_SWITCH_GPIO);
+    pprz_gpio_clear(POWER_SWITCH_GPIO);
   }
 
   power_switch_status = val;

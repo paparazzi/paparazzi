@@ -59,10 +59,10 @@ int main(void)
   gpio_setup_input_pullup(B_RX_PORT, B_RX_PIN);
 
   /* Init GPIO for tx pins */
-  gpio_setup_output(A_TX_PORT, A_TX_PIN);
-  gpio_setup_output(B_TX_PORT, B_TX_PIN);
+  pprz_gpio_setup_output(A_TX_PORT, A_TX_PIN);
+  pprz_gpio_setup_output(B_TX_PORT, B_TX_PIN);
 
-  gpio_clear(A_TX_PORT, A_TX_PIN);
+  pprz_gpio_clear(A_TX_PORT, A_TX_PIN);
 
   /* */
   while (1) {
@@ -90,34 +90,34 @@ static inline void main_event(void)
 
 #if 0
   if (!(foo % 2)) {
-    gpio_set(B_TX_PORT, B_TX_PIN);
+    pprz_gpio_set(B_TX_PORT, B_TX_PIN);
   } else {
-    gpio_clear(B_TX_PORT, B_TX_PIN);
+    pprz_gpio_clear(B_TX_PORT, B_TX_PIN);
   }
 #endif
 
 #if 0
   if (!(foo % 2)) {
-    gpio_clear(A_TX_PORT, A_TX_PIN);
+    pprz_gpio_clear(A_TX_PORT, A_TX_PIN);
   } else {
-    gpio_set(A_TX_PORT, A_TX_PIN);
+    pprz_gpio_set(A_TX_PORT, A_TX_PIN);
   }
 #endif
 
 #if 1
   /* passthrough B_RX to A_TX */
   if (GPIO_IDR(B_RX_PORT) & B_RX_PIN) {
-    gpio_set(A_TX_PORT, A_TX_PIN);
+    pprz_gpio_set(A_TX_PORT, A_TX_PIN);
   } else {
-    gpio_clear(A_TX_PORT, A_TX_PIN);
+    pprz_gpio_clear(A_TX_PORT, A_TX_PIN);
   }
 #endif
   /* passthrough A_RX to B_TX */
   if (gpio_get(A_RX_PORT, A_RX_PIN)) {
-    gpio_set(B_TX_PORT, B_TX_PIN);
+    pprz_gpio_set(B_TX_PORT, B_TX_PIN);
     LED_ON(2);
   } else {
-    gpio_clear(B_TX_PORT, B_TX_PIN);
+    pprz_gpio_clear(B_TX_PORT, B_TX_PIN);
     LED_OFF(2);
   }
 

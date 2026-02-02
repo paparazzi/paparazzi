@@ -68,10 +68,10 @@ void cyrf6936_init(struct Cyrf6936 *cyrf, struct spi_periph *spi_p, const uint8_
   cyrf->spi_t.status = SPITransDone;
 
   /* Reset the CYRF6936 chip (busy waiting) */
-  gpio_setup_output(rst_port, rst_pin);
-  gpio_set(rst_port, rst_pin);
+  pprz_gpio_setup_output(rst_port, rst_pin);
+  pprz_gpio_set(rst_port, rst_pin);
   sys_time_usleep(100);
-  gpio_clear(rst_port, rst_pin);
+  pprz_gpio_clear(rst_port, rst_pin);
   sys_time_usleep(100);
 
   /* Get the MFG ID */

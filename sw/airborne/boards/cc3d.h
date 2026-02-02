@@ -15,8 +15,8 @@
 #endif
 #define LED_1_GPIO GPIOB
 #define LED_1_GPIO_PIN GPIO3
-#define LED_1_GPIO_ON gpio_clear
-#define LED_1_GPIO_OFF gpio_set
+#define LED_1_GPIO_ON pprz_gpio_clear
+#define LED_1_GPIO_OFF pprz_gpio_set
 #define LED_1_AFIO_REMAP {                            \
     rcc_periph_clock_enable(RCC_AFIO);                  \
     AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;  \

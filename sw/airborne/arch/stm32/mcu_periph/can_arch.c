@@ -83,7 +83,7 @@ void can_hw_init(void)
   /* Configure CAN pin: RX (input pull-up). */
   gpio_set_mode(GPIO_BANK_CAN1_PB_RX, GPIO_MODE_INPUT,
                 GPIO_CNF_INPUT_PULL_UPDOWN, GPIO_CAN1_PB_RX);
-  gpio_set(GPIO_BANK_CAN1_PB_RX, GPIO_CAN1_PB_RX);
+  pprz_gpio_set(GPIO_BANK_CAN1_PB_RX, GPIO_CAN1_PB_RX);
 
   /* Configure CAN pin: TX (output push-pull). */
   gpio_set_mode(GPIO_BANK_CAN1_PB_TX, GPIO_MODE_OUTPUT_50_MHZ,

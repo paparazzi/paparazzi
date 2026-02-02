@@ -580,52 +580,52 @@ void spi_slave_select(uint8_t slave)
   switch (slave) {
 #if USE_SPI_SLAVE0
     case 0:
-      gpio_clear(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
+      pprz_gpio_clear(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
       break;
 #endif // USE_SPI_SLAVE0
 #if USE_SPI_SLAVE1
     case 1:
-      gpio_clear(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
+      pprz_gpio_clear(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
       break;
 #endif //USE_SPI_SLAVE1
 #if USE_SPI_SLAVE2
     case 2:
-      gpio_clear(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
+      pprz_gpio_clear(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
       break;
 #endif //USE_SPI_SLAVE2
 #if USE_SPI_SLAVE3
     case 3:
-      gpio_clear(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
+      pprz_gpio_clear(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
       break;
 #endif //USE_SPI_SLAVE3
 #if USE_SPI_SLAVE4
     case 4:
-      gpio_clear(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
+      pprz_gpio_clear(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
       break;
 #endif //USE_SPI_SLAVE4
 #if USE_SPI_SLAVE5
     case 5:
-      gpio_clear(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
+      pprz_gpio_clear(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
       break;
 #endif //USE_SPI_SLAVE5
 #if USE_SPI_SLAVE6
     case 6:
-      gpio_clear(SPI_SELECT_SLAVE6_PORT, SPI_SELECT_SLAVE6_PIN);
+      pprz_gpio_clear(SPI_SELECT_SLAVE6_PORT, SPI_SELECT_SLAVE6_PIN);
       break;
 #endif //USE_SPI_SLAVE6
 #if USE_SPI_SLAVE7
     case 7:
-      gpio_clear(SPI_SELECT_SLAVE7_PORT, SPI_SELECT_SLAVE7_PIN);
+      pprz_gpio_clear(SPI_SELECT_SLAVE7_PORT, SPI_SELECT_SLAVE7_PIN);
       break;
 #endif //USE_SPI_SLAVE7
 #if USE_SPI_SLAVE8
     case 8:
-      gpio_clear(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
+      pprz_gpio_clear(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
       break;
 #endif //USE_SPI_SLAVE8
 #if USE_SPI_SLAVE9
     case 9:
-      gpio_clear(SPI_SELECT_SLAVE9_PORT, SPI_SELECT_SLAVE9_PIN);
+      pprz_gpio_clear(SPI_SELECT_SLAVE9_PORT, SPI_SELECT_SLAVE9_PIN);
       break;
 #endif //USE_SPI_SLAVE9
     default:
@@ -642,52 +642,52 @@ void spi_slave_unselect(uint8_t slave)
   switch (slave) {
 #if USE_SPI_SLAVE0
     case 0:
-      gpio_set(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
+      pprz_gpio_set(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
       break;
 #endif // USE_SPI_SLAVE0
 #if USE_SPI_SLAVE1
     case 1:
-      gpio_set(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
+      pprz_gpio_set(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
       break;
 #endif //USE_SPI_SLAVE1
 #if USE_SPI_SLAVE2
     case 2:
-      gpio_set(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
+      pprz_gpio_set(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
       break;
 #endif //USE_SPI_SLAVE2
 #if USE_SPI_SLAVE3
     case 3:
-      gpio_set(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
+      pprz_gpio_set(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
       break;
 #endif //USE_SPI_SLAVE3
 #if USE_SPI_SLAVE4
     case 4:
-      gpio_set(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
+      pprz_gpio_set(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
       break;
 #endif //USE_SPI_SLAVE4
 #if USE_SPI_SLAVE5
     case 5:
-      gpio_set(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
+      pprz_gpio_set(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
       break;
 #endif //USE_SPI_SLAVE5
 #if USE_SPI_SLAVE6
     case 6:
-      gpio_set(SPI_SELECT_SLAVE6_PORT, SPI_SELECT_SLAVE6_PIN);
+      pprz_gpio_set(SPI_SELECT_SLAVE6_PORT, SPI_SELECT_SLAVE6_PIN);
       break;
 #endif //USE_SPI_SLAVE6
 #if USE_SPI_SLAVE7
     case 7:
-      gpio_set(SPI_SELECT_SLAVE7_PORT, SPI_SELECT_SLAVE7_PIN);
+      pprz_gpio_set(SPI_SELECT_SLAVE7_PORT, SPI_SELECT_SLAVE7_PIN);
       break;
 #endif //USE_SPI_SLAVE7
 #if USE_SPI_SLAVE8
     case 8:
-      gpio_set(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
+      pprz_gpio_set(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
       break;
 #endif //USE_SPI_SLAVE8
 #if USE_SPI_SLAVE9
     case 9:
-      gpio_set(SPI_SELECT_SLAVE9_PORT, SPI_SELECT_SLAVE9_PIN);
+      pprz_gpio_set(SPI_SELECT_SLAVE9_PORT, SPI_SELECT_SLAVE9_PIN);
       break;
 #endif //USE_SPI_SLAVE9
     default:
@@ -731,52 +731,52 @@ bool spi_resume(struct spi_periph *p, uint8_t slave)
 void spi_init_slaves(void)
 {
 #if USE_SPI_SLAVE0
-  gpio_setup_output(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
+  pprz_gpio_setup_output(SPI_SELECT_SLAVE0_PORT, SPI_SELECT_SLAVE0_PIN);
   spi_slave_unselect(0);
 #endif
 
 #if USE_SPI_SLAVE1
-  gpio_setup_output(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
+  pprz_gpio_setup_output(SPI_SELECT_SLAVE1_PORT, SPI_SELECT_SLAVE1_PIN);
   spi_slave_unselect(1);
 #endif
 
 #if USE_SPI_SLAVE2
-  gpio_setup_output(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
+  pprz_gpio_setup_output(SPI_SELECT_SLAVE2_PORT, SPI_SELECT_SLAVE2_PIN);
   spi_slave_unselect(2);
 #endif
 
 #if USE_SPI_SLAVE3
-  gpio_setup_output(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
+  pprz_gpio_setup_output(SPI_SELECT_SLAVE3_PORT, SPI_SELECT_SLAVE3_PIN);
   spi_slave_unselect(3);
 #endif
 
 #if USE_SPI_SLAVE4
-  gpio_setup_output(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
+  pprz_gpio_setup_output(SPI_SELECT_SLAVE4_PORT, SPI_SELECT_SLAVE4_PIN);
   spi_slave_unselect(4);
 #endif
 
 #if USE_SPI_SLAVE5
-  gpio_setup_output(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
+  pprz_gpio_setup_output(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
   spi_slave_unselect(5);
 #endif
 
 #if USE_SPI_SLAVE6
-  gpio_setup_output(SPI_SELECT_SLAVE6_PORT, SPI_SELECT_SLAVE6_PIN);
+  pprz_gpio_setup_output(SPI_SELECT_SLAVE6_PORT, SPI_SELECT_SLAVE6_PIN);
   spi_slave_unselect(6);
 #endif
 
 #if USE_SPI_SLAVE7
-  gpio_setup_output(SPI_SELECT_SLAVE7_PORT, SPI_SELECT_SLAVE7_PIN);
+  pprz_gpio_setup_output(SPI_SELECT_SLAVE7_PORT, SPI_SELECT_SLAVE7_PIN);
   spi_slave_unselect(7);
 #endif
 
 #if USE_SPI_SLAVE8
-  gpio_setup_output(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
+  pprz_gpio_setup_output(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
   spi_slave_unselect(8);
 #endif
 
 #if USE_SPI_SLAVE9
-  gpio_setup_output(SPI_SELECT_SLAVE9_PORT, SPI_SELECT_SLAVE9_PIN);
+  pprz_gpio_setup_output(SPI_SELECT_SLAVE9_PORT, SPI_SELECT_SLAVE9_PIN);
   spi_slave_unselect(9);
 #endif
 }

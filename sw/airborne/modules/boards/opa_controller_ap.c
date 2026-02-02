@@ -41,7 +41,7 @@ void opa_controller_init() {
   opa_controller_vision_power = false;
   opa_controller_ftd_disarm = false;
 
-  gpio_setup_output(VISION_PWR, VISION_PWR_PIN);
+  pprz_gpio_setup_output(VISION_PWR, VISION_PWR_PIN);
   VISION_PWR_OFF(VISION_PWR, VISION_PWR_PIN);
 }
 

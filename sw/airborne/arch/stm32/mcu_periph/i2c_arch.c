@@ -1160,17 +1160,17 @@ static inline void i2c_scl_set(uint32_t i2c)
 {
 #if USE_I2C1
   if (i2c == I2C1) {
-    gpio_set(I2C1_GPIO_PORT, I2C1_GPIO_SCL);
+    pprz_gpio_set(I2C1_GPIO_PORT, I2C1_GPIO_SCL);
   }
 #endif
 #if USE_I2C2
   if (i2c == I2C2) {
-    gpio_set(I2C2_GPIO_PORT, I2C2_GPIO_SCL);
+    pprz_gpio_set(I2C2_GPIO_PORT, I2C2_GPIO_SCL);
   }
 #endif
 #if USE_I2C3
   if (i2c == I2C3) {
-    gpio_set(I2C3_GPIO_PORT_SCL, I2C3_GPIO_SCL);
+    pprz_gpio_set(I2C3_GPIO_PORT_SCL, I2C3_GPIO_SCL);
   }
 #endif
 }
@@ -1238,20 +1238,20 @@ static void i2c_wd_check(struct i2c_periph *periph)
 
 #if USE_I2C1
       if (i2c == I2C1) {
-        gpio_setup_output(I2C1_GPIO_PORT, I2C1_GPIO_SCL);
-        gpio_setup_input(I2C1_GPIO_PORT, I2C1_GPIO_SDA);
+        pprz_gpio_setup_output(I2C1_GPIO_PORT, I2C1_GPIO_SCL);
+        pprz_gpio_setup_input(I2C1_GPIO_PORT, I2C1_GPIO_SDA);
       }
 #endif
 #if USE_I2C2
       if (i2c == I2C2) {
-        gpio_setup_output(I2C2_GPIO_PORT, I2C2_GPIO_SCL);
-        gpio_setup_input(I2C2_GPIO_PORT, I2C2_GPIO_SDA);
+        pprz_gpio_setup_output(I2C2_GPIO_PORT, I2C2_GPIO_SCL);
+        pprz_gpio_setup_input(I2C2_GPIO_PORT, I2C2_GPIO_SDA);
       }
 #endif
 #if USE_I2C3
       if (i2c == I2C3) {
-        gpio_setup_output(I2C3_GPIO_PORT_SCL, I2C3_GPIO_SCL);
-        gpio_setup_input(I2C3_GPIO_PORT_SDA, I2C3_GPIO_SDA);
+        pprz_gpio_setup_output(I2C3_GPIO_PORT_SCL, I2C3_GPIO_SCL);
+        pprz_gpio_setup_input(I2C3_GPIO_PORT_SDA, I2C3_GPIO_SDA);
       }
 #endif
 

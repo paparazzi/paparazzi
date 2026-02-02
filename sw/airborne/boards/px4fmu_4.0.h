@@ -25,8 +25,8 @@
 #endif
 #define LED_1_GPIO GPIOB
 #define LED_1_GPIO_PIN GPIO11
-#define LED_1_GPIO_ON gpio_clear
-#define LED_1_GPIO_OFF gpio_set
+#define LED_1_GPIO_ON pprz_gpio_clear
+#define LED_1_GPIO_OFF pprz_gpio_set
 #define LED_1_AFIO_REMAP ((void)0)
 
 /* Green */
@@ -35,8 +35,8 @@
 #endif
 #define LED_2_GPIO GPIOB
 #define LED_2_GPIO_PIN GPIO1
-#define LED_2_GPIO_ON gpio_clear
-#define LED_2_GPIO_OFF gpio_set
+#define LED_2_GPIO_ON pprz_gpio_clear
+#define LED_2_GPIO_OFF pprz_gpio_set
 #define LED_2_AFIO_REMAP ((void)0)
 
 /* Blue */
@@ -45,8 +45,8 @@
 #endif
 #define LED_3_GPIO GPIOB
 #define LED_3_GPIO_PIN GPIO3
-#define LED_3_GPIO_ON gpio_clear
-#define LED_3_GPIO_OFF gpio_set
+#define LED_3_GPIO_ON pprz_gpio_clear
+#define LED_3_GPIO_OFF pprz_gpio_set
 #define LED_3_AFIO_REMAP ((void)0)
 
 /* On PCB other LEDs */
@@ -126,14 +126,14 @@
 //TODO: Test and or FIXME:
 #define RADIO_CONTROL_POWER_PORT GPIOE
 #define RADIO_CONTROL_POWER_PIN GPIO4 //SPEKTRUM POWER
-#define RADIO_CONTROL_POWER_ON gpio_clear // yes, inverted
-#define RADIO_CONTROL_POWER_OFF gpio_set
+#define RADIO_CONTROL_POWER_ON pprz_gpio_clear // yes, inverted
+#define RADIO_CONTROL_POWER_OFF pprz_gpio_set
 
 //A receiver on powered on 3.3v
 #define PERIPHERAL3V3_ENABLE_PORT GPIOC //VDD_3V3_PERIPHERAL_EN
 #define PERIPHERAL3V3_ENABLE_PIN GPIO5
-#define PERIPHERAL3V3_ENABLE_ON gpio_set
-#define PERIPHERAL3V3_ENABLE_OFF gpio_clear
+#define PERIPHERAL3V3_ENABLE_ON pprz_gpio_set
+#define PERIPHERAL3V3_ENABLE_OFF pprz_gpio_clear
 
 /* Turn SBUS invert */
 //TODO: Test
@@ -457,8 +457,8 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #endif
 #define LED_4_GPIO GPIOC
 #define LED_4_GPIO_PIN GPIO3
-#define LED_4_GPIO_ON gpio_clear
-#define LED_4_GPIO_OFF gpio_set
+#define LED_4_GPIO_ON pprz_gpio_clear
+#define LED_4_GPIO_OFF pprz_gpio_set
 #define LED_4_AFIO_REMAP ((void)0)
 
 //#if USE_LED_4

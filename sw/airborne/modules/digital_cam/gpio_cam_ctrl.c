@@ -43,11 +43,11 @@
 #include "mcu_periph/gpio.h"
 
 #ifndef DC_PUSH
-#define DC_PUSH gpio_set
+#define DC_PUSH pprz_gpio_set
 #endif
 
 #ifndef DC_RELEASE
-#define DC_RELEASE gpio_clear
+#define DC_RELEASE pprz_gpio_clear
 #endif
 
 /** how long to push shutter in seconds */
@@ -76,22 +76,22 @@ void gpio_cam_ctrl_init(void)
   // Do gpio specific DC init
   dc_timer = 0;
 
-  gpio_setup_output(DC_SHUTTER_GPIO);
+  pprz_gpio_setup_output(DC_SHUTTER_GPIO);
   DC_RELEASE(DC_SHUTTER_GPIO);
 #ifdef DC_ZOOM_IN_GPIO
-  gpio_setup_output(DC_ZOOM_IN_GPIO);
+  pprz_gpio_setup_output(DC_ZOOM_IN_GPIO);
   DC_RELEASE(DC_ZOOM_IN_GPIO);
 #endif
 #ifdef DC_ZOOM_OUT_GPIO
-  gpio_setup_output(DC_ZOOM_OUT_GPIO);
+  pprz_gpio_setup_output(DC_ZOOM_OUT_GPIO);
   DC_RELEASE(DC_ZOOM_OUT_GPIO);
 #endif
 #ifdef DC_POWER_GPIO
-  gpio_setup_output(DC_POWER_GPIO);
+  pprz_gpio_setup_output(DC_POWER_GPIO);
   DC_RELEASE(DC_POWER_GPIO);
 #endif
 #ifdef DC_POWER_OFF_GPIO
-  gpio_setup_output(DC_POWER_OFF_GPIO);
+  pprz_gpio_setup_output(DC_POWER_OFF_GPIO);
   DC_RELEASE(DC_POWER_OFF_GPIO);
 #endif
 }

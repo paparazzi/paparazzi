@@ -56,8 +56,8 @@ extern void parse_mf_daq_msg(uint8_t *buf);
 #if (defined MF_DAQ_POWER_PORT) && (defined MF_DAQ_POWER_PIN)
 #define meteo_france_DAQ_SetPower(_x) { \
     mf_daq.power = _x; \
-    if (mf_daq.power) { gpio_set(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN); } \
-    else { gpio_clear(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN); } \
+    if (mf_daq.power) { pprz_gpio_set(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN); } \
+    else { pprz_gpio_clear(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN); } \
   }
 #else // POWER PORT and PIN undefined
 #define meteo_france_DAQ_SetPower(_x) {}

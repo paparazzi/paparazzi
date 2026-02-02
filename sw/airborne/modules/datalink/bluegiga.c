@@ -190,8 +190,8 @@ void bluegiga_init(struct bluegiga_periph *p)
   p->connected = 0;
 
   // set DRDY interrupt pin for spi master triggered on falling edge
-  gpio_setup_output(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);
-  gpio_set(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);
+  pprz_gpio_setup_output(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);
+  pprz_gpio_set(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);
 
   coms_status = BLUEGIGA_UNINIT;
 
@@ -285,7 +285,7 @@ void bluegiga_receive(struct spi_transaction *trans)
         coms_status = BLUEGIGA_IDLE;
         break;
       case 0x51:  // Interrupt handled
-        gpio_set(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);          // Reset interrupt pin
+        pprz_gpio_set(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);          // Reset interrupt pin
         break;
       default:
         coms_status = BLUEGIGA_IDLE;
@@ -364,5 +364,5 @@ void bluegiga_broadcast_msg(struct bluegiga_periph *p, char *msg, uint8_t msg_le
   }
 
   // trigger bluegiga to read direct command
-  gpio_clear(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // set interrupt
+  pprz_gpio_clear(BLUEGIGA_DRDY_GPIO, BLUEGIGA_DRDY_GPIO_PIN);     // set interrupt
 }

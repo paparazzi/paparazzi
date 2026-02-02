@@ -36,8 +36,8 @@
 /* VISION power */
 #define VISION_PWR GPIOA
 #define VISION_PWR_PIN GPIO1
-#define VISION_PWR_ON gpio_set
-#define VISION_PWR_OFF gpio_clear
+#define VISION_PWR_ON pprz_gpio_set
+#define VISION_PWR_OFF pprz_gpio_clear
 
 /*
  * Onboard LEDs
@@ -49,8 +49,8 @@
 #endif
 #define LED_1_GPIO GPIOA
 #define LED_1_GPIO_PIN GPIO8
-#define LED_1_GPIO_ON gpio_set
-#define LED_1_GPIO_OFF gpio_clear
+#define LED_1_GPIO_ON pprz_gpio_set
+#define LED_1_GPIO_OFF pprz_gpio_clear
 #define LED_1_AFIO_REMAP ((void)0)
 
 

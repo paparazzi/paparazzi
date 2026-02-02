@@ -172,8 +172,8 @@ static void softi2c_gpio_highz(gpio_port_t port, uint16_t pin) {
   // Gpio_set might enable pullup on some architectures (e.g. arduino), not sure
   // if it works here. If not, an external pull-up resistor is required on the
   // I2C lines.
-  gpio_setup_input(port, pin);
-  gpio_set(port, pin);
+  pprz_gpio_setup_input(port, pin);
+  pprz_gpio_set(port, pin);
 #endif /* arch with/without input_pullup */
 }
 
@@ -183,8 +183,8 @@ static bool softi2c_gpio_read(gpio_port_t port, uint16_t pin) {
 }
 
 static void softi2c_gpio_drive_low(gpio_port_t port, uint16_t pin) {
-  gpio_setup_output(port, pin);
-  gpio_clear(port, pin);
+  pprz_gpio_setup_output(port, pin);
+  pprz_gpio_clear(port, pin);
 }
 
 static void softi2c_setup_gpio(

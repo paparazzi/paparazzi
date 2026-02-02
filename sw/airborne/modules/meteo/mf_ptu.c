@@ -79,8 +79,8 @@ void mf_ptu_init(void)
   adc_buf_channel(ADC_CHANNEL_TEMPERATURE, &temp_buf, ADC_CHANNEL_PTU_NB_SAMPLES);
 
 #ifdef PTU_POWER_GPIO
-  gpio_setup_output(PTU_POWER_GPIO);
-  gpio_set(PTU_POWER_GPIO);
+  pprz_gpio_setup_output(PTU_POWER_GPIO);
+  pprz_gpio_set(PTU_POWER_GPIO);
 #endif
 
   pressure_adc = 0;

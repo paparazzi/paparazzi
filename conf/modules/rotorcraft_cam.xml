@@ -20,8 +20,8 @@ On boards with CAM_SWITCH, ROTORCRAFT_CAM_SWITCH_GPIO can be defined to CAM_SWIT
     <section name="CAM" prefix="ROTORCRAFT_CAM_">
       <define name="DEFAULT_MODE" value="MODE_NONE|MODE_MANUAL|MODE_HEADING|MODE_WP" description="Select default mode (default: MODE_NONE)"/>
       <define name="SWITCH_GPIO" value="gpio" description="GPIO used to turn on/off the camer power, e.g. CAM_SWITCH_GPIO or GPIOB,GPIO22. Nothing set by default."/>
-      <define name="CAM_ON" value="gpio_set|gpio_clear" description="Gpio output level to turn camera power power on. gpio_set (default) or gpio_clear"/>
-      <define name="CAM_OFF" value="gpio_set|gpio_clear" description="Gpio output level to turn camera power power off. gpio_set or gpio_clear (default) "/>
+      <define name="CAM_ON" value="pprz_gpio_set|pprz_gpio_clear" description="Gpio output level to turn camera power power on. pprz_gpio_set (default) or pprz_gpio_clear"/>
+      <define name="CAM_OFF" value="pprz_gpio_set|pprz_gpio_clear" description="Gpio output level to turn camera power power off. pprz_gpio_set or pprz_gpio_clear (default) "/>
       <define name="TILT_SERVO" value="name" description="Servo name for tilt control (no tilt control if not defined)"/>
       <define name="TILT_ANGLE_MIN" value="angle" description="Tilt angle corresponding to the servo min position"/>
       <define name="TILT_ANGLE_MAX" value="angle" description="Tilt angle corresponding to the servo max position"/>
@@ -61,4 +61,3 @@ On boards with CAM_SWITCH, ROTORCRAFT_CAM_SWITCH_GPIO can be defined to CAM_SWIT
     <file name="rotorcraft_cam.c"/>
   </makefile>
 </module>
-
