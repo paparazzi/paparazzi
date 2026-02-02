@@ -32,6 +32,7 @@
 #include <math.h>
 #include <string.h>
 #include "mcu_periph/sys_time.h"
+#include "mcu_periph/sys_time_arch.h"
 
 /*
 #                     _            __   _            _    _      _

@@ -20,7 +20,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/linux/mcu_periph/sys_time_arch.h
+/** @file arch/linux/mcu_periph/sys_time_arch.c
  * linux timing functions
  */
 
@@ -44,7 +44,8 @@
 
 static struct timespec startup_time;
 
-static void sys_tick_handler(void);
+void sys_tick_handler(void);
+
 void *sys_time_thread_main(void *data);
 
 #define NSEC_OF_SEC(sec) ((sec) * 1e9)
@@ -111,7 +112,7 @@ void sys_time_arch_init(void)
 #endif
 }
 
-static void sys_tick_handler(void)
+void sys_tick_handler(void)
 {
   /* get current time */
   struct timespec now;

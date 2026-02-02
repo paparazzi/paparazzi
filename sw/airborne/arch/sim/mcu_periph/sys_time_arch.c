@@ -28,6 +28,8 @@
 #include "mcu_periph/sys_time.h"
 #include "std.h"
 
+void sys_tick_handler(void);
+
 void sys_time_arch_init(void)
 {
   // simulate 1us cpu ticks

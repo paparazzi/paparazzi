@@ -69,6 +69,8 @@ bool nps_bypass_ins;
 #error "INDI_RPM_FEEDBACK can not be used in simulation!"
 #endif
 
+void sys_tick_handler(void);
+
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char *rc_dev)
 {
   nps_autopilot.launch = TRUE;

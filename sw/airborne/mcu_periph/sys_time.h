@@ -248,10 +248,9 @@ static inline uint32_t nsec_of_cpu_ticks(uint32_t cpu_ticks)
 
 #define USEC_OF_SEC(sec) ((sec) * 1e6)
 
-#include "mcu_periph/sys_time_arch.h"
-
 /* architecture specific init implementation */
 void sys_time_arch_init(void);
+
 
 /* Generic timer macros */
 #define SysTimeTimerStart(_t) { _t = get_sys_time_usec(); }

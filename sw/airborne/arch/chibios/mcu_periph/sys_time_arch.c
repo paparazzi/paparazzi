@@ -33,6 +33,7 @@
  * since ChibiOS uses different system time functions.
  */
 #include "mcu_periph/sys_time.h"
+#include "mcu_periph/sys_time_arch.h"
 #include BOARD_CONFIG
 #include <ch.h>
 #include "led.h"
@@ -44,7 +45,8 @@ static MUTEX_DECL(sys_time_mtx);
  */
 static void thd_sys_tick(void *arg);
 static THD_WORKING_AREA(wa_thd_sys_tick, 1024);
-static void sys_tick_handler(void);
+
+void sys_tick_handler(void);
 
 static uint32_t cpu_ticks = 0;
 static uint32_t cpu_counter = 0;
@@ -145,7 +147,7 @@ static __attribute__((noreturn)) void thd_sys_tick(void *arg)
   }
 }
 
-static void sys_tick_handler(void)
+void sys_tick_handler(void)
 {
   chMtxLock(&sys_time_mtx);
   /* current time in sys_ticks */
