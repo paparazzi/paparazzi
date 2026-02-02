@@ -43,7 +43,7 @@ void ms2100_arch_init(void)
   /* set mag reset as output (reset on PC13) ----*/
   rcc_periph_clock_enable(RCC_GPIOC);
   rcc_periph_clock_enable(RCC_AFIO);
-  gpio_set(GPIOC, GPIO13);
+  pprz_gpio_set(GPIOC, GPIO13);
   gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO13);
   Ms2100Reset();
 

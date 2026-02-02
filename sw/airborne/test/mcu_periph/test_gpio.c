@@ -56,8 +56,8 @@ int main(void)
   mcu_arch_init();
   sys_time_init();
 
-  gpio_setup_output(TEST_GPIO1);
-  gpio_setup_output(TEST_GPIO2);
+  pprz_gpio_setup_output(TEST_GPIO1);
+  pprz_gpio_setup_output(TEST_GPIO2);
 
   unsigned int tmr_2 = sys_time_register_timer(2, NULL);
   sys_time_register_timer(1, main_periodic);

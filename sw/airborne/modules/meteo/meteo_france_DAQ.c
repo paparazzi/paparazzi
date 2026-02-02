@@ -59,7 +59,7 @@ void init_mf_daq(void)
   mf_daq.nb = 0;
   mf_daq.power = MF_DAQ_POWER_INIT;
 #if (defined MF_DAQ_POWER_PORT) && (defined MF_DAQ_POWER_PIN)
-  gpio_setup_output(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN);
+  pprz_gpio_setup_output(MF_DAQ_POWER_PORT, MF_DAQ_POWER_PIN);
 #endif
   meteo_france_DAQ_SetPower(mf_daq.power);
   log_started = false;

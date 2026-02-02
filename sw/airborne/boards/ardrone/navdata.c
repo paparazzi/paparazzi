@@ -255,8 +255,8 @@ bool navdata_init()
   navdata_cmd_send(NAVDATA_CMD_START);
 
   /* Set navboard gpio control */
-  gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
-  gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
+  pprz_gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
+  pprz_gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
 
   /* Start navdata reading thread */
   pthread_t navdata_thread;
@@ -507,9 +507,9 @@ static void mag_freeze_check(void)
       navdata_cmd_send(NAVDATA_CMD_STOP);
 
       /* Reset the hardware of the navboard */
-      gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
+      pprz_gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
       usleep(20000);
-      gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
+      pprz_gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_NAVDATA);
 
       /* Wait for 40ms for it to boot */
       usleep(40000);

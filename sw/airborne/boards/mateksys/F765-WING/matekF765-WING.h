@@ -32,8 +32,8 @@
 #endif
 #define LED_1_GPIO PAL_PORT(LINE_LED1)
 #define LED_1_GPIO_PIN PAL_PAD(LINE_LED1)
-#define LED_1_GPIO_ON gpio_set
-#define LED_1_GPIO_OFF gpio_clear
+#define LED_1_GPIO_ON pprz_gpio_set
+#define LED_1_GPIO_OFF pprz_gpio_clear
 
 /* greeg, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_2
@@ -41,8 +41,8 @@
 #endif
 #define LED_2_GPIO PAL_PORT(LINE_LED2)
 #define LED_2_GPIO_PIN PAL_PAD(LINE_LED2)
-#define LED_2_GPIO_ON gpio_set
-#define LED_2_GPIO_OFF gpio_clear
+#define LED_2_GPIO_ON pprz_gpio_set
+#define LED_2_GPIO_OFF pprz_gpio_clear
 
 /*
  * ADCs

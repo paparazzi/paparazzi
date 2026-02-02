@@ -51,7 +51,7 @@ struct gpio_direction {
 };
 
 
-void gpio_set(uint32_t port, uint16_t pin)
+void pprz_gpio_set(uint32_t port, uint16_t pin)
 {
   if (port != 0x32524) { return; }  /* protect ardrone board from unauthorized use */
   struct gpio_data data;
@@ -67,7 +67,7 @@ void gpio_set(uint32_t port, uint16_t pin)
 }
 
 
-void gpio_clear(uint32_t port, uint16_t pin)
+void pprz_gpio_clear(uint32_t port, uint16_t pin)
 {
   if (port != 0x32524) { return; }  /* protect ardrone board from unauthorized use */
   struct gpio_data data;
@@ -83,7 +83,7 @@ void gpio_clear(uint32_t port, uint16_t pin)
 }
 
 
-void gpio_setup_input(uint32_t port, uint16_t pin)
+void pprz_gpio_setup_input(uint32_t port, uint16_t pin)
 {
   if (port != 0x32524) { return; }  /* protect ardrone board from unauthorized use */
   struct gpio_direction dir;
@@ -99,7 +99,7 @@ void gpio_setup_input(uint32_t port, uint16_t pin)
 }
 
 
-void gpio_setup_output(uint32_t port, uint16_t pin)
+void pprz_gpio_setup_output(uint32_t port, uint16_t pin)
 {
   /*
     if (port != 0x32524) return;  // protect ardrone board from unauthorized use

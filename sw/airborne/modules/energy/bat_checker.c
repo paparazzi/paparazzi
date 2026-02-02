@@ -40,10 +40,10 @@
 
 // in case GPIO logic is inverted
 #ifndef BAT_CHECKER_GPIO_ON
-#define BAT_CHECKER_GPIO_ON gpio_set
+#define BAT_CHECKER_GPIO_ON pprz_gpio_set
 #endif
 #ifndef BAT_CHECKER_GPIO_OFF
-#define BAT_CHECKER_GPIO_OFF gpio_clear
+#define BAT_CHECKER_GPIO_OFF pprz_gpio_clear
 #endif
 
 void init_bat_checker(void)
@@ -53,7 +53,7 @@ void init_bat_checker(void)
   LED_OFF(BAT_CHECKER_LED);
 #endif
 #ifdef BAT_CHECKER_GPIO
-  gpio_setup_output(BAT_CHECKER_GPIO);
+  pprz_gpio_setup_output(BAT_CHECKER_GPIO);
 #endif
 }
 

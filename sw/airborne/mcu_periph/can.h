@@ -24,7 +24,6 @@
 #define CAN_H
 
 #include "std.h"
-#include "mcu_periph/can_arch.h"
 
 #ifndef CAN_FD_MODE
 #define CAN_FD_MODE TRUE

@@ -120,10 +120,10 @@ void bf_IOConfigGPIO(IO_t io, enum ioconfig_t cfg) {
   if (!io) return;
   switch(cfg) {
     case IOCFG_OUT_PP:
-      gpio_setup_output(io->port, io->pin);
+      pprz_gpio_setup_output(io->port, io->pin);
       break;
     case IOCFG_IN_FLOATING:
-      gpio_setup_input(io->port, io->pin);
+      pprz_gpio_setup_input(io->port, io->pin);
       break;
     case IOCFG_IPU:
       gpio_setup_input_pullup(io->port, io->pin);

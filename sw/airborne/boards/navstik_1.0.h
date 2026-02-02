@@ -37,8 +37,8 @@
 #endif
 #define LED_1_GPIO GPIOC
 #define LED_1_GPIO_PIN GPIO4
-#define LED_1_GPIO_ON gpio_set
-#define LED_1_GPIO_OFF gpio_clear
+#define LED_1_GPIO_ON pprz_gpio_set
+#define LED_1_GPIO_OFF pprz_gpio_clear
 #define LED_1_AFIO_REMAP ((void)0)
 
 /* green, shared with JTAG_TRST */
@@ -47,8 +47,8 @@
 #endif
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_PIN GPIO5
-#define LED_2_GPIO_ON gpio_set
-#define LED_2_GPIO_OFF gpio_clear
+#define LED_2_GPIO_ON pprz_gpio_set
+#define LED_2_GPIO_OFF pprz_gpio_clear
 #define LED_2_AFIO_REMAP ((void)0)
 
 

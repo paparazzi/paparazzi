@@ -54,7 +54,7 @@
  * Not used if ROTORCRAFT_CAM_SWITCH_GPIO is not defined.
  */
 #ifndef ROTORCRAFT_CAM_ON
-#define ROTORCRAFT_CAM_ON gpio_set
+#define ROTORCRAFT_CAM_ON pprz_gpio_set
 #endif
 
 /** Gpio output to turn camera power power off.
@@ -63,7 +63,7 @@
  * Not used if ROTORCRAFT_CAM_SWITCH_GPIO is not defined.
  */
 #ifndef ROTORCRAFT_CAM_OFF
-#define ROTORCRAFT_CAM_OFF gpio_clear
+#define ROTORCRAFT_CAM_OFF pprz_gpio_clear
 #endif
 
 uint8_t rotorcraft_cam_mode;
@@ -105,7 +105,7 @@ void rotorcraft_cam_set_mode(uint8_t mode)
 void rotorcraft_cam_init(void)
 {
 #ifdef ROTORCRAFT_CAM_SWITCH_GPIO
-  gpio_setup_output(ROTORCRAFT_CAM_SWITCH_GPIO);
+  pprz_gpio_setup_output(ROTORCRAFT_CAM_SWITCH_GPIO);
 #endif
   rotorcraft_cam_set_mode(ROTORCRAFT_CAM_DEFAULT_MODE);
   rotorcraft_cam_tilt_pprz = 0;

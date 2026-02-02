@@ -81,8 +81,8 @@
 #endif
 #define LED_1_GPIO GPIOC
 #define LED_1_GPIO_PIN GPIO0
-#define LED_1_GPIO_ON gpio_clear
-#define LED_1_GPIO_OFF gpio_set
+#define LED_1_GPIO_ON pprz_gpio_clear
+#define LED_1_GPIO_OFF pprz_gpio_set
 
 /* orange, on PC13 */
 #ifndef USE_LED_2
@@ -90,8 +90,8 @@
 #endif
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_PIN GPIO13
-#define LED_2_GPIO_ON gpio_clear
-#define LED_2_GPIO_OFF gpio_set
+#define LED_2_GPIO_ON pprz_gpio_clear
+#define LED_2_GPIO_OFF pprz_gpio_set
 
 /* green, on PC1 */
 #ifndef USE_LED_3
@@ -99,8 +99,8 @@
 #endif
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_PIN GPIO1
-#define LED_3_GPIO_ON gpio_clear
-#define LED_3_GPIO_OFF gpio_set
+#define LED_3_GPIO_ON pprz_gpio_clear
+#define LED_3_GPIO_OFF pprz_gpio_set
 
 /* yellow, on PC3 */
 #ifndef USE_LED_4
@@ -108,8 +108,8 @@
 #endif
 #define LED_4_GPIO GPIOC
 #define LED_4_GPIO_PIN GPIO3
-#define LED_4_GPIO_ON gpio_clear
-#define LED_4_GPIO_OFF gpio_set
+#define LED_4_GPIO_ON pprz_gpio_clear
+#define LED_4_GPIO_OFF pprz_gpio_set
 
 /* AUX1, on PB1, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_5
@@ -117,8 +117,8 @@
 #endif
 #define LED_5_GPIO GPIOB
 #define LED_5_GPIO_PIN GPIO1
-#define LED_5_GPIO_ON gpio_set
-#define LED_5_GPIO_OFF gpio_clear
+#define LED_5_GPIO_ON pprz_gpio_set
+#define LED_5_GPIO_OFF pprz_gpio_clear
 
 /* AUX2, on PC5, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_6
@@ -126,8 +126,8 @@
 #endif
 #define LED_6_GPIO GPIOC
 #define LED_6_GPIO_PIN GPIO5
-#define LED_6_GPIO_ON gpio_set
-#define LED_6_GPIO_OFF gpio_clear
+#define LED_6_GPIO_ON pprz_gpio_set
+#define LED_6_GPIO_OFF pprz_gpio_clear
 
 /* AUX3, on PC4, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_7
@@ -135,8 +135,8 @@
 #endif
 #define LED_7_GPIO GPIOC
 #define LED_7_GPIO_PIN GPIO4
-#define LED_7_GPIO_ON gpio_set
-#define LED_7_GPIO_OFF gpio_clear
+#define LED_7_GPIO_ON pprz_gpio_set
+#define LED_7_GPIO_OFF pprz_gpio_clear
 
 /* AUX4, on PB15, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_8
@@ -144,8 +144,8 @@
 #endif
 #define LED_8_GPIO GPIOB
 #define LED_8_GPIO_PIN GPIO15
-#define LED_8_GPIO_ON gpio_set
-#define LED_8_GPIO_OFF gpio_clear
+#define LED_8_GPIO_ON pprz_gpio_set
+#define LED_8_GPIO_OFF pprz_gpio_clear
 
 /* Power Switch, on PB12 */
 #define POWER_SWITCH_GPIO GPIOB,GPIO12

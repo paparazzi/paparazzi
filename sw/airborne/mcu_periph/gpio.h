@@ -25,11 +25,11 @@
  * Some architecture independent helper functions for GPIOs.
  *
  * Functions which should be supported by each architecture implementation:
- * - gpio_setup_output(port, gpios)
- * - gpio_setup_input(port, gpios)
+ * - pprz_gpio_setup_output(port, gpios)
+ * - pprz_gpio_setup_input(port, gpios)
  * - gpio_get(port, gpios)
- * - gpio_set(port, gpios)
- * - gpio_clear(port, gpios)
+ * - pprz_gpio_set(port, gpios)
+ * - pprz_gpio_clear(port, gpios)
  * - gpio_toggle(port, gpios)
  *
  * This includes the architecture specific header where the actual functions are declared.
@@ -40,6 +40,33 @@
 
 #include "std.h"
 #include "mcu_periph/gpio_arch.h"
+
+
+/**
+ * Setup one or more pins of the given GPIO port as outputs.
+ * @param[in] port
+ * @param[in] gpios
+ */
+void pprz_gpio_setup_output(gpio_port_t port, uint16_t gpios);
+
+/**
+ * Setup one or more pins of the given GPIO port as inputs.
+ * @param[in] port
+ * @param[in] gpios
+ */
+void pprz_gpio_setup_input(gpio_port_t port, uint16_t gpios);
+
+
+/**
+ * Set a gpio output to high level.
+ */
+void pprz_gpio_set(gpio_port_t port, uint16_t pin);
+
+/**
+ * Clear a gpio output to low level.
+ */
+void pprz_gpio_clear(gpio_port_t port, uint16_t pin);
+
 
 
 #endif /* MCU_PERIPH_GPIO_H */

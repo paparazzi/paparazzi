@@ -30,14 +30,14 @@
 #include "mcu_periph/gpio.h"
 #include "hal.h"
 
-void gpio_setup_output(ioportid_t port, uint16_t gpios)
+void pprz_gpio_setup_output(ioportid_t port, uint16_t gpios)
 {
   chSysLock();
   palSetPadMode(port, gpios, PAL_MODE_OUTPUT_PUSHPULL);
   chSysUnlock();
 }
 
-void gpio_setup_input(ioportid_t port, uint16_t gpios)
+void pprz_gpio_setup_input(ioportid_t port, uint16_t gpios)
 {
   chSysLock();
   palSetPadMode(port, gpios, PAL_MODE_INPUT);
@@ -94,3 +94,12 @@ void gpio_setup_pin_analog(ioportid_t port, uint16_t pin)
   chSysUnlock();
 }
 
+void pprz_gpio_set(gpio_port_t port, uint16_t pin)
+{
+  palSetPad(port, pin);
+}
+
+void pprz_gpio_clear(gpio_port_t port, uint16_t pin)
+{
+  palClearPad(port, pin);
+}

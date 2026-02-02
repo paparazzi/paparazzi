@@ -23,8 +23,8 @@
 #endif
 #define LED_1_GPIO GPIOC
 #define LED_1_GPIO_PIN GPIO13
-#define LED_1_GPIO_ON gpio_clear
-#define LED_1_GPIO_OFF gpio_set
+#define LED_1_GPIO_ON pprz_gpio_clear
+#define LED_1_GPIO_OFF pprz_gpio_set
 #define LED_1_AFIO_REMAP ((void)0)
 
 /* Red/white RX LEDs */
@@ -34,8 +34,8 @@
 #endif
 #define LED_2_GPIO GPIOB
 #define LED_2_GPIO_PIN GPIO9
-#define LED_2_GPIO_ON gpio_set
-#define LED_2_GPIO_OFF gpio_clear
+#define LED_2_GPIO_ON pprz_gpio_set
+#define LED_2_GPIO_OFF pprz_gpio_clear
 #define LED_2_AFIO_REMAP ((void)0)
 
 /** UART's **/
@@ -61,8 +61,8 @@
 /* FIXME: (re)setting UART based (e.g. Spektum) Serial RADIO_CONTROL_POWER_PORT
 #define RADIO_CONTROL_POWER_PORT GPIOA
 #define RADIO_CONTROL_POWER_PIN GPIO10
-#define RADIO_CONTROL_POWER_ON gpio_clear // yes, inverted
-#define RADIO_CONTROL_POWER_OFF gpio_set
+#define RADIO_CONTROL_POWER_ON pprz_gpio_clear // yes, inverted
+#define RADIO_CONTROL_POWER_OFF pprz_gpio_set
 */
 
 /* FIXME: Soft binding Spektrum */
@@ -302,8 +302,8 @@
 #define PWM_BUZZER
 #define PWM_BUZZER_GPIO GPIOC
 #define PWM_BUZZER_PIN GPI15
-#define PWM_BUZZER_GPIO_ON  gpio_clear
-#define PWM_BUZZER_GPIO_OFF gpio_set
+#define PWM_BUZZER_GPIO_ON  pprz_gpio_clear
+#define PWM_BUZZER_GPIO_OFF pprz_gpio_set
 #endif
 
 #endif /* CONFIG_CRAZYBEE_F4_1_0_H */

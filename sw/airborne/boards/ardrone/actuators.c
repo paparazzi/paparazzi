@@ -70,11 +70,11 @@ uint16_t actuators_pwm_values[ACTUATORS_ARDRONE_NB];
 
 static inline void actuators_ardrone_reset_flipflop(void)
 {
-  gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
-  gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+  pprz_gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+  pprz_gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
   uint32_t stop = sys_time.nb_sec + 2;
   while (sys_time.nb_sec < stop);
-  gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+  pprz_gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
 }
 
 
@@ -109,37 +109,37 @@ void actuators_ardrone_init(void)
   tcsetattr(actuator_ardrone2_fd, TCSANOW, &options);
 
   //reset IRQ flipflop - on error 106 read 1, this code resets 106 to 0
-  gpio_setup_input(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_INPUT);
+  pprz_gpio_setup_input(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_INPUT);
   actuators_ardrone_reset_flipflop();
 
 
   //all select lines active
-  gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR1);
-  gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR2);
-  gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR3);
-  gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR4);
-  gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR1);
-  gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR2);
-  gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR3);
-  gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR4);
+  pprz_gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR1);
+  pprz_gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR2);
+  pprz_gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR3);
+  pprz_gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR4);
+  pprz_gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR1);
+  pprz_gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR2);
+  pprz_gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR3);
+  pprz_gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR4);
 
   //configure motors
   uint8_t reply[256];
   for (int m = 0; m < 4; m++) {
-    gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR1 + m);
+    pprz_gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR1 + m);
     actuators_ardrone_cmd(0xe0, reply, 2);
     if (reply[0] != 0xe0 || reply[1] != 0x00) {
       printf("motor%d cmd=0x%02x reply=0x%02x\n", m + 1, (int)reply[0], (int)reply[1]);
     }
     actuators_ardrone_cmd(m + 1, reply, 1);
-    gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR1 + m);
+    pprz_gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR1 + m);
   }
 
   //all select lines active
-  gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR1);
-  gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR2);
-  gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR3);
-  gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR4);
+  pprz_gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR1);
+  pprz_gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR2);
+  pprz_gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR3);
+  pprz_gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_MOTOR4);
 
   //start multicast
   actuators_ardrone_cmd(0xa0, reply, 1);
@@ -149,8 +149,8 @@ void actuators_ardrone_init(void)
   actuators_ardrone_cmd(0xa0, reply, 1);
 
   //reset IRQ flipflop - on error 176 reads 1, this code resets 176 to 0
-  gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
-  gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+  pprz_gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+  pprz_gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
 
   // Left Red, Right Green
   actuators_ardrone_set_leds(MOT_LEDRED, MOT_LEDGREEN, MOT_LEDGREEN, MOT_LEDRED);
@@ -179,11 +179,11 @@ void actuators_ardrone_motor_status(void)
 
     if (reset_flipflop_counter == 10) {
       // Reset flipflop
-      gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
-      gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+      pprz_gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+      pprz_gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
     } else if (reset_flipflop_counter == 1) {
       // Listen to IRQ again
-      gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
+      pprz_gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
     }
     return;
   }

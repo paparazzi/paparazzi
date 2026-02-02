@@ -24,4 +24,9 @@
  * Dummy file for GPIO
  */
 
+ #include "mcu_periph/gpio.h"
 
+void pprz_gpio_setup_output(gpio_port_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
+void pprz_gpio_setup_input(gpio_port_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
+void pprz_gpio_set(gpio_port_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
+void pprz_gpio_clear(gpio_port_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}

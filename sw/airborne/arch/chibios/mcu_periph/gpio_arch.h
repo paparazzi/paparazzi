@@ -38,52 +38,39 @@
  */
 typedef ioportid_t gpio_port_t;
 
-/**
- * Setup one or more pins of the given GPIO port as outputs.
- * @param[in] port
- * @param[in] gpios
- */
-extern void gpio_setup_output(ioportid_t port, uint16_t gpios);
-
-/**
- * Setup one or more pins of the given GPIO port as inputs.
- * @param[in] port
- * @param[in] gpios
- */
-extern void gpio_setup_input(ioportid_t port, uint16_t gpios);
 
 /**
  * Setup one or more pins of the given GPIO port as inputs with pull up resistor enabled.
  * @param[in] port
  * @param[in] gpios
  */
-extern void gpio_setup_input_pullup(ioportid_t port, uint16_t gpios);
+extern void gpio_setup_input_pullup(gpio_port_t port, uint16_t gpios);
 
 /**
  * Setup one or more pins of the given GPIO port as inputs with pull down resistors enabled.
  * @param[in] port
  * @param[in] gpios
  */
-extern void gpio_setup_input_pulldown(ioportid_t port, uint16_t gpios);
+extern void gpio_setup_input_pulldown(gpio_port_t port, uint16_t gpios);
 
 /**
  * Setup a gpio for input or output with alternate function.
  * This is an STM32 specific helper funtion and should only be used in stm32 code.
  */
-extern void gpio_setup_pin_af(ioportid_t port, uint16_t pin, uint8_t af, bool is_output);
+extern void gpio_setup_pin_af(gpio_port_t port, uint16_t pin, uint8_t af, bool is_output);
 
 /**
  * Setup a gpio for input pullup with alternate function.
  * This is an STM32 specific helper funtion and should only be used in stm32 code.
 */
-void gpio_setup_pin_af_pullup(ioportid_t port, uint16_t pin, uint8_t af);
+void gpio_setup_pin_af_pullup(gpio_port_t port, uint16_t pin, uint8_t af);
 
 /**
  * Setup a gpio for analog use.
  * @param[in] port
  * @param[in] pin
  */
-extern void gpio_setup_pin_analog(ioportid_t port, uint16_t pin);
+extern void gpio_setup_pin_analog(gpio_port_t port, uint16_t pin);
 
 
 /**
@@ -91,37 +78,18 @@ extern void gpio_setup_pin_analog(ioportid_t port, uint16_t pin);
  * @param[in] port
  * @param[in] pin
  */
-static inline uint8_t gpio_get(ioportid_t port, uint16_t pin)
+static inline uint8_t gpio_get(gpio_port_t port, uint16_t pin)
 {
   return palReadPad(port, pin);
 }
 
-/**
- * Set a gpio output to high level.
- * @param[in] port
- * @param[in] pin
- */
-static inline void gpio_set(ioportid_t port, uint16_t pin)
-{
-  palSetPad(port, pin);
-}
-
-/**
- * Clear a gpio output to low level.
- * @param[in] port
- * @param[in] pin
- */
-static inline void gpio_clear(ioportid_t port, uint16_t pin)
-{
-  palClearPad(port, pin);
-}
 
 /**
  * Toggle a gpio output to low level.
  * @param[in] port
  * @param[in] pin
  */
-static inline void gpio_toggle(ioportid_t port, uint16_t pin)
+static inline void gpio_toggle(gpio_port_t port, uint16_t pin)
 {
   palTogglePad(port, pin);
 }

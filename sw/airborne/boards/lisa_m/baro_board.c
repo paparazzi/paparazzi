@@ -48,7 +48,7 @@ void baro_init(void)
   /* setup eoc check function */
   baro_bmp085.eoc = &baro_eoc;
 
-  gpio_clear(GPIOB, GPIO0);
+  pprz_gpio_clear(GPIOB, GPIO0);
   gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
                 GPIO_CNF_INPUT_PULL_UPDOWN, GPIO0);
 

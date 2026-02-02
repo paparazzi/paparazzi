@@ -18,8 +18,8 @@
 #endif
 #define LED_1_GPIO GPIOB
 #define LED_1_GPIO_PIN GPIO14
-#define LED_1_GPIO_ON gpio_clear
-#define LED_1_GPIO_OFF gpio_set
+#define LED_1_GPIO_ON pprz_gpio_clear
+#define LED_1_GPIO_OFF pprz_gpio_set
 #define LED_1_AFIO_REMAP ((void)0)
 
 //led Amber a.k.a b/e led
@@ -28,8 +28,8 @@
 #endif
 #define LED_2_GPIO GPIOB
 #define LED_2_GPIO_PIN GPIO15
-#define LED_2_GPIO_ON gpio_clear
-#define LED_2_GPIO_OFF gpio_set
+#define LED_2_GPIO_ON pprz_gpio_clear
+#define LED_2_GPIO_OFF pprz_gpio_set
 #define LED_2_AFIO_REMAP ((void)0)
 
 //safety led in the switch, red
@@ -38,8 +38,8 @@
 #endif
 #define LED_3_GPIO GPIOB
 #define LED_3_GPIO_PIN GPIO13
-#define LED_3_GPIO_ON gpio_clear
-#define LED_3_GPIO_OFF gpio_set
+#define LED_3_GPIO_ON pprz_gpio_clear
+#define LED_3_GPIO_OFF pprz_gpio_set
 #define LED_3_AFIO_REMAP ((void)0)
 
 //TODO: safety switch is on PB5!
@@ -73,8 +73,8 @@
 /* The line that is pulled low at power up to initiate the bind process */
 #define RADIO_CONTROL_POWER_PORT GPIOC
 #define RADIO_CONTROL_POWER_PIN GPIO13
-#define RADIO_CONTROL_POWER_ON gpio_set
-#define RADIO_CONTROL_POWER_OFF gpio_clear
+#define RADIO_CONTROL_POWER_ON pprz_gpio_set
+#define RADIO_CONTROL_POWER_OFF pprz_gpio_clear
 
 #define SPEKTRUM_TIMER 3
 

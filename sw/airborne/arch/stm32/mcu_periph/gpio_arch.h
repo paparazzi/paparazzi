@@ -24,14 +24,13 @@
  * @ingroup stm32_arch
  *
  * GPIO helper functions for STM32F1 and STM32F4.
- *
- * The gpio_set and gpio_clear functions are already available from libopencm3.
  */
 
 #ifndef GPIO_ARCH_H
 #define GPIO_ARCH_H
 
 #include <libopencm3/stm32/gpio.h>
+#include <stdint.h>
 
 /**
  * Abstract gpio port type for hardware independent part
@@ -39,53 +38,39 @@
 typedef uint32_t gpio_port_t;
 
 /**
- * Setup one or more pins of the given GPIO port as outputs.
- * @param[in] port
- * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
- */
-extern void gpio_setup_output(uint32_t port, uint16_t gpios);
-
-/**
- * Setup one or more pins of the given GPIO port as inputs.
- * @param[in] port
- * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
- */
-extern void gpio_setup_input(uint32_t port, uint16_t gpios);
-
-/**
  * Setup one or more pins of the given GPIO port as inputs with pull up resistor enabled.
  * @param[in] port
  * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
  */
-extern void gpio_setup_input_pullup(uint32_t port, uint16_t gpios);
+extern void gpio_setup_input_pullup(gpio_port_t port, uint16_t gpios);
 
 /**
  * Setup one or more pins of the given GPIO port as inputs with pull down resistors enabled.
  * @param[in] port
  * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
  */
-extern void gpio_setup_input_pulldown(uint32_t port, uint16_t gpios);
+extern void gpio_setup_input_pulldown(gpio_port_t port, uint16_t gpios);
 
 /**
  * Setup a gpio for input or output with alternate function.
  * This is an STM32 specific helper funtion and should only be used in stm32 arch code.
  */
 #if defined(STM32F1)
-extern void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint32_t af, bool is_output);
+extern void gpio_setup_pin_af(gpio_port_t port, uint16_t pin, uint32_t af, bool is_output);
 #else
-extern void gpio_setup_pin_af(uint32_t port, uint16_t pin, uint8_t af, bool is_output);
+extern void gpio_setup_pin_af(gpio_port_t port, uint16_t pin, uint8_t af, bool is_output);
 #endif
 
 /**
  * Setup a gpio for analog use.
  * This is an STM32 specific helper funtion and should only be used in stm32 arch code.
  */
-extern void gpio_setup_pin_analog(uint32_t port, uint16_t pin);
+extern void gpio_setup_pin_analog(gpio_port_t port, uint16_t pin);
 
 /**
  * Enable the relevant clock.
  * This is an STM32 specific helper funtion and should only be used in stm32 arch code.
  */
-extern void gpio_enable_clock(uint32_t port);
+extern void gpio_enable_clock(gpio_port_t port);
 
 #endif /* GPIO_ARCH_H */

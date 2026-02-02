@@ -93,8 +93,8 @@ void imu_aspirin_i2c_init(void)
 
   // With CS tied high to VDD I/O, the ADXL345 is in I2C mode
 #ifdef ASPIRIN_I2C_CS_PORT
-  gpio_setup_output(ASPIRIN_I2C_CS_PORT, ASPIRIN_I2C_CS_PIN);
-  gpio_set(ASPIRIN_I2C_CS_PORT, ASPIRIN_I2C_CS_PIN);
+  pprz_gpio_setup_output(ASPIRIN_I2C_CS_PORT, ASPIRIN_I2C_CS_PIN);
+  pprz_gpio_set(ASPIRIN_I2C_CS_PORT, ASPIRIN_I2C_CS_PIN);
 #endif
 
   /* Gyro configuration and initalization */

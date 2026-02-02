@@ -27,8 +27,8 @@
 #endif
 #define LED_1_GPIO GPIOB
 #define LED_1_GPIO_PIN GPIO12
-#define LED_1_GPIO_ON gpio_set
-#define LED_1_GPIO_OFF gpio_clear
+#define LED_1_GPIO_ON pprz_gpio_set
+#define LED_1_GPIO_OFF pprz_gpio_clear
 
 /* orange, on PB13, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_2
@@ -36,8 +36,8 @@
 #endif
 #define LED_2_GPIO GPIOB
 #define LED_2_GPIO_PIN GPIO13
-#define LED_2_GPIO_ON gpio_set
-#define LED_2_GPIO_OFF gpio_clear
+#define LED_2_GPIO_ON pprz_gpio_set
+#define LED_2_GPIO_OFF pprz_gpio_clear
 
 /* green, on PD10, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_3
@@ -45,8 +45,8 @@
 #endif
 #define LED_3_GPIO GPIOD
 #define LED_3_GPIO_PIN GPIO10
-#define LED_3_GPIO_ON gpio_set
-#define LED_3_GPIO_OFF gpio_clear
+#define LED_3_GPIO_ON pprz_gpio_set
+#define LED_3_GPIO_OFF pprz_gpio_clear
 
 /* yellow, on PD11, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_4
@@ -54,8 +54,8 @@
 #endif
 #define LED_4_GPIO GPIOD
 #define LED_4_GPIO_PIN GPIO11
-#define LED_4_GPIO_ON gpio_set
-#define LED_4_GPIO_OFF gpio_clear
+#define LED_4_GPIO_ON pprz_gpio_set
+#define LED_4_GPIO_OFF pprz_gpio_clear
 
 /* AUX0, on PA5, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_5
@@ -63,8 +63,8 @@
 #endif
 #define LED_5_GPIO GPIOA
 #define LED_5_GPIO_PIN GPIO5
-#define LED_5_GPIO_ON gpio_set
-#define LED_5_GPIO_OFF gpio_clear
+#define LED_5_GPIO_ON pprz_gpio_set
+#define LED_5_GPIO_OFF pprz_gpio_clear
 
 /* AUX1, on PA3, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_6
@@ -72,8 +72,8 @@
 #endif
 #define LED_6_GPIO GPIOA
 #define LED_6_GPIO_PIN GPIO3
-#define LED_6_GPIO_ON gpio_set
-#define LED_6_GPIO_OFF gpio_clear
+#define LED_6_GPIO_ON pprz_gpio_set
+#define LED_6_GPIO_OFF pprz_gpio_clear
 
 /* AUX2, on PA2, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_7
@@ -81,8 +81,8 @@
 #endif
 #define LED_7_GPIO GPIOA
 #define LED_7_GPIO_PIN GPIO2
-#define LED_7_GPIO_ON gpio_set
-#define LED_7_GPIO_OFF gpio_clear
+#define LED_7_GPIO_ON pprz_gpio_set
+#define LED_7_GPIO_OFF pprz_gpio_clear
 
 /* AUX3, on PA0, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_8
@@ -90,8 +90,8 @@
 #endif
 #define LED_8_GPIO GPIOA
 #define LED_8_GPIO_PIN GPIO0
-#define LED_8_GPIO_ON gpio_set
-#define LED_8_GPIO_OFF gpio_clear
+#define LED_8_GPIO_ON pprz_gpio_set
+#define LED_8_GPIO_OFF pprz_gpio_clear
 
 /* AUX4, on PC3, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_9
@@ -99,8 +99,8 @@
 #endif
 #define LED_9_GPIO GPIOC
 #define LED_9_GPIO_PIN GPIO3
-#define LED_9_GPIO_ON gpio_set
-#define LED_9_GPIO_OFF gpio_clear
+#define LED_9_GPIO_ON pprz_gpio_set
+#define LED_9_GPIO_OFF pprz_gpio_clear
 
 /* AUX5, on PC2, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_10
@@ -108,8 +108,8 @@
 #endif
 #define LED_10_GPIO GPIOC
 #define LED_10_GPIO_PIN GPIO2
-#define LED_10_GPIO_ON gpio_set
-#define LED_10_GPIO_OFF gpio_clear
+#define LED_10_GPIO_ON pprz_gpio_set
+#define LED_10_GPIO_OFF pprz_gpio_clear
 
 /* AUX6, on PC6, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_11
@@ -117,8 +117,8 @@
 #endif
 #define LED_11_GPIO GPIOC
 #define LED_11_GPIO_PIN GPIO6
-#define LED_11_GPIO_ON gpio_set
-#define LED_11_GPIO_OFF gpio_clear
+#define LED_11_GPIO_ON pprz_gpio_set
+#define LED_11_GPIO_OFF pprz_gpio_clear
 
 /* AUX7, on PC7, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_12
@@ -126,8 +126,8 @@
 #endif
 #define LED_12_GPIO GPIOC
 #define LED_12_GPIO_PIN GPIO7
-#define LED_12_GPIO_ON gpio_set
-#define LED_12_GPIO_OFF gpio_clear
+#define LED_12_GPIO_ON pprz_gpio_set
+#define LED_12_GPIO_OFF pprz_gpio_clear
 
 /*
  * ADCs

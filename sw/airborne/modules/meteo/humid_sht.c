@@ -71,16 +71,16 @@ bool log_sht_started;
 #endif
 
 /// set data pin to input
-#define DATA_SET        gpio_setup_input(SHT_DAT_GPIO)
+#define DATA_SET        pprz_gpio_setup_input(SHT_DAT_GPIO)
 /// set data pin to output
-#define DATA_CLR        gpio_setup_output(SHT_DAT_GPIO)
+#define DATA_CLR        pprz_gpio_setup_output(SHT_DAT_GPIO)
 /// get data pin
 #define DATA_IN         gpio_get(SHT_DAT_GPIO)
 
 /// set clock pin to high
-#define SCK_SET         gpio_set(SHT_SCK_GPIO)
+#define SCK_SET         pprz_gpio_set(SHT_SCK_GPIO)
 /// set clock pin to low
-#define SCK_CLR         gpio_clear(SHT_SCK_GPIO)
+#define SCK_CLR         pprz_gpio_clear(SHT_SCK_GPIO)
 
 
 uint16_t humidsht, tempsht;
@@ -299,9 +299,9 @@ uint8_t humid_sht_reset(void)
 void humid_sht_init(void)
 {
   /* Configure DAT/SCL pin as GPIO */
-  gpio_setup_input(SHT_DAT_GPIO);
-  gpio_setup_output(SHT_SCK_GPIO);
-  gpio_clear(SHT_SCK_GPIO);
+  pprz_gpio_setup_input(SHT_DAT_GPIO);
+  pprz_gpio_setup_output(SHT_SCK_GPIO);
+  pprz_gpio_clear(SHT_SCK_GPIO);
 
 
   humid_sht_available = false;

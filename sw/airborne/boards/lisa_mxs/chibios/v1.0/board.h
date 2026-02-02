@@ -1065,8 +1065,8 @@
 #endif
 #define LED_1_GPIO GPIOA
 #define LED_1_GPIO_PIN 8
-#define LED_1_GPIO_ON gpio_clear
-#define LED_1_GPIO_OFF gpio_set
+#define LED_1_GPIO_ON pprz_gpio_clear
+#define LED_1_GPIO_OFF pprz_gpio_set
 
 /* 2 green, shared with JTAG_TRST */
 #ifndef USE_LED_2
@@ -1074,8 +1074,8 @@
 #endif
 #define LED_2_GPIO GPIOB
 #define LED_2_GPIO_PIN 4
-#define LED_2_GPIO_ON gpio_clear
-#define LED_2_GPIO_OFF gpio_set
+#define LED_2_GPIO_ON pprz_gpio_clear
+#define LED_2_GPIO_OFF pprz_gpio_set
 
 /* 3 green, shared with ADC12 (ADC_6 on connector ANALOG2) */
 #ifndef USE_LED_3
@@ -1083,8 +1083,8 @@
 #endif
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_PIN 2
-#define LED_3_GPIO_ON gpio_clear
-#define LED_3_GPIO_OFF gpio_set
+#define LED_3_GPIO_ON pprz_gpio_clear
+#define LED_3_GPIO_OFF pprz_gpio_set
 
 /* 4 red, shared with ADC15 (ADC_4 on connector ANALOG2) */
 #ifndef USE_LED_4
@@ -1092,8 +1092,8 @@
 #endif
 #define LED_4_GPIO GPIOC
 #define LED_4_GPIO_PIN 5
-#define LED_4_GPIO_ON gpio_clear
-#define LED_4_GPIO_OFF gpio_set
+#define LED_4_GPIO_ON pprz_gpio_clear
+#define LED_4_GPIO_OFF pprz_gpio_set
 
 /* 5 green, on PC15 */
 #ifndef USE_LED_5
@@ -1101,8 +1101,8 @@
 #endif
 #define LED_5_GPIO GPIOC
 #define LED_5_GPIO_PIN 15
-#define LED_5_GPIO_ON gpio_set
-#define LED_5_GPIO_OFF gpio_clear
+#define LED_5_GPIO_ON pprz_gpio_set
+#define LED_5_GPIO_OFF pprz_gpio_clear
 
 /*
  * ADCs
