@@ -32,7 +32,7 @@
  * Mostly empty functions for Paparazzi compatibility,
  * since ChibiOS uses different system time functions.
  */
-#include "mcu_periph/sys_time_arch.h"
+#include "mcu_periph/sys_time.h"
 #include BOARD_CONFIG
 #include <ch.h>
 #include "led.h"
@@ -129,12 +129,6 @@ void sys_time_msleep(uint32_t ms)
 {
   chThdSleepMilliseconds(ms);
 }
-
-void sys_time_ssleep(uint8_t s)
-{
-  chThdSleepSeconds(s);
-}
-
 
 /*
  * Sys_tick thread

@@ -103,7 +103,7 @@ int main(void)
 
   while (1) {
     /* sleep for 1s */
-    sys_time_ssleep(1);
+    sys_time_msleep(1000);
     uart_transmit(&SERIAL_PORT, 'N');
     uart_transmit(&SERIAL_PORT, 'i');
     uart_transmit(&SERIAL_PORT, 'c');

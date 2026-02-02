@@ -82,6 +82,8 @@ struct sys_time {
 
 extern struct sys_time sys_time;
 
+extern void sys_time_init(void);
+
 /**
  * Sleep @param us microseconds
  */
@@ -93,7 +95,25 @@ void sys_time_usleep(uint32_t us);
 void sys_time_msleep(uint32_t ms);
 
 
-extern void sys_time_init(void);
+/**
+ * Get the time in microseconds since startup.
+ * WARNING: overflows after 70min!
+ * @return microseconds since startup as uint32_t
+ */
+uint32_t get_sys_time_usec(void);
+
+/**
+ * Get the time in 100microseconds since startup.
+ * WARNING: overflows after 7000min!
+ * @return 100microseconds since startup as uint32_t
+ */
+uint32_t get_sys_time_usec100(void);
+
+/**
+ * Get the time in milliseconds since startup.
+ * @return milliseconds since startup as uint32_t
+ */
+uint32_t get_sys_time_msec(void);
 
 /**
  * Register a new system timer.
@@ -231,7 +251,7 @@ static inline uint32_t nsec_of_cpu_ticks(uint32_t cpu_ticks)
 #include "mcu_periph/sys_time_arch.h"
 
 /* architecture specific init implementation */
-extern void sys_time_arch_init(void);
+void sys_time_arch_init(void);
 
 /* Generic timer macros */
 #define SysTimeTimerStart(_t) { _t = get_sys_time_usec(); }
