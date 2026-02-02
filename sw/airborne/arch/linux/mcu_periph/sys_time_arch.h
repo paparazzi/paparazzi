@@ -28,42 +28,5 @@
 #ifndef SYS_TIME_ARCH_H
 #define SYS_TIME_ARCH_H
 
-#include "std.h"
-#include <unistd.h>
-#include "mcu_periph/sys_time.h"
-
-/**
- * Get the time in microseconds since startup.
- * WARNING: overflows after 71min34seconds!
- * @return current system time as uint32_t
- */
-extern uint32_t get_sys_time_usec(void);
-
-/**
- * Get the time in microseconds since startup.
- * WARNING: overflows after 7000 minutes!
- * @return current system time as uint32_t
- */
-extern uint32_t get_sys_time_usec100(void);
-
-/**
- * Get the time in milliseconds since startup.
- * @return milliseconds since startup as uint32_t
- */
-extern uint32_t get_sys_time_msec(void);
-
-
-/** elapsed time in microsecs between two timespecs */
-static inline unsigned int sys_time_elapsed_us(struct timespec *prev, struct timespec *now)
-{
-  time_t d_sec = now->tv_sec - prev->tv_sec;
-  long d_nsec = now->tv_nsec - prev->tv_nsec;
-  /* wrap if negative nanoseconds */
-  if (d_nsec < 0) {
-    d_sec -= 1;
-    d_nsec += 1000000000L;
-  }
-  return d_sec * 1000000 + d_nsec / 1000;
-}
 
 #endif /* SYS_TIME_ARCH_H */
