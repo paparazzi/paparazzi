@@ -6,6 +6,7 @@
 #include "mcu_periph/hal_stm32_dma.h"
 #include "mcu_periph/timerDmaCache.h"
 #include "modules/actuators/esc_dshot_config.h"
+#include "mcu_periph/sys_time_arch.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,14 +63,6 @@ extern "C" {
 #else  // DSHOT_CHANNELS = X
 #error DSHOT_CHANNELS must be 1 to 4
 #endif // DSHOT_CHANNELS = X
-
-
-#if !defined STM32_SYSCLK && !defined STM32_SYS_CK
-#error neither  STM32_SYSCLK or STM32_SYS_CK defined
-#endif
-#if !defined STM32_SYSCLK
-#define STM32_SYSCLK STM32_SYS_CK
-#endif
 
 
 /**

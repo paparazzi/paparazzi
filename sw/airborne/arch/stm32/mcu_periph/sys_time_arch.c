@@ -28,7 +28,10 @@
  */
 
 #include "mcu_periph/sys_time.h"
-#include "mcu_periph/sys_time_arch.h"
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/cm3/systick.h>
+#include "std.h"
 
 #include "libopencm3/cm3/systick.h"
 
@@ -67,6 +70,27 @@ void sys_time_arch_init(void)
 #endif
 }
 
+
+uint32_t get_sys_time_usec(void)
+{
+  return sys_time.nb_sec * 1000000 +
+         usec_of_cpu_ticks(sys_time.nb_sec_rem) +
+         usec_of_cpu_ticks(systick_get_reload() - systick_get_value());
+}
+
+uint32_t get_sys_time_usec100(void)
+{
+  return sys_time.nb_sec * 10000 +
+         usec_of_cpu_ticks(sys_time.nb_sec_rem)/100 +
+         usec_of_cpu_ticks(systick_get_reload() - systick_get_value())/100;
+}
+
+uint32_t get_sys_time_msec(void)
+{
+  return sys_time.nb_sec * 1000 +
+         msec_of_cpu_ticks(sys_time.nb_sec_rem) +
+         msec_of_cpu_ticks(systick_get_reload() - systick_get_value());
+}
 
 // FIXME : nb_tick rollover ???
 //

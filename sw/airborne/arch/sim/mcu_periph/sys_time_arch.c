@@ -26,14 +26,33 @@
  */
 
 #include "mcu_periph/sys_time.h"
-#include "mcu_periph/sys_time_arch.h"
+#include "std.h"
 
+void sys_tick_handler(void);
 
 void sys_time_arch_init(void)
 {
   // simulate 1us cpu ticks
   sys_time.cpu_ticks_per_sec = 1e6;
   sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution * sys_time.cpu_ticks_per_sec + 0.5);
+}
+
+uint32_t get_sys_time_usec(void)
+{
+  return sys_time.nb_sec * 1000000 +
+         usec_of_cpu_ticks(sys_time.nb_sec_rem);
+}
+
+uint32_t get_sys_time_usec100(void)
+{
+  return sys_time.nb_sec * 10000 +
+         usec_of_cpu_ticks(sys_time.nb_sec_rem)/100;
+}
+
+uint32_t get_sys_time_msec(void)
+{
+  return sys_time.nb_sec * 1000 +
+         msec_of_cpu_ticks(sys_time.nb_sec_rem);
 }
 
 void sys_tick_handler(void)
