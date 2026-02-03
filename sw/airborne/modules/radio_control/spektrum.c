@@ -63,7 +63,7 @@
 
 /* Set polarity using RC_POLARITY_GPIO. */
 #ifndef RC_SET_POLARITY
-#define RC_SET_POLARITY gpio_clear
+#define RC_SET_POLARITY pprz_gpio_clear
 #endif
 
 /* Busy wait to let the receiver starts properly
@@ -172,7 +172,7 @@ void spektrum_init(void)
 
   // Set polarity to normal on boards that can change this
 #ifdef RC_POLARITY_GPIO_PORT
-  gpio_setup_output(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
+  pprz_gpio_setup_output(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
   RC_SET_POLARITY(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
 #endif
 
@@ -358,15 +358,15 @@ static void UNUSED spektrum_bind(void)
 {
 
   /* Master receiver Rx push-pull */
-  gpio_setup_output(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
+  pprz_gpio_setup_output(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
   /* Master receiver RX line, drive high */
-  gpio_set(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
+  pprz_gpio_set(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
 
 #ifdef SPEKTRUM_SECONDARY_UART
   /* Slave receiver Rx push-pull */
-  gpio_setup_output(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
+  pprz_gpio_setup_output(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
   /* Slave receiver RX line, drive high */
-  gpio_set(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
+  pprz_gpio_set(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
 #endif
 
   /* bind pulses should be issued within 200ms after power up
@@ -389,9 +389,9 @@ static void UNUSED spektrum_bind(void)
 #endif
 
   /* Set conf pin as input in case it is different from RX pin */
-  gpio_setup_input(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
+  pprz_gpio_setup_input(SPEKTRUM_PRIMARY_BIND_CONF_PORT, SPEKTRUM_PRIMARY_BIND_CONF_PIN);
 #ifdef SPEKTRUM_SECONDARY_UART
-  gpio_setup_input(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
+  pprz_gpio_setup_input(SPEKTRUM_SECONDARY_BIND_CONF_PORT, SPEKTRUM_SECONDARY_BIND_CONF_PIN);
 #endif
 }
 

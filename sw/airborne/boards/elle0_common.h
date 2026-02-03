@@ -39,8 +39,8 @@
 #endif
 #define LED_1_GPIO GPIOA
 #define LED_1_GPIO_PIN GPIO8
-#define LED_1_GPIO_ON gpio_clear
-#define LED_1_GPIO_OFF gpio_set
+#define LED_1_GPIO_ON pprz_gpio_clear
+#define LED_1_GPIO_OFF pprz_gpio_set
 #define LED_1_AFIO_REMAP ((void)0)
 
 /* green, shared with JTAG_TRST */
@@ -49,8 +49,8 @@
 #endif
 #define LED_2_GPIO GPIOB
 #define LED_2_GPIO_PIN GPIO4
-#define LED_2_GPIO_ON gpio_clear
-#define LED_2_GPIO_OFF gpio_set
+#define LED_2_GPIO_ON pprz_gpio_clear
+#define LED_2_GPIO_OFF pprz_gpio_set
 #define LED_2_AFIO_REMAP ((void)0)
 
 /* orange, on PC2 */
@@ -59,8 +59,8 @@
 #endif
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_PIN GPIO2
-#define LED_3_GPIO_ON gpio_clear
-#define LED_3_GPIO_OFF gpio_set
+#define LED_3_GPIO_ON pprz_gpio_clear
+#define LED_3_GPIO_OFF pprz_gpio_set
 #define LED_3_AFIO_REMAP ((void)0)
 
 /*
@@ -70,15 +70,15 @@
 /* PB1, DRDY on EXT SPI connector*/
 #define LED_BODY_GPIO GPIOB
 #define LED_BODY_GPIO_PIN GPIO1
-#define LED_BODY_GPIO_ON gpio_set
-#define LED_BODY_GPIO_OFF gpio_clear
+#define LED_BODY_GPIO_ON pprz_gpio_set
+#define LED_BODY_GPIO_OFF pprz_gpio_clear
 #define LED_BODY_AFIO_REMAP ((void)0)
 
 /* PC12, on GPIO connector*/
 #define LED_12_GPIO GPIOC
 #define LED_12_GPIO_PIN GPIO12
-#define LED_12_GPIO_ON gpio_clear
-#define LED_12_GPIO_OFF gpio_set
+#define LED_12_GPIO_ON pprz_gpio_clear
+#define LED_12_GPIO_OFF pprz_gpio_set
 #define LED_12_AFIO_REMAP ((void)0)
 
 

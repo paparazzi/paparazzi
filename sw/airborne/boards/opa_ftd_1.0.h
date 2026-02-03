@@ -36,26 +36,26 @@
 /* MCU power */
 #define MCU_PWR GPIOB
 #define MCU_PWR_PIN GPIO5
-#define MCU_PWR_ON gpio_set
-#define MCU_PWR_OFF gpio_clear
+#define MCU_PWR_ON pprz_gpio_set
+#define MCU_PWR_OFF pprz_gpio_clear
 
 /* Autopilot power */
 #define AP_PWR GPIOB
 #define AP_PWR_PIN GPIO0
-#define AP_PWR_ON gpio_set
-#define AP_PWR_OFF gpio_clear
+#define AP_PWR_ON pprz_gpio_set
+#define AP_PWR_OFF pprz_gpio_clear
 
 /* Main power (25V) */
 #define MAIN_PWR GPIOC
 #define MAIN_PWR_PIN GPIO12
-#define MAIN_PWR_ON gpio_set
-#define MAIN_PWR_OFF gpio_clear
+#define MAIN_PWR_ON pprz_gpio_set
+#define MAIN_PWR_OFF pprz_gpio_clear
 
 /* Balancer power */
 #define BAL_PWR GPIOC
 #define BAL_PWR_PIN GPIO2
-#define BAL_PWR_ON gpio_set
-#define BAL_PWR_OFF gpio_clear
+#define BAL_PWR_ON pprz_gpio_set
+#define BAL_PWR_OFF pprz_gpio_clear
 
 /*
  * Buttons
@@ -83,8 +83,8 @@
 #endif
 #define LED_1_GPIO GPIOA
 #define LED_1_GPIO_PIN GPIO8
-#define LED_1_GPIO_ON gpio_set
-#define LED_1_GPIO_OFF gpio_clear
+#define LED_1_GPIO_ON pprz_gpio_set
+#define LED_1_GPIO_OFF pprz_gpio_clear
 #define LED_1_AFIO_REMAP ((void)0)
 
 /* RC (green), on PC5 */
@@ -93,8 +93,8 @@
 #endif
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_PIN GPIO5
-#define LED_2_GPIO_ON gpio_set
-#define LED_2_GPIO_OFF gpio_clear
+#define LED_2_GPIO_ON pprz_gpio_set
+#define LED_2_GPIO_OFF pprz_gpio_clear
 #define LED_2_AFIO_REMAP ((void)0)
 
 /* Status LED ext, PB13 */
@@ -103,8 +103,8 @@
 #endif
 #define LED_3_GPIO GPIOB
 #define LED_3_GPIO_PIN GPIO13
-#define LED_3_GPIO_ON gpio_set
-#define LED_3_GPIO_OFF gpio_clear
+#define LED_3_GPIO_ON pprz_gpio_set
+#define LED_3_GPIO_OFF pprz_gpio_clear
 #define LED_3_AFIO_REMAP ((void)0)
 
 
@@ -148,8 +148,8 @@
 /* Define power pin */
 #define RADIO_CONTROL_POWER_PORT GPIOC
 #define RADIO_CONTROL_POWER_PIN GPIO13
-#define RADIO_CONTROL_POWER_ON gpio_set
-#define RADIO_CONTROL_POWER_OFF gpio_clear
+#define RADIO_CONTROL_POWER_ON pprz_gpio_set
+#define RADIO_CONTROL_POWER_OFF pprz_gpio_clear
 
 /* The line that is pulled low at power up to initiate the bind process */
 #define SPEKTRUM_BIND_PIN GPIO2

@@ -40,20 +40,20 @@ bool opa_controller_disarm = false;
 
 void opa_controller_init(void) {
   /* Setup E-Stop, Arming and On/Off button as input */
-  gpio_setup_input(BTN_ESTOP, BTN_ESTOP_PIN);
-  gpio_setup_input(BTN_ARMING, BTN_ARMING_PIN);
-  gpio_setup_input(BTN_ON, BTN_ON_PIN);
+  pprz_gpio_setup_input(BTN_ESTOP, BTN_ESTOP_PIN);
+  pprz_gpio_setup_input(BTN_ARMING, BTN_ARMING_PIN);
+  pprz_gpio_setup_input(BTN_ON, BTN_ON_PIN);
 
   /* Enable Autopilot power */
-  gpio_setup_output(AP_PWR, AP_PWR_PIN);
+  pprz_gpio_setup_output(AP_PWR, AP_PWR_PIN);
   AP_PWR_ON(AP_PWR, AP_PWR_PIN);
 
   /* Enable Main power (25V) */
-  gpio_setup_output(MAIN_PWR, MAIN_PWR_PIN);
+  pprz_gpio_setup_output(MAIN_PWR, MAIN_PWR_PIN);
   MAIN_PWR_OFF(MAIN_PWR, MAIN_PWR_PIN);
 
   /* Enable Balancer power */
-  gpio_setup_output(BAL_PWR, BAL_PWR_PIN);
+  pprz_gpio_setup_output(BAL_PWR, BAL_PWR_PIN);
   BAL_PWR_OFF(BAL_PWR, BAL_PWR_PIN);
 
 #if defined ARMING_LED

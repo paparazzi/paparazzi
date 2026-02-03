@@ -418,8 +418,8 @@ void actuators_uavcan_cmd_commit(struct uavcan_iface_t *iface, int16_t *values, 
       continue;
     
     msg.commands.data[msg.commands.len].actuator_id = i;
-    msg.commands.data[msg.commands.len].command_type = UAVCAN_EQUIPMENT_ACTUATOR_COMMAND_COMMAND_TYPE_UNITLESS;
-    msg.commands.data[msg.commands.len].command_value = (float)values[i] / (float)MAX_PPRZ;
+    msg.commands.data[msg.commands.len].command_type = UAVCAN_EQUIPMENT_ACTUATOR_COMMAND_COMMAND_TYPE_PWM;
+    msg.commands.data[msg.commands.len].command_value = (float)values[i];
     msg.commands.len++;
   }
 

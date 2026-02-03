@@ -47,11 +47,11 @@
 #define LED_GPIO_ON(i) _LED_EVAL(LED_ ## i ## _GPIO_ON)
 #define LED_GPIO_OFF(i) _LED_EVAL(LED_ ## i ## _GPIO_OFF)
 
-#define LED_INIT(i) gpio_setup_output(LED_GPIO(i), LED_GPIO_PIN(i))
+#define LED_INIT(i) pprz_gpio_setup_output(LED_GPIO(i), LED_GPIO_PIN(i))
 #define LED_ON(i) LED_GPIO_ON(i)(LED_GPIO(i), LED_GPIO_PIN(i))
 #define LED_OFF(i) LED_GPIO_OFF(i)(LED_GPIO(i), LED_GPIO_PIN(i))
 #define LED_TOGGLE(i) gpio_toggle(LED_GPIO(i), LED_GPIO_PIN(i))
-#define LED_DISABLE(i) gpio_setup_input(LED_GPIO(i), LED_GPIO_PIN(i))
+#define LED_DISABLE(i) pprz_gpio_setup_input(LED_GPIO(i), LED_GPIO_PIN(i))
 #define LED_PERIODIC() {}
 
 #endif /* LED_HW_H */

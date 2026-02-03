@@ -32,8 +32,8 @@
 #endif
 #define LED_1_GPIO PAL_PORT(LINE_LED1)
 #define LED_1_GPIO_PIN PAL_PAD(LINE_LED1)
-#define LED_1_GPIO_ON gpio_set
-#define LED_1_GPIO_OFF gpio_clear
+#define LED_1_GPIO_ON pprz_gpio_set
+#define LED_1_GPIO_OFF pprz_gpio_clear
 
 /* orange, on PA10, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_2
@@ -41,8 +41,8 @@
 #endif
 #define LED_2_GPIO PAL_PORT(LINE_LED2)
 #define LED_2_GPIO_PIN PAL_PAD(LINE_LED2)
-#define LED_2_GPIO_ON gpio_set
-#define LED_2_GPIO_OFF gpio_clear
+#define LED_2_GPIO_ON pprz_gpio_set
+#define LED_2_GPIO_OFF pprz_gpio_clear
 
 /* green, on PC7, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_3
@@ -50,8 +50,8 @@
 #endif
 #define LED_3_GPIO PAL_PORT(LINE_LED3)
 #define LED_3_GPIO_PIN PAL_PAD(LINE_LED3)
-#define LED_3_GPIO_ON gpio_set
-#define LED_3_GPIO_OFF gpio_clear
+#define LED_3_GPIO_ON pprz_gpio_set
+#define LED_3_GPIO_OFF pprz_gpio_clear
 
 /* yellow, on PD10, 1 on LED_ON, 0 on LED_OFF */
 #ifndef USE_LED_4
@@ -59,8 +59,8 @@
 #endif
 #define LED_4_GPIO PAL_PORT(LINE_LED4)
 #define LED_4_GPIO_PIN PAL_PAD(LINE_LED4)
-#define LED_4_GPIO_ON gpio_set
-#define LED_4_GPIO_OFF gpio_clear
+#define LED_4_GPIO_ON pprz_gpio_set
+#define LED_4_GPIO_OFF pprz_gpio_clear
 
 /*
  * ADCs

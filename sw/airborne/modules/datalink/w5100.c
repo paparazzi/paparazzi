@@ -205,10 +205,10 @@ void w5100_init(void)
   sys_time_usleep(1000000);
 
   // set DRDY pin
-  gpio_setup_output(W5100_DRDY_GPIO, W5100_DRDY_GPIO_PIN);
-  gpio_clear(W5100_DRDY_GPIO, W5100_DRDY_GPIO_PIN);
+  pprz_gpio_setup_output(W5100_DRDY_GPIO, W5100_DRDY_GPIO_PIN);
+  pprz_gpio_clear(W5100_DRDY_GPIO, W5100_DRDY_GPIO_PIN);
   sys_time_usleep(200);
-  gpio_set(W5100_DRDY_GPIO, W5100_DRDY_GPIO_PIN);
+  pprz_gpio_set(W5100_DRDY_GPIO, W5100_DRDY_GPIO_PIN);
 
   // allow some time for the chip to wake up.
   sys_time_usleep(20000);

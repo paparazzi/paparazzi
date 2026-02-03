@@ -68,7 +68,7 @@
  * output low sets it to normal polarity.
  */
 #ifndef RC_SET_POLARITY
-#define RC_SET_POLARITY gpio_set
+#define RC_SET_POLARITY pprz_gpio_set
 #endif
 
 void sbus_common_init(struct Sbus *sbus_p, struct uart_periph *dev,
@@ -89,7 +89,7 @@ void sbus_common_init(struct Sbus *sbus_p, struct uart_periph *dev,
 
   // Set polarity (when not done in hardware, don't use both!)
   if (gpio_polarity_port != 0) {
-    gpio_setup_output(gpio_polarity_port, gpio_polarity_pin);
+    pprz_gpio_setup_output(gpio_polarity_port, gpio_polarity_pin);
     RC_SET_POLARITY(gpio_polarity_port, gpio_polarity_pin);
   }
 

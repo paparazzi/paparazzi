@@ -32,8 +32,8 @@
 #endif
 #define LED_1_GPIO PAL_PORT(LINE_LED1)
 #define LED_1_GPIO_PIN PAL_PAD(LINE_LED1)
-#define LED_1_GPIO_ON gpio_set
-#define LED_1_GPIO_OFF gpio_clear
+#define LED_1_GPIO_ON pprz_gpio_set
+#define LED_1_GPIO_OFF pprz_gpio_clear
 
 /*
  * ADCs

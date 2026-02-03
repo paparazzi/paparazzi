@@ -109,11 +109,11 @@ void mcu_init(void)
 
   /* First enable the power of the MCU if needed */
 #if defined MCU_PWR
-  gpio_setup_output(MCU_PWR, MCU_PWR_PIN);
+  pprz_gpio_setup_output(MCU_PWR, MCU_PWR_PIN);
   MCU_PWR_ON(MCU_PWR, MCU_PWR_PIN);
 
 #if defined BTN_ON
-  gpio_setup_input(BTN_ON, BTN_ON_PIN);
+  pprz_gpio_setup_input(BTN_ON, BTN_ON_PIN);
   if (gpio_get(BTN_ON, BTN_ON_PIN)) {
     MCU_PWR_ON(MCU_PWR, MCU_PWR_PIN);
   } else {
@@ -133,11 +133,11 @@ void mcu_init(void)
 #endif
   /* First enable power of RC */
 #if defined RADIO_CONTROL_POWER_PORT
-  gpio_setup_output(RADIO_CONTROL_POWER_PORT, RADIO_CONTROL_POWER_PIN);
+  pprz_gpio_setup_output(RADIO_CONTROL_POWER_PORT, RADIO_CONTROL_POWER_PIN);
   RADIO_CONTROL_POWER_ON(RADIO_CONTROL_POWER_PORT, RADIO_CONTROL_POWER_PIN);
 #endif
 #ifdef PERIPHERAL3V3_ENABLE_PORT
-  gpio_setup_output(PERIPHERAL3V3_ENABLE_PORT, PERIPHERAL3V3_ENABLE_PIN);
+  pprz_gpio_setup_output(PERIPHERAL3V3_ENABLE_PORT, PERIPHERAL3V3_ENABLE_PIN);
   PERIPHERAL3V3_ENABLE_ON(PERIPHERAL3V3_ENABLE_PORT, PERIPHERAL3V3_ENABLE_PIN);
 #endif
   /* for now this means using spektrum */

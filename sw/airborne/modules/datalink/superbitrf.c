@@ -266,10 +266,10 @@ void superbitrf_init(void)
   superbitrf.device.get_byte = (get_byte_t) null_byte_function; // not needed
 
   // Initialize the binding pin
-  gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
+  pprz_gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
 
   // Initialize the IRQ/DRDY pin
-  gpio_setup_input(SUPERBITRF_DRDY_PORT, SUPERBITRF_DRDY_PIN);
+  pprz_gpio_setup_input(SUPERBITRF_DRDY_PORT, SUPERBITRF_DRDY_PIN);
 
   // Initialize the cyrf6936 chip
   cyrf6936_init(&superbitrf.cyrf6936, &(SUPERBITRF_SPI_DEV), 2, SUPERBITRF_RST_PORT, SUPERBITRF_RST_PIN);
