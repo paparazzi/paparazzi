@@ -216,26 +216,6 @@
       <program name="Server"/>
       <program name="GCS"/>
     </session>
-    <session name="hf_2_sim">
-      <program name="Data Link">
-        <arg flag="-udp"/>
-        <arg flag="-udp_broadcast"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Teensy_Fly_Quad"/>
-        <arg flag="-t" constant="nps"/>
-      </program>
-      <program name="GCS">
-        <arg flag="-layout" constant="HOOPERFLY/hooperfly_hf_2.xml"/>
-      </program>
-      <program name="Server">
-        <arg flag="-n"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Teensy_Fly_Quad_Elle0"/>
-        <arg flag="-t" constant="nps"/>
-      </program>
-    </session>
     <session name="Raw Sensors">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
@@ -278,34 +258,6 @@
         <arg flag="-u" constant="0.05"/>
         <arg flag="-c" constant="101325.0"/>
         <arg flag="-c" constant="*:telemetry:BARO_RAW:abs"/>
-      </program>
-    </session>
-    <session name="hf_4_sim">
-      <program name="Data Link">
-        <arg flag="-udp"/>
-        <arg flag="-udp_broadcast"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Teensy_Fly_Hexa"/>
-        <arg flag="-t" constant="nps"/>
-      </program>
-      <program name="GCS">
-        <arg flag="-layout" constant="HOOPERFLY/hooperfly_hf_4.xml"/>
-      </program>
-      <program name="Server">
-        <arg flag="-n"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Teensy_Fly_Quad"/>
-        <arg flag="-t" constant="nps"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Teensy_Fly_Quad_Elle0"/>
-        <arg flag="-t" constant="nps"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Racer_PEX_Quad"/>
-        <arg flag="-t" constant="nps"/>
       </program>
     </session>
     <session name="hf_3_sim">
@@ -442,42 +394,6 @@
       <program name="Data Link">
         <arg flag="-d" constant="/dev/tty.SLAB_USBtoUART20"/>
         <arg flag="-s" constant="57600"/>
-      </program>
-    </session>
-    <session name="hf_6_sim">
-      <program name="Data Link">
-        <arg flag="-udp"/>
-        <arg flag="-udp_broadcast"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Teensy_Fly_Hexa"/>
-        <arg flag="-t" constant="nps"/>
-      </program>
-      <program name="GCS">
-        <arg flag="-layout" constant="HOOPERFLY/hooperfly_hf_6.xml"/>
-      </program>
-      <program name="Server">
-        <arg flag="-n"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Teensy_Fly_Quad"/>
-        <arg flag="-t" constant="nps"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Racer_PEX_Octo"/>
-        <arg flag="-t" constant="nps"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Racer_PEX_Hexa"/>
-        <arg flag="-t" constant="nps"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Racer_PEX_Quad"/>
-        <arg flag="-t" constant="nps"/>
-      </program>
-      <program name="Simulator">
-        <arg flag="-a" constant="Teensy_Fly_Quad_Elle0"/>
-        <arg flag="-t" constant="nps"/>
       </program>
     </session>
   </section>
