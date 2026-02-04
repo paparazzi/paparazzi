@@ -99,17 +99,6 @@
    gui_color="#f500c500ff00"
   />
   <aircraft
-   name="CX10"
-   ac_id="18"
-   airframe="airframes/tudelft/cx10.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml"
-   gui_color="blue"
-  />
-  <aircraft
    name="CYFOAM"
    ac_id="94"
    airframe="airframes/tudelft/cyfoam.xml"
@@ -132,17 +121,6 @@
    gui_color="blue"
   />
   <aircraft
-   name="Flappy"
-   ac_id="231"
-   airframe="airframes/tudelft/quadthopter.xml"
-   radio="radios/deltang_rx31.xml"
-   telemetry="telemetry/default_rotorcraft_slow.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml"
-   gui_color="white"
-  />
-  <aircraft
    name="Heli450"
    ac_id="8"
    airframe="airframes/tudelft/heli450.xml"
@@ -152,28 +130,6 @@
    settings=""
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/heli_throttle_curve.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/stabilization_rate.xml"
    gui_color="blue"
-  />
-  <aircraft
-   name="LadybirdMXS"
-   ac_id="156"
-   airframe="airframes/tudelft/ladybird_lisa_mxs.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/gps_ubx_ucenter.xml modules/guidance_pid_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_rotorcraft.xml modules/stabilization_int_quat.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="Logo600"
-   ac_id="111"
-   airframe="airframes/tudelft/logo600.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml modules/geo_mag.xml modules/gps.xml modules/gps_ublox.xml modules/gps_ubx_ucenter.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/heli_throttle_curve.xml modules/imu_common.xml modules/nav_rotorcraft.xml modules/stabilization_int_quat.xml"
-   gui_color="#ffffdffac31f"
   />
   <aircraft
    name="MAVTec1_Kirk"
@@ -251,17 +207,6 @@
    settings="[settings/rotorcraft_basic.xml] [settings/control/stabilization_rate.xml] [settings/control/stabilization_indi.xml]"
    settings_modules="modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/lidar_lite.xml modules/logger_sd_chibios.xml modules/nav_basic_rotorcraft.xml modules/optical_flow_mateksys_3901_l0x.xml modules/stabilization_indi_simple.xml"
    gui_color="#406b937dccd0"
-  />
-  <aircraft
-   name="OrigamiMXS_wifi_indi_stereocam"
-   ac_id="15"
-   airframe="airframes/tudelft/origami_lisamxs_wifi_indi_stereoboard.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_guided_flightplan.xml"
-   settings="settings/rotorcraft_basic.xml settings/nps.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_hff_extended.xml modules/nav_basic_rotorcraft.xml modules/range_forcefield.xml modules/stabilization_indi_simple.xml modules/stabilization_int_quat.xml"
-   gui_color="blue"
   />
   <aircraft
    name="Quadplane"
