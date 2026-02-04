@@ -36,7 +36,7 @@ MY_PYTHON := $(shell echo `which python3`)
 MY_MAVLINKTOOLS := $(shell $(MY_PYTHON) -c 'import imp; import future' 2>&1)
 MY_DRONECANTOOLS := $(shell $(MY_PYTHON) -c 'import em' 2>&1)
 
-all: libopencm3 luftboot chibios fatfs libsbp TRICAL hacl-c key_generator rustlink ecl matrix mavlink dronecan
+all: chibios fatfs libsbp TRICAL hacl-c key_generator rustlink ecl matrix mavlink dronecan
 
 # update (and init if needed) all submodules
 update_submodules:
@@ -55,24 +55,6 @@ update_submodules:
 	$(Q)if [ -d $(PAPARAZZI_SRC)/.git ]; then \
 		cd $(PAPARAZZI_SRC) && git submodule sync --recursive sw/ext/$*; \
 	fi
-
-# only build currentl checkout of libopencm3
-libopencm3.build:
-	$(Q)$(MAKE) -C libopencm3 lib PREFIX=$(PREFIX) TARGETS="stm32/f1"
-	$(Q)$(MAKE) -C libopencm3 lib PREFIX=$(PREFIX) FP_FLAGS="-mfloat-abi=softfp -mfpu=fpv4-sp-d16" TARGETS="stm32/f4"
-
-# update and then build libopencm3
-libopencm3: libopencm3.update libopencm3.build
-
-# only build current checkout of luftboot
-luftboot.build: libopencm3.build
-	$(Q)$(MAKE) -C luftboot/src all LIBOPENCM3=../../libopencm3 PREFIX=$(PREFIX)
-
-# update libopencm3 and luftboot, then build it
-luftboot: libopencm3.update luftboot.update luftboot.build
-
-luftboot_flash: luftboot.build
-	$(Q)$(MAKE) -C luftboot/src flash BMP_PORT?=/dev/ttyACM0 LIBOPENCM3=../../libopencm3 PREFIX=$(PREFIX)
 
 hacl-c: hacl-c.update
 
@@ -121,20 +103,15 @@ else
 endif
 
 clean:
-	$(Q)if [ -f libopencm3/Makefile ]; then \
-		$(MAKE) -C $(EXT_DIR)/libopencm3 clean; \
-	fi
-	$(Q)if [ -f luftboot/src/Makefile ]; then \
-		$(MAKE) -C luftboot/src clean; \
-	fi
+
 
 clean_opencv_bebop:
 	$(Q)if [ -f opencv_bebop/Makefile ]; then \
 		$(MAKE) -C opencv_bebop clean; \
 	fi
 
-.NOTPARALLEL: libopencm3 luftboot
-.PHONY: all clean update_submodules libopencm3 luftboot \
-		chibios fatfs luftboot_flash libopencm3.build luftboot.build \
+.NOTPARALLEL: 
+.PHONY: all clean update_submodules \
+		chibios fatfs \
 		mavlink.build libsbp pprzlink pprzlink.build opencv_bebop \
 		opencv_bebop.build clean_opencv_bebop TRICAL dronecan
