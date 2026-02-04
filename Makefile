@@ -61,7 +61,6 @@ STATICINCLUDE=$(PAPARAZZI_HOME)/var/include
 CONF=$(PAPARAZZI_SRC)/conf
 AIRBORNE=sw/airborne
 SIMULATOR=sw/simulator
-COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 GENERATORS=$(PAPARAZZI_SRC)/sw/tools/generators
 JOYSTICK=sw/ground_segment/joystick
@@ -72,11 +71,10 @@ TOOLS=sw/tools
 # build some stuff in subdirs
 # nothing should depend on these...
 #
-PPRZCENTER=sw/supervision
 MISC=sw/ground_segment/misc
 LOGALIZER=sw/logalizer
 
-SUBDIRS = $(PPRZCENTER) $(LOGALIZER) sw/tools
+SUBDIRS = $(LOGALIZER) sw/tools
 SUBDIRS_EXTRA = $(MISC)
 
 #
@@ -138,9 +136,9 @@ conf/tools/blacklisted: conf/tools/blacklisted_example
 	cp conf/tools/blacklisted_example conf/tools/blacklisted
 
 ground_segment: _print_building conf libpprz subdirs static
-ground_segment.opt: ground_segment cockpit.opt tmtc.opt
+ground_segment.opt: ground_segment tmtc.opt
 
-static: cockpit tmtc generators sim_static joystick static_h
+static: tmtc generators sim_static joystick static_h
 
 libpprzlink.update:
 	$(MAKE) -C $(EXT) pprzlink.update
@@ -150,12 +148,6 @@ libpprzlink.install:
 
 libpprz: libpprzlink.update libpprzlink.install _save_build_version
 	$(MAKE) -C $(LIB)/ocaml
-
-cockpit: libpprz
-	$(MAKE) -C $(COCKPIT)
-
-cockpit.opt: libpprz
-	$(MAKE) -C $(COCKPIT) opt
 
 tmtc: libpprz
 	$(MAKE) -C $(TMTC)
@@ -192,8 +184,6 @@ $(SUBDIRS): libpprz
 
 $(SUBDIRS_EXTRA): libpprz
 	$(MAKE) -C $@
-
-$(PPRZCENTER): libpprz
 
 $(LOGALIZER): libpprz
 
@@ -355,7 +345,7 @@ test_full:
 
 
 .PHONY: all print_build_version _print_building _save_build_version init dox ground_segment ground_segment.opt \
-subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install cockpit cockpit.opt tmtc tmtc.opt generators\
+subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install tmtc tmtc.opt generators\
 static sim_static opencv_bebop\
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test test_examples test_math test_all_confs
