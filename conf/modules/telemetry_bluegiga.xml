@@ -13,9 +13,6 @@
       Optional: (defaults to SUPERBITRF DRDY)
       BLUEGIGA_DRDY_GPIO
       BLUEGIGA_DRDY_GPIO_PIN
-
-      On Lisa-s, the Superbit-RF module can be replaced with a bluegiga-bluetooth 4 low power board.
-      This module puts the telemetry over this bluetooth 4 link.
     </description>
     <configure name="BLUEGIGA_SPI_DEV" value="SPIx" description="SPI where the modem is connected to (SPI1, SPI2, etc)"/>
     <configure name="MODEM_LED" value="none" description="LED number for modem status, 'none' to disable"/>
@@ -54,4 +51,3 @@
     </test>
   </makefile>
 </module>
-
