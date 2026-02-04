@@ -132,17 +132,6 @@
    gui_color="blue"
   />
   <aircraft
-   name="Disco_FlatSpin"
-   ac_id="185"
-   airframe="airframes/tudelft/disco_modified.xml"
-   radio="radios/crossfire_sbus.xml"
-   telemetry="telemetry/fixedwing_flight_recorder.xml"
-   flight_plan="flight_plans/basic.xml"
-   settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/ahrs_float_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_adaptive_fw.xml"
-   gui_color="blue"
-  />
-  <aircraft
    name="Flappy"
    ac_id="231"
    airframe="airframes/tudelft/quadthopter.xml"
@@ -284,17 +273,6 @@
    settings="settings/nps.xml settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/sys_id_chirp.xml"
    gui_color="blue"
-  />
-  <aircraft
-   name="Splash"
-   ac_id="67"
-   airframe="airframes/tudelft/splash_px4.xml"
-   radio="radios/spektrum.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml [modules/air_data.xml] modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/spektrum_soft_bind.xml modules/stabilization_indi_simple.xml"
-   gui_color="#fff0cccaccca"
   />
   <aircraft
    name="Splash3"
