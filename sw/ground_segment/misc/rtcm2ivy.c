@@ -53,6 +53,7 @@ msg_state_t msg_state;
 rtcm3_msg_callbacks_node_t rtcm3_1005_node;
 rtcm3_msg_callbacks_node_t rtcm3_1077_node;
 rtcm3_msg_callbacks_node_t rtcm3_1087_node;
+rtcm3_msg_callbacks_node_t rtcm3_1097_node;
 rtcm3_msg_callbacks_node_t rtcm3_4072_node;
 rtcm3_msg_callbacks_node_t rtcm3_1230_node;
 
@@ -66,8 +67,8 @@ uint32_t serial_baud  = B115200;
 uint32_t packet_size  = 100;    // 802.15.4 (Series 1) XBee 100 Bytes payload size
 uint32_t ivy_size     = 0;
 
-#define PACKET_MAX_SIZE	512
-#define IVY_MSG_HEAD    "rtcm2ivy RTCM_INJECT"
+#define IVY_MAX_SIZE  1024
+#define IVY_MSG_HEAD  "rtcm2ivy RTCM_INJECT"
 
 /** Debugging options */
 bool verbose          = FALSE;
@@ -79,16 +80,16 @@ FILE  *pFile;
 
 /** Ivy Bus default */
 #ifdef __APPLE__
-char *ivy_bus                   = "224.255.255.255";
+char *ivy_bus         = "224.255.255.255";
 #else
-char *ivy_bus                   = "127.255.255.255"; // 192.168.1.255   127.255.255.255
+char *ivy_bus         = "127.255.255.255"; // 192.168.1.255   127.255.255.255
 #endif
 
 /*
  * Read bytes from the uBlox UART connection
  * This is a wrapper functions used in the librtcm3 library
  */
-static uint32_t uart_read(unsigned char(*buff)[], uint32_t n)  //, void *context __attribute__((unused))
+static uint32_t uart_read(unsigned char(*buff)[], uint32_t n)
 {
   int ret = read(serial_port->fd, buff, n);
   if (ret > 0) {
@@ -103,9 +104,9 @@ static struct timespec my_wait = { .tv_sec = 0, .tv_nsec = 50000000 }; // 0.05 s
 static void ivy_send_message(uint8_t packet_id, uint8_t len, uint8_t msg[])
 {
   char number[5];
-  char gps_packet[PACKET_MAX_SIZE];
+  char gps_packet[IVY_MAX_SIZE];
   uint8_t cpt;
-  uint8_t offset=0;
+  uint16_t offset=0;
 
   while (offset < len) { // fragment if necessary
 
@@ -121,27 +122,34 @@ static void ivy_send_message(uint8_t packet_id, uint8_t len, uint8_t msg[])
     }
 
     nanosleep(&my_wait, NULL);
-    printf_debug("%s\n\n", gps_packet);
     IvySendMsg("%s", gps_packet);
-    offset += (packet_size-6);
 
     if (logger == TRUE) {
       pFile = fopen("./RTCM3_log.txt", "a");
       fprintf(pFile, "%s\n", gps_packet);
       fclose(pFile);
     }
-    printf_debug("Ivy send: %s\n", gps_packet);
+    printf_debug(" Ivy send (%d)[%d-%d | %d]: %s\n", packet_id, offset, offset+packet_size-6, cpt, gps_packet);
+    offset += (packet_size-6);
   }
 }
 
 /*
  * Callback for the 1005 message to send it trough RTCM_INJECT
+ *
+ * Stationary RTK Reference Station ARP
+ * Commonly called the Station Description this message includes the ECEF location
+ * of the antenna (the antenna reference point (ARP) not the phase center) and also
+ * the quarter phase alignment details.  The datum field is not used/defined, which
+ * often leads to confusion if a local datum is used. See message types 1006 and 1032.
+ * The 1006 message also adds a height about the ARP value.
  */
 struct EcefCoor_f posEcef;
 struct LlaCoor_f  posLla;
 
 static void rtcm3_1005_callback(uint8_t len, uint8_t msg[])
 {
+  printf_debug("\nParsing 1055 callback (len: %d)\n", len);
   if (len > 0) {
     if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
       ivy_send_message(RTCM3_MSG_1005, len, msg);
@@ -156,7 +164,7 @@ static void rtcm3_1005_callback(uint8_t len, uint8_t msg[])
       posEcef.y      = RTCMgetbits_38(msg, 24 + 74) * 0.0001;
       posEcef.z      = RTCMgetbits_38(msg, 24 + 114) * 0.0001;
       lla_of_ecef_f(&posLla, &posEcef);
-      printf_debug("Lat: %f, Lon: %f, Alt: %f\n", posLla.lat / (2 * M_PI) * 360, posLla.lon / (2 * M_PI) * 360, posLla.alt);
+      printf_debug(" Lat: %f, Lon: %f, Alt: %f\n", posLla.lat / (2 * M_PI) * 360, posLla.lon / (2 * M_PI) * 360, posLla.alt);
       // Send spoof gpsd message to GCS to plot groundstation position
       IvySendMsg("%s %s %s %f %f %f %f %f %f %f %f %f %f %f %d %f", "ground", "FLIGHT_PARAM", "GCS", 0.0, 0.0, 0.0,
                  posLla.lat / (2 * M_PI) * 360, posLla.lon / (2 * M_PI) * 360, 0.0, 0.0, posLla.alt, 0.0, 0.0, 0.0, 0,  0.0);
@@ -164,77 +172,83 @@ static void rtcm3_1005_callback(uint8_t len, uint8_t msg[])
       IvySendMsg("%s %s %s %i %i %i %i %i %i %f %f %f", "ground", "UBX_RTK_GROUNDSTATION", "GCS", StaId, ItRef, indGPS,
                  indGlonass, indGalileo, indRefS, posLla.lat / (2 * M_PI) * 360, posLla.lon / (2 * M_PI) * 360, posLla.alt);
     } else {
-      printf("Skipping 1005 message (CRC check failed)\n");
+      printf(" Skipping 1005 message (CRC check failed)\n");
     }
   }
-  printf_debug("Parsed 1005 callback\n");
+  printf_debug("Done 1005\n");
+}
+
+/*
+ * Generic callback function
+ */
+static void rtcm3_callcack(char name[], uint8_t packet_id, uint8_t len, uint8_t msg[])
+{
+  printf_debug("\nParsing %s callback (len: %d)\n", name, len);
+  if (len > 0) {
+    if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
+      ivy_send_message(packet_id, len, msg);
+      msg_cnt++;
+    } else {
+      printf("Skipping %s message (CRC check failed)\n", name);
+    }
+  }
+  printf_debug("Done %s\n", name);
 }
 
 /*
  * Callback for the 1077 message to send it trough RTCM_INJECT
+ *
+ * GPS MSM7
+ * The type 7 Multiple Signal Message format for the USA’s GPS system.
  */
 static void rtcm3_1077_callback(uint8_t len, uint8_t msg[])
 {
-  if (len > 0) {
-    if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
-      ivy_send_message(RTCM3_MSG_1077, len, msg);
-      msg_cnt++;
-    } else {
-      ivy_send_message(RTCM3_MSG_1077, len, msg);
-      printf("Skipping 1077 message (CRC check failed)\n");
-    }
-  }
-  printf_debug("Parsed 1077 callback\n");
+  rtcm3_callcack("1077", RTCM3_MSG_1077, len, msg);
 }
 
 /*
  * Callback for the 1087 message to send it trough RTCM_INJECT
+ *
+ * GLONASS MSM7
+ * The type 7 Multiple Signal Message format for the Russian GLONASS system.
  */
 static void rtcm3_1087_callback(uint8_t len, uint8_t msg[])
 {
-  if (len > 0) {
-    if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
-      ivy_send_message(RTCM3_MSG_1087, len, msg);
-      msg_cnt++;
-    } else {
-      printf("Skipping 1087 message (CRC check failed)\n");
-    }
-  }
-  printf_debug("Parsed 1087 callback\n");
+  rtcm3_callcack("1087", RTCM3_MSG_1087, len, msg);
+}
+
+/*
+ * Callback for the 1097 message to send it trough RTCM_INJECT
+ *
+ * Galileo MSM7
+ * The type 7 Multiple Signal Message format for Europe’s Galileo system.
+ */
+static void rtcm3_1097_callback(uint8_t len, uint8_t msg[])
+{
+  rtcm3_callcack("1097", RTCM3_MSG_1097, len, msg);
 }
 
 /*
  * Callback for the 4072 message to send it trough RTCM_INJECT
+ *
+ * Assigned to: u-blox AG
+ * The content and format of this message is defined by its owner.
  */
 static void rtcm3_4072_callback(uint8_t len, uint8_t msg[])
 {
-  if (len > 0) {
-    if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
-      ivy_send_message(RTCM3_MSG_4072, len, msg);
-      msg_cnt++;
-    } else {
-      ivy_send_message(RTCM3_MSG_4072, len, msg);
-      printf("Skipping 4072 message (CRC check failed)\n");
-    }
-  }
-  printf_debug("Parsed 4072 callback\n");
+  rtcm3_callcack("4072", RTCM3_MSG_4072, len, msg);
 }
 
 /*
  * Callback for the 1230 message to send it trough RTCM_INJECT
+ *
+ * GLONASS L1 and L2 Code-Phase Biases
+ * This message provides corrections for the inter-frequency bias
+ * caused by the different FDMA frequencies (k, from -7 to 6) used.
  */
 static void rtcm3_1230_callback(uint8_t len, uint8_t msg[])
 {
-  if (len > 0) {
-    if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
-      ivy_send_message(RTCM3_MSG_1230, len, msg);
-      msg_cnt++;
-    } else {
-      ivy_send_message(RTCM3_MSG_1230, len, msg);
-      printf("Skipping 1230 message (CRC check failed)\n");
-    }
-  }
-  printf_debug("Parsed 1230 callback\n");
+  rtcm3_callcack("1230", RTCM3_MSG_1230, len, msg);
 }
 
 
@@ -252,6 +266,7 @@ static void ubx_navsvin_callback(uint8_t len, uint8_t msg[])
     printf_debug("iTow: %u \t dur: %u \t meaAcc: %f \t valid: %u \t active: %u \n", iTow, dur, meanAcc, valid, active);
   }
 }
+
 /**
  * Parse the tty data when bytes are available
  */
@@ -260,16 +275,16 @@ static gboolean parse_device_data(GIOChannel *chan, GIOCondition cond, gpointer 
   unsigned char buff[1000];
   int c;
   c = uart_read(&buff, 1);
-  if (c > 0) {                // Have we read anything?
-    if (msg_state.msg_class == RTCM_CLASS) {  // Are we already reading a RTCM message?
-      rtcm3_process(&msg_state, buff[0]);     // If so continue reading RTCM
-    } else if (msg_state.msg_class == UBX_CLASS) { // Are we already reading a UBX message?
-      ubx_process(&msg_state, buff[0]);       // If so continue reading UBX
+  if (c > 0) {                                      // Have we read anything?
+    if (msg_state.msg_class == RTCM_CLASS) {        // Are we already reading a RTCM message?
+      rtcm3_process(&msg_state, buff[0]);           // If so continue reading RTCM
+    } else if (msg_state.msg_class == UBX_CLASS) {  // Are we already reading a UBX message?
+      ubx_process(&msg_state, buff[0]);             // If so continue reading UBX
     } else {
-      msg_state.state = UNINIT;           // Not reading anything yet
-      rtcm3_process(&msg_state, buff[0]);     // Try to process preamble as RTCM
-      if (msg_state.msg_class != RTCM_CLASS) { // If it wasn't a RTCM preamble
-        ubx_process(&msg_state, buff[0]);     // Check for UBX preamble
+      msg_state.state = UNINIT;                     // Not reading anything yet
+      rtcm3_process(&msg_state, buff[0]);           // Try to process preamble as RTCM
+      if (msg_state.msg_class != RTCM_CLASS) {      // If it wasn't a RTCM preamble
+        ubx_process(&msg_state, buff[0]);           // Check for UBX preamble
       }
     }
   }
@@ -288,13 +303,13 @@ void print_usage(int argc __attribute__((unused)), char **argv)
 
     "   -d <device>               The GPS device(default: /dev/ttyACM0)\n"
     "   -b <baud_rate>            The device baud rate(default: B9600)\n"
-    "   -p <packet_size>          The payload size (default:100, max:4146))\n\n";
-  fprintf(stderr, usage, argv[0]);
+    "   -p <packet_size>          The payload size (default:100, max:%ld))\n\n";
+  fprintf(stderr, usage, argv[0], (IVY_MAX_SIZE-(strlen(IVY_MSG_HEAD)+5))/4);
 }
 
 int main(int argc, char **argv)
 {
-  ivy_size = packet_size + strlen(IVY_MSG_HEAD) + 5;  // Header+blank+(000..255)packetId+blank
+  ivy_size = 4*packet_size + strlen(IVY_MSG_HEAD) + 5;  // Header+blank+(000..255)packetId+blank
 
   // Parse the options from cmdline
   char c;
@@ -315,9 +330,9 @@ int main(int argc, char **argv)
         break;
       case 'p':
         packet_size = atoi(optarg);
-        ivy_size = packet_size + strlen(IVY_MSG_HEAD) + 5;  // Header+blank+(000..255)packetId+blank
-        if (ivy_size > PACKET_MAX_SIZE) {
-          printf("%d exceed max size %d\n", ivy_size, PACKET_MAX_SIZE);
+        ivy_size = 4*packet_size + strlen(IVY_MSG_HEAD) + 5;  // Header+blank+(000..255)packetId+blank
+        if (ivy_size > IVY_MAX_SIZE) {
+          printf("%d exceed max ivy size %d\n", ivy_size, IVY_MAX_SIZE);
           exit(EXIT_FAILURE);
         }
         break;
@@ -341,6 +356,7 @@ int main(int argc, char **argv)
         abort();
     }
   }
+
   // Create the Ivy Client
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
   IvyInit("Paparazzi server", "Paparazzi server READY", 0, 0, 0, 0);
@@ -364,6 +380,7 @@ int main(int argc, char **argv)
   rtcm3_register_callback(&msg_state, RTCM3_MSG_1005, &rtcm3_1005_callback, &rtcm3_1005_node);
   rtcm3_register_callback(&msg_state, RTCM3_MSG_1077, &rtcm3_1077_callback, &rtcm3_1077_node);
   rtcm3_register_callback(&msg_state, RTCM3_MSG_1087, &rtcm3_1087_callback, &rtcm3_1087_node);
+  rtcm3_register_callback(&msg_state, RTCM3_MSG_1087, &rtcm3_1097_callback, &rtcm3_1097_node);
   rtcm3_register_callback(&msg_state, UBX_NAV_SVIN, &ubx_navsvin_callback, &ubx_nav_svin_node);
 
 

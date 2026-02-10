@@ -38,9 +38,11 @@
 #define RTCM3_MSG_4072 0x72
 #define RTCM3_MSG_1230 0xE6
 #define RTCM3_MSG_1087 0xBB
+#define RTCM3_MSG_1097 0xC5
 #endif
 
 #if PRINT_DEBUG_GPS_UBX
+#include <stdio.h>
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) {}
@@ -148,12 +150,12 @@ void gps_ubx_event(void)
     }
 
     // Reset the GPS's if needed
-    if (gps_ubx_reset > 0) {    
+    if (gps_ubx_reset > 0) {
       switch (gps_ubx_reset) {
         case 1 : ubx_send_cfg_rst(dev, CFG_RST_BBR_Hotstart, CFG_RST_Reset_Controlled); break;
         case 2 : ubx_send_cfg_rst(dev, CFG_RST_BBR_Warmstart, CFG_RST_Reset_Controlled); break;
         case 3 : ubx_send_cfg_rst(dev, CFG_RST_BBR_Coldstart, CFG_RST_Reset_Controlled); break;
-        default: DEBUG_PRINT("Unknown reset id: %i", gps_ubx[i].reset); break;
+        default: DEBUG_PRINT("Unknown reset id: %i", gps_ubx_reset); break;
       }
     }
   }
@@ -759,11 +761,13 @@ void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data)
               // write to GPS
 #ifdef UBX_GPS_PORT
               gps_ublox_write(&(UBX_GPS_PORT).device, rtcm.buff, rtcm.len + 3);
+              DEBUG_PRINT("Inject message %i - %d\n", packet_id, rtcm.buff[0]);
 #endif
               switch (packet_id) {
                 case RTCM3_MSG_1005 : break;
                 case RTCM3_MSG_1077 : break;
                 case RTCM3_MSG_1087 : break;
+                case RTCM3_MSG_1097 : break;
                 case RTCM3_MSG_4072 : break;
                 case RTCM3_MSG_1230 : break;
                 default: DEBUG_PRINT("Unknown type: %i", packet_id); break;
