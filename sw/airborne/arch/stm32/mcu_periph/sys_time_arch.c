@@ -28,6 +28,10 @@
  */
 
 #include "mcu_periph/sys_time.h"
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/cm3/systick.h>
+#include "std.h"
 
 #include "libopencm3/cm3/systick.h"
 
@@ -67,6 +71,27 @@ void sys_time_arch_init(void)
 }
 
 
+uint32_t get_sys_time_usec(void)
+{
+  return sys_time.nb_sec * 1000000 +
+         usec_of_cpu_ticks(sys_time.nb_sec_rem) +
+         usec_of_cpu_ticks(systick_get_reload() - systick_get_value());
+}
+
+uint32_t get_sys_time_usec100(void)
+{
+  return sys_time.nb_sec * 10000 +
+         usec_of_cpu_ticks(sys_time.nb_sec_rem)/100 +
+         usec_of_cpu_ticks(systick_get_reload() - systick_get_value())/100;
+}
+
+uint32_t get_sys_time_msec(void)
+{
+  return sys_time.nb_sec * 1000 +
+         msec_of_cpu_ticks(sys_time.nb_sec_rem) +
+         msec_of_cpu_ticks(systick_get_reload() - systick_get_value());
+}
+
 // FIXME : nb_tick rollover ???
 //
 // 97 days at 512hz
@@ -95,4 +120,41 @@ void sys_tick_handler(void)
       }
     }
   }
+}
+
+/** Busy wait in microseconds.
+ *
+ *  max value is limited by the max number of cycle
+ *  i.e 2^32 * usec_of_cpu_ticks(systick_get_reload())
+ */
+void sys_time_usleep(uint32_t us)
+{
+  // start time
+  uint32_t start = systick_get_value();
+  // max time of one full counter cycle (n + 1 ticks)
+  uint32_t DT = usec_of_cpu_ticks(systick_get_reload() + 1);
+  // number of cycles
+  uint32_t n = us / DT;
+  // remaining number of cpu ticks
+  uint32_t rem = cpu_ticks_of_usec(us % DT);
+  // end time depend on the current value of the counter
+  uint32_t end;
+  if (rem < start) {
+    end = start - rem;
+  } else {
+    // one more count flag is required
+    n++;
+    end = systick_get_reload() - rem + start;
+  }
+  // count number of cycles (when counter reachs 0)
+  while (n) {
+    while (!systick_get_countflag());
+    n--;
+  }
+  // wait remaining ticks
+  while (systick_get_value() > end);
+}
+
+void sys_time_msleep(uint32_t ms) {
+  sys_time_usleep(ms*1000);
 }

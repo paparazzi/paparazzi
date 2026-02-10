@@ -26,21 +26,11 @@
 #include "range_sensor_uavcan.h"
 #include "uavcan/uavcan.h"
 #include "core/abi.h"
+#include "uavcan.equipment.range_sensor.Measurement.h"
 
-
-/* uavcan EQUIPMENT_RANGE_SENSOR_MEASUREMENT message definition */
-#define UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_ID       1050
-#define UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_SIGNATURE (0x68FFFE70FC771952ULL)
-#define UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_MAX_SIZE ((120 + 7)/8)
-
-/* Local structure */
-struct range_sensor_uavcan_t {
-  float range;
-  uint8_t reading_type;
-};
 
 /* Local variables */
-static struct range_sensor_uavcan_t range_sensor_uavcan = {0};
+static struct uavcan_equipment_range_sensor_Measurement range_sensor_uavcan = {0};
 static uavcan_event range_sensor_uavcan_ev;
 
 #if PERIODIC_TELEMETRY
@@ -58,21 +48,9 @@ static void range_sensor_uavcan_send_lidar(struct transport_tx *trans, struct li
 #endif
 
 static void range_sensor_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer) {
-  uint16_t tmp_float = 0;
-
-  /* Decode the message */
-  //canardDecodeScalar(transfer, (uint32_t)0, 56, false, (void*)&dest->usec);
-  //canardDecodeScalar(transfer, (uint32_t)56, 8, false, (void*)&dest->sensor_id);
-  //canardDecodeScalar(transfer, (uint32_t)64, 5, true, (void*)(dest->fixed_axis_roll_pitch_yaw + 0));
-  //canardDecodeScalar(transfer, (uint32_t)69, 5, true, (void*)(dest->fixed_axis_roll_pitch_yaw + 1));
-  //canardDecodeScalar(transfer, (uint32_t)74, 5, true, (void*)(dest->fixed_axis_roll_pitch_yaw + 2));
-  //canardDecodeScalar(transfer, (uint32_t)79, 1, false, (void*)&dest->orientation_defined);
-  //canardDecodeScalar(transfer, (uint32_t)80, 16, false, (void*)&tmp_float);
-  //float fov = canardConvertFloat16ToNativeFloat(tmp_float);
-  //canardDecodeScalar(transfer, (uint32_t)96, 5, false, (void*)&dest->sensor_type);
-  canardDecodeScalar(transfer, (uint32_t)101, 3, false, (void*)&range_sensor_uavcan.reading_type);
-  canardDecodeScalar(transfer, (uint32_t)104, 16, false, (void*)&tmp_float);
-  range_sensor_uavcan.range = canardConvertFloat16ToNativeFloat(tmp_float);
+  if(uavcan_equipment_range_sensor_Measurement_decode(transfer, &range_sensor_uavcan)) {
+    return;   // decode error
+  }
 
   // Send the range over ABI
   if(!isnan(range_sensor_uavcan.range)) {

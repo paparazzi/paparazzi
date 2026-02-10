@@ -86,9 +86,10 @@ extern void nav_takeoff_and_landing_periodic(void);
  * - rotorcraft: set the wp at current location and climb verticaly
  *
  * @param[in] wp_id waypoint ID
+ * @param[in] height height in meters for ending takeoff procedure (<0 to use default value)
  * @return true until procedure is completed
  */
-extern bool nav_takeoff_from_wp(uint8_t wp_id);
+extern bool nav_takeoff_from_wp(uint8_t wp_id, float height);
 
 /** Takeoff from lat long location
  *
@@ -97,18 +98,20 @@ extern bool nav_takeoff_from_wp(uint8_t wp_id);
  *
  * @param[in] lat takeoff latitude (deg)
  * @param[in] lon takeoff longitude (deg)
+ * @param[in] height height in meters for ending takeoff procedure (<0 to use default value)
  * @return true until procedure is completed
  */
-extern bool nav_takeoff_from_loc(float lat, float lon);
+extern bool nav_takeoff_from_loc(float lat, float lon, float height);
 
 /** Takeoff from current location
  *
  * - fixedwing: climb direction is specified with setting
  * - rotorcraft: start from current location and climb verticaly
  *
+ * @param[in] height height in meters for ending takeoff procedure (<0 to use default value)
  * @return true until procedure is completed
  */
-extern bool nav_takeoff_from_here(void);
+extern bool nav_takeoff_from_here(float height);
 
 /** Land at waypoint location
  *

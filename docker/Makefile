@@ -11,7 +11,6 @@ help:
 	@echo "   2. make test             - run make test on pprz-dev"
 	@echo "   2. make terminator       - run terminator on pprz-dev"
 	@echo "   2. make paparazzi        - run ./paparazzi center on pprz-dev"
-	@echo "   2. make start            - run ./start.py on pprz-dev"
 	@echo ""
 
 build:
@@ -34,9 +33,6 @@ bash terminator:
 
 paparazzi:
 	@bash run.sh -i -t paparazziuav/pprz-dev ./paparazzi
-
-start:
-	@bash run.sh -i -t paparazziuav/pprz-dev ./start.py
 
 test:
 	@bash run.sh -i -t paparazziuav/pprz-dev make test

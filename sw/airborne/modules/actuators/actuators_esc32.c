@@ -70,12 +70,12 @@ static inline void actuators_esc32_grant_idx(uint8_t *data);
 static inline void actuators_esc32_proc_telem(uint8_t *data);
 
 /** Set the commands (either RPM or duty cycle) */
-void actuators_esc32_set(uint8_t i, uint16_t v)
+void actuators_esc32_set(uint8_t i, int16_t v)
 {
 #ifdef ACTUAOTRS_ESC32_RPM
 #else
   // In the airframe file the ESC's duty cycle is defined as 10*precentage
-  actuators_esc32.cmds[actuators_esc32.escs_sorted[i]] = v * (65535 / 1000);
+  actuators_esc32.cmds[actuators_esc32.escs_sorted[i]] = (uint16_t)v * (65535 / 1000);
 #endif
 }
 

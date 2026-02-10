@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
 <airframe name="Rover">
 
@@ -15,6 +15,11 @@
     <define name="LOW_NOISE_TIME" value="10"/>
 
     <target name="ap" board="chimera_1.0">
+    </target>
+    <target name="nps" board="pc">
+      <module name="fdm"           type="rover"/> <!-- NPS_FDM rover physics!! -->
+      <define name="NPS_BYPASS_AHRS" value="TRUE"/>
+      <define name="NPS_BYPASS_INS"  value="TRUE"/>
     </target>
 
     <module name="radio_control" type="datalink">
@@ -98,6 +103,7 @@
     <define name="MODE_MANUAL" value="AP_MODE_DIRECT"/> <!-- for compilation -->
     <define name="MODE_AUTO1"  value="AP_MODE_DIRECT"/> <!-- for compilation -->
     <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
   </section>
 
   <section name="BAT">
@@ -111,10 +117,7 @@
   </section>
 
   <section name="GCS">
-    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
-    <define name="ALT_SHIFT_PLUS"      value="1"/>
-    <define name="ALT_SHIFT_MINUS"     value="-1"/>
-    <define name="AC_ICON"             value="quadrotor_x"/>
+    <define name="AC_ICON"             value="rover"/>
   </section>
 
 </airframe>

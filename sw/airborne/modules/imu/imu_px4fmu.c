@@ -31,9 +31,8 @@
 #include "peripherals/hmc58xx_regs.h"
 #include "generated/modules.h"
 
-
 /* MPU60x0 gyro/accel internal lowpass frequency */
-#if !defined PX4FMU_LOWPASS_FILTER && !defined  PX4FMU_SMPLRT_DIV
+#if !defined PX4FMU_LOWPASS_FILTER && !defined PX4FMU_SMPLRT_DIV
 #if (PERIODIC_FREQUENCY == 60) || (PERIODIC_FREQUENCY == 120)
 /* Accelerometer: Bandwidth 44Hz, Delay 4.9ms
  * Gyroscope: Bandwidth 42Hz, Delay 4.8ms sampling 1kHz
@@ -41,7 +40,7 @@
 #define PX4FMU_LOWPASS_FILTER MPU60X0_DLPF_42HZ
 #define PX4FMU_SMPLRT_DIV 9
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
-#elif PERIODIC_FREQUENCY == 512
+#elif (PERIODIC_FREQUENCY == 500) || (PERIODIC_FREQUENCY == 512)
 /* Accelerometer: Bandwidth 260Hz, Delay 0ms
  * Gyroscope: Bandwidth 256Hz, Delay 0.98ms sampling 8kHz
  */
@@ -71,13 +70,12 @@ void imu_px4fmu_init(void)
   imu_px4fmu.mpu.config.accel_range = PX4FMU_ACCEL_RANGE;
 
   // Set the default scaling
-  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[PX4FMU_GYRO_RANGE]);
-  imu_set_defaults_accel(IMU_BOARD_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[PX4FMU_ACCEL_RANGE]);
+  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, &MPU60X0_GYRO_SENS_F[PX4FMU_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_BOARD_ID, NULL, NULL, &MPU60X0_ACCEL_SENS_F[PX4FMU_ACCEL_RANGE]);
 
   /* initialize mag on i2c2 and set default options */
   hmc58xx_init(&imu_px4fmu.hmc, &i2c2, HMC58XX_ADDR);
 }
-
 
 void imu_px4fmu_periodic(void)
 {

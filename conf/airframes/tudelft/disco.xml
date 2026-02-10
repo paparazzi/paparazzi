@@ -6,17 +6,43 @@
 
 <airframe name="Disco">
 
+  <description>
+    Parrot Disco Photogrammeyty (with bottom camera recoring)
+    
+    Checklist:
+    - tune your servo deflections per airframe (symmetric)
+    - calibrate your magnetometer for the given battery
+    - remove previous images before flight
+    - trigger snapping images manually or in the flightplan
+    - use Open Drone Map / ODMWeb (or similar)
+    - make a movie with
+
+<!--
+ls *.jpg | xargs -I {} echo "file '{}'" > images.txt
+ffmpeg -f concat -safe 0 -i images.txt -c:v libx264 -crf 18 -profile:v baseline -level 3.0 -pix_fmt yuv420p -movflags faststart ./flight.mp4
+-->
+
+  </description>
+
   <firmware name="fixedwing">
     <configure name="USE_MAGNETOMETER" value="TRUE"/>
+    <define name="USE_BAROMETER" value="TRUE"/>
 
     <target name="ap" board="disco">
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <module name="radio_control" type="sbus"/>
+      <configure name="MS5611_I2C_DEV" value="i2c1" />
     </target>
     <target name="sim" board="pc">
       <configure name="SYS_TIME_FREQUENCY" value="120"/>
       <configure name="PERIODIC_FREQUENCY" value="60"/>
       <module name="radio_control" type="ppm"/>
+    </target>
+    <target name="nps" board="pc">
+      <!-- <configure name="SYS_TIME_FREQUENCY" value="120"/> -->
+      <configure name="PERIODIC_FREQUENCY" value="60"/>
+      <module name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
     <module name="telemetry" type="transparent_udp"/>
@@ -26,6 +52,9 @@
     <module name="gps" type="ublox"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="ins" type="alt_float"/>
+    <module name="baro" type="ms5611_i2c">
+      <define name="BB_MS5611_TYPE_MS5607" value="TRUE" />
+    </module>
     <module name="airspeed" type="ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c1"/>
       <define name="MS45XX_PRESSURE_RANVE" value="0.05"/>
@@ -34,10 +63,27 @@
     <module name="actuators" type="disco"/>
     <module name="control" type="new"/>
     <module name="navigation"/>
+    <module name="geo_mag"/>
     <module name="sonar_bebop">
       <define name="USE_SONAR"/>
       <define name="SENSOR_SYNC_SEND_SONAR"/>
     </module>
+
+    <module name="bebop_cam">
+      <define name="MT9V117_TARGET_FPS" value="4" />
+      <define name="MT9V117_CROP_WIDTH" value="320" />
+      <define name="MT9V117_CROP_HEIGHT" value="240" />
+    </module>
+
+    <module name="video_exif"/>
+
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
+      <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images/"/>
+      <define name="VIDEO_CAPTURE_FPS" value="4" />
+    </module>
+
+
   </firmware>
 
   <servos>
@@ -126,6 +172,12 @@
     <define name="APP_ANGLE" value="8" unit="deg"/>
   </section>
 
+
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="CALC_AMSL_BARO" value="TRUE"/>
+  </section>
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="0.12"/>
@@ -184,15 +236,15 @@
     <define name="PITCH_MAX_SETPOINT" value="30." unit="deg"/>
     <define name="PITCH_MIN_SETPOINT" value="-30." unit="deg"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="11000."/>
-    <define name="ROLL_RATE_GAIN" value="1000."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="6000."/>
+    <define name="ROLL_RATE_GAIN" value="500."/>
     <define name="ROLL_IGAIN" value="100."/>
     <define name="ROLL_KFFA" value="0"/>
     <define name="ROLL_KFFD" value="0"/>
 
-    <define name="PITCH_PGAIN" value="17250"/>
+    <define name="PITCH_PGAIN" value="14250"/>
     <define name="PITCH_DGAIN" value="500."/>
-    <define name="PITCH_IGAIN" value="400"/>
+    <define name="PITCH_IGAIN" value="300"/>
     <define name="PITCH_KFFA" value="0."/>
     <define name="PITCH_KFFD" value="0."/>
 

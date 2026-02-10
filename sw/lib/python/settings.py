@@ -50,12 +50,16 @@ class PprzSettingsManager:
     def __getitem__(self, item):
         return self.settings_grp.__getitem__(item)
 
-    def __setitem__(self, key, value):
-        setting = self.settings_grp[key]
+    def __setitem__(self, key, value: int|float|str):
+        setting: PprzSetting = self.settings_grp[key]
         msg = PprzMessage("ground", "DL_SETTING")
         msg['ac_id'] = self.ac_id
         msg['index'] = setting.index
-        msg['value'] = value
+        if isinstance(value, str):
+            msg['value'] = setting.value_from_name(value)
+        elif isinstance(value, float) or isinstance(value, int):
+            msg['value'] = value
+
         self.ivy.send(msg)
 
     def __len__(self):
@@ -141,7 +145,8 @@ class PprzSetting:
         self.xml = xml
 
     def __str__(self):
-        return "{{var: {}, shortname: {}, index: {}}}".format(self.var, self.shortname, self.index)
+        values = f", values:{'|'.join(self.values)}" if self.values is not None else ""
+        return f"{{var: {self.var}, shortname: {self.shortname}, index: {self.index}{values}}}"
 
     def value_from_name(self, name):
         """Return the index in 'values' table matching a given name. Raise ValueError if the name is unknown."""

@@ -37,6 +37,7 @@ let fos = float_of_string
 let sof = fun x -> if mod_float x 1. = 0. then Printf.sprintf "%.0f" x else string_of_float x
 
 let servos_drivers = Hashtbl.create 3
+let drivers_no = Hashtbl.create 3
 
 let get_servo_driver = fun servo_name ->
   try
@@ -204,7 +205,7 @@ let print_reverse_servo_table = fun out driver servos ->
   fprintf out "  switch (_idx) {\n";
   List.iter (fun c ->
     let name = ExtXml.attrib c "name" in
-    fprintf out "    case SERVO_%s_DRIVER_NO: return SERVO_%s_MIN;\n" name name;
+    fprintf out "    case SERVO_%s_DRIVER_IDX: return SERVO_%s_MIN;\n" name name;
   ) servos;
   fprintf out "    default: return 0;\n";
   fprintf out "  };\n";
@@ -213,7 +214,7 @@ let print_reverse_servo_table = fun out driver servos ->
   fprintf out "  switch (_idx) {\n";
   List.iter (fun c ->
     let name = ExtXml.attrib c "name" in
-    fprintf out "    case SERVO_%s_DRIVER_NO: return SERVO_%s_MAX;\n" name name;
+    fprintf out "    case SERVO_%s_DRIVER_IDX: return SERVO_%s_MAX;\n" name name;
   ) servos;
   fprintf out "    default: return 0;\n";
   fprintf out "  };\n";
@@ -222,7 +223,7 @@ let print_reverse_servo_table = fun out driver servos ->
   fprintf out "  switch (_idx) {\n";
   List.iter (fun c ->
     let name = ExtXml.attrib c "name" in
-    fprintf out "    case SERVO_%s_DRIVER_NO: return SERVO_%s_IDX;\n" name name;
+    fprintf out "    case SERVO_%s_DRIVER_IDX: return SERVO_%s_IDX;\n" name name;
   ) servos;
   fprintf out "    default: return 0;\n";
   fprintf out "  };\n";
@@ -233,8 +234,11 @@ let parse_servo = fun out driver c ->
   let name = "SERVO_"^shortname
   and no_servo = int_of_string (ExtXml.attrib c "no") in
   let global_idx = Hashtbl.length servos_drivers in
+  if not (Hashtbl.mem drivers_no driver) then
+    Hashtbl.add drivers_no driver (Hashtbl.length drivers_no);
 
-  define_out out (name^"_DRIVER_NO") (string_of_int no_servo);
+  define_out out (name^"_DRIVER_NO") (string_of_int (Hashtbl.find drivers_no driver));
+  define_out out (name^"_DRIVER_IDX") (string_of_int no_servo);
   define_out out (name^"_IDX") (string_of_int global_idx);
 
   let s_min = fos (ExtXml.attrib c "min" )
@@ -246,9 +250,7 @@ let parse_servo = fun out driver c ->
 
   define_out out (name^"_NEUTRAL") (sof neutral);
   define_out out (name^"_TRAVEL_UP") (sof travel_up);
-  define_integer out (name^"_TRAVEL_UP") travel_up 16;
   define_out out (name^"_TRAVEL_DOWN") (sof travel_down);
-  define_integer out (name^"_TRAVEL_DOWN") travel_down 16;
 
   let s_min = min s_min s_max
   and s_max = max s_min s_max in
@@ -268,20 +270,27 @@ let preprocess_value = fun s v prefix ->
   let s = Str.global_replace pprz_value (sprintf "%s[%s_\\1]" v prefix) s in
   Str.global_replace var_value "_var_\\1" s
 
-let print_actuators_idx = fun out ->
+let print_actuators_config = fun out ->
+  let actuators = Array.make (Hashtbl.length servos_drivers) "" in
   Hashtbl.iter (fun s (d, i) ->
-    (* Set servo macro *)
-    fprintf out "#define Set_%s_Servo(actuator_value_pprz) { \\\n" s;
-    fprintf out "  int32_t servo_value;\\\n";
-    fprintf out "  int32_t command_value;\\\n\\\n";
-    fprintf out "  actuators[SERVO_%s_IDX].pprz_val = ClipAbs( actuator_value_pprz, MAX_PPRZ); \\\n" s;
-    fprintf out "  command_value = actuator_value_pprz * (actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM); \\\n" s s;
-    fprintf out "  command_value /= actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" s s;
-    fprintf out "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" s;
-    fprintf out "  actuators[SERVO_%s_IDX].driver_val = Clip(servo_value, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
-    fprintf out "  Actuator%sSet(SERVO_%s_DRIVER_NO, actuators[SERVO_%s_IDX].driver_val); \\\n" d s s;
-    fprintf out "}\n\n"
+    actuators.(i) <- sprintf "    { \\
+      .pprz_val = 0, \\
+      .driver_val = 0, \\
+      .config = { \\
+        .driver_no = SERVO_%s_DRIVER_NO, \\
+        .servo_idx = SERVO_%s_DRIVER_IDX, \\
+        .min = SERVO_%s_MIN, \\
+        .max = SERVO_%s_MAX, \\
+        .neutral = SERVO_%s_NEUTRAL, \\
+        .travel_up = SERVO_%s_TRAVEL_UP, \\
+        .travel_down = SERVO_%s_TRAVEL_DOWN \\
+      }, \\
+      .set = Actuator%sSet \\
+    }" s s s s s s s d;
   ) servos_drivers;
+  fprintf out "#define ACTUATORS_CONFIG { \\\n";
+  fprintf out "%s" (String.concat ", \\\n" (Array.to_list actuators));
+  fprintf out "\\\n  }\n\n";
   define_out out "ACTUATORS_NB" (string_of_int (Hashtbl.length servos_drivers));
   fprintf out "\n"
 
@@ -293,7 +302,7 @@ let parse_command_laws = fun out command ->
         and value = a "value" in
         let v = preprocess_value value "values" "COMMAND" in
         fprintf out "  actuator_value_pprz = %s; \\\n" v;
-        fprintf out "  Set_%s_Servo(actuator_value_pprz); \\\n\\\n" servo
+        fprintf out "  ActuatorSet(%s, actuator_value_pprz); \\\n\\\n" servo
     | "let" ->
       let var = a "var"
       and value = a "value" in
@@ -424,8 +433,8 @@ let rec parse_section = fun out ac_id s ->
       List.iter (parse_ap_only_commands out) (Xml.children s);
       fprintf out "}\n\n"
     | "command_laws" ->
-      (* print actuators index and set macros *)
-      print_actuators_idx out;
+      (* print actuators config *)
+      print_actuators_config out;
       (* print init and commit actuators macros *)
       let drivers = get_list_of_drivers () in
       fprintf out "#define AllActuatorsInit() { \\\n";
@@ -436,7 +445,7 @@ let rec parse_section = fun out ac_id s ->
       fprintf out "}\n\n";
       (* print actuators from commands macro *)
       fprintf out "#define SetActuatorsFromCommands(values, AP_MODE) { \\\n";
-      fprintf out "  int32_t actuator_value_pprz;\\\n\\\n";
+      if List.length (Xml.children s) > 0 then fprintf out "  int32_t actuator_value_pprz;\\\n\\\n";
       List.iter (parse_command_laws out) (Xml.children s);
       fprintf out "  AllActuatorsCommit(); \\\n";
       fprintf out "}\n\n";

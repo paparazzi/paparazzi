@@ -17,6 +17,7 @@
     <configure name="DSHOT_BIDIR" value="FALSE" description="Bidirectionnal DSHOT for fast rpm feedback"/>
     <define name="DSHOT_SPEED" value="600" description="DSHOT speed (150,300,600,1200)"/>
     <configure name="DSHOT1_GPT_TIM" value="7" description="GPT driver used for telemetry timeout"/>
+    <define name="DSHOT_MOTOR_POLES" value="14" description="number of motor poles to compute real RPM from eRPM"/>
   </doc>
   <dep>
     <depends>actuators,@commands</depends>
@@ -27,6 +28,7 @@
   </header>
   <makefile>
     <configure name="DSHOT_BIDIR" default="FALSE"/>
+    <file name="actuators_dshot.c"/>
     <file_arch name="actuators_dshot_arch.c"/>
     <file_arch name="esc_dshot.c" cond="ifeq ($(RTOS),chibios)"/>
     <file_arch name="hal_stm32_dma.c" dir="mcu_periph" cond="ifeq ($(RTOS),chibios)"/>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="uavcan" dir="uavcan">
+<module name="uavcan" dir="uavcan" task="core">
   <doc>
     <description>
       UAVCan interface for transmitting/receiving uavcan messages on CAN busses
@@ -10,23 +10,40 @@
    <define name="UAVCAN_NODE_ID" value="100" description="The UAVCAN node ID of the AP"/>
    <define name="UAVCAN_BAUDRATE" value="1000000" description="The baudrate of the CAN interface"/>
   </doc>
+  <dep>
+    <depends>can</depends>
+  </dep>
   <header>
     <file name="uavcan.h" dir="modules/uavcan"/>
   </header>
   <init fun="uavcan_init()"/>
-  <makefile target="ap">
+  <periodic fun="uavcan_reporting()" freq="2"/>
+  <makefile>
     <!-- Enable the CAN busses if needed -->
+    <configure name="UAVCAN_USE_CAN1" default="FALSE"/>
+    <configure name="UAVCAN_USE_CAN2" default="FALSE"/>
     <define name="USE_CAN1" cond="ifeq ($(UAVCAN_USE_CAN1), TRUE)"/>
     <define name="USE_CAN2" cond="ifeq ($(UAVCAN_USE_CAN2), TRUE)"/>
     <define name="UAVCAN_USE_CAN1" value="$(UAVCAN_USE_CAN1)"/>
     <define name="UAVCAN_USE_CAN2" value="$(UAVCAN_USE_CAN2)"/>
+    <define name="CANARD_ALLOCATE_SEM"/>
 
     <!-- Load canard -->
-    <include name="$(PAPARAZZI_SRC)/sw/ext/libcanard"/>
-    <file name="canard.c" dir="$(PAPARAZZI_SRC)/sw/ext/libcanard"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/dronecan/libcanard"/>
+    <file name="canard.c" dir="$(PAPARAZZI_SRC)/sw/ext/dronecan/libcanard"/>
+
+    <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="uavcan.protocol.NodeStatus.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <file name="uavcan.protocol.GetNodeInfo_req.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <file name="uavcan.protocol.GetNodeInfo_res.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <file name="uavcan.protocol.dynamic_node_id.Allocation.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
 
     <!-- Load uavcan itself -->
-    <file_arch name="uavcan.c" dir="modules/uavcan"/>
+    <file name="uavcan.c" dir="modules/uavcan"/>
+    <file name="uavcan_reporting.c" dir="modules/uavcan"/>
+    <file name="uavcan_allocator.c" dir="modules/uavcan"/>
+    <file name="framed_ring_buffer.c" dir="utils"/>
+    <file name="kv_store.c" dir="utils"/>
   </makefile>
 </module>
-

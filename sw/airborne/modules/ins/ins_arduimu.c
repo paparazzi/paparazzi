@@ -214,7 +214,7 @@ void IMU_Daten_verarbeiten(void)
   att.theta = (float)ArduIMU_data[1] * 0.01745329252 - ins_pitch_neutral;
   att.psi = 0.;
   imu_daten_angefordert = false;
-  stateSetNedToBodyEulers_f(&att);
+  stateSetNedToBodyEulers_f(MODULE_INS_ARDUINO_ID, &att);
   uint8_t arduimu_id = 102;
 
   RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &att->phi, &att->theta, &att->psi, &arduimu_id));

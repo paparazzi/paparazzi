@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012  Sergey Krukowski <softsr@yahoo.de>
- * Copyright (C) 2020  OpenUAS <info@openuas.org>
+ * Copyright (C) 2025  OpenUAS <info@openuas.org>
  *
  * This file is part of paparazzi.
  *
@@ -27,7 +27,7 @@
  */
 
 #include "modules/geo_mag/geo_mag.h"
-#include "math/pprz_geodetic_wmm2020.h"
+#include "math/pprz_geodetic_wmm2025.h"
 #include "math/pprz_algebra_double.h"
 #include "modules/gps/gps.h"
 #include "modules/core/abi.h"
@@ -62,7 +62,7 @@ void geo_mag_event(void)
     double gha[MAXCOEFF]; // Geomag global variables
     int32_t nmax;
 
-    /* Current date in decimal year, for example 2015.68 */
+    /* Current date in decimal year, for example 2025.68 */
     double sdate = GPS_EPOCH_BEGIN +
                    (double)gps.week / WEEKS_IN_YEAR +
                    (double)gps.tow / 1000 / SECS_IN_YEAR;

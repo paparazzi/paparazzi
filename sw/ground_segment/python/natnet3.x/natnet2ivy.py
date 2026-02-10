@@ -46,9 +46,9 @@ The edges of the indoor test areas are denoted like as in this diagram:
                  far
      +──────────────────────────+
      │                          │
-     │        ⊙ ⊙               │
-     │       ⊙ + ⊙              │
-     │        ⊙ ⊙               │
+     │        ⊙ ⊙             │
+     │       ⊙ + ⊙            │
+     │        ⊙ ⊙             │
 left │                          │ right
      │                          │
      │                          │
@@ -107,7 +107,7 @@ as long as the --long_edge argument is set correspondingly.
      │                          │
      │                          │
      │           y              │
-     │            ⊙──· x        │
+     │            ⊙──· x       │
 left │            │ /           │ right
      │            │/            │
      │            ·             │
@@ -125,7 +125,7 @@ around x:
      │                          │
      │          y^              │
      │           |              │
-     │          z⊙──►x          │
+     │          z⊙──►x         │
 left │                          │ right
      │                          │
      │                          │
@@ -147,17 +147,16 @@ rigid-body in motive must be known (that's when the quaternion is initialized to
 
 
 import sys
+import typing
 from os import path, getenv
 from time import time, sleep
 import numpy as np
-from pyquaternion import Quaternion as Quat
+from scipy.spatial.transform import Rotation
 from collections import deque
 import argparse
 
 # import NatNet client
 from NatNetClient import NatNetClient
-import DataDescriptions
-import MoCapData
 
 # if PAPARAZZI_HOME not set, then assume the tree containing this
 # file is a reasonable substitute
@@ -166,32 +165,11 @@ sys.path.append(PPRZ_HOME + "/var/lib/python")
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
-# parse args
-parser = argparse.ArgumentParser(
-    formatter_class=argparse.RawDescriptionHelpFormatter,
-    epilog=ADDITIONAL_HELP,
-)
-parser.add_argument('-le', '--long_edge', required=True, dest='long_edge', choices=['left', 'far', 'right', 'near'], help="Side of the test area that the long edge of the calibration tool was pointing at")
-group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument('-xs', '--x_side', dest='x_side', choices=['left', 'far', 'right', 'near'], help="Side that the x/east axis of the resulting ENU frame should point to.")
-group.add_argument('-xa', '--x_angle_from_right', dest='x_angle', type=float, help="Right-hand rotation in degrees of the x/east-axis around the up-axis, where 0.0 means x/east is pointing to the right")
-parser.add_argument('-up', '--up_axis', dest='up_axis', choices=['y_up', 'z_up'], default='y_up', help="Optitrack Up axis: y_up or z_up.")
-parser.add_argument('-an', '--ac_nose', required=True, dest='ac_nose', choices=['left', 'far', 'right', 'near'], help="Side of the test area that the nose of the drone was pointing at when definition the rigid body")
-parser.add_argument('-ac', action='append', nargs=2,
-                    metavar=('rigid_id','ac_id'), required=True, help='pair of rigid body and A/C id (multiple possible)')
 
-parser.add_argument('-b', '--ivy_bus', dest='ivy_bus', help="Ivy bus address and port")
-parser.add_argument('-s', '--server', dest='server', default="127.0.0.1", help="NatNet server IP address")
-parser.add_argument('-m', '--multicast_addr', dest='multicast', default="239.255.42.99", help="NatNet server multicast address")
-parser.add_argument('-dp', '--data_port', dest='data_port', type=int, default=1511, help="NatNet server data socket UDP port")
-parser.add_argument('-cp', '--command_port', dest='command_port', type=int, default=1510, help="NatNet server command socket UDP port")
-parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help="display debug messages")
-parser.add_argument('-f', '--freq', dest='freq', default=10, type=int, help="transmit frequency")
-parser.add_argument('-gr', '--ground_ref', dest='ground_ref', action='store_true', help="also send the GROUND_REF message")
-parser.add_argument('-vs', '--vel_samples', dest='vel_samples', default=4, type=int, help="amount of samples to compute velocity (should be greater than 2)")
-parser.add_argument('-rg', '--remote_gps', dest='rgl_msg', action='store_true', help="use the old REMOTE_GPS_LOCAL message")
-parser.add_argument('-sm', '--small', dest='small_msg', action='store_true', help="enable the EXTERNAL_POSE_SMALL message instead of the full")
-parser.add_argument('-o', '--old_natnet', dest='old_natnet', action='store_true', help="Change the NatNet version to 2.9")
+ac_id_type = typing.Any # The type used to identify AC, probably str
+ac_dicts_type = typing.Tuple[typing.Dict[ac_id_type,int],           # Link between user AC id and internal id (an int)
+                             typing.Dict[int,typing.Optional[int]], # Last timestamp per AC 
+                             typing.Dict[int,deque]]                # List of known positions per AC (stored in a queue)
 
 def process_args(args):
     if args.ac is None:
@@ -211,16 +189,16 @@ def process_args(args):
     # Rotation for Z up if needed
     if args.up_axis == 'y_up':
         # x far, y up, z right -> x far, y left, z up
-        q_z_up = Quat(axis=[1., 0., 0.], angle=np.pi/2.)
+        q_z_up = Rotation.from_rotvec(np.pi/2*np.array([1., 0., 0.]))
     else:
-        q_z_up = Quat(axis=[1., 0., 0.], angle=0.)
+        q_z_up = Rotation.identity()
 
     ### axes rotation definitions ###
     # Ground plane calibration correction
     ground_plane_correction = {'left': -90., 'far': 180., 'right': 90., 'near': 0.}
-    q_ground_plane = Quat(
-        axis=[0., 0., 1.],
-        angle=np.deg2rad(ground_plane_correction[args.long_edge]))
+    q_ground_plane = Rotation.from_rotvec(
+        np.deg2rad(ground_plane_correction[args.long_edge]) * np.array([0., 0., 1.])
+    )
 
     # Desired x/East axis orientation
     if args.x_side is not None:
@@ -229,9 +207,8 @@ def process_args(args):
     else:
         x_angle = -args.x_angle # angle from right side, right-hand rotation
 
-    q_x_correction = Quat(
-        axis=[0., 0., 1.],
-        angle=np.deg2rad(x_angle)
+    q_x_correction = Rotation.from_rotvec(
+        np.deg2rad(x_angle) * np.array([0., 0., 1.])
     )
 
     # Total axis system rotation
@@ -239,15 +216,15 @@ def process_args(args):
 
     # Attitude Quaternion correction    
     nose_correction = {'left': 90., 'far': 0., 'right': -90., 'near': 180.}
-    q_nose_correction = Quat(
-        axis=[0., 0., 1.],
-        angle=np.deg2rad(nose_correction[args.ac_nose] + x_angle)
+    q_nose_correction = Rotation.from_rotvec(
+        np.deg2rad(nose_correction[args.ac_nose] + x_angle) * np.array([0., 0., 1.])
     )
 
     return id_dict, timestamp, period, track, q_total, q_nose_correction
 
 # store track function
-def store_track(ac_id, pos, t):
+def store_track(ac_dicts:ac_dicts_type, ac_id, pos, t):
+    id_dict,_,track = ac_dicts
     if ac_id in id_dict.keys():
         track[ac_id].append((pos, t))
         if len(track[ac_id]) > args.vel_samples:
@@ -255,7 +232,7 @@ def store_track(ac_id, pos, t):
 
 # compute velocity from track
 # returns zero if not enough samples
-def compute_velocity(ac_id):
+def compute_velocity(track, ac_id):
     vel = [ 0., 0., 0. ]
     if len(track[ac_id]) >= args.vel_samples:
         nb = -1
@@ -279,18 +256,19 @@ def compute_velocity(ac_id):
             vel[2] /= nb
     return vel
 
-def performTransformation( pos, vel, quat ):
-    pos = q_total.rotate([pos[0], pos[1], pos[2]])
-    vel = q_total.rotate([vel[0], vel[1], vel[2]])
+def performTransformation(q_total, q_nose_correction, pos, vel, quat):
+    pos = q_total.apply(pos)
+    vel = q_total.apply(vel)
 
     # Rotate the attitude delta to the new frame
-    quat = Quat(real=quat[3], imaginary=[quat[0], quat[1], quat[2]])
-    quat = (q_total * quat * q_total.inverse) * q_nose_correction
-    quat = quat.elements[[1, 2, 3, 0]].tolist()
+    quat = Rotation.from_quat(quat)
+    quat = (q_total * quat * q_total.inv()) * q_nose_correction
+    quat = quat.as_quat().tolist() # Scalar last
 
     return pos, vel, quat
 
-def receiveRigidBodyList( rigid_body_data, stamp ):
+def receiveRigidBodyList(ac_dicts:ac_dicts_type, period:float, rigid_body_data, stamp, q_total, q_nose_correction):
+    id_dict,timestamp,track = ac_dicts
     for rigid_body in rigid_body_data.rigid_body_list:
         if not rigid_body.tracking_valid:
             # skip if rigid body is not valid
@@ -299,22 +277,22 @@ def receiveRigidBodyList( rigid_body_data, stamp ):
         i = str(rigid_body.id_num)
         if i not in id_dict.keys():
             continue
-        
+
         pos = rigid_body.pos
         quat = rigid_body.rot
 
-        store_track(i, pos, stamp)
+        store_track(ac_dicts, i, pos, stamp)
         if timestamp[i] is None or abs(stamp - timestamp[i]) < period:
             if timestamp[i] is None:
                 timestamp[i] = stamp
             continue # too early for next message
         timestamp[i] = stamp
 
-        vel = compute_velocity(i)
+        vel = compute_velocity(track, i)
 
         # Rotate position, velocity and attitude according to the quaternions
         # found above
-        pos, vel, quat = performTransformation(pos, vel, quat)
+        pos, vel, quat = performTransformation(q_total, q_nose_correction, pos, vel, quat)
 
         # Check which message to send
         if args.rgl_msg:
@@ -331,7 +309,7 @@ def receiveRigidBodyList( rigid_body_data, stamp ):
             # convert quaternion to psi euler angle
             dcm_0_0 = 1.0 - 2.0 * (quat[1] * quat[1] + quat[2] * quat[2])
             dcm_1_0 = 2.0 * (quat[0] * quat[1] - quat[3] * quat[2])
-            msg['course'] = 180. * np.arctan2(dcm_1_0, dcm_0_0) / 3.14
+            msg['course'] = 180. * np.arctan2(dcm_1_0, dcm_0_0) / np.pi
             ivy.send(msg)
         elif args.small_msg:
             # First check if position fits in message
@@ -372,23 +350,17 @@ def receiveRigidBodyList( rigid_body_data, stamp ):
             gr['timestamp'] = stamp
             ivy.send(gr)
 
-run_test_cases = '--test' in sys.argv
 
-if not run_test_cases:
-    # parse arguments
-    args = parser.parse_args()
 
-    # start ivy interface
-    if args.ivy_bus is not None:
-        ivy = IvyMessagesInterface("natnet2ivy", ivy_bus=args.ivy_bus)
-    else:
-        ivy = IvyMessagesInterface("natnet2ivy")
+#################### Entry point ####################
 
-    # start natnet interface
+def main_loop(args, ivy):
+    id_dict, timestamp, period, track, q_total, q_nose_correction = process_args(args)
+    
     natnet = NatNetClient()
     natnet.set_server_address(args.server)
     natnet.set_client_address('0.0.0.0')
-    natnet.rigid_body_list_listener = receiveRigidBodyList
+    natnet.rigid_body_list_listener = lambda l,s : receiveRigidBodyList((id_dict,timestamp,track),period,l,s,q_total,q_nose_correction)
 
     if args.verbose:
         natnet.set_print_level(1) # print all frames
@@ -397,10 +369,8 @@ if not run_test_cases:
     if args.old_natnet:
         natnet.set_nat_net_version(2,9)
     print("Starting Natnet3.x to Ivy interface at %s" % (args.server))
+
     try:
-        # Start up the streaming client.
-        # This will run perpetually, and operate on a separate thread.
-        id_dict, timestamp, period, track, q_total, q_nose_correction = process_args(args)
         is_running = natnet.run()
         if not is_running:
             print("Natnet error: Could not start streaming client.")
@@ -423,85 +393,136 @@ if not run_test_cases:
         ivy.stop()
         exit(-1)
 
-
-else:
-    #%% test cases
-    # Idea: position a drone at 90deg yaw to the right, and 15deg nose down.
-    #       Then run through all settings and check output. Because it's a 
-    #       combined rotation, it should show all problems with transformations
-    #
-    # Correcteness of the NatNet pos and NatNet quaternion for each case have
-    # been experimentally verified. The TargetPos and TargetQuat are relatively
-    # easy to generate manually.
-    # Test flights still outstanding for setting xa to a numeric value
-
-    args = argparse.Namespace()
-
-    args.freq = 10
-    args.ac = [(1,1)]
-
-    # in testcases, quaternions are scalar last
-    test_cases =\
-    [
-        {'xs': 'right', 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ -.7,  -0.1, 0.7,  0.1  ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
-        {'xs': 'right', 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
-        {'xs': 'right', 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [-.7,  0.1,  0.7,  0.1   ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
-        {'xs': 'right', 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [.99,    0,    0, -0.14  ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
-        {'xs': 'right', 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ -.7,  -0.1, -0.1,  0.7 ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
-        {'xs': 'right', 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
-        {'xs': 'right', 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ -.7,  0.1,  -0.1,  0.7 ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
-        {'xs': 'right', 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ .99,    0,   0.14, 0   ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
+def test_case(args, i, case):
+    if (case['xs'] == 'right') or (case['xs'] == 'far'):
+        args.x_side = case['xs']
+        args.x_angle = None
+    else:
+        args.x_angle = case['xs']
+        args.x_side = None
+        
+    args.up_axis = case['up_axis']
+    args.long_edge = case['long_edge']
+    args.ac_nose = case['ac_nose']
+        
+    id_dict, timestamp, period, track, q_total, q_nose_correction = process_args(args)
+        
+    pos = np.array(case['NatNetPos'], dtype=float)
+    quat = np.array(case['NatNetQuat'], dtype=float) # convert to scalar last
+    quat = quat[[1,2,3,0]]
+    vel = np.array([0, 0, 0], dtype=float)
+        
+    posTarget = np.array(case['TargetPos'], dtype=float)
+    quatTarget = np.array(case['TargetQuat'], dtype=float)
+        
+    posOut, _, quatOut = performTransformation(q_total,q_nose_correction, pos, vel, quat)
+    quatOut = np.array(quatOut)
+    quatOut = quatOut[[3,0,1,2]]
+        
+    posError = np.linalg.norm(posTarget - posOut)
     
-        {'xs': 'far', 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ -.7,  -0.1, 0.7,  0.1  ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
-        {'xs': 'far', 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
-        {'xs': 'far', 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [-.7,  0.1,  0.7,  0.1   ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
-        {'xs': 'far', 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [.99,    0,    0, -0.14  ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
-        {'xs': 'far', 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ -.7,  -0.1, -0.1,  0.7 ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
-        {'xs': 'far', 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
-        {'xs': 'far', 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ -.7,  0.1,  -0.1,  0.7 ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
-        {'xs': 'far', 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ .99,    0,   0.14, 0   ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
+    # quatError = Quat.absolute_distance(Quat(quatTarget), Quat(quatOut))
+    quatErrorQuat = Rotation.from_quat(quatTarget).inv()*Rotation.from_quat(quatOut)
+    quatError = quatErrorQuat.magnitude()
     
-        {'xs': -27., 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ -.7,  -0.1, 0.7,  0.1  ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
-        {'xs': -27., 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
-        {'xs': -27., 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [-.7,  0.1,  0.7,  0.1   ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
-        {'xs': -27., 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [.99,    0,    0, -0.14  ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
-        {'xs': -27., 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ -.7,  -0.1, -0.1,  0.7 ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
-        {'xs': -27., 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
-        {'xs': -27., 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ -.7,  0.1,  -0.1,  0.7 ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
-        {'xs': -27., 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ .99,    0,   0.14, 0   ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] }
-    ]
+    thresh = 3e-3
+    assert posError < thresh, f"Failed position case {i}. Should be {posTarget}, but is {posOut}. Error {posError}"
+    assert quatError < thresh, f"Failed quaternion case {i}. Should be {quatTarget}, but is {quatOut}. Error {quatError}"
+
+if __name__ == '__main__':
+    import argparse
+
+    # parse args
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=ADDITIONAL_HELP,
+    )
+    parser.add_argument('-le', '--long_edge', required=True, dest='long_edge', choices=['left', 'far', 'right', 'near'], help="Side of the test area that the long edge of the calibration tool was pointing at")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-xs', '--x_side', dest='x_side', choices=['left', 'far', 'right', 'near'], help="Side that the x/east axis of the resulting ENU frame should point to.")
+    group.add_argument('-xa', '--x_angle_from_right', dest='x_angle', type=float, help="Right-hand rotation in degrees of the x/east-axis around the up-axis, where 0.0 means x/east is pointing to the right")
+    parser.add_argument('-up', '--up_axis', dest='up_axis', choices=['y_up', 'z_up'], default='y_up', help="Optitrack Up axis: y_up or z_up.")
+    parser.add_argument('-an', '--ac_nose', required=True, dest='ac_nose', choices=['left', 'far', 'right', 'near'], help="Side of the test area that the nose of the drone was pointing at when definition the rigid body")
+    parser.add_argument('-ac', action='append', nargs=2,
+                        metavar=('rigid_id','ac_id'), required=True, help='pair of rigid body and A/C id (multiple possible)')
+
+    parser.add_argument('-b', '--ivy_bus', dest='ivy_bus', help="Ivy bus address and port")
+    parser.add_argument('-s', '--server', dest='server', default="127.0.0.1", help="NatNet server IP address")
+    parser.add_argument('-m', '--multicast_addr', dest='multicast', default="239.255.42.99", help="NatNet server multicast address")
+    parser.add_argument('-dp', '--data_port', dest='data_port', type=int, default=1511, help="NatNet server data socket UDP port")
+    parser.add_argument('-cp', '--command_port', dest='command_port', type=int, default=1510, help="NatNet server command socket UDP port")
+    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help="display debug messages")
+    parser.add_argument('-f', '--freq', dest='freq', default=10, type=int, help="transmit frequency")
+    parser.add_argument('-gr', '--ground_ref', dest='ground_ref', action='store_true', help="also send the GROUND_REF message")
+    parser.add_argument('-vs', '--vel_samples', dest='vel_samples', default=4, type=int, help="amount of samples to compute velocity (should be greater than 2)")
+    parser.add_argument('-rg', '--remote_gps', dest='rgl_msg', action='store_true', help="use the old REMOTE_GPS_LOCAL message")
+    parser.add_argument('-sm', '--small', dest='small_msg', action='store_true', help="enable the EXTERNAL_POSE_SMALL message instead of the full")
+    parser.add_argument('-o', '--old_natnet', dest='old_natnet', action='store_true', help="Change the NatNet version to 2.9")
     
-    for i, case in enumerate(test_cases):
-        if (case['xs'] == 'right') or (case['xs'] == 'far'):
-            args.x_side = case['xs']
-            args.x_angle = None
+    run_test_cases = '--test' in sys.argv
+
+    if not run_test_cases:
+        # parse arguments
+        args = parser.parse_args()
+
+        # start ivy interface
+        if args.ivy_bus is not None:
+            ivy = IvyMessagesInterface("natnet2ivy", ivy_bus=args.ivy_bus)
         else:
-            args.x_angle = case['xs']
-            args.x_side = None
-    
-        args.up_axis = case['up_axis']
-        args.long_edge = case['long_edge']
-        args.ac_nose = case['ac_nose']
-    
-        id_dict, timestamp, period, track, q_total, q_nose_correction = process_args(args)
-    
-        pos = np.array(case['NatNetPos'], dtype=float)
-        quat = np.array(case['NatNetQuat'], dtype=float) # convert to scalar last
-        quat = quat[[1,2,3,0]]
-        vel = np.array([0, 0, 0], dtype=float)
-    
-        posTarget = np.array(case['TargetPos'], dtype=float)
-        quatTarget = np.array(case['TargetQuat'], dtype=float)
-    
-        posOut, _, quatOut = performTransformation(pos, vel, quat)
-        quatOut = np.array(quatOut)
-        quatOut = quatOut[[3,0,1,2]]
-    
-        posError = np.linalg.norm(posTarget - posOut)
-        quatError = Quat.absolute_distance(Quat(quatTarget), Quat(quatOut))
+            ivy = IvyMessagesInterface("natnet2ivy")
 
-        thresh = 3e-3
-        assert posError < thresh, f"Failed position case {i}. Should be {posTarget}, but is {posOut}. Error {posError}"
-        assert quatError < thresh, f"Failed quaternion case {i}. Should be {quatTarget}, but is {quatOut}. Error {quatError}"
+        # start natnet interface
+        main_loop(args, ivy)
 
-    print(f"Passed all {i+1} test cases")
+
+    else:
+        #%% test cases
+        # Idea: position a drone at 90deg yaw to the right, and 15deg nose down.
+        #       Then run through all settings and check output. Because it's a 
+        #       combined rotation, it should show all problems with transformations
+        #
+        # Correcteness of the NatNet pos and NatNet quaternion for each case have
+        # been experimentally verified. The TargetPos and TargetQuat are relatively
+        # easy to generate manually.
+        # Test flights still outstanding for setting xa to a numeric value
+
+        args = argparse.Namespace()
+
+        args.freq = 10
+        args.ac = [(1,1)]
+
+        # in testcases, quaternions are scalar last
+        test_cases =\
+        [
+            {'xs': 'right', 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
+            {'xs': 'right', 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ -.7,  -0.1, 0.7,  0.1  ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
+            {'xs': 'right', 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [-.7,  0.1,  0.7,  0.1   ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
+            {'xs': 'right', 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [.99,    0,    0, -0.14  ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
+            {'xs': 'right', 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ -.7,  -0.1, -0.1,  0.7 ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
+            {'xs': 'right', 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
+            {'xs': 'right', 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ -.7,  0.1,  -0.1,  0.7 ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
+            {'xs': 'right', 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ .99,    0,   0.14, 0   ], 'TargetPos':  [-2, -1,  0.1], 'TargetQuat': [ -.7, 0.1, -0.1, 0.7 ]},
+        
+            {'xs': 'far', 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ -.7,  -0.1, 0.7,  0.1  ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
+            {'xs': 'far', 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
+            {'xs': 'far', 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [-.7,  0.1,  0.7,  0.1   ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
+            {'xs': 'far', 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [.99,    0,    0, -0.14  ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
+            {'xs': 'far', 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ -.7,  -0.1, -0.1,  0.7 ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
+            {'xs': 'far', 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
+            {'xs': 'far', 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ -.7,  0.1,  -0.1,  0.7 ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
+            {'xs': 'far', 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ .99,    0,   0.14, 0   ], 'TargetPos':  [-1,  2,  0.1], 'TargetQuat': [  0, 0, -0.14, 0.99 ] },
+        
+            {'xs': -27., 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ -.7,  -0.1, 0.7,  0.1  ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
+            {'xs': -27., 'up_axis': 'y_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1, 0.1, -2], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
+            {'xs': -27., 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [-.7,  0.1,  0.7,  0.1   ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
+            {'xs': -27., 'up_axis': 'y_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, 0.1, 1 ], 'NatNetQuat': [.99,    0,    0, -0.14  ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
+            {'xs': -27., 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'far', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ -.7,  -0.1, -0.1,  0.7 ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
+            {'xs': -27., 'up_axis': 'z_up', 'long_edge': 'right', 'ac_nose': 'right', 'NatNetPos': [-1,  2, 0.1], 'NatNetQuat': [ .99, 0.14,  0,   0     ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
+            {'xs': -27., 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'far', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ -.7,  0.1,  -0.1,  0.7 ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] },
+            {'xs': -27., 'up_axis': 'z_up', 'long_edge': 'near', 'ac_nose': 'right', 'NatNetPos': [-2, -1, 0.1], 'NatNetQuat': [ .99,    0,   0.14, 0   ], 'TargetPos':  [-1.33,-1.8,.1], 'TargetQuat': [ -.844, .12,-0.073, .517 ] }
+        ]
+        
+        for i, case in enumerate(test_cases):
+            test_case(args, i, case)
+
+        print(f"Passed all {i+1} test cases")

@@ -1,0 +1,394 @@
+<!-- This is a 7kg Rotating Wing Drone G
+     * Airframe:    TUD00362
+     * Autopilot:   Cube orange+
+     * Datalink:    Herelink
+     * GPS:         UBlox F9P
+     * RC:          SBUS Crossfire
+-->
+
+<airframe name="RotatingWingV3G">
+    <description>RotatingWingV3G with optitrack and INS EKF2</description>
+
+    <firmware name="rotorcraft">
+     <autopilot name="rotorcraft_oneloop_switch.xml"/>
+        <target name="ap" board="cube_orangeplus">
+            <configure name="PERIODIC_FREQUENCY"   value="500"/> <!-- Configure the main periodic frequency to 500Hz -->
+            <configure name="NAVIGATION_FREQUENCY" value="500"/>
+            <module name="radio_control" type="sbus">
+                 <configure name="SBUS_PORT" value="UART3"/> <!-- On the TELEM2 port -->
+            </module>
+            <module name="sys_mon"/>
+            <module name="flight_recorder"/>
+
+            <module name="lidar_tfmini">
+                <configure name="TFMINI_PORT"    value="UART8"/>
+                <configure name="USE_TFMINI_AGL" value="TRUE"/>
+            </module>     
+            <!-- RC switches -->
+            <define name="RADIO_TH_HOLD"            value="RADIO_AUX1"/>
+            <define name="RADIO_KILL_SWITCH"        value="RADIO_AUX1"/>
+            <define name="RADIO_FMODE"              value="RADIO_AUX2"/>
+            <define name="AP_MODE_SWITCH"           value="RADIO_AUX3"/>
+            <define name="RADIO_CONTROL_THRUST_X"   value="RADIO_AUX4"/>
+            <!-- EKF EKF2  configure inputs -->
+            <define name="INS_EKF2_MAG_ID"          value="MAG_RM3100_SENDER_ID"/>
+            <define name="INS_EKF2_IMU_ID"          value="IMU_CUBE1_ID"/> 
+            <define name="INS_EKF2_GYRO_ID"         value="IMU_CUBE1_ID"/>
+            <define name="INS_EKF2_ACCEL_ID"        value="IMU_CUBE1_ID"/>
+            <!--Only send gyro and accel that is being used-->
+            <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
+            <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE1_ID"/>
+
+            <!-- Range sensor connected to supercan -->
+            <module name="range_sensor_uavcan"/>
+            
+            <!-- Log in high speed (Remove for outdoor flights) -->
+            <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
+            <define name="I2C2_CLOCK_SPEED" value="100000"/>
+            <define name="INS_EXT_VISION_ROTATION"  value="TRUE"/><!--AP only-->
+        </target>
+
+        <target name="nps" board="pc">
+            <configure name="PERIODIC_FREQUENCY"   value="500"/>
+            <configure name="NAVIGATION_FREQUENCY" value="500"/>
+            <module name="radio_control" type="datalink"/>
+            <module name="fdm" type="jsbsim"/>
+
+            <!--Not dealing with these in the simulation-->
+            <define name="RADIO_TH_HOLD"          value="0"/> <!-- Throttle hold in command laws -->
+            <define name="RADIO_FMODE"            value="0"/> <!-- Throttle curve select -->
+            <define name="AP_MODE_SWITCH"         value="RADIO_AUX7"/> <!-- Switch between AP controllers -->
+            <define name="RADIO_KILL_SWITCH"      value="RADIO_AUX1"/> <!-- Kill switch -->
+            <define name="RADIO_CONTROL_THRUST_X" value="0"/>
+        </target>
+
+       <!-- Datalink -->
+        <module name="telemetry" type="transparent">
+           <configure name="MODEM_BAUD" value="B460800"/> <!-- herelink-->
+            <!-- <configure VALUE="B57600" name="MODEM_BAUD"/> xBee -->
+        </module>
+
+        <!-- Sensors -->     
+         <module name="mag" type="rm3100">
+            <define     name="MODULE_RM3100_UPDATE_AHRS"    value="TRUE"/>
+            <configure  name="MAG_RM3100_I2C_DEV"           value="I2C2"/>
+        </module> 
+        <module name="airspeed" type="ms45xx_i2c">
+            <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="1.90"/>
+            <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
+            <define name="MS45XX_LOWPASS_TAU"           value="0.25"/>
+            <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
+            </module>       
+        <module name="airspeed" type="uavcan">
+            <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER"   value="TRUE" />
+            <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD"   value="0.1" />
+            <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
+            <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
+            </module>           
+        <module name="air_data"/>              
+        <module name="gps" type="datalink"/>  
+
+        <!-- IMU / INS -->  
+        <module name="imu" type="cube"/>  
+        <module name="ins" type="ekf2">
+         <define name="INS_EKF2_OPTITRACK"      value="TRUE"/>
+        </module>  
+
+        <!-- Actuators on dual CAN bus -->
+        <module name="actuators" type="uavcan">
+            <configure value="TRUE" name="UAVCAN_USE_CAN1"/>
+            <configure value="TRUE" name="UAVCAN_USE_CAN2"/>
+        </module>
+ 
+        <!-- Actuators on PWM -->       
+        <module name="actuators" type="pwm" >
+            <define name="SERVO_HZ" value="400"/>
+        </module>
+
+        <!-- Control -->      
+        <module name="stabilization" type="oneloop" >
+            <configure name="INDI_NUM_ACT" value="9"/>
+        </module>
+        
+        <module name="guidance" type="oneloop"/>
+        <module name="nav" type="hybrid">
+            <define name="NAV_HYBRID_MAX_AIRSPEED"      value="19.0f"/>
+            <define name="NAV_HYBRID_SPEED_MARGIN"      value="0.0f"/>
+            <define name="NAV_HYBRID_MAX_ACCELERATION"  value="4.0f"/>
+            <define name="NAV_HYBRID_SOFT_ACCELERATION" value="2.0f"/>
+            <define name="NAV_HYBRID_MAX_DECELERATION"  value="1.0f"/>
+            <define name="GUIDANCE_H_USE_REF"           value="FALSE"/>
+            <define name="NAV_HYBRID_EXT_VISION_SETPOINT_MODE" value="TRUE"/>
+            <define name="NAV_HYBRID_LIMIT_CIRCLE_RADIUS" value="TRUE"/>
+        </module>
+
+        <module name="oneloop" type="andi">
+            <configure name="ANDI_OUTPUTS" value="6"/>
+        </module>
+
+        <module name="eff_scheduling_rotwing_V2"/> 
+
+        <module name="wls">
+            <define name="WLS_N_U_MAX" value = "11"/>
+            <define name="WLS_N_V_MAX" value = "6"/>
+        </module>
+
+        <module name="ground_detect"/>
+        <module name="rotwing_state"/>
+        <module name="agl_dist"/>
+    </firmware>
+
+    <!-- Can bus 1 actuators -->
+    <servos driver="Uavcan1">
+        <servo no="0" name="MOTOR_FRONT"    min="0"     neutral="600"   max="7372"/>
+        <servo no="1" name="MOTOR_RIGHT"    min="0"     neutral="600"   max="7372"/>
+        <servo no="2" name="MOTOR_BACK"     min="0"     neutral="600"   max="7372"/>
+        <servo no="3" name="MOTOR_LEFT"     min="0"     neutral="600"   max="7372"/>
+        <servo no="4" name="MOTOR_PUSH"     min="0"     neutral="200"   max="7372"/>
+        <servo no="5" name="ROTATION_MECH"   min="-1671" neutral="188"  max="2048"/>
+    </servos>
+
+    <!-- CAN BUS 1 command outputs-->
+    <servos driver="Uavcan1Cmd">
+        <servo no="6"  name="SERVO_ELEVATOR"  min="5400"  neutral="5400" max="-4349"/>
+        <servo no="7"  name="SERVO_RUDDER"    min="-4750" neutral="0"    max="4750"/>
+    </servos>
+    
+    <!-- Can bus 2 actuators -->
+    <servos driver="Uavcan2">
+        <servo no="0" name="BMOTOR_FRONT" min="0" neutral="600" max="7372"/>
+        <servo no="1" name="BMOTOR_RIGHT" min="0" neutral="600" max="7372"/>
+        <servo no="2" name="BMOTOR_BACK"  min="0" neutral="600" max="7372"/>
+        <servo no="3" name="BMOTOR_LEFT"  min="0" neutral="600" max="7372"/>
+        <servo no="5" name="BROTATION_MECH" min="-1671" neutral="188"  max="2048"/>
+    </servos>
+
+    <!-- CAN BUS 2 command outputs-->
+    <servos driver="Uavcan2Cmd">
+        <servo no="8"  name="AIL_LEFT"   min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
+        <servo no="9"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
+        <servo no="10" name="FLAP_RIGHT" min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
+        <servo no="11" name="AIL_RIGHT"  min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
+    </servos>
+
+    <commands>
+        <!-- Real actuators commands -->
+        <axis name="MOTOR_FRONT"  group ="REAL" failsafe_value="0"/> <!-- IDX 0--> 
+        <axis name="MOTOR_RIGHT"  group ="REAL" failsafe_value="0"/> <!-- IDX 1-->
+        <axis name="MOTOR_BACK"   group ="REAL" failsafe_value="0"/> <!-- IDX 2-->
+        <axis name="MOTOR_LEFT"   group ="REAL" failsafe_value="0"/> <!-- IDX 3-->
+        <axis name="MOTOR_PUSHER" group ="REAL" failsafe_value="0"/> <!-- IDX 4-->
+        <axis name="ELEVATOR"     group ="REAL" failsafe_value="0"/> <!-- IDX 5-->
+        <axis name="RUDDER"       group ="REAL" failsafe_value="0"/> <!-- IDX 6-->
+        <axis name="AILERONS"     group ="REAL" failsafe_value="0"/> <!-- IDX 7-->
+        <axis name="FLAPS"        group ="REAL" failsafe_value="0"/> <!-- IDX 8-->
+        <!-- Virtual actuators commands -->
+        <axis name="ROLL"         group ="VIRTUAL" failsafe_value="0"/> <!-- ID X 9-->
+        <axis name="PITCH"        group ="VIRTUAL" failsafe_value="0"/> <!-- IDX 10-->
+        <!-- Passive actuators commands -->
+        <axis name="ROT_MECH"     group ="PASSIVE" failsafe_value="0"/> <!-- IDX 11-->
+        <!-- Legacy commands-->
+        <axis name="YAW"          group ="OTHER" failsafe_value="0"/>
+        <axis name="THRUST"       group ="OTHER" failsafe_value="0"/>
+    </commands>
+
+    <command_laws>
+        <let VAR="th_hold" VALUE="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
+        <let VAR="servo_hold" VALUE="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
+        <let VAR="hover_off" VALUE="Or($th_hold, !rotwing_state.hover_motors_enabled)"/>
+        <let var="ail_limit_hit" value="LessThan(rotwing_state.meas_skew_angle_deg, 20)"/>
+        <let var="flp_limit_hit" value="LessThan(rotwing_state.meas_skew_angle_deg, 50)"/>
+
+        <set VALUE="($hover_off? -9600 : commands[COMMAND_MOTOR_FRONT])"                                                                 SERVO="MOTOR_FRONT"/>
+        <set VALUE="($hover_off? -9600 : commands[COMMAND_MOTOR_RIGHT])"                                                                 SERVO="MOTOR_RIGHT"/>
+        <set VALUE="($hover_off? -9600 : commands[COMMAND_MOTOR_BACK] )"                                                                 SERVO="MOTOR_BACK"/>
+        <set VALUE="($hover_off? -9600 : commands[COMMAND_MOTOR_LEFT] )"                                                                 SERVO="MOTOR_LEFT"/>
+        <set VALUE="($th_hold? -9600 : commands[COMMAND_MOTOR_PUSHER])"                                                                  SERVO="MOTOR_PUSH"/> 
+        <set VALUE="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : commands[COMMAND_ELEVATOR]))"  SERVO="SERVO_ELEVATOR"/>  
+        <set VALUE="($servo_hold? RadioControlValues(RADIO_YAW) : commands[COMMAND_RUDDER])"                                             SERVO="SERVO_RUDDER"/>
+        <set VALUE="$ail_limit_hit? 0:($servo_hold? RadioControlValues(RADIO_ROLL) : commands[COMMAND_AILERONS])"                        SERVO="AIL_LEFT"/>
+        <set VALUE="$ail_limit_hit? 0:($servo_hold? RadioControlValues(RADIO_ROLL) : commands[COMMAND_AILERONS])"                        SERVO="AIL_RIGHT"/>
+        <set VALUE="$flp_limit_hit? 0:($servo_hold? RadioControlValues(RADIO_ROLL) : commands[COMMAND_FLAPS])"                           SERVO="FLAP_LEFT"/>
+        <set VALUE="$flp_limit_hit? 0:($servo_hold? RadioControlValues(RADIO_ROLL) : commands[COMMAND_FLAPS])"                           SERVO="FLAP_RIGHT"/>
+        <set VALUE="commands[COMMAND_ROT_MECH]"                                                                                          SERVO="ROTATION_MECH"/>
+
+        <!-- Backup commands -->
+        <set VALUE="($hover_off? -9600 : commands[COMMAND_MOTOR_FRONT])"                                                                 SERVO="BMOTOR_FRONT"/>
+        <set VALUE="($hover_off? -9600 : commands[COMMAND_MOTOR_RIGHT])"                                                                 SERVO="BMOTOR_RIGHT"/>
+        <set VALUE="($hover_off? -9600 : commands[COMMAND_MOTOR_BACK] )"                                                                 SERVO="BMOTOR_BACK"/>
+        <set VALUE="($hover_off? -9600 : commands[COMMAND_MOTOR_LEFT] )"                                                                 SERVO="BMOTOR_LEFT"/>
+        <set VALUE="commands[COMMAND_ROT_MECH]"                                                                                          SERVO="BROTATION_MECH"/>
+    </command_laws>
+    <section name="ROTWING" prefix="ROTWING_">
+        <define name="FW_MIN_AIRSPEED"          value="17.0"/>  <!-- Forward stall airspeed + margin (motors off) -->
+        <define name="FW_QUAD_MIN_AIRSPEED"     value="15.0"/>  <!-- Forward stall airspeed + margin with quad motors on -->
+        <define name="FW_CRUISE_AIRSPEED"       value="19.0"/>  <!-- Default cruise airspeed -->
+        <define name="FW_MAX_AIRSPEED"          value="22.0"/>  <!-- Maximum forward airspeed -->
+        <define name="FW_MAX_DECELERATION"      value="0.75"/>  <!-- Maximum horizontal deceleration in fixed wing mode -->
+        <define name="QUAD_NOPUSH_AIRSPEED"     value="5.0"/>   <!-- Maximum quadrotor without pusher motor airspeed -->
+        <define name="QUAD_MAX_AIRSPEED"        value="12.0"/>  <!-- Maximum quadrotor airspeed (with pusher motor)-->
+        <define name="QUAD_MAX_DECELERATION"    value="0.75"/>  <!-- Maximum horizontal deceleration in quad mode -->
+        <define name="SKEW_UP_AIRSPEED"         value="10.0"/>  <!-- Airspeed where the skewing starts when going up in airspeed -->
+        <define name="SKEW_DOWN_AIRSPEED"       value="8.0"/>   <!-- Airspeed where the skewing starts when going down in airspeed -->
+
+        <define name="SKEW_REF_MODEL"           value="TRUE"/>  <!-- Enable second order reference model for the skewing command -->
+        <define name="SKEW_REF_MODEL_P_GAIN"    value="0.001"/> <!-- Skewing reference model proportional gain -->
+        <define name="SKEW_REF_MODEL_D_GAIN"    value="0.003"/> <!-- Skewing reference model differential gain -->
+        <define name="SKEW_REF_MODEL_MAX_SPEED" value="20"/>    <!-- Maximum rotational skewing speed bound for the reference model -->
+        <define name="FW_SKEW_ANGLE"            value="85"/> 
+    </section>
+    <section NAME="MISC">
+        <!-- Voltage and current measurements -->
+        <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
+        <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
+        <!-- Others -->
+        <define name="NAV_CLIMB_VSPEED"                     value="2.0" />
+        <define name="NAV_DESCEND_VSPEED"                   value="-1.0"/>
+        <define name="NAV_CARROT_DIST"                      value="15"/>
+        <define name="NAV_LINE_DIST"                        value="100"/>
+        <define name="CLOSE_TO_WAYPOINT"                    value="15"/>
+        <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST"       value="300"/>
+        <define name="ARRIVED_AT_WAYPOINT"                  value="50.0"/> 
+        <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/>
+        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="TRUE"/>
+        <define name="USE_AIRSPEED"                         value="TRUE"/>
+        <define name="STABILIZATION_ATTITUDE_SP_MAX_PHI"    value="45." unit="deg"  /> 
+        <define name="STABILIZATION_ATTITUDE_SP_MAX_THETA"  value="45." unit="deg"  />
+        <define name="STABILIZATION_ATTITUDE_SP_MAX_R"      value="90." unit="deg/s"/>
+        <define name="STABILIZATION_ATTITUDE_DEADBAND_R"    value="200"             />
+        <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/> <!-- cyfoam 0.32-->
+   </section>
+    <section name="GROUND_DETECT">
+        <define name="THRESHOLD_GROUND_DETECT"              value="40"/>
+        <define name="USE_GROUND_DETECT_INDI_THRUST"        value="FALSE"/>
+        <define name="USE_GROUND_DETECT_AGL_DIST"           value="TRUE"/>
+        <define name="GROUND_DETECT_AGL_MIN_VALUE"          value="0.24"/>
+        <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.20"/>
+        <define name="AGL_DIST_MAX_DISTANCE_CHECK"          value="0.25"/>
+        <define name="AGL_DIST_FILTER"                      value="0.07"/>
+    </section>
+
+    <section name="IMU" prefix="IMU_">
+        <define name="MAG_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="5"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <field name="rotation" value="true"/>
+                </field>
+                <field name="neutral" value="1757,3096,1119" type="int[]"/>
+                <field name="scale" value="{{10462,24574,6961},{18175,43831,12532}}"/>
+                <field name="body_to_sensor" value="{{0,16384,0,16384,0,0,0,0,-16384}}"/>
+            </field>
+        </define>
+
+        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-19,0,28}, .scale={{1537,43219,6232},{157,4410,641}}, .filter_sample_freq=1127, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-1,2,33}, .scale={{21914,8531,5489},{4477,1738,1120}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-47,0,3}, .scale={{17288,29444,25808},{3531,6031,5293}}}}"/>
+        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1127, .filter_freq=30}}"/>
+
+        <!-- Define axis in hover frame -->
+        <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+        <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+        <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+    </section>
+    <checklist>
+        <item name="pic" type="text">Enter the PIC</item>
+        <item name="pac" type="text">Enter the PAC</item>
+        <item name="gcs" type="text">Enter the GCS op</item>
+        <item name="goal" type="text">Goal of the flight</item>
+        <item name="basic law">Location, airspace and weather</item>
+        <item name="RC Battery">Check the RC battery</item>
+        <item name="tail connection">Check tail connection</item>
+        <item name="wing tape">Check wings taped and secured</item>
+        <item name="inspection">Inspect airframe condition</item>
+        <item name="attitude">Check attitude and heading</item>
+        <item name="airspeed">Airspeed sensor calibration</item>
+        <item name="takeoff location">Put UAV on take-off location</item>
+        <item name="flight plan">Check flight plan</item>
+        <item name="flight block">Switch to correct flight block</item>
+        <item name="drone tag">Switch on drone tag</item>
+        <item name="camera">Switch on camera</item>
+        <item name="announce">Announce flight to other airspace users</item>
+    </checklist>
+
+    <section PREFIX="ONELOOP_ANDI_" NAME="ONELOOP_ANDI">
+        <define name  = "POLES_POS_OMEGA_N"         value = "2.2"/>
+        <define name  = "POLES_ALT_OMEGA_N"         value = "2.2"/>    
+        <define name  = "HEADING_MANUAL"            value = "TRUE"/>
+        <define name  = "YAW_STICK_IN_AUTO"         value = "TRUE"/>
+        <define name  = "MAX_R"                     value = "120.0" unit="deg/s"/>
+        <define name  = "FILT_CUTOFF"               value = "3.0" />
+        <define name  = "FILT_CUTOFF_ACC"           value = "3.0"/>
+        <define name  = "FILT_CUTOFF_VEL"           value = "5.0"/>
+        <define name  = "FILT_CUTOFF_POS"           value = "10.0"/>
+        <define name  = "ESTIMATION_FILT_CUTOFF"    value = "3.2" />
+        <define name  = "FILT_CUTOFF_P"             value = "3.0"/>
+        <define name  = "FILT_CUTOFF_Q"             value = "3.0"/>
+        <define name  = "FILT_CUTOFF_R"             value = "3.0" />
+        <define name  = "FILT_CUTOFF_RDOT"          value = "0.5" />
+        <define name  = "FILTER_YAW_RATE"           value = "TRUE"/>
+        <!--                                                 |   MF   |   MR   |    MB   |    ML   |   MP   |   ELE  |    RUD  |    AIL  |    FLA  |   PHI  |  THETA | -->
+        <define name  = "ACT_DYN"                   value = "{   22.0f,   22.0f,    22.0f,    22.0f,   30.0f,  50.00f,   50.00f,   50.00f,   50.00f,   0.00f,  0.00f }" />
+        <define name  = "ACT_IS_SERVO"              value = "{       0,       0,        0,        0,       0,       1,        1,        1,        1,       0,      0 }" />
+        <define name  = "ACT_MAX"                   value = "{ 9600.0f, 9600.0f,  9600.0f,  9600.0f, 9600.0f, 9600.0f,  9600.0f,  9600.0f,  9600.0f,  M_PI_4,  M_PI_6}"/>
+        <define name  = "ACT_MIN"                   value = "{    0.0f,    0.0f,     0.0f,     0.0f,    0.0f,    0.0f, -9600.0f, -9600.0f, -9600.0f, -M_PI_4, -M_PI_6}"/>
+        <define name  = "ACT_MAX_NORM"              value = "{    1.0f,    1.0f,     1.0f,     1.0f,    1.0f,    1.0f,     1.0f,     1.0f,     1.0f,    1.0f,    1.0f}"/>
+        <define name  = "ACT_MIN_NORM"              value = "{    0.0f,    0.0f,     0.0f,     0.0f,    0.0f,    0.0f,    -1.0f,    -1.0f,    -1.0f,   -1.0f,   -1.0f}"/>
+        <define name  = "WU"                        value = "{   0.75f,   0.75f,    0.75f,    0.75f,   1.00f,    6.0f,     6.0f,     6.0f,     6.0f,   1.20f,   1.20f}"/>
+        <define name  = "U_PREF"                    value = "{   0.00f,   0.00f,    0.00f,    0.00f,   0.00f, 8000.0f,    0.00f,    0.00f,    0.00f,   0.00f,   0.00f}"/>
+        <define name  = "WV"                        value = "{  4.0f,  4.0f,   4.0f,  8.0f,  8.0f,  1.00f}"/>   
+    </section>
+
+    <section name="CTRL_EFF_SHED" prefix="ROTWING_EFF_SCHED_">
+        <!--                                          | MF   |   MR   |   MB   |   ML   |   MP   |   ELE  |   RUD  |   AIL  |   FLA  |   PHI  |   THETA | -->
+        <!-- <define name  = "dFdu"               value = "{-0.50f,  -0.50f,  -0.50f,  -0.50f,   0.55f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f }"/>  
+        <define name  = "dMzdu"              value = "{-0.40f,   0.40f,  -0.40f,   0.40f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f }"/>
+        <define name  = "dMzdu_G2"           value = "{-0.02f,   0.02f,  -0.02f,   0.02f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f }"/>
+        <define name  = "l"                  value = "{ 0.423f,  0.408f,   0.423f, 0.408f,  0.00f,   1.00f,   1.00f,   1.00f,   1.00f,   0.00f,   0.00f }"/> -->
+        <define name="IXX_BODY"              value="0.04780"/>
+        <define name="IYY_BODY"              value="0.7546"/>
+        <define name="IZZ"                   value="0.9752"/>
+        <define name="IXX_WING"              value="0.08099"/>
+        <define name="IYY_WING"              value="0.1949"/>
+        <define name="M"                     value="6.67"/>
+    </section>
+
+    <section name="EKF2" prefix="INS_EKF2_">
+        <define name="GPS_YAW_OFFSET" value="0"/>
+        <define name="GPS_ANTENNA_DISTANCE" value="1.02"/>
+
+        <define name="IMU_POS_X" value="0.321"/>
+        <define name="IMU_POS_Y" value="0.0"/>
+        <define name="IMU_POS_Z" value="0.0"/>
+
+        <!-- The main GPS is mounted 0.55m behind of c.g.-->
+        <define name="GPS_POS_X" value="-0.55"/>
+        <define name="GPS_POS_Y" value="0.0"/>
+        <define name="GPS_POS_Z" value="0.0"/>
+    </section>
+
+    <section name="AUTOPILOT">
+        <define name="MODE_MANUAL"      value="AP_MODE_ATTITUDE_DIRECT"/>
+        <define name="MODE_AUTO1"       value="AP_MODE_MODULE"/>
+        <define name="MODE_AUTO2"       value="AP_MODE_NAV"/>
+        <define name="MODE_STARTUP"     value="AP_MODE_ATTITUDE_DIRECT"/>
+        <!-- <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="TRUE"/> -->
+    </section>
+
+    <section name="BAT">
+        <define name="CATASTROPHIC_BAT_LEVEL"   value="18.0" unit="V"/>
+        <define name="CRITIC_BAT_LEVEL"         value="18.6" unit="V"/>
+        <define name="LOW_BAT_LEVEL"            value="19.2" unit="V"/>
+        <define name="MAX_BAT_LEVEL"            value="25.2" unit="V"/>
+        <define name="TAKEOFF_BAT_LEVEL"        value="24.2" unit="V"/>
+        <define name="BAT_NB_CELLS"             value="6"/>
+    </section>
+
+    <section name="SIMULATOR" prefix="NPS_">
+        <define name="JSBSIM_MODEL"    value="rotwingv3c_SI" type="string"/>
+        <define name="SENSORS_PARAMS"  value="nps_sensors_params_default.h" type="string"/>
+        <define name="USE_COMMANDS"    value="TRUE"/>
+        <define name="JS_AXIS_MODE"    value="4"/>
+    </section>
+</airframe>

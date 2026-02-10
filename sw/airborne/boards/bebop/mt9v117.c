@@ -44,21 +44,34 @@
 #endif
 
 
+#ifndef MS9v117_CROP_WIDTH
+#define MS9v117_CROP_WIDTH 240
+#endif
+
+#ifndef MS9v117_CROP_HEIGHT
+#define MS9v117_CROP_HEIGHT 240
+#endif
+
+#if MS9v117_CROP_WIDTH > 320 || MS9v117_CROP_HEIGHT > 240
+#error "MT9V117 crop size too large: set up the sensor for higher resolution"
+#endif
+
+
 /* Camera structure */
 struct video_config_t bottom_camera = {
   .output_size = {
-    .w = 240,
-    .h = 240
+    .w = MS9v117_CROP_WIDTH,
+    .h = MS9v117_CROP_HEIGHT
   },
   .sensor_size = {
     .w = 320,
     .h = 240,
   },
   .crop = {
-    .x = 40,
+    .x = ((320 - MS9v117_CROP_WIDTH) / 2),
     .y = 0,
-    .w = 240,
-    .h = 240
+    .w = MS9v117_CROP_WIDTH,
+    .h = MS9v117_CROP_HEIGHT
   },
   .dev_name = "/dev/video0",
   .subdev_name = "/dev/v4l-subdev0",
@@ -231,7 +244,7 @@ static void write_reg(struct mt9v117_t *mt, uint16_t addr, uint32_t val, uint16_
   }
 
   // Transmit the buffer
-  i2c_blocking_transmit(mt->i2c_periph, &mt->i2c_trans, MT9V117_ADDRESS, len + 2);
+  i2c_blocking_transmit(mt->i2c_periph, &mt->i2c_trans, MT9V117_ADDRESS, len + 2, 0.5);
 }
 
 /**
@@ -244,7 +257,7 @@ static uint32_t read_reg(struct mt9v117_t *mt, uint16_t addr, uint16_t len)
   mt->i2c_trans.buf[1] = addr & 0xFF;
 
   // Transmit the buffer and receive back
-  i2c_blocking_transceive(mt->i2c_periph, &mt->i2c_trans, MT9V117_ADDRESS, 2, len);
+  i2c_blocking_transceive(mt->i2c_periph, &mt->i2c_trans, MT9V117_ADDRESS, 2, len, 0.5);
 
   /* Fix sigdness */
   for (uint8_t i = 0; i < len; i++) {
@@ -302,7 +315,7 @@ static inline void mt9v117_write_patch(struct mt9v117_t *mt)
     }
 
     // Transmit the buffer
-    i2c_blocking_transmit(mt->i2c_periph, &mt->i2c_trans, mt->i2c_trans.slave_addr, mt9v117_patch_lines[i].len);
+    i2c_blocking_transmit(mt->i2c_periph, &mt->i2c_trans, mt->i2c_trans.slave_addr, mt9v117_patch_lines[i].len, 0.5);
   }
 
   write_reg(mt, MT9V117_LOGICAL_ADDRESS_ACCESS, 0x0000, 2);

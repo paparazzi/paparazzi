@@ -26,6 +26,7 @@
  */
 
 #include "modules/core/sys_mon_rtos.h"
+#include "mcu_periph/sys_time_arch.h"
 #include <ch.h>
 
 #if !CH_DBG_STATISTICS

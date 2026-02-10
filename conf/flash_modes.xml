@@ -34,6 +34,8 @@
       <board name="nucleo.*"/>
       <board name="matek_.*"/>
       <board name="holybro_.*"/>
+      <board name="tmotor_aiof7"/> 
+      <board name="betafpv_aiof7"/>
     </boards>
   </mode>
   <mode name="USB CubeProgrammer">
@@ -50,6 +52,8 @@
       <board name="nucleo.*"/>
       <board name="matek_.*"/>
       <board name="holybro_.*"/>
+      <board name="tmotor_aiof7"/>
+      <board name="betafpv_aiof7"/>
     </boards>
   </mode>
   <mode name="STLink (SWD)">
@@ -91,6 +95,8 @@
       <board name="matek_.*"/>
       <board name="holybro_.*"/>
       <board name="cube_.*"/>
+      <board name="betafpv_aiof7"/>
+      <board name="tmotor_aiof7"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD_NOPWR)">

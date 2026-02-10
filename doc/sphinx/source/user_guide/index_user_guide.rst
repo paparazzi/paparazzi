@@ -9,10 +9,12 @@ Welcome to the second level of the Paparazzi UAV user guide! It will explain how
 Start conquering the wolrd, by making incredible :doc:`flight_plans`!
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 1
     
     more_on_paparazzi_center
+    airframe
     flight_plans
+    mission_mode
     communication
     radio
     gcs_graphics

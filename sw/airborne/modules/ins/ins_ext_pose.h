@@ -32,15 +32,48 @@ Section 5.3: Non-additive noise formulation and equations
 #ifndef INS_EXT_POSE_H
 #define INS_EXT_POSE_H
 
-#define EKF_NUM_STATES 15
-#define EKF_NUM_INPUTS 6
-#define EKF_NUM_OUTPUTS 6
-
 #include "std.h"
-#include "math/pprz_algebra_float.h"
-#include "state.h"
+#include "generated/airframe.h"
 #include <stdio.h>
 
+enum ins_ext_pose_state {
+  EKF_X_POS_X,
+  EKF_X_POS_Y,
+  EKF_X_POS_Z,
+  EKF_X_VEL_X,
+  EKF_X_VEL_Y,
+  EKF_X_VEL_Z,
+  EKF_X_PHI,
+  EKF_X_THETA,
+  EKF_X_PSI,
+  EKF_X_A_BIAS_X,
+  EKF_X_A_BIAS_Y,
+  EKF_X_A_BIAS_Z,
+  EKF_X_G_BIAS_P,
+  EKF_X_G_BIAS_Q,
+  EKF_X_G_BIAS_R,
+  EKF_NUM_STATES
+};
+
+enum ins_ext_pose_inputs {
+  EKF_U_ACC_X,
+  EKF_U_ACC_Y,
+  EKF_U_ACC_Z,
+  EKF_U_GYRO_P,
+  EKF_U_GYRO_Q,
+  EKF_U_GYRO_R,
+  EKF_NUM_INPUTS
+};
+
+enum ins_ext_pose_outputs {
+  EKF_Z_POS_X,
+  EKF_Z_POS_Y,
+  EKF_Z_POS_Z,
+  EKF_Z_PHI,
+  EKF_Z_THETA,
+  EKF_Z_PSI,
+  EKF_NUM_OUTPUTS
+};
 
 extern float ekf_X[EKF_NUM_STATES];
 
@@ -54,7 +87,7 @@ extern struct FloatQuat ins_ext_vision_rot;
 #endif
 
 // Logging
-extern void ins_ext_pos_log_header(FILE *file);
-extern void ins_ext_pos_log_data(FILE *file);
+extern void ins_ext_pose_log_header(FILE *file);
+extern void ins_ext_pose_log_data(FILE *file);
 
 #endif

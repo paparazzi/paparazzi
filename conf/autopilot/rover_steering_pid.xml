@@ -1,0 +1,129 @@
+<!DOCTYPE autopilot SYSTEM "autopilot.dtd">
+
+<autopilot name="Steering Rover Autopilot">
+
+  <state_machine name="ap" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true" settings_handler="autopilot_generated|SetModeHandler">
+
+    <modules>
+      <module name="nav" type="rover_base"/>
+      <module name="guidance" type="rover_steering"/>
+    </modules>
+
+    <includes>
+      <include name="generated/airframe.h"/>
+      <include name="autopilot.h"/>
+      <include name="autopilot_rc_helpers.h"/>
+      <include name="modules/gps/gps.h"/>
+      <include name="modules/actuators/actuators.h"/>
+      <include name="modules/radio_control/radio_control.h"/>
+    </includes>
+
+    <settings>
+      <dl_setting var="autopilot.kill_throttle" min="0" step="1" max="1" module="autopilot" values="Resurrect|Kill" handler="KillThrottle"/>
+    </settings>
+
+    <mode_selection>
+      <mode_select cond="RCMode0()" mode="MODE_MANUAL"/>
+      <mode_select cond="RCMode1()" mode="MODE_AUTO1"/>
+      <mode_select cond="RCMode2()" mode="MODE_AUTO2" exception="HOME"/>
+    </mode_selection>
+
+    <exceptions>
+      <exception cond="nav.too_far_from_home" deroute="HOME"/>
+      <exception cond="kill_switch_is_on()"   deroute="KILL"/>
+    </exceptions>
+
+    <mode name="DIRECT" shortname="MANUAL">
+      <control freq="NAVIGATION_FREQUENCY"> <!-- Only for display -->
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
+      </control>
+      <exception cond="RadioControlIsLost()" deroute="KILL"/>
+    </mode>
+
+    <!-- Cruiser: Speed ctrl (from state speed on enter) + Heading from RC -->
+    <mode name="CRUISER" shortname="AUTO1">
+      <on_enter>
+        <call fun="guidance_control.cmd.speed = stateGetHorizontalSpeedNorm_f()"/>
+      </on_enter>
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call fun="rover_guidance_steering_speed_ctrl()"/>
+        <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
+
+        <call fun="command_set(COMMAND_THROTTLE, GetCmdFromThrottle(guidance_control.throttle))"/>
+        <call fun="autopilot.throttle = commands[COMMAND_THROTTLE]"/>
+      </control>
+      <exception cond="RadioControlIsLost()" deroute="KILL"/>
+    </mode>
+    
+    <mode name="NAV">
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call fun="rover_guidance_steering_periodic()"/>
+      </control>
+      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="KILL"/>
+    </mode>
+    
+    <mode name="HOME">
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="nav_home()"/>
+      </control>
+      <control>
+        <call fun="rover_guidance_steering_periodic()"/>
+      </control>
+      <exception cond="GpsIsLost()" deroute="KILL"/>
+    </mode>
+
+    <mode name="KILL">
+      <select cond="kill_switch_is_on()"/>
+      <on_enter>
+        <call fun="autopilot_set_in_flight(false)"/>
+        <call fun="autopilot_set_motors_on(false)"/>
+      </on_enter>
+      <control>
+        <call fun="rover_guidance_steering_kill()"/>
+        <call fun="SetCommands(commands_failsafe)"/>
+        <call fun="autopilot.throttle = commands[COMMAND_THROTTLE]"/>
+      </control>
+    </mode>
+
+  </state_machine>
+
+  <state_machine name="guidance" freq="PERIODIC_FREQUENCY">
+
+    <includes>
+      <include name="navigation.h"/>
+    </includes>
+
+    <mode name="NAV_DIRECT">
+      <select cond="nav.mode == NAV_MODE_MANUAL"/>
+      <control>
+        <!-- copy manual nav controls to commands -->
+        <call fun="command_set(COMMAND_THROTTLE, TRIM_PPRZ(nav.speed * MAX_PPRZ))"/>
+        <call fun="command_set(COMMAND_STEERING, TRIM_PPRZ(nav.turn * MAX_PPRZ))"/>
+        <call fun="autopilot.throttle = commands[COMMAND_THROTTLE]"/>
+      </control>
+    </mode>
+
+    <mode name="NAV_AUTO">
+      <select cond="nav.mode != NAV_MODE_MANUAL"/>
+      <control>
+        <call fun="rover_guidance_steering_setpoints(nav.carrot, &nav.heading)"/>
+        <call fun="rover_guidance_steering_speed_ctrl()"/>
+        <call fun="rover_guidance_steering_heading_ctrl(guidance_control.omega_sp)"/>
+        <call fun="command_set(COMMAND_THROTTLE, TRIM_UPPRZ(GetCmdFromThrottle(guidance_control.throttle)))"/> <!-- no reverse gear in nav -->
+        <call fun="command_set(COMMAND_STEERING, GetCmdFromDelta(guidance_control.cmd.delta))"/>
+        <call fun="autopilot.throttle = commands[COMMAND_THROTTLE]"/>
+      </control>
+    </mode>
+
+  </state_machine>
+
+</autopilot>

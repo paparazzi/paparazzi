@@ -52,7 +52,7 @@ PRINT_CONFIG_VAR(ASPIRIN_2_SPI_DEV)
 #define ASPIRIN_2_LOWPASS_FILTER MPU60X0_DLPF_42HZ
 #define ASPIRIN_2_SMPLRT_DIV 9
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
-#elif PERIODIC_FREQUENCY == 512
+#elif (PERIODIC_FREQUENCY == 500) || (PERIODIC_FREQUENCY == 512)
 /* Accelerometer: Bandwidth 260Hz, Delay 0ms
  * Gyroscope: Bandwidth 256Hz, Delay 0.98ms sampling 8kHz
  */
@@ -108,8 +108,8 @@ void imu_aspirin2_init(void)
   imu_aspirin2.mpu.config.accel_range = ASPIRIN_2_ACCEL_RANGE;
 
   // Set the default scaling
-  imu_set_defaults_gyro(IMU_ASPIRIN2_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[ASPIRIN_2_GYRO_RANGE]);
-  imu_set_defaults_accel(IMU_ASPIRIN2_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[ASPIRIN_2_ACCEL_RANGE]);
+  imu_set_defaults_gyro(IMU_ASPIRIN2_ID, NULL, NULL, &MPU60X0_GYRO_SENS_F[ASPIRIN_2_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_ASPIRIN2_ID, NULL, NULL, &MPU60X0_ACCEL_SENS_F[ASPIRIN_2_ACCEL_RANGE]);
 
   /* read 15 bytes for status, accel, gyro + 6 bytes for mag slave */
   imu_aspirin2.mpu.config.nb_bytes = 21;

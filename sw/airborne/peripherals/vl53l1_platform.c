@@ -47,7 +47,7 @@ int8_t VL53L1_WriteMulti(VL53L1_DEV dev, uint16_t index, uint8_t *pdata, uint32_
   dev->i2c_trans.buf[1] = (index & 0x00FF);
   memcpy((uint8_t *) dev->i2c_trans.buf + 2, pdata, count);
   return !i2c_blocking_transmit(dev->i2c_p, &dev->i2c_trans,
-                                dev->i2c_trans.slave_addr, 2 + count);
+                                dev->i2c_trans.slave_addr, 2 + count, 1.f);
 }
 
 int8_t VL53L1_ReadMulti(VL53L1_DEV dev, uint16_t index, uint8_t *pdata, uint32_t count)
@@ -56,7 +56,7 @@ int8_t VL53L1_ReadMulti(VL53L1_DEV dev, uint16_t index, uint8_t *pdata, uint32_t
   dev->i2c_trans.buf[0] = (index & 0xFF00) >> 8; // MSB first
   dev->i2c_trans.buf[1] = (index & 0x00FF);
   int8_t ret = !i2c_blocking_transceive(dev->i2c_p, &dev->i2c_trans,
-                                        dev->i2c_trans.slave_addr, 2, count);
+                                        dev->i2c_trans.slave_addr, 2, count, 0.5);
   memcpy(pdata, (uint8_t *) dev->i2c_trans.buf, count);
   return ret;
 }

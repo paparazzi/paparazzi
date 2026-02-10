@@ -21,7 +21,7 @@
 
 /** @file actuators_sbus.h
  *  Sbus actuator driver, which can output as 7 sbus channels at ~11ms.
- *  Channels min, average and maximum should be: min 0 neutral 1023  max 2047
+ *  Channels min, average and maximum should be: min 172, neutral 992, max 1811
  */
 
 #ifndef ACTUATORS_SBUS_H
@@ -41,12 +41,13 @@ struct ActuatorsSbus {
 /* Functions used in actuator macros */
 extern struct ActuatorsSbus actuators_sbus;
 extern void actuators_sbus_init(void);
-extern void actuators_sbus_set(void);
+extern void actuators_sbus_commit(void);
+extern void actuators_sbus_set(uint8_t idx, int16_t value);
 
 /* Actuator macros */
-#define ActuatorSbusSet(_i, _v) { actuators_sbus.cmds[_i] = _v; }
+#define ActuatorSbusSet actuators_sbus_set
 #define ActuatorsSbusInit() actuators_sbus_init()
-#define ActuatorsSbusCommit() actuators_sbus_set()
+#define ActuatorsSbusCommit() actuators_sbus_commit()
 
 
 #endif /* ACTUATORS_SBUS_H */

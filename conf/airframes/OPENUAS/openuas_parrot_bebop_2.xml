@@ -352,11 +352,6 @@ The most crucial part for the magnetometer calibration:
 
     <!--define name="MAG_OFFSET" value="-?.0" unit="deg"--> <!--  TODO: at least 3 axis in worst case -->
 
-    <!-- Magneto current calibration TODO:
-    Best done outside, set it to RC direct and throttle up and down with raw messages -->
-    <define name="MAG_X_CURRENT_COEF" value="0.0"/>
-    <define name="MAG_Y_CURRENT_COEF" value="0.0"/>
-    <define name="MAG_Z_CURRENT_COEF" value="0.0"/>
 
     <!-- most likly OK with an physically unmodified airframe -->
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>

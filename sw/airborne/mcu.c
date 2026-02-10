@@ -51,6 +51,9 @@
 #define USING_SOFTI2C 1
 #include "mcu_periph/softi2c.h"
 #endif
+#if USE_CAN1 || USE_CAN2
+#include "mcu_periph/can.h"
+#endif
 #if USE_ADC
 #include "mcu_periph/adc.h"
 #endif
@@ -63,9 +66,6 @@
 #endif
 #if USE_SPI
 #include "mcu_periph/spi.h"
-#endif
-#ifdef USE_DAC
-#include "mcu_periph/dac.h"
 #endif
 #ifdef USE_RNG
 #include "mcu_periph/rng.h"
@@ -195,6 +195,9 @@ void mcu_init(void)
 #ifdef USE_SOFTI2C1
   softi2c1_init();
 #endif
+#if USE_CAN1 || USE_CAN2
+  can_init();
+#endif
 #if USE_ADC
   adc_init();
 #endif
@@ -245,10 +248,6 @@ void mcu_init(void)
   spi_slave_hs_init();
 #endif
 #endif // USE_SPI
-
-#ifdef USE_DAC
-  dac_init();
-#endif
 
 #if USE_UDP0 || USE_UDP1 || USE_UDP2
   udp_arch_init();

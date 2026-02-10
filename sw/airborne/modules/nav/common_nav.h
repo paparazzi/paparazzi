@@ -84,11 +84,24 @@ extern float get_time_to_home(void); /* estimated time to home point in seconds 
     false; \
   })
 
+#define NavSetWaypointHereSend(_wp) ({ \
+    waypoints[_wp].x = stateGetPositionEnu_f()->x; \
+    waypoints[_wp].y = stateGetPositionEnu_f()->y; \
+    RunOnceEvery(NAVIGATION_FREQUENCY/1, {nav_send_waypoint(_wp);}) \
+    false; \
+  })
+
 #define NavSetWaypointPosAndAltHere(_wp) ({ \
     waypoints[_wp].x = stateGetPositionEnu_f()->x; \
     waypoints[_wp].y = stateGetPositionEnu_f()->y; \
     waypoints[_wp].a = stateGetPositionEnu_f()->z + ground_alt; \
     false; \
   })
+
+#define NavSetWaypointDistBehind(_wp, _ref, dist) ({ \
+  waypoints[_wp].x = waypoints[_ref].x - dist*sin(stateGetNedToBodyEulers_f()->psi); \
+  waypoints[_wp].y = waypoints[_ref].y - dist*cos(stateGetNedToBodyEulers_f()->psi); \
+  false; \
+})
 
 #endif /* COMMON_NAV_H */

@@ -99,10 +99,6 @@
     <define name="MAG_Y_SENS" value="15.9334896814" integer="16"/>
     <define name="MAG_Z_SENS" value="15.9429325263" integer="16"/>
 
-    <!--define name= "MAG_X_CURRENT_COEF" value="0.0350248861409"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="-0.0118884242797"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="0.0176235525201"/-->
-
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
@@ -261,7 +257,7 @@
     <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000" unit="mA"/>
-    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" value="mA"/>
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" unit="mA"/>
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
   </section>
 

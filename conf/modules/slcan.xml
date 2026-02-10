@@ -1,0 +1,36 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="slcan" dir="core" task="core">
+  <doc>
+    <description>
+      SLCAN interface. CAN over serial link. See https://www.canusb.com/files/can232_v3.pdf
+      Useful for using DroneCAN GUI over serial USB (see https://dronecan.github.io/GUI_Tool/Overview/).
+    </description>
+    <configure name="SLCAN_PORT" value="usb_serial_debug" description="UART for SLCAN (UART1, UART2, usb_serial, etc)"/>
+    <configure name="SLCAN_BAUD" value="B230400" description="UART baud rate"/>
+    <configure name="SLCAN_CAN_IF" value="0" description="CAN interface number. 0 means all interfaces."/>
+  </doc>
+  <dep>
+    <depends>uart,can</depends>
+  </dep>
+  <header>
+    <file name="slcan.h"/>
+  </header>
+  <init fun="slcan_init()"/>
+  <event fun="slcan_event()"/>
+  <makefile>
+    <configure name="SLCAN_PORT" case="upper|lower" default="usb_serial_debug"/>
+    <configure name="SLCAN_CAN_IF" default="0"/>
+    <define name="SLCAN_PORT" value="$(SLCAN_PORT_LOWER)"/>
+    <define name="USE_$(SLCAN_PORT_UPPER)"/>
+    <define name="$(SLCAN_PORT_UPPER)_BAUD" value="$(SLCAN_BAUD)"/>
+
+    <define name="SLCAN_CAN_IF" value="$(SLCAN_CAN_IF)"/>
+    <define name="USE_CAN$(SLCAN_CAN_IF)" cond="ifneq ($(SLCAN_CAN_IF), 0)"/>
+    <file name="slcan.c"/>
+    <test>
+      <define name="SLCAN_PORT" value="usb_serial"/>
+      <define name="USE_USB_SERIAL"/>
+      <define name="SLCAN_CAN_IF" value="1"/>
+    </test>
+  </makefile>
+</module>

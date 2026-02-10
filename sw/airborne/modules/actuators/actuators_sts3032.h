@@ -28,7 +28,7 @@
 
 #include <stdint.h>
 #include "mcu_periph/uart.h"
-#include "utils/circular_buffer.h"
+#include "utils/framed_ring_buffer.h"
 #include "generated/airframe.h"
 
 
@@ -59,7 +59,7 @@ struct sts3032 {
   bool wait_reply;
   uint16_t nb_failed_checksum;
 
-  struct circular_buffer msg_buf;
+  struct framed_ring_buffer msg_buf;
 };
 
 
@@ -68,11 +68,12 @@ extern struct sts3032 sts;
 extern void actuators_sts3032_init(void);
 extern void actuators_sts3032_periodic(void);
 extern void actuators_sts3032_event(void);
-uint8_t id_idx(struct sts3032 *sts, uint8_t id);
-void sts3032_write_pos(struct sts3032 *sts, uint8_t id, int16_t position);
+extern void actuators_sts3032_set(uint8_t idx, int16_t value);
+extern uint8_t id_idx(struct sts3032 *sts, uint8_t id);
+extern void sts3032_write_pos(struct sts3032 *sts, uint8_t id, int16_t position);
 
 /* Actuator macros */
-#define ActuatorSTS3032Set(_i, _v) { if(sts3032_enabled) {sts3032_write_pos(&sts, sts.ids[_i], _v);} }
+#define ActuatorSTS3032Set actuators_sts3032_set
 #define ActuatorsSTS3032Init() actuators_sts3032_init()
 #define ActuatorsSTS3032Commit() {}
 

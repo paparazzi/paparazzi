@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mission_rover" dir="mission" task="control">
+  <doc>
+    <description>
+      Specific interface for mission control of rover.
+    </description>
+  </doc>
+  <dep>
+    <depends>mission_common</depends>
+    <provides>mission</provides>
+  </dep>
+  <makefile>
+    <file name="mission_rover_nav.c"/>
+    <test firmware="rover"> 
+      <define name="USE_GENERATED_AUTOPILOT"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
+  </makefile>
+</module>

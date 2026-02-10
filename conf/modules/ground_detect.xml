@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="ground_detect" dir="nav">
+  <doc>
+    <description>Ground detection module to detect ground</description>
+    <define name="USE_GROUND_DETECT_INDI_THRUST" value="1" description="Use INDI thrust less than 50 percent as detection"/>
+    <define name="GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD" value="-5.0" description="[m/s2] positive down"/>
+
+    <define name="USE_GROUND_DETECT_AGL_DIST" value="0" description="Use agl_dist_filtered"/>
+    <define name="GROUND_DETECT_AGL_MIN_VALUE" value="0.1" description="AGL value low enough to be used as ground detection [m]"/>
+
+    <define name="GROUND_DETECT_COUNTER_TRIGGER" value="10" description="Number of times a trigger must be valid to accept ground detection."/>
+  </doc>
+  <header>
+    <file name="ground_detect.h"/>
+  </header>
+  <init fun="ground_detect_init()"/>
+  <periodic fun="ground_detect_periodic()" freq="50"/>
+  <periodic fun="ground_detect_filter_accel()"/>
+  <makefile>
+    <file name="ground_detect.c"/>
+    <test firmware="rotorcraft">
+      <define name="PERIODIC_FREQUENCY" value="512"/>
+      <define name="USE_GROUND_DETECT_INDI_THRUST" value="1"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+      <define name="INDI_OUTPUTS" value="1"/>
+      <define name="INDI_NUM_ACT" value="1"/>
+    </test>
+  </makefile>
+</module>

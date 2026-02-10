@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="airspeed_consistency" dir="checks">
+  <doc>
+    <description>
+      Check consistency of airspeed measurements while flying circles.
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Airspeed Consistency">
+        <dl_setting var="asc_reset" min="0" max="1" step="1" values="FALSE|TRUE" type="bool" module="modules/checks/airspeed_consistency" handler="reset"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends></depends>
+  </dep>
+  <header>
+    <file name="airspeed_consistency.h"/>
+  </header>
+    <init fun="airspeed_consistency_init()"/>
+    <periodic fun="airspeed_consistency_periodic()" freq="1"/>
+  <makefile>
+    <file name="airspeed_consistency.c"/>
+    <file name="pprz_circfit_float.c" dir="math"/>
+  </makefile>
+</module>

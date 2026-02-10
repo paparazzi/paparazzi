@@ -28,7 +28,7 @@
 #include "math/pprz_isa.h"
 #include "generated/flight_plan.h"
 
-// if NAV_HYBRID_MAX_BANK is not defined, set it to 30 degrees. 
+// if NAV_HYBRID_MAX_BANK is not defined, set it to 30 degrees.
 #ifndef NAV_HYBRID_MAX_BANK
 float nav_hybrid_max_bank = 0.52f;
 #else
@@ -51,13 +51,27 @@ float nav_max_speed = NAV_MAX_SPEED;
 #define NAV_HYBRID_GOTO_MAX_SPEED NAV_MAX_SPEED
 #endif
 
-float nav_goto_max_speed = NAV_HYBRID_GOTO_MAX_SPEED;
-
 #ifndef NAV_HYBRID_MAX_DECELERATION
 #define NAV_HYBRID_MAX_DECELERATION 1.0
 #endif
 
-float nav_max_deceleration_sp = NAV_HYBRID_MAX_DECELERATION;
+#ifndef NAV_HYBRID_MAX_ACCELERATION
+#define NAV_HYBRID_MAX_ACCELERATION 4.0
+#endif
+
+#ifndef NAV_HYBRID_SOFT_ACCELERATION
+#define NAV_HYBRID_SOFT_ACCELERATION NAV_HYBRID_MAX_ACCELERATION
+#endif
+
+float nav_max_deceleration_sp      = NAV_HYBRID_MAX_DECELERATION;  //Maximum deceleration allowed for the set-point
+float nav_max_acceleration_sp      = NAV_HYBRID_MAX_ACCELERATION;  //Maximum acceleration allowed for the set-point
+float nav_hybrid_soft_acceleration = NAV_HYBRID_SOFT_ACCELERATION; //Soft acceleration limit allowed for the set-point (Equal to the maximum acceleration by default)
+float nav_hybrid_max_acceleration  = NAV_HYBRID_MAX_ACCELERATION;  //Maximum general limit in acceleration allowed for the hybrid navigation
+
+#ifndef NAV_HYBRID_MAX_EXPECTED_WIND
+#define NAV_HYBRID_MAX_EXPECTED_WIND 5.0f
+#endif
+float nav_hybrid_max_expected_wind = NAV_HYBRID_MAX_EXPECTED_WIND;
 
 #ifdef NAV_HYBRID_LINE_GAIN
 float nav_hybrid_line_gain = NAV_HYBRID_LINE_GAIN;
@@ -73,25 +87,40 @@ float nav_hybrid_line_gain = 1.0f;
 #define NAV_HYBRID_NAV_CIRCLE_DIST 40.f
 #endif
 
-#ifdef NAV_HYBRID_POS_GAIN
+#ifdef GUIDANCE_INDI_POS_GAIN
+float nav_hybrid_pos_gain = GUIDANCE_INDI_POS_GAIN;
+#elif defined(NAV_HYBRID_POS_GAIN)
 float nav_hybrid_pos_gain = NAV_HYBRID_POS_GAIN;
 #else
-float nav_hybrid_pos_gain = 1.0f; 
+float nav_hybrid_pos_gain = 1.0f;
+#endif
+
+#if defined(NAV_HYBRID_POS_GAIN) && defined(GUIDANCE_INDI_POS_GAIN)
+#warning "NAV_HYBRID_POS_GAIN and GUIDANCE_INDI_POS_GAIN serve similar purpose and are both defined, using GUIDANCE_INDI_POS_GAIN"
 #endif
 
 #ifndef GUIDANCE_INDI_HYBRID
 bool force_forward = 0.0f;
 #endif
 
-#ifndef NAV_HYBRID_GOTO_MODE
-#define NAV_HYBRID_GOTO_MODE NAV_SETPOINT_MODE_SPEED
+/* When using external vision, run the nav functions in position mode for better tracking*/
+#ifndef NAV_HYBRID_EXT_VISION_SETPOINT_MODE
+#define NAV_HYBRID_EXT_VISION_SETPOINT_MODE FALSE
 #endif
+
+/* Use max target groundspeed and max acceleration to limit circle radius*/
+#ifndef NAV_HYBRID_LIMIT_CIRCLE_RADIUS
+#define NAV_HYBRID_LIMIT_CIRCLE_RADIUS FALSE
+#endif
+
+static float max_speed_for_deceleration(float dist_to_wp);
 
 /** Implement basic nav function for the hybrid case
  */
 
 static void nav_hybrid_goto(struct EnuCoor_f *wp)
 {
+  nav_max_acceleration_sp = nav_hybrid_soft_acceleration;
   nav_rotorcraft_base.goto_wp.to = *wp;
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp);
   VECT2_COPY(nav.target, *wp);
@@ -107,24 +136,22 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
   // Bound the setpoint velocity vector
   float max_h_speed = nav_max_speed;
   if (!force_forward) {
-    // If not in force_forward, compute speed based on decceleration and nav_goto_max_speed
+    // If not in force_forward, compute speed based on deceleration and nav_max_speed
     // Calculate distance to waypoint
     float dist_to_wp = float_vect2_norm(&pos_error);
-    // Calculate max speed when decelerating at MAX capacity a_max
-    // distance travelled d = 1/2 a_max t^2
-    // The time in which it does this is: T = V / a_max
-    // The maximum speed at which to fly to still allow arriving with zero
-    // speed at the waypoint given maximum deceleration is: V = sqrt(2 * a_max * d)
-    float max_speed_decel2 = fabsf(2.f * dist_to_wp * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
-    float max_speed_decel = sqrtf(max_speed_decel2);
-    // Bound the setpoint velocity vector
-    max_h_speed = Min(nav_goto_max_speed, max_speed_decel); // use hover max speed
+    max_h_speed = max_speed_for_deceleration(dist_to_wp);
   }
   float_vect2_bound_in_2d(&speed_sp, max_h_speed);
 
   VECT2_COPY(nav.speed, speed_sp);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
-  nav.setpoint_mode = NAV_HYBRID_GOTO_MODE;
+
+  // In optitrack tests use position mode for more precise hovering
+#if NAV_HYBRID_EXT_VISION_SETPOINT_MODE
+    nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
+#else
+    nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
+#endif
 }
 
 static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
@@ -140,7 +167,8 @@ static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_en
     desired_speed = nav_max_speed;
   } else {
     desired_speed = dist_to_target * nav_hybrid_pos_gain;
-    Bound(desired_speed, 0.0f, nav_max_speed);
+    float max_h_speed = max_speed_for_deceleration(dist_to_target);
+    Bound(desired_speed, 0.0f, max_h_speed);
   }
 
   // Calculate length of line segment
@@ -174,6 +202,21 @@ static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_en
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp_end);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
   nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
+}
+
+/**
+ * Calculate max speed when decelerating at MAX capacity a_max
+ * distance travelled d = 1/2 a_max t^2
+ * The time in which it does this is: T = V / a_max
+ * The maximum speed at which to fly to still allow arriving with zero
+ * speed at the waypoint given maximum deceleration is: V = sqrt(2 * a_max * d)
+ */
+static float max_speed_for_deceleration(float dist_to_wp) {
+  float max_speed_decel2 = fabsf(2.f * dist_to_wp * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
+  float max_speed_decel = sqrtf(max_speed_decel2);
+  // Bound the setpoint velocity vector
+  float max_h_speed = Min(nav_max_speed, max_speed_decel);
+  return max_h_speed;
 }
 
 static bool nav_hybrid_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float approaching_time)
@@ -222,10 +265,13 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
 
   VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *wp_center);
   // direction of rotation
-  float sign_radius = radius > 0.f ? 1.f : -1.f;
+  float sign_radius = (radius > 0.f) ? 1.f : (radius < 0.f) ? -1.f : 0.f;
   // absolute radius
   float abs_radius = fabsf(radius);
-
+#if NAV_HYBRID_LIMIT_CIRCLE_RADIUS
+  float min_radius =  pow(nav_max_speed+nav_hybrid_max_expected_wind,2) / (nav_hybrid_max_acceleration * 0.8);
+  abs_radius = Max(abs_radius, min_radius);
+#endif
   if (abs_radius > 0.1f) {
     // store last qdr
     float last_qdr = nav_rotorcraft_base.circle.qdr;
@@ -248,28 +294,29 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
     VECT2_COPY(nav.target, *wp_center);
   }
   // compute desired speed
+  float radius_diff = fabsf(float_vect2_norm(&pos_diff) - abs_radius);
+  if (radius_diff > NAV_HYBRID_NAV_CIRCLE_DIST) {
+    // far from circle, speed proportional to diff
+    desired_speed = radius_diff * nav_hybrid_pos_gain;
+    nav_max_acceleration_sp = nav_hybrid_soft_acceleration;
+  } else {
+    // close to circle, speed function of radius for a feasible turn
+    // 0.8 * MAX_BANK gives some margins for the turns
+    desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(0.8f * nav_hybrid_max_bank));
+    nav_max_acceleration_sp = nav_hybrid_max_acceleration ;
+  }
   if (force_forward) {
     desired_speed = nav_max_speed;
-  } else {
-    float radius_diff = fabsf(float_vect2_norm(&pos_diff) - abs_radius);
-    if (radius_diff > NAV_HYBRID_NAV_CIRCLE_DIST) {
-      // far from circle, speed proportional to diff
-      desired_speed = radius_diff * nav_hybrid_pos_gain;
-    } else {
-      // close to circle, speed function of radius for a feasible turn
-      // 0.8 * MAX_BANK gives some margins for the turns
-      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(0.8f * nav_hybrid_max_bank));
-    }
-    Bound(desired_speed, 0.0f, nav_max_speed);
+    nav_max_acceleration_sp = nav_hybrid_max_acceleration ;
   }
+  Bound(desired_speed, 0.0f, nav_max_speed);
   // compute speed vector from target position
   struct FloatVect2 speed_unit;
   VECT2_DIFF(speed_unit, nav.target, *stateGetPositionEnu_f());
   float_vect2_normalize(&speed_unit);
   VECT2_SMUL(nav.speed, speed_unit, desired_speed);
-
   nav_rotorcraft_base.circle.center = *wp_center;
-  nav_rotorcraft_base.circle.radius = radius;
+  nav_rotorcraft_base.circle.radius = sign_radius * abs_radius;
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_CIRCLE;
   nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
 }

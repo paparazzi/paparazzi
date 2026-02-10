@@ -33,7 +33,7 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
-#include "filters/high_pass_filter.h"
+#include "filters/low_pass_filter.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
@@ -70,6 +70,10 @@ enum GuidanceIndiHybrid_VMode {
 
 extern struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accep_sp, float heading_sp);
 extern struct StabilizationSetpoint guidance_indi_run_mode(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv, enum GuidanceIndiHybrid_HMode h_mode, enum GuidanceIndiHybrid_VMode v_mode);
+extern void guidance_set_min_max_airspeed(float min_airspeed, float max_airspeed);
+extern void guidance_set_max_bank_angle(float max_bank);
+extern void guidance_set_max_climb_speed(float max_climb_speed_quad, float max_climb_speed_fwd);
+extern void guidance_set_max_descend_speed(float max_descend_speed_quad, float max_descend_speed_fwd);
 
 struct guidance_indi_hybrid_params {
   float pos_gain;
@@ -80,30 +84,34 @@ struct guidance_indi_hybrid_params {
   float liftd_asq;
   float liftd_p80;
   float liftd_p50;
+  float min_airspeed;
+  float max_airspeed;
+  float stall_protect_gain;
+  float climb_vspeed_fwd;
+  float descend_vspeed_fwd;
+  float climb_vspeed_quad;
+  float descend_vspeed_quad;
 };
 
-extern struct FloatVect3 sp_accel;
 extern struct FloatVect3 gi_speed_sp;
+extern struct guidance_indi_hybrid_params gih_params;
 
 extern float guidance_indi_pitch_pref_deg;
 
-#if GUIDANCE_INDI_HYBRID_USE_WLS
-extern float Wu_gih[GUIDANCE_INDI_HYBRID_U];
-extern float Wv_gih[GUIDANCE_INDI_HYBRID_V];
-extern float du_min_gih[GUIDANCE_INDI_HYBRID_U];
-extern float du_max_gih[GUIDANCE_INDI_HYBRID_U];
-extern float du_pref_gih[GUIDANCE_INDI_HYBRID_U];
-#endif
+extern float gi_unbounded_airspeed_sp;
 
 extern float guidance_indi_thrust_z_eff;
 
-extern struct guidance_indi_hybrid_params gih_params;
 extern float guidance_indi_specific_force_gain;
-extern float guidance_indi_max_airspeed;
 extern bool take_heading_control;
 extern float guidance_indi_max_bank;
 extern float guidance_indi_min_pitch;
 extern bool force_forward;       ///< forward flight for hybrid nav
 extern bool guidance_indi_airspeed_filtering;
+extern bool coordinated_turn_use_accel;
+
+extern Butterworth2LowPass roll_filt;
+extern Butterworth2LowPass pitch_filt;
+extern Butterworth2LowPass yaw_filt;
 
 #endif /* GUIDANCE_INDI_HYBRID_H */

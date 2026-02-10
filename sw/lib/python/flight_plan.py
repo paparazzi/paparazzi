@@ -24,7 +24,7 @@ from lxml import etree
 from typing import List, Union
 import sys
 from xml_utils import get_attrib, get_attrib_default
-
+import urllib.request
 
 class FlightPlan:
 
@@ -42,11 +42,15 @@ class FlightPlan:
         self.alt = None
 
     @staticmethod
-    def parse(fp_xml):
-        fp = FlightPlan()
-        fp_tree = etree.parse(fp_xml)
+    def parse(fp_xml: str):
+        if fp_xml.startswith("file://"):
+            fp_tree = etree.parse(fp_xml)    
+        elif fp_xml.startswith("http://"):
+            tmp_file, _ = urllib.request.urlretrieve(fp_xml)
+            fp_tree = etree.parse(tmp_file)
         fp_element = fp_tree.find("flight_plan")
-
+        
+        fp = FlightPlan()
         fp.name = get_attrib(fp_element, "name")
         fp.lat0 = get_attrib(fp_element, "lat0")
         fp.lon0 = get_attrib(fp_element, "lon0")

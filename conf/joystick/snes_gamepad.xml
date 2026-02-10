@@ -76,7 +76,7 @@ TEST STICK DATA OUTPUT:
   <variables>
 
     <!-- TBD: NOT USED AT THIS POINT -->
-    <var name="mode"    default="2"/>
+    <var name="mode"    default="127"/>
 
   </variables>
 

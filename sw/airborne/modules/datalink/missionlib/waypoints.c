@@ -35,7 +35,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
 #pragma GCC diagnostic ignored "-Wswitch-default"
-#include "mavlink/paparazzi/mavlink.h"
+#include "mavlink/ardupilotmega/mavlink.h"
 #pragma GCC diagnostic pop
 
 #include "generated/flight_plan.h"
@@ -239,7 +239,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
         struct LlaCoor_i lla;
         lla.lat = mission_item.x * 1e7; // lattitude in degrees*1e7
         lla.lon = mission_item.y * 1e7; // longitude in degrees*1e7
-        lla.alt = state.ned_origin_i.hmsl + mission_item.z * 1e3; // altitude in millimeters
+        lla.alt = stateGetHmslOrigin_i() + mission_item.z * 1e3; // altitude in millimeters
         waypoint_set_lla(mission_item.seq, &lla);
       }
       else if (mission_item.frame == MAV_FRAME_LOCAL_ENU) {

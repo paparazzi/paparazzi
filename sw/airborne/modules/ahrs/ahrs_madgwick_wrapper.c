@@ -31,13 +31,9 @@
 #include "message_pragmas.h"
 #include "state.h"
 
-#ifndef AHRS_MADGWICK_OUTPUT_ENABLED
-#define AHRS_MADGWICK_OUTPUT_ENABLED TRUE
-#endif
-PRINT_CONFIG_VAR(AHRS_MADGWICK_OUTPUT_ENABLED)
+PRINT_CONFIG_VAR(AHRS_MADGWICK_TYPE)
 
-/** if TRUE with push the estimation results to the state interface */
-static bool ahrs_madgwick_output_enabled;
+uint8_t ahrs_madgwick_enable;
 /** last gyro msg timestamp */
 static uint32_t ahrs_madgwick_last_stamp = 0;
 static uint8_t ahrs_madgwick_id = AHRS_COMP_ID_MADGWICK;
@@ -165,32 +161,27 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
   }
 }
 
-static bool ahrs_madgwick_enable_output(bool enable)
-{
-  ahrs_madgwick_output_enabled = enable;
-  return ahrs_madgwick_output_enabled;
-}
-
 /**
  * Compute body orientation and rates from imu orientation and rates
  */
 static void compute_body_orientation_and_rates(void)
 {
-  if (ahrs_madgwick_output_enabled) {
-    /* Set state */
-    stateSetNedToBodyQuat_f(&ahrs_madgwick.quat);
+  /* Set state */
+  stateSetNedToBodyQuat_f(MODULE_AHRS_MADGWICK_ID, &ahrs_madgwick.quat);
 
-    /* compute body rates */
-    stateSetBodyRates_f(&ahrs_madgwick.rates);
-  }
+  /* compute body rates */
+  stateSetBodyRates_f(MODULE_AHRS_MADGWICK_ID, &ahrs_madgwick.rates);
 }
 
 
-void ahrs_madgwick_register(void)
+void ahrs_madgwick_wrapper_init(void)
 {
-  ahrs_madgwick_output_enabled = AHRS_MADGWICK_OUTPUT_ENABLED;
   ahrs_madgwick_init();
-  ahrs_register_impl(ahrs_madgwick_enable_output);
+  if (AHRS_MADGWICK_TYPE == AHRS_PRIMARY) {
+    ahrs_madgwick_wrapper_enable(1);
+  } else {
+    ahrs_madgwick_wrapper_enable(0);
+  }
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
@@ -203,5 +194,14 @@ void ahrs_madgwick_register(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_EULER_INT, send_att);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STATE_FILTER_STATUS, send_filter_status);
 #endif
+}
+
+void ahrs_madgwick_wrapper_enable(uint8_t enable)
+{
+  if (enable) {
+    stateSetInputFilter(STATE_INPUT_ATTITUDE, MODULE_AHRS_MADGWICK_ID);
+    stateSetInputFilter(STATE_INPUT_RATES, MODULE_AHRS_MADGWICK_ID);
+  }
+  ahrs_madgwick_enable = enable;
 }
 

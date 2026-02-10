@@ -75,9 +75,7 @@ void ahrs_vectornav_event(void)
     vn200_read_message(&(ahrs_vn.vn_packet),&(ahrs_vn.vn_data));
     ahrs_vn.vn_packet.msg_available = false;
 
-    if (ahrs_vectornav_is_enabled()) {
-      ahrs_vectornav_propagate();
-    }
+    ahrs_vectornav_propagate();
 
     // send ABI messages
     uint32_t now_ts = get_sys_time_usec();
@@ -127,12 +125,12 @@ void ahrs_vectornav_propagate(void)
   // Rates [rad/s]
   static struct FloatRates body_rate;
   float_rmat_ratemult(&body_rate, orientationGetRMat_f(&ahrs_vn.body_to_imu), &ahrs_vn.vn_data.gyro); // compute body rates
-  stateSetBodyRates_f(&body_rate);   // Set state [rad/s]
+  stateSetBodyRates_f(MODULE_AHRS_VECTORNAV_ID, &body_rate);   // Set state [rad/s]
 
   // Attitude [deg]
   static struct FloatQuat imu_quat; // convert from euler to quat
   float_quat_of_eulers(&imu_quat, &ahrs_vn.vn_data.attitude);
-  stateSetNedToBodyQuat_f(&imu_quat);
+  stateSetNedToBodyQuat_f(MODULE_AHRS_VECTORNAV_ID, &imu_quat);
 
 }
 
