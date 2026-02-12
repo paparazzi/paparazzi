@@ -84,9 +84,15 @@ class InstallWindow(QWidget):
             self.execute('sudo -E apt-get -f -y install gazebo11 libgazebo11-dev')
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
 
-    def cmd_gazebo_classic(self):
+    def cmd_gazebo(self):
         if distro_version >= 22.04:
-            self.execute('')
+            self.execute('sudo -E apt-get update')
+            self.execute('sudo -E apt-get -f -y install curl lsb-release gnupg')
+            self.execute('sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg')
+            self.execute('echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null')
+            self.execute('sudo apt update')
+            self.execute('sudo -E apt-get -f -y install gz-harmonic')
+        self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
 
 
     def cmd_bebopcv(self):
@@ -162,10 +168,9 @@ class InstallWindow(QWidget):
         button6.clicked.connect(self.cmd_mcu)
         btn_layout.addWidget(button6)
 
-        if distro_version <= 22.04:
-            button7 = QPushButton('7) Gazebo9 Classic')
-        else:
-            button7 = QPushButton('7) Gazebo11 Classic')
+        button7 = QPushButton('7a) Gazebo11 Classic')
+        if distro_version > 22.04:
+            button7.setDisabled(True)
         button7.clicked.connect(self.cmd_gazebo_classic)
         btn_layout.addWidget(button7)
 
