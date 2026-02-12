@@ -46,9 +46,12 @@ class InstallWindow(QWidget):
 
     def cmd_dev(self):
         self.execute('sudo -E apt-get -f -y install paparazzi-dev')
+        self.execute('sudo -E apt-get -f -y install python-is-python3')
         # Missing
         if distro_version <= 20.04:
             self.execute('sudo -E apt-get install -y python3-lxml python3-numpy')
+        elif distro_version >= 24.04:
+            self.execute('sudo -E apt-get install -y liblablgtk2-ocaml-dev')
 
     def cmd_arm(self):
         self.execute('sudo -E apt-get -f -y install paparazzi-dev')
@@ -71,12 +74,19 @@ class InstallWindow(QWidget):
         self.execute('sudo -E apt-get -f -y install dfu-util')
         self.execute('sudo -E cp conf/system/udev/rules/*.rules /etc/udev/rules.d/ && sudo -E udevadm control --reload-rules')
 
-    def cmd_gazebo(self):
-        if distro_version > 20.04:
-            self.execute('sudo -E apt-get -f -y install gazebo libgazebo-dev')
-        else:
-            self.execute('sudo -E apt-get -f -y install gazebo9 libgazebo9-dev')
+    def cmd_gazebo_classic(self):
+        if distro_version <= 22.04:
+            self.execute('sudo -E apt-get update')
+            self.execute('sudo -E apt-get -f -y install lsb-release wget gnupg')
+            self.execute('sudo sh -c \'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list\'')
+            self.execute('wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -')
+            self.execute('sudo apt update')
+            self.execute('sudo -E apt-get -f -y install gazebo11 libgazebo11-dev')
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
+
+    def cmd_gazebo_classic(self):
+        if distro_version >= 22.04:
+            self.execute('')
 
 
     def cmd_bebopcv(self):
@@ -152,12 +162,19 @@ class InstallWindow(QWidget):
         button6.clicked.connect(self.cmd_mcu)
         btn_layout.addWidget(button6)
 
-        if distro_version <= 20.04:
-            button7 = QPushButton('7) Gazebo9')
+        if distro_version <= 22.04:
+            button7 = QPushButton('7) Gazebo9 Classic')
         else:
-            button7 = QPushButton('7) Gazebo11')
-        button7.clicked.connect(self.cmd_gazebo)
+            button7 = QPushButton('7) Gazebo11 Classic')
+        button7.clicked.connect(self.cmd_gazebo_classic)
         btn_layout.addWidget(button7)
+
+        button7b = QPushButton('7b) Gazebo Harmonic')
+        if distro_version >= 22.04:
+            button7b.clicked.connect(self.cmd_gazebo)
+        else:
+            button7b.setDisabled(True)
+        btn_layout.addWidget(button7b)
 
         button8 = QPushButton('8) Bebop Opencv')
         button8.clicked.connect(self.cmd_bebopcv)

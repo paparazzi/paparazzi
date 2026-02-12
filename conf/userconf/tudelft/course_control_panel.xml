@@ -15,14 +15,8 @@
       <program name="Server">
         <arg flag="-n"/>
       </program>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-maximize"/>
-        <arg flag="-center_ac"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="200"/>
-        <arg flag="-zoom" constant="40."/>
+      <program name="PprzGCS">
+        <arg flag="--speech"/>
       </program>
       <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
         <arg flag="-ac" constant="@AIRCRAFT"/>
@@ -41,8 +35,8 @@
         <arg flag="-udp"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
+      <program name="PprzGCS">
+        <arg flag="--speech"/>
       </program>
       <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
         <arg flag="-ac" constant="@AIRCRAFT"/>
