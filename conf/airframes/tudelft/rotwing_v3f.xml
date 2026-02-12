@@ -151,7 +151,7 @@
 
      <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan1Cmd">
-        <servo no="6"  name="SERVO_ELEVATOR"  min="3211"  neutral="3211" max="-6102"/>
+        <servo no="6"  name="SERVO_ELEVATOR"  min="5400"  neutral="5400" max="-4349"/>
         <servo no="7"  name="SERVO_RUDDER"    min="-4750" neutral="0"    max="4750"/>
     </servos>
 
@@ -259,8 +259,8 @@
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
-                <field name="low_feedback" value="0.35"/>
-                <field name="high_feedback" value="-0.1"/>
+                <field name="low_feedback" value="0.56"/>
+                <field name="high_feedback" value="0.09"/>
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
