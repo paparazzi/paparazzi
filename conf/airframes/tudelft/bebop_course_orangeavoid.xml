@@ -25,7 +25,7 @@
 
     </target>
     <target name="nps" board="pc">
-      <module name="fdm" type="gazebo"/>
+      <module name="fdm" type="gazebo_classic"/>
       <define name="VIDEO_CAPTURE_PATH" value="/tmp/paparazzi/images"/>
       <define name="LOGGER_FILE_PATH" value="/tmp/paparazzi/log"/>
       
