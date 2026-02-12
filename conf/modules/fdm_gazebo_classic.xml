@@ -135,8 +135,8 @@
   <header/>
   <makefile target="nps">
     <raw>
-      nps.CXXFLAGS += $(shell pkg-config gz-sim8 --cflags)
-      nps.LDFLAGS  += $(shell pkg-config gz-sim8 --libs)
+      nps.CXXFLAGS += $(shell pkg-config gazebo --cflags)
+      nps.LDFLAGS  += $(shell pkg-config gazebo --libs)
 
       <!-- OpenCV for video debugging -->
       NPS_DEBUG_VIDEO ?= 0
