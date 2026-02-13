@@ -56,3 +56,6 @@
 [submodule "sw/ext/dronecan/libcanard"]
 	path = sw/ext/dronecan/libcanard
 	url = https://github.com/dronecan/libcanard.git
+[submodule "sw/ext/unifiedmocaprouter"]
+	path = sw/ext/unifiedmocaprouter
+	url = https://github.com/tudelft/UnifiedMocapRouter.git
