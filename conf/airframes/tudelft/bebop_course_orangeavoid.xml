@@ -20,7 +20,7 @@
       <define name="COLOR_OBJECT_DETECTOR_CR_MAX1" value="190"/>
     </target>
     <target name="nps" board="pc">
-      <module name="fdm" type="gazebo"/>
+      <module name="fdm" type="gazebo_classic"/>
       <define name="VIDEO_CAPTURE_PATH" value="/tmp/paparazzi/images"/>
       <define name="LOGGER_FILE_PATH" value="/tmp/paparazzi/log"/>
       

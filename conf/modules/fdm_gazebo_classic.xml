@@ -1,13 +1,13 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="fdm_gazebo" dir="fdm">
+<module name="fdm_gazebo_classic" dir="fdm">
   <doc>
     <description>
       Gazebo backend for NPS simulator
       NPS doc: http://wiki.paparazziuav.org/wiki/NPS
 
       Usage:
-      1. Make sure gazebo 9 is installed. (sudo apt-get install gazebo9 libgazebo9-dev)
+      1. Make sure gazebo 11 is installed. (sudo apt-get install gazebo11 libgazebo11-dev)
       2. Prepare the Gazebo world and model:
         1. Prepare the UAV model (see conf/simulator/gazebo/models/ardrone/):
           - Place the aircraft model in the conf/simulator/gazebo/models/
@@ -135,10 +135,8 @@
   <header/>
   <makefile target="nps">
     <raw>
-      GZ_COMPONENTS = gz-sim8 gz-transport13 gz-msgs10 gz-math7 gz-sensors8
-
-      nps.CXXFLAGS += $(shell pkg-config --cflags $(GZ_COMPONENTS))
-      nps.LDFLAGS  += $(shell pkg-config --libs $(GZ_COMPONENTS))
+      nps.CXXFLAGS += $(shell pkg-config gazebo --cflags)
+      nps.LDFLAGS  += $(shell pkg-config gazebo --libs)
 
       <!-- OpenCV for video debugging -->
       NPS_DEBUG_VIDEO ?= 0
@@ -148,7 +146,7 @@
         nps.LDFLAGS  += -lopencv_imgproc -lopencv_highgui -lopencv_core
       endif
     </raw>
-    <file name="nps_fdm_gazebo.cpp" dir="nps"/>
+    <file name="nps_fdm_gazebo_classic.cpp" dir="nps"/>
   </makefile>
 </module>
 
