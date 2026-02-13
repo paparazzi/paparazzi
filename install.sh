@@ -39,6 +39,9 @@ then
 fi
 
 
+# Solves: Could not load the Qt platform plugin "xcb"
+sudo apt install libxcb-xinerama0 libxcb-cursor0 libxkbcommon-x11-0 libglu1-mesa
+
 if [ "$USE_VENV" = true ]
 then
   sudo apt install -y python3 python3-venv
