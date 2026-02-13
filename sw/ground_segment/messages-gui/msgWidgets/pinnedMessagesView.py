@@ -51,6 +51,7 @@ class PinnedMessages(QFrame):
         
         self.ui = Ui_Frame()
         self.ui.setupUi(ivy,self)
+        self.setVisible(False)
         
         
         

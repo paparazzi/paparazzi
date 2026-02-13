@@ -79,6 +79,7 @@ QSplitter::handle {
         
     def showPinned(self,*args):
         if not(self.showPinnedOnce):
+            self.pinnedWidget.setVisible(True)
             self.showPinnedOnce = True
             ss = self.sizes()
             if ss[-1] == 0:
