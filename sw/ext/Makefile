@@ -102,7 +102,9 @@ else
 	@echo dronecan not installed, missing package 'em'
 endif
 
-unifiedmocaprouter:
+unifiedmocaprouter: unifiedmocaprouter.update unifiedmocaprouter.build
+
+unifiedmocaprouter.build:
 	cd $(EXT_DIR)/unifiedmocaprouter/ && mkdir -p build && cd build && cmake -D'MOCAPS=optitrack' -D'AGENTS=console;ivy' .. && make
 
 
