@@ -97,7 +97,10 @@ class InstallWindow(QWidget):
 
     def cmd_bebopcv(self):
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/opencv_bebop')
-        self.execute('sudo -E apt-get -f -y install cmake libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-22-dev')
+        if distro_version < 22.04:
+            self.execute('sudo -E apt-get -f -y install cmake libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-22-dev')
+        else:
+            self.execute('sudo -E apt-get -f -y install cmake libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-dev')
 
     def cmd_vlc(self):
         self.execute('sudo -E apt-get -f -y install ffmpeg vlc jstest-gtk default-jre')
@@ -183,8 +186,6 @@ class InstallWindow(QWidget):
 
         button8 = QPushButton('8) Bebop Opencv')
         button8.clicked.connect(self.cmd_bebopcv)
-        if distro_version > 20.04:
-            button8.setDisabled(True)
         btn_layout.addWidget(button8)
 
         button9 = QPushButton('9) VLC + Joystick + Natnet')

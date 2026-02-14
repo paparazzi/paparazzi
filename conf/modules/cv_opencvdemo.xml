@@ -64,14 +64,15 @@ extern "C" {
     
     <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/lib"/>
     <flag name="LDFLAGS" value="lopencv_world"/>
-    <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/share/OpenCV/3rdparty/lib"/>
+    <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/lib/opencv4/3rdparty"/>
     <flag name="LDFLAGS" value="llibprotobuf"/>
     <flag name="LDFLAGS" value="llibjpeg-turbo"/>
     <flag name="LDFLAGS" value="llibpng"/>
     <flag name="LDFLAGS" value="llibtiff"/>
+    <flag name="LDFLAGS" value="llibopenjp2"/>
     <flag name="LDFLAGS" value="lzlib"/>
-    <flag name="LDFLAGS" value="lquirc"/>
-    <flag name="LDFLAGS" value="ltegra_hal"/>
+    <flag name="LDFLAGS" value="lade"/>
+    <flag name="LDFLAGS" value="lIconv::Iconv"/>
     <flag name="LDFLAGS" value="ldl"/>
     <flag name="LDFLAGS" value="lm"/>
     <flag name="LDFLAGS" value="lpthread"/>
