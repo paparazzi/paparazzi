@@ -102,6 +102,7 @@ class InstallWindow(QWidget):
     def cmd_vlc(self):
         self.execute('sudo -E apt-get -f -y install ffmpeg vlc jstest-gtk default-jre')
         self.execute('sudo -E apt-get install -y python3-pip')
+        self.execute('python3 -m pip install future') # Required for MAVLink
         self.execute('python3 -m pip install pyquaternion ivy-python') # Required for NatNat
         self.execute('python3 -m pip install pymap3d') # Required for Moving-Base
 
