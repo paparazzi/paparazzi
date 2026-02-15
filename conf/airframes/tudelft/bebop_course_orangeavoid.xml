@@ -61,6 +61,10 @@
       <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
       <define name="VIDEO_CAPTURE_FPS" value="10"/>
     </module>
+    <!-- module name="cv_opencvdemo">
+      <define name="OPENCVDEMO_CAMERA" value="front_camera"/>
+      <define name="OPENCVDEMO_FPS" value="10"/>
+    </module -->
     <module name="cv_detect_color_object">
       <define name="COLOR_OBJECT_DETECTOR_CAMERA1" value="front_camera"/>
       <define name="COLOR_OBJECT_DETECTOR_FPS1" value="0"/>
