@@ -39,8 +39,8 @@ void coloryuv_opencv_to_yuv422(Mat image, char *img, int width, int height)
   CV_Assert(image.depth() == CV_8U);
   CV_Assert(image.channels() == 3);
 
-  int nRows = image.rows;
-  int nCols = image.cols;
+  int nRows = min(image.rows, height);
+  int nCols = min(image.cols, width);
 
   int byte_index = 0;
   for(int r = 0; r < nRows; ++r) {
@@ -70,8 +70,8 @@ void grayscale_opencv_to_yuv422(Mat image, char *img, int width, int height)
   CV_Assert(image.depth() == CV_8U);
   CV_Assert(image.channels() == 1);
 
-  int n_rows = image.rows;
-  int n_cols = image.cols;
+  int n_rows = min(image.rows, height);
+  int n_cols = min(image.cols, width);
 
   // If the image is one block in memory we can iterate over it all at once!
   if (image.isContinuous()) {

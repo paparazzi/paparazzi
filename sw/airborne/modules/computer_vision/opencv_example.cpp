@@ -43,7 +43,7 @@ int opencv_example(char *img, int width, int height)
 
 #if OPENCVDEMO_GRAYSCALE
   //  Grayscale image example
-  cvtColor(M, image, CV_YUV2GRAY_Y422);
+  cvtColor(M, image, cv::COLOR_YUV2BGR_YUY2);
   // Canny edges, only works with grayscale image
   int edgeThresh = 35;
   Canny(image, image, edgeThresh, edgeThresh * 3);
@@ -52,7 +52,7 @@ int opencv_example(char *img, int width, int height)
 #else // OPENCVDEMO_GRAYSCALE
   // Color image example
   // Convert the image to an OpenCV Mat
-  cvtColor(M, image, CV_YUV2BGR_Y422);
+  cvtColor(M, image, cv::COLOR_YUV2BGR_YUY2);
   // Blur it, because we can
   blur(image, image, Size(5, 5));
   // Convert back to YUV422 and put it in place of the original image
