@@ -29,7 +29,7 @@
    telemetry="telemetry/default_rotorcraft_mavlink.xml"
    flight_plan="flight_plans/tudelft/rotorcraft_survey_delft.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/bebop_cam.xml modules/cv_blob_locator.xml modules/digital_cam_video.xml modules/geo_mag.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml [modules/nav_survey_poly_rotorcraft.xml] [modules/nav_survey_rectangle_rotorcraft.xml] modules/stabilization_indi_simple.xml modules/video_capture.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/bebop_cam.xml modules/cv_blob_locator.xml modules/digital_cam_common.xml modules/electrical.xml modules/geo_mag.xml modules/gps.xml modules/guidance_pid_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_rotorcraft.xml [modules/nav_survey_poly_rotorcraft.xml] [modules/nav_survey_rectangle_rotorcraft.xml] modules/stabilization_indi_simple.xml modules/video_capture.xml"
    gui_color="#ffff0689b7a1"
   />
   <aircraft
@@ -40,7 +40,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml [modules/geo_mag.xml] modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_rotorcraft.xml modules/preflight_checks.xml modules/stabilization_indi_simple.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml [modules/geo_mag.xml] modules/gps.xml modules/guidance_indi_base.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_rotorcraft.xml modules/preflight_checks.xml modules/stabilization_indi_simple.xml"
    gui_color="#ffffcccaccca"
   />
   <aircraft
@@ -209,17 +209,6 @@
    gui_color="blue"
   />
   <aircraft
-   name="ardrone2_flightplan_guided_gazebo"
-   ac_id="235"
-   airframe="airframes/examples/ardrone2_gazebo.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_guided_flightplan.xml"
-   settings="settings/rotorcraft_basic.xml settings/nps.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/cv_colorfilter.xml modules/cv_opticflow.xml [modules/geo_mag.xml] modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml [modules/ins_extended.xml] modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/video_rtp_stream.xml"
-   gui_color="red"
-  />
-  <aircraft
    name="autonomous_race_2018"
    ac_id="121"
    airframe="airframes/tudelft/bebop_autonomous_race_2018.xml"
@@ -306,17 +295,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml [modules/geo_mag.xml] modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_rotorcraft.xml modules/stabilization_indi.xml"
    gui_color="#ffffcccaccca"
-  />
-  <aircraft
-   name="frog1"
-   ac_id="25"
-   airframe="airframes/BR/bebop_indi_frog.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/tudelft/rotorcraft_survey_imav2015_competition.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_float_mlkf.xml modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/bebop_cam.xml modules/cv_blob_locator.xml modules/digital_cam_video.xml [modules/geo_mag.xml] modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml [modules/nav_survey_rectangle_rotorcraft.xml] modules/stabilization_indi_simple.xml modules/video_capture.xml modules/video_rtp_stream.xml"
-   gui_color="#68f5eb116e0c"
   />
   <aircraft
    name="DiscoRotorcraft"
