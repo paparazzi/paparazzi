@@ -175,6 +175,12 @@ void fit_linear_flow_field(struct flow_t *vectors, int count, float error_thresh
   int n_inliers_pv[n_iterations];
   int it, ii;
   for (it = 0; it < n_iterations; it++) {
+    errors_pu[it] = 0.0;
+    errors_pv[it] = 0.0;
+    n_inliers_pu[it] = 0;
+    n_inliers_pv[it] = 0;
+  }
+  for (it = 0; it < n_iterations; it++) {
     // select a random sample of n_sample points:
     int sample_indices[n_samples];
     i_rand = 0;
