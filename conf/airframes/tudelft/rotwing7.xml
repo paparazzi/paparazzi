@@ -80,7 +80,7 @@
 
         <!-- Herelink datalink -->
         <module name="telemetry" type="transparent">
-            <!--configure name="MODEM_PORT" value="usb_serial"/-->
+            <!-- <configure name="MODEM_PORT" value="usb_serial"/> -->
             <configure name="MODEM_BAUD" value="B460800"/>
         </module>
 
@@ -165,7 +165,7 @@
         <module name="approach_moving_target"/>
 
         <!-- Forward FuelCell data back to the GCS -->
-        <module name="can_fuelcell"/>
+        <!-- <module name="can_fuelcell"/> -->
 
     </firmware>
 
@@ -300,14 +300,14 @@
                 <field name="abi_id" value="26"/>
                 <field name="calibrated" type="struct">
                     <field name="neutral" value="true"/>
-                    <field name="scale" value="true"/>
-                    <field name="rotation" value="false"/>
+                    <field name="scale_f" value="true"/>
                     <field name="filter" value="true"/>
+                    <field name="rotation" value="false"/>
                 </field>
+                <field name="neutral" value="-6,-6,0" type="int[]"/>
+                <field name="scale_f" value="{ 4.8955, 4.9070, 4.9074 }"/>
                 <field name="filter_sample_freq" value="4042"/>
                 <field name="filter_freq" value="30"/>
-                <field name="neutral" value="-6,-7,-47" type="int[]"/>
-                <field name="scale" value="{{32406,25097,35786},{6623,5114,7131}}"/>
             </field>
         </define>
 
@@ -357,8 +357,8 @@
 
     <section name="BAT">
         <define name="CATASTROPHIC_BAT_LEVEL"   value="36.0" unit="V"/>
-        <define name="CRITIC_BAT_LEVEL"         value="37.2" unit="V"/>
-        <define name="LOW_BAT_LEVEL"            value="48.4" unit="V"/>
+        <define name="CRITIC_BAT_LEVEL"         value="42.6" unit="V"/>
+        <define name="LOW_BAT_LEVEL"            value="44.4" unit="V"/>
         <define name="MAX_BAT_LEVEL"            value="52.2" unit="V"/>
         <define name="TAKEOFF_BAT_LEVEL"        value="48.4" unit="V"/>
         <define name="BAT_NB_CELLS"             value="12"/>
