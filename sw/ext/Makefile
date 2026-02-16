@@ -105,7 +105,18 @@ endif
 unifiedmocaprouter: unifiedmocaprouter.update unifiedmocaprouter.build
 
 unifiedmocaprouter.build:
-	cd $(EXT_DIR)/unifiedmocaprouter/ && mkdir -p build && cd build && cmake -D'MOCAPS=optitrack' -D'AGENTS=console;ivy' .. && make
+	ifneq ($(shell dpkg -s libboost-program-options-dev >/dev/null 2>&1 && echo installed),)
+		ifneq ($(shell command -v cmake 2>/dev/null),)
+			cd $(EXT_DIR)/unifiedmocaprouter/ && mkdir -p build && cd build && cmake -D'MOCAPS=optitrack' -D'AGENTS=console;ivy' .. && make
+		else
+			@echo "cmake is not installed. Please install cmake to build unifiedmocaprouter."
+		endif
+	else
+		@echo "libboost-program-options-dev is not installed. Please install it to build unifiedmocaprouter."
+	endif
+	else
+		@echo "cmake is not installed. Please install cmake to build unifiedmocaprouter."
+	endif
 
 
 clean:
