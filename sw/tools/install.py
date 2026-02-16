@@ -52,6 +52,11 @@ class InstallWindow(QWidget):
             self.execute('sudo -E apt-get install -y python3-lxml python3-numpy')
         elif distro_version >= 24.04:
             self.execute('sudo -E apt-get install -y liblablgtk2-ocaml-dev')
+        if distro_version == 18.04:
+            self.execute('wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -')
+            self.execute('sudo apt-add-repository \'deb https://apt.kitware.com/ubuntu/ bionic main\'')
+        self.execute('sudo apt-get update && sudo apt-get install cmake')
+        self.execute('sudo -E apt-get install -y libboost-program-options-dev libboost-filesystem-dev')
 
     def cmd_arm(self):
         self.execute('sudo -E apt-get -f -y install paparazzi-dev')
