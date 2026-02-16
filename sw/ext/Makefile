@@ -36,7 +36,7 @@ MY_PYTHON := $(shell echo `which python3`)
 MY_MAVLINKTOOLS := $(shell $(MY_PYTHON) -c 'import imp; import future' 2>&1)
 MY_DRONECANTOOLS := $(shell $(MY_PYTHON) -c 'import em' 2>&1)
 
-all: chibios fatfs libsbp TRICAL hacl-c key_generator rustlink ecl matrix mavlink dronecan
+all: chibios fatfs libsbp TRICAL hacl-c key_generator rustlink ecl matrix mavlink dronecan unifiedmocaprouter
 
 # update (and init if needed) all submodules
 update_submodules:
@@ -102,6 +102,12 @@ else
 	@echo dronecan not installed, missing package 'em'
 endif
 
+unifiedmocaprouter: unifiedmocaprouter.update unifiedmocaprouter.build
+
+unifiedmocaprouter.build:
+	cd $(EXT_DIR)/unifiedmocaprouter/ && mkdir -p build && cd build && cmake -D'MOCAPS=optitrack' -D'AGENTS=console;ivy' .. && make
+
+
 clean:
 
 
@@ -114,4 +120,4 @@ clean_opencv_bebop:
 .PHONY: all clean update_submodules \
 		chibios fatfs \
 		mavlink.build libsbp pprzlink pprzlink.build opencv_bebop \
-		opencv_bebop.build clean_opencv_bebop TRICAL dronecan
+		opencv_bebop.build clean_opencv_bebop unifiedmocaprouter TRICAL dronecan
