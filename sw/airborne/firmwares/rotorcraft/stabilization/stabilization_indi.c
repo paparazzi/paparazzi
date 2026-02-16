@@ -220,6 +220,10 @@ static bool act_thrust_mat[3][INDI_NUM_ACT] = {
 };
 #endif
 
+#ifdef STABILIZATION_INDI_ACT_TO_COMMANDS
+static uint8_t act_to_commands[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_TO_COMMANDS;
+#endif
+
 #ifdef STABILIZATION_INDI_ACT_DYN
 #warning STABILIZATION_INDI_ACT_DYN is deprecated, use STABILIZATION_INDI_ACT_FREQ instead.
 #warning You now have to define the continuous time corner frequency in rad/s of the actuators.
@@ -773,6 +777,10 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
 
     // commit actuator command
     actuators_pprz[i] = (int16_t) indi_u[i];
+#ifdef STABILIZATION_INDI_ACT_TO_COMMANDS
+    // copy to actuators to specified commands
+    cmd[act_to_commands[i]] = actuators_pprz[i];
+#endif
 
     // update thrust command such that the current is correctly estimated
     cmd[COMMAND_THRUST] += actuator_state[i] * (int32_t) act_thrust_mat[2][i];
@@ -914,6 +922,30 @@ void get_actuator_state(void)
 
 #endif
 }
+
+#ifdef STABILIZATION_INDI_ACT_TO_COMMANDS
+/** Redefine if actuators to commands mapping is defined
+ *
+ * copy stabilization commands to general commands
+ * if corresponding actuator axis is producing thrust, stop motor is needed
+ */
+void set_rotorcraft_commands(pprz_t *cmd_out, int32_t *cmd_in, bool in_flight __attribute__((unused)), bool motors_on)
+{
+  for (int i = 0; i < INDI_NUM_ACT; i++) {
+    bool is_motor = act_thrust_mat[0][i] || act_thrust_mat[1][i] || act_thrust_mat[2][i];
+    if (is_motor && !motors_on) {
+      cmd_out[act_to_commands[i]] = MIN_PPRZ;
+    } else {
+      cmd_out[act_to_commands[i]] = cmd_in[act_to_commands[i]];
+    }
+  }
+  // for GCS display
+  if (!motors_on) {
+    cmd_in[COMMAND_THRUST] = 0;
+  }
+  cmd_out[COMMAND_THRUST] = cmd_in[COMMAND_THRUST];
+}
+#endif
 
 /**
  * @param ddx_error error in output change
