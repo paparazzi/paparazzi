@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2017 Tom van Dijk, Kirk Scheper
- * Copyright (C) 2025 Updated for Gazebo Harmonic
  *
  * This file is part of paparazzi.
  *
@@ -24,41 +23,28 @@
  * @file nps_fdm_gazebo.cpp
  * Flight Dynamics Model (FDM) for NPS using Gazebo Harmonic.
  *
- * This is an FDM for NPS that uses Gazebo Harmonic as the simulation engine.
+ * This is an FDM for NPS that uses Gazebo Harmonic (ignition-gazebo) as the simulation engine.
  */
 
+ 
 #include <cstdio>
 #include <cstdlib>
 #include <string>
 #include <iostream>
 #include <sys/time.h>
+#include <memory>
 
-// Gazebo Harmonic includes
-#include <gz/sim/Server.hh>
-#include <gz/sim/ServerConfig.hh>
-#include <gz/sim/World.hh>
-#include <gz/sim/Model.hh>
-#include <gz/sim/Link.hh>
-#include <gz/sim/Entity.hh>
-#include <gz/sim/EntityComponentManager.hh>
-#include <gz/sim/EventManager.hh>
-#include <gz/sim/components.hh>
-#include <gz/sim/Util.hh>
 
-#include <gz/sensors/SensorFactory.hh>
+// At the very top, BEFORE any Qt includes (which come via Gazebo)
+
+#include <gz/sim.hh>
 #include <gz/sensors/Sensor.hh>
-#include <gz/sensors/CameraSensor.hh>
-#include <gz/sensors/ContactSensor.hh>
-#include <gz/sensors/DistanceSensor.hh>
-
-#include <gz/math/Vector3.hh>
-#include <gz/math/Quaternion.hh>
-#include <gz/math/Pose3.hh>
-
-#include <gz/transport/Node.hh>
+#include <gz/sensors/Manager.hh>
+#include <gz/transport.hh>
 #include <gz/msgs.hh>
-
 #include <sdf/sdf.hh>
+
+#undef slots
 
 extern "C" {
 #include "nps_fdm.h"
@@ -91,7 +77,7 @@ extern "C" {
 using namespace std;
 
 #ifndef NPS_GAZEBO_WORLD
-#define NPS_GAZEBO_WORLD "empty.sdf"
+#define NPS_GAZEBO_WORLD "empty.world"
 #endif
 #ifndef NPS_GAZEBO_AC_NAME
 #define NPS_GAZEBO_AC_NAME "ardrone"
@@ -113,15 +99,15 @@ static void init_gazebo_video(void);
 static void gazebo_read_video(void);
 static void read_image(
   struct image_t *img,
-  gz::sensors::CameraSensor *cam);
-
+  const uint8_t *cam_data,
+  uint32_t cam_width,
+  uint32_t cam_height);
 struct gazebocam_t {
-  gz::sensors::CameraSensor *cam;
-  gz::msgs::Image last_image_msg;
-  std::chrono::steady_clock::time_point last_measurement_time;
+  std::string sensor_name;
+  uint64_t last_measurement_time;
 };
 static struct gazebocam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS] =
-{ { NULL, gz::msgs::Image(), std::chrono::steady_clock::time_point() } };
+{ { "", 0 } };
 
 // Reduce resolution of the simulated MT9F002 sensor (Bebop) to improve runtime
 // performance at the cost of image resolution.
@@ -152,22 +138,14 @@ static void gazebo_read_range_sensors(void);
 
 #endif
 
-std::shared_ptr<gz::sensors::DistanceSensor> sonar = NULL;
-
 /// Holds all necessary NPS FDM state information
 struct NpsFdm fdm;
 
 // Pointer to Gazebo data
 static bool gazebo_initialized = false;
-static gz::sim::Entity modelEntity;
-static gz::sim::Model model;
-static gz::sim::Server *server = NULL;
-static gz::sim::EntityComponentManager *ecm = NULL;
-static gz::sim::EventManager *eventMgr = NULL;
-static gz::transport::Node node;
-
-// Get contact sensor
-static gz::sensors::ContactSensor *ct = NULL;
+static gz::sim::Entity model_entity = gz::sim::kNullEntity;
+static std::unique_ptr<gz::sim::Server> server = nullptr;
+static gz::sim::EntityComponentManager *ecm = nullptr;
 
 // Helper functions
 static void init_gazebo(void);
@@ -255,9 +233,9 @@ inline struct DoubleVect3 to_pprz_ltp(gz::math::Vector3d xyz)
  */
 void nps_fdm_init(double dt)
 {
-  fdm.init_dt = dt; // JSBsim specific
-  fdm.curr_dt = dt; // JSBsim specific
-  fdm.nan_count = 0; // JSBsim specific
+  fdm.init_dt = dt;
+  fdm.curr_dt = dt;
+  fdm.nan_count = 0;
 
 #ifdef NPS_ACTUATOR_TIME_CONSTANTS
   // Set up low-pass filter to simulate delayed actuator response
@@ -265,17 +243,15 @@ void nps_fdm_init(double dt)
   for (int i = 0; i < NPS_COMMANDS_NB; i++) {
     init_first_order_low_pass(&gazebo_actuators.lowpass[i], tau[i], dt, 0.f);
   }
-#endif
 #ifdef NPS_ACTUATOR_MAX_ANGULAR_MOMENTUM
-  const float max_ang_mom[NPS_COMMANDS_NB] = NPS_ACTUATOR_MAX_ANGULAR_MOMENTUM;
+  // Set up high-pass filter to simulate spinup torque
+  const float Iwmax[NPS_COMMANDS_NB] = NPS_ACTUATOR_MAX_ANGULAR_MOMENTUM;
   for (int i = 0; i < NPS_COMMANDS_NB; i++) {
-    gazebo_actuators.max_ang_momentum[i] = max_ang_mom[i];
-    init_first_order_high_pass(&gazebo_actuators.highpass[i], 1. / (2 * M_PI * 5), dt, 0.f);
+    init_first_order_high_pass(&gazebo_actuators.highpass[i], tau[i], dt, 0.f);
+    gazebo_actuators.max_ang_momentum[i] = Iwmax[i];
   }
 #endif
-
-  init_gazebo();
-  gazebo_read();
+#endif
 }
 
 /**
@@ -284,562 +260,421 @@ void nps_fdm_init(double dt)
  * @param act_commands
  * @param commands_nb
  */
-void nps_fdm_run_step(bool launch __attribute__((unused)), double *act_commands, int commands_nb)
+void nps_fdm_run_step(
+  bool launch __attribute__((unused)),
+  double *act_commands,
+  int commands_nb)
 {
-  // Actuator dynamics, thrust and torque
-  gazebo_write(act_commands, commands_nb);
-
-  // Run simulation step
-  if (server) {
-    server->Run(true, 1, false);
+  // Initialize Gazebo if req'd.
+  if (!gazebo_initialized) {
+    init_gazebo();
+    gazebo_read();
+#if NPS_SIMULATE_VIDEO
+    init_gazebo_video();
+#endif
+#if NPS_SIMULATE_LASER_RANGE_ARRAY
+    gazebo_init_range_sensors();
+#endif
+    gazebo_initialized = true;
   }
 
-  // Update FDM state
+  // Update the simulation for a single timestep.
+  gazebo_write(act_commands, commands_nb);
+  server->Step();
   gazebo_read();
-
 #if NPS_SIMULATE_VIDEO
   gazebo_read_video();
 #endif
-
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
   gazebo_read_range_sensors();
 #endif
 }
 
-void nps_fdm_set_wind(double speed __attribute__((unused)),
-                      double dir __attribute__((unused)))
+// TODO Atmosphere functions have not been implemented yet.
+void nps_fdm_set_wind(
+  double speed __attribute__((unused)),
+  double dir __attribute__((unused)))
 {
-  // Not implemented in Gazebo Harmonic yet
 }
 
-void nps_fdm_set_wind_ned(double wind_north __attribute__((unused)),
-                          double wind_east __attribute__((unused)),
-                          double wind_down __attribute__((unused)))
+void nps_fdm_set_wind_ned(
+  double wind_north __attribute__((unused)),
+  double wind_east __attribute__((unused)),
+  double wind_down __attribute__((unused)))
 {
-  // Not implemented in Gazebo Harmonic yet
 }
 
-void nps_fdm_set_turbulence(double wind_speed __attribute__((unused)),
-                            int turbulence_severity __attribute__((unused)))
+void nps_fdm_set_turbulence(
+  double wind_speed __attribute__((unused)),
+  int turbulence_severity __attribute__((unused)))
 {
-  // Not implemented in Gazebo Harmonic yet
 }
 
-void nps_fdm_set_temperature(double temp __attribute__((unused)),
-                             double h __attribute__((unused)))
+/** Set temperature in degrees Celcius at given height h above MSL */
+void nps_fdm_set_temperature(
+  double temp __attribute__((unused)),
+  double h __attribute__((unused)))
 {
-  // Not implemented in Gazebo Harmonic yet
 }
 
+// Internal functions
 /**
- * Set up a Gazebo Harmonic server and load the world.
+ * Set up a Gazebo Harmonic server.
+ *
+ * Starts a Gazebo server, adds conf/simulator/gazebo/models to its model path
+ * and loads the world specified by NPS_GAZEBO_WORLD.
+ *
+ * This function also obtains a pointer to the aircraft entity, named
+ * NPS_GAZEBO_AC_NAME ('paparazzi_uav' by default). This pointer, 'model_entity',
+ * is used to read the state and write actuator commands in gazebo_read and
+ * _write.
  */
 static void init_gazebo(void)
 {
-  cout << "Initializing Gazebo Harmonic server..." << endl;
+  string gazebo_home = "/conf/simulator/gazebo/";
+  string pprz_home(getenv("PAPARAZZI_HOME"));
+  string gazebodir = pprz_home + gazebo_home;
+  cout << "Gazebo directory: " << gazebodir << endl;
 
-  // Configure server
-  gz::sim::ServerConfig serverConfig;
-  
-  // Load world file
-  string worldFile = string(getenv("PAPARAZZI_HOME")) + "/conf/simulator/gazebo/worlds/" + NPS_GAZEBO_WORLD;
-  serverConfig.SetSdfFile(worldFile);
-  
-  // Create server
-  server = new gz::sim::Server(serverConfig);
-  
-  if (!server || !server->Running()) {
-    cerr << "Failed to start Gazebo Harmonic server" << endl;
-    exit(1);
+  // Set up the resource paths
+  cout << "Add Paparazzi paths: " << gazebodir << endl;
+  gz::common::SystemPaths::Instance()->AddModelPaths(gazebodir + "models/");
+
+  cout << "Add TU Delft paths: " << pprz_home + "/sw/ext/tudelft_gazebo_models/" << endl;
+  gz::common::SystemPaths::Instance()->AddModelPaths(pprz_home + "/sw/ext/tudelft_gazebo_models/models/");
+
+  // Get world file
+  string world_uri = "world://" + string(NPS_GAZEBO_WORLD);
+  string world_filename = sdf::findFile(world_uri, false);
+  if (world_filename.empty()) {
+    cout << "ERROR, could not find world " + world_uri << endl;
+    std::exit(-1);
+  }
+  cout << "Load world: " << world_filename << endl;
+
+  // Create the server
+  try {
+    server = std::make_unique<gz::sim::Server>(
+      gz::sim::ServerConfig()
+        .SetPhysicsEngine("gz-physics-bullet-featherstone-plugin")
+        .SetSdfFile(world_filename)
+    );
+  } catch (const std::exception &e) {
+    cout << "Failed to create Gazebo server: " << e.what() << endl;
+    std::exit(-1);
   }
 
-  // Run a few iterations to let the world load
-  server->Run(true, 100, false);
+  // Run one iteration to initialize
+  server->Step();
 
-  cout << "Gazebo Harmonic server started successfully" << endl;
+  // Get the entity manager from the server
+  ecm = &(server->EntityComponentManager());
 
-  // Get entity component manager through a system callback
-  bool ecmFound = false;
-  server->SetUpdatePeriod(std::chrono::duration<double>(fdm.init_dt));
-  
-  // Access ECM and EventManager
-  auto callback = [&](const gz::sim::UpdateInfo &_info,
-                     gz::sim::EntityComponentManager &_ecm)
-  {
-    if (!ecmFound) {
-      ecm = &_ecm;
-      ecmFound = true;
-      
-      // Find model entity
-      gz::sim::Entity worldEntity = gz::sim::worldEntity(*ecm);
-      
-      ecm->Each<gz::sim::components::Model, gz::sim::components::Name>(
-        [&](const gz::sim::Entity &_entity,
-            const gz::sim::components::Model *,
-            const gz::sim::components::Name *_name) -> bool
-        {
-          if (_name->Data() == NPS_GAZEBO_AC_NAME) {
-            modelEntity = _entity;
-            model = gz::sim::Model(_entity);
-            cout << "Found model: " << NPS_GAZEBO_AC_NAME << endl;
-            return false;
-          }
-          return true;
-        });
-      
-      if (modelEntity == gz::sim::kNullEntity) {
-        cerr << "Model '" << NPS_GAZEBO_AC_NAME << "' not found!" << endl;
-        exit(1);
-      }
-    }
-  };
+  // Find the model entity
+  model_entity = ecm->EntityByComponents(
+    gz::sim::components::Name(NPS_GAZEBO_AC_NAME),
+    gz::sim::components::Model());
 
-  // Register the callback as a system
-  server->AddSystem(std::make_shared<std::function<void(const gz::sim::UpdateInfo &,
-                                                         gz::sim::EntityComponentManager &)>>(callback));
-  
-  // Run until ECM is found
-  for (int i = 0; i < 100 && !ecmFound; i++) {
-    server->Run(true, 1, false);
+  if (model_entity == gz::sim::kNullEntity) {
+    cout << "Failed to find model '" << NPS_GAZEBO_AC_NAME << "', exiting." << endl;
+    std::exit(-1);
   }
 
-  if (!ecmFound || !ecm) {
-    cerr << "Failed to get EntityComponentManager" << endl;
-    exit(1);
+  cout << "Found aircraft model: " << NPS_GAZEBO_AC_NAME << endl;
+
+  // Overwrite motor directions as defined by motor_mixing
+#ifdef MOTOR_MIXING_YAW_COEF
+  const double yaw_coef[] = MOTOR_MIXING_YAW_COEF;
+
+  for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
+    gazebo_actuators.torques[i] = -fabs(gazebo_actuators.torques[i]) * yaw_coef[i] / fabs(yaw_coef[i]);
+    gazebo_actuators.max_ang_momentum[i] = -fabs(gazebo_actuators.max_ang_momentum[i]) * yaw_coef[i] / fabs(yaw_coef[i]);
   }
-
-  gazebo_initialized = true;
-
-#if NPS_SIMULATE_VIDEO
-  init_gazebo_video();
 #endif
 
-#if NPS_SIMULATE_LASER_RANGE_ARRAY
-  gazebo_init_range_sensors();
-#endif
-
-  cout << "Gazebo initialization complete" << endl;
+  cout << "Gazebo initialized successfully!" << endl;
 }
 
 /**
- * Read Gazebo Harmonic state and populate FDM struct.
+ * Read Gazebo's simulation state and store the results in the fdm struct used
+ * by NPS.
  */
 static void gazebo_read(void)
 {
-  if (!ecm || modelEntity == gz::sim::kNullEntity) {
+  static gz::math::Vector3d vel_prev;
+  static double time_prev = 0;
+
+  // Get model components
+  auto pose_comp = ecm->Component<gz::sim::components::Pose>(model_entity);
+  auto lin_vel_comp = ecm->Component<gz::sim::components::LinearVelocity>(model_entity);
+  auto ang_vel_comp = ecm->Component<gz::sim::components::AngularVelocity>(model_entity);
+
+  if (!pose_comp || !lin_vel_comp || !ang_vel_comp) {
+    cout << "ERROR: Could not get required components from model" << endl;
     return;
   }
 
-  // Get world pose
-  auto poseComp = ecm->Component<gz::sim::components::Pose>(modelEntity);
-  if (!poseComp) {
-    return;
-  }
-  gz::math::Pose3d pose = poseComp->Data();
+  gz::math::Pose3d pose = pose_comp->Data();
+  gz::math::Vector3d vel = lin_vel_comp->Data();
+  gz::math::Vector3d ang_vel = ang_vel_comp->Data();
 
-  // Get world velocity
-  auto worldLinVelComp = ecm->Component<gz::sim::components::WorldLinearVelocity>(modelEntity);
-  auto worldAngVelComp = ecm->Component<gz::sim::components::WorldAngularVelocity>(modelEntity);
-  
-  gz::math::Vector3d worldLinVel(0, 0, 0);
-  gz::math::Vector3d worldAngVel(0, 0, 0);
-  
-  if (worldLinVelComp) {
-    worldLinVel = worldLinVelComp->Data();
-  }
-  if (worldAngVelComp) {
-    worldAngVel = worldAngVelComp->Data();
-  }
+  // Get world information (gravity, spherical coordinates, etc.)
+  auto world_entity = ecm->EntityByComponents(gz::sim::components::World());
+  auto gravity_comp = ecm->Component<gz::sim::components::Gravity>(world_entity);
+  gz::math::Vector3d gravity = gravity_comp ? gravity_comp->Data() : gz::math::Vector3d(0, 0, -9.81);
 
-  // Get body velocity (in body frame)
-  gz::math::Vector3d bodyLinVel = pose.Rot().RotateVectorReverse(worldLinVel);
-  gz::math::Vector3d bodyAngVel = pose.Rot().RotateVectorReverse(worldAngVel);
+  /* Fill FDM struct */
+  double current_time = gz::sim::components::WorldTime(*ecm).seconds();
+  fdm.time = current_time;
 
-  // Get world acceleration
-  auto worldLinAccelComp = ecm->Component<gz::sim::components::WorldLinearAcceleration>(modelEntity);
-  auto worldAngAccelComp = ecm->Component<gz::sim::components::WorldAngularAcceleration>(modelEntity);
-  
-  gz::math::Vector3d worldLinAccel(0, 0, 0);
-  gz::math::Vector3d worldAngAccel(0, 0, 0);
-  
-  if (worldLinAccelComp) {
-    worldLinAccel = worldLinAccelComp->Data();
+  // Find world acceleration by differentiating velocity
+  double dt = (time_prev > 0) ? (current_time - time_prev) : fdm.curr_dt;
+  gz::math::Vector3d accel = (dt > 0) ? (vel - vel_prev) / dt : gz::math::Vector3d();
+  vel_prev = vel;
+  time_prev = current_time;
+
+  // Transform ltp definition to double for accuracy
+  struct LtpDef_d ltpdef_d;
+  ltpdef_d.ecef.x = state.ned_origin_f.ecef.x;
+  ltpdef_d.ecef.y = state.ned_origin_f.ecef.y;
+  ltpdef_d.ecef.z = state.ned_origin_f.ecef.z;
+  ltpdef_d.lla.lat = state.ned_origin_f.lla.lat;
+  ltpdef_d.lla.lon = state.ned_origin_f.lla.lon;
+  ltpdef_d.lla.alt = state.ned_origin_f.lla.alt;
+  for (int i = 0; i < 3 * 3; i++) {
+    ltpdef_d.ltp_of_ecef.m[i] = state.ned_origin_f.ltp_of_ecef.m[i];
   }
-  if (worldAngAccelComp) {
-    worldAngAccel = worldAngAccelComp->Data();
-  }
+  ltpdef_d.hmsl = state.ned_origin_f.hmsl;
 
-  gz::math::Vector3d bodyLinAccel = pose.Rot().RotateVectorReverse(worldLinAccel);
-  gz::math::Vector3d bodyAngAccel = pose.Rot().RotateVectorReverse(worldAngAccel);
-
-  // Fill FDM struct
-  fdm.ecef_pos = to_pprz_ecef(pose.Pos());
+  /* position */
+  // NOTE: Gazebo Harmonic uses global coordinates directly
+  // You may need to adjust this based on your world setup
   fdm.ltpprz_pos = to_pprz_ltp(pose.Pos());
-  fdm.ltp_ecef_vel = to_pprz_ltp(worldLinVel);
-  fdm.body_ecef_vel = to_pprz_body(bodyLinVel);
-  fdm.body_ecef_accel = to_pprz_body(bodyLinAccel);
+  fdm.hmsl = -fdm.ltpprz_pos.z;
+  ecef_of_ned_point_d(&fdm.ecef_pos, &ltpdef_d, &fdm.ltpprz_pos);
+  lla_of_ecef_d(&fdm.lla_pos, &fdm.ecef_pos);
+
+  /* debug positions */
+  fdm.lla_pos_pprz = fdm.lla_pos;
+  fdm.lla_pos_geod = fdm.lla_pos;
+  fdm.lla_pos_geoc = fdm.lla_pos;
+  fdm.lla_pos_geoc.lat = gc_of_gd_lat_d(fdm.lla_pos.lat, fdm.hmsl);
+
+  // TODO: Implement sonar/AGL reading if available
+  fdm.agl = pose.Pos().Z();
+
+  /* velocity */
+  fdm.ltp_ecef_vel = to_pprz_ned(vel);
+  fdm.ltpprz_ecef_vel = fdm.ltp_ecef_vel;
+  fdm.body_ecef_vel = to_pprz_body(pose.Rot().RotateVectorReverse(vel));
+  ecef_of_ned_vect_d(&fdm.ecef_ecef_vel, &ltpdef_d, &fdm.ltp_ecef_vel);
+
+  /* acceleration */
+  fdm.ltp_ecef_accel = to_pprz_ned(accel);
+  fdm.ltpprz_ecef_accel = fdm.ltp_ecef_accel;
+  fdm.body_ecef_accel = to_pprz_body(pose.Rot().RotateVectorReverse(accel));
   fdm.body_inertial_accel = fdm.body_ecef_accel;
-  fdm.body_accel = fdm.body_ecef_accel;
-  fdm.ltp_ecef_accel = to_pprz_ltp(worldLinAccel);
+  fdm.body_accel = to_pprz_body(pose.Rot().RotateVectorReverse(accel - gravity));
+  ecef_of_ned_vect_d(&fdm.ecef_ecef_accel, &ltpdef_d, &fdm.ltp_ecef_accel);
 
-  fdm.ecef_ecef_vel = fdm.ltp_ecef_vel;
-  fdm.ecef_ecef_accel = fdm.ltp_ecef_accel;
+  /* attitude */
+  fdm.ltp_to_body_eulers = to_pprz_eulers(pose.Rot());
+  double_quat_of_eulers(&(fdm.ltp_to_body_quat), &(fdm.ltp_to_body_eulers));
+  fdm.ltpprz_to_body_quat = fdm.ltp_to_body_quat;
+  fdm.ltpprz_to_body_eulers = fdm.ltp_to_body_eulers;
 
-  fdm.hmsl = pose.Pos().Z();
-
-  fdm.ltp_g = to_pprz_ltp(gz::math::Vector3d(0, 0, -9.81));
-  fdm.ltp_h = to_pprz_ltp(gz::math::Vector3d(0, 0, -9.81));
-
-  // Attitude
-  fdm.ltp_to_body_eulers = to_global_pprz_eulers(pose.Rot());
-  fdm.ltpprz_to_body_eulers = to_pprz_eulers(pose.Rot());
-
-  // Rates
-  fdm.body_ecef_rotvel = to_pprz_rates(bodyAngVel);
-  fdm.body_ecef_rotaccel = to_pprz_rates(bodyAngAccel);
+  /* angular velocity */
+  fdm.body_ecef_rotvel = to_pprz_rates(pose.Rot().RotateVectorReverse(ang_vel));
   fdm.body_inertial_rotvel = fdm.body_ecef_rotvel;
-  fdm.body_inertial_rotaccel = fdm.body_ecef_rotaccel;
 
-  // LLA position
-  // For Gazebo Harmonic, we need to use the spherical coordinates component
-  auto sphericalCoordComp = ecm->Component<gz::sim::components::SphericalCoordinates>(
-      gz::sim::worldEntity(*ecm));
-  
-  if (sphericalCoordComp) {
-    auto sc = sphericalCoordComp->Data();
-    gz::math::Vector3d lla = sc.PositionTransform(pose.Pos(),
-                                                   gz::math::SphericalCoordinates::LOCAL2,
-                                                   gz::math::SphericalCoordinates::SPHERICAL);
-    fdm.lla_pos = to_pprz_lla(lla);
-  } else {
-    // Fallback if no spherical coordinates
-    fdm.lla_pos.lat = 0;
-    fdm.lla_pos.lon = 0;
-    fdm.lla_pos.alt = pose.Pos().Z();
-  }
+  /* misc */
+  fdm.ltp_g = to_pprz_ltp(-gravity);
+  fdm.ltp_h = (struct DoubleVect3) {0, 0, 0}; // TODO: Implement magnetic field
 
-  // Atmospheric properties
-  fdm.pressure_sl = pprz_isa_pressure_of_height(0);
-  fdm.pressure = pprz_isa_pressure_of_height(fdm.hmsl);
-  fdm.total_pressure = fdm.pressure + 0.5 * 1.225 * 
-                       (fdm.body_ecef_vel.x * fdm.body_ecef_vel.x +
-                        fdm.body_ecef_vel.y * fdm.body_ecef_vel.y +
-                        fdm.body_ecef_vel.z * fdm.body_ecef_vel.z);
-  fdm.dynamic_pressure = fdm.total_pressure - fdm.pressure;
-  fdm.temperature = pprz_isa_temperature_of_height(fdm.hmsl);
+  /* atmosphere */
+  fdm.wind = (struct DoubleVect3) {0, 0, 0};
+  fdm.pressure_sl = 101325; // Pa
+  fdm.airspeed = 0;
+  fdm.pressure = pprz_isa_pressure_of_height(fdm.hmsl, fdm.pressure_sl);
+  fdm.dynamic_pressure = fdm.pressure_sl;
+  fdm.temperature = 20.0; // C
+  fdm.aoa = 0; // rad
+  fdm.sideslip = 0; // rad
 
-  // Airspeed (simplified, assuming no wind)
-  fdm.airspeed = sqrt(fdm.body_ecef_vel.x * fdm.body_ecef_vel.x +
-                      fdm.body_ecef_vel.y * fdm.body_ecef_vel.y +
-                      fdm.body_ecef_vel.z * fdm.body_ecef_vel.z);
-
-  // Ground contact
-  fdm.agl = pose.Pos().Z(); // Simplified
-  if (ct) {
-    // Check contact sensor (implementation depends on sensor setup)
-    fdm.on_ground = (fdm.agl < 0.01);
-  } else {
-    fdm.on_ground = (fdm.agl < 0.01);
-  }
-
-  // Simulation time
-  auto simTimeComp = ecm->Component<gz::sim::components::SimulatedTime>(
-      gz::sim::worldEntity(*ecm));
-  if (simTimeComp) {
-    auto simTime = simTimeComp->Data();
-    fdm.time = std::chrono::duration<double>(simTime).count();
-  }
+  /* flight controls: unused */
+  fdm.elevator = 0;
+  fdm.flap = 0;
+  fdm.left_aileron = 0;
+  fdm.right_aileron = 0;
+  fdm.rudder = 0;
+  /* engine: unused */
+  fdm.num_engines = 0;
 }
 
 /**
- * Write actuator commands to Gazebo Harmonic.
- * 
- * @param act_commands Array of actuator commands
- * @param commands_nb Number of actuator commands
+ * Write actuator commands to Gazebo.
+ *
+ * This function takes the normalized commands and applies them as forces and
+ * torques in Gazebo. Since the commands are normalized in [0,1], their
+ * thrusts (NPS_ACTUATOR_THRUSTS) and torques (NPS_ACTUATOR_TORQUES) need to
+ * be specified in the airframe file.
  */
 static void gazebo_write(double act_commands[], int commands_nb)
 {
-  if (!ecm || modelEntity == gz::sim::kNullEntity) {
-    return;
-  }
+  for (int i = 0; i < commands_nb; ++i) {
+    // Find the link entity by name
+    auto link_entity = ecm->EntityByComponents(
+      gz::sim::components::Name(gazebo_actuators.names[i]),
+      gz::sim::components::Link(),
+      ecm->ParentEntity(model_entity)
+    );
 
-  // Apply actuator dynamics
-  for (int i = 0; i < commands_nb; i++) {
-    double input = act_commands[i];
-    
+    if (link_entity == gz::sim::kNullEntity) {
+      cout << "WARNING: Could not find link '" << gazebo_actuators.names[i] << "'" << endl;
+      continue;
+    }
+
+    // Thrust setpoint
+    double sp = autopilot.motors_on ? act_commands[i] : 0.0;
+
+    // Actuator dynamics, forces and torques
 #ifdef NPS_ACTUATOR_TIME_CONSTANTS
-    // Low-pass filter for actuator dynamics
-    double filtered = update_first_order_low_pass(&gazebo_actuators.lowpass[i], input);
-    act_commands[i] = filtered;
+    double u = update_first_order_low_pass(&gazebo_actuators.lowpass[i], sp);
+#else
+    double u = sp;
 #endif
+    double thrust = gazebo_actuators.thrusts[i] * u;
+    double torque = gazebo_actuators.torques[i] * u;
 
 #ifdef NPS_ACTUATOR_MAX_ANGULAR_MOMENTUM
-    // High-pass filter for back-emf effects
-    double ang_vel = update_first_order_high_pass(&gazebo_actuators.highpass[i], act_commands[i]);
-    double back_emf_reduction = fabs(ang_vel) / gazebo_actuators.max_ang_momentum[i];
-    back_emf_reduction = (back_emf_reduction > 1.0) ? 1.0 : back_emf_reduction;
-    act_commands[i] *= (1.0 - back_emf_reduction);
+    double udot = update_first_order_high_pass(&gazebo_actuators.highpass[i], sp);
+    double spinup_torque = gazebo_actuators.max_ang_momentum[i] / (2.0 * sqrt(u > 0.05 ? u : 0.05)) * udot;
+    torque += spinup_torque;
 #endif
-  }
 
-  // Find links and apply forces/torques
-  model = gz::sim::Model(modelEntity);
-  
-  for (int i = 0; i < commands_nb; i++) {
-    // Find link by name
-    gz::sim::Entity linkEntity = model.LinkByName(*ecm, gazebo_actuators.names[i]);
-    
-    if (linkEntity != gz::sim::kNullEntity) {
-      // Calculate thrust force
-      double thrust = gazebo_actuators.thrusts[i] * act_commands[i];
-      double torque = gazebo_actuators.torques[i] * act_commands[i];
-      
-      // Apply force in link's local z-direction (upward)
-      gz::math::Vector3d force(0, 0, thrust);
-      gz::math::Vector3d torqueVec(0, 0, torque);
-      
-      // Get or create WorldForce component
-      auto forceComp = ecm->Component<gz::sim::components::WorldForce>(linkEntity);
-      if (!forceComp) {
-        ecm->CreateComponent(linkEntity, 
-                            gz::sim::components::WorldForce(force));
-      } else {
-        // Add to existing force
-        auto currentForce = forceComp->Data();
-        ecm->SetComponentData<gz::sim::components::WorldForce>(linkEntity, 
-                                                                currentForce + force);
-      }
-      
-      // Get or create WorldTorque component
-      auto torqueComp = ecm->Component<gz::sim::components::WorldTorque>(linkEntity);
-      if (!torqueComp) {
-        ecm->CreateComponent(linkEntity, 
-                            gz::sim::components::WorldTorque(torqueVec));
-      } else {
-        // Add to existing torque
-        auto currentTorque = torqueComp->Data();
-        ecm->SetComponentData<gz::sim::components::WorldTorque>(linkEntity, 
-                                                                 currentTorque + torqueVec);
-      }
+    // Create force and torque components
+    auto force_comp = ecm->Component<gz::sim::components::ExternalForceCmd>(link_entity);
+    auto torque_comp = ecm->Component<gz::sim::components::ExternalTorqueCmd>(link_entity);
+
+    if (!force_comp) {
+      ecm->CreateComponent(link_entity, gz::sim::components::ExternalForceCmd(gz::math::Vector3d(0, 0, thrust)));
+    } else {
+      force_comp->Data() = gz::math::Vector3d(0, 0, thrust);
+    }
+
+    if (!torque_comp) {
+      ecm->CreateComponent(link_entity, gz::sim::components::ExternalTorqueCmd(gz::math::Vector3d(0, 0, torque)));
+    } else {
+      torque_comp->Data() = gz::math::Vector3d(0, 0, torque);
     }
   }
 }
 
 #if NPS_SIMULATE_VIDEO
 /**
- * Initialize Gazebo Harmonic cameras for video simulation.
+ * Set up cameras.
+ *
+ * This function finds the sensors in the Gazebo model that correspond to
+ * the cameras registered in video_thread_nps.h.
  */
 static void init_gazebo_video(void)
 {
   cout << "Initializing cameras..." << endl;
 
-  // Gazebo Harmonic uses gz-sensors for camera access
-  gz::sensors::SensorFactory sensorFactory;
-  
-  // For now, this is a placeholder
-  // In Gazebo Harmonic, camera sensors are typically accessed via topics
-  // You would subscribe to camera image topics using gz::transport::Node
-  
-  cout << "Camera initialization for Gazebo Harmonic requires topic-based approach" << endl;
-  cout << "Subscribe to camera topics like /camera or /camera/image" << endl;
+  // Loop over cameras registered in video_thread_nps
+  for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS && cameras[i] != NULL; ++i) {
+    cout << "Setting up '" << cameras[i]->dev_name << "'... ";
 
-  // Example: Set up topic subscribers for cameras
-  for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {
-    if (cameras[i] != NULL) {
-      string topicName = string("/") + cameras[i]->dev_name + "/image";
-      
-      // Subscribe to camera topic
-      std::function<void(const gz::msgs::Image &)> cb =
-        [i](const gz::msgs::Image &_msg) {
-          gazebo_cams[i].last_image_msg = _msg;
-          gazebo_cams[i].last_measurement_time = std::chrono::steady_clock::now();
-        };
-      
-      if (!node.Subscribe(topicName, cb)) {
-        cout << "Failed to subscribe to topic: " << topicName << endl;
-      } else {
-        cout << "Subscribed to camera topic: " << topicName << endl;
-      }
+    // Find the camera sensor in the Gazebo world
+    auto sensor_entity = ecm->EntityByComponents(
+      gz::sim::components::Name(cameras[i]->dev_name),
+      gz::sim::components::Sensor()
+    );
+
+    if (sensor_entity == gz::sim::kNullEntity) {
+      cout << "ERROR: Sensor '" << cameras[i]->dev_name << "' not found!" << endl;
+      continue;
     }
+
+    gazebo_cams[i].sensor_name = cameras[i]->dev_name;
+    gazebo_cams[i].last_measurement_time = 0;
+
+    // Set default camera settings
+    cameras[i]->output_size.w = 640; // Default values - adjust as needed
+    cameras[i]->output_size.h = 480;
+    cameras[i]->sensor_size.w = 640;
+    cameras[i]->sensor_size.h = 480;
+    cameras[i]->crop.w = 640;
+    cameras[i]->crop.h = 480;
+    cameras[i]->fps = 30;
+    cameras[i]->camera_intrinsics.focal_x = cameras[i]->output_size.w / 2.0f;
+    cameras[i]->camera_intrinsics.center_x = cameras[i]->output_size.w / 2.0f;
+    cameras[i]->camera_intrinsics.focal_y = cameras[i]->output_size.h / 2.0f;
+    cameras[i]->camera_intrinsics.center_y = cameras[i]->output_size.h / 2.0f;
+
+    cout << "ok" << endl;
   }
-  
-  cout << "Camera initialization complete" << endl;
 }
 
 /**
- * Read camera images from Gazebo Harmonic.
+ * Read camera images.
+ *
+ * Polls gazebo cameras for new frames.
  */
 static void gazebo_read_video(void)
 {
-  // Video handling in Gazebo Harmonic is done through message passing
-  // Images are received via callbacks registered with gz::transport::Node
-  
   for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {
-    if (cameras[i] == NULL) continue;
-    
-    auto &lastMsg = gazebo_cams[i].last_image_msg;
-    if (lastMsg.width() == 0 || lastMsg.height() == 0) continue;
-    
-    // Convert gz::msgs::Image to image_t
-    struct image_t img;
-    
-    // Determine camera type
-    bool is_mt9f002 = (string(cameras[i]->dev_name) == "mt9f002");
-    
-    if (is_mt9f002) {
-      image_create(&img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
-    } else {
-      image_create(&img, lastMsg.width(), lastMsg.height(), IMAGE_YUV422);
-    }
-    
-    // Convert RGB to YUV422
-    const unsigned char *data_rgb = 
-      reinterpret_cast<const unsigned char*>(lastMsg.data().c_str());
-    uint8_t *data_yuv = (uint8_t *)(img.buf);
-    
-    for (int x_yuv = 0; x_yuv < img.w; ++x_yuv) {
-      for (int y_yuv = 0; y_yuv < img.h; ++y_yuv) {
-        int x_rgb = x_yuv;
-        int y_rgb = y_yuv;
-        
-        if (is_mt9f002) {
-          x_rgb = (mt9f002.offset_x + ((float)x_yuv / img.w) * mt9f002.sensor_width)
-              / CFG_MT9F002_PIXEL_ARRAY_WIDTH * lastMsg.width();
-          y_rgb = (mt9f002.offset_y + ((float)y_yuv / img.h) * mt9f002.sensor_height)
-              / CFG_MT9F002_PIXEL_ARRAY_HEIGHT * lastMsg.height();
-        }
-        
-        int idx_rgb = 3 * (lastMsg.width() * y_rgb + x_rgb);
-        int idx_yuv = 2 * (img.w * y_yuv + x_yuv);
-        int idx_px = img.w * y_yuv + x_yuv;
-        
-        if (idx_px % 2 == 0) {
-          data_yuv[idx_yuv] = - 0.148 * data_rgb[idx_rgb]
-                              - 0.291 * data_rgb[idx_rgb + 1]
-                              + 0.439 * data_rgb[idx_rgb + 2] + 128; // U
-        } else {
-          data_yuv[idx_yuv] =   0.439 * data_rgb[idx_rgb]
-                                - 0.368 * data_rgb[idx_rgb + 1]
-                                - 0.071 * data_rgb[idx_rgb + 2] + 128; // V
-        }
-        data_yuv[idx_yuv + 1] =   0.257 * data_rgb[idx_rgb]
-                                  + 0.504 * data_rgb[idx_rgb + 1]
-                                  + 0.098 * data_rgb[idx_rgb + 2] + 16; // Y
-      }
-    }
-    
-    // Set timestamp from message
-    auto sec = lastMsg.header().stamp().sec();
-    auto nsec = lastMsg.header().stamp().nsec();
-    img.ts.tv_sec = sec;
-    img.ts.tv_usec = nsec / 1000;
-    img.pprz_ts = (sec + nsec / 1e9) * 1e6;
-    img.buf_idx = 0;
+    if (gazebo_cams[i].sensor_name.empty()) { continue; }
 
-#if NPS_DEBUG_VIDEO
-    cv::Mat RGB_cam(lastMsg.height(), lastMsg.width(), CV_8UC3, 
-                    (uint8_t *)data_rgb);
-    cv::cvtColor(RGB_cam, RGB_cam, cv::COLOR_RGB2BGR);
-    cv::namedWindow(cameras[i]->dev_name, cv::WINDOW_AUTOSIZE);
-    cv::imshow(cameras[i]->dev_name, RGB_cam);
-    cv::waitKey(1);
-#endif
+    // TODO: Implement camera frame reading from Gazebo
+    // This will require subscribing to camera topics or querying sensor data
+    // in Gazebo Harmonic using the transport library
 
-    cv_run_device(cameras[i], &img);
-    image_free(&img);
+    cout << "Camera frame reading not yet implemented for Gazebo Harmonic" << endl;
   }
 }
-#endif // NPS_SIMULATE_VIDEO
+
+/**
+ * Read Gazebo image and convert.
+ *
+ * Converts the current camera frame to the format used by Paparazzi.
+ */
+static void read_image(
+  struct image_t *img,
+  const uint8_t *cam_data,
+  uint32_t cam_width,
+  uint32_t cam_height)
+{
+  // TODO: Implement image conversion from RGB to UYVY format
+  // This is a placeholder for the implementation
+}
+#endif
 
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
 /*
- * Range sensor simulation for Gazebo Harmonic
+ * Simulate range sensors using Gazebo Harmonic Ray sensors.
  */
 
 struct gazebo_ray_t {
-  gz::sensors::DistanceSensor *sensor;
-  std::chrono::steady_clock::time_point last_measurement_time;
-  double last_range;
+  gz::sim::Entity sensor_entity;
+  uint64_t last_measurement_time;
 };
 
-static struct gazebo_ray_t rays[LASER_RANGE_ARRAY_NUM_SENSORS] = {{NULL, std::chrono::steady_clock::time_point(), 0.0}};
+static struct gazebo_ray_t rays[LASER_RANGE_ARRAY_NUM_SENSORS] = {{gz::sim::kNullEntity, 0}};
 static float range_orientation[] = LASER_RANGE_ARRAY_ORIENTATIONS;
 static uint8_t ray_sensor_agl_index = 255;
 
 #define VL53L0_MAX_VAL 8.191f
 
-/**
- * Initialize range sensors in Gazebo Harmonic.
- */
 static void gazebo_init_range_sensors(void)
 {
-  cout << "Initializing range sensors..." << endl;
-  
-  // In Gazebo Harmonic, sensors are accessed via topics
-  // Subscribe to range/distance sensor topics
-  
-  for (int i = 0; i < LASER_RANGE_ARRAY_NUM_SENSORS; i++) {
-    string sensorName = "range_sensor_" + to_string(i);
-    string topicName = "/" + string(NPS_GAZEBO_AC_NAME) + "/" + sensorName;
-    
-    std::function<void(const gz::msgs::LaserScan &)> cb =
-      [i](const gz::msgs::LaserScan &_msg) {
-        if (_msg.ranges_size() > 0) {
-          rays[i].last_range = _msg.ranges(0);
-          rays[i].last_measurement_time = std::chrono::steady_clock::now();
-        }
-      };
-    
-    if (node.Subscribe(topicName, cb)) {
-      cout << "Subscribed to range sensor: " << topicName << endl;
-    }
-    
-    // Check for sensor pointing down for AGL
-#if LASER_RANGE_ARRAY_SEND_AGL
-    if (fabs(range_orientation[i * 2] + M_PI_2) < RadOfDeg(5)) {
-      ray_sensor_agl_index = i;
-    }
-#endif
-  }
-  
-  cout << "Range sensors initialized" << endl;
+  // TODO: Implement range sensor initialization for Gazebo Harmonic
+  cout << "Range sensor initialization not yet implemented for Gazebo Harmonic" << endl;
 }
 
-/**
- * Read range sensor data and send ABI messages.
- */
 static void gazebo_read_range_sensors(void)
 {
-  auto now = std::chrono::steady_clock::now();
-  
-  for (int i = 0; i < LASER_RANGE_ARRAY_NUM_SENSORS; i++) {
-    // Check if we have a recent measurement
-    auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>(
-        now - rays[i].last_measurement_time).count();
-    
-    if (timeDiff > 100) { // Skip if older than 100ms
-      continue;
-    }
-    
-    float range = rays[i].last_range;
-    
-    // Clamp range to valid values
-    if (range < 1e-5 || range > VL53L0_MAX_VAL || std::isinf(range)) {
-      range = VL53L0_MAX_VAL;
-    }
-    
-    // Send obstacle detection message
-    AbiSendMsgOBSTACLE_DETECTION(OBS_DETECTION_RANGE_ARRAY_NPS_ID, range, 
-                                 range_orientation[i * 2],
-                                 range_orientation[i * 2 + 1]);
-    
-    // Send AGL if this is the down-facing sensor
-    if (i == ray_sensor_agl_index) {
-      uint32_t now_ts = get_sys_time_usec();
-      if (range > 1e-5 && !std::isinf(range)) {
-        AbiSendMsgAGL(AGL_RAY_SENSOR_GAZEBO_ID, now_ts, range);
-      }
-    }
-  }
+  // TODO: Implement range sensor reading for Gazebo Harmonic
+  cout << "Range sensor reading not yet implemented for Gazebo Harmonic" << endl;
 }
-#endif // NPS_SIMULATE_LASER_RANGE_ARRAY
+#endif  // NPS_SIMULATE_LASER_RANGE_ARRAY
