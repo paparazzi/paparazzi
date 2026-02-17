@@ -24,9 +24,15 @@
         <arg flag="-d 0"/>
       </program>
       <program name="Gazebo"/>
-      <program name="RtpViewer"/>
+      <program name="RtpViewer">
+        <arg flag="-s" constant="1"/>
+        <arg flag="-r" constant="3"/>
+      </program>
       <program name="VLC">
         <arg flag="./sw/tools/rtp_viewer/rtp_5000.sdp"/>
+      </program>
+      <program name="VLC">
+        <arg flag="./sw/tools/rtp_viewer/rtp_6000.sdp"/>
       </program>
     </session>
 
@@ -43,15 +49,21 @@
         <arg flag="sm600.xml"/>
         <arg flag="-d 0"/>
       </program>
-      <program name="NatNet3">
+      <!--program name="NatNet3">
         <arg flag="-ac 9999" constant="@AC_ID"/>
         <arg flag="-xa" constant="57"/>
         <arg flag="-an" constant="far"/>
         <arg flag="-le" constant="far"/>
+      </program-->
+      <program name="RtpViewer">
+        <arg flag="-s" constant="1"/>
+        <arg flag="-r" constant="3"/>
       </program>
-      <program name="RtpViewer"/>
       <program name="VLC">
         <arg flag="./sw/tools/rtp_viewer/rtp_5000.sdp"/>
+      </program>
+      <program name="VLC">
+        <arg flag="./sw/tools/rtp_viewer/rtp_6000.sdp"/>
       </program>
     </session>
 

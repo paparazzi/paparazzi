@@ -107,6 +107,8 @@ class InstallWindow(QWidget):
         self.execute('sudo -E apt-get install -y python3-pip')
         self.execute('python3 -m pip install pyquaternion ivy-python') # Required for NatNat
         self.execute('python3 -m pip install pymap3d') # Required for Moving-Base
+        self.execute('python3 -m pip install opencv-python') # Required for RTP-viewer
+        
 
     def cmd_doc(self):
         self.view('https://paparazzi-uav.readthedocs.io')
