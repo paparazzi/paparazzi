@@ -776,7 +776,7 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
   }
 
   /*Commit the actuator command*/
-  stabilization_indi_commit_actuator_command(cmd);
+  stabilization_indi_commit_actuator_cmd(cmd);
 }
 
 /**
@@ -1168,7 +1168,7 @@ static void bound_g_mat(void)
   }
 }
 
-void WEAK stabilization_indi_commit_actuator_command(int32_t *cmd) {
+void WEAK stabilization_indi_commit_actuator_cmd(int32_t *cmd) {
   for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
     actuators_pprz[i] = (int16_t) indi_u[i];
 
@@ -1187,7 +1187,7 @@ void WEAK stabilization_indi_commit_actuator_command(int32_t *cmd) {
 }
 
 
-float* stabilization_indi_get_act_state_var(void) {
+float* stabilization_indi_get_act_state(void) {
   return actuator_state;
 }
 
