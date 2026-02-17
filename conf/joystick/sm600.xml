@@ -36,7 +36,7 @@ The basis of steering is the standard signs of aerospace convention
 
   <messages period="0.05">
     <message class="datalink" name="RC_UP" send_always="true">
-      <field name="channels" value="RightStickHorizontal;-RightStickVertical;LeftStickHorizontal;Fit(LeftStickVertical,0,127,0,127);2-2*VRA"/>
+      <field name="channels" value="RightStickHorizontal;-RightStickVertical;LeftStickHorizontal;Fit(LeftStickVertical,0,127,0,127);127-254*VRA"/>
     </message>
   </messages>
 
