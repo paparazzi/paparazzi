@@ -26,7 +26,6 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h"
-#include "filters/low_pass_filter.h"
 
 // Scaling for the control effectiveness to make it readible
 #define INDI_G_SCALING 1000.0

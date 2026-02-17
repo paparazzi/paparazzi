@@ -39,6 +39,7 @@
 #include "modules/radio_control/radio_control.h"
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
+#include "filters/low_pass_filter.h"
 #include "math/wls/wls_alloc.h"
 #include <stdio.h>
 
