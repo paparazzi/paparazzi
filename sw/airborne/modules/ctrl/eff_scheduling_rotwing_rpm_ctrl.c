@@ -642,7 +642,7 @@ static float pprz_cmd_to_u_squared(float pprz_cmd, float max, float neutral, flo
 void stabilization_indi_get_actuator_state(void)
 { 
   float* indi_u = stabilization_indi_get_indi_u();
-  float* actuator_state = stabilization_indi_get_act_state_var();
+  float* actuator_state = stabilization_indi_get_act_state();
   float* act_dyn_discrete = stabilization_indi_get_act_dyn();
 
   float u_pprz_cmd;
@@ -689,10 +689,10 @@ void stabilization_indi_get_actuator_state(void)
   }
 }
 
-void stabilization_indi_commit_actuator_command(int32_t *cmd)
+void stabilization_indi_commit_actuator_cmd(int32_t *cmd)
 {
   float* indi_u = stabilization_indi_get_indi_u();
-  float* actuator_state = stabilization_indi_get_act_state_var();
+  float* actuator_state = stabilization_indi_get_act_state();
   bool* act_is_thruster_z = stabilization_indi_get_act_is_thruster_z();
 
   float u_pprz_cmd;

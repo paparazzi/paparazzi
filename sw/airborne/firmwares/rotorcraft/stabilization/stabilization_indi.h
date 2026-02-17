@@ -66,7 +66,7 @@ extern struct Indi_gains indi_gains;
 extern float stabilization_indi_filter_freq; //for setting handler
 
 extern void stabilization_indi_get_actuator_state(void);
-extern void stabilization_indi_commit_actuator_command(int32_t *cmd);
+extern void stabilization_indi_commit_actuator_cmd(int32_t *cmd);
 extern void stabilization_indi_init(void);
 extern void stabilization_indi_enter(void);
 extern void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *rate_sp, struct ThrustSetpoint *thrust, int32_t *cmd);
@@ -79,7 +79,7 @@ extern void stabilization_indi_update_filt_freq(float freq); // setting handler
 extern struct FloatRates stabilization_indi_attitude_controller(struct FloatQuat att, struct FloatQuat att_sp, struct FloatRates rates_ff);
 extern struct FloatRates stabilization_indi_rate_controller(struct FloatRates rates, struct FloatRates sp);
 
-float* stabilization_indi_get_act_state_var(void);
+float* stabilization_indi_get_act_state(void);
 float* stabilization_indi_get_act_dyn(void);
 float* stabilization_indi_get_indi_u(void);
 bool* stabilization_indi_get_act_is_thruster_z(void);
