@@ -1,5 +1,6 @@
 <control_panel name="paparazzi control panel">
   <section name="programs">
+    <program name="UnifiedMoCap" command="sw/ext/unifiedmocaprouter/build/mocap-router"/>
   </section>
   <section name="sessions">
 
@@ -39,6 +40,16 @@
     <session name="Flight UDP">
       <program name="Data Link">
         <arg flag="-udp"/>
+      </program>
+      <program name="UnifiedMoCap" command="sw/ext/unifiedmocaprouter/build/mocap-router">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="10"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="1"/>
+        <arg flag="--ac_id" constant="@AC_ID"/>
       </program>
       <program name="Server"/>
       <program name="PprzGCS">
