@@ -39,7 +39,6 @@
 #include "modules/radio_control/radio_control.h"
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
-#include "filters/low_pass_filter.h"
 #include "math/wls/wls_alloc.h"
 #include <stdio.h>
 
@@ -173,7 +172,6 @@ float *Bwls[INDI_OUTPUTS];
 
 
 static void lms_estimation(void);
-static void get_actuator_state(void);
 static void calc_g1_element(float dx_error, int8_t i, int8_t j, float mu_extra);
 static void calc_g2_element(float dx_error, int8_t j, float mu_extra);
 #if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
@@ -584,7 +582,7 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
 {
 
   // Propagate actuator filters
-  get_actuator_state();
+  stabilization_indi_get_actuator_state();
   float actuator_state_filt_vect_prev[INDI_NUM_ACT];
   for (int i = 0; i < INDI_NUM_ACT; i++) {
     update_butterworth_2_low_pass(&actuator_lowpass_filters[i], actuator_state[i]);
@@ -774,18 +772,10 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
         indi_u[i] = -MAX_PPRZ;
       }
     }
-
-    // commit actuator command
-    actuators_pprz[i] = (int16_t) indi_u[i];
-#ifdef STABILIZATION_INDI_COMMANDS
-    // copy to actuators to specified commands
-    cmd[act_to_commands[i]] = actuators_pprz[i];
-#endif
-
-    // update thrust command such that the current is correctly estimated
-    cmd[COMMAND_THRUST] += actuator_state[i] * (int32_t) act_thrust_mat[2][i];
   }
-  cmd[COMMAND_THRUST] /= num_thrusters;
+
+  /*Commit the actuator command*/
+  stabilization_indi_commit_actuator_command(cmd);
 }
 
 /**
@@ -897,7 +887,7 @@ void WEAK stabilization_indi_set_wls_settings(void)
  * If this is not available it will use a first order filter to approximate the actuator state.
  * It is also possible to model rate limits (unit: PPRZ/loop cycle)
  */
-void get_actuator_state(void)
+void WEAK stabilization_indi_get_actuator_state(void)
 {
 #if STABILIZATION_INDI_RPM_FEEDBACK
   float_vect_copy(actuator_state, act_obs, INDI_NUM_ACT);
@@ -1177,3 +1167,41 @@ static void bound_g_mat(void)
   }
 }
 
+void WEAK stabilization_indi_commit_actuator_command(int32_t *cmd) {
+  for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
+    actuators_pprz[i] = (int16_t) indi_u[i];
+
+#ifdef STABILIZATION_INDI_COMMANDS
+    // copy to actuators to specified commands
+    cmd[act_to_commands[i]] = actuators_pprz[i];
+#endif
+  }
+  
+  //update thrust command such that the current is correctly estimated
+  cmd[COMMAND_THRUST] = 0;
+  for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
+    cmd[COMMAND_THRUST] += actuator_state[i] * (int32_t) act_is_thruster_z[i];
+  }
+  cmd[COMMAND_THRUST] /= num_thrusters;
+}
+
+
+float* stabilization_indi_get_act_state_var(void) {
+  return actuator_state;
+}
+
+float* stabilization_indi_get_act_dyn(void) {
+  return act_dyn_discrete;
+}
+
+float* stabilization_indi_get_indi_u(void) {
+  return indi_u;
+}
+
+bool* stabilization_indi_get_act_is_thruster_z(void) {
+  return act_is_thruster_z;
+}
+
+int32_t stabilization_indi_get_num_thrusters(void) {
+  return num_thrusters;
+}
