@@ -13,4 +13,5 @@ distro
 empy
 pexpect
 setuptools
+dronecan
 
