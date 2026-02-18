@@ -349,7 +349,12 @@ let parse_ap_only_commands = fun out ap_only ->
 
 let parse_command = fun out command no ->
   let command_name = "COMMAND_"^ExtXml.attrib command "name" in
-  let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
+  let failsafe_value = match (ExtXml.attrib command "failsafe_value") with
+    | "MIN_PPRZ" | "MOTOR_STOP" -> -9600
+    | "MAX_PPRZ" -> 9600
+    | "MOTOR_IDLE" -> 0
+    | x -> int_of_string x
+  in
   let group = ExtXml.attrib_or_default command "group" "REAL" in 
   define_out out command_name (string_of_int no);
   { failsafe_value = failsafe_value; foo = 0 ; group = group }  
