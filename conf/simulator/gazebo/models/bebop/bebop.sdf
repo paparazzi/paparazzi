@@ -1,13 +1,9 @@
 <?xml version='1.0'?>
-<sdf version='1.4'>
+<sdf version='1.9'>
   <model name="bebop">
     <pose>0 0 .1 0 0 1.57</pose>
 
     <link name="chassis">
-      <velocity_decay>
-        <linear>0.001</linear>
-      </velocity_decay>
-      
       <inertial>
         <mass>0.536</mass><!-- With bumpers. Tuned for correct nominal hover thrust, mass is higher than in real life (~0.40kg) -->
         <inertia>
