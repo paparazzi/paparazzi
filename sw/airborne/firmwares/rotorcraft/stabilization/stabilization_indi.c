@@ -220,8 +220,8 @@ static bool act_thrust_mat[3][INDI_NUM_ACT] = {
 };
 #endif
 
-#ifdef STABILIZATION_INDI_ACT_TO_COMMANDS
-static uint8_t act_to_commands[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_TO_COMMANDS;
+#ifdef STABILIZATION_INDI_COMMANDS
+static uint8_t act_to_commands[INDI_NUM_ACT] = STABILIZATION_INDI_COMMANDS;
 #endif
 
 #ifdef STABILIZATION_INDI_ACT_DYN
@@ -777,7 +777,7 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
 
     // commit actuator command
     actuators_pprz[i] = (int16_t) indi_u[i];
-#ifdef STABILIZATION_INDI_ACT_TO_COMMANDS
+#ifdef STABILIZATION_INDI_COMMANDS
     // copy to actuators to specified commands
     cmd[act_to_commands[i]] = actuators_pprz[i];
 #endif
@@ -923,7 +923,7 @@ void get_actuator_state(void)
 #endif
 }
 
-#ifdef STABILIZATION_INDI_ACT_TO_COMMANDS
+#ifdef STABILIZATION_INDI_COMMANDS
 /** Redefine if actuators to commands mapping is defined
  *
  * copy stabilization commands to general commands

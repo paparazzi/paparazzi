@@ -198,8 +198,8 @@
     <!--Priority for each axis (roll, pitch, yaw and thrust)-->
     <define name="WLS_PRIORITIES" value="{1000, 1000, 1, 100}"/>
 
-    <!-- Actuators to commands association -->
-    <define name="ACT_TO_COMMANDS" value="{COMMAND_FR, COMMAND_BR, COMMAND_BL, COMMAND_FL}"/>
+    <!-- INDI outputs to commands association -->
+    <define name="COMMANDS" value="{COMMAND_FR, COMMAND_BR, COMMAND_BL, COMMAND_FL}"/>
   </section>
 
   <section name="GUIDANCE_INDI" prefix="GUIDANCE_INDI_">
