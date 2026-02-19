@@ -588,8 +588,10 @@ static void init_gazebo(void)
 #ifdef MOTOR_MIXING_YAW_COEF
   const double yaw_coef[] = MOTOR_MIXING_YAW_COEF;
   for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
-    gazebo_actuators.torques[i] = -fabs(gazebo_actuators.torques[i]) * yaw_coef[i] / fabs(yaw_coef[i]);
-    gazebo_actuators.max_ang_momentum[i] = -fabs(gazebo_actuators.max_ang_momentum[i]) * yaw_coef[i] / fabs(yaw_coef[i]);
+    if (fabs(yaw_coef[i]) > 0.0) {
+      gazebo_actuators.torques[i] = -fabs(gazebo_actuators.torques[i]) * yaw_coef[i] / fabs(yaw_coef[i]);
+      gazebo_actuators.max_ang_momentum[i] = -fabs(gazebo_actuators.max_ang_momentum[i]) * yaw_coef[i] / fabs(yaw_coef[i]);
+    }
   }
 #endif
 

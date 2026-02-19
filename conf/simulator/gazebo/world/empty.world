@@ -28,7 +28,7 @@
       <latitude_deg>51.9906340</latitude_deg>
       <longitude_deg>4.3767889</longitude_deg>
       <elevation>45.110</elevation>
-      <heading_deg>0</heading_deg>
+      <heading_deg>0</heading_deg><!-- GZ Harmonic fixed the WSU/ENU coordinate bug; no longer need heading=180 workaround -->
     </spherical_coordinates>
 
     <model name="ground_plane">
