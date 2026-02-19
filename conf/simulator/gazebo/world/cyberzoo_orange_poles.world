@@ -1,38 +1,29 @@
 <?xml version='1.0'?>
 <sdf version="1.9">
-  <world name="empty">
+  <world name="cyberzoo">
     <physics type="ode">
       <max_step_size>0.001</max_step_size>
       <real_time_update_rate>0</real_time_update_rate><!-- Handled by Paparazzi! -->
     </physics>
+
+    <!-- Without lighting -->
     <scene>
-      <ambient>1 1 1 1</ambient>
+      <ambient>0.9 0.9 0.9 1</ambient>
       <background>0.7 0.7 0.7 1</background>
       <shadows>false</shadows>
     </scene>
-    <light name='sun' type='directional'>
-      <cast_shadows>true</cast_shadows>
-      <pose>0 0 10 0 0 0</pose>
-      <diffuse>0.8 0.8 0.8 1</diffuse>
-      <specular>0.1 0.1 0.1 1</specular>
-      <attenuation>
-        <range>1000</range>
-        <constant>0.9</constant>
-        <linear>0.01</linear>
-        <quadratic>0.001</quadratic>
-      </attenuation>
-      <direction>-0.5 0.5 -1</direction>
-    </light>
+
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
-      <latitude_deg>51.9906340</latitude_deg>
-      <longitude_deg>4.3767889</longitude_deg>
+      <latitude_deg>51.9906361</latitude_deg>
+      <longitude_deg>4.3767874</longitude_deg>
       <elevation>45.110</elevation>
       <heading_deg>0</heading_deg><!-- GZ Harmonic fixed the WSU/ENU coordinate bug; no longer need heading=180 workaround -->
     </spherical_coordinates>
 
     <model name="ground_plane">
       <static>true</static>
+      <pose>0 0 -0.02 0 0 0.454</pose>
       <link name="link">
         <collision name="collision">
           <geometry>
@@ -56,5 +47,36 @@
         </visual>
       </link>
     </model>
+
+    <include>
+      <uri>model://cyberzoo</uri>
+      <pose>0 0 0 0 0 0.454</pose>
+    </include>
+
+    <include>
+      <uri>model://orange_pole</uri>
+      <name>orange_pole1</name>
+      <pose>-1.8 -3.4 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://orange_pole</uri>
+      <name>orange_pole2</name>
+      <pose>-1.8 0.5 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://orange_pole</uri>
+      <name>orange_pole3</name>
+      <pose>0.6 0.7 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://orange_pole</uri>
+      <name>orange_pole4</name>
+      <pose>1.5 -2.5 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://orange_pole</uri>
+      <name>orange_pole5</name>
+      <pose>2.8 2.5 0 0 0 0</pose>
+    </include>
   </world>
 </sdf>

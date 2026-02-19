@@ -3,11 +3,11 @@
 <module name="fdm_gazebo" dir="fdm">
   <doc>
     <description>
-      Gazebo backend for NPS simulator
+      Gazebo Harmonic backend for NPS simulator
       NPS doc: http://wiki.paparazziuav.org/wiki/NPS
 
       Usage:
-      1. Make sure gazebo 9 is installed. (sudo apt-get install gazebo9 libgazebo9-dev)
+      1. Make sure Gazebo Harmonic is installed. (sudo apt-get install gz-harmonic)
       2. Prepare the Gazebo world and model:
         1. Prepare the UAV model (see conf/simulator/gazebo/models/ardrone/):
           - Place the aircraft model in the conf/simulator/gazebo/models/
@@ -135,7 +135,7 @@
   <header/>
   <makefile target="nps">
     <raw>
-      GZ_COMPONENTS = gz-sim8 gz-transport13 gz-msgs10 gz-math7 gz-sensors8
+      GZ_COMPONENTS = gz-sim8 gz-transport13 gz-msgs10 gz-math7 gz-sensors8 sdformat14
 
       nps.CXXFLAGS += $(shell pkg-config --cflags $(GZ_COMPONENTS)) -fPIC
       nps.LDFLAGS  += $(shell pkg-config --libs $(GZ_COMPONENTS))
