@@ -29,6 +29,7 @@ docker run hello-world
 # Verify DRI is available
 ls /dev/dri/
 # Should show: card0  renderD128
+# If you card names are different, update them accordingly in run_gazebo_sim.sh
 ```
 
 **NVIDIA — requires nvidia-container-toolkit:**

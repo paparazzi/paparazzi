@@ -44,6 +44,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-lxml \
     python3-numpy \
     python3-opencv \
+    # Unified Mocap Router
+    libboost-program-options-dev \
+    libboost-filesystem-dev \
     # Gazebo Classic 11
     gazebo \
     libgazebo-dev \
@@ -61,6 +64,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Audio (PulseAudio client only — server runs on host)
     libpulse0 \
     pulseaudio-utils \
+    # Compiler for BEBOP
+    gcc-arm-linux-gnueabi \
+    g++-arm-linux-gnueabi \
+    libc6-dev-armel-cross \
+    linux-libc-dev-armel-cross \
+    binutils-arm-linux-gnueabi \
     # Video (RTP viewer)
     vlc \
     # Speech synthesis (PprzGCS uses --speech for command confirmations)
