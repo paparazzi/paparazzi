@@ -342,11 +342,28 @@ static void send_wls_u_stab(struct transport_tx *trans, struct link_device *dev)
 #endif
 static void send_eff_mat_g_indi(struct transport_tx *trans, struct link_device *dev)
 {
+  // Be aware with lots of actuators, the message goes above the 256 byte limit and it silently does not get send
   pprz_msg_send_EFF_MAT_STAB(trans, dev, AC_ID,
                       INDI_NUM_ACT, g1g2[0],
                       INDI_NUM_ACT, g1g2[1],
                       INDI_NUM_ACT, g1g2[2],
+#if INDI_OUTPUTS == 4
+                      1, (float [1]){0},
+                      1, (float [1]){0},
                       INDI_NUM_ACT, g1g2[3],
+#elif INDI_OUTPUTS == 5
+                      INDI_NUM_ACT, g1g2[4],
+                      1, (float [1]){0},
+                      INDI_NUM_ACT, g1g2[3],
+#elif INDI_OUTPUTS == 6
+                      INDI_NUM_ACT, g1g2[3],
+                      INDI_NUM_ACT, g1g2[4],
+                      INDI_NUM_ACT, g1g2[5],
+#else
+                      1, (float [1]){0},
+                      1, (float [1]){0},
+                      1, (float [1]){0},
+#endif
                       INDI_NUM_ACT, g2_est);
 }
 
@@ -1181,7 +1198,7 @@ void WEAK stabilization_indi_commit_actuator_cmd(int32_t *cmd) {
   //update thrust command such that the current is correctly estimated
   cmd[COMMAND_THRUST] = 0;
   for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
-    cmd[COMMAND_THRUST] += actuator_state[i] * (int32_t) act_is_thruster_z[i];
+    cmd[COMMAND_THRUST] += actuator_state[i] * (int32_t) act_thrust_mat[2][i];
   }
   cmd[COMMAND_THRUST] /= num_thrusters;
 }
@@ -1200,7 +1217,7 @@ float* stabilization_indi_get_indi_u(void) {
 }
 
 bool* stabilization_indi_get_act_is_thruster_z(void) {
-  return act_is_thruster_z;
+  return act_thrust_mat[2];
 }
 
 int32_t stabilization_indi_get_num_thrusters(void) {

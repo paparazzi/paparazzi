@@ -81,20 +81,12 @@
 #error "NO ROTWING_EFF_SCHED_K_FLAPERON defined"
 #endif
 
-#ifndef ROTWING_EFF_SCHED_K_PUSHER
-#error "NO ROTWING_EFF_SCHED_K_PUSHER defined"
-#endif
-
 #ifndef ROTWING_EFF_SCHED_K_ELEVATOR_DEFLECTION
 #error "NO ROTWING_EFF_SCHED_K_ELEVATOR_DEFLECTION defined"
 #endif
 
 #ifndef ROTWING_EFF_SCHED_D_RUDDER_D_PPRZ
 #error "NO ROTWING_EFF_SCHED_D_RUDDER_D_PPRZ defined"
-#endif
-
-#ifndef ROTWING_EFF_SCHED_K_RPM_PPRZ_PUSHER
-#error "NO ROTWING_EFF_SCHED_K_RPM_PPRZ_PUSHER defined"
 #endif
 
 #ifndef ROTWING_EFF_SCHED_K_LIFT_WING
@@ -157,16 +149,15 @@ struct rotwing_eff_sched_param_t eff_sched_p = {
   .Iyy_wing                 = ROTWING_EFF_SCHED_IYY_WING,
   .m                        = ROTWING_EFF_SCHED_M,
   .CT_hover                 = ROTWING_EFF_SCHED_CT_HOVER,
+  .CT_pusher                = ROTWING_EFF_SCHED_CT_PUSHER,
   .hover_max_rpm_squared    = ROTWING_EFF_SCHED_HOVER_MAX_RPM * ROTWING_EFF_SCHED_HOVER_MAX_RPM,
   .pusher_max_rpm_squared   = ROTWING_EFF_SCHED_PUSHER_MAX_RPM * ROTWING_EFF_SCHED_PUSHER_MAX_RPM,
   .k_elevator               = ROTWING_EFF_SCHED_K_ELEVATOR,
   .k_rudder                 = ROTWING_EFF_SCHED_K_RUDDER,
   .k_aileron                = ROTWING_EFF_SCHED_K_AILERON,
   .k_flaperon               = ROTWING_EFF_SCHED_K_FLAPERON,
-  .k_pusher                 = ROTWING_EFF_SCHED_K_PUSHER,
   .k_elevator_deflection    = ROTWING_EFF_SCHED_K_ELEVATOR_DEFLECTION,
   .d_rudder_d_pprz          = ROTWING_EFF_SCHED_D_RUDDER_D_PPRZ,
-  .k_rpm_pprz_pusher        = ROTWING_EFF_SCHED_K_RPM_PPRZ_PUSHER,
   .k_lift_wing              = ROTWING_EFF_SCHED_K_LIFT_WING,
   .k_lift_fuselage          = ROTWING_EFF_SCHED_K_LIFT_FUSELAGE,
   .k_lift_tail              = ROTWING_EFF_SCHED_K_LIFT_TAIL,
@@ -435,14 +426,14 @@ void eff_scheduling_rotwing_update_flaperon_effectiveness(void)
 
 void eff_scheduling_rotwing_update_pusher_effectiveness(void)
 {
-  float rpmP = eff_sched_p.k_rpm_pprz_pusher[0] + eff_sched_p.k_rpm_pprz_pusher[1] * eff_sched_var.cmd_pusher + eff_sched_p.k_rpm_pprz_pusher[2] * eff_sched_var.cmd_pusher * eff_sched_var.cmd_pusher;
+  // Scaling so CAN_cmd squared fits into MAX_PPRZ
+  float scaling = eff_sched_p.pusher_max_rpm_squared / MAX_PPRZ;
+  float drpmPdpprz = eff_sched_p.CT_pusher * scaling;
+  float eff_pusher = (drpmPdpprz / eff_sched_p.m);
 
-  float dFxdrpmP = eff_sched_p.k_pusher[0]*rpmP + eff_sched_p.k_pusher[1] * eff_sched_var.airspeed;
-  float drpmPdpprz = eff_sched_p.k_rpm_pprz_pusher[1] + 2. * eff_sched_p.k_rpm_pprz_pusher[2] * eff_sched_var.cmd_pusher;
-
-  float eff_pusher = (dFxdrpmP * drpmPdpprz / eff_sched_p.m) / 10000.;
-
+  // Bound effectiveness (shouldn't be necessary with the new structure but just in case)
   Bound(eff_pusher, 0.00030, 0.0015);
+
   g1g2[4][8] = eff_pusher;
 }
 
