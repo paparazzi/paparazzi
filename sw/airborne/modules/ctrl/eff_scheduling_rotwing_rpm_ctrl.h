@@ -46,7 +46,6 @@ struct rotwing_eff_sched_param_t {
   float k_pusher[2];
   float k_elevator_deflection[2];
   float d_rudder_d_pprz;
-  float k_rpm_pprz_pusher[3];
   float k_lift_wing[2];
   float k_lift_fuselage;
   float k_lift_tail;
