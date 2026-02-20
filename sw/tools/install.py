@@ -40,14 +40,15 @@ class InstallWindow(QWidget):
         if p.returncode == 0:
             print(f'  {GREEN}✔{NC} {cmd} {GREEN}done{NC}')
             print('')
+            self.buttonlist.setEnabled(True)
             return True
         else:
             print(f'  {RED}{BOLD}✘ FAILED:{NC} {cmd}')
             print(f'{RED}    Check documentation: {docs}{NC}')
             print('')
             self._ok = False
+            self.buttonlist.setEnabled(True)
             return False
-        self.buttonlist.setEnabled(True)
         
 
     def view(self,link):
