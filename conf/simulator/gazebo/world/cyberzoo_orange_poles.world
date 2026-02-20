@@ -49,34 +49,34 @@
     </model>
 
     <include>
-      <uri>model://cyberzoo</uri>
+      <uri>/home/mavlab/paparazzi/sw/ext/tudelft_gazebo_models/models/cyberzoo/cyberzoo.sdf</uri>
       <pose>0 0 0 0 0 0.454</pose>
     </include>
 
-    <include>
-      <uri>model://orange_pole</uri>
+    <!-- <include>
+      <uri>/home/mavlab/paparazzi/sw/ext/tudelft_gazebo_models/models/orange_pole/orange_pole.sdf</uri>
       <name>orange_pole1</name>
       <pose>-1.8 -3.4 0 0 0 0</pose>
     </include>
     <include>
-      <uri>model://orange_pole</uri>
+      <uri>/home/mavlab/paparazzi/sw/ext/tudelft_gazebo_models/models/orange_pole/orange_pole.sdf</uri>
       <name>orange_pole2</name>
       <pose>-1.8 0.5 0 0 0 0</pose>
     </include>
     <include>
-      <uri>model://orange_pole</uri>
+      <uri>/home/mavlab/paparazzi/sw/ext/tudelft_gazebo_models/models/orange_pole/orange_pole.sdf</uri>
       <name>orange_pole3</name>
       <pose>0.6 0.7 0 0 0 0</pose>
     </include>
     <include>
-      <uri>model://orange_pole</uri>
+      <uri>/home/mavlab/paparazzi/sw/ext/tudelft_gazebo_models/models/orange_pole/orange_pole.sdf</uri>
       <name>orange_pole4</name>
       <pose>1.5 -2.5 0 0 0 0</pose>
     </include>
     <include>
-      <uri>model://orange_pole</uri>
+      <uri>/home/mavlab/paparazzi/sw/ext/tudelft_gazebo_models/models/orange_pole/orange_pole.sdf</uri>
       <name>orange_pole5</name>
       <pose>2.8 2.5 0 0 0 0</pose>
-    </include>
+    </include> -->
   </world>
 </sdf>
