@@ -122,6 +122,7 @@ else
 endif
 
 clean:
+	make -C unifiedmocaprouter clean
 
 
 clean_opencv_bebop:
