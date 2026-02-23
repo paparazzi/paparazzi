@@ -84,6 +84,7 @@ float* stabilization_indi_get_act_dyn(void);
 float* stabilization_indi_get_indi_u(void);
 bool* stabilization_indi_get_act_is_thruster_z(void);
 int32_t stabilization_indi_get_num_thrusters(void);
+uint8_t* stabilization_indi_get_act_to_commands(void);
 
 #if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
 #include "math/wls/wls_alloc.h"
