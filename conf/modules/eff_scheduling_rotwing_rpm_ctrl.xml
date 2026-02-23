@@ -45,8 +45,8 @@
       <define name="SERVO_MOTOR_LEFT" value="3"/>
       <define name="SERVO_MOTOR_PUSH" value="8"/>
       <define name="SERVO_SERVO_ELEVATOR" value="5"/>
-      <define name="INDI_NUM_ACT" value="4"/>
-      <define name="INDI_OUTPUTS" value="3"/>
+      <define name="INDI_NUM_ACT" value="9"/>
+      <define name="INDI_OUTPUTS" value="5"/>
       <define name="ROTWING_EFF_SCHED_IXX_BODY" value="1"/>
       <define name="ROTWING_EFF_SCHED_IYY_BODY" value="1"/>
       <define name="ROTWING_EFF_SCHED_IZZ" value="1"/>

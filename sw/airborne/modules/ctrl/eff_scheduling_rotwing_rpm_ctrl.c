@@ -335,12 +335,12 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
   static const float roll_eff_pitch_motor_scaling = ROTWING_EFF_SCHED_ROLL_ARM_PITCH_MOTORS / ROTWING_EFF_SCHED_ROLL_ARM * sinf(RadOfDeg(ROTWING_PITCH_MOTOR_TILT_ANGLE_DEG)); 
 
   // Update front motor roll and pitch effectiveness
-  g1g2[1][0] = front_motor_pitch_eff;   // pitch effectiveness front motor
-  g1g2[0][0] = dMdu_pitch * roll_eff_pitch_motor_scaling / eff_sched_var.Ixx; // Roll effectiveness front motor
+  g1g2[RW_aq][COMMAND_MOTOR_FRONT] = front_motor_pitch_eff;   // pitch effectiveness front motor
+  g1g2[RW_ap][COMMAND_MOTOR_FRONT] = dMdu_pitch * roll_eff_pitch_motor_scaling / eff_sched_var.Ixx; // Roll effectiveness front motor
   
   // Update back motor roll and pitch effectiveness
-  g1g2[1][2] = back_motor_pitch_eff; // pitch effectiveness back motor
-  g1g2[0][2] = -dMdu_pitch * roll_eff_pitch_motor_scaling / eff_sched_var.Ixx; // Roll effectiveness back motor
+  g1g2[RW_aq][COMMAND_MOTOR_BACK] = back_motor_pitch_eff; // pitch effectiveness back motor
+  g1g2[RW_ap][COMMAND_MOTOR_BACK] = -dMdu_pitch * roll_eff_pitch_motor_scaling / eff_sched_var.Ixx; // Roll effectiveness back motor
 
   // Update right motor roll and pitch effectiveness
   float right_motor_roll_eff = -(dMdu_roll * eff_sched_var.cosr) / eff_sched_var.Ixx;
@@ -349,8 +349,8 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
   float right_motor_pitch_eff = (dMdu_roll * eff_sched_var.sinr) / eff_sched_var.Iyy;
   right_motor_pitch_eff = bound_or_zero(right_motor_pitch_eff, 0.00001f, front_motor_pitch_eff);
   
-  g1g2[0][1] = right_motor_roll_eff; // roll effectiveness right motor
-  g1g2[1][1] = right_motor_pitch_eff; // pitch effectiveness right motor
+  g1g2[RW_ap][COMMAND_MOTOR_RIGHT] = right_motor_roll_eff; // roll effectiveness right motor
+  g1g2[RW_aq][COMMAND_MOTOR_RIGHT] = right_motor_pitch_eff; // pitch effectiveness right motor
 
   // Update left motor roll and pitch effectiveness
   float left_motor_roll_eff = (dMdu_roll * eff_sched_var.cosr) / eff_sched_var.Ixx;
@@ -359,8 +359,8 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
   float left_motor_pitch_eff = -(dMdu_roll * eff_sched_var.sinr) / eff_sched_var.Iyy;
   left_motor_pitch_eff = bound_or_zero(left_motor_pitch_eff, back_motor_pitch_eff, -0.00001f);
 
-  g1g2[0][3] = left_motor_roll_eff;  // roll effectiveness left motor
-  g1g2[1][3] = left_motor_pitch_eff;   // pitch effectiveness left motor
+  g1g2[RW_ap][COMMAND_MOTOR_LEFT] = left_motor_roll_eff;  // roll effectiveness left motor
+  g1g2[RW_aq][COMMAND_MOTOR_LEFT] = left_motor_pitch_eff;   // pitch effectiveness left motor
 }
 
 void eff_scheduling_rotwing_update_elevator_effectiveness(void)
@@ -382,7 +382,7 @@ void eff_scheduling_rotwing_update_elevator_effectiveness(void)
 
   Bound(eff_y_elev, 0.00001, 0.1);
 
-  g1g2[1][5] = eff_y_elev;
+  g1g2[RW_aq][COMMAND_ELEVATOR] = eff_y_elev;
 }
 
 void eff_scheduling_rotwing_update_rudder_effectiveness(void)
@@ -400,28 +400,28 @@ void eff_scheduling_rotwing_update_rudder_effectiveness(void)
 
   Bound(eff_z_rudder, 0.000001, 0.1);
 
-  g1g2[2][4] = eff_z_rudder;
+  g1g2[RW_ar][COMMAND_RUDDER] = eff_z_rudder;
 }
 
 void eff_scheduling_rotwing_update_aileron_effectiveness(void)
 {
   float dMxdpprz = (eff_sched_p.k_aileron * eff_sched_var.airspeed2 * eff_sched_var.sinr3) / 1000000.;
   float eff_x_aileron = dMxdpprz / eff_sched_var.Ixx;
-  Bound(eff_x_aileron, 0, 0.005)
-  g1g2[0][6] = eff_x_aileron;
+  Bound(eff_x_aileron, 0, 0.005);
+  g1g2[RW_ap][COMMAND_AILERONS] = eff_x_aileron;
 
   float dMydpprz = 4.0*(eff_sched_p.k_aileron * eff_sched_var.airspeed2 * eff_sched_var.sinr2 * eff_sched_var.cosr) / 1000000.;
   float eff_y_aileron = dMydpprz / eff_sched_var.Iyy;
   eff_y_aileron = bound_or_zero(eff_y_aileron, 0.00003f, 0.005f);
-  g1g2[1][6] = eff_y_aileron;
+  g1g2[RW_aq][COMMAND_AILERONS] = eff_y_aileron;
 }
 
 void eff_scheduling_rotwing_update_flaperon_effectiveness(void)
 {
   float dMxdpprz = (eff_sched_p.k_flaperon * eff_sched_var.airspeed2 * eff_sched_var.sinr3) / 1000000.;
   float eff_x_flap_aileron = dMxdpprz / eff_sched_var.Ixx;
-  Bound(eff_x_flap_aileron, 0, 0.005)
-  g1g2[0][7] = eff_x_flap_aileron;
+  Bound(eff_x_flap_aileron, 0, 0.005);
+  g1g2[RW_ap][COMMAND_FLAPS] = eff_x_flap_aileron;
 }
 
 void eff_scheduling_rotwing_update_pusher_effectiveness(void)
@@ -434,7 +434,7 @@ void eff_scheduling_rotwing_update_pusher_effectiveness(void)
   // Bound effectiveness (shouldn't be necessary with the new structure but just in case)
   Bound(eff_pusher, 0.00030, 0.0015);
 
-  g1g2[4][8] = eff_pusher;
+  g1g2[RW_aX][COMMAND_THRUST_X] = eff_pusher;
 }
 
 void eff_scheduling_rotwing_schedule_liftd(void)
@@ -458,6 +458,8 @@ float guidance_indi_get_liftd(float pitch UNUSED, float theta UNUSED) {
 
 void stabilization_indi_set_wls_settings(void)
 { 
+  int32_t flap_saturation_limit;
+
   // Calculate the min and max increments
   for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
     wls_stab_p.u_min[i] = -MAX_PPRZ * act_is_servo[i];
@@ -466,25 +468,31 @@ void stabilization_indi_set_wls_settings(void)
 
     switch(i) {
       // With RPM control we need to limit the max command to the hover motors based on the battery voltage
-      case COMMAND_FRONT_MOTOR:
+      case COMMAND_MOTOR_FRONT:
         wls_stab_p.u_max[i] = eff_sched_p.hover_rpm_lim_coef[0] + electrical.vsupply * eff_sched_p.hover_rpm_lim_coef[1];
         wls_stab_p.u_min[i] = (int16_t)((float)SERVO_MOTOR_FRONT_NEUTRAL * ((float)SERVO_MOTOR_FRONT_NEUTRAL * ((float)MAX_PPRZ / (float)SERVO_MOTOR_FRONT_MAX) / (float)SERVO_MOTOR_FRONT_MAX));
         break;
-      case COMMAND_RIGHT_MOTOR:
+      case COMMAND_MOTOR_RIGHT:
         wls_stab_p.u_max[i] = eff_sched_p.hover_rpm_lim_coef[0] + electrical.vsupply * eff_sched_p.hover_rpm_lim_coef[1];
         wls_stab_p.u_min[i] = (int16_t)((float)SERVO_MOTOR_RIGHT_NEUTRAL * ((float)SERVO_MOTOR_RIGHT_NEUTRAL * ((float)MAX_PPRZ / (float)SERVO_MOTOR_RIGHT_MAX) / (float)SERVO_MOTOR_RIGHT_MAX));
         break;
-      case COMMAND_BACK_MOTOR:
+      case COMMAND_MOTOR_BACK:
         wls_stab_p.u_max[i] = eff_sched_p.hover_rpm_lim_coef[0] + electrical.vsupply * eff_sched_p.hover_rpm_lim_coef[1];
         wls_stab_p.u_min[i] = (int16_t)((float)SERVO_MOTOR_BACK_NEUTRAL * ((float)SERVO_MOTOR_BACK_NEUTRAL * ((float)MAX_PPRZ / (float)SERVO_MOTOR_BACK_MAX) / (float)SERVO_MOTOR_BACK_MAX));
         break;
-      case COMMAND_LEFT_MOTOR:
+      case COMMAND_MOTOR_LEFT:
         wls_stab_p.u_max[i] = eff_sched_p.hover_rpm_lim_coef[0] + electrical.vsupply * eff_sched_p.hover_rpm_lim_coef[1];
         wls_stab_p.u_min[i] = (int16_t)((float)SERVO_MOTOR_LEFT_NEUTRAL * ((float)SERVO_MOTOR_LEFT_NEUTRAL * ((float)MAX_PPRZ / (float)SERVO_MOTOR_LEFT_MAX) / (float)SERVO_MOTOR_LEFT_MAX));
         break;
       case COMMAND_ELEVATOR:
         wls_stab_p.u_pref[i] = actuator_state_filt_vect[i]; // Set change in prefered state to 0 for elevator
         wls_stab_p.u_min[i] = 0; // cmd 0 is lowest position for elevator
+        break;
+      case COMMAND_FLAPS:
+        // If an offset is used, limit the max differential command to prevent unilateral saturation.
+        flap_saturation_limit = MAX_PPRZ - abs(rw_flap_offset);
+        wls_stab_p.u_min[i] = -flap_saturation_limit;
+        wls_stab_p.u_max[i] = flap_saturation_limit;
         break;
       case COMMAND_THRUST_X:
         // dt (min to max) MAX_PPRZ / (dt * f) dt_min == 0.002
@@ -499,14 +507,7 @@ void stabilization_indi_set_wls_settings(void)
         break;
       default:
         break;
-    }
-      
-    if (i == 7) { // flaperons
-      // If an offset is used, limit the max differential command to prevent unilateral saturation.
-      int32_t flap_saturation_limit = MAX_PPRZ - abs(rw_flap_offset);
-      wls_stab_p.u_min[i] = -flap_saturation_limit;
-      wls_stab_p.u_max[i] = flap_saturation_limit;
-    }      
+    }  
 
     Bound(wls_stab_p.u_min[i], -MAX_PPRZ*act_is_servo[i], MAX_PPRZ);
     Bound(wls_stab_p.u_max[i], -MAX_PPRZ*act_is_servo[i], MAX_PPRZ);
@@ -529,12 +530,15 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   struct FloatEulers eulers_zxy;
   float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
 
-  float du_min_thrust_z = ((MAX_PPRZ - actuator_state_filt_vect[0]) * g1g2[3][0] + (MAX_PPRZ -
-                           actuator_state_filt_vect[1]) * g1g2[3][1] + (MAX_PPRZ - actuator_state_filt_vect[2]) * g1g2[3][2] +
-                           (MAX_PPRZ - actuator_state_filt_vect[3]) * g1g2[3][3]) * rotwing_state_hover_motors_running();
+  float du_min_thrust_z = ((MAX_PPRZ - actuator_state_filt_vect[COMMAND_MOTOR_FRONT]) * g1g2[RW_aZ][COMMAND_MOTOR_FRONT]
+                           + (MAX_PPRZ - actuator_state_filt_vect[COMMAND_MOTOR_RIGHT]) * g1g2[RW_aZ][COMMAND_MOTOR_RIGHT]
+                           + (MAX_PPRZ - actuator_state_filt_vect[COMMAND_MOTOR_BACK]) * g1g2[RW_aZ][COMMAND_MOTOR_BACK] 
+                           + (MAX_PPRZ - actuator_state_filt_vect[COMMAND_MOTOR_LEFT]) * g1g2[RW_aZ][COMMAND_MOTOR_LEFT]) * rotwing_state_hover_motors_running();
   Bound(du_min_thrust_z, -50., 0.);
-  float du_max_thrust_z = -(actuator_state_filt_vect[0] * g1g2[3][0] + actuator_state_filt_vect[1] * g1g2[3][1] +
-                            actuator_state_filt_vect[2] * g1g2[3][2] + actuator_state_filt_vect[3] * g1g2[3][3]);
+  float du_max_thrust_z = -(actuator_state_filt_vect[COMMAND_MOTOR_FRONT] * g1g2[RW_aZ][COMMAND_MOTOR_FRONT] 
+                            + actuator_state_filt_vect[COMMAND_MOTOR_RIGHT] * g1g2[RW_aZ][COMMAND_MOTOR_RIGHT] 
+                            + actuator_state_filt_vect[COMMAND_MOTOR_BACK] * g1g2[RW_aZ][COMMAND_MOTOR_BACK] 
+                            + actuator_state_filt_vect[COMMAND_MOTOR_LEFT] * g1g2[RW_aZ][COMMAND_MOTOR_LEFT]);
   Bound(du_max_thrust_z, 0., 50.);
 
   float roll_limit_rad = guidance_indi_max_bank;
@@ -643,25 +647,25 @@ void stabilization_indi_get_actuator_state(void)
   for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
     switch(i) {
       // With RPM control we have to do a conversion step from allocation back to actuator state
-      case COMMAND_FRONT_MOTOR:
+      case COMMAND_MOTOR_FRONT:
         u_pprz_cmd = u_squared_to_pprz_cmd(indi_u[i], SERVO_MOTOR_FRONT_MAX, SERVO_MOTOR_FRONT_NEUTRAL, SERVO_MOTOR_FRONT_TRAVEL_UP);
         act_pprz = u_squared_to_pprz_cmd(actuator_state[i], SERVO_MOTOR_FRONT_MAX, SERVO_MOTOR_FRONT_NEUTRAL, SERVO_MOTOR_FRONT_TRAVEL_UP);
         actuator_state[i] = act_pprz + act_dyn_discrete[i] * (u_pprz_cmd - act_pprz);
         actuator_state[i] = pprz_cmd_to_u_squared(actuator_state[i], SERVO_MOTOR_FRONT_MAX, SERVO_MOTOR_FRONT_NEUTRAL, SERVO_MOTOR_FRONT_TRAVEL_UP);
         break;
-      case COMMAND_RIGHT_MOTOR:
+      case COMMAND_MOTOR_RIGHT:
         u_pprz_cmd = u_squared_to_pprz_cmd(indi_u[i], SERVO_MOTOR_RIGHT_MAX, SERVO_MOTOR_RIGHT_NEUTRAL, SERVO_MOTOR_RIGHT_TRAVEL_UP);
         act_pprz = u_squared_to_pprz_cmd(actuator_state[i], SERVO_MOTOR_RIGHT_MAX, SERVO_MOTOR_RIGHT_NEUTRAL, SERVO_MOTOR_RIGHT_TRAVEL_UP);
         actuator_state[i] = act_pprz + act_dyn_discrete[i] * (u_pprz_cmd - act_pprz);
         actuator_state[i] = pprz_cmd_to_u_squared(actuator_state[i], SERVO_MOTOR_RIGHT_MAX, SERVO_MOTOR_RIGHT_NEUTRAL, SERVO_MOTOR_RIGHT_TRAVEL_UP);
         break;
-      case COMMAND_BACK_MOTOR:
+      case COMMAND_MOTOR_BACK:
         u_pprz_cmd = u_squared_to_pprz_cmd(indi_u[i], SERVO_MOTOR_BACK_MAX, SERVO_MOTOR_BACK_NEUTRAL, SERVO_MOTOR_BACK_TRAVEL_UP);
         act_pprz = u_squared_to_pprz_cmd(actuator_state[i], SERVO_MOTOR_BACK_MAX, SERVO_MOTOR_BACK_NEUTRAL, SERVO_MOTOR_BACK_TRAVEL_UP);
         actuator_state[i] = act_pprz + act_dyn_discrete[i] * (u_pprz_cmd - act_pprz);
         actuator_state[i] = pprz_cmd_to_u_squared(actuator_state[i], SERVO_MOTOR_BACK_MAX, SERVO_MOTOR_BACK_NEUTRAL, SERVO_MOTOR_BACK_TRAVEL_UP);
         break;
-      case COMMAND_LEFT_MOTOR:
+      case COMMAND_MOTOR_LEFT:
         u_pprz_cmd = u_squared_to_pprz_cmd(indi_u[i], SERVO_MOTOR_LEFT_MAX, SERVO_MOTOR_LEFT_NEUTRAL, SERVO_MOTOR_LEFT_TRAVEL_UP);
         act_pprz = u_squared_to_pprz_cmd(actuator_state[i], SERVO_MOTOR_LEFT_MAX, SERVO_MOTOR_LEFT_NEUTRAL, SERVO_MOTOR_LEFT_TRAVEL_UP);
         actuator_state[i] = act_pprz + act_dyn_discrete[i] * (u_pprz_cmd - act_pprz);
@@ -685,6 +689,7 @@ void stabilization_indi_commit_actuator_cmd(int32_t *cmd)
   float* indi_u = stabilization_indi_get_indi_u();
   float* actuator_state = stabilization_indi_get_act_state();
   bool* act_is_thruster_z = stabilization_indi_get_act_is_thruster_z();
+  uint8_t* act_to_commands = stabilization_indi_get_act_to_commands();
 
   float u_pprz_cmd;
   float act_state_pprz;
@@ -694,19 +699,19 @@ void stabilization_indi_commit_actuator_cmd(int32_t *cmd)
   for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
     switch(i) {
       // With RPM control we have to do a conversion step from allocation back to actuator state
-      case COMMAND_FRONT_MOTOR:
+      case COMMAND_MOTOR_FRONT:
         u_pprz_cmd = u_squared_to_pprz_cmd(indi_u[i], SERVO_MOTOR_FRONT_MAX, SERVO_MOTOR_FRONT_NEUTRAL, SERVO_MOTOR_FRONT_TRAVEL_UP);
         act_state_pprz = u_squared_to_pprz_cmd(actuator_state[i], SERVO_MOTOR_FRONT_MAX, SERVO_MOTOR_FRONT_NEUTRAL, SERVO_MOTOR_FRONT_TRAVEL_UP);
         break;
-      case COMMAND_RIGHT_MOTOR:
+      case COMMAND_MOTOR_RIGHT:
         u_pprz_cmd = u_squared_to_pprz_cmd(indi_u[i], SERVO_MOTOR_RIGHT_MAX, SERVO_MOTOR_RIGHT_NEUTRAL, SERVO_MOTOR_RIGHT_TRAVEL_UP);
         act_state_pprz = u_squared_to_pprz_cmd(actuator_state[i], SERVO_MOTOR_RIGHT_MAX, SERVO_MOTOR_RIGHT_NEUTRAL, SERVO_MOTOR_RIGHT_TRAVEL_UP);
         break;
-      case COMMAND_BACK_MOTOR:
+      case COMMAND_MOTOR_BACK:
         u_pprz_cmd = u_squared_to_pprz_cmd(indi_u[i], SERVO_MOTOR_BACK_MAX, SERVO_MOTOR_BACK_NEUTRAL, SERVO_MOTOR_BACK_TRAVEL_UP);
         act_state_pprz = u_squared_to_pprz_cmd(actuator_state[i], SERVO_MOTOR_BACK_MAX, SERVO_MOTOR_BACK_NEUTRAL, SERVO_MOTOR_BACK_TRAVEL_UP);
         break;
-      case COMMAND_LEFT_MOTOR:
+      case COMMAND_MOTOR_LEFT:
         u_pprz_cmd = u_squared_to_pprz_cmd(indi_u[i], SERVO_MOTOR_LEFT_MAX, SERVO_MOTOR_LEFT_NEUTRAL, SERVO_MOTOR_LEFT_TRAVEL_UP);
         act_state_pprz = u_squared_to_pprz_cmd(actuator_state[i], SERVO_MOTOR_LEFT_MAX, SERVO_MOTOR_LEFT_NEUTRAL, SERVO_MOTOR_LEFT_TRAVEL_UP);
         break;
@@ -721,6 +726,11 @@ void stabilization_indi_commit_actuator_cmd(int32_t *cmd)
     }
 
     actuators_pprz[i] = u_pprz_cmd;
+
+    if (act_to_commands != NULL) {
+      cmd[act_to_commands[i]] = actuators_pprz[i];
+    }
+
     cmd[COMMAND_THRUST] += act_state_pprz * (int32_t) act_is_thruster_z[i];
   }
   cmd[COMMAND_THRUST] /= stabilization_indi_get_num_thrusters();
