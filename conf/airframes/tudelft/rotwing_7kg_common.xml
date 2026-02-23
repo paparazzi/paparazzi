@@ -168,6 +168,9 @@
         <define name="USE_ADAPTIVE"     value="FALSE"/>
         <define name="ADAPTIVE_MU"      value="0.001"/>
         <define name="YAW_DISTURBANCE_LIMIT" value="0.68"/>
+
+        <!-- INDI outputs to commands association -->
+        <define name="COMMANDS" value="{COMMAND_MOTOR_FRONT,COMMAND_MOTOR_RIGHT,COMMAND_MOTOR_BACK,COMMAND_MOTOR_LEFT,COMMAND_RUDDER,COMMAND_ELEVATOR,COMMAND_AILERONS,COMMAND_FLAPS,COMMAND_THRUST_X}"/>
     </section>
 
     <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -269,13 +272,20 @@
         <define name="MODE_STARTUP"     value="AP_MODE_NAV"/>
     </section>
 
-    <section name="SIMULATOR" prefix="NPS_">
+    <!-- <section name="SIMULATOR" prefix="NPS_">
         <define name="ACTUATOR_NAMES" value="front_motor, right_motor, back_motor, left_motor, rudder, elevator, aileron, flap, pusher, skew" type="string[]"/>
         <define name="JSBSIM_MODEL" value="rotwing3" type="string"/>
         <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
         <define name="COMMANDS_NB" value="10"/>
         <define name="NO_MOTOR_MIXING" value="TRUE"/>
         <define name="JS_AXIS_MODE" value="4"/>
+    </section> -->
+
+    <section name="SIMULATOR" prefix="NPS_">
+        <define name="JSBSIM_MODEL"    value="rotwing3" type="string"/>
+        <define name="SENSORS_PARAMS"  value="nps_sensors_params_default.h" type="string"/>
+        <define name="USE_COMMANDS"    value="TRUE"/>
+        <define name="JS_AXIS_MODE"    value="4"/>
     </section>
 
     <!--EKF Settings-->
