@@ -327,7 +327,7 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
 
   // Roll motor effectiveness
   float dM_dpprz_right  = dM_dpprz[1];
-  float dM_dpprz_left   = dM_dpprz[3];;
+  float dM_dpprz_left   = dM_dpprz[3];
 
   float roll_motor_p_eff_right = -(dM_dpprz_right * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
   roll_motor_p_eff_right = bound_or_zero(roll_motor_p_eff_right, -1.f, -0.00001f);
@@ -339,17 +339,17 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
   Bound(roll_motor_q_eff, 0, 1);
 
   // Update front pitch motor q effectiveness
-  g1g2[1][0] = dM_dpprz[0] / eff_sched_var.Iyy;   // pitch effectiveness front motor
+  g1g2[RW_aq][COMMAND_MOTOR_FRONT] = dM_dpprz[0] / eff_sched_var.Iyy;   // pitch effectiveness front motor
 
   // Update back motor q effectiveness
-  g1g2[1][2] = -dM_dpprz[2] / eff_sched_var.Iyy;  // pitch effectiveness back motor
+  g1g2[RW_aq][COMMAND_MOTOR_BACK] = -dM_dpprz[2] / eff_sched_var.Iyy;  // pitch effectiveness back motor
   
-  g1g2[0][1] = roll_motor_p_eff_right;   // roll effectiveness right motor (no airspeed compensation)
-  g1g2[1][1] = roll_motor_q_eff;    // pitch effectiveness right motor
+  g1g2[RW_ap][COMMAND_MOTOR_RIGHT] = roll_motor_p_eff_right;   // roll effectiveness right motor (no airspeed compensation)
+  g1g2[RW_aq][COMMAND_MOTOR_RIGHT] = roll_motor_q_eff;    // pitch effectiveness right motor
 
   // Update left motor p and q effectiveness
-  g1g2[0][3] = roll_motor_p_eff_left;  // roll effectiveness left motor
-  g1g2[1][3] = -roll_motor_q_eff;   // pitch effectiveness left motor
+  g1g2[RW_ap][COMMAND_MOTOR_LEFT] = roll_motor_p_eff_left;  // roll effectiveness left motor
+  g1g2[RW_aq][COMMAND_MOTOR_LEFT] = -roll_motor_q_eff;   // pitch effectiveness left motor
 }
 
 void eff_scheduling_rotwing_update_elevator_effectiveness(void)
@@ -371,7 +371,7 @@ void eff_scheduling_rotwing_update_elevator_effectiveness(void)
 
   Bound(eff_y_elev, 0.00001, 0.1);
 
-  g1g2[1][5] = eff_y_elev;
+  g1g2[RW_aq][COMMAND_ELEVATOR] = eff_y_elev;
 }
 
 void eff_scheduling_rotwing_update_rudder_effectiveness(void)
@@ -389,28 +389,28 @@ void eff_scheduling_rotwing_update_rudder_effectiveness(void)
 
   Bound(eff_z_rudder, 0.000001, 0.1);
 
-  g1g2[2][4] = eff_z_rudder;
+  g1g2[RW_ar][COMMAND_RUDDER] = eff_z_rudder;
 }
 
 void eff_scheduling_rotwing_update_aileron_effectiveness(void)
 {
   float dMxdpprz = (eff_sched_p.k_aileron * eff_sched_var.airspeed2 * eff_sched_var.sinr3) / 1000000.;
   float eff_x_aileron = dMxdpprz / eff_sched_var.Ixx;
-  Bound(eff_x_aileron, 0, 0.005)
-  g1g2[0][6] = eff_x_aileron;
+  Bound(eff_x_aileron, 0, 0.005);
+  g1g2[RW_ap][COMMAND_AILERONS] = eff_x_aileron;
 
   float dMydpprz = 4.0*(eff_sched_p.k_aileron * eff_sched_var.airspeed2 * eff_sched_var.sinr2 * eff_sched_var.cosr) / 1000000.;
   float eff_y_aileron = dMydpprz / eff_sched_var.Iyy;
   eff_y_aileron = bound_or_zero(eff_y_aileron, 0.00003f, 0.005f);
-  g1g2[1][6] = eff_y_aileron;
+  g1g2[RW_aq][COMMAND_AILERONS] = eff_y_aileron;
 }
 
 void eff_scheduling_rotwing_update_flaperon_effectiveness(void)
 {
   float dMxdpprz = (eff_sched_p.k_flaperon * eff_sched_var.airspeed2 * eff_sched_var.sinr3) / 1000000.;
   float eff_x_flap_aileron = dMxdpprz / eff_sched_var.Ixx;
-  Bound(eff_x_flap_aileron, 0, 0.005)
-  g1g2[0][7] = eff_x_flap_aileron;
+  Bound(eff_x_flap_aileron, 0, 0.005);
+  g1g2[RW_ap][COMMAND_FLAPS] = eff_x_flap_aileron;
 }
 
 void eff_scheduling_rotwing_update_pusher_effectiveness(void)
@@ -423,7 +423,7 @@ void eff_scheduling_rotwing_update_pusher_effectiveness(void)
   float eff_pusher = (dFxdrpmP * drpmPdpprz / eff_sched_p.m) / 10000.;
 
   Bound(eff_pusher, 0.00030, 0.0015);
-  g1g2[4][8] = eff_pusher;
+  g1g2[RW_aX][COMMAND_THRUST_X] = eff_pusher;
 }
 
 float eff_scheduling_rotwing_lift_d = 0.0f;
@@ -494,12 +494,15 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   struct FloatEulers eulers_zxy;
   float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
 
-  float du_min_thrust_z = ((MAX_PPRZ - actuator_state_filt_vect[0]) * g1g2[3][0] + (MAX_PPRZ -
-                           actuator_state_filt_vect[1]) * g1g2[3][1] + (MAX_PPRZ - actuator_state_filt_vect[2]) * g1g2[3][2] +
-                           (MAX_PPRZ - actuator_state_filt_vect[3]) * g1g2[3][3]) * rotwing_state_hover_motors_running();
+  float du_min_thrust_z = ((MAX_PPRZ - actuator_state_filt_vect[COMMAND_MOTOR_FRONT]) * g1g2[RW_aZ][COMMAND_MOTOR_FRONT]
+                           + (MAX_PPRZ - actuator_state_filt_vect[COMMAND_MOTOR_RIGHT]) * g1g2[RW_aZ][COMMAND_MOTOR_RIGHT]
+                           + (MAX_PPRZ - actuator_state_filt_vect[COMMAND_MOTOR_BACK]) * g1g2[RW_aZ][COMMAND_MOTOR_BACK] 
+                           + (MAX_PPRZ - actuator_state_filt_vect[COMMAND_MOTOR_LEFT]) * g1g2[RW_aZ][COMMAND_MOTOR_LEFT]) * rotwing_state_hover_motors_running();
   Bound(du_min_thrust_z, -50., 0.);
-  float du_max_thrust_z = -(actuator_state_filt_vect[0] * g1g2[3][0] + actuator_state_filt_vect[1] * g1g2[3][1] +
-                            actuator_state_filt_vect[2] * g1g2[3][2] + actuator_state_filt_vect[3] * g1g2[3][3]);
+  float du_max_thrust_z = -(actuator_state_filt_vect[COMMAND_MOTOR_FRONT] * g1g2[RW_aZ][COMMAND_MOTOR_FRONT] 
+                            + actuator_state_filt_vect[COMMAND_MOTOR_RIGHT] * g1g2[RW_aZ][COMMAND_MOTOR_RIGHT] 
+                            + actuator_state_filt_vect[COMMAND_MOTOR_BACK] * g1g2[RW_aZ][COMMAND_MOTOR_BACK] 
+                            + actuator_state_filt_vect[COMMAND_MOTOR_LEFT] * g1g2[RW_aZ][COMMAND_MOTOR_LEFT]);
   Bound(du_max_thrust_z, 0., 50.);
 
   float roll_limit_rad = guidance_indi_max_bank;
@@ -552,7 +555,7 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   }
 
   if(rotwing_state_pusher_motor_running()) {
-    wls_guid_p.u_min[3] = (-actuator_state_filt_vect[8] * g1g2[4][8]);
+    wls_guid_p.u_min[3] = (-actuator_state_filt_vect[COMMAND_THRUST_X] * g1g2[RW_aX][COMMAND_THRUST_X]);
     wls_guid_p.u_max[3] = 9.0; // Hacky value to prevent drone from pitching down in transition
   } else {
     wls_guid_p.u_min[3] = 0.;
@@ -564,49 +567,4 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   wls_guid_p.u_pref[1] = -pitch_angle + pitch_pref_rad;// prefered delta pitch angle
   wls_guid_p.u_pref[2] = wls_guid_p.u_max[2]; // Low thrust better for efficiency
   wls_guid_p.u_pref[3] = body_v[0]; // solve the body acceleration
-}
-
-// Rotation order ZXY
-void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float body_v[GUIDANCE_INDI_HYBRID_V]) {  
-  /*Pre-calculate sines and cosines*/
-  float sphi = sinf(roll_filt.o[0]);
-  float cphi = cosf(roll_filt.o[0]);
-  float stheta = sinf(pitch_filt.o[0]);
-  float ctheta = cosf(pitch_filt.o[0]);
-  float spsi = sinf(yaw_filt.o[0]);
-  float cpsi = cosf(yaw_filt.o[0]);
-
-#ifndef GUIDANCE_INDI_PITCH_EFF_SCALING
-#define GUIDANCE_INDI_PITCH_EFF_SCALING 1.0
-#endif
-
-  /*Amount of lift produced by the wing*/
-  float lift_thrust_bz = accel_bodyz_filt.o[0]; // Sum of lift and thrust in boxy z axis (level flight)
-  float lift_thrust_bx = accel_bodyx_filt.o[0]; // Sum of lift and thrust in boxy x axis (level flight)
-
-  // get the derivative of the lift wrt to theta
-  float liftd = guidance_indi_get_liftd(0.0f, 0.0f);
-
-  Gmat[0][0] = 0;
-  Gmat[1][0] = -cphi * lift_thrust_bz;
-  Gmat[2][0] = sphi*stheta*lift_thrust_bx - sphi*ctheta*lift_thrust_bz;
-
-  Gmat[0][1] = lift_thrust_bz;
-  Gmat[1][1] = sphi*(-liftd + lift_thrust_bx);
-  Gmat[2][1] = -cphi * (-liftd + lift_thrust_bx);
-
-  Gmat[0][2] =  stheta;
-  Gmat[1][2] =  -ctheta * sphi;
-  Gmat[2][2] =  cphi * ctheta;
-
-  Gmat[0][3] =  ctheta;
-  Gmat[1][3] =  sphi*stheta;
-  Gmat[2][3] = -cphi*stheta;
-  // Make this term zero to prevent switching 'exploits'
-  // Gmat[2][3] = 0;
-
-  // Convert acceleration error to body axis system
-  body_v[0] =  cpsi * a_diff.x + spsi * a_diff.y;
-  body_v[1] = -spsi * a_diff.x + cpsi * a_diff.y;
-  body_v[2] =  a_diff.z;
 }
