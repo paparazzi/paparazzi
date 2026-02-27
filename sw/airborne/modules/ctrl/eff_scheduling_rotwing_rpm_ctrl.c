@@ -591,7 +591,7 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   }
 
   if(rotwing_state_pusher_motor_running()) {
-    wls_guid_p.u_min[3] = (-actuator_state_filt_vect[8] * g1g2[4][8]);
+    wls_guid_p.u_min[3] = (-actuator_state_filt_vect[COMMAND_THRUST_X] * g1g2[RW_aX][COMMAND_THRUST_X]);
     wls_guid_p.u_max[3] = 9.0; // Hacky value to prevent drone from pitching down in transition
   } else {
     wls_guid_p.u_min[3] = 0.;
