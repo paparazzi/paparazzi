@@ -8,7 +8,7 @@
     #include "modules/energy/electrical.h"
     #include "modules/radio_control/radio_control.h"
     #include "modules/ahrs/ahrs.h"
-    #define NPS_GAZEBO_WORLD "cyberzoo_orange_poles.world"
+    #define NPS_GAZEBO_WORLD "square.world"
   </header>
 
   <!--=== Waypoints: define all waypoints and geofence corners ===-->
