@@ -26,9 +26,6 @@
 extern void guidance_indi_quadplane_init(void);
 extern void guidance_indi_quadplane_propagate_filters(void);
 
-#include "filters/low_pass_filter.h"
-extern Butterworth2LowPass accel_bodyz_filt;
-extern Butterworth2LowPass accel_bodyx_filt;
 
 #ifndef GUIDANCE_INDI_MIN_PITCH
 #define GUIDANCE_INDI_MIN_PITCH -20

@@ -25,6 +25,7 @@
  */
 
 #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
+#include "filters/low_pass_filter.h"
 #include "state.h"
 #include "autopilot.h"
 #include "generated/modules.h"
@@ -51,7 +52,6 @@ float guidance_indi_thrust_z_eff = GUIDANCE_INDI_THRUST_Z_EFF;
 #endif
 #endif
 
-Butterworth2LowPass accel_bodyx_filt;
 Butterworth2LowPass accel_bodyz_filt;
 
 /**
@@ -62,7 +62,6 @@ void guidance_indi_quadplane_init(void) {
   float tau_bodyz = 1.0/(2.0*M_PI*GUIDANCE_INDI_BODYZ_FILTER_CUTOFF);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
   init_butterworth_2_low_pass(&accel_bodyz_filt, tau_bodyz, sample_time, -9.81);
-  init_butterworth_2_low_pass(&accel_bodyx_filt, tau_bodyz, sample_time, 0.0);
 }
 
 /**
@@ -75,8 +74,6 @@ void guidance_indi_quadplane_propagate_filters(void) {
    // Propagate filter for thrust/lift estimate
   float accelz = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->z);
   update_butterworth_2_low_pass(&accel_bodyz_filt, accelz);
-  float accelx = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->x);
-  update_butterworth_2_low_pass(&accel_bodyx_filt, accelx);
 }
 
 /**
@@ -86,8 +83,8 @@ void guidance_indi_quadplane_propagate_filters(void) {
  * @param a_diff acceleration errors in earth frame
  * @param body_v 3D vector to write the control objective v
  */
-void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float body_v[GUIDANCE_INDI_HYBRID_V]) {
-  /*Pre-calculate sines and cosines, rotation order ZXY*/
+void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float body_v[GUIDANCE_INDI_HYBRID_V]) {
+  /*Pre-calculate sines and cosines*/
   float sphi = sinf(roll_filt.o[0]);
   float cphi = cosf(roll_filt.o[0]);
   float stheta = sinf(pitch_filt.o[0]);
