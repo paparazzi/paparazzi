@@ -173,7 +173,6 @@ float *Bwls[INDI_OUTPUTS];
 
 
 static void lms_estimation(void);
-static void get_actuator_state(void);
 static void calc_g1_element(float dx_error, int8_t i, int8_t j, float mu_extra);
 static void calc_g2_element(float dx_error, int8_t j, float mu_extra);
 #if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
@@ -342,13 +341,34 @@ static void send_wls_u_stab(struct transport_tx *trans, struct link_device *dev)
 }
 #endif
 static void send_eff_mat_g_indi(struct transport_tx *trans, struct link_device *dev)
-{
+{ 
   pprz_msg_send_EFF_MAT_STAB(trans, dev, AC_ID,
                       INDI_NUM_ACT, g1g2[0],
                       INDI_NUM_ACT, g1g2[1],
                       INDI_NUM_ACT, g1g2[2],
-                      INDI_NUM_ACT, g1g2[3],
                       INDI_NUM_ACT, g2_est);
+
+
+#if INDI_OUTPUTS <= 5
+  float zero = 0;
+#endif
+#if INDI_OUTPUTS > 3
+  pprz_msg_send_EFF_MAT_STAB_THRUST(trans, dev, AC_ID,
+#if INDI_OUTPUTS == 4
+                      1, &zero,
+                      1, &zero,
+                      INDI_NUM_ACT, g1g2[3]
+#elif INDI_OUTPUTS == 5
+                      INDI_NUM_ACT, g1g2[4],
+                      1, &zero,
+                      INDI_NUM_ACT, g1g2[3]
+#elif INDI_OUTPUTS == 6
+                      INDI_NUM_ACT, g1g2[3],
+                      INDI_NUM_ACT, g1g2[4],
+                      INDI_NUM_ACT, g1g2[5]
+#endif
+  );
+#endif
 }
 
 static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *dev)
@@ -584,7 +604,7 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
 {
 
   // Propagate actuator filters
-  get_actuator_state();
+  stabilization_indi_get_actuator_state();
   float actuator_state_filt_vect_prev[INDI_NUM_ACT];
   for (int i = 0; i < INDI_NUM_ACT; i++) {
     update_butterworth_2_low_pass(&actuator_lowpass_filters[i], actuator_state[i]);
@@ -774,18 +794,10 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
         indi_u[i] = -MAX_PPRZ;
       }
     }
-
-    // commit actuator command
-    actuators_pprz[i] = (int16_t) indi_u[i];
-#ifdef STABILIZATION_INDI_COMMANDS
-    // copy to actuators to specified commands
-    cmd[act_to_commands[i]] = actuators_pprz[i];
-#endif
-
-    // update thrust command such that the current is correctly estimated
-    cmd[COMMAND_THRUST] += actuator_state[i] * (int32_t) act_thrust_mat[2][i];
   }
-  cmd[COMMAND_THRUST] /= num_thrusters;
+
+  /*Commit the actuator command*/
+  stabilization_indi_commit_actuator_cmd(cmd);
 }
 
 /**
@@ -897,7 +909,7 @@ void WEAK stabilization_indi_set_wls_settings(void)
  * If this is not available it will use a first order filter to approximate the actuator state.
  * It is also possible to model rate limits (unit: PPRZ/loop cycle)
  */
-void get_actuator_state(void)
+void WEAK stabilization_indi_get_actuator_state(void)
 {
 #if STABILIZATION_INDI_RPM_FEEDBACK
   float_vect_copy(actuator_state, act_obs, INDI_NUM_ACT);
@@ -1177,3 +1189,50 @@ static void bound_g_mat(void)
   }
 }
 
+void WEAK stabilization_indi_commit_actuator_cmd(int32_t *cmd) {
+  for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
+    actuators_pprz[i] = (int16_t) indi_u[i];
+
+#ifdef STABILIZATION_INDI_COMMANDS
+    // copy to actuators to specified commands
+    cmd[act_to_commands[i]] = actuators_pprz[i];
+#endif
+  }
+  
+  //update thrust command such that the current is correctly estimated
+  cmd[COMMAND_THRUST] = 0;
+  for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
+    cmd[COMMAND_THRUST] += actuator_state[i] * (int32_t) act_thrust_mat[2][i];
+  }
+  cmd[COMMAND_THRUST] /= num_thrusters;
+}
+
+
+float* stabilization_indi_get_act_state(void) {
+  return actuator_state;
+}
+
+float* stabilization_indi_get_act_dyn(void) {
+  return act_dyn_discrete;
+}
+
+float* stabilization_indi_get_indi_u(void) {
+  return indi_u;
+}
+
+bool* stabilization_indi_get_act_is_thruster_z(void) {
+  return act_thrust_mat[2];
+}
+
+int32_t stabilization_indi_get_num_thrusters(void) {
+  return num_thrusters;
+}
+
+
+uint8_t* stabilization_indi_get_act_to_commands(void) {
+#ifdef STABILIZATION_INDI_COMMANDS
+  return act_to_commands;  
+#else
+  return NULL;
+#endif
+}
