@@ -240,7 +240,7 @@
     </section>
 
     <section name="MISC">
-        <!-- <define name="INS_EKF2_FUSION_MODE"  value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/> -->
+        <define name="INS_EKF2_FUSION_MODE"  value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
         <!-- <define name="INS_EKF2_OPTITRACK"    value="TRUE"/> -->
 
         <!-- AGL distance -->
