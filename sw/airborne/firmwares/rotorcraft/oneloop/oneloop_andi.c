@@ -498,8 +498,7 @@ static void send_eff_mat_stab_oneloop_andi(struct transport_tx *trans, struct li
   pprz_msg_send_EFF_MAT_STAB(trans, dev, AC_ID, 
                 ANDI_NUM_ACT, EFF_MAT_RW[3],
                 ANDI_NUM_ACT, EFF_MAT_RW[4],
-                ANDI_NUM_ACT, EFF_MAT_RW[5], 
-                                    1, &zero,
+                ANDI_NUM_ACT, EFF_MAT_RW[5],
                                     1, &zero);
 }
 

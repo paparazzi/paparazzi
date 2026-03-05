@@ -10,18 +10,13 @@
     </section>
 
     <section name="CTRL_EFF_SCHED" prefix="ROTWING_EFF_SCHED_">
+        <!-- General variables effectiveness scheduling -->
         <define name="IXX_BODY"              value="0.04780"/>
         <define name="IYY_BODY"              value="0.7546"/>
         <define name="IZZ"                   value="0.9752"/>
         <define name="IXX_WING"              value="0.08099"/>
         <define name="IYY_WING"              value="0.1949"/>
         <define name="M"                     value="6.67"/>
-
-        <define name="DM_DPPRZ_HOVER_PITCH"  value="{15.37287553553,0.0}"/>
-        <define name="DM_DPPRZ_HOVER_ROLL"   value="{5.86747416762564,0.000968063}"/>
-
-        <define name="HOVER_ROLL_PITCH_COEF" value="{0.001418491625685,-0.000649367806611}"/>
-        <define name="HOVER_ROLL_ROLL_COEF"  value="{-0.0000839259143513,-0.0000478083}"/>
 
         <define name="K_ELEVATOR"            value="{0.4603,-4.81466,-28.8464}"/>
         <define name="K_RUDDER"              value="{-26.1434,-0.336403,-5.9}"/>
@@ -36,6 +31,24 @@
         <define name="K_LIFT_WING"           value="{-0.335811392,-0.615611143}"/>
         <define name="K_LIFT_FUSELAGE"       value="-0.050653927"/>
         <define name="K_LIFT_TAIL"           value="-0.101691751"/>
+
+        <!-- Voltage control variables -->
+        <define name="DM_DPPRZ_HOVER_PITCH"  value="{15.37287553553,0.0}"/>
+        <define name="DM_DPPRZ_HOVER_ROLL"   value="{5.86747416762564,0.000968063}"/>
+
+        <define name="HOVER_ROLL_PITCH_COEF" value="{0.001418491625685,-0.000649367806611}"/>
+        <define name="HOVER_ROLL_ROLL_COEF"  value="{-0.0000839259143513,-0.0000478083}"/>
+
+        <!-- RPM control variables -->
+        <define name="RPM_CTRL_HOVER_LIM_COEF"  value="{-5400, 680.7}"/>
+        <define name="RPM_CTRL_PUSH_LIM_COEF"  value="{-4400, 595.8}"/>
+        <define name="CT_HOVER"              value="8.9661e-7"/>
+        <define name="CT_PUSHER"             value="3.5e-7"/>
+        <define name="ROLL_ARM"              value="0.375"/> <!-- Distance from CG to hover motors -->
+        <define name="PITCH_ARM"             value="0.40"/>  <!-- Distance from CG to pitch motors -->
+        <define name="ROLL_ARM_PITCH_MOTORS" value="0.09"/> <!-- Z-offset for pitch motors -->
+        <define name="HOVER_MAX_RPM"         value="6250.0"/> <!-- RPM range for hover motors as configured in ESC -->
+        <define name="PUSHER_MAX_RPM"        value="9200.0"/> <!-- RPM range for pusher motor as configured in ESC -->
     </section>
 
     <section name="MISC">
@@ -114,15 +127,15 @@
     <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
 
         <!-- G1 and G2 7 kg-->
-        <define name="G1_ROLL"      value="{   0.0,  -15.0,    0.0,   15.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
-        <define name="G1_PITCH"     value="{   1.5,    0.0,   -1.5,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
-        <define name="G1_YAW"       value="{  -0.3,    0.3,   -0.3,    0.3, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
-        <define name="G1_THRUST"    value="{-0.575, -0.575, -0.575, -0.575, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_ROLL"      value="{   0.0,  -20.0,    0.0,   20.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_PITCH"     value="{   2.0,    0.0,   -2.0,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_YAW"       value="{  -0.29,    0.29,   -0.29,    0.29, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_THRUST"    value="{-0.534, -0.534, -0.534, -0.534, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
         <define name="G1_THRUST_X"  value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.55}"/>
         <define name="G2"           value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
 
         <!-- Actuator dynamics -->
-        <define name="ACT_FREQ"             value="{22.0, 22.0, 22.0, 22.0, 52.7, 52.7, 52.7, 52.7, 30.0}"/>
+        <define name="ACT_FREQ"             value="{18.0, 18.0, 18.0, 18.0, 52.7, 52.7, 52.7, 52.7, 18.0}"/>
         <define name="ACT_IS_SERVO"         value="{   0,    0,    0,    0,    1,    1,    1,    1,    0}"/>
         <define name="ACT_IS_THRUSTER_X"    value="{   0,    0,    0,    0,    0,    0,    0,    0,    1}"/>
 
@@ -131,10 +144,10 @@
 
         <!-- Reference -->
         <define name="REF_ERR_P"                    value="30.0"/>
-        <define name="REF_ERR_Q"                    value="70.0"/>
+        <define name="REF_ERR_Q"                    value="30.0"/>
         <define name="REF_ERR_R"                    value="23.0"/>
         <define name="REF_RATE_P"                   value="7.0"/>
-        <define name="REF_RATE_Q"                   value="9.0"/>
+        <define name="REF_RATE_Q"                   value="7.0"/>
         <define name="REF_RATE_R"                   value="3.9"/>
 
         <define name="MAX_R"                        value="30.0" unit="deg/s"/>
@@ -155,6 +168,9 @@
         <define name="USE_ADAPTIVE"     value="FALSE"/>
         <define name="ADAPTIVE_MU"      value="0.001"/>
         <define name="YAW_DISTURBANCE_LIMIT" value="0.68"/>
+
+        <!-- INDI outputs to commands association -->
+        <define name="COMMANDS" value="{COMMAND_MOTOR_FRONT,COMMAND_MOTOR_RIGHT,COMMAND_MOTOR_BACK,COMMAND_MOTOR_LEFT,COMMAND_RUDDER,COMMAND_ELEVATOR,COMMAND_AILERONS,COMMAND_FLAPS,COMMAND_THRUST_X}"/>
     </section>
 
     <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -257,12 +273,10 @@
     </section>
 
     <section name="SIMULATOR" prefix="NPS_">
-        <define name="ACTUATOR_NAMES" value="front_motor, right_motor, back_motor, left_motor, rudder, elevator, aileron, flap, pusher, skew" type="string[]"/>
-        <define name="JSBSIM_MODEL" value="rotwing3" type="string"/>
-        <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
-        <define name="COMMANDS_NB" value="10"/>
-        <define name="NO_MOTOR_MIXING" value="TRUE"/>
-        <define name="JS_AXIS_MODE" value="4"/>
+        <define name="JSBSIM_MODEL"    value="rotwing3" type="string"/>
+        <define name="SENSORS_PARAMS"  value="nps_sensors_params_default.h" type="string"/>
+        <define name="USE_COMMANDS"    value="TRUE"/>
+        <define name="JS_AXIS_MODE"    value="4"/>
     </section>
 
     <!--EKF Settings-->
