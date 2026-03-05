@@ -20,26 +20,26 @@
   <periodic fun="imu_cube_periodic()"/>
   <event fun="imu_cube_event()"/>
   <makefile target="!sim|nps|fbw">
-    <!-- ICM20948 (non-isolated) -->
+    <!-- ICM20948 (non-isolated) or ICM45686 (non-isolated, Cube+ LTS) -->
     <configure name="CUBE_IMU1_SPI_DEV" default="spi1" case="lower|upper"/>
-    <configure name="CUBE_IMU1_SPI_SLAVE_IDX" default="SPI_SLAVE2"/>
+    <configure name="CUBE_IMU1_SPI_SLAVE_IDX" default="SPI_SLAVE2"/> <!-- Overwritten to SPI_SLAVE9 for the cube+ LTS -->
     <define name="CUBE_IMU1_SPI_DEV" value="$(CUBE_IMU1_SPI_DEV_LOWER)"/>
     <define name="USE_$(CUBE_IMU1_SPI_DEV_UPPER)"/>
     <define name="CUBE_IMU1_SPI_SLAVE_IDX" value="$(CUBE_IMU1_SPI_SLAVE_IDX)"/>
     <define name="USE_$(CUBE_IMU1_SPI_SLAVE_IDX)"/>
 
-    <!-- ICM20602 or ICM45686 (isolated) -->
+    <!-- ICM20602 or ICM45686 (isolated) or ICM45686 (isolated, Cube+ LTS) -->
     <configure name="CUBE_IMU2_SPI_DEV" default="spi4" case="lower|upper"/>
-    <configure name="CUBE_IMU2_SPI_SLAVE_IDX" default="SPI_SLAVE3"/> <!-- Overwritten to SPI_SLAVE5 for cube+ -->
+    <configure name="CUBE_IMU2_SPI_SLAVE_IDX" default="SPI_SLAVE3"/> <!-- Overwritten to SPI_SLAVE5 for cube+ (non-LTS) -->
     <define name="CUBE_IMU2_SPI_DEV" value="$(CUBE_IMU2_SPI_DEV_LOWER)"/>
     <define name="USE_$(CUBE_IMU2_SPI_DEV_UPPER)"/>
     <define name="CUBE_IMU2_SPI_SLAVE_IDX" value="$(CUBE_IMU2_SPI_SLAVE_IDX)"/>
     <define name="USE_$(CUBE_IMU2_SPI_SLAVE_IDX)"/>
 
-    <!-- ICM20649 (isolated) -->
+    <!-- ICM20649 (isolated) or ICM45686 (isolated, Cube+ LTS) -->
     <configure name="CUBE_IMU3_SPI_DEV" default="spi4" case="lower|upper"/>
     <configure name="CUBE_IMU3_SPI_SLAVE_IDX" default="SPI_SLAVE8"/>
-    <define name="CUBE_IMU3_SPI_DEV" value="$(CUBE_IMU3_SPI_DEV_LOWER)"/>
+    <define name="CUBE_IMU3_SPI_DEV" value="$(CUBE_IMU3_SPI_DEV_LOWER)"/> <!-- Overwritten to SPI_SLAVE5 for the cube+ LTS -->
     <define name="USE_$(CUBE_IMU3_SPI_DEV_UPPER)"/>
     <define name="CUBE_IMU3_SPI_SLAVE_IDX" value="$(CUBE_IMU3_SPI_SLAVE_IDX)"/>
     <define name="USE_$(CUBE_IMU3_SPI_SLAVE_IDX)"/>
@@ -53,10 +53,16 @@
     <!-- Different IMU for the cube+ -->
     <define name="IMU_CUBE_ORANGEPLUS" value="TRUE" cond="ifeq ($(BOARD_VERSION), orange_plus)"/>
 
-    <file name="invensense2.c" dir="peripherals"/>
+    <!-- Triple ICM45686 for the Cube+ LTS / "shiny" cube" -->
+    <define name="IMU_CUBE_ORANGEPLUS_LTS" value="TRUE" cond="ifeq ($(BOARD_VERSION), orange_plus_lts)"/>
+
+    <file name="invensense2.c" dir="peripherals" cond="ifneq ($(BOARD_VERSION), orange_plus_lts)"/>
     <file name="invensense3.c" dir="peripherals" cond="ifeq ($(BOARD_VERSION), orange_plus)"/>
+    <file name="invensense3_456.c" dir="peripherals" cond="ifeq ($(BOARD_VERSION), orange_plus_lts)"/>
+
     <file name="mpu60x0.c" dir="peripherals" cond="ifeq ($(BOARD_VERSION), orange)"/>
     <file name="mpu60x0_spi.c" dir="peripherals" cond="ifeq ($(BOARD_VERSION), orange)"/>
+
     <file name="imu_cube.c"/>
 
     <test>

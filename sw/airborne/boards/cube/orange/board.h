@@ -183,7 +183,7 @@
 #define	PF15                           15U
 
 #define	PG00                           0U
-#define	PG01                           1U
+#define	PG01_SPI_SLAVE9                1U
 #define	PG02                           2U
 #define	PG03                           3U
 #define	PG04                           4U
@@ -352,6 +352,8 @@
 #define	LINE_SERVO2                    PAL_LINE(GPIOE, 13U)
 #define	LINE_SERVO1                    PAL_LINE(GPIOE, 14U)
 #define	LINE_VDD_5V_PERIPH_OC          PAL_LINE(GPIOE, 15U)
+
+#define	LINE_SPI_SLAVE9                PAL_LINE(GPIOG, 1U)
 
 #define	LINE_OSC_IN                    PAL_LINE(GPIOH, 0U)
 #define	LINE_OSC_OUT                   PAL_LINE(GPIOH, 1U)
@@ -541,10 +543,10 @@
 					 PIN_PUPDR_PULLDOWN(PB05_VDD_BRICK_VALID) | \
 					 PIN_PUPDR_FLOATING(PB06_CAN2_TX) | \
 					 PIN_PUPDR_PULLDOWN(PB07_VDD_BACKUP_VALID) | \
-					 PIN_PUPDR_PULLUP(PB08_I2C1_SCL) | \
-					 PIN_PUPDR_PULLUP(PB09_I2C1_SDA) | \
-					 PIN_PUPDR_PULLUP(PB10_I2C2_SCL) | \
-					 PIN_PUPDR_PULLUP(PB11_I2C2_SDA) | \
+					 PIN_PUPDR_FLOATING(PB08_I2C1_SCL) | \
+					 PIN_PUPDR_FLOATING(PB09_I2C1_SDA) | \
+					 PIN_PUPDR_FLOATING(PB10_I2C2_SCL) | \
+					 PIN_PUPDR_FLOATING(PB11_I2C2_SDA) | \
 					 PIN_PUPDR_FLOATING(PB12_CAN2_RX) | \
 					 PIN_PUPDR_FLOATING(PB13_SPI2_SCK) | \
 					 PIN_PUPDR_FLOATING(PB14_SPI2_MISO) | \
@@ -998,7 +1000,7 @@
 					 PIN_AFIO_AF(PF15, 0))
 
 #define VAL_GPIOG_MODER                 (PIN_MODE_INPUT(PG00) | \
-					 PIN_MODE_INPUT(PG01) | \
+					 PIN_MODE_OUTPUT(PG01_SPI_SLAVE9) | \
 					 PIN_MODE_INPUT(PG02) | \
 					 PIN_MODE_INPUT(PG03) | \
 					 PIN_MODE_INPUT(PG04) | \
@@ -1015,7 +1017,7 @@
 					 PIN_MODE_INPUT(PG15))
 
 #define VAL_GPIOG_OTYPER                (PIN_OTYPE_PUSHPULL(PG00) | \
-					 PIN_OTYPE_PUSHPULL(PG01) | \
+					 PIN_OTYPE_PUSHPULL(PG01_SPI_SLAVE9) | \
 					 PIN_OTYPE_PUSHPULL(PG02) | \
 					 PIN_OTYPE_PUSHPULL(PG03) | \
 					 PIN_OTYPE_PUSHPULL(PG04) | \
@@ -1032,7 +1034,7 @@
 					 PIN_OTYPE_PUSHPULL(PG15))
 
 #define VAL_GPIOG_OSPEEDR               (PIN_OSPEED_SPEED_VERYLOW(PG00) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PG01) | \
+					 PIN_OSPEED_SPEED_HIGH(PG01_SPI_SLAVE9) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PG02) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PG03) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PG04) | \
@@ -1049,7 +1051,7 @@
 					 PIN_OSPEED_SPEED_VERYLOW(PG15))
 
 #define VAL_GPIOG_PUPDR                 (PIN_PUPDR_PULLDOWN(PG00) | \
-					 PIN_PUPDR_PULLDOWN(PG01) | \
+					 PIN_PUPDR_FLOATING(PG01_SPI_SLAVE9) | \
 					 PIN_PUPDR_PULLDOWN(PG02) | \
 					 PIN_PUPDR_PULLDOWN(PG03) | \
 					 PIN_PUPDR_PULLDOWN(PG04) | \
@@ -1066,7 +1068,7 @@
 					 PIN_PUPDR_PULLDOWN(PG15))
 
 #define VAL_GPIOG_ODR                   (PIN_ODR_LEVEL_LOW(PG00) | \
-					 PIN_ODR_LEVEL_LOW(PG01) | \
+					 PIN_ODR_LEVEL_HIGH(PG01_SPI_SLAVE9) | \
 					 PIN_ODR_LEVEL_LOW(PG02) | \
 					 PIN_ODR_LEVEL_LOW(PG03) | \
 					 PIN_ODR_LEVEL_LOW(PG04) | \
@@ -1083,7 +1085,7 @@
 					 PIN_ODR_LEVEL_LOW(PG15))
 
 #define VAL_GPIOG_AFRL			(PIN_AFIO_AF(PG00, 0) | \
-					 PIN_AFIO_AF(PG01, 0) | \
+					 PIN_AFIO_AF(PG01_SPI_SLAVE9, 0) | \
 					 PIN_AFIO_AF(PG02, 0) | \
 					 PIN_AFIO_AF(PG03, 0) | \
 					 PIN_AFIO_AF(PG04, 0) | \
@@ -1691,8 +1693,16 @@
 	LINE_SERVO3, \
 	LINE_LED1, \
 	LINE_SERVO2, \
-	LINE_SERVO1
-#define ENERGY_SAVE_INPUTS_SIZE 	 16
+	LINE_SERVO1, \
+	LINE_SPI_SLAVE9
+#define ENERGY_SAVE_INPUTS_SIZE 	 17
+
+#define ENERGY_SAVE_LOWS \
+	LINE_VDD_5V_PERIPH_EN, \
+	LINE_ALARM, \
+	LINE_PWM_VOLT_SEL, \
+	LINE_VDD_3V3_SENSORS_EN
+#define ENERGY_SAVE_LOWS_SIZE 	 4
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

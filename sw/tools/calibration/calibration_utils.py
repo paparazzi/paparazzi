@@ -25,19 +25,18 @@ import re
 from telnetlib import theNULL
 import numpy as np
 from numpy import sin, cos
-from scipy import linalg, stats
+from scipy import linalg, stats, optimize
 from fractions import Fraction
 
 import matplotlib
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 
 def get_ids_in_log(filename):
     """Returns available ac_id from a log."""
     f = open(filename, 'r')
     ids = []
-    pattern = re.compile("\S+ (\S+)")
+    pattern = re.compile(r"\S+ (\S+)")
     while True:
         line = f.readline().strip()
         if line == '':
@@ -53,9 +52,9 @@ def get_sensor_ids(ac_id, filename, sensor):
     f = open(filename, 'r')
     ids = []
     if sensor == 'MAG':
-        pattern = re.compile("\S+ "+ac_id+" IMU_"+sensor+"_RAW (\S+) \S+ \S+ \S+")
+        pattern = re.compile(r"\S+ "+ac_id+" IMU_"+sensor+r"_RAW (\S+) \S+ \S+ \S+")
     else:
-        pattern = re.compile("\S+ "+ac_id+" IMU_"+sensor+"_RAW (\S+) \S+ \S+ \S+ \S+")
+        pattern = re.compile(r"\S+ "+ac_id+" IMU_"+sensor+r"_RAW (\S+) \S+ \S+ \S+ \S+")
     while True:
         line = f.readline().strip()
         if line == '':
@@ -71,9 +70,9 @@ def read_log(ac_id, filename, sensor, sensor_id):
     """Extracts raw sensor measurements from a log."""
     f = open(filename, 'r')
     if sensor == 'MAG':
-        pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+" (\S+) (\S+) (\S+)")
+        pattern = re.compile(r"(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+r" (\S+) (\S+) (\S+)")
     else:
-        pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+" \S+ (\S+) (\S+) (\S+)")
+        pattern = re.compile(r"(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+r" \S+ (\S+) (\S+) (\S+)")
     list_meas = []
     while True:
         line = f.readline().strip()
@@ -88,7 +87,7 @@ def read_log(ac_id, filename, sensor, sensor_id):
 def read_log_scaled(ac_id, filename, sensor, sensor_id, t_start, t_end):
     """Extracts scaled sensor measurements from a log."""
     f = open(filename, 'r')
-    pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_SCALED "+sensor_id+" (\S+) (\S+) (\S+)")
+    pattern = re.compile(r"(\S+) "+ac_id+" IMU_"+sensor+"_SCALED "+sensor_id+r" (\S+) (\S+) (\S+)")
     list_meas = []
     while True:
         line = f.readline().strip()
@@ -104,7 +103,7 @@ def read_log_scaled(ac_id, filename, sensor, sensor_id, t_start, t_end):
 def read_log_mag_current(ac_id, filename):
     """Extracts raw magnetometer and current measurements from a log."""
     f = open(filename, 'r')
-    pattern = re.compile("(\S+) "+ac_id+" IMU_MAG_CURRENT_CALIBRATION (\S+) (\S+) (\S+) (\S+)")
+    pattern = re.compile(r"(\S+) "+ac_id+r" IMU_MAG_CURRENT_CALIBRATION (\S+) (\S+) (\S+) (\S+)")
     list_meas = []
     while True:
         line = f.readline().strip()
@@ -141,7 +140,6 @@ def get_min_max_guess(meas, scale):
     else:
         return np.array([0, 0, 0, 0])
 
-
 def scale_measurements(meas, p):
     """Scale the set of measurements."""
     l_comp = []
@@ -152,6 +150,15 @@ def scale_measurements(meas, p):
         l_norm.append(linalg.norm(sm))
     return np.array(l_comp), np.array(l_norm)
 
+def optimize_calibration(meas, ref, p0):
+    """ optimize parameters based on an initial guess """
+    def err_func(p, m, y):
+        c_p, n_p = scale_measurements(m, p)
+        err = y*np.ones(len(m)) - n_p
+        return err
+
+    sol, cov, info, msg, success = optimize.leastsq(err_func, p0[:], args=(meas, ref), full_output=1)
+    return sol, msg, success
 
 def estimate_mag_current_relation(meas):
     """Calculate linear coefficient of magnetometer-current relation."""
@@ -163,55 +170,29 @@ def estimate_mag_current_relation(meas):
         offset.append(intercept)
     return coefficient, offset
 
-def continious_frac(v):
-    max_val = 2**16
-    if v > 0:
-        s = 1
-    else:
-        v = -v
-        s = -1
-    return _continious_frac(v, max_val, int(v), v, (1, int(v)), (0,1), s)
+def format_xml(p, sensor, sensor_id, res):
+    """Print xml for airframe file."""
+    x_sens = p[3]*2**res
+    y_sens = p[4]*2**res
+    z_sens = p[5]*2**res
 
-def _continious_frac(v, max_val, a, x, num, den, s):
-    x1 = 1 / (x - a)
-    a1 = int(x1)
-    (num1, num2) = num
-    num3 = a1 * num2 + num1
-    (den1, den2) = den
-    den3 = a1 * den2 + den1
-    if num3 > max_val or den3 > max_val:
-        return (num2, s*den2)
-    elif (num3 / den3) == v:
-        return (num3, s*den3)
-    else:
-        return _continious_frac(v, max_val, a1, x1, (num2, num3), (den2, den3), s)
+    s = f""
+    s += f'<define name="IMU_{sensor}_CALIB" type="array">\n'
+    s += f'  <field type="struct">\n'
+    s += f'    <field name="abi_id" value="{sensor_id}"/>\n'
+    s += f'    <field name="calibrated" type="struct">\n'
+    s += f'      <field name="neutral" value="true"/>\n'
+    s += f'      <field name="scale_f" value="true"/>\n'
+    s += f'    </field>\n'
+    s += f'    <field name="neutral" value="{round(p[0]):d},{int(round(p[1])):d},{int(round(p[2])):d}" type="int[]"/>\n'
+    s += f'    <field name="scale_f" value="{{ {x_sens:.4f}, {y_sens:.4f}, {z_sens:.4f} }}"/>\n'
+    s += f'  </field>\n'
+    s += f'</define>\n'
+    return s
 
 def print_xml(p, sensor, sensor_id, res):
     """Print xml for airframe file."""
-    x_sens = continious_frac(p[3]*2**res)
-    y_sens = continious_frac(p[4]*2**res)
-    z_sens = continious_frac(p[5]*2**res)
-
-    print("")
-    print('<define name="IMU_'+sensor+'_CALIB" type="array">')
-    print('  <field type="struct">')
-    print('    <field name="abi_id" value="'+sensor_id+'"/>')
-    print('    <field name="calibrated" type="struct">')
-    print('      <field name="neutral" value="true"/>')
-    print('      <field name="scale" value="true"/>')
-    print('    </field>')
-    print('    <field name="neutral" value="'+str(int(round(p[0])))+','+str(int(round(p[1])))+','+str(int(round(p[2])))+'" type="int[]"/>')
-    print('    <field name="scale" value="{{'+str(x_sens[0])+','+str(y_sens[0])+','+str(z_sens[0])+'},{'+str(x_sens[1])+','+str(y_sens[1])+','+str(z_sens[1])+'}}"/>')
-    print('  </field>')
-    print('</define>')
-    print("")
-    print("<define name=\""+sensor+"_X_NEUTRAL\" value=\""+str(int(round(p[0])))+"\"/>")
-    print("<define name=\""+sensor+"_Y_NEUTRAL\" value=\""+str(int(round(p[1])))+"\"/>")
-    print("<define name=\""+sensor+"_Z_NEUTRAL\" value=\""+str(int(round(p[2])))+"\"/>")
-    print("<define name=\""+sensor+"_X_SENS\" value=\""+str(p[3]*2**res)+"\" integer=\"16\"/>")
-    print("<define name=\""+sensor+"_Y_SENS\" value=\""+str(p[4]*2**res)+"\" integer=\"16\"/>")
-    print("<define name=\""+sensor+"_Z_SENS\" value=\""+str(p[5]*2**res)+"\" integer=\"16\"/>")
-
+    print(format_xml(p, sensor, sensor_id, res))
 
 def print_imu_scaled(sensor, measurements, attrs):
     print("")
@@ -373,10 +354,7 @@ def plot_mag_3d(measured, calibrated, p):
     rect_r = [left/2+0.5, bottom, width, height]
 
     fig = plt.figure(figsize=plt.figaspect(0.5))
-    if matplotlib.__version__.startswith('0'):
-        ax = Axes3D(fig, rect=rect_l)
-    else:
-        ax = fig.add_subplot(1, 2, 1, position=rect_l, projection='3d')
+    ax = fig.add_subplot(1, 2, 1, position=rect_l, projection='3d')
     # plot measurements
     ax.scatter(mx, my, mz)
     # plot line from center to ellipsoid center
@@ -398,10 +376,7 @@ def plot_mag_3d(measured, calibrated, p):
     ax.set_ylabel('y')
     ax.set_zlabel('z')
 
-    if matplotlib.__version__.startswith('0'):
-        ax = Axes3D(fig, rect=rect_r)
-    else:
-        ax = fig.add_subplot(1, 2, 2, position=rect_r, projection='3d')
+    ax = fig.add_subplot(1, 2, 2, position=rect_r, projection='3d')
     ax.plot_wireframe(wx, wy, wz, color='grey', alpha=0.5)
     ax.scatter(cx, cy, cz)
 
@@ -420,8 +395,8 @@ def read_turntable_log(ac_id, tt_id, filename, _min, _max):
     return an array which first column is turnatble and next 3 are gyro
     """
     f = open(filename, 'r')
-    pattern_g = re.compile("(\S+) "+str(ac_id)+" IMU_GYRO_RAW (\S+) (\S+) (\S+)")
-    pattern_t = re.compile("(\S+) "+str(tt_id)+" IMU_TURNTABLE (\S+)")
+    pattern_g = re.compile(r"(\S+) "+str(ac_id)+r" IMU_GYRO_RAW (\S+) (\S+) (\S+)")
+    pattern_t = re.compile(r"(\S+) "+str(tt_id)+r" IMU_TURNTABLE (\S+)")
     last_tt = None
     list_tt = []
     while True:

@@ -38,7 +38,7 @@ let from_xml = function
           m @ List.map Module.config_from_xml (Xml.children el)
         else
           m
-      ) [] children in
+      ) [] (List.flatten (List.map Xml.children children)) in
       { filename = ""; modules; xml }
   | _ -> failwith "Autopilot.from_xml: unreachable"
 

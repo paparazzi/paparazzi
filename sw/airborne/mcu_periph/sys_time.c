@@ -89,6 +89,33 @@ void sys_time_update_timer(tid_t id, float duration)
   sys_time.timer[id].duration = sys_time_ticks_of_sec(duration);
 }
 
+#if USE_SHELL
+#include "modules/core/shell.h"
+#include "printf.h"
+#include "string.h"
+
+static void cmd_sys_time(shell_stream_t *sh, int argc, const char * const argv[])
+{
+  (void) argv;
+  if (argc > 0) {
+    chprintf(sh, "Usage: sys_time\r\n");
+    return;
+  }
+
+  chprintf(sh, "Current sys_time\r\n");
+  chprintf(sh, "  nb_sec: %lu\r\n", sys_time.nb_sec);
+  chprintf(sh, "  nb_sec_rem: %lu\r\n", sys_time.nb_sec_rem);
+  chprintf(sh, "  nb_tick: %lu\r\n", sys_time.nb_tick);
+  chprintf(sh, "Registered timers\r\n");
+  for (tid_t i = 0; i < SYS_TIME_NB_TIMER; i++) {
+    if (sys_time.timer[i].in_use) {
+      chprintf(sh, "id: %d, duration: %lu, end_time: %lu, cb: 0x%lx\r\n", i,
+          sys_time.timer[i].duration, sys_time.timer[i].end_time, sys_time.timer[i].cb);
+    }
+  }
+}
+#endif
+
 void sys_time_init(void)
 {
   sys_time.nb_sec     = 0;
@@ -107,4 +134,8 @@ void sys_time_init(void)
   }
 
   sys_time_arch_init();
+
+#if USE_SHELL
+  shell_add_entry("sys_time", cmd_sys_time);
+#endif
 }

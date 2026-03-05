@@ -84,10 +84,11 @@
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
+#include "filters/notch_filter_float.h"
 #include "math/wls/wls_alloc.h"
 #include "modules/nav/nav_rotorcraft_hybrid.h"
 #include "firmwares/rotorcraft/navigation.h"
-#include "modules/rotwing_drone/rotwing_state_V2.h"
+#include "modules/rotwing_drone/rotwing_state.h"
 #include "modules/core/commands.h"
 #include "modules/ctrl/eff_scheduling_rotwing_V2.h"
 #include <stdio.h>
@@ -126,7 +127,7 @@ float  oneloop_andi_filt_cutoff_v = ONELOOP_ANDI_FILT_CUTOFF_VEL;
 #else
 float  oneloop_andi_filt_cutoff_v = 2.0;
 #endif
-
+PRINT_CONFIG_VAR(ONELOOP_ANDI_FILT_CUTOFF_VEL)
 #ifdef ONELOOP_ANDI_FILT_CUTOFF_POS
 float  oneloop_andi_filt_cutoff_pos = ONELOOP_ANDI_FILT_CUTOFF_POS;
 #else
@@ -154,6 +155,10 @@ float oneloop_andi_filt_cutoff_r = ONELOOP_ANDI_FILT_CUTOFF_R;
 float oneloop_andi_filt_cutoff_r = 20.0;
 #endif
 
+PRINT_CONFIG_VAR(ONELOOP_ANDI_FILT_CUTOFF);
+PRINT_CONFIG_VAR(ONELOOP_ANDI_FILT_CUTOFF_Q);
+PRINT_CONFIG_VAR(ONELOOP_ANDI_FILT_CUTOFF_P);
+PRINT_CONFIG_VAR(ONELOOP_ANDI_FILT_CUTOFF_R);
 #ifndef MAX_R 
 float max_r = RadOfDeg(120.0);
 #else
@@ -203,20 +208,6 @@ float  nu_norm_max = ONELOOP_ANDI_NU_NORM_MAX;
 float  nu_norm_max = 1.0;
 #endif
 
-#ifdef ONELOOP_ANDI_WV // {ax_dot,ay_dot,az_dot,p_ddot,q_ddot,r_ddot}
-static float Wv[ANDI_OUTPUTS]     = ONELOOP_ANDI_WV;
-static float Wv_wls[ANDI_OUTPUTS] = ONELOOP_ANDI_WV;
-#else
-static float Wv[ANDI_OUTPUTS]     = {1.0};
-static float Wv_wls[ANDI_OUTPUTS] = {1.0};
-#endif
-
-#ifdef ONELOOP_ANDI_WU // {de,dr,daL,daR,mF,mB,mL,mR,mP,phi,theta}
-static float Wu[ANDI_NUM_ACT_TOT] = ONELOOP_ANDI_WU;
-#else
-static float Wu[ANDI_NUM_ACT_TOT] = {1.0};
-#endif
-
 #ifdef ONELOOP_ANDI_U_PREF
 static float u_pref[ANDI_NUM_ACT_TOT] = ONELOOP_ANDI_U_PREF;
 #else
@@ -239,13 +230,13 @@ float theta_pref_max = RadOfDeg(20.0);
 float theta_pref_max = RadOfDeg(ONELOOP_THETA_PREF_MAX);
 #endif
 
-#if ANDI_NUM_ACT_TOT != WLS_N_U
-#error Matrix-WLS_N_U is not equal to the number of actuators: define WLS_N_U == ANDI_NUM_ACT_TOT in airframe file
-#define WLS_N_U == ANDI_NUM_ACT_TOT
+#if ANDI_NUM_ACT_TOT != WLS_N_U_MAX
+#error Matrix-WLS_N_U_MAX is not equal to the number of actuators: define WLS_N_U_MAX == ANDI_NUM_ACT_TOT in airframe file
+#define WLS_N_U_MAX == ANDI_NUM_ACT_TOT
 #endif
-#if ANDI_OUTPUTS != WLS_N_V
-#error Matrix-WLS_N_V is not equal to the number of controlled axis: define WLS_N_V == ANDI_OUTPUTS in airframe file
-#define WLS_N_V == ANDI_OUTPUTS
+#if ANDI_OUTPUTS != WLS_N_V_MAX
+#error Matrix-WLS_N_V_MAX is not equal to the number of controlled axis: define WLS_N_V_MAX == ANDI_OUTPUTS in airframe file
+#define WLS_N_V_MAX == ANDI_OUTPUTS
 #endif
 
 #ifndef ONELOOP_ANDI_AIRSPEED_SWITCH_THRESHOLD
@@ -277,20 +268,31 @@ float max_v_nav = NAV_HYBRID_MAX_AIRSPEED; // Consider implications of differenc
 float max_v_nav = 5.0;
 #endif
 float max_as = 19.0f;
+float min_as = 0.0f;
 
 #ifdef NAV_HYBRID_MAX_SPEED_V
 float max_v_nav_v = NAV_HYBRID_MAX_SPEED_V;
 #else
 float max_v_nav_v = 1.5;
 #endif
+
 #ifndef FWD_SIDESLIP_GAIN
 float fwd_sideslip_gain = 0.2;
 #else
 float fwd_sideslip_gain = FWD_SIDESLIP_GAIN;
 #endif
 
+#ifndef ONELOOP_ANDI_WU_QUAD_MOTORS_FWD
+float Wu_quad_motors_fwd = 6.0;
+#else
+float Wu_quad_motors_fwd = ONELOOP_ANDI_WU_QUAD_MOTORS_FWD;
+#endif
+
+
 /*  Define Section of the functions used in this module*/
 void  init_poles(void);
+void  init_poles_att(void);
+void  init_poles_pos(void);
 void  calc_normalization(void);
 void  normalize_nu(void);
 void  G1G2_oneloop(int ctrl_type);
@@ -320,6 +322,12 @@ float oneloop_andi_sideslip(void);
 void  reshape_wind(void);
 void  chirp_pos(float time_elapsed, float f0, float f1, float t_chirp, float A, int8_t n, float psi, float p_ref[], float v_ref[], float a_ref[], float j_ref[], float p_ref_0[]);
 void  chirp_call(bool* chirp_on, bool* chirp_first_call, float* t_0_chirp, float* time_elapsed, float f0, float f1, float t_chirp, float A, int8_t n, float psi, float p_ref[], float v_ref[], float a_ref[], float j_ref[], float p_ref_0[]);
+void  init_cf2(struct CF2_t *cf, float fc);
+void  init_cf4(struct CF4_t *cf, float fc);
+void  init_all_cf(void);
+void  reinit_cf2(struct CF2_t *cf, bool reinit);
+void  reinit_cf4(struct CF4_t *cf, bool reinit);
+void  reinit_all_cf(bool reinit);
 
 /*Define general struct of the Oneloop ANDI controller*/
 struct OneloopGeneral oneloop_andi;
@@ -332,6 +340,7 @@ static float dt_1l = 1./PERIODIC_FREQUENCY;
 static float g   = 9.81; // [m/s^2] Gravitational Acceleration
 float k_as = 2.0;
 int16_t temp_pitch = 0;
+float gi_unbounded_airspeed_sp = 0.0;
 
 /* Oneloop Control Variables*/
 float andi_u[ANDI_NUM_ACT_TOT];
@@ -353,23 +362,59 @@ struct FloatEulers eulers_zxy;
 float  psi_des_rad = 0.0;
 float  psi_des_deg = 0.0;
 static float  psi_vec[4]  = {0.0, 0.0, 0.0, 0.0};
+
+#if ONELOOP_ANDI_HEADING_MANUAL
+bool heading_manual = true;
+#else
 bool heading_manual = false;
+#endif
+#if ONELOOP_ANDI_YAW_STICK_IN_AUTO
+bool yaw_stick_in_auto = true;
+#else
 bool yaw_stick_in_auto = false;
+#endif
 bool ctrl_off = false;
 /*WLS Settings*/
-static float gamma_wls = 100; //30; //This is actually sqrt(gamma) in the WLS algorithm
-static float du_min_1l[ANDI_NUM_ACT_TOT]; 
-static float du_max_1l[ANDI_NUM_ACT_TOT];
-static float du_pref_1l[ANDI_NUM_ACT_TOT];
+
 static float pitch_pref = 0;
-static int   number_iter = 0;
+struct WLS_t WLS_one_p = {
+  .nu        = ANDI_NUM_ACT_TOT,
+  .nv        = ANDI_OUTPUTS,
+  .gamma_sq  = 100.0,
+  .v         = {0.0},
+#ifdef ONELOOP_ANDI_WV // {ax_dot,ay_dot,az_dot,p_ddot,q_ddot,r_ddot}  
+  .Wv        = ONELOOP_ANDI_WV,
+#else
+  .Wv        = {1.0},
+#endif
+#ifdef ONELOOP_ANDI_WU // {de,dr,daL,daR,mF,mB,mL,mR,mP,phi,theta}  
+  .Wu        = ONELOOP_ANDI_WU,
+#else
+  .Wu        = {1.0},
+#endif
+  .u_pref    = {0.0},
+  .u_min     = {0.0},
+  .u_max     = {0.0},
+  .PC        = 0.0,
+  .SC        = 0.0,
+  .iter      = 0
+};
+
+#ifdef ONELOOP_ANDI_WV // {ax_dot,ay_dot,az_dot,p_ddot,q_ddot,r_ddot}
+static float Wv_backup[ANDI_OUTPUTS] = ONELOOP_ANDI_WV;
+#else
+static float Wv_backup[ANDI_OUTPUTS] = {1.0};
+#endif
+
+#ifdef ONELOOP_ANDI_WU // {mF,mR,mB,mL,mP,de,dr,da,df,phi,theta}
+static float Wu_backup[ANDI_NUM_ACT_TOT] = ONELOOP_ANDI_WU;
+#else
+static float Wu_backup[ANDI_NUM_ACT_TOT] = {1.0};
+#endif
 
 /*Complementary Filter Variables*/
-static float model_pred[ANDI_OUTPUTS];
-static float model_pred_ar[3];
-static float ang_acc[3];
-static float ang_rate[3];
-static float lin_acc[3];
+struct Oneloop_CF_t cf;
+static struct Oneloop_notch_t oneloop_notch; 
 
 /*Chirp test Variables*/
 bool  chirp_on            = false;
@@ -411,27 +456,49 @@ float ratio_u_un[ANDI_NUM_ACT_TOT];
 float ratio_vn_v[ANDI_OUTPUTS];
 
 /*Filters Initialization*/
-static Butterworth2LowPass filt_accel_ned[3];                 // Low pass filter for acceleration NED (1)                       - oneloop_andi_filt_cutoff_a (tau_a)
-static Butterworth2LowPass filt_veloc_ned[3];                 // Low pass filter for velocity NED                      - oneloop_andi_filt_cutoff_a (tau_a)       
-static Butterworth2LowPass rates_filt_bt[3];                  // Low pass filter for angular rates                              - ONELOOP_ANDI_FILT_CUTOFF_P/Q/R
-static Butterworth2LowPass model_pred_la_filt[3];             // Low pass filter for model prediction linear acceleration (1)   - oneloop_andi_filt_cutoff_a (tau_a)
-static Butterworth2LowPass ang_rate_lowpass_filters[3];   // Low pass filter for attitude derivative measurements           - oneloop_andi_filt_cutoff (tau)
-static Butterworth2LowPass model_pred_aa_filt[3];             // Low pass filter for model prediction angular acceleration      - oneloop_andi_filt_cutoff (tau)
-static Butterworth2LowPass model_pred_ar_filt[3];             // Low pass filter for model prediction angular rates            - ONELOOP_ANDI_FILT_CUTOFF_P/Q/R
+static Butterworth2LowPass filt_veloc_N;                 // Low pass filter for velocity NED - oneloop_andi_filt_cutoff_a (tau_a)       
+static Butterworth2LowPass filt_veloc_E;
+static Butterworth2LowPass filt_veloc_D;
 static Butterworth2LowPass accely_filt;                       // Low pass filter for acceleration in y direction                - oneloop_andi_filt_cutoff (tau)
-static Butterworth2LowPass airspeed_filt;                     // Low pass filter for airspeed                                   - oneloop_andi_filt_cutoff (tau)
-
+static Butterworth2LowPass airspeed_filt;                     // Low pass filter for airspeed                                - oneloop_andi_filt_cutoff (tau)
 /* Define messages of the module*/
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
-
+// static void send_cf_oneloop(struct transport_tx *trans, struct link_device *dev)
+// {
+//   float temp_cf_p[5] = {cf.p.model,cf.p.model_filt.o[0],cf.p.feedback,cf.p.feedback_filt.o[0],cf.p.out};
+//   float temp_cf_q[5] = {cf.q.model,cf.q.model_filt.o[0],cf.q.feedback,cf.q.feedback_filt.o[0],cf.q.out};
+//   float temp_cf_r[5] = {cf.r.model,cf.r.model_filt.o[0],cf.r.feedback,cf.r.feedback_filt.o[0],cf.r.out};
+//   float temp_cf_p_dot[5] = {cf.p_dot.model,cf.p_dot.model_filt.lp2.o[0],cf.p_dot.feedback,cf.p_dot.feedback_filt.lp2.o[0],cf.p_dot.out};
+//   float temp_cf_q_dot[5] = {cf.q_dot.model,cf.q_dot.model_filt.lp2.o[0],cf.q_dot.feedback,cf.q_dot.feedback_filt.lp2.o[0],cf.q_dot.out};
+//   float temp_cf_r_dot[5] = {cf.r_dot.model,cf.r_dot.model_filt.o[0],cf.r_dot.feedback,cf.r_dot.feedback_filt.o[0],cf.r_dot.out};
+//   //float temp_cf_ax[5] = {cf.ax.model,cf.ax.model_filt.o[0],cf.ax.feedback,cf.ax.feedback_filt.o[0],cf.ax.out};
+//   //float temp_cf_ay[5] = {cf.ay.model,cf.ay.model_filt.o[0],cf.ay.feedback,cf.ay.feedback_filt.o[0],cf.ay.out};
+//   float temp_cf_az[5] = {cf.az.model,cf.az.model_filt.o[0],cf.az.feedback,cf.az.feedback_filt.o[0],cf.az.out};
+//   pprz_msg_send_COMPLEMENTARY_FILTER(trans, dev, AC_ID, 
+//                 5, temp_cf_p,
+//                 5, temp_cf_q,
+//                 5, temp_cf_r,
+//                 5, temp_cf_p_dot,
+//                 5, temp_cf_q_dot,
+//                 5, temp_cf_r_dot,
+//                 5, temp_cf_az);
+// }
+static void send_wls_v_oneloop(struct transport_tx *trans, struct link_device *dev)
+{
+  send_wls_v("one", &WLS_one_p, trans, dev); 
+}
+static void send_wls_u_oneloop(struct transport_tx *trans, struct link_device *dev)
+{
+  send_wls_u("one", &WLS_one_p, trans, dev); 
+}
 static void send_eff_mat_stab_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
   float zero = 0.0;
   pprz_msg_send_EFF_MAT_STAB(trans, dev, AC_ID, 
-                ANDI_NUM_ACT, EFF_MAT_G[3],
-                ANDI_NUM_ACT, EFF_MAT_G[4],
-                ANDI_NUM_ACT, EFF_MAT_G[5], 
+                ANDI_NUM_ACT, EFF_MAT_RW[3],
+                ANDI_NUM_ACT, EFF_MAT_RW[4],
+                ANDI_NUM_ACT, EFF_MAT_RW[5], 
                                     1, &zero,
                                     1, &zero);
 }
@@ -439,24 +506,30 @@ static void send_eff_mat_stab_oneloop_andi(struct transport_tx *trans, struct li
 static void send_eff_mat_guid_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_EFF_MAT_GUID(trans, dev, AC_ID, 
-                ANDI_NUM_ACT_TOT, EFF_MAT_G[0],
-                ANDI_NUM_ACT_TOT, EFF_MAT_G[1],
-                ANDI_NUM_ACT_TOT, EFF_MAT_G[2]);
+                ANDI_NUM_ACT_TOT, EFF_MAT_RW[0],
+                ANDI_NUM_ACT_TOT, EFF_MAT_RW[1],
+                ANDI_NUM_ACT_TOT, EFF_MAT_RW[2]);
 }
 static void send_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
+  float temp_eulers_zxy_des[3] = {eulers_zxy_des.phi, eulers_zxy_des.theta, eulers_zxy_des.psi};
   pprz_msg_send_STAB_ATTITUDE(trans, dev, AC_ID,
-                                        3, eulers_zxy_des,
+                                        3, temp_eulers_zxy_des,
                                         3, oneloop_andi.sta_state.att,
                                         3, oneloop_andi.sta_ref.att,
                                         3, oneloop_andi.sta_state.att_d,
-                                        3, oneloop_andi.sta_ref.att_d,
-                                        3, oneloop_andi.sta_state.att_2d,                                      
+                                        3, oneloop_andi.sta_ref.att_d,                                       
+                                        3, oneloop_andi.sta_state.att_2d,
                                         3, oneloop_andi.sta_ref.att_2d,
-                                        3, oneloop_andi.sta_ref.att_3d,
+                                        3, oneloop_andi.sta_ref.att_3d,                                       
                                         ANDI_NUM_ACT, actuator_state_1l);                                      
 }
-
+// static void send_oneloop_actuator_state(struct transport_tx *trans, struct link_device *dev)
+// {
+//   pprz_msg_send_ACTUATOR_STATE(trans, dev, AC_ID, 
+//                                         ANDI_NUM_ACT, actuator_state_1l,
+//                                         ANDI_NUM_ACT_TOT, andi_u);
+// }
 static void send_guidance_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_GUIDANCE(trans, dev, AC_ID,
@@ -492,15 +565,17 @@ static void debug_vect(struct transport_tx *trans, struct link_device *dev, char
 
 static void send_oneloop_debug(struct transport_tx *trans, struct link_device *dev)
 {
-  float temp_debug_vect[7];
-  temp_debug_vect[0] = model_pred[0];
-  temp_debug_vect[1] = model_pred[1];
-  temp_debug_vect[2] = model_pred[2];
-  temp_debug_vect[3] = model_pred[3];
-  temp_debug_vect[4] = model_pred[4];
-  temp_debug_vect[5] = model_pred[5];
-  temp_debug_vect[6] = RW.as;
-  debug_vect(trans, dev, "model_pred_as", temp_debug_vect, 7);
+  float temp_debug_vect[9];
+  temp_debug_vect[0] = cf.ax.model;
+  temp_debug_vect[1] = cf.ay.model;
+  temp_debug_vect[2] = cf.az.model;
+  temp_debug_vect[3] = cf.p_dot.model;
+  temp_debug_vect[4] = cf.q_dot.model;
+  temp_debug_vect[5] = cf.r_dot.model;
+  temp_debug_vect[6] = cf.p.model;
+  temp_debug_vect[7] = cf.q.model;
+  temp_debug_vect[8] = cf.r.model;
+  debug_vect(trans, dev, "model_cf", temp_debug_vect, 9);
 }
 #endif
 
@@ -642,7 +717,11 @@ void vect_bound_nd(float vect[], float bound, int n) {
 void acc_body_bound(struct FloatVect2* vect, float bound) {
   int n = 2;
   float v[2] = {vect->x, vect->y};
+  float sign_v0 = (v[0] > 0.f) ? 1.f : (v[0] < 0.f) ? -1.f : 0.f;
+  float sign_v1 = (v[1] > 0.f) ? 1.f : (v[1] < 0.f) ? -1.f : 0.f;
   float norm = float_vect_norm(v,n);
+  v[0] = fabsf(v[0]);
+  v[1] = fabsf(v[1]);
   norm = positive_non_zero(norm);
   if((norm-bound) > FLT_EPSILON) {
     v[0] = Min(v[0], bound);
@@ -650,8 +729,8 @@ void acc_body_bound(struct FloatVect2* vect, float bound) {
     acc_b_y_2 = positive_non_zero(acc_b_y_2);
     v[1] = sqrtf(acc_b_y_2);
   }
-  vect->x = v[0];
-  vect->y = v[1];
+  vect->x = sign_v0*v[0];
+  vect->y = sign_v1*v[1];
 }
 
 /** @brief Calculate velocity limit based on acceleration limit */
@@ -931,52 +1010,91 @@ static float w_approx(float p1, float p2, float p3, float rm_k){
 }
 
 /**
+ * @brief Calculate EC poles given RM poles
+ * @param p_rm      Reference Model Pole (3 coincident poles)
+ * @param slow_pole Pole of the slowest dynamics
+ * @param k         EC / RM ratio
+ * @param omega_n   Natural Frequency
+ */
+static float ec_poles(float p_rm, float slow_pole, float k){
+  p_rm      = positive_non_zero(p_rm);
+  slow_pole = positive_non_zero(slow_pole);
+  k         = positive_non_zero(k);
+  float omega_n = (2*p_rm*slow_pole*k)/(3*slow_pole-p_rm);
+  return omega_n;
+}
+
+/**
+ * @brief Initialize Position of Poles
+ * 
+ */
+void init_poles_att(void){
+  float slow_pole  = 22.0; // Pole of the slowest dynamics used in the attitude controller
+  p_att_e.omega_n  = ec_poles(p_att_rm.omega_n,  slow_pole, 1.28);
+  p_head_e.omega_n = ec_poles(p_head_rm.omega_n, slow_pole, 1.28);
+}
+void init_poles_pos(void){
+  act_dynamics[COMMAND_ROLL]  = w_approx(p_att_rm.p3, p_att_rm.p3, p_att_rm.p3, 1.0);
+  act_dynamics[COMMAND_PITCH] = w_approx(p_att_rm.p3, p_att_rm.p3, p_att_rm.p3, 1.0);
+  float slow_pole = act_dynamics[COMMAND_ROLL]; // Pole of the slowest dynamics used in the position controller
+  p_pos_e.omega_n = ec_poles(p_pos_rm.omega_n,slow_pole,1.28);//1.0;
+  p_alt_e.omega_n = ec_poles(p_alt_rm.omega_n,slow_pole,1.28);//1.0;// 3.0;
+}
+
+/**
  * @brief Initialize Position of Poles
  * 
  */
 void init_poles(void){
 
   // Attitude Controller Poles----------------------------------------------------------
-  float slow_pole = 15.1; // Pole of the slowest dynamics used in the attitude controller
+  float slow_pole = 22.0; // Pole of the slowest dynamics used in the attitude controller
 
-  p_att_e.omega_n = 4.50;
-  p_att_e.zeta    = 1.0;
-  p_att_e.p3      = slow_pole;
-
-  p_att_rm.omega_n = 4.71;
+  p_att_rm.omega_n = 10.0; // 10.0 4.71
   p_att_rm.zeta    = 1.0;
   p_att_rm.p3      = p_att_rm.omega_n * p_att_rm.zeta;
 
-  p_head_e.omega_n = 1.80;
-  p_head_e.zeta    = 1.0;
-  p_head_e.p3      = slow_pole;
+  p_att_e.omega_n = ec_poles(p_att_rm.omega_n,  slow_pole, 1.28); //4.50;
+  p_att_e.zeta    = 1.0;
+  p_att_e.p3      = slow_pole;
 
-  p_head_rm.omega_n = 2.56;
+  p_head_rm.omega_n = 7.0; // 7.0 2.56
   p_head_rm.zeta    = 1.0;
   p_head_rm.p3      = p_head_rm.omega_n * p_head_rm.zeta;
+
+  p_head_e.omega_n = ec_poles(p_head_rm.omega_n, slow_pole, 1.28); //1.80;
+  p_head_e.zeta    = 1.0;
+  p_head_e.p3      = slow_pole;
 
   act_dynamics[COMMAND_ROLL]  = w_approx(p_att_rm.p3, p_att_rm.p3, p_att_rm.p3, 1.0);
   act_dynamics[COMMAND_PITCH] = w_approx(p_att_rm.p3, p_att_rm.p3, p_att_rm.p3, 1.0);
 
   // Position Controller Poles----------------------------------------------------------
   slow_pole = act_dynamics[COMMAND_ROLL]; // Pole of the slowest dynamics used in the position controller
-
-  p_pos_e.omega_n = 1.0;
-  p_pos_e.zeta    = 1.0; 
-  p_pos_e.p3      = slow_pole; 
-
-  p_pos_rm.omega_n = 0.93;
+#ifdef ONELOOP_ANDI_POLES_POS_OMEGA_N
+  p_pos_rm.omega_n = ONELOOP_ANDI_POLES_POS_OMEGA_N;
+#else
+  p_pos_rm.omega_n = 0.93; //2.2;
+#endif
   p_pos_rm.zeta    = 1.0;  
   p_pos_rm.p3      = p_pos_rm.omega_n * p_pos_rm.zeta;
 
-  p_alt_e.omega_n = 1.0;// 3.0;
-  p_alt_e.zeta    = 1.0; 
-  p_alt_e.p3      = slow_pole; 
-
-  p_alt_rm.omega_n = 0.93; //1.93;
+  p_pos_e.omega_n = ec_poles(p_pos_rm.omega_n,slow_pole,1.28);//1.0;
+  p_pos_e.zeta    = 1.0; 
+  p_pos_e.p3      = slow_pole; 
+#ifdef ONELOOP_ANDI_POLES_ALT_OMEGA_N
+  p_alt_rm.omega_n = ONELOOP_ANDI_POLES_ALT_OMEGA_N;
+#else
+  p_alt_rm.omega_n = 0.93; //2.2;
+#endif
   p_alt_rm.zeta    = 1.0;
   p_alt_rm.p3      = p_alt_rm.omega_n * p_alt_rm.zeta;
+
+  p_alt_e.omega_n = ec_poles(p_alt_rm.omega_n,slow_pole,1.28);//1.0;// 3.0;
+  p_alt_e.zeta    = 1.0; 
+  p_alt_e.p3      = slow_pole; 
 }
+
 /** 
  * @brief Initialize Controller Gains
  * FIXME: Calculate the gains dynamically for transition
@@ -987,6 +1105,8 @@ void init_controller(void){
   max_v_nav = nav_max_speed + max_wind;
   max_a_nav = nav_max_acceleration_sp;
   /*Some calculations in case new poles have been specified*/
+  init_poles_att();
+  init_poles_pos();
   p_att_rm.p3  = p_att_rm.omega_n  * p_att_rm.zeta;
   p_pos_rm.p3  = p_pos_rm.omega_n  * p_pos_rm.zeta;
   p_alt_rm.p3  = p_alt_rm.omega_n  * p_alt_rm.zeta;
@@ -1010,6 +1130,7 @@ void init_controller(void){
   
   //printf("Attitude RM Gains: %f %f %f\n", k_att_rm.k1[0], k_att_rm.k2[0], k_att_rm.k3[0]);
   //printf("Attitude E Gains: %f %f %f\n", k_att_e.k1[0], k_att_e.k2[0], k_att_e.k3[0]);
+  //printf("Heading E Gains: %f %f %f\n", k_att_e.k1[2], k_att_e.k2[2], k_att_e.k3[2]);
   /*Heading Loop NAV*/
   k_att_e.k1[2]  = k_e_1_3_f_v2(p_head_e.omega_n, p_head_e.zeta, p_head_e.p3);
   k_att_e.k2[2]  = k_e_2_3_f_v2(p_head_e.omega_n, p_head_e.zeta, p_head_e.p3);
@@ -1081,70 +1202,193 @@ void init_controller(void){
   //------------------------------------------------------------------------------------------
   /*Approximated Dynamics*/
   act_dynamics[COMMAND_ROLL]   = w_approx(p_att_rm.p3, p_att_rm.p3, p_att_rm.p3, 1.0);
-  act_dynamics[COMMAND_PITCH] = w_approx(p_att_rm.p3, p_att_rm.p3, p_att_rm.p3, 1.0);
+  act_dynamics[COMMAND_PITCH]  = w_approx(p_att_rm.p3, p_att_rm.p3, p_att_rm.p3, 1.0);
 }
-
-
+// Complementary Filters Functions -----------------------------------------------------------
+/** @brief Initialize the Complementary Filters 2nd Order Butterworth */
+void init_cf2(struct CF2_t *cf, float fc){
+  cf->freq     = fc;
+  cf->freq_set = fc;
+  cf->tau      = 1/(2*M_PI*cf->freq);
+  init_butterworth_2_low_pass(&cf->model_filt,    cf->tau, 1.0 / PERIODIC_FREQUENCY, 0.0);
+  init_butterworth_2_low_pass(&cf->feedback_filt, cf->tau, 1.0 / PERIODIC_FREQUENCY, 0.0);
+  cf->model    = 0.0;
+  cf->feedback = 0.0;
+  cf->out      = 0.0;
+}
+/** @brief  Initialize the Complementary Filters 4th Order Butterworth*/
+void init_cf4(struct CF4_t *cf, float fc){
+  cf->freq     = fc;
+  cf->freq_set = fc;
+  cf->tau      = 1/(2*M_PI*cf->freq);
+  init_butterworth_4_low_pass(&cf->model_filt,    cf->tau, 1.0 / PERIODIC_FREQUENCY, 0.0);
+  init_butterworth_4_low_pass(&cf->feedback_filt, cf->tau, 1.0 / PERIODIC_FREQUENCY, 0.0);
+  cf->model    = 0.0;
+  cf->feedback = 0.0;
+  cf->out      = 0.0;
+}
+/** @brief  Initialize all the Complementary Filters */
+void init_all_cf(void){
+  init_cf2(&cf.ax,    oneloop_andi_filt_cutoff_a);
+  init_cf2(&cf.ay,    oneloop_andi_filt_cutoff_a);
+  init_cf2(&cf.az,    oneloop_andi_filt_cutoff_a);
+  init_cf4(&cf.p_dot, 2.0);
+  init_cf4(&cf.q_dot, 2.0);
+  init_cf2(&cf.r_dot, oneloop_andi_filt_cutoff);
+  init_cf2(&cf.p,     oneloop_andi_filt_cutoff_p);
+  init_cf2(&cf.q,     oneloop_andi_filt_cutoff_q);
+  init_cf2(&cf.r,     oneloop_andi_filt_cutoff_r);
+}
+/** @brief Reinitialize 2nd Order CF if new frequency setting or if forced */
+void reinit_cf2(struct CF2_t *cf, bool reinit){
+  if(cf->freq != cf->freq_set || reinit){
+    cf->freq = cf->freq_set;
+    cf->tau = 1/(2*M_PI*cf->freq);
+    init_butterworth_2_low_pass(&cf->model_filt,    cf->tau, 1.0 / PERIODIC_FREQUENCY, get_butterworth_2_low_pass(&cf->model_filt));
+    init_butterworth_2_low_pass(&cf->feedback_filt, cf->tau, 1.0 / PERIODIC_FREQUENCY, get_butterworth_2_low_pass(&cf->feedback_filt));
+  }
+}
+/** @brief Reinitialize 4th Order CF if new frequency setting or if forced */
+void reinit_cf4(struct CF4_t *cf, bool reinit){
+  if(cf->freq != cf->freq_set || reinit){
+    cf->freq = cf->freq_set;
+    cf->tau = 1/(2*M_PI*cf->freq);
+    init_butterworth_4_low_pass(&cf->model_filt,    cf->tau, 1.0 / PERIODIC_FREQUENCY, get_butterworth_4_low_pass(&cf->model_filt));
+    init_butterworth_4_low_pass(&cf->feedback_filt, cf->tau, 1.0 / PERIODIC_FREQUENCY, get_butterworth_4_low_pass(&cf->feedback_filt));
+  }
+}
+/** @brief Reinitialize all the Complementary Filters */
+void reinit_all_cf(bool reinit){
+  reinit_cf2(&cf.ax,    reinit);
+  reinit_cf2(&cf.ay,    reinit);
+  reinit_cf2(&cf.az,    reinit);
+  reinit_cf4(&cf.p_dot, reinit);
+  reinit_cf4(&cf.q_dot, reinit);
+  reinit_cf2(&cf.r_dot, reinit);
+  reinit_cf2(&cf.p,     reinit);
+  reinit_cf2(&cf.q,     reinit);
+  reinit_cf2(&cf.r,     reinit);
+}
+//------------------------------------------------------------------------------------------
 /** @brief  Initialize the filters */
 void init_filter(void)
 {
-  //printf("oneloop andi filt cutoff PQR: %f %f %f\n", oneloop_andi_filt_cutoff_p,oneloop_andi_filt_cutoff_q,oneloop_andi_filt_cutoff_r);
+  // Store Notch filter values
+#ifdef ONELOOP_ANDI_ROLL_STRUCTURAL_MODE_FREQ
+  oneloop_notch.roll.freq = ONELOOP_ANDI_ROLL_STRUCTURAL_MODE_FREQ,
+#else
+  oneloop_notch.roll.freq = 8.46,
+#endif
+#ifdef ONELOOP_ANDI_PITCH_STRUCTURAL_MODE_FREQ
+  oneloop_notch.pitch.freq = ONELOOP_ANDI_PITCH_STRUCTURAL_MODE_FREQ,
+#else
+  oneloop_notch.pitch.freq = 6.44,
+#endif
+#ifdef ONELOOP_ANDI_YAW_STRUCTURAL_MODE_FREQ
+  oneloop_notch.yaw.freq = ONELOOP_ANDI_YAW_STRUCTURAL_MODE_FREQ,
+#else
+  oneloop_notch.yaw.freq = 17.90,
+#endif
+  oneloop_notch.roll.bandwidth  = 2.0;
+  oneloop_notch.pitch.bandwidth = 1.0;
+  oneloop_notch.yaw.bandwidth   = 4.0;
+  // Initialize Notch filters
+  notch_filter_init(&oneloop_notch.roll.filter, oneloop_notch.roll.freq, oneloop_notch.roll.bandwidth, PERIODIC_FREQUENCY);
+  notch_filter_init(&oneloop_notch.pitch.filter, oneloop_notch.pitch.freq, oneloop_notch.pitch.bandwidth, PERIODIC_FREQUENCY);
+  notch_filter_init(&oneloop_notch.yaw.filter, oneloop_notch.yaw.freq, oneloop_notch.yaw.bandwidth, PERIODIC_FREQUENCY);
+  // Filtering of the velocities 
   float tau   = 1.0 / (2.0 * M_PI * oneloop_andi_filt_cutoff);
-  float tau_a = 1.0 / (2.0 * M_PI * oneloop_andi_filt_cutoff_a);
   float tau_v = 1.0 / (2.0 * M_PI * oneloop_andi_filt_cutoff_v);
-  float sample_time = 1.0 / PERIODIC_FREQUENCY;
-
-  // Filtering of the Inputs with 3 dimensions (e.g. rates and accelerations)
-  int8_t i;
-  for (i = 0; i < 3; i++) {
-    init_butterworth_2_low_pass(&ang_rate_lowpass_filters[i],     tau, sample_time, 0.0);
-    init_butterworth_2_low_pass(&model_pred_aa_filt[i],           tau, sample_time, 0.0);
-    init_butterworth_2_low_pass(&filt_accel_ned[i],               tau_a, sample_time, 0.0 );
-    init_butterworth_2_low_pass(&filt_veloc_ned[i],               tau_v, sample_time, 0.0 );
-    init_butterworth_2_low_pass(&model_pred_la_filt[i],           tau_a, sample_time, 0.0); 
-  }
-
-  // Init rate filter for feedback
-  float time_constants[3] = {1.0 / (2 * M_PI * oneloop_andi_filt_cutoff_p), 1.0 / (2 * M_PI * oneloop_andi_filt_cutoff_q), 1.0 / (2 * M_PI * oneloop_andi_filt_cutoff_r)};
-  init_butterworth_2_low_pass(&rates_filt_bt[0], time_constants[0], sample_time, stateGetBodyRates_f()->p);
-  init_butterworth_2_low_pass(&rates_filt_bt[1], time_constants[1], sample_time, stateGetBodyRates_f()->q);
-  init_butterworth_2_low_pass(&rates_filt_bt[2], time_constants[2], sample_time, stateGetBodyRates_f()->r);
-  init_butterworth_2_low_pass(&model_pred_ar_filt[0], time_constants[0], sample_time, 0.0);
-  init_butterworth_2_low_pass(&model_pred_ar_filt[1], time_constants[1], sample_time, 0.0);
-  init_butterworth_2_low_pass(&model_pred_ar_filt[2], time_constants[2], sample_time, 0.0);
-  
-  // Some other filters
-  init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
-  init_butterworth_2_low_pass(&airspeed_filt, tau, sample_time, 0.0);
+  //printf("tau: %f tau_v: %f\n", tau, tau_v);
+  //printf("initializing filters\n");
+  init_butterworth_2_low_pass(&filt_veloc_N,      tau_v, 1.0 / PERIODIC_FREQUENCY, 0.0);
+  init_butterworth_2_low_pass(&filt_veloc_E,      tau_v, 1.0 / PERIODIC_FREQUENCY, 0.0);
+  init_butterworth_2_low_pass(&filt_veloc_D,      tau_v, 1.0 / PERIODIC_FREQUENCY, 0.0);
+  init_butterworth_2_low_pass(&accely_filt,       tau,   1.0 / PERIODIC_FREQUENCY, 0.0);
+  init_butterworth_2_low_pass(&airspeed_filt,     tau,   1.0 / PERIODIC_FREQUENCY, 0.0);
 }
 
 
 /** @brief  Propagate the filters */
 void oneloop_andi_propagate_filters(void) {
+  reinit_all_cf(false);
   struct  NedCoor_f *accel = stateGetAccelNed_f();
   struct  NedCoor_f *veloc = stateGetSpeedNed_f();
+  //printf("veloc: %f %f %f\n", veloc->x, veloc->y, veloc->z);
   struct  FloatRates *body_rates = stateGetBodyRates_f();
-  float   rate_vect[3] = {body_rates->p, body_rates->q, body_rates->r};
-  update_butterworth_2_low_pass(&filt_accel_ned[0], accel->x);
-  update_butterworth_2_low_pass(&filt_accel_ned[1], accel->y);
-  update_butterworth_2_low_pass(&filt_accel_ned[2], accel->z); 
-  update_butterworth_2_low_pass(&filt_veloc_ned[0], veloc->x);
-  update_butterworth_2_low_pass(&filt_veloc_ned[1], veloc->y);
-  update_butterworth_2_low_pass(&filt_veloc_ned[2], veloc->z); 
+  // Store Feedbacks in the Complementary Filters
+  cf.ax.feedback    = accel->x;
+  cf.ay.feedback    = accel->y;
+  cf.az.feedback    = accel->z;
+//#define USE_ROLL_NOTCH
+//#define USE_PITCH_NOTCH
+#define USE_YAW_NOTCH
+  float temp_p_dot  = (body_rates->p-cf.p.feedback)*PERIODIC_FREQUENCY;
+  float temp_q_dot  = (body_rates->q-cf.q.feedback)*PERIODIC_FREQUENCY;
+  float temp_r_dot  = (body_rates->r-cf.r.feedback)*PERIODIC_FREQUENCY;
+#ifdef USE_ROLL_NOTCH
+  notch_filter_update(&oneloop_notch.roll.filter, &temp_p_dot, &cf.p_dot.feedback);
+#else
+  cf.p_dot.feedback = temp_p_dot;
+#endif
+#ifdef USE_PITCH_NOTCH
+  notch_filter_update(&oneloop_notch.pitch.filter, &temp_q_dot, &cf.q_dot.feedback);
+#else
+  cf.q_dot.feedback = temp_q_dot;
+#endif
+#ifdef USE_YAW_NOTCH
+  notch_filter_update(&oneloop_notch.yaw.filter, &temp_r_dot, &cf.r_dot.feedback);
+#else
+  cf.r_dot.feedback = temp_r_dot;
+#endif
+  cf.p.feedback     = body_rates->p;
+  cf.q.feedback     = body_rates->q;
+  cf.r.feedback     = body_rates->r;
+  // Update Filters of Feedbacks
+  update_butterworth_2_low_pass(&cf.ax.feedback_filt,    cf.ax.feedback);
+  update_butterworth_2_low_pass(&cf.ay.feedback_filt,    cf.ay.feedback);
+  update_butterworth_2_low_pass(&cf.az.feedback_filt,    cf.az.feedback);
+  update_butterworth_4_low_pass(&cf.p_dot.feedback_filt, cf.p_dot.feedback);
+  update_butterworth_4_low_pass(&cf.q_dot.feedback_filt, cf.q_dot.feedback);
+  update_butterworth_2_low_pass(&cf.r_dot.feedback_filt, cf.r_dot.feedback);
+  update_butterworth_2_low_pass(&cf.p.feedback_filt,     cf.p.feedback);
+  update_butterworth_2_low_pass(&cf.q.feedback_filt,     cf.q.feedback);
+  update_butterworth_2_low_pass(&cf.r.feedback_filt,     cf.r.feedback); 
+  //printf("veloc: %f %f %f\n", veloc->x, veloc->y, veloc->z);
+  update_butterworth_2_low_pass(&filt_veloc_N,      veloc->x);
+  update_butterworth_2_low_pass(&filt_veloc_E,      veloc->y);
+  update_butterworth_2_low_pass(&filt_veloc_D,      veloc->z); 
+  //printf("veloc_filt: %f %f %f\n", filt_veloc_N.o[0], filt_veloc_E.o[0], filt_veloc_D.o[0]);
+  // Calculate Model Predictions for Linear and Angular Accelerations Using the Effectiveness Matrix
   calc_model();
-  int8_t i;
-
-  for (i = 0; i < 3; i++) {
-    update_butterworth_2_low_pass(&model_pred_aa_filt[i], model_pred[3+i]);
-    update_butterworth_2_low_pass(&model_pred_la_filt[i],   model_pred[i]);
-    update_butterworth_2_low_pass(&ang_rate_lowpass_filters[i], rate_vect[i]);
-    update_butterworth_2_low_pass(&rates_filt_bt[i], rate_vect[i]);
-    lin_acc[i]  = filt_accel_ned[i].o[0] + model_pred[i] - model_pred_la_filt[i].o[0]; 
-    ang_acc[i]  = (ang_rate_lowpass_filters[i].o[0]- ang_rate_lowpass_filters[i].o[1]) * PERIODIC_FREQUENCY + model_pred[3+i] - model_pred_aa_filt[i].o[0];
-    model_pred_ar[i] = model_pred_ar[i] + ang_acc[i] / PERIODIC_FREQUENCY;
-    update_butterworth_2_low_pass(&model_pred_ar_filt[i], model_pred_ar[i]);
-    ang_rate[i] = rates_filt_bt[i].o[0] + model_pred_ar[i] - model_pred_ar_filt[i].o[0];     
-  }
+  // Update Filters of Model Predictions for Linear and Angular Accelerations
+  update_butterworth_2_low_pass(&cf.ax.model_filt,    cf.ax.model);
+  update_butterworth_2_low_pass(&cf.ay.model_filt,    cf.ay.model);
+  update_butterworth_2_low_pass(&cf.az.model_filt,    cf.az.model);
+  update_butterworth_4_low_pass(&cf.p_dot.model_filt, cf.p_dot.model);
+  update_butterworth_4_low_pass(&cf.q_dot.model_filt, cf.q_dot.model);
+  update_butterworth_2_low_pass(&cf.r_dot.model_filt, cf.r_dot.model);
+  // Calculate Complementary Filter outputs for Linear and Angular Accelerations 
+  cf.ax.out    = cf.ax.feedback_filt.o[0]    + cf.ax.model    - cf.ax.model_filt.o[0];
+  cf.ay.out    = cf.ay.feedback_filt.o[0]    + cf.ay.model    - cf.ay.model_filt.o[0];
+  cf.az.out    = cf.az.feedback_filt.o[0]    + cf.az.model    - cf.az.model_filt.o[0];
+  //cf.p_dot.out = cf.p_dot.feedback_filt.o[0] + cf.p_dot.model - cf.p_dot.model_filt.o[0];
+  cf.p_dot.out = cf.p_dot.feedback_filt.lp2.o[0] + cf.p_dot.model - cf.p_dot.model_filt.lp2.o[0];
+  //cf.q_dot.out = cf.q_dot.feedback_filt.o[0] + cf.q_dot.model - cf.q_dot.model_filt.o[0];
+  cf.q_dot.out = cf.q_dot.feedback_filt.lp2.o[0] + cf.q_dot.model - cf.q_dot.model_filt.lp2.o[0];
+  cf.r_dot.out = cf.r_dot.feedback_filt.o[0] + cf.r_dot.model - cf.r_dot.model_filt.o[0];
+  // Calculate Model Predictions for Angular Rates Using the output of the angular acceleration Complementary Filter
+  cf.p.model   = cf.p.model + cf.p_dot.out / PERIODIC_FREQUENCY;
+  cf.q.model   = cf.q.model + cf.q_dot.out / PERIODIC_FREQUENCY;
+  cf.r.model   = cf.r.model + cf.r_dot.out / PERIODIC_FREQUENCY;
+  // Update Filters of Model Predictions for Angular Rates
+  update_butterworth_2_low_pass(&cf.p.model_filt,     cf.p.model);
+  update_butterworth_2_low_pass(&cf.q.model_filt,     cf.q.model);
+  update_butterworth_2_low_pass(&cf.r.model_filt,     cf.r.model);
+  // Calculate Complementary Filter outputs for Angular Rates
+  cf.p.out     = cf.p.feedback_filt.o[0]     + cf.p.model     - cf.p.model_filt.o[0];
+  cf.q.out     = cf.q.feedback_filt.o[0]     + cf.q.model     - cf.q.model_filt.o[0];
+  cf.r.out     = cf.r.feedback_filt.o[0]     + cf.r.model     - cf.r.model_filt.o[0];
   // Propagate filter for sideslip correction
   float accely = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->y);
   update_butterworth_2_low_pass(&accely_filt, accely);
@@ -1171,6 +1415,7 @@ void oneloop_andi_init(void)
     bwls_1l[i] = EFF_MAT_G[i];
   }
   // Initialize filters and other variables
+  init_all_cf();
   init_filter();
   init_controller();
   float_vect_zero(andi_u, ANDI_NUM_ACT_TOT);
@@ -1183,23 +1428,22 @@ void oneloop_andi_init(void)
   float_vect_zero(oneloop_andi.sta_ref.att_3d,3);
   float_vect_zero(nu, ANDI_OUTPUTS);
   float_vect_zero(nu_n, ANDI_OUTPUTS);
-  float_vect_zero(ang_acc,3);
-  float_vect_zero(lin_acc,3);
   float_vect_zero(nav_target,3);
   float_vect_zero(nav_target_new,3);
   eulers_zxy_des.phi   =  0.0;
   eulers_zxy_des.theta =  0.0;
   eulers_zxy_des.psi   =  0.0;
-  float_vect_zero(model_pred,ANDI_OUTPUTS);
-  float_vect_zero(model_pred_ar,3);
-
   // Start telemetry
   #if PERIODIC_TELEMETRY
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_oneloop_andi);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_STAB, send_eff_mat_stab_oneloop_andi);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_GUID, send_eff_mat_guid_oneloop_andi);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE, send_guidance_oneloop_andi);
+    // register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACTUATOR_STATE, send_oneloop_actuator_state);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DEBUG_VECT, send_oneloop_debug);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_V, send_wls_v_oneloop);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_U, send_wls_u_oneloop);
+    // register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_COMPLEMENTARY_FILTER, send_cf_oneloop);
   #endif
 }
 
@@ -1222,6 +1466,7 @@ void oneloop_andi_enter(bool half_loop_sp, int ctrl_type)
   for (i = 0; i < ANDI_OUTPUTS; i++) {
     bwls_1l[i] = EFF_MAT_G[i];
   }
+  reinit_all_cf(true);
   init_filter();
   init_controller();
   /* Stabilization Reset */
@@ -1229,15 +1474,11 @@ void oneloop_andi_enter(bool half_loop_sp, int ctrl_type)
   float_vect_zero(oneloop_andi.sta_ref.att_d,3);
   float_vect_zero(oneloop_andi.sta_ref.att_2d,3);
   float_vect_zero(oneloop_andi.sta_ref.att_3d,3);
-  float_vect_zero(ang_acc,3);
-  float_vect_zero(lin_acc,3);
   float_vect_zero(nav_target,3);
   float_vect_zero(nav_target_new,3);
   eulers_zxy_des.phi   =  0.0;
   eulers_zxy_des.theta =  0.0;
   eulers_zxy_des.psi   =  psi_des_rad;
-  float_vect_zero(model_pred,ANDI_OUTPUTS);
-  float_vect_zero(model_pred_ar,3);
   /*Guidance Reset*/
 }
 
@@ -1260,8 +1501,8 @@ void oneloop_andi_RM(bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, 
   // Generate reference signals with reference model 
   if(half_loop){
     // Disregard X and Y jerk objectives
-    Wv_wls[0] = 0.0;
-    Wv_wls[1] = 0.0;
+    WLS_one_p.Wv[0] = 0.0;
+    WLS_one_p.Wv[1] = 0.0;
     // Overwrite references with actual signals (for consistent plotting)
     float_vect_copy(oneloop_andi.gui_ref.pos,oneloop_andi.gui_state.pos,3);
     float_vect_copy(oneloop_andi.gui_ref.vel,oneloop_andi.gui_state.vel,3);
@@ -1292,13 +1533,13 @@ void oneloop_andi_RM(bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, 
     Bound(thrust_cmd_1l,0.0,MAX_PPRZ); 
     int8_t i;
     for (i = 0; i < ANDI_NUM_ACT; i++) {
-     a_thrust +=(thrust_cmd_1l - use_increment*actuator_state_1l[i]) * bwls_1l[2][i] / (ratio_u_un[i] * ratio_vn_v[aD]);
+     a_thrust +=(thrust_cmd_1l - use_increment*actuator_state_1l[i]) * bwls_1l[2][i] / (ratio_u_un[i] * ratio_vn_v[RW_aD]);
     }
     rm_3rd_attitude(dt_1l, oneloop_andi.sta_ref.att, oneloop_andi.sta_ref.att_d, oneloop_andi.sta_ref.att_2d, oneloop_andi.sta_ref.att_3d, att_des, false, psi_vec, k_att_rm.k1, k_att_rm.k2, k_att_rm.k3, max_j_ang);
   }else{
     // Make sure X and Y jerk objectives are active
-    Wv_wls[0] = Wv[0];
-    Wv_wls[1] = Wv[1];
+    WLS_one_p.Wv[0] = Wv_backup[0];
+    WLS_one_p.Wv[1] = Wv_backup[1];
     // Generate Reference signals for positioning using RM
     if (rm_order_h == 3){
       rm_3rd_pos(dt_1l, oneloop_andi.gui_ref.pos, oneloop_andi.gui_ref.vel, oneloop_andi.gui_ref.acc, oneloop_andi.gui_ref.jer, nav_target, k_pos_rm.k1, k_pos_rm.k2, k_pos_rm.k3, max_v_nav, max_a_nav, max_j_nav, 2);    
@@ -1415,24 +1656,23 @@ void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des,
   oneloop_andi.sta_state.att[1]    = eulers_zxy.theta;
   oneloop_andi.sta_state.att[2]    = eulers_zxy.psi  ;
   oneloop_andi_propagate_filters();   //needs to be after update of attitude vector
-  oneloop_andi.sta_state.att_d[0]  = ang_rate[0];//rates_filt_bt[0].o[0];
-  oneloop_andi.sta_state.att_d[1]  = ang_rate[1];//rates_filt_bt[1].o[0];
-  oneloop_andi.sta_state.att_d[2]  = ang_rate[2];//rates_filt_bt[2].o[0];
-  oneloop_andi.sta_state.att_2d[0] = ang_acc[0]           ;
-  oneloop_andi.sta_state.att_2d[1] = ang_acc[1]           ;
-  oneloop_andi.sta_state.att_2d[2] = ang_acc[2]           ;
+  oneloop_andi.sta_state.att_d[0]  = cf.p.out;
+  oneloop_andi.sta_state.att_d[1]  = cf.q.out;
+  oneloop_andi.sta_state.att_d[2]  = cf.r.out;
+  oneloop_andi.sta_state.att_2d[0] = cf.p_dot.out;
+  oneloop_andi.sta_state.att_2d[1] = cf.q_dot.out;
+  oneloop_andi.sta_state.att_2d[2] = cf.r_dot.out;
   // (2) Position related
   oneloop_andi.gui_state.pos[0] = stateGetPositionNed_f()->x;   
   oneloop_andi.gui_state.pos[1] = stateGetPositionNed_f()->y;   
   oneloop_andi.gui_state.pos[2] = stateGetPositionNed_f()->z;   
-  oneloop_andi.gui_state.vel[0] = filt_veloc_ned[0].o[0];      
-  oneloop_andi.gui_state.vel[1] = filt_veloc_ned[1].o[0];      
-  oneloop_andi.gui_state.vel[2] = filt_veloc_ned[2].o[0];      
-  oneloop_andi.gui_state.acc[0] = lin_acc[0];
-  oneloop_andi.gui_state.acc[1] = lin_acc[1];
-  oneloop_andi.gui_state.acc[2] = lin_acc[2];
-  
-  // Calculated feedforward signal for yaW CONTROL
+  oneloop_andi.gui_state.vel[0] = filt_veloc_N.o[0];      
+  oneloop_andi.gui_state.vel[1] = filt_veloc_E.o[0];      
+  oneloop_andi.gui_state.vel[2] = filt_veloc_D.o[0];      
+  oneloop_andi.gui_state.acc[0] = cf.ax.out;
+  oneloop_andi.gui_state.acc[1] = cf.ay.out;
+  oneloop_andi.gui_state.acc[2] = cf.az.out;
+  // Calculated feedforward signal for yaw control
   g2_ff = 0.0;
 
   for (i = 0; i < ANDI_NUM_ACT; i++) {
@@ -1487,71 +1727,76 @@ void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des,
       case COMMAND_MOTOR_FRONT:
       case COMMAND_MOTOR_RIGHT:
       case COMMAND_MOTOR_BACK:
-      case COMMAND_MOTOR_LEFT:
-        du_min_1l[i]  = (act_min[i] - actuator_state_1l[i])/ratio_u_un[i];
-        du_pref_1l[i] = (u_pref[i]  - actuator_state_1l[i])/ratio_u_un[i];
-        du_max_1l[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
-        if (rotwing_state_settings.hover_motors_active){
-          du_max_1l[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
+      case COMMAND_MOTOR_LEFT: {
+        float skew_bound = RW.skew.deg;
+        Bound(skew_bound,70.0,90.0);
+        float Wu_sched   = (Wu_quad_motors_fwd-Wu_backup[i])/(90.0-70.0)*(skew_bound-70)+Wu_backup[i];
+        WLS_one_p.Wu[i]     = Wu_sched;
+        WLS_one_p.u_min[i]  = (act_min[i] - actuator_state_1l[i])/ratio_u_un[i];
+        WLS_one_p.u_pref[i] = (u_pref[i]  - actuator_state_1l[i])/ratio_u_un[i];
+        WLS_one_p.u_max[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
+        if (rotwing_state.hover_motors_enabled){
+          WLS_one_p.u_max[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
         } else
         {
-          du_max_1l[i]  = (0.0 - actuator_state_1l[i])/ratio_u_un[i];
+          WLS_one_p.u_max[i]  = (0.0 - actuator_state_1l[i])/ratio_u_un[i];
         }
         break;
+      }
       case COMMAND_MOTOR_PUSHER:
       case COMMAND_RUDDER:
-        du_min_1l[i]  = (act_min[i] - actuator_state_1l[i])/ratio_u_un[i];
-        du_max_1l[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
-        du_pref_1l[i] = (u_pref[i]  - actuator_state_1l[i])/ratio_u_un[i]; 
+        WLS_one_p.u_min[i]  = (act_min[i] - actuator_state_1l[i])/ratio_u_un[i];
+        WLS_one_p.u_max[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
+        WLS_one_p.u_pref[i] = (u_pref[i]  - actuator_state_1l[i])/ratio_u_un[i]; 
         break;      
       case COMMAND_AILERONS:
         if(RW.skew.deg > 25.0){
-            du_min_1l[i]  = (act_min[i] - actuator_state_1l[i])/ratio_u_un[i];
-            du_max_1l[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
+            WLS_one_p.u_min[i]  = (act_min[i] - actuator_state_1l[i])/ratio_u_un[i];
+            WLS_one_p.u_max[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
           } else {
-            du_min_1l[i]  = (0.0 - actuator_state_1l[i])/ratio_u_un[i];
-            du_max_1l[i]  = (0.0 - actuator_state_1l[i])/ratio_u_un[i];
+            WLS_one_p.u_min[i]  = (0.0 - actuator_state_1l[i])/ratio_u_un[i];
+            WLS_one_p.u_max[i]  = (0.0 - actuator_state_1l[i])/ratio_u_un[i];
           }
-        du_pref_1l[i] = (u_pref[i]  - actuator_state_1l[i])/ratio_u_un[i];   
+        WLS_one_p.u_pref[i] = (u_pref[i]  - actuator_state_1l[i])/ratio_u_un[i];   
         break;      
       case COMMAND_FLAPS:
         if(RW.skew.deg > 50.0){
-            du_min_1l[i]  = (act_min[i] - actuator_state_1l[i])/ratio_u_un[i];
-            du_max_1l[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
+            WLS_one_p.u_min[i]  = (act_min[i] - actuator_state_1l[i])/ratio_u_un[i];
+            WLS_one_p.u_max[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
           } else {
-            du_min_1l[i]  = (0.0 - actuator_state_1l[i])/ratio_u_un[i];
-            du_max_1l[i]  = (0.0 - actuator_state_1l[i])/ratio_u_un[i];
+            WLS_one_p.u_min[i]  = (0.0 - actuator_state_1l[i])/ratio_u_un[i];
+            WLS_one_p.u_max[i]  = (0.0 - actuator_state_1l[i])/ratio_u_un[i];
           }
-        du_pref_1l[i] = (u_pref[i]  - actuator_state_1l[i])/ratio_u_un[i];   
+        WLS_one_p.u_pref[i] = (u_pref[i]  - actuator_state_1l[i])/ratio_u_un[i];   
         break;
       case COMMAND_ELEVATOR:  
-        du_min_1l[i]  = (act_min[i] - actuator_state_1l[i])/ratio_u_un[i];
-        du_max_1l[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
-        u_pref[i]     = RW.ele_pref;
-        du_pref_1l[i] = (u_pref[i]  - actuator_state_1l[i])/ratio_u_un[i];  
+        WLS_one_p.u_min[i]  = (act_min[i] - actuator_state_1l[i])/ratio_u_un[i];
+        WLS_one_p.u_max[i]  = (act_max[i] - actuator_state_1l[i])/ratio_u_un[i];
+        u_pref[i]           = RW.ele_pref;
+        WLS_one_p.u_pref[i] = (u_pref[i]  - actuator_state_1l[i])/ratio_u_un[i];  
         break;     
       case COMMAND_ROLL:
-        du_min_1l[i]  = (act_min[i] - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
-        du_max_1l[i]  = (act_max[i] - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
-        du_pref_1l[i] = (u_pref[i]  - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
+        WLS_one_p.u_min[i]  = (act_min[i] - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
+        WLS_one_p.u_max[i]  = (act_max[i] - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
+        WLS_one_p.u_pref[i] = (u_pref[i]  - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
         break;         
       case COMMAND_PITCH:
-        if (rotwing_state_settings.stall_protection){
-          du_min_1l[i]  = (RadOfDeg(-17.0) - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
-          du_max_1l[i]  = (RadOfDeg(17.0)  - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
+        if (RW.skew.deg > 70.0){
+          WLS_one_p.u_min[i]  = (RadOfDeg(-17.0) - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
+          WLS_one_p.u_max[i]  = (RadOfDeg(17.0)  - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
         } else {
-          du_min_1l[i]  = (act_min[i] - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
-          du_max_1l[i]  = (act_max[i] - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
+          WLS_one_p.u_min[i]  = (act_min[i] - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
+          WLS_one_p.u_max[i]  = (act_max[i] - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
         }
-        du_pref_1l[i] = (u_pref[i]  - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
+        WLS_one_p.u_pref[i] = (u_pref[i]  - oneloop_andi.sta_state.att[i-ANDI_NUM_ACT])/ratio_u_un[i];
         break;           
     }
   }
-
   // WLS Control Allocator
   normalize_nu();
-  number_iter = wls_alloc(andi_du_n, nu_n, du_min_1l, du_max_1l, bwls_1l, 0, 0, Wv_wls, Wu, du_pref_1l, gamma_wls, 10, ANDI_NUM_ACT_TOT, ANDI_OUTPUTS);
+  wls_alloc(&WLS_one_p, bwls_1l, 0, 0, 10);
   for (i = 0; i < ANDI_NUM_ACT_TOT; i++){
+    andi_du_n[i] = WLS_one_p.u[i];
     andi_du[i] = (float)(andi_du_n[i] * ratio_u_un[i]);
   }
 
@@ -1566,7 +1811,6 @@ void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des,
     andi_u[COMMAND_ROLL]  = andi_du[COMMAND_ROLL];
     andi_u[COMMAND_PITCH] = andi_du[COMMAND_PITCH];
   }
-
 #ifdef COMMAND_MOTOR_PUSHER
   if ((half_loop)){
     andi_u[COMMAND_MOTOR_PUSHER] = radio_control.values[RADIO_AUX4];
@@ -1580,8 +1824,10 @@ void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des,
 
   /*Commit the actuator command*/
   for (i = 0; i < ANDI_NUM_ACT; i++) {
-    //actuators_pprz[i] = (int16_t) andi_u[i];
     commands[i] = (int16_t) andi_u[i];
+  }
+  if (rotwing_state.fail_pusher_motor){
+    commands[COMMAND_MOTOR_PUSHER] = 0;//Min(1000,andi_u[COMMAND_MOTOR_PUSHER]);
   }
   commands[COMMAND_THRUST] = (commands[COMMAND_MOTOR_FRONT] + commands[COMMAND_MOTOR_RIGHT] + commands[COMMAND_MOTOR_BACK] + commands[COMMAND_MOTOR_LEFT])/num_thrusters_oneloop;
   autopilot.throttle = commands[COMMAND_THRUST];
@@ -1595,7 +1841,7 @@ void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des,
   }
   if (heading_manual){
     psi_des_deg = DegOfRad(psi_des_rad);
-  }  
+  } 
 
   stabilization.cmd[COMMAND_ROLL]  = (int16_t) (DegOfRad(eulers_zxy_des.phi  ) * MAX_PPRZ / DegOfRad(ONELOOP_ANDI_MAX_PHI  ));
   stabilization.cmd[COMMAND_PITCH] = (int16_t) (DegOfRad(eulers_zxy_des.theta) * MAX_PPRZ / DegOfRad(ONELOOP_ANDI_MAX_THETA));
@@ -1654,12 +1900,13 @@ void G1G2_oneloop(int ctrl_type) {
         break;        
     }
     int j = 0;
+    bool turn_quad_off = ((!rotwing_state.hover_motors_enabled || !rotwing_state_hover_motors_running()) && rotwing_state.state != ROTWING_STATE_FORCE_HOVER);
     for (j = 0; j < ANDI_OUTPUTS; j++) {
       EFF_MAT_G[j][i] = EFF_MAT_RW[j][i] * scaler * ratio_vn_v[j];
       if (airspeed_filt.o[0] < ELE_MIN_AS && i == COMMAND_ELEVATOR){
         EFF_MAT_G[j][i] = 0.0;
       }
-      if (!rotwing_state_settings.hover_motors_active && i < 4){
+      if (turn_quad_off && i < 4){
         EFF_MAT_G[j][i] = 0.0;
       }
       if (ctrl_off && i < 4  && j == 5){ //hack test
@@ -1694,15 +1941,15 @@ void calc_normalization(void){
     float ratio_numerator = positive_non_zero(nu_norm_max);
     float ratio_denominator = 1.0;
     switch (i) {
-      case (aN):
-      case (aE):
-      case (aD):
+      case (RW_aN):
+      case (RW_aE):
+      case (RW_aD):
         ratio_denominator = positive_non_zero(max_j_nav);
         ratio_vn_v[i] = ratio_numerator/ratio_denominator;
         break;
-      case (ap):
-      case (aq):
-      case (ar):
+      case (RW_ap):
+      case (RW_aq):
+      case (RW_ar):
         ratio_denominator = positive_non_zero(max_j_ang);
         ratio_vn_v[i] = ratio_numerator/ratio_denominator;
         break;
@@ -1715,6 +1962,7 @@ void normalize_nu(void){
   int8_t i;
   for (i = 0; i < ANDI_OUTPUTS; i++){
     nu_n[i] = nu[i] * ratio_vn_v[i];
+    WLS_one_p.v[i] = nu_n[i];
   }
 }
 
@@ -1734,19 +1982,22 @@ void calc_model(void){
   float T      = RW.T / RW.m;             //  Thrust specific force. Minus gravity is a guesstimate.
   float P      = RW.P / RW.m;               // Pusher specific force
 
-  model_pred[0] = -(cpsi * stheta + ctheta * sphi * spsi) * T + (cpsi * ctheta - sphi * spsi * stheta) * P - sphi * spsi * L;
-  model_pred[1] = -(spsi * stheta - cpsi * ctheta * sphi) * T + (ctheta * spsi + cpsi * sphi * stheta) * P + cpsi * sphi * L;
-  model_pred[2] = g - cphi * ctheta * T - cphi * stheta * P - cphi * L;
-  for (i = 3; i < ANDI_OUTPUTS; i++){ // For loop for prediction of angular acceleration
-    model_pred[i] = 0.0;              // 
+  cf.ax.model = -(cpsi * stheta + ctheta * sphi * spsi) * T + (cpsi * ctheta - sphi * spsi * stheta) * P - sphi * spsi * L;
+  cf.ay.model = -(spsi * stheta - cpsi * ctheta * sphi) * T + (ctheta * spsi + cpsi * sphi * stheta) * P + cpsi * sphi * L;
+  cf.az.model = g - cphi * ctheta * T - cphi * stheta * P - cphi * L;
+  float model_pqr_dot[3] = {0.0, 0.0, 0.0};
+  for (i = 0; i < 3; i++){ // For loop for prediction of angular acceleration 
     for (j = 0; j < ANDI_NUM_ACT; j++){
       if(j == COMMAND_ELEVATOR){
-        model_pred[i] = model_pred[i] +  (actuator_state_1l[j] - RW.ele_pref) * EFF_MAT_RW[i][j]; // Ele pref is incidence angle
+        model_pqr_dot[i] = model_pqr_dot[i] +  (actuator_state_1l[j] - RW.ele_pref) * EFF_MAT_RW[i+3][j]; // Ele pref is incidence angle
       } else {
-        model_pred[i] = model_pred[i] +  actuator_state_1l[j] * EFF_MAT_RW[i][j];
+        model_pqr_dot[i] = model_pqr_dot[i] +  actuator_state_1l[j] * EFF_MAT_RW[i+3][j];
       }
     }
   }
+  cf.p_dot.model = model_pqr_dot[0];
+  cf.q_dot.model = model_pqr_dot[1];
+  cf.r_dot.model = model_pqr_dot[2];
 }
 
 /** @brief  Function that maps navigation inputs to the oneloop controller for the generated autopilot. */
@@ -1858,7 +2109,7 @@ void chirp_pos(float time_elapsed, float f0, float f1, float t_chirp, float A, i
   if (n < 0){
     n = 0;
   }
-  // i think there should not be a problem with f1 being equal to f0
+  // I think there should not be a problem with f1 being equal to f0
   float k = (f1 - f0) / t_chirp;
   float p_ref_chirp = chirp_pos_p_ref(time_elapsed, f0, k, A);
   float v_ref_chirp = chirp_pos_v_ref(time_elapsed, f0, k, A);
@@ -1943,7 +2194,6 @@ void reshape_wind(void)
   float spsi = sinf(psi);
   float airspeed = airspeed_filt.o[0];
   struct FloatVect2 NT_v_NE     = {nav_target[0], nav_target[1]}; // Nav target in North and East frame
-  //struct FloatVect2 NT_v_B      = {0.0, 0.0}; // Nav target in body frame (Overwritten later)
   struct FloatVect2 airspeed_v  = { cpsi * airspeed, spsi * airspeed };
   struct FloatVect2 windspeed;
   struct FloatVect2 groundspeed = { oneloop_andi.gui_state.vel[0], oneloop_andi.gui_state.vel[1] };
@@ -1953,17 +2203,17 @@ void reshape_wind(void)
   VECT2_DIFF(windspeed, groundspeed, airspeed_v); // Wind speed in North and East frame
   VECT2_DIFF(des_as_NE, NT_v_NE, windspeed); // Desired airspeed in North and East frame
   float norm_des_as = FLOAT_VECT2_NORM(des_as_NE);
-  //float norm_wind   = FLOAT_VECT2_NORM(windspeed);
-  //float norm_gs     = FLOAT_VECT2_NORM(groundspeed);
-  //float norm_nt     = FLOAT_VECT2_NORM(NT_v_NE);
+  gi_unbounded_airspeed_sp = norm_des_as;
+  //Check if some minimum airspeed is desired (e.g. to prevent stall)
+  if (norm_des_as < min_as) {
+     norm_des_as = min_as;
+  }
   nav_target_new[0] = NT_v_NE.x;
   nav_target_new[1] = NT_v_NE.y;
   // if the desired airspeed is larger than the max airspeed or we are in force forward reshape gs des to cancel wind and fly at max airspeed
-  if ((norm_des_as > max_as)||(rotwing_state_settings.force_forward)){
-    //printf("reshaping wind\n");
+  if ((norm_des_as > max_as)||(force_forward)){
     float groundspeed_factor = 0.0f;
     if (FLOAT_VECT2_NORM(windspeed) < max_as) {
-      //printf("we can achieve wind cancellation\n");
       float av = NT_v_NE.x * NT_v_NE.x + NT_v_NE.y * NT_v_NE.y; // norm squared of nav target 
       float bv = -2.f * (windspeed.x * NT_v_NE.x + windspeed.y * NT_v_NE.y);
       float cv = windspeed.x * windspeed.x + windspeed.y * windspeed.y - max_as * max_as;
@@ -1981,20 +2231,14 @@ void reshape_wind(void)
     NT_v_NE.y   = groundspeed_factor * NT_v_NE.y; 
   }
   norm_des_as = FLOAT_VECT2_NORM(des_as_NE); // Recalculate norm of desired airspeed
-  //NT_v_B.x    = cpsi * NT_v_NE.x  + spsi * NT_v_NE.y; // Nav target in body x frame
-  //NT_v_B.y    = -spsi * NT_v_NE.x + cpsi * NT_v_NE.y; // Nav target in body y frame
   des_as_B.x  = norm_des_as; // Desired airspeed in body x frame
   des_as_B.y  = 0.0; // Desired airspeed in body y frame
-  // If flying fast or if in force forward mode, make turns instead of straight lines
-  if (((airspeed > ONELOOP_ANDI_AIRSPEED_SWITCH_THRESHOLD) && (norm_des_as > (ONELOOP_ANDI_AIRSPEED_SWITCH_THRESHOLD+2.0f)))|| (rotwing_state_settings.force_forward)){
+  if (((airspeed > ONELOOP_ANDI_AIRSPEED_SWITCH_THRESHOLD) && (norm_des_as > (ONELOOP_ANDI_AIRSPEED_SWITCH_THRESHOLD+2.0f)))|| (force_forward)){
     float delta_psi = atan2f(des_as_NE.y, des_as_NE.x) - psi; 
     FLOAT_ANGLE_NORMALIZE(delta_psi);
     des_acc_B.y = delta_psi * 5.0;//gih_params.heading_bank_gain;
     des_acc_B.x = (des_as_B.x - airspeed) * k_pos_rm.k2[0];//gih_params.speed_gain;
-    //printf("des_acc_B: %f, des_acc_B.x: %f, des_acc_B.y: %f\n", sqrtf(des_acc_B.x*des_acc_B.x+des_acc_B.y*des_acc_B.y),des_acc_B.x, des_acc_B.y);
-    //printf("max_a_nav: %f\n", max_a_nav);
     acc_body_bound(&des_acc_B, max_a_nav); // Scale down side acceleration if norm is too large
-    //printf("bnd_acc_B: %f, des_acc_B.x: %f, des_acc_B.y: %f\n", sqrtf(des_acc_B.x*des_acc_B.x+des_acc_B.y*des_acc_B.y),des_acc_B.x, des_acc_B.y);
     nav_target_new[0] = cpsi * des_acc_B.x - spsi * des_acc_B.y;
     nav_target_new[1] = spsi * des_acc_B.x + cpsi * des_acc_B.y; 
   } else {
@@ -2002,12 +2246,10 @@ void reshape_wind(void)
     nav_target_new[1] = (NT_v_NE.y - groundspeed.y) * k_pos_rm.k2[1];
   }
   vect_bound_nd(nav_target_new, max_a_nav, 2);
-  //printf("norm_as    : %f, as_x    : %f, as_y    : %f\n", airspeed, airspeed_v.x, airspeed_v.y);
-  //printf("norm_des_as: %f, des_as_x: %f, des_as_y: %f\n", sqrtf(des_as_NE.x*des_as_NE.x+des_as_NE.y*des_as_NE.y), des_as_NE.x, des_as_NE.y);
-  //printf("norm_wind  : %f, wind_x  : %f, wind_y  : %f\n", FLOAT_VECT2_NORM(windspeed), windspeed.x, windspeed.y);
-  //printf("norm_gs    : %f, gs_x    : %f, gs_y    : %f\n", FLOAT_VECT2_NORM(groundspeed), groundspeed.x, groundspeed.y);
-  //printf("norm_nt    : %f, nt_x    : %f, nt_y    : %f\n", FLOAT_VECT2_NORM(NT_v_NE), NT_v_NE.x, NT_v_NE.y);
-  //printf("norm_nt_new: %f, nt_new_x: %f, nt_new_y: %f\n", sqrtf(nav_target_new[0]*nav_target_new[0] + nav_target_new[1]*nav_target_new[1]), nav_target_new[0], nav_target_new[1]);
 }
 
+void guidance_set_min_max_airspeed(float min_airspeed, float max_airspeed) {
+  min_as = min_airspeed;
+  max_as = max_airspeed;
+}
 

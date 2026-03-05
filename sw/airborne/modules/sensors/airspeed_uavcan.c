@@ -26,6 +26,7 @@
 #include "airspeed_uavcan.h"
 #include "uavcan/uavcan.h"
 #include "core/abi.h"
+#include "uavcan.equipment.air_data.RawAirData.h"
 
 /* Enable ABI sending */
 #ifndef AIRSPEED_UAVCAN_SEND_ABI
@@ -51,11 +52,6 @@
 
 static Butterworth2LowPass airspeed_filter;
 #endif  /* USE_AIRSPEED_UAVCAN_LOWPASS_FILTER */
-
-/* uavcan EQUIPMENT_ESC_STATUS message definition */
-#define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID            1027
-#define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE     (0xC77DF38BA122F5DAULL)
-#define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_MAX_SIZE      ((397 + 7)/8)
 
 /* Local variables */
 struct airspeed_uavcan_t airspeed_uavcan = {0};
@@ -85,21 +81,16 @@ static void airspeed_uavcan_downlink(struct transport_tx *trans, struct link_dev
 #endif /* PERIODIC_TELEMETRY */
 
 static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer) {
-  uint16_t tmp_float = 0;
-  float diff_p;
+  
+  struct uavcan_equipment_air_data_RawAirData msg;
 
-  /* Decode the message */
-  //canardDecodeScalar(transfer, (uint32_t)0, 8, false, (void*)&dest->flags);
-  //canardDecodeScalar(transfer, (uint32_t)8, 32, false, (void*)&static_p);
-  canardDecodeScalar(transfer, (uint32_t)40, 32, false, (void*)&diff_p);
-  //canardDecodeScalar(transfer, (uint32_t)72, 16, false, (void*)&tmp_float);
-  //float static_temp = canardConvertFloat16ToNativeFloat(tmp_float);
-  //canardDecodeScalar(transfer, (uint32_t)88, 16, false, (void*)&tmp_float);
-  //float diff_temp = canardConvertFloat16ToNativeFloat(tmp_float);
-  canardDecodeScalar(transfer, (uint32_t)104, 16, false, (void*)&tmp_float);
-  float static_air_temp = canardConvertFloat16ToNativeFloat(tmp_float);
-  //canardDecodeScalar(transfer, (uint32_t)120, 16, false, (void*)&tmp_float);
-  //float pitot_temp = canardConvertFloat16ToNativeFloat(tmp_float);
+  if(uavcan_equipment_air_data_RawAirData_decode(transfer, &msg)) {
+    return;   // decode error
+  }
+
+  float diff_p = msg.differential_pressure;
+  float static_air_temp = msg.static_air_temperature;
+
 
   if(!isnan(diff_p)) {
     // Remove the offset and apply a scaling factor

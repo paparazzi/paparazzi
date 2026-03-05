@@ -436,6 +436,8 @@ The vertical control is achieved using the vmode attribute of these stages. The 
 
 The default control is done with the throttle. However, setting the ``pitch`` attribute to ``auto`` and the ``throttle`` attribute to a constant allows a vertical control only by controlling the attitude of the A/C. The pitch attribute also can be set to any value (in degrees) while the throttle control is in use: it usually affects the airspeed of the aircraft.
 
+The speed control is usually controlled separately. However, for the rotorcraft firmware, it is possible to set the maximum speed from the attribute ``max_speed``. This is only possible for the instructions where the guidance control is involved (heading, go, path, circle, oval, eight, stay).
+
 The different navigation modes are detailed in the next sections. 
 
 

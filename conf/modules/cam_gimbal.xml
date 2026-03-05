@@ -1,0 +1,38 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cam_gimbal" dir="cam_control" task="control">
+  <doc>
+    <description>
+      Generic PAN/TILT camera gimbal control
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="cam control">
+        <dl_setting MAX="7" MIN="0" STEP="1" module="cam_control/cam_gimbal" VAR="cam_gimbal.mode" shortname="mode" values="OFF|JOYSTICK|ANGLES|NADIR|TARGET|WAYPOINT|AC_TARGET" handler="SetMode"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" module="cam_control/cam_gimbal"  VAR="cam_gimbal.lock" shortname="lock" values="UNLOCK|LOCK" handler="SetLock"/>
+        <dl_setting MAX="90" MIN="-90" STEP="1" var="cam_gimbal.tilt_angle" shortname="tilt" unit="rad" alt_unit="deg"/>
+        <dl_setting MAX="180" MIN="-180" STEP="1" var="cam_gimbal.pan_angle" shortname="pan" unit="rad" alt_unit="deg"/>
+        <dl_setting min="1" max="27" step="1" var="cam_gimbal.target_wp_id" shortname="wp id"/>
+        <dl_setting min="1" max="255" step="1" var="cam_gimbal.target_ac_id" shortname="ac id"/>
+        <dl_setting MAX="100." MIN="-100." STEP="1." var="cam_gimbal.target_pos.x" shortname="target x" unit="m"/>
+        <dl_setting MAX="100." MIN="-100." STEP="1." var="cam_gimbal.target_pos.y" shortname="target y" unit="m"/>
+        <dl_setting MAX="100." MIN="-100." STEP="1." var="cam_gimbal.target_pos.z" shortname="target z" unit="m"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <recommends>joystick</recommends>
+  </dep>
+  <header>
+    <file name="cam_gimbal.h"/>
+  </header>
+  <init fun="cam_gimbal_init()"/>
+  <periodic fun="cam_gimbal_periodic()" />
+  <makefile>
+    <file name="cam_gimbal.c"/>
+    <test firmware="fixedwing"/>
+    <test firmware="rotorcraft"/>
+    <test firmware="rover"/>
+  </makefile>
+</module>

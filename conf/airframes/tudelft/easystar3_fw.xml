@@ -1,0 +1,305 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!--
+     Easystart
+-->
+
+<airframe name="Easystar3">
+  <description>
+  </description>
+
+  <firmware name="fixedwing">
+    <configure name="USE_MAGNETOMETER" value="TRUE"/>
+    <define name="USE_BAROMETER" value="TRUE"/>
+
+    <target name="ap" board="px4fmu_5.0_chibios">
+      <define name="USE_BARO_BOARD" value="TRUE"/>
+      <configure name="PERIODIC_FREQUENCY" value="120"/>
+      <!--define name="ADC_CHANNEL_VSUPPLY" value="ADC_3"/>
+      <define name="ADC_CHANNEL_CURRENT" value="ADC_4"/-->
+
+      <module name="radio_control" type="sbus">
+        <configure name="SBUS_PORT" value="UART3"/>
+      </module>
+    </target>
+    <target name="sim" board="pc">
+      <configure name="SYS_TIME_FREQUENCY" value="120"/>
+      <configure name="PERIODIC_FREQUENCY" value="60"/>
+      <module name="radio_control" type="ppm"/>
+    </target>
+
+    <target name="nps" board="pc">
+      <!-- <configure name="SYS_TIME_FREQUENCY" value="120"/> -->
+      <configure name="PERIODIC_FREQUENCY" value="60"/>
+      <module name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
+    </target>
+
+    <module name="telemetry" type="transparent">
+      <configure name="MODEM_BAUD" value="B57600"/>
+      <!--configure name="MODEM_PORT" value="usb_serial"/-->
+    </module>
+
+    <module name="imu" type="mpu6000"/>
+    <module name="ahrs" type="float_dcm"/>
+    <module name="ins" type="alt_float"/>
+    <!--module name="ins" type="ekf2">
+        <define name="NO_RESET_UPDATE_SETPOINT_HEADING" value="true"/>
+    </module-->
+    <module name="gps" type="ublox">
+      <configure name="GPS_BAUD" value="B460800"/>
+      <define name="GPS_LOSS_TEST_TIMER" value="TRUE"/><!-- Allows disabling 3D fix for X seconds -->
+    </module>
+    <module name="airspeed" type="ms45xx_i2c">
+      <configure name="MS45XX_I2C_DEV" value="i2c4"/>
+    </module>
+    <module name="baro_board"/>
+    <module name="air_data">
+      <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
+    </module>
+    <module name="actuators" type="pwm"/>
+    <module name="control" type="new"/>
+    <module name="navigation"/>
+
+    <!-- External Drotek -->
+    <module name="mag" type="rm3100">
+        <configure name="MAG_RM3100_I2C_DEV" value="i2c2"/>
+        <define name="MODULE_RM3100_UPDATE_AHRS" value="TRUE"/>
+        <define name="RM3100_CHAN_X" value="0"/>
+        <define name="RM3100_CHAN_Y" value="1"/>
+        <define name="RM3100_CHAN_Z" value="2"/>
+        <define name="RM3100_CHAN_X_SIGN" value="-"/>
+        <define name="RM3100_CHAN_Y_SIGN" value="-"/>
+        <define name="RM3100_CHAN_Z_SIGN" value="+"/>
+    </module>
+
+    <!-- Internal IST8310 -->
+    <!--module name="mag_ist8310">
+      <define name="MODULE_IST8310_UPDATE_AHRS" value="TRUE"/>
+      <configure name="MAG_IST8310_I2C_DEV" value="I2C3"/>
+      <define name="IST8310_CHAN_X_SIGN" value="+"/>
+      <define name="IST8310_CHAN_Y_SIGN" value="-"/>
+      <define name="IST8310_CHAN_Z_SIGN" value="-"/>
+    </module-->
+
+    <!-- Logger -->
+    <define name="SDLOG_ENABLE_LOWBAT_FLUSH" value="FALSE"/>
+    <module name="tlsf"/>
+    <module name="pprzlog"/>
+    <module name="logger" type="sd_chibios"/>
+    <module name="flight_recorder"/>
+
+  </firmware>
+
+   <servos>
+    <servo name="MOTOR" no="1" min="1000" neutral="1000" max="2000"/>
+    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER" no="4" min="2000" neutral="1500" max="1000"/>
+  </servos>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
+  </commands>
+
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+  </rc_commands>
+
+  <command_laws>
+    <set servo="MOTOR" value="@THROTTLE"/>
+    <set servo="ELEVATOR" value="@PITCH"/>
+    <set servo="RUDDER" value="@ROLL"/>
+  </command_laws>
+
+  <section name="AUTO1" prefix="AUTO1_">
+    <define name="MAX_ROLL" value="0.95"/>
+    <define name="MAX_PITCH" value="0.6"/>
+  </section>
+
+   <section name="IMU" prefix="IMU_">
+    <!-- Rotate the IMU -->
+    <define name="MPU_CHAN_X" value="1"/>
+    <define name="MPU_CHAN_Y" value="0"/>
+    <define name="MPU_CHAN_Z" value="2"/>
+    <define name="MPU_X_SIGN" value="1"/>
+    <define name="MPU_Y_SIGN" value="-1"/>
+    <define name="MPU_Z_SIGN" value="1"/>
+
+    <!-- Calibrated (var/logs/25_06_16__10_57_24.data) -->
+    <define name="ACCEL_X_NEUTRAL" value="716"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-68"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-158"/>
+    <define name="ACCEL_X_SENS" value="4.377166124505559" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.876216351543897" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.4096050869220775" integer="16"/>
+
+    <!-- internal MAG -->
+    <!--define name="MAG_X_NEUTRAL" value="4"/>
+    <define name="MAG_Y_NEUTRAL" value="77"/>
+    <define name="MAG_Z_NEUTRAL" value="-98"/>
+    <define name="MAG_X_SENS" value="12.994669838304425" integer="16"/>
+    <define name="MAG_Y_SENS" value="12.618735647774928" integer="16"/>
+    <define name="MAG_Z_SENS" value="12.877707635616835" integer="16"/-->
+    <!-- external MAG (var/logs/25_06_17__12_45_03.data) -->
+    <define name="MAG_X_NEUTRAL" value="1434"/>
+    <define name="MAG_Y_NEUTRAL" value="-1086"/>
+    <define name="MAG_Z_NEUTRAL" value="-1024"/>
+    <define name="MAG_X_SENS" value="0.5852305011888581" integer="16"/>
+    <define name="MAG_Y_SENS" value="0.5921856694657103" integer="16"/>
+    <define name="MAG_Z_SENS" value="0.5868335994838455" integer="16"/>
+
+
+    <define name="BODY_TO_IMU_PHI" value="0" unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="4" unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="0" unit="deg"/>
+  </section>
+
+  <!--section name="AHRS" prefix="AHRS_">
+    <define name="H_X" value="0.5141"/>
+    <define name="H_Y" value="0.0002"/>
+    <define name="H_Z" value="0.8576"/>
+  </section-->
+
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="H_X" value="0.5141"/>
+    <define name="H_Y" value="0.0002"/>
+    <define name="H_Z" value="0.8576"/>
+  </section>
+
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="BAT_NB_CELLS" value="4"/>
+    <!--define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/-->
+    <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 12.06741927012f * adc)"/>
+  </section>
+
+  <section name="MISC">
+    <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
+    <define name="CARROT" value="7." unit="s"/>
+    <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="100."/>
+
+    <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
+
+    <define name="APP_ANGLE" value="8" unit="deg"/>
+  </section>
+
+  <section name="VERTICAL CONTROL" prefix="V_CTL_">
+    <!-- outer loop proportional gain -->
+    <define name="ALTITUDE_PGAIN" value="0.12"/>
+    <!-- outer loop saturation -->
+    <define name="ALTITUDE_MAX_CLIMB" value="4."/>
+    <!-- disable climb rate limiter -->
+    <define name="AUTO_CLIMB_LIMIT" value="2*V_CTL_ALTITUDE_MAX_CLIMB"/>
+
+    <!-- Cruise throttle + limits -->
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.1"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
+
+    <!-- Climb loop (throttle) -->
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.088" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.004"/>
+    <define name="AUTO_THROTTLE_DGAIN" value="0.0"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0."/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.15"/>
+
+    <!-- Climb loop (pitch) -->
+    <define name="AUTO_PITCH_PGAIN" value="0.027"/>
+    <define name="AUTO_PITCH_DGAIN" value="0.01"/>
+    <define name="AUTO_PITCH_IGAIN" value="0.0"/>
+    <!--define name="AUTO_PITCH_CLIMB_THROTTLE_INCREMENT" value="0.14"/-->
+    <define name="AUTO_PITCH_MAX_PITCH" value="20" unit="deg"/>
+    <define name="AUTO_PITCH_MIN_PITCH" value="-20" unit="deg"/>
+
+    <!-- airspeed control -->
+    <define name="AUTO_AIRSPEED_SETPOINT" value="16."/>
+    <define name="AUTO_AIRSPEED_THROTTLE_PGAIN" value="0.1"/>
+    <define name="AUTO_AIRSPEED_THROTTLE_DGAIN" value="0.12"/>
+    <define name="AUTO_AIRSPEED_THROTTLE_IGAIN" value="0.0"/>
+    <define name="AUTO_AIRSPEED_PITCH_PGAIN" value="0.06"/>
+    <define name="AUTO_AIRSPEED_PITCH_DGAIN" value="0.0"/>
+    <define name="AUTO_AIRSPEED_PITCH_IGAIN" value="0.042"/>
+    <define name="AIRSPEED_MAX" value="30"/>
+    <define name="AIRSPEED_MIN" value="10"/>
+
+    <!-- groundspeed control -->
+    <define name="AUTO_GROUNDSPEED_SETPOINT" value="15"/>
+    <define name="AUTO_GROUNDSPEED_PGAIN" value="1."/>
+    <define name="AUTO_GROUNDSPEED_IGAIN" value="0."/>
+
+    <!-- pitch trim -->
+    <define name="PITCH_LOITER_TRIM" value="0." unit="deg"/>
+    <define name="PITCH_DASH_TRIM" value="0." unit="deg"/>
+
+    <define name="THROTTLE_SLEW" value="0.1"/>
+  </section>
+
+  <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+    <define name="COURSE_PGAIN" value="0.743"/>
+    <define name="COURSE_TAU" value="0.5"/>
+    <define name="ROLL_MAX_SETPOINT" value="35." unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="30." unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-30." unit="deg"/>
+
+    <define name="ROLL_ATTITUDE_GAIN" value="5000."/>
+    <define name="ROLL_RATE_GAIN" value="250."/>
+    <define name="ROLL_IGAIN" value="50."/>
+    <define name="ROLL_KFFA" value="0"/>
+    <define name="ROLL_KFFD" value="0"/>
+
+    <define name="PITCH_PGAIN" value="17250"/>
+    <define name="PITCH_DGAIN" value="500."/>
+    <define name="PITCH_IGAIN" value="400"/>
+    <define name="PITCH_KFFA" value="0."/>
+    <define name="PITCH_KFFD" value="0."/>
+
+    <define name="PITCH_OF_ROLL" value="1." unit="deg"/>
+    <define name="AILERON_OF_THROTTLE" value="0.0"/>
+    <define name="ELEVATOR_OF_ROLL" value="1400"/>
+  </section>
+
+  <section name="NAV">
+    <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
+  </section>
+
+  <section name="FAILSAFE" prefix="FAILSAFE_">
+    <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+    <define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
+    <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
+    <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
+    <define name="HOME_RADIUS" value="100" unit="m"/>
+  </section>
+
+  <section name="AGGRESSIVE" prefix="AGR_">
+    <define name="BLEND_START" value="50"/><!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
+    <define name="BLEND_END" value="15"/><!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
+    <define name="CLIMB_THROTTLE" value="0.9"/><!-- Gaz for Aggressive Climb -->
+    <define name="CLIMB_PITCH" value="0.35"/><!-- Pitch for Aggressive Climb -->
+    <define name="DESCENT_THROTTLE" value="0.05"/><!-- Gaz for Aggressive Decent -->
+    <define name="DESCENT_PITCH" value="-0.35"/><!-- Pitch for Aggressive Decent -->
+    <define name="CLIMB_NAV_RATIO" value="0.8"/><!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
+    <define name="DESCENT_NAV_RATIO" value="1.0"/>
+  </section>
+
+  <!-- <section name="SIMU">
+    <define name="ROLL_RESPONSE_FACTOR" value="20"/>
+    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
+    <define name="JSBSIM_LAUNCHSPEED" value="15.0"/>
+    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
+    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
+  </section> -->
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="JSBSIM_LAUNCHSPEED" value="15"/>
+    <define name="JSBSIM_MODEL" value="easystar" type="string"/>
+    <define name="JS_AXIS_MODE" value="4"/>
+  </section>
+
+</airframe>

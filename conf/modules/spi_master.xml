@@ -8,7 +8,7 @@
     </description>
   </doc>
   <dep>
-    <depends>mcu</depends>
+    <depends>mcu,threads</depends>
   </dep>
   <header>
     <file name="spi.h" dir="mcu_periph"/>

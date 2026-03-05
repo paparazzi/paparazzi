@@ -5,6 +5,7 @@
     <description>
       AHRS using invariant filter.
     </description>
+    <configure name="AHRS_FINV_TYPE" value="AHRS_PRIMARY|AHRS_SECONDARY" description="set if the AHRS is the primary source (default) or one of the secondary sources"/>
     <configure name="USE_MAGNETOMETER" value="TRUE" description="set to FALSE to disable magnetometer"/>
     <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
     <define name="SEND_INVARIANT_FILTER" description="send INV_FILTER message for debugging"/>
@@ -14,7 +15,8 @@
 
   <settings>
     <dl_settings>
-      <dl_settings NAME="invariant">
+      <dl_settings NAME="AHRS INV">
+        <dl_setting var="ahrs_finv_enable" min="0" step="1" max="1" module="modules/ahrs/ahrs_float_invariant_wrapper" values="DISABLE|ENABLE" handler="enable"/>
         <dl_setting MAX="1" MIN="1" STEP="1" VAR="ahrs_float_inv.reset" shortname="reset"/>
         <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.lx" shortname="lx" module="modules/ahrs/ahrs_float_invariant" param="AHRS_INV_LX"/>
         <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.ly" shortname="ly" param="AHRS_INV_LY"/>
@@ -32,30 +34,17 @@
     <depends>ahrs_common,@imu,@mag</depends>
     <provides>ahrs</provides>
   </dep>
+  <header>
+    <file name="ahrs_float_invariant_wrapper.h"/>
+  </header>
+  <init fun="ahrs_finv_wrapper_init()"/>
   <makefile target="!sim|fbw">
     <configure name="USE_MAGNETOMETER" default="1"/>
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
     <file name="ahrs_float_invariant.c"/>
     <file name="ahrs_float_invariant_wrapper.c"/>
     <test>
-        <define name="PRIMARY_AHRS" value="ahrs_float_invariant"/>
-        <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_float_invariant_wrapper.h" type="string"/>
+      <define name="AHRS_FINV_TYPE" value="AHRS_PRIMARY"/>
     </test>
-    <raw>
-ifdef SECONDARY_AHRS
-ifneq (,$(findstring $(SECONDARY_AHRS), invariant float_invariant))
-# this is the secondary AHRS
-$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"modules/ahrs/ahrs_float_invariant_wrapper.h\"
-$(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_float_invariant
-else
-# this is the primary AHRS
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_invariant_wrapper.h\"
-$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_float_invariant
-endif
-else
-# plain old single AHRS usage
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_invariant_wrapper.h\"
-endif
-    </raw>
   </makefile>
 </module>

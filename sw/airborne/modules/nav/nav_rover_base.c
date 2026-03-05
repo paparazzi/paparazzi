@@ -31,10 +31,17 @@ struct RoverNavBase nav_rover_base;
 /** Implement basic nav function
  */
 
+static void nav_stage_init(void)
+{
+  nav_rover_base.circle.radians = 0.f;
+  nav_rover_base.goto_wp.leg_progress = 0.f;
+}
+
 static void nav_goto(struct EnuCoor_f *wp)
 {
   nav_rover_base.goto_wp.to = *wp;
   nav_rover_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp);
+  VECT3_COPY(nav.target, *wp);
   nav.mode = NAV_MODE_WAYPOINT;
 }
 
@@ -158,82 +165,76 @@ static void _nav_oval_init(void)
 
 static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
 {
-  (void) wp1;
-  (void) wp2;
-  (void) radius;
-#if 0
-  radius = - radius; /* Historical error ? */
-  int32_t alt = waypoints[p1].enu_i.z;
-  waypoints[p2].enu_i.z = alt;
+  float alt = wp1->z;
+  wp2->z = alt;
 
-  float p2_p1_x = waypoints[p1].enu_f.x - waypoints[p2].enu_f.x;
-  float p2_p1_y = waypoints[p1].enu_f.y - waypoints[p2].enu_f.y;
-  float d = sqrtf(p2_p1_x * p2_p1_x + p2_p1_y * p2_p1_y);
-
-  /* Unit vector from p1 to p2 */
-  int32_t u_x = POS_BFP_OF_REAL(p2_p1_x / d);
-  int32_t u_y = POS_BFP_OF_REAL(p2_p1_y / d);
+  struct FloatVect2 dir;
+  VECT2_DIFF(dir, *wp1, *wp2);
+  float_vect2_normalize(&dir);
 
   /* The half circle centers and the other leg */
-  struct EnuCoor_i p1_center = { waypoints[p1].enu_i.x + radius * -u_y,
-           waypoints[p1].enu_i.y + radius * u_x,
-           alt
+  struct EnuCoor_f p1_center = {
+    wp1->x + radius * dir.y,
+    wp1->y - radius * dir.x,
+    alt
   };
-  struct EnuCoor_i p1_out = { waypoints[p1].enu_i.x + 2 * radius * -u_y,
-           waypoints[p1].enu_i.y + 2 * radius * u_x,
-           alt
+  struct EnuCoor_f p1_out = {
+    wp1->x + 2.f * radius * dir.y,
+    wp1->y - 2.f * radius * dir.x,
+    alt
+  };
+  struct EnuCoor_f p2_in = {
+    wp2->x + 2.f * radius * dir.y,
+    wp2->y - 2.f * radius * dir.x,
+    alt
+  };
+  struct EnuCoor_f p2_center = {
+    wp2->x + radius * dir.y,
+    wp2->y - radius * dir.x,
+    alt
   };
 
-  struct EnuCoor_i p2_in = { waypoints[p2].enu_i.x + 2 * radius * -u_y,
-           waypoints[p2].enu_i.y + 2 * radius * u_x,
-           alt
-  };
-  struct EnuCoor_i p2_center = { waypoints[p2].enu_i.x + radius * -u_y,
-           waypoints[p2].enu_i.y + radius * u_x,
-           alt
-  };
-
-  int32_t qdr_out_2 = INT32_ANGLE_PI - int32_atan2_2(u_y, u_x);
-  int32_t qdr_out_1 = qdr_out_2 + INT32_ANGLE_PI;
-  if (radius < 0) {
-    qdr_out_2 += INT32_ANGLE_PI;
-    qdr_out_1 += INT32_ANGLE_PI;
+  float qdr_out_2 = M_PI - atan2f(dir.y, dir.x);
+  float qdr_out_1 = qdr_out_2 + M_PI;
+  if (radius > 0.f) {
+    qdr_out_2 += M_PI;
+    qdr_out_1 += M_PI;
   }
-  int32_t qdr_anticipation = ANGLE_BFP_OF_REAL(radius > 0 ? -15 : 15);
+  float qdr_anticipation = (radius > 0.f ? 15.f : -15.f);
 
-  switch (oval_status) {
+  switch (nav_rover_base.oval.status) {
     case OC1 :
-      nav_circle(&p1_center, POS_BFP_OF_REAL(-radius));
-      if (NavQdrCloseTo(INT32_DEG_OF_RAD(qdr_out_1) - qdr_anticipation)) {
-        oval_status = OR12;
+      nav.nav_circle(&p1_center, radius);
+      if (NavQdrCloseTo(DegOfRad(qdr_out_1) - qdr_anticipation)) {
+        nav_rover_base.oval.status = OR12;
         InitStage();
         LINE_START_FUNCTION;
       }
       return;
 
     case OR12:
-      nav_route(&p1_out, &p2_in);
-      if (nav_approaching_from(&p2_in, &p1_out, CARROT)) {
-        oval_status = OC2;
-        nav_oval_count++;
+      nav.nav_route(&p1_out, &p2_in);
+      if (nav.nav_approaching(&p2_in, &p1_out, CARROT)) {
+        nav_rover_base.oval.status = OC2;
+        nav_rover_base.oval.count++;
         InitStage();
         LINE_STOP_FUNCTION;
       }
       return;
 
     case OC2 :
-      nav_circle(&p2_center, POS_BFP_OF_REAL(-radius));
-      if (NavQdrCloseTo(INT32_DEG_OF_RAD(qdr_out_2) - qdr_anticipation)) {
-        oval_status = OR21;
+      nav.nav_circle(&p2_center, radius);
+      if (NavQdrCloseTo(DegOfRad(qdr_out_2) - qdr_anticipation)) {
+        nav_rover_base.oval.status = OR21;
         InitStage();
         LINE_START_FUNCTION;
       }
       return;
 
     case OR21:
-      nav_route(&waypoints[p2].enu_i, &waypoints[p1].enu_i);
-      if (nav_approaching_from(&waypoints[p1].enu_i, &waypoints[p2].enu_i, CARROT)) {
-        oval_status = OC1;
+      nav.nav_route(wp2, wp1);
+      if (nav.nav_approaching(wp1, wp2, CARROT)) {
+        nav_rover_base.oval.status = OC1;
         InitStage();
         LINE_STOP_FUNCTION;
       }
@@ -242,7 +243,6 @@ static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
     default: /* Should not occur !!! Doing nothing */
       return;
   }
-#endif
 }
 
 #if PERIODIC_TELEMETRY
@@ -295,6 +295,7 @@ void nav_rover_init(void)
   nav_rover_base.goto_wp.leg_length = 1.f;
 
   // register nav functions
+  nav_register_stage_init(nav_stage_init);
   nav_register_goto_wp(nav_goto, nav_route, nav_approaching);
   nav_register_circle(nav_circle);
   nav_register_oval(_nav_oval_init, nav_oval);

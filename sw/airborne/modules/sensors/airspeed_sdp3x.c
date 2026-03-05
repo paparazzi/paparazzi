@@ -231,7 +231,7 @@ void sdp3x_event(void)
 
       if (sdp3x.autoset_offset) {
         if (autoset_nb < AUTOSET_NB_MAX) {
-          autoset_offset += p_raw * sdp3x.pressure_scale;
+          autoset_offset += (float)p_raw / sdp3x.pressure_scale;
           autoset_nb++;
         } else {
           sdp3x.pressure_offset = autoset_offset / (float)autoset_nb;

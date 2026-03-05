@@ -22,15 +22,26 @@ import wx
 import rotwing_viewer
 
 class RotWingApp(wx.App):
+
+    def __init__(self, args):
+        self.args = args
+        wx.App.__init__(self)
+
     def OnInit(self):
-        self.main = rotwing_viewer.RotWingFrame()
+        self.main = rotwing_viewer.RotWingFrame(self.args)
         self.main.Show()
         self.SetTopWindow(self.main)
         return True
 
-def main():
-    application = RotWingApp(0)
+def main(args):
+    application = RotWingApp(args)
     application.MainLoop()
 
 if __name__ == '__main__':
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Rotwing Status Monitor")
+    parser.add_argument('-s', '--speech', dest='speech', default=False, type=bool, help="Rotwing status viewer speech")
+    args = parser.parse_args()
+
+    main(args)

@@ -135,10 +135,6 @@
     <define name="MAG_Y_SENS" value="3.5338639944542787" integer="16"/>
     <define name="MAG_Z_SENS" value="3.663567611662951" integer="16"/>
 
-    <!-- Calibration done props off 17/08/2021 -->
-    <define name= "MAG_X_CURRENT_COEF" value="0.327866157321"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="-2.84306050424"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="0.491914992028"/>
 
   </section>
   <commands>

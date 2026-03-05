@@ -59,6 +59,9 @@
 #ifndef INS_EKF2_FUSION_MODE
 #define INS_EKF2_FUSION_MODE (MASK_USE_EVPOS | MASK_USE_EVVEL | MASK_USE_EVYAW)
 #endif
+#ifndef INS_EKF2_MAG_FUSION_TYPE
+#define INS_EKF2_MAG_FUSION_TYPE MAG_FUSE_TYPE_INDOOR
+#endif
 #ifndef INS_EKF2_VDIST_SENSOR_TYPE
 #define INS_EKF2_VDIST_SENSOR_TYPE VDIST_SENSOR_EV
 #endif
@@ -69,6 +72,12 @@
 #define INS_EKF2_FUSION_MODE (MASK_USE_GPS)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_FUSION_MODE)
+
+/** The EKF2 magnetometer fusion type */
+#ifndef INS_EKF2_MAG_FUSION_TYPE
+#define INS_EKF2_MAG_FUSION_TYPE MAG_FUSE_TYPE_AUTO
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_MAG_FUSION_TYPE)
 
 /** The EKF2 primary vertical distance sensor type */
 #ifndef INS_EKF2_VDIST_SENSOR_TYPE
@@ -145,6 +154,12 @@ PRINT_CONFIG_VAR(INS_EKF2_MAG_ID)
 #define INS_EKF2_GPS_ID GPS_MULTI_ID
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_ID)
+
+/* default RELPOS to use for heading in INS */
+#ifndef INS_EKF2_RELPOS_ID
+#define INS_EKF2_RELPOS_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_RELPOS_ID)
 
 /* default Optical Flow to use in INS */
 #ifndef INS_EKF2_OF_ID
@@ -278,6 +293,11 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_P_NOISE)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_BARO_NOISE)
 
+/* Maximum allowed distance error for the RTK relative heading measurement (m) */
+#ifndef INS_EKF2_RELHEADING_ERR
+#define INS_EKF2_RELHEADING_ERR 0.2
+#endif
+
 #ifdef INS_EXT_VISION_ROTATION
 struct FloatQuat ins_ext_vision_rot;
 #endif
@@ -290,7 +310,9 @@ static abi_event gyro_int_ev;
 static abi_event accel_int_ev;
 static abi_event mag_ev;
 static abi_event gps_ev;
+static abi_event relpos_ev;
 static abi_event optical_flow_ev;
+static abi_event reset_ev;
 
 /* All ABI callbacks */
 static void baro_cb(uint8_t sender_id, uint32_t stamp, float pressure);
@@ -300,7 +322,9 @@ static void gyro_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatRates *de
 static void accel_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatVect3 *delta_accel, uint16_t dt);
 static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
+static void relpos_cb(uint8_t sender_id, uint32_t stamp, struct RelPosNED *relpos);
 static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
+static void reset_cb(uint8_t sender_id, uint8_t flag);
 
 /* Static local functions */
 static void ins_ekf2_publish_attitude(uint32_t stamp);
@@ -379,7 +403,7 @@ static void send_ins_ekf2(struct transport_tx *trans, struct link_device *dev)
   ekf.get_ekf_soln_status(&soln_status);
 
   uint16_t innov_test_status;
-  float mag, vel, pos, hgt, tas, hagl, flow, beta, mag_decl;
+  float mag, vel, pos, hgt, tas, hagl, flow, beta, mag_decl = 0.0f;
   uint8_t terrain_valid, dead_reckoning;
   ekf.get_innovation_test_status(innov_test_status, mag, vel, pos, hgt, tas, hagl, beta);
   //ekf.get_flow_innov(&flow);
@@ -498,25 +522,25 @@ static void send_external_pose_down(struct transport_tx *trans, struct link_devi
   sample_temp_ev[0]  = (float) sample_ev.time_us;
   sample_temp_ev[1]  = sample_ev.pos(0) ;
   sample_temp_ev[2]  = sample_ev.pos(1) ;
-  sample_temp_ev[3]  = sample_ev.pos(2) ; 
+  sample_temp_ev[3]  = sample_ev.pos(2) ;
   sample_temp_ev[4]  = sample_ev.vel(0) ;
-  sample_temp_ev[5]  = sample_ev.vel(1) ;              
-  sample_temp_ev[6]  = sample_ev.vel(2) ; 
+  sample_temp_ev[5]  = sample_ev.vel(1) ;
+  sample_temp_ev[6]  = sample_ev.vel(2) ;
   sample_temp_ev[7]  = sample_ev.quat(0);
   sample_temp_ev[8]  = sample_ev.quat(1);
-  sample_temp_ev[9]  = sample_ev.quat(2); 
+  sample_temp_ev[9]  = sample_ev.quat(2);
   sample_temp_ev[10] = sample_ev.quat(3);
   pprz_msg_send_EXTERNAL_POSE_DOWN(trans, dev, AC_ID,
                         &sample_temp_ev[0],
-                        &sample_temp_ev[1], 
-                        &sample_temp_ev[2], 
+                        &sample_temp_ev[1],
+                        &sample_temp_ev[2],
                         &sample_temp_ev[3],
-                        &sample_temp_ev[4], 
-                        &sample_temp_ev[5], 
-                        &sample_temp_ev[6], 
-                        &sample_temp_ev[7], 
-                        &sample_temp_ev[8], 
-                        &sample_temp_ev[9], 
+                        &sample_temp_ev[4],
+                        &sample_temp_ev[5],
+                        &sample_temp_ev[6],
+                        &sample_temp_ev[7],
+                        &sample_temp_ev[8],
+                        &sample_temp_ev[9],
                         &sample_temp_ev[10] );
 } 
 #endif
@@ -527,6 +551,7 @@ void ins_ekf2_init(void)
   /* Get the ekf parameters */
   ekf_params = ekf.getParamHandle();
   ekf_params->fusion_mode = INS_EKF2_FUSION_MODE;
+  ekf_params->mag_fusion_type = INS_EKF2_MAG_FUSION_TYPE;
   ekf_params->vdist_sensor_type = INS_EKF2_VDIST_SENSOR_TYPE;
   ekf_params->gps_check_mask = INS_EKF2_GPS_CHECK_MASK;
 
@@ -599,7 +624,7 @@ void ins_ekf2_init(void)
 
     ltp_def_from_lla_i(&ekf2.ltp_def, &llh_nav0);
     ekf2.ltp_def.hmsl = NAV_ALT0;
-    stateSetLocalOrigin_i(&ekf2.ltp_def);
+    stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
 
     /* update local ENU coordinates of global waypoints */
     waypoints_localize_all();
@@ -631,10 +656,12 @@ void ins_ekf2_init(void)
   AbiBindMsgIMU_ACCEL_INT(INS_EKF2_ACCEL_ID, &accel_int_ev, accel_int_cb);
   AbiBindMsgIMU_MAG(INS_EKF2_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
+  AbiBindMsgRELPOS(INS_EKF2_RELPOS_ID, &relpos_ev, relpos_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
+  AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 }
 
-void ins_reset_local_origin(void)
+static void reset_ref(void)
 {
 #if USE_GPS
   if (GpsFixValid()) {
@@ -642,12 +669,45 @@ void ins_reset_local_origin(void)
     if (ekf.setEkfGlobalOrigin(lla_pos.lat*1e-7, lla_pos.lon*1e-7, gps.hmsl*1e-3)) {
       ltp_def_from_lla_i(&ekf2.ltp_def, &lla_pos);
       ekf2.ltp_def.hmsl = gps.hmsl;
-      stateSetLocalOrigin_i(&ekf2.ltp_def);
+      stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
     }
   }
 #endif
 }
 
+static void reset_vertical_ref(void)
+{
+#if USE_GPS
+  if (GpsFixValid()) {
+    struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
+    struct LlaCoor_i lla = {
+      .lat = stateGetLlaOrigin_i().lat,
+      .lon = stateGetLlaOrigin_i().lon,
+      .alt = lla_pos.alt
+    };
+    if (ekf.setEkfGlobalOrigin(lla.lat*1e-7, lla.lon*1e-7, gps.hmsl*1e-3)) {
+      ltp_def_from_lla_i(&ekf2.ltp_def, &lla);
+      ekf2.ltp_def.hmsl = gps.hmsl;
+      stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
+    }
+  }
+#endif
+}
+
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
+{
+  switch (flag) {
+    case INS_RESET_REF:
+      reset_ref();
+      break;
+    case INS_RESET_VERTICAL_REF:
+      reset_vertical_ref();
+      break;
+    default:
+      // unsupported cases
+      break;
+  }
+}
 /* Update the INS state */
 void ins_ekf2_update(void)
 {
@@ -670,7 +730,7 @@ void ins_ekf2_update(void)
       pos.z = pos_f(2);
 
       // Publish to the state
-      stateSetPositionNed_f(&pos);
+      stateSetPositionNed_f(MODULE_INS_EKF2_ID, &pos);
 
       /* Get the velocity in NED frame */
       const Vector3f vel_f{ekf.getVelocity()};
@@ -680,7 +740,7 @@ void ins_ekf2_update(void)
       speed.z = vel_f(2);
 
       // Publish to state
-      stateSetSpeedNed_f(&speed);
+      stateSetSpeedNed_f(MODULE_INS_EKF2_ID, &speed);
 
       /* Get the accelerations in NED frame */
       const Vector3f vel_deriv_f{ekf.getVelocityDerivative()};
@@ -690,7 +750,7 @@ void ins_ekf2_update(void)
       accel.z = vel_deriv_f(2);
 
       // Publish to state
-      stateSetAccelNed_f(&accel);
+      stateSetAccelNed_f(MODULE_INS_EKF2_ID, &accel);
 
       /* Get local origin */
       // Position of local NED origin in GPS / WGS84 frame
@@ -707,7 +767,7 @@ void ins_ekf2_update(void)
         lla_ref.alt = ref_alt * 1e3 + wgs84_ellipsoid_to_geoid_i(lla_ref.lat, lla_ref.lon); // in millimeters above WGS84 reference ellipsoid (ref_alt is in HMSL)
         ltp_def_from_lla_i(&ekf2.ltp_def, &lla_ref);
         ekf2.ltp_def.hmsl = ref_alt * 1e3;
-        stateSetLocalOrigin_i(&ekf2.ltp_def);
+        stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
 
         /* update local ENU coordinates of global waypoints */
         waypoints_localize_all();
@@ -724,11 +784,6 @@ void ins_ekf2_update(void)
 #endif
 
   ekf2.got_imu_data = false;
-}
-
-void ins_ekf2_change_param(int32_t unk)
-{
-  ekf_params->mag_fusion_type = ekf2.mag_fusion_type = unk;
 }
 
 void ins_ekf2_remove_gps(int32_t mode)
@@ -801,7 +856,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     ltp_to_body_quat.qz = att_q(3);
 
     // Publish it to the state
-    stateSetNedToBodyQuat_f(&ltp_to_body_quat);
+    stateSetNedToBodyQuat_f(MODULE_INS_EKF2_ID, &ltp_to_body_quat);
 
     /* Check the quaternion reset state */
     float delta_q_reset[4];
@@ -829,7 +884,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     body_rates.r = (ekf2.delta_gyro.r / (ekf2.gyro_dt * 1.e-6f)) - gyro_bias(2);
 
     // Publish it to the state
-    stateSetBodyRates_f(&body_rates);
+    stateSetBodyRates_f(MODULE_INS_EKF2_ID, &body_rates);
 
     /* Get the in-run acceleration bias */
     struct Int32Vect3 accel;
@@ -839,7 +894,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     accel.z = ACCEL_BFP_OF_REAL((ekf2.delta_accel.z / (ekf2.accel_dt * 1e-6f)) - accel_bias(2));
 
     // Publish it to the state
-    stateSetAccelBody_i(&accel);
+    stateSetAccelBody_i(MODULE_INS_EKF2_ID, &accel);
   }
 
   ekf2.gyro_valid = false;
@@ -947,10 +1002,10 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 #if INS_EKF2_GPS_COURSE_YAW
   gps_msg.yaw = wrap_pi((float)gps_s->course / 1e7);
   gps_msg.yaw_offset = 0;
-#elif defined(INS_EKF2_GPS_YAW_OFFSET) && defined(INS_EKF2_ANTENNA_DISTANCE) 
-  if(ISFINITE(gps_relposned.relPosHeading) && gps_relposned.relPosValid && gps_relposned.diffSoln && gps_relposned.carrSoln >= 1 
-  && fabsf(gps_relposned.relPosLength - INS_EKF2_ANTENNA_DISTANCE) <= INS_EKF2_MAX_REL_LENGTH_ERROR * INS_EKF2_ANTENNA_DISTANCE) {
-    gps_msg.yaw = wrap_pi(RadOfDeg(gps_relposned.relPosHeading - INS_EKF2_GPS_YAW_OFFSET));
+#elif defined(INS_EKF2_GPS_YAW_OFFSET)
+  if(ekf2.rel_heading_valid) {
+    gps_msg.yaw = wrap_pi(ekf2.rel_heading - RadOfDeg(INS_EKF2_GPS_YAW_OFFSET));
+    ekf2.rel_heading_valid = false;
   } else {
     gps_msg.yaw = NAN;
   }
@@ -975,6 +1030,26 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.pdop = gps_s->pdop;
 
   ekf.setGpsData(gps_msg);
+}
+
+/* Update the local relative position information */
+static void relpos_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp __attribute__((unused)), struct RelPosNED *relpos)
+{
+  // Verify if we received a valid heading
+  if(
+#ifdef INS_EKF2_RELHEADING_REF_ID
+    relpos->reference_id != INS_EKF2_RELHEADING_REF_ID ||
+#endif
+#ifdef INS_EKF2_RELHEADING_DISTANCE
+    fabs(relpos->distance - INS_EKF2_RELHEADING_DISTANCE) > INS_EKF2_RELHEADING_ERR ||
+#endif
+    !ISFINITE(relpos->heading)
+  ) {
+    return;
+  }
+
+  ekf2.rel_heading = relpos->heading;
+  ekf2.rel_heading_valid = true;
 }
 
 /* Update INS based on Optical Flow information */

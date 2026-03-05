@@ -1,0 +1,43 @@
+<!--
+FrSky Tarranis X9D plus over USB (mode 2)
+http://www.frsky-rc.com/product/pro.php?pro_id=137
+
+In this file we will use it as a 6CH joystick to control a UAS.
+- The left stick vertical axis will be used for throttle
+- The right stick horizontal axis will be used for roll
+- The right stick vertical axis will be used for pitch
+- The left stick horizontal axis will be used for yaw
+- The VRA axis will be used for mode switching (right top switch)
+- The arm axis will be used for arming (left top switch)
+- The pusher can be controlled using the slider on the right
+
+If you want to fly your UAS via the joystick add this to your session:
+
+ /home/username/paparazzi/sw/ground_segment/joystick/input2ivy  -d 0 -ac yourarfamename tudelft/Rotwing_Taranis_X9D_plus.xml
+
+Where -d 0 must be -d 1 if you have a laptop with accelometer installed
+
+The basis of steering is the standard signs of aerospace convention
+-->
+
+<joystick>
+  <input>
+    <axis index="3" name="LeftStickHorizontal"/>
+    <axis index="0" name="LeftStickVertical"/>
+    <axis index="1" name="RightStickHorizontal"/>
+    <axis index="2" name="RightStickVertical"/>
+    <axis index="4" name="VRA"/>
+    <axis index="5" name="arm"/>
+    <axis index="6" name="yellow"/>
+    <button index="0" name="thrust_x"/> <!-- pusher doesn't work well due to it being treated as a button, only zero or full throttle work -->
+    <button index="1" name="filler"/> <!-- necessary to fill the channels array such that pusher can be in the righ -->
+  </input>
+
+<!-- Follow the order of rc_datalink.h -->
+  <messages period="0.0333333">
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field name="channels" value="RightStickHorizontal;RightStickVertical;LeftStickHorizontal;Fit(LeftStickVertical,-127,127,0,127);VRA;arm;yellow;filler;Fit(thrust_x,0,1,-127,127)"/>
+    </message>
+  </messages>
+
+</joystick>

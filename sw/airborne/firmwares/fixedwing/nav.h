@@ -217,6 +217,7 @@ bool nav_approaching_xy(float x, float y, float from_x, float from_y, float appr
     {h_ctl_roll_setpoint = _roll;} \
   }
 
+#define NavSetMaxSpeed(_speed) {} // not used
 
 #define nav_IncreaseShift(x) { if (x==0) nav_shift = 0; else nav_shift += x; }
 

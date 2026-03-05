@@ -1,0 +1,283 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+<airframe name="Cyclone2">
+    <description>
+        Cyclone 2 airframe
+
+        + Model:       Cyclone 2 is a tiltbody wing with a ~1m wingspan
+        + Autopilot:   Cube orange
+        + Actuators:   Feetech sts3032
+        <!-- + GNSS         Ublox F9P GNSS with RTK -->
+        + MAG          ΡΜ3100
+        + ESC:         KISS ECSs
+        + RCRX:        ELRS RP1
+        + AIRSPEED:    MS4525DO
+        + TELEMETRY:   RFDesign 868X
+        + CURRENT:     Standard FC Power sensor
+        + RANGER:      None
+        + MOTOR:       2 x 1250KV Outrunner Brushless
+        + PROP:        2 blade thin electric 8 x 6
+        + BAT:         Li-Po 4S1P 2300mAh
+
+        WARNING: Current PPRZ airspeed sensor driver has a bug,
+        static and dynamic pressure defaults are swapped,
+        so the airspeed is negative if you dont change your pitot leads
+
+        NOTES:
+        + Using oneloop ANDI
+        + Servos powered via external BEC (4s to 9 V)
+        + Flightcontroller powered via FC Powerboard
+        + Telemetry powerd via BEC of FC Powerboard
+    </description>
+
+    <firmware name="rotorcraft">
+
+        <autopilot name="jpg_cyclone_andi.xml"/>
+
+        <configure name="PERIODIC_FREQUENCY"   value="500"/>
+        <configure name="NAVIGATION_FREQUENCY" value="50"/>
+
+        <target name="ap" board="cube_orange">
+
+            <module name="radio_control" type="sbus">
+                <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
+                <define name="AP_MODE_SWITCH"    value="RADIO_AUX3"/>
+            </module>
+
+            <module name="sys_mon"/>
+
+            <module name="flight_recorder"/>
+
+            <!-- EKF EKF2  configure inputs -->
+            <define name="INS_EKF2_MAG_ID"          value="MAG_RM3100_SENDER_ID"/>
+            <define name="INS_EKF2_IMU_ID"          value="IMU_CUBE1_ID"/> 
+            <define name="INS_EKF2_GYRO_ID"         value="IMU_CUBE1_ID"/>
+            <define name="INS_EKF2_ACCEL_ID"        value="IMU_CUBE1_ID"/>
+
+            <define name="INS_EKF2_OPTITRACK"       value="TRUE"/> <!-- Not sure if it is actually using Optitrack here. Flies just fine with Optitrack Z-up instead of Y-up-->
+
+        </target>
+
+        <target name="nps" board="pc">
+            <module name="fdm" type="jsbsim">
+                <define name="NPS_JSBSIM_MODEL" value="cyclone" type="string"/>
+                <define name="NPS_SENSORS_PARAMS"  value="nps_sensors_params_default.h" type="string"/>
+                <define name="NPS_USE_COMMANDS" value="TRUE"/>
+                <define name="NPS_NO_MOTOR_MIXING" value="TRUE"/>
+
+            </module>
+            <module name="radio_control" type="datalink">
+                <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
+                <define name="AP_MODE_SWITCH"    value="RADIO_AUX7"/>
+            </module>
+        </target>
+
+        <module name="imu" type="cube"/>
+        <module name="air_data"/>
+        <module name="ins" type="ekf2">
+        </module>
+
+        <module name="actuators" type="t4"/>
+        <module name="actuators_t4_uart">
+            <configure name="ACTUATORS_T4_PORT" value="UART8"/>
+            <configure name="ACTUATORS_T4_BAUD" value="B921600"/>
+        </module>
+
+        <module name="telemetry" type="transparent">
+            <configure name="MODEM_BAUD" value="B115200"/>
+        </module>
+        
+        <module name="gps" type="datalink"/>
+        <!-- GPS has been removed, dont use this without reinstalling gps-->
+        <!-- <module name="gps" type="ublox">
+            <configure name="GPS_BAUD" value="B460800"/>
+        </module> -->
+
+        <module name="mag" type="rm3100">
+            <configure name="MAG_RM3100_I2C_DEV" value="i2c2"/>
+            <define name="MODULE_RM3100_SYNC_SEND" value="TRUE"/>
+            <define name="MODULE_RM3100_UPDATE_AHRS"    value="TRUE"/>
+
+            <!-- 0:X, 1:Y, 2:Z; -->
+            <define name="RM3100_CHAN_X" value="1"/>
+            <define name="RM3100_CHAN_Y" value="0"/>
+            <define name="RM3100_CHAN_Z" value="2"/>
+
+            <define name="RM3100_CHAN_X_SIGN" value="+"/>
+            <define name="RM3100_CHAN_Y_SIGN" value="+"/>
+            <define name="RM3100_CHAN_Z_SIGN" value="-"/>
+
+            <!--TODO: Set correct angles-->
+            <!-- <define name="RM3100_MAG_TO_IMU_PHI" value="RadOfDeg\(0.0\)"/>
+            <define name="RM3100_MAG_TO_IMU_THETA" value="RadOfDeg\(0.0\)"/>
+            <define name="RM3100_MAG_TO_IMU_PSI" value="RadOfDeg\(0.0\)"/> -->
+        </module>
+
+        <!-- Control --> 
+        <module name="stabilization" type="andi">
+            <define name="WLS_N_U_MAX" value="4" />
+            <define name="WLS_N_V_MAX" value="4" />
+        </module>
+
+        <module name="guidance" type="indi_hybrid_tailsitter">
+            <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
+            <define name="NAV_HYBRID_POS_GAIN" value="0.2"/>
+            <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
+            <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>
+            <define name="GUIDANCE_INDI_POS_GAINZ" value="0.5"/>
+            <define name="GUIDANCE_INDI_SPEED_GAINZ" value="1.8"/>
+            <define name="GUIDANCE_INDI_LIFTD_ASQ" value="0.20"/>
+            <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
+            <define name="GUIDANCE_H_REF_MAX_SPEED" value="18.0"/>
+            <!--not used-->
+            <define name="GUIDANCE_INDI_MIN_THROTTLE" value="3000"/>
+            <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1500"/>
+            <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="16.0"/>
+            <define name="GUIDANCE_INDI_HEADING_BANK_GAIN" value="15.0"/>
+            <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+            <define name="GUIDANCE_INDI_THRUST_DYNAMICS_FREQ" value="23.6"/>
+            <define name="GUIDANCE_INDI_FILTER_CUTOFF" value="1.5"/>
+        </module>
+
+
+        <!-- <module name="nav" type="hybrid">
+            <define name="GUIDANCE_H_USE_REF" value="FALSE"/>
+            <define name="NAV_NO_CARROT" value="TRUE"/>
+        </module> -->
+
+
+        <module name="wls">
+            <define name="WLS_N_U_MAX" value = "4"/>
+            <define name="WLS_N_V_MAX" value = "4"/>
+        </module>
+
+    </firmware>
+
+    <servos driver="T4">
+        <servo name="S_ELEVON_LEFT"  no="1"  min="-5000" neutral="0" max="5000"/> <!-- [50.0 deg]-->
+        <servo name="S_ELEVON_RIGHT" no="6"  min="5000"  neutral="0" max="-5000"/> <!-- [50.0 deg]-->
+        <servo name="S_MOTOR_LEFT"   no="13" min="0"     neutral="0" max="1999"/> <!-- neutral is value when motor is not spinning, must be 0 -->
+        <servo name="S_MOTOR_RIGHT"  no="14" min="0"     neutral="0" max="1999"/>
+    </servos>
+
+    <commands>
+        <!-- Real actuators commands -->
+        <axis name="ELEVON_LEFT"  group="REAL"    failsafe_value="0"/>
+        <axis name="ELEVON_RIGHT" group="REAL"    failsafe_value="0"/>
+        <axis name="MOTOR_LEFT"   group="REAL"    failsafe_value="0"/>
+        <axis name="MOTOR_RIGHT"  group="REAL"    failsafe_value="0"/>
+        <!-- Legacy commands-->
+        <axis name="YAW"          group="OTHER"  failsafe_value="0"/>
+        <axis name="THRUST"       group="OTHER"  failsafe_value="0"/>
+    </commands>
+
+    <!-- Safety critical kill switch implementation, DO NOT REMOVE -->
+    <command_laws>
+        <set servo="S_ELEVON_LEFT"  value="autopilot_get_motors_on()? commands[COMMAND_ELEVON_LEFT] : 0"/>
+        <set servo="S_ELEVON_RIGHT" value="autopilot_get_motors_on()? commands[COMMAND_ELEVON_RIGHT] : 0"/>
+        <set servo="S_MOTOR_LEFT"   value="autopilot_get_motors_on()? commands[COMMAND_MOTOR_LEFT] : -MAX_PPRZ"/>
+        <set servo="S_MOTOR_RIGHT"  value="autopilot_get_motors_on()? commands[COMMAND_MOTOR_RIGHT] : -MAX_PPRZ"/>
+    </command_laws>
+
+    <section name="MISC">
+        <define name="TAILSITTER"   value="TRUE"/>
+        <define name="USE_AIRSPEED" value="FALSE"/>
+        <define name="STABILIZATION_ATTITUDE_SP_MAX_PHI"   value="45." unit="deg"  /> 
+        <define name="STABILIZATION_ATTITUDE_SP_MAX_THETA" value="45." unit="deg"  />
+        <define name="STABILIZATION_ATTITUDE_SP_MAX_R"     value="90." unit="deg/s"/>
+        <define name="STABILIZATION_ATTITUDE_DEADBAND_R"   value="200"             />
+        <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST"      value="1500"            />
+        <define name="AUTOPILOT_IN_FLIGHT_MIN_SPEED"       value="0"               />
+        <define name="AUTOPILOT_IN_FLIGHT_MIN_ACCEL"       value="0"               />
+    </section>
+
+    <section name="STABILIZATION_ANDI" prefix="STABILIZATION_ANDI_" >
+        <define name="SCHEDULE_EFF"       value="TRUE"/>
+        <define name="USE_STATE_DYNAMICS" value="TRUE"/>
+        <define name="RELAX_OBM"          value="1.0f"/>
+
+        <!--                               |      EL      |      ER      |      ML^2    |      MR^2    | -->
+        <define name="ACT_IS_SERVO" value="{             1,             1,             0,             0}"/>
+        <define name="ACT_DYNAMICS" value="{         20.0f,         20.0f,         35.0f,         35.0f}"/> <!-- [rad/s]-->
+        <define name="ACT_DELAY"    value="{             0,             0,             0,             0}"/> <!-- [rad/s]-->
+        <define name="ACT_USE_MEAS" value="{          true,          true,          true,          true}"/>
+        <define name="ACT_MIN"      value="{        -0.87f,        -0.87f,      40000.0f,      40000.0f}"/> <!-- [  rad |   (rad/s)^2]--> 
+        <define name="ACT_MAX"      value="{         0.87f,         0.87f,    3534400.0f,    3534400.0f}"/> <!-- [  rad |   (rad/s)^2]--> 
+        <define name="ACT_RATE_MIN" value="{        -10.0f,        -10.0f,  -90000000.0f,  -90000000.0f}"/> <!-- [rad/s | (rad/s)^2/s]--> 
+        <define name="ACT_RATE_MAX" value="{         10.0f,         10.0f,   90000000.0f,   90000000.0f}"/> <!-- [rad/s | (rad/s)^2/s]--> 
+        <define name="ACT_PREF"     value="{         0.00f,         0.00f,     705600.0f,     705600.0f}"/> <!-- [  rad |   (rad/s)^2]--> <!-- Used as operating point when not scheduling-->
+        <define name="WLS_WU"       value="{          0.0f,          0.0f,          0.0f,          0.0f}"/>
+
+        <!--                               |      P       |      Q       |      R       |      Tau     | -->
+        <define name="WLS_WV"       value="{       1000.0f,        100.0f,          1.0f,         10.0f}"/> <!-- Roll is more important than pitch, we do not want to sacrefice roll control in case failing to reach a certain pitch command -->
+
+        <!--                               |    P    |    Q    |    R    | -->
+        <define name="RC_RATE_MAX"  value="{     5.0f,     5.0f,     5.0f}"/> <!-- [rad/s]--> 
+
+        <define name="THRUST_MIN"   value="0.6f"  /> <!-- [m/s^2]-->
+        <define name="THRUST_MAX"   value="52.0f" /> <!-- [m/s^2]-->
+
+        <define name="CUTOFF_FREQ_ACCEL"     value=" 20.0f"/> <!-- [rad/s]-->
+        <define name="CUTOFF_FREQ_VEL"       value=" 80.0f"/> <!-- [rad/s]-->
+        <define name="CUTOFF_FREQ_OMEGA_DOT" value=" 20.0f"/> <!-- [rad/s]-->
+        <define name="CUTOFF_FREQ_OMEGA"     value=" 80.0f"/> <!-- [rad/s]-->
+
+    </section>
+
+    <section name="BAT">
+        <define name="MAX_BAT_CAPACITY" value="2300" unit="mAh"/>
+        <!--<define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/>-->
+        <define name="VoltageOfAdc(_adc)" value="(0.000611456 * _adc)"/>
+        <define name="MILLIAMP_AT_IDLE_THROTTLE" value="280" unit="mA"/>
+        <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000" unit="mA"/>
+        <define name="MAX_BAT_LEVEL" value="16.8" unit="V"/>
+        <define name="LOW_BAT_LEVEL" value="14.0" unit="V"/>
+        <define name="CRITIC_BAT_LEVEL" value="13.5" unit="V"/>
+        <define name="CATASTROPHIC_BAT_LEVEL" value="13.2" unit="V"/>
+        <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
+    </section>
+    
+    <section name="IMU" prefix="IMU_">
+        <define name="MAG_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="5"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <!-- <field name="rotation" value="true"/> -->
+                </field>
+                <field name="neutral" type="int[]" value="-2044,169,119"/>
+                <field name="scale" type="int[][]" value="{{5666,15649,36949},{9069,27419,63039}}"/>
+                <!-- <field name="body_to_sensor" value="{{0, 16384,0, 0, 0, -16384,-16384, 0, 0}}"/> -->
+            </field>
+        </define>
+
+        <!-- <define name="ACCEL_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="20"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="false"/>
+                    <field name="scale" value="false"/>
+                    <field name="rotation" value="true"/>
+                </field>
+                <field name="body_to_sensor" value="{{0, 0, -16384, 0, 16384, 0, 0, 16384, 0}}"/>
+            </field>
+        </define> -->
+
+        <!-- Gyrometer calibration (NOT DONE!) -->
+        <!-- <define name="GYRO_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="20"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="false"/>
+                    <field name="scale" value="false"/>
+                    <field name="rotation" value="true"/>
+                </field>
+                <field name="body_to_sensor" value="{{0, 0, -16384, 0, 16384, 0, 0, 16384, 0}}"/>
+            </field>
+        </define> -->
+
+        <define name="BODY_TO_IMU_PHI"   value="0."  unit="deg"/>
+        <define name="BODY_TO_IMU_THETA" value="90." unit="deg"/>
+        <define name="BODY_TO_IMU_PSI"   value="0."  unit="deg"/>
+    </section>
+</airframe>

@@ -235,6 +235,7 @@ static void handle_i2c_thd(struct i2c_periph *p)
   }
 
   i2cReleaseBus((I2CDriver *)p->reg_addr);
+  pprz_bsem_signal(&t->bsem);
 }
 
 /**
@@ -440,6 +441,7 @@ static bool i2c_chibios_submit(struct i2c_periph *p, struct i2c_transaction *t)
   p->trans_insert_idx = temp;
 
   chSysUnlock();
+  pprz_bsem_init(&t->bsem, true);
   chSemSignal(&((struct i2c_init *)p->init_struct)->sem);
   // transaction submitted
   return TRUE;

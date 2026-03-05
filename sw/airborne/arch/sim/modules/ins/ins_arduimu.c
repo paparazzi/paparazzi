@@ -31,7 +31,7 @@ void ArduIMU_periodic(void)
     sim_theta - ins_pitch_neutral,
     0.
   };
-  stateSetNedToBodyEulers_f(&att);
+  stateSetNedToBodyEulers_f(MODULE_INS_ARDUIMU_ID, &att);
 }
 void ArduIMU_periodicGPS(void) {}
 void IMU_Daten_verarbeiten(void) {}

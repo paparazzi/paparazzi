@@ -39,18 +39,14 @@
  */
 
 void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float v_gih[GUIDANCE_INDI_HYBRID_V]) {
-  // Get attitude
-  struct FloatEulers eulers_zxy;
-  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
-
 
   /*Pre-calculate sines and cosines*/
-  float sphi = sinf(eulers_zxy.phi);
-  float cphi = cosf(eulers_zxy.phi);
-  float stheta = sinf(eulers_zxy.theta);
-  float ctheta = cosf(eulers_zxy.theta);
-  float spsi = sinf(eulers_zxy.psi);
-  float cpsi = cosf(eulers_zxy.psi);
+  float sphi = sinf(roll_filt.o[0]);
+  float cphi = cosf(roll_filt.o[0]);
+  float stheta = sinf(pitch_filt.o[0]);
+  float ctheta = cosf(pitch_filt.o[0]);
+  float spsi = sinf(yaw_filt.o[0]);
+  float cpsi = cosf(yaw_filt.o[0]);
   //minus gravity is a guesstimate of the thrust force, thrust measurement would be better
 
 #ifndef GUIDANCE_INDI_PITCH_EFF_SCALING
@@ -58,13 +54,13 @@ void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_H
 #endif
 
   /*Amount of lift produced by the wing*/
-  float pitch_lift = eulers_zxy.theta;
+  float pitch_lift = pitch_filt.o[0];
   Bound(pitch_lift,-M_PI_2,0);
   float lift = sinf(pitch_lift)*9.81;
   float T = cosf(pitch_lift)*-9.81;
 
   // get the derivative of the lift wrt to theta
-  float liftd = guidance_indi_get_liftd(stateGetAirspeed_f(), eulers_zxy.theta);
+  float liftd = guidance_indi_get_liftd(stateGetAirspeed_f(), pitch_filt.o[0]);
 
   Gmat[0][0] =  cphi*ctheta*spsi*T + cphi*spsi*lift;
   Gmat[1][0] = -cphi*ctheta*cpsi*T - cphi*cpsi*lift;

@@ -4,29 +4,12 @@
 Installation
 ============
 
-Paparazzi runs best on **Ubuntu 16.04 or higher**, so this quick installation guide is for Ubuntu users.
+Paparazzi runs best on **Ubuntu 20.04 or higher**, so this quick installation guide is for Ubuntu users.
 
 If you want to run it on windows, see the instructions: `Install on Windows`_.
 
-Open a terminal and execute each lines below. If one fails, ask for help on gitter.
+Open a terminal and execute each lines below. If one fails, ask for help on `Github <https://github.com/paparazzi/paparazzi/discussions>`_.
 
-Version specific prerequisites
-------------------------------
-
-**If you have Ubuntu 20.04 or 22.04:**
-
-.. code-block:: bash
-
-    sudo apt-get install python-is-python3 gcc-arm-none-eabi gdb-multiarch
-
-**If you have Ubuntu 18.04 or lower:**
-
-.. code-block:: bash
-
-    sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
-    sudo apt-get install gcc-arm-embedded
-    sudo apt-get install python3-lxml python3-numpy
-    sudo apt-get update
 
 Install Paparazzi
 -----------------
@@ -38,8 +21,9 @@ Add paparazzi apt-repository and install dependencies:
     sudo add-apt-repository -y ppa:paparazzi-uav/ppa
     sudo apt-get update
     sudo apt-get -f -y install paparazzi-dev paparazzi-jsbsim dfu-util pprzgcs
+    sudo apt-get install python-is-python3 gcc-arm-none-eabi gdb-multiarch
 
-.. note:: If you are on Ubuntu 18.04, ``pprzgcs`` is not available, just remove it from the last line. Also launch using ``paparazzi -legacy`` mode
+.. note:: If you are on Ubuntu 24.04, please also install ``liblablgtk2-ocaml-dev`` in order to use the plot and messages tools.
 
 Clone the repository: 
 
@@ -52,11 +36,6 @@ Clone the repository:
     sudo cp conf/system/udev/rules/*.rules /etc/udev/rules.d/
     sudo udevadm control --reload-rules
     
-*Optionnal:* checkout on a stable version:
-
-.. code-block:: bash
-
-    git checkout -b v6.4 upstream/v6.4
 
 Get the submodules and build Paparazzi. This step might take a long time the first time you launch it:
 

@@ -11,6 +11,7 @@
     <provides>actuators</provides>
   </dep>
   <makefile target="sim|nps">
+    <file name="actuators_pwm.c"/>
     <file_arch name="actuators_pwm_arch.c"/>
   </makefile>
 </module>

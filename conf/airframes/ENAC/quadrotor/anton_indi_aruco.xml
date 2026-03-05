@@ -64,7 +64,7 @@
     </module-->
 
     <!--module name="sonar_adc">
-      <configure name="ADC_SONAR" value="ADC_1"/>
+      <configure name="SONAR_ADC_PORT" value="ADC_1"/>
       <define name="USE_SONAR"/>
     </module>
     <module name="agl_dist"/-->
@@ -245,7 +245,7 @@
 
   <section name="SONAR">
     <!--define name="SENSOR_SYNC_SEND_SONAR"/-->
-    <define name="SONAR_SCALE" value="0.0025"/> <!-- Vcc/1024 per cm => (3.3/2^12)*(0.01/(3.3/2^10) = 0.01*2^10/2^12 -->
+    <define name="SONAR_ADC_SCALE" value="0.0025"/> <!-- Vcc/1024 per cm => (3.3/2^12)*(0.01/(3.3/2^10) = 0.01*2^10/2^12 -->
   </section>
 
   <section name="AGL" prefix="AGL_DIST_SONAR_">

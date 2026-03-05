@@ -144,7 +144,7 @@ static void start_message(struct pprzlink_msg *msg,
                           long fd __attribute__((unused)),
                           uint8_t payload_len __attribute__((unused)))
 {
-  PPRZ_MUTEX_LOCK(get_trans(msg)->mtx_tx);  // lock mutex
+  pprz_mtx_lock(&get_trans(msg)->mtx_tx);  // lock mutex
   memset(get_trans(msg)->tx_msg, 0, TRANSPORT_PAYLOAD_LEN);// erase message data
   get_trans(msg)->tx_msg_idx = 0;// reset index
 }
@@ -205,7 +205,7 @@ static void end_message(struct pprzlink_msg *msg, long fd)
       break;
   }
   // unlock mutex
-  PPRZ_MUTEX_UNLOCK(get_trans(msg)->mtx_tx);
+  pprz_mtx_unlock(&get_trans(msg)->mtx_tx);
 }
 
 /**
@@ -219,7 +219,7 @@ void gec_encapsulate_and_send_msg(struct pprzlink_msg *msg, long fd)
   get_trans(msg)->pprz_tp.trans_tx.put_bytes(msg, fd, DL_TYPE_UINT8,
       DL_FORMAT_SCALAR, get_trans(msg)->tx_msg, get_trans(msg)->tx_msg_idx);
   // unlock mutex
-  PPRZ_MUTEX_UNLOCK(get_trans(msg)->mtx_tx);
+  pprz_mtx_unlock(&get_trans(msg)->mtx_tx);
   get_trans(msg)->pprz_tp.trans_tx.end_message(msg, fd);
 }
 
@@ -263,7 +263,7 @@ static void start_message(struct gec_transport *trans,
                           long fd __attribute__((unused)),
                           uint8_t payload_len __attribute__((unused)))
 {
-  PPRZ_MUTEX_LOCK(trans->mtx_tx);  // lock mutex
+  pprz_mtx_lock(&trans->mtx_tx);  // lock mutex
   memset(trans->tx_msg, 0, TRANSPORT_PAYLOAD_LEN);  // erase message data
   trans->tx_msg_idx = 0;  // reset index
 }
@@ -283,7 +283,7 @@ static void end_message(struct gec_transport *trans, struct link_device *dev,
       break;
   }
   // unlock mutex
-  PPRZ_MUTEX_UNLOCK(trans->mtx_tx);
+  pprz_mtx_unlock(&trans->mtx_tx);
 }
 
 void gec_encapsulate_and_send_msg(struct gec_transport *trans,
@@ -293,7 +293,7 @@ void gec_encapsulate_and_send_msg(struct gec_transport *trans,
   trans->pprz_tp.trans_tx.put_bytes(trans, dev, fd, DL_TYPE_UINT8,
                                     DL_FORMAT_SCALAR, trans->tx_msg, trans->tx_msg_idx);
   // unlock mutex
-  PPRZ_MUTEX_UNLOCK(trans->mtx_tx);
+  pprz_mtx_unlock(&trans->mtx_tx);
   trans->pprz_tp.trans_tx.end_message(trans, dev, fd);
 }
 
@@ -335,7 +335,7 @@ void gec_transport_init(struct gec_transport *t)
   t->trans_tx.overrun = (overrun_t) overrun;
   t->trans_tx.count_bytes = (count_bytes_t) count_bytes;
   t->trans_tx.impl = (void *)(t);
-  PPRZ_MUTEX_INIT(t->mtx_tx);  // init mutex, check if correct pointer
+  pprz_mtx_init(&t->mtx_tx);  // init mutex, check if correct pointer
 
   // add whitelist messages
   gec_add_to_whitelist(&(t->whitelist), KEY_EXCHANGE_MSG_ID_UAV);

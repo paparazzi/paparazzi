@@ -177,6 +177,9 @@ void qmc5883l_event(struct Qmc5883l *mag)
         /* End of measure reading, go back to idle */
         mag->status = QMC5883L_STATUS_IDLE;
       }
+      else if (mag->i2c_trans.status == I2CTransFailed) {
+        mag->status = QMC5883L_STATUS_IDLE;
+      }
       break;
 
     default:

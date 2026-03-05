@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="260" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25" qfu="180">
+<flight_plan alt="260" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25" qfu="0">
   <header/>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
@@ -12,6 +12,7 @@
   </waypoints>
   <modules>
     <module name="mission" type="fw"/>
+    <module name="nav" type="takeoff_and_landing"/>
   </modules>
   <exceptions/>
   <blocks>

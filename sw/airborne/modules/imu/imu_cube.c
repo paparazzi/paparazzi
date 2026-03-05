@@ -32,20 +32,73 @@
 #include "peripherals/invensense3.h"
 #include "peripherals/mpu60x0_spi.h"
 
+#if IMU_CUBE_ORANGEPLUS_LTS
+#include "peripherals/invensense3_456.h"
+#endif // IMU_CUBE_ORANGEPLUS_LTS
 
+#if IMU_CUBE_ORANGEPLUS_LTS
+static struct invensense3_456_t imu1;
+static struct invensense3_456_t imu2;
+static struct invensense3_456_t imu3;
+#else
 static struct invensense2_t imu1;
 #if IMU_CUBE_ORANGEPLUS
 static struct invensense3_t imu2;
 #else
 static struct Mpu60x0_Spi imu2;
-#endif
+#endif // IMU_CUBE_ORANGEPLUS
 static struct invensense2_t imu3;
+#endif // IMU_CUBE_ORANGEPLUS_LTS
 
 void imu_cube_init(void)
 {
   struct Int32RMat rmat;
   struct Int32Eulers eulers;
 
+#if IMU_CUBE_ORANGEPLUS_LTS
+  /* IMU 1 (ICM45686, non-isolated) */
+  imu1.abi_id = IMU_CUBE1_ID;
+  imu1.spi.p = &CUBE_IMU1_SPI_DEV;
+  imu1.spi.slave_idx = CUBE_IMU1_SPI_SLAVE_IDX;
+  imu1.imu_odr = INVENSENSE3_456_ODR_6_4KHZ;
+  invensense3_456_init(&imu1);
+  // Rotation (ROTATION_ROLL_180_YAW_135)
+  eulers.phi = ANGLE_BFP_OF_REAL(RadOfDeg(180));
+  eulers.theta = ANGLE_BFP_OF_REAL(0);
+  eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(135));
+  int32_rmat_of_eulers(&rmat, &eulers);
+  imu_set_defaults_gyro(IMU_CUBE1_ID, &rmat, NULL, NULL);
+  imu_set_defaults_accel(IMU_CUBE1_ID, &rmat, NULL, NULL);
+
+
+  /* IMU 2 (ICM45686, isolated) */
+  imu2.abi_id = IMU_CUBE2_ID;
+  imu2.spi.p = &CUBE_IMU2_SPI_DEV;
+  imu2.spi.slave_idx = CUBE_IMU2_SPI_SLAVE_IDX;
+  imu2.imu_odr = INVENSENSE3_456_ODR_6_4KHZ;
+  invensense3_456_init(&imu2);
+  // Rotation (GYRO_EXT_CS -> icm42688_ext2 -> ROTATION_PITCH_180_YAW_90)
+  eulers.phi = ANGLE_BFP_OF_REAL(RadOfDeg(0));
+  eulers.theta = ANGLE_BFP_OF_REAL(RadOfDeg(180));
+  eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(90));
+  int32_rmat_of_eulers(&rmat, &eulers);
+  imu_set_defaults_gyro(IMU_CUBE2_ID, &rmat, NULL, NULL);
+  imu_set_defaults_accel(IMU_CUBE2_ID, &rmat, NULL, NULL);
+
+  /* IMU 3 (ICM45686, isolated) */
+  imu3.abi_id = IMU_CUBE3_ID;
+  imu3.spi.p = &CUBE_IMU3_SPI_DEV;
+  imu3.spi.slave_idx = CUBE_IMU3_SPI_SLAVE_IDX;
+  imu3.imu_odr = INVENSENSE3_456_ODR_6_4KHZ;
+  invensense3_456_init(&imu3);
+  // Rotation (ROTATION_YAW_90)
+  eulers.phi = ANGLE_BFP_OF_REAL(0);
+  eulers.theta = ANGLE_BFP_OF_REAL(RadOfDeg(0));
+  eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(90));
+  int32_rmat_of_eulers(&rmat, &eulers);
+  imu_set_defaults_gyro(IMU_CUBE3_ID, &rmat, NULL, NULL);
+  imu_set_defaults_accel(IMU_CUBE3_ID, &rmat, NULL, NULL);
+#else
   /* IMU 1 (ICM20649 not isolated) */
   imu1.abi_id = IMU_CUBE1_ID;
   imu1.bus = INVENSENSE2_SPI;
@@ -104,8 +157,8 @@ void imu_cube_init(void)
   eulers.theta = ANGLE_BFP_OF_REAL(0);
   eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(270));
   int32_rmat_of_eulers(&rmat, &eulers);
-  imu_set_defaults_gyro(IMU_CUBE2_ID, &rmat, NULL, MPU60X0_GYRO_SENS_FRAC[MPU60X0_GYRO_RANGE_2000]);
-  imu_set_defaults_accel(IMU_CUBE2_ID, &rmat, NULL, MPU60X0_ACCEL_SENS_FRAC[MPU60X0_ACCEL_RANGE_16G]);
+  imu_set_defaults_gyro(IMU_CUBE2_ID, &rmat, NULL, &MPU60X0_GYRO_SENS_F[MPU60X0_GYRO_RANGE_2000]);
+  imu_set_defaults_accel(IMU_CUBE2_ID, &rmat, NULL, &MPU60X0_ACCEL_SENS_F[MPU60X0_ACCEL_RANGE_16G]);
 #endif
 
   /* IMU 3 (ICM2094 isolated) */
@@ -126,10 +179,16 @@ void imu_cube_init(void)
   int32_rmat_of_eulers(&rmat, &eulers);
   imu_set_defaults_gyro(IMU_CUBE3_ID, &rmat, NULL, NULL);
   imu_set_defaults_accel(IMU_CUBE3_ID, &rmat, NULL, NULL);
+#endif // IMU_CUBE_ORANGEPLUS_LTS
 }
 
 void imu_cube_periodic(void)
 {
+#if IMU_CUBE_ORANGEPLUS_LTS
+  invensense3_456_periodic(&imu1);
+  invensense3_456_periodic(&imu2);
+  invensense3_456_periodic(&imu3);
+#else
   invensense2_periodic(&imu1);
 #if IMU_CUBE_ORANGEPLUS
   invensense3_periodic(&imu2);
@@ -137,10 +196,16 @@ void imu_cube_periodic(void)
   mpu60x0_spi_periodic(&imu2);
 #endif
   invensense2_periodic(&imu3);
+#endif // IMU_CUBE_ORANGEPLUS_LTS
 }
 
 void imu_cube_event(void)
 {
+#if IMU_CUBE_ORANGEPLUS_LTS
+  invensense3_456_event(&imu1);
+  invensense3_456_event(&imu2);
+  invensense3_456_event(&imu3);
+#else
   invensense2_event(&imu1);
 
 #if IMU_CUBE_ORANGEPLUS
@@ -171,4 +236,5 @@ void imu_cube_event(void)
 #endif
 
   invensense2_event(&imu3);
+#endif  // IMU_CUBE_ORANGEPLUS_LTS
 }

@@ -33,6 +33,7 @@
 #include "math/pprz_isa.h"
 #include "state.h"
 #include "generated/airframe.h"
+#include "generated/modules.h"
 #include "pprzlink/dl_protocol.h"
 
 /** global AirData state
@@ -120,7 +121,7 @@ static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, uint32_t 
     // in the meantime use geoid separation at local reference frame origin
     float geoid_separation = 0;
     if (state.ned_initialized_f) {
-      geoid_separation = state.ned_origin_f.lla.alt - state.ned_origin_f.hmsl;
+      geoid_separation = stateGetLlaOrigin_f().alt - stateGetHmslOrigin_f();
     }
     float h = stateGetPositionLla_f()->alt - geoid_separation;
     air_data.qnh = pprz_isa_ref_pressure_of_height_full(air_data.pressure, h) / 100.f;
@@ -144,7 +145,7 @@ static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, float pr
     air_data.airspeed = eas_from_dynamic_pressure(air_data.differential);
     air_data.tas = tas_from_eas(air_data.airspeed);
 #if USE_AIRSPEED_AIR_DATA
-    stateSetAirspeed_f(air_data.airspeed);
+    stateSetAirspeed_f(MODULE_AIR_DATA_ID, air_data.airspeed);
 #endif
   }
 }
@@ -165,7 +166,7 @@ static void airspeed_cb(uint8_t __attribute__((unused)) sender_id, float eas)
   if (air_data.calc_airspeed) {
     air_data.tas = tas_from_eas(air_data.airspeed);
 #if USE_AIRSPEED_AIR_DATA
-    stateSetAirspeed_f(air_data.airspeed);
+    stateSetAirspeed_f(MODULE_AIR_DATA_ID, air_data.airspeed);
 #endif
   }
 }
@@ -175,12 +176,12 @@ static void incidence_cb(uint8_t __attribute__((unused)) sender_id, uint8_t flag
   if (bit_is_set(flag, 0)) {
     // update angle of attack
     air_data.aoa = aoa;
-    stateSetAngleOfAttack_f(aoa);
+    stateSetAngleOfAttack_f(MODULE_AIR_DATA_ID, aoa);
   }
   if (bit_is_set(flag, 1)) {
     // update sideslip angle
     air_data.sideslip = sideslip;
-    stateSetSideslip_f(sideslip);
+    stateSetSideslip_f(MODULE_AIR_DATA_ID, sideslip);
   }
 }
 
@@ -284,19 +285,19 @@ void air_data_parse_WIND_INFO(struct link_device *dev __attribute__((unused)), s
   if (bit_is_set(flags, 0)) {
     wind.x = DL_WIND_INFO_north(buf);
     wind.y = DL_WIND_INFO_east(buf);
-    stateSetHorizontalWindspeed_f(&wind);
+    stateSetHorizontalWindspeed_f(MODULE_AIR_DATA_ID, &wind);
     air_data.wind_speed = float_vect2_norm(&wind);
     air_data.wind_dir = atan2f(wind.y, wind.x);
   }
   if (bit_is_set(flags, 1)) {
     upwind = DL_WIND_INFO_up(buf);
-    stateSetVerticalWindspeed_f(upwind);
+    stateSetVerticalWindspeed_f(MODULE_AIR_DATA_ID, upwind);
   }
 #if !USE_AIRSPEED
   if (bit_is_set(flags, 2)) {
     air_data.tas = DL_WIND_INFO_airspeed(buf);
     air_data.airspeed = eas_from_tas(air_data.tas);
-    stateSetAirspeed_f(air_data.airspeed);
+    stateSetAirspeed_f(MODULE_AIR_DATA_ID, air_data.airspeed);
   }
 #endif
 #ifdef WIND_INFO_RET

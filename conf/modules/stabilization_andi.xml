@@ -1,0 +1,170 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stabilization_andi" dir="stabilization" task="control">
+  <doc>
+    <description>
+      Full ANDI stabilization controller for rotorcraft
+    </description>
+
+    <configure name="ANDI_OUTPUTS" default="4"/>
+    <configure name="ANDI_NUM_ACT" default="4"/>
+
+    <section name="STABILIZATION_ATTITUDE_ANDI" prefix="STABILIZATION_ANDI_">
+      <define name="SCHEDULE_EFF" value="0" description="1 to schedule control effectiveness based on throttle command. 0 uses ACT_PREF to compute constant control effectiveness"/>
+      <define name="USE_STATE_DYNAMICS" value="0" description="1 to use obm state derivative term, 0 to neglect this term."/>
+      <define name="RELAX_OBM" value="1.0f" description="relaxation factor for obm state derivative contribution."/>
+
+      <define name="ACT_IS_SERVO" value="{0, 0, 0, 0}" description="1 for every actuator that is a servo"/>
+      <define name="ACT_DYNAMICS" description="actuator bandwidth [rad/s]"/>
+      <define name="ACT_DELAY" description="actuator transport delay [samples]"/>
+      <define name="ACT_MAX" description="maximum actuator value [SI units]"/>
+      <define name="ACT_MIN" description="maximum actuator value [SI units]"/>
+      <define name="ACT_RATE_MAX" description="minimum actuator rate [SI units]"/>
+      <define name="ACT_RATE_MIN" description="minimum actuator rate [SI units]"/>
+      <define name="ACT_PREF" value="{0.0, 0.0, 0.0, 0.0}" description="preferred actuator value used for unscheduled control effectiveness"/>
+      <define name="WLS_WV" value="{1000, 1000, 1, 100}" description="WLS control objective priorities: roll, pitch, yaw, thrust (size of ANDI_OUTPUTS)"/>
+      <define name="WLS_WU" value="{1, 1, 1, 1}" description="WLS actuator cost (size of ANDI_NUM_ACT)"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="andi">
+        <dl_setting var="andi_p_rate_rm.omega_a.x" min="0" step="0.25" max="100" shortname="pole_rate_rm/omega_a.x" param="STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_X"/>
+        <dl_setting var="andi_p_rate_rm.omega_a.y" min="0" step="0.25" max="100" shortname="pole_rate_rm/omega_a.y" param="STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_Y"/>
+        <dl_setting var="andi_p_rate_rm.omega_a.z" min="0" step="0.25" max="100" shortname="pole_rate_rm/omega_a.z" param="STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_Z"/>
+
+        <dl_setting var="andi_p_rate_rm.zeta.x" min="0" step="0.25" max="5" shortname="pole_rate_rm/zeta.x" param="STABILIZATION_ANDI_POLE_RATE_RM_ZETA_X"/>
+        <dl_setting var="andi_p_rate_rm.zeta.y" min="0" step="0.25" max="5" shortname="pole_rate_rm/zeta.y" param="STABILIZATION_ANDI_POLE_RATE_RM_ZETA_Y"/>
+        <dl_setting var="andi_p_rate_rm.zeta.z" min="0" step="0.25" max="5" shortname="pole_rate_rm/zeta.z" param="STABILIZATION_ANDI_POLE_RATE_RM_ZETA_Z"/>
+
+        <dl_setting var="andi_p_att_rm.omega_n.x" min="0" step="0.25" max="100" shortname="pole_att_rm/omega_n.x" param="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_X"/>
+        <dl_setting var="andi_p_att_rm.omega_n.y" min="0" step="0.25" max="100" shortname="pole_att_rm/omega_n.y" param="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_Y"/>
+        <dl_setting var="andi_p_att_rm.omega_n.z" min="0" step="0.25" max="100" shortname="pole_att_rm/omega_n.z" param="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_Z"/>
+
+        <dl_setting var="andi_p_att_rm.zeta.x" min="0" step="0.25" max="5" shortname="pole_att_rm/zeta.x" param="STABILIZATION_ANDI_POLE_ATT_RM_ZETA_X"/>
+        <dl_setting var="andi_p_att_rm.zeta.y" min="0" step="0.25" max="5" shortname="pole_att_rm/zeta.y" param="STABILIZATION_ANDI_POLE_ATT_RM_ZETA_Y"/>
+        <dl_setting var="andi_p_att_rm.zeta.z" min="0" step="0.25" max="5" shortname="pole_att_rm/zeta.z" param="STABILIZATION_ANDI_POLE_ATT_RM_ZETA_Z"/>
+
+        <dl_setting var="andi_p_att_rm.omega_a.x" min="0" step="0.25" max="100" shortname="pole_att_rm/p1.x" param="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_X"/>
+        <dl_setting var="andi_p_att_rm.omega_a.y" min="0" step="0.25" max="100" shortname="pole_att_rm/p1.y" param="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_Y"/>
+        <dl_setting var="andi_p_att_rm.omega_a.z" min="0" step="0.25" max="100" shortname="pole_att_rm/p1.z" param="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_Z"/>
+
+        <dl_setting var="andi_p_thrust_rm" min="0" step="0.25" max="100" shortname="pole_thrust_rm" param="STABILIZATION_ANDI_POLE_THRUST_RM"/>
+
+        <dl_setting var="andi_p_rate_ec.omega_a.x" min="0" step="0.25" max="100" shortname="pole_rate_ec/omega_a.x" param="STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_X"/>
+        <dl_setting var="andi_p_rate_ec.omega_a.y" min="0" step="0.25" max="100" shortname="pole_rate_ec/omega_a.y" param="STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_Y"/>
+        <dl_setting var="andi_p_rate_ec.omega_a.z" min="0" step="0.25" max="100" shortname="pole_rate_ec/omega_a.z" param="STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_Z"/>
+
+        <dl_setting var="andi_p_rate_ec.zeta.x" min="0" step="0.25" max="5" shortname="pole_rate_ec/zeta.x" param="STABILIZATION_ANDI_POLE_RATE_EC_ZETA_X"/>
+        <dl_setting var="andi_p_rate_ec.zeta.y" min="0" step="0.25" max="5" shortname="pole_rate_ec/zeta.y" param="STABILIZATION_ANDI_POLE_RATE_EC_ZETA_Y"/>
+        <dl_setting var="andi_p_rate_ec.zeta.z" min="0" step="0.25" max="5" shortname="pole_rate_ec/zeta.z" param="STABILIZATION_ANDI_POLE_RATE_EC_ZETA_Z"/>
+
+        <dl_setting var="andi_p_att_ec.omega_n.x" min="0" step="0.25" max="100" shortname="pole_att_ec/omega_n.x" param="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_X"/>
+        <dl_setting var="andi_p_att_ec.omega_n.y" min="0" step="0.25" max="100" shortname="pole_att_ec/omega_n.y" param="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_Y"/>
+        <dl_setting var="andi_p_att_ec.omega_n.z" min="0" step="0.25" max="100" shortname="pole_att_ec/omega_n.z" param="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_Z"/>
+
+        <dl_setting var="andi_p_att_ec.zeta.x" min="0" step="0.25" max="5" shortname="pole_att_ec/zeta.x" param="STABILIZATION_ANDI_POLE_ATT_EC_ZETA_X"/>
+        <dl_setting var="andi_p_att_ec.zeta.y" min="0" step="0.25" max="5" shortname="pole_att_ec/zeta.y" param="STABILIZATION_ANDI_POLE_ATT_EC_ZETA_Y"/>
+        <dl_setting var="andi_p_att_ec.zeta.z" min="0" step="0.25" max="5" shortname="pole_att_ec/zeta.z" param="STABILIZATION_ANDI_POLE_ATT_EC_ZETA_Z"/>
+
+        <dl_setting var="andi_p_att_ec.omega_a.x" min="0" step="0.25" max="100" shortname="pole_att_ec/p1.x" param="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_X"/>
+        <dl_setting var="andi_p_att_ec.omega_a.y" min="0" step="0.25" max="100" shortname="pole_att_ec/p1.y" param="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_Y"/>
+        <dl_setting var="andi_p_att_ec.omega_a.z" min="0" step="0.25" max="100" shortname="pole_att_ec/p1.z" param="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_Z"/>
+
+        <dl_setting var="andi_p_thrust_ec" min="0" step="0.25" max="100" shortname="pole_thrust_ec" param="STABILIZATION_ANDI_POLE_THRUST_EC"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>stabilization_rotorcraft,@attitude_command,wls</depends>
+    <provides>commands</provides>
+  </dep>
+  <header>
+    <file name="stabilization_andi.h"/>
+  </header>
+  <init fun="stabilization_andi_init()"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="stabilization_andi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="obm_cyclone.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <configure name="ANDI_OUTPUTS" default="4"/>
+    <configure name="ANDI_NUM_ACT" default="4"/>
+    <define name="ANDI_OUTPUTS" value="$(ANDI_OUTPUTS)"/>
+    <define name="ANDI_NUM_ACT" value="$(ANDI_NUM_ACT)"/>
+    <define name="USE_STABILIZATION_RATE"/>
+
+    <configure name="STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_X" default="35.0"/> <!-- Equivalent actuator bandwidth -->
+    <configure name="STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_Y" default="20.0"/> <!-- Equivalent actuator bandwidth -->
+    <configure name="STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_Z" default="20.0"/> <!-- Equivalent actuator bandwidth -->
+    <configure name="STABILIZATION_ANDI_POLE_RATE_EC_ZETA_X" default="1.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_RATE_EC_ZETA_Y" default="1.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_RATE_EC_ZETA_Z" default="1.0"/>
+
+    <configure name="STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_X" default="35.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_Y" default="20.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_Z" default="20.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_RATE_RM_ZETA_X" default="1.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_RATE_RM_ZETA_Y" default="1.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_RATE_RM_ZETA_Z" default="1.0"/>
+
+    <configure name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_X" default="7.0"/> <!-- rad/s-->
+    <configure name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_Y" default="7.0"/> <!-- rad/s-->
+    <configure name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_Z" default="7.0"/> <!-- rad/s-->
+    <configure name="STABILIZATION_ANDI_POLE_ATT_EC_ZETA_X" default="1.0"/> 
+    <configure name="STABILIZATION_ANDI_POLE_ATT_EC_ZETA_Y" default="1.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_ATT_EC_ZETA_Z" default="1.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_X" default="35.0"/> <!-- Equivalent actuator bandwidth -->
+    <configure name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_Y" default="20.0"/> <!-- Equivalent actuator bandwidth -->
+    <configure name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_Z" default="20.0"/> <!-- Equivalent actuator bandwidth -->
+
+    <configure name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_X" default="7.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_Y" default="7.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_Z" default="7.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_ATT_RM_ZETA_X" default="1.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_ATT_RM_ZETA_Y" default="1.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_ATT_RM_ZETA_Z" default="1.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_X" default="35.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_Y" default="20.0"/>
+    <configure name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_Z" default="20.0"/>
+
+    <configure name="STABILIZATION_ANDI_POLE_THRUST_EC" default="35.0"/> <!-- Equivalent actuator bandwidth -->
+    <configure name="STABILIZATION_ANDI_POLE_THRUST_RM" default="35.0"/> <!-- Equivalent actuator bandwidth -->
+
+
+    <define name="STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_X" value="$(STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_X)"/>
+    <define name="STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_Y" value="$(STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_Y)"/>
+    <define name="STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_Z" value="$(STABILIZATION_ANDI_POLE_RATE_EC_OMEGA_A_Z)"/>
+    <define name="STABILIZATION_ANDI_POLE_RATE_EC_ZETA_X" value="$(STABILIZATION_ANDI_POLE_RATE_EC_ZETA_X)"/>
+    <define name="STABILIZATION_ANDI_POLE_RATE_EC_ZETA_Y" value="$(STABILIZATION_ANDI_POLE_RATE_EC_ZETA_Y)"/>
+    <define name="STABILIZATION_ANDI_POLE_RATE_EC_ZETA_Z" value="$(STABILIZATION_ANDI_POLE_RATE_EC_ZETA_Z)"/>
+
+    <define name="STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_X" value="$(STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_X)"/>
+    <define name="STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_Y" value="$(STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_Y)"/>
+    <define name="STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_Z" value="$(STABILIZATION_ANDI_POLE_RATE_RM_OMEGA_A_Z)"/>
+    <define name="STABILIZATION_ANDI_POLE_RATE_RM_ZETA_X" value="$(STABILIZATION_ANDI_POLE_RATE_RM_ZETA_X)"/>
+    <define name="STABILIZATION_ANDI_POLE_RATE_RM_ZETA_Y" value="$(STABILIZATION_ANDI_POLE_RATE_RM_ZETA_Y)"/>
+    <define name="STABILIZATION_ANDI_POLE_RATE_RM_ZETA_Z" value="$(STABILIZATION_ANDI_POLE_RATE_RM_ZETA_Z)"/>
+
+    <define name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_X" value="$(STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_X)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_Y" value="$(STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_Y)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_Z" value="$(STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_N_Z)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_EC_ZETA_X" value="$(STABILIZATION_ANDI_POLE_ATT_EC_ZETA_X)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_EC_ZETA_Y" value="$(STABILIZATION_ANDI_POLE_ATT_EC_ZETA_Y)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_EC_ZETA_Z" value="$(STABILIZATION_ANDI_POLE_ATT_EC_ZETA_Z)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_X" value="$(STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_X)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_Y" value="$(STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_Y)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_Z" value="$(STABILIZATION_ANDI_POLE_ATT_EC_OMEGA_A_Z)"/>
+
+    <define name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_X" value="$(STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_X)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_Y" value="$(STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_Y)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_Z" value="$(STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_N_Z)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_RM_ZETA_X" value="$(STABILIZATION_ANDI_POLE_ATT_RM_ZETA_X)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_RM_ZETA_Y" value="$(STABILIZATION_ANDI_POLE_ATT_RM_ZETA_Y)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_RM_ZETA_Z" value="$(STABILIZATION_ANDI_POLE_ATT_RM_ZETA_Z)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_X" value="$(STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_X)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_Y" value="$(STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_Y)"/>
+    <define name="STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_Z" value="$(STABILIZATION_ANDI_POLE_ATT_RM_OMEGA_A_Z)"/>
+
+    <define name="STABILIZATION_ANDI_POLE_THRUST_EC" value="$(STABILIZATION_ANDI_POLE_THRUST_EC)"/>
+    <define name="STABILIZATION_ANDI_POLE_THRUST_RM" value="$(STABILIZATION_ANDI_POLE_THRUST_RM)"/>
+  </makefile>
+</module>

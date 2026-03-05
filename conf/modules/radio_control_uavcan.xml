@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="radio_control_uavcan" dir="radio_control" task="radio_control">
+  <doc>
+    <description>Radio control from DroneCAN message `dronecan.sensors.rc.RCInput`.</description>
+  </doc>
+  <dep>
+    <depends>uavcan,radio_control_common</depends>
+    <provides>radio_control</provides>
+  </dep>
+  <header>
+    <file name="radio_control_uavcan.h"/>
+  </header>
+  <init fun="rc_uavcan_init()"/>
+  <event fun="rc_uavcan_event()"/>
+  <makefile>
+    <configure name="RC_UAVCAN_TYPE" default="RC_UAVCAN_SBUS"/>
+    <define name="RC_UAVCAN_TYPE" value="$(RC_UAVCAN_SBUS)" />
+    <file name="radio_control_uavcan.c"/>
+
+    <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="dronecan.sensors.rc.RCInput.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <test>
+      <include name="$(PAPARAZZI_HOME)/sw/ext/dronecan/libcanard"/>
+    </test>
+    <test/>
+  </makefile>
+</module>

@@ -23,7 +23,7 @@
 /**
  * @file peripherals/hmc58xx.c
  *
- * Driver for Honeywell HMC5843 and HMC5883 magnetometers.
+ * Driver for Honeywell HMC5843, HMC5883 and HMC5983 magnetometers.
  * @todo DRDY/IRQ handling
  */
 
@@ -45,6 +45,12 @@
 #ifndef HMC58XX_DEFAULT_MD
 #define HMC58XX_DEFAULT_MD 0x0 // Continious measurement mode
 #endif
+#ifndef HMC58XX_DEFAULT_SA
+#define HMC58XX_DEFAULT_SA 0x0 // Number of samples averaged 
+#endif
+#ifndef HMC58XX_DEFAULT_TC
+#define HMC58XX_DEFAULT_TC 0x0 // Automatic compensation of sensitivity over temperature
+#endif
 
 /** HMC58XX startup delay
  *
@@ -64,6 +70,8 @@ static void hmc58xx_set_default_config(struct Hmc58xxConfig *c)
   c->meas = HMC58XX_DEFAULT_MS;
   c->gain = HMC58XX_DEFAULT_GN;
   c->mode = HMC58XX_DEFAULT_MD;
+  c->samples_averaged = HMC58XX_DEFAULT_SA;
+  c->temp_comp = HMC58XX_DEFAULT_TC;
 }
 
 /**
@@ -102,7 +110,7 @@ static void hmc58xx_send_config(struct Hmc58xx *hmc)
 {
   switch (hmc->init_status) {
     case HMC_CONF_CRA:
-      hmc58xx_i2c_tx_reg(hmc, HMC58XX_REG_CFGA, (hmc->config.rate << 2) | (hmc->config.meas));
+      hmc58xx_i2c_tx_reg(hmc, HMC58XX_REG_CFGA, (hmc->config.temp_comp << 7) | (hmc->config.samples_averaged << 5) | (hmc->config.rate << 2) | (hmc->config.meas));
       hmc->init_status++;
       break;
     case HMC_CONF_CRB:

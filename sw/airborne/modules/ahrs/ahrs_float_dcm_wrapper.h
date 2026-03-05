@@ -29,10 +29,10 @@
 
 #include "modules/ahrs/ahrs_float_dcm.h"
 
-#ifndef PRIMARY_AHRS
-#define PRIMARY_AHRS ahrs_dcm
-#endif
+extern void ahrs_dcm_wrapper_init(void);
 
-extern void ahrs_dcm_register(void);
+// enable setting
+extern uint8_t ahrs_dcm_enable;
+extern void ahrs_float_dcm_wrapper_enable(uint8_t enable);
 
 #endif /* AHRS_FLOAT_DCM_WRAPPER_H */

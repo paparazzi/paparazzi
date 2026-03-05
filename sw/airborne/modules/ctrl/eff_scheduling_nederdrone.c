@@ -32,7 +32,7 @@ not use this module at the same time!
 #include "state.h"
 #include "autopilot.h"
 #include "modules/radio_control/radio_control.h"
-#include "generated/radio.h"
+//#include "generated/radio.h"
 #include "modules/actuators/actuators.h"
 #define INDI_SCHEDULING_LOWER_BOUND_G1 0.0001
 
@@ -232,15 +232,15 @@ void schdule_control_effectiveness(void) {
   if(airspeed > 15.0) {
     uint8_t i;
     for (i = 0; i < 4; i++) {
-      indi_Wu[i] = indi_Wu_original[i]*pref_flaps_factor;
+      wls_stab_p.Wu[i] = indi_Wu_original[i]*pref_flaps_factor;
     }
     for (i = 4; i < 8; i++) {
-      indi_Wu[i] = indi_Wu_original[i]/pref_flaps_factor;
+      wls_stab_p.Wu[i] = indi_Wu_original[i]/pref_flaps_factor;
     }
   } else {
     uint8_t i;
     for (i = 0; i < 8; i++) {
-      indi_Wu[i] = indi_Wu_original[i];
+      wls_stab_p.Wu[i] = indi_Wu_original[i];
     }
   }
 }

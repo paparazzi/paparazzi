@@ -3,18 +3,14 @@
 <module name="humid_sht_i2c" dir="meteo">
   <doc>
     <description>Sensirion SHT25 humidity sensor (I2C)</description>
-    <define name="SCP_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
+    <define name="SHT_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
   </doc>
   <header>
     <file name="humid_sht_i2c.h"/>
   </header>
   <init fun="humid_sht_init_i2c()"/>
   <periodic fun="humid_sht_periodic_i2c()" freq="4" delay="0."/>
-  <periodic fun="humid_sht_p_temp()" freq="4" delay="0.4"/>
-  <periodic fun="humid_sht_p_humid()"  freq="4" delay="0.6"/>
-  <event fun="humid_sht_event_i2c()"/>
   <makefile target="ap">
     <file name="humid_sht_i2c.c"/>
   </makefile>
 </module>
-

@@ -30,11 +30,10 @@
 
 #include "modules/ahrs/ahrs_vectornav.h"
 
-#ifndef PRIMARY_AHRS
-#define PRIMARY_AHRS ahrs_vectornav
-#endif
+extern void ahrs_vectornav_wrapper_init(void);
 
-extern void ahrs_vectornav_register(void);
-extern bool ahrs_vectornav_is_enabled(void);
+// enable setting
+extern uint8_t ahrs_vectornav_enable;
+extern void ahrs_vectornav_wrapper_enable(uint8_t enable);
 
 #endif /* AHRS_VECTORNAV_WRAPPER_H */

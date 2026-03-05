@@ -16,11 +16,7 @@
   </header>
   <periodic fun="update_ahrs_from_sim()"/>
   <makefile target="sim">
-    <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_sim.h" type="string"/>
     <file name="ahrs_sim.c"/>
-    <test>
-      <define name="PRIMARY_AHRS" value="ahrs_sim"/>
-      <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_sim.h" type="string"/>
-    </test>
+    <test/>
   </makefile>
 </module>

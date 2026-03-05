@@ -36,7 +36,7 @@
     </block>
     <block name="Takeoff (Here)" strip_button="Takeoff (Here)" group="takeoff">
       <set value="0" var="autopilot.flight_time"/>
-      <call fun="nav_takeoff_from_here()"/>
+      <call fun="nav_takeoff_from_here(-1.)"/>
       <deroute block="Standby"/>
     </block>
     <block key="Ctrl+a" name="Standby" strip_button="Standby" strip_icon="home.png" group="home">

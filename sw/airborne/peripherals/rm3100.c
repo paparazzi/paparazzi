@@ -19,12 +19,15 @@
  */
 
 /**
- * @file peripherals/lis3mdl.c
+ * @file peripherals/rm3100.c
  *
  * PNI RM3100 3-axis magnetometer driver interface (I2C).
  */
 
 #include "peripherals/rm3100.h"
+#if RM3100_USE_MEDIAN_FILTER
+#include "filters/median_filter.h"
+#endif
 
 #define RM3100_ADDR_POLL    0x00
 #define RM3100_ADDR_CMM     0x01
@@ -56,8 +59,17 @@
 #define RM3100_POLL_XYZ         0x70
 #define RM3100_RM3100_REVID     0x22
 
+#if RM3100_USE_MEDIAN_FILTER
+static struct MedianFilter3Int medianfilter_mag;
+#endif
+
 void rm3100_init(struct Rm3100 *mag, struct i2c_periph *i2c_p, uint8_t addr, uint8_t data_rate)
 {
+
+#if RM3100_USE_MEDIAN_FILTER
+  InitMedianFilterVect3Int(medianfilter_mag, 3);
+#endif
+
   /* set i2c_peripheral */
   mag->i2c_p = i2c_p;
   /* set i2c address */
@@ -80,7 +92,7 @@ void rm3100_configure(struct Rm3100 *mag)
     return;
   }
 
-  // Only when succesfull continue with next
+  // Only when successful continue with next
   if (mag->i2c_trans.status == I2CTransSuccess) {
     mag->status++;
   }
@@ -155,12 +167,19 @@ void rm3100_event(struct Rm3100 *mag)
     return;
   }
 
-  // If we have a succesfull reading copy the data
+  // If we have a successful reading copy the data
   if (mag->status == RM3100_STATUS_MEAS && mag->i2c_trans.status == I2CTransSuccess) {
-    // Copy the data
+    // Copy the new data
     mag->data.vect.x = rm3100_get_raw_from_buf(mag->i2c_trans.buf, 0);
     mag->data.vect.y = rm3100_get_raw_from_buf(mag->i2c_trans.buf, 3);
     mag->data.vect.z = rm3100_get_raw_from_buf(mag->i2c_trans.buf, 6);
+    
+    // Sometimes, very sporadic, the raw sensordata output gives wrong spikes in measurements for unknown reasons (Hardware, ASIC bug?)
+    // This will cause the AHRS to go wild, therefore the need to get rid of those huge spikes.
+    // A median filter can be enabled to remove the spikes. State will be much better than allowing a huge spiky value.
+    #if RM3100_USE_MEDIAN_FILTER
+    UpdateMedianFilterVect3Int(medianfilter_mag, mag->data.vect);
+    #endif
     mag->data_available = true;
   }
 

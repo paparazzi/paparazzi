@@ -119,6 +119,7 @@
     <mode name="default">
       <message name="ENERGY"              period="0.5"/>
       <message name="GPS"                 period="0.2"/>
+      <message name="GPS_SOL"             period="0.5"/>
       <message name="ATTITUDE"            period="0.05"/>
       <message name="DESIRED"             period="0.05"/>
       <message name="IMU_ACCEL"           period=".02"/>
@@ -128,6 +129,7 @@
       <message name="AOA"                 period="0.05"/>
       <message name="RC"                  period="0.05"/>
       <message name="COMMANDS"            period="0.05"/>
+      <message name="ESTIMATOR"           period="0.05"/>
       <message name="ACTUATORS"           period="0.05"/>
       <message name="PPRZ_MODE"           period="1.0"/>
       <message name="FBW_STATUS"          period="1.0"/>
@@ -136,6 +138,23 @@
       <message name="ESC"                 period="0.1"/>
       <message name="ADC_GENERIC"         period="0.05"/>
       <message name="WIND_INFO_RET"       period="0.1"/>
+      <message name="AUTOPILOT_VERSION"   period="11.1"/>
+      <message name="AIRSPEED"            period="1"/>
+      <message name="ALIVE"               period="5.1"/>
+      <message name="WP_MOVED"            period="0.5"/>
+      <message name="CIRCLE"              period="1.05"/>
+      <message name="WP_MOVED"             period="0.5"/>
+      <message name="SEGMENT"             period="1.2"/>
+      <message name="NAVIGATION_REF"      period="9."/>
+    </mode>
+  </process>
+  <process name="Mavlink"  type="mavlink">
+    <mode name="default">
+      <message name="HEARTBEAT"             period="0.5"/>
+      <message name="SYSTEM_TIME"           period="0.2"/>
+      <message name="SYS_STATUS"            period="0.2"/>
+      <message name="GPS_RAW_INT"           period="0.05"/>
+      <message name="ATTITUDE"              period="0.02"/>
     </mode>
   </process>
 </telemetry>

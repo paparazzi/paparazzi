@@ -26,7 +26,6 @@ import sys
 import os
 from optparse import OptionParser
 import scipy
-from scipy import optimize
 import numpy as np
 import calibration_utils
 
@@ -145,28 +144,23 @@ def main():
     p0 = calibration_utils.get_min_max_guess(flt_meas, sensor_ref)
     cp0, np0 = calibration_utils.scale_measurements(flt_meas, p0)
     print("initial guess : avg "+str(np0.mean())+" std "+str(np0.std()))
-#    print p0
 
-    def err_func(p, meas, y):
-        c_p, n_p = calibration_utils.scale_measurements(meas, p)
-        err = y*np.ones(len(meas)) - n_p
-        return err
-
-    p1, cov, info, msg, success = optimize.leastsq(err_func, p0[:], args=(flt_meas, sensor_ref), full_output=1)
-    optimze_failed = success not in [1, 2, 3, 4]
-    if optimze_failed:
+    # optimize parameters
+    p1, msg, success = calibration_utils.optimize_calibration(flt_meas, sensor_ref, p0)
+    optimize_failed = success not in [1, 2, 3, 4]
+    if optimize_failed:
         print("Optimization error: ", msg)
         print("Please try to provide a clean logfile with proper distribution of measurements.")
         #sys.exit(1)
 
     cp1, np1 = calibration_utils.scale_measurements(flt_meas, p1)
 
-    if optimze_failed:
+    if optimize_failed:
         print("last iteration of failed optimized guess : avg "+str(np1.mean())+" std "+str(np1.std()))
     else:
         print("optimized guess : avg "+str(np1.mean())+" std "+str(np1.std()))
 
-    if not optimze_failed:
+    if not optimize_failed:
         calibration_utils.print_xml(p1, options.sensor, options.sensor_id, sensor_res)
 
     if options.plot:

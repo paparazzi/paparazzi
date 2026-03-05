@@ -112,4 +112,8 @@ void actuators_ostrich_periodic()
   uart_put_buffer(ostrich_dev, 0, raw_message.bytes, 9);
 }
 
+void actuators_ostrich_set(uint8_t idx, int16_t value)
+{
+  actuators_ostrich.cmds[idx] = value;
+}
 

@@ -70,8 +70,8 @@
         <dl_setting var="of_landing_ctrl.igain_horizontal_factor" min="0" step="0.0001" max="1" module="ctrl/optical_flow_landing" shortname="igain_hfact" param="OFL_IGAIN_HORIZONTAL_FACTOR"/>
         <dl_setting var="of_landing_ctrl.roll_trim" min="-60.0" step="0.1" max="60.0" module="ctrl/optical_flow_landing" shortname="roll_trim" param="OFL_ROLL_TRIM"/>
         <dl_setting var="of_landing_ctrl.pitch_trim" min="-60.0" step="0.1" max="60.0" module="ctrl/optical_flow_landing" shortname="pitch_trim" param="OFL_PITCH_TRIM"/>
-        <dl_setting var="of_landing_ctrl.omega_LR" min="-60.0" step="1.0" max="60.0" module="ctrl/optical_flow_landing" shortname="omega_LR" param="OFL_OMEGA_LR"/>
-        <dl_setting var="of_landing_ctrl.omega_FB" min="-60.0" step="1.0" max="60.0" module="ctrl/optical_flow_landing" shortname="omega_FB" param="OFL_OMEGA_FB"/>
+        <dl_setting var="of_landing_ctrl.omega_LR" min="-160.0" step="1.0" max="160.0" module="ctrl/optical_flow_landing" shortname="omega_LR" param="OFL_OMEGA_LR"/>
+        <dl_setting var="of_landing_ctrl.omega_FB" min="-160.0" step="1.0" max="160.0" module="ctrl/optical_flow_landing" shortname="omega_FB" param="OFL_OMEGA_FB"/>
 	<dl_setting var="of_landing_ctrl.active_motion" min="0" step="1" max="2" values="none|flow|angle" module="ctrl/optical_flow_landing" shortname="active_motion" param="OFL_ACTIVE_MOTION"/>
 	<dl_setting var="of_landing_ctrl.front_div_threshold" min="0.0" step="0.01" max="5.0" module="ctrl/optical_flow_landing" shortname="front_div_threshold" param="OFL_FRONT_DIV_THRESHOLD"/>
       </dl_settings>

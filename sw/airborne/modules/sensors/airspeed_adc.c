@@ -89,6 +89,6 @@ void airspeed_adc_update(void)
   AbiSendMsgAIRSPEED(AIRSPEED_ADC_ID, airspeed_adc.airspeed);
 
 #if USE_AIRSPEED_ADC
-  stateSetAirspeed_f(airspeed_adc.airspeed);
+  stateSetAirspeed_f(MODULE_AIRSPEED_ADC_ID, airspeed_adc.airspeed);
 #endif
 }

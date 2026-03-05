@@ -23,14 +23,14 @@
 
 /**
  * @file modules/sensors/airspeed_ets.c
- *
- * Driver for the EagleTree Systems Airspeed Sensor.
- * Has only been tested with V3 of the sensor hardware.
+ * @brief Driver for the EagleTree Systems Airspeed Sensor v3 connected via an I2C port. 
+ * The device Measures airspeed from 4m/s to 156m/s with about 0,5 m/s resolution
  *
  * Notes:
- * Connect directly to TWOG/Tiny I2C port. Multiple sensors can be chained together.
- * Sensor should be in the proprietary mode (default) and not in 3rd party mode.
- * Define AIRSPEED_ETS_3RD_PARTY_MODE to run it in 3rd party mode.
+ * Connects directly to a flightcontroller board I2C port. Has signal level conversion build in. Multiple sensors can be chained together.
+ * Sensor may be in the default or in 3rd-party mode. If set to 3rd-party mode you must define AIRSPEED_ETS_3RD_PARTY_MODE.
+ *
+ * To set sensor to 3rd-party mode one can use the supplied Jumper, read Eagletree original manual on how to do this.
  *
  * Sensor module wire assignments:
  * Red wire: 5V
@@ -65,6 +65,7 @@ PRINT_CONFIG_MSG("AIRSPEED_ETS not used")
 #endif
 
 #define AIRSPEED_ETS_ADDR 0xEA
+
 #ifndef AIRSPEED_ETS_SCALE
 #define AIRSPEED_ETS_SCALE 1.8
 #endif
@@ -75,7 +76,23 @@ PRINT_CONFIG_MSG("AIRSPEED_ETS not used")
 #define AIRSPEED_ETS_OFFSET_MIN 1450
 #define AIRSPEED_ETS_OFFSET_NBSAMPLES_INIT 40
 #define AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG 60
+
+#ifndef AIRSPEED_ETS_USE_FILTER
+#define AIRSPEED_ETS_USE_FILTER FALSE
+#endif
+
+#ifdef AIRSPEED_ETS_USE_FILTER
+#define AIRSPEED_ETS_NBSAMPLES_AVRG 20
+#else
 #define AIRSPEED_ETS_NBSAMPLES_AVRG 10
+#endif
+
+/** Time constant for second order Butterworth low pass filter
+ * Default of 0.15 should give cut-off freq of 1/(2*pi*tau) ~= 1Hz
+ */
+#ifndef AIRSPEED_ETS_LOWPASS_TAU
+#define AIRSPEED_ETS_LOWPASS_TAU 0.15
+#endif
 
 #ifndef AIRSPEED_ETS_I2C_DEV
 #define AIRSPEED_ETS_I2C_DEV i2c0
@@ -87,6 +104,10 @@ PRINT_CONFIG_VAR(AIRSPEED_ETS_I2C_DEV)
 #define AIRSPEED_ETS_START_DELAY 0.2
 #endif
 PRINT_CONFIG_VAR(AIRSPEED_ETS_START_DELAY)
+
+#ifdef AIRSPEED_ETS_USE_FILTER
+#include "filters/low_pass_filter.h"
+#endif
 
 #ifndef SITL
 #if AIRSPEED_ETS_SDLOG
@@ -107,6 +128,10 @@ int airspeed_ets_buffer_idx;
 float airspeed_ets_buffer[AIRSPEED_ETS_NBSAMPLES_AVRG];
 
 struct i2c_transaction airspeed_ets_i2c_trans;
+
+#ifdef AIRSPEED_ETS_USE_FILTER
+static Butterworth2LowPass airspeed_filter;
+#endif
 
 // Local variables
 volatile bool airspeed_ets_i2c_done;
@@ -148,6 +173,11 @@ void airspeed_ets_init(void)
     airspeed_ets_buffer[n] = 0.0;
   }
 
+#ifdef AIRSPEED_ETS_USE_FILTER
+  init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_ETS_LOWPASS_TAU,
+                              AIRSPEED_ETS_READ_PERIODIC_PERIOD, airspeed_ets);
+#endif
+
   airspeed_ets_i2c_trans.status = I2CTransDone;
 
   airspeed_ets_delay_done = false;
@@ -177,7 +207,7 @@ void airspeed_ets_read_periodic(void)
   }
 #elif !defined USE_NPS
   extern float sim_air_speed;
-  stateSetAirspeed_f(sim_air_speed);
+  stateSetAirspeed_f(MODULE_AIRSPEED_ETS_ID, sim_air_speed);
 #endif //SITL
 }
 
@@ -198,6 +228,7 @@ void airspeed_ets_read_event(void)
   // Continue only if a new airspeed value was received
   if (airspeed_ets_valid) {
 #if !AIRSPEED_ETS_3RD_PARTY_MODE
+    
     // Calculate offset average if not done already
     if (!airspeed_ets_offset_init) {
       --airspeed_ets_cnt;
@@ -219,14 +250,15 @@ void airspeed_ets_read_event(void)
         airspeed_ets_offset_tmp += airspeed_ets_raw;
       }
     }
+
     // Convert raw to m/s
 #ifdef AIRSPEED_ETS_REVERSE
     if (airspeed_ets_offset_init && airspeed_ets_raw < airspeed_ets_offset) {
-      airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf((float)(airspeed_ets_offset - airspeed_ets_raw)) - AIRSPEED_ETS_OFFSET;
+      airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf((float)(airspeed_ets_offset - airspeed_ets_raw)) - (float)AIRSPEED_ETS_OFFSET;
     }
 #else
     if (airspeed_ets_offset_init && airspeed_ets_raw > airspeed_ets_offset) {
-      airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf((float)(airspeed_ets_raw - airspeed_ets_offset)) - AIRSPEED_ETS_OFFSET;
+      airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf((float)(airspeed_ets_raw - airspeed_ets_offset)) - (float)AIRSPEED_ETS_OFFSET;
     }
 #endif
     else {
@@ -252,11 +284,25 @@ void airspeed_ets_read_event(void)
     }
     airspeed_ets = airspeed_ets / (float)AIRSPEED_ETS_NBSAMPLES_AVRG;
     
+#ifdef AIRSPEED_ETS_USE_FILTER
+    float a_out;
+    a_out = airspeed_tmp;
+    airspeed_ets = update_butterworth_2_low_pass(&airspeed_filter, a_out);
+#endif
+
+    //Sometimes offset is not correct enough calculated dynamically and yields to a small negative airspeed once in a while at certain samples
+    //Also with steep airspeed decline and a butterworth_2_low_pass filter on it could overshoot to a negative value this is also capped
+    //so force cap it to zero
+    if ((airspeed_ets < 0.0) || (airspeed_tmp < 0.0)) {
+      airspeed_tmp = 0.0; //for filter also
+      airspeed_ets = 0.0;   
+    }
+
     // Publish airspeed sensor
     AbiSendMsgAIRSPEED(AIRSPEED_ETS_ID, airspeed_ets);
 
 #if USE_AIRSPEED_ETS
-    stateSetAirspeed_f(airspeed_ets);
+    stateSetAirspeed_f(MODULE_AIRSPEED_ETS_ID, airspeed_ets);
 #endif
   } else {
     airspeed_ets = 0.0;

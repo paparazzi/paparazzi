@@ -4,16 +4,18 @@
 
   <state_machine name="ap" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true" settings_handler="autopilot_generated|SetModeHandler">
 
+    <modules>
+      <module name="nav" type="rover_base"/>
+      <module name="guidance" type="rover"/>
+    </modules>
+
     <includes>
       <include name="generated/airframe.h"/>
       <include name="autopilot.h"/>
       <include name="autopilot_rc_helpers.h"/>
       <include name="modules/gps/gps.h"/>
       <include name="modules/actuators/actuators.h"/>
-      <include name="navigation.h"/>
-      <include name="guidance/rover_guidance.h"/>
       <include name="modules/radio_control/radio_control.h"/>
-      <define name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/>
     </includes>
 
     <settings>
@@ -33,7 +35,7 @@
       <control>
         <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
       </control>
-      <exception cond="RCLost()" deroute="KILL"/>
+      <exception cond="RadioControlIsLost()" deroute="KILL"/>
     </mode>
 
     <mode name="NAV">
@@ -83,8 +85,8 @@
       <select cond="nav.mode == NAV_MODE_MANUAL"/>
       <control>
         <!-- copy manual nav controls to commands -->
-        <call fun="commands[COMMAND_SPEED] = TRIM_PPRZ(nav.speed * MAX_PPRZ)"/>
-        <call fun="commands[COMMAND_TURN] = TRIM_PPRZ(nav.turn * MAX_PPRZ)"/>
+        <call fun="command_set(COMMAND_SPEED, TRIM_PPRZ(nav.speed * MAX_PPRZ))"/>
+        <call fun="command_set(COMMAND_TURN, TRIM_PPRZ(nav.turn * MAX_PPRZ))"/>
         <call fun="autopilot.throttle = commands[COMMAND_SPEED]"/>
       </control>
     </mode>
@@ -94,8 +96,8 @@
       <control>
         <call fun="VECT2_COPY(rover_guidance.sp.pos, nav.carrot)"/>
         <call fun="rover_guidance_run(&nav.heading)"/>
-        <call fun="commands[COMMAND_SPEED] = TRIM_PPRZ(rover_guidance.cmd.motor_speed)"/>
-        <call fun="commands[COMMAND_TURN] = TRIM_PPRZ(rover_guidance.cmd.motor_turn)"/>
+        <call fun="command_set(COMMAND_SPEED, TRIM_PPRZ(rover_guidance.cmd.motor_speed))"/>
+        <call fun="command_set(COMMAND_TURN, TRIM_PPRZ(rover_guidance.cmd.motor_turn))"/>
         <call fun="autopilot.throttle = commands[COMMAND_SPEED]"/>
       </control>
     </mode>

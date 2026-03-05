@@ -15,6 +15,7 @@
     <file name="autopilot_guided.h" dir="."/>
   </header>
   <datalink message="GUIDED_SETPOINT_NED" fun="autopilot_guided_parse_GUIDED(buf)" cond="AP_MODE_GUIDED"/>
+  <datalink message="GUIDED_FULL_NED" fun="autopilot_guided_parse_GUIDED_FULL(buf)" cond="AP_MODE_GUIDED"/>
   <makefile target="!fbw" firmware="rotorcraft">
     <file name="autopilot_guided.c" dir="$(SRC_FIRMWARE)"/>
   </makefile>

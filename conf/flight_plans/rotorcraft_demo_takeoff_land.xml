@@ -35,7 +35,7 @@
       <deroute block="Standby"/>
     </block>
     <block name="Takeoff (Here)" strip_button="Takeoff (Here)" group="takeoff">
-      <call fun="nav_takeoff_from_here()"/>
+      <call fun="nav_takeoff_from_here(-1.)"/>
       <deroute block="Standby"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">

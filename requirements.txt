@@ -1,0 +1,16 @@
+lxml
+numpy
+scipy
+ivy-python
+pyserial
+PyQt5
+PyQtWebEngine
+pyqtgraph
+PyOpenGL
+unidecode
+matplotlib
+distro
+empy
+pexpect
+setuptools
+

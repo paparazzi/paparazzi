@@ -17,9 +17,9 @@
   </input>
 
   <variables>
-    <var name="mode" default="0"/>
-    <set var="mode" value="0" on_event="button10"/>
-    <set var="mode" value="1" on_event="button11"/>
+    <var name="mode" default="-127"/>
+    <set var="mode" value="-127" on_event="button10"/>
+    <set var="mode" value="127" on_event="button11"/>
   </variables>
 
   <messages period="0.1">

@@ -354,6 +354,10 @@ let fp_pre_call = fun out x ->
 let fp_post_call = fun out x ->
   try lprintf out "%s;\n" (ExtXml.attrib x "post_call") with _ -> ()
 
+(* print speed instructions *)
+let output_speed = fun out x t ->
+  let max_speed = ExtXml.attrib_or_default x "max_speed" "-1." in
+  lprintf out "%sSetMaxSpeed(%s);\n" t max_speed
 
 (* test until condition test if any, post_call before leaving *)
 let stage_until = fun out x ->
@@ -426,6 +430,7 @@ let rec print_stage = fun out index_of_waypoints x ->
         fp_pre_call out x;
         let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
         let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
+        output_speed out x t;
         lprintf out "%sHeading(RadOfDeg(%s)%s);\n" t (parsed_attrib x "course") p;
         ignore (output_vmode out x "" "");
         stage_until out x;
@@ -487,6 +492,7 @@ let rec print_stage = fun out index_of_waypoints x ->
         left ();
         lprintf out "} else {\n";
         right ();
+        output_speed out x t;
         let hmode = output_hmode out x wp last_wp in
         let vmode = output_vmode out x wp last_wp in
         if vmode = "glide" && hmode <> "route" then
@@ -500,6 +506,7 @@ let rec print_stage = fun out index_of_waypoints x ->
         fp_pre_call out x;
         let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
         let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
+        output_speed out x t;
         begin
           try
             let wp = get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints in
@@ -534,6 +541,7 @@ let rec print_stage = fun out index_of_waypoints x ->
         let _vmode = output_vmode out x wp "" in
         let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
         let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
+        output_speed out x t;
         lprintf out "%sCircleWaypoint(%s, %s%s);\n" t wp r p;
         stage_until out x;
         fp_post_call out x;
@@ -545,6 +553,7 @@ let rec print_stage = fun out index_of_waypoints x ->
         let flags = ExtXml.attrib_or_default x "flags" "0" in
         let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
         let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
+        output_speed out x t;
         lprintf out "%sGuided(%s, %s%s);\n" t flags cmds p;
         stage_until out x;
         fp_post_call out x;
@@ -559,6 +568,7 @@ let rec print_stage = fun out index_of_waypoints x ->
         let center = get_index_waypoint (ExtXml.attrib x "center") index_of_waypoints
         and turn_about = get_index_waypoint (ExtXml.attrib x "turn_around") index_of_waypoints in
         let r = parsed_attrib x "radius" in
+        output_speed out x "Nav";
         let _vmode = output_vmode out x center "" in
         lprintf out "Eight(%s, %s, %s);\n" center turn_about r;
         stage_until out x;
@@ -574,6 +584,7 @@ let rec print_stage = fun out index_of_waypoints x ->
         let p1 = get_index_waypoint (ExtXml.attrib x "p1") index_of_waypoints
         and p2 = get_index_waypoint (ExtXml.attrib x "p2") index_of_waypoints in
         let r = parsed_attrib  x "radius" in
+        output_speed out x "Nav";
         let _vmode = output_vmode out x p1 "" in
         lprintf out "Oval(%s, %s, %s);\n" p1 p2 r;
         stage_until out x;
@@ -640,6 +651,7 @@ let rec print_stage = fun out index_of_waypoints x ->
         let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
         let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
         stage out;
+        output_speed out x t;
         if orientation <> "NS" && orientation <> "WE" then
           failwith (sprintf "Unknown survey orientation (NS or WE): %s" orientation);
         lprintf out "%sSurveyRectangleInit(%s, %s, %s, %s%s);\n" t wp1 wp2 grid orientation p;
@@ -918,6 +930,34 @@ let print_auto_init_bindings = fun out abi_msgs variables ->
   List.iter print_bindings variables;
   lprintf out "}\n\n"
 
+let print_enter_exit_functions = fun out blocks ->
+  let print_functions = fun name ->
+    lprintf out "void nav_%s_block(uint8_t block_id) {\n" name;
+    right ();
+    lprintf out "switch (block_id) {\n";
+    right ();
+    let block_id = ref (-1) in
+    List.iter (fun b ->
+      incr block_id;
+      try
+        let f_name = ExtXml.attrib b name in
+        lprintf out "case %d: // %s\n" !block_id (name_of b);
+        lprintf out "  %s;\n" f_name;
+        lprintf out "  break;\n"
+      with _ -> ()
+    ) blocks;
+    lprintf out "default:\n";
+    lprintf out "  break;\n";
+    left ();
+    lprintf out "}\n";
+    left ();
+    lprintf out "}\n\n"
+  in
+  (* print enter block functions *)
+  print_functions "on_enter";
+  (* print exit block functions *)
+  print_functions "on_exit"
+
 (**
  * Print flight plan header
  *)
@@ -1113,6 +1153,10 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
   List.iter (fun v -> print_var_impl out abi_msgs v) variables;
   lprintf out "\n";
   print_auto_init_bindings out abi_msgs variables;
+
+  (* print on_enter and on_exit functions *)
+  lprintf out "\n";
+  print_enter_exit_functions out blocks;
 
   (* print main flight plan state machine *)
   lprintf out "static inline void auto_nav(void) {\n";

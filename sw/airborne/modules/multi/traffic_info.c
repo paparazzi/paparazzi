@@ -136,6 +136,36 @@ bool parse_acinfo_dl(uint8_t *buf)
                         DL_GPS_LLA_itow(buf));
       }
       break;
+      case DL_GPS_INT: {
+        struct LtpDef_i def = {0};
+        struct EcefCoor_i ecef_pos = {
+          .x = DL_GPS_INT_ecef_x(buf),
+          .y = DL_GPS_INT_ecef_y(buf),
+          .z = DL_GPS_INT_ecef_z(buf),
+        };
+        struct EcefCoor_i ecef_vel = {
+          .x = DL_GPS_INT_ecef_xd(buf),
+          .y = DL_GPS_INT_ecef_yd(buf),
+          .z = DL_GPS_INT_ecef_zd(buf),
+        };
+        struct NedCoor_i ned_vel;
+        ltp_def_from_ecef_i(&def, &ecef_pos);
+        ned_of_ecef_vect_i(&ned_vel, &def, &ecef_vel);
+        struct NedCoor_f ned_vel_f;
+        VECT3_FLOAT_OF_CM(ned_vel_f, ned_vel);
+        int16_t course = (int16_t)(10.f * DegOfRad(atan2f(ned_vel_f.y, ned_vel_f.x))); // decideg
+        uint16_t gspeed = (uint16_t)(CM_OF_M(FLOAT_VECT2_NORM(ned_vel_f)));
+        int16_t climb = (int16_t)(CM_OF_M(-ned_vel_f.z));
+        set_ac_info_lla(sender_id,
+                        DL_GPS_INT_lat(buf),
+                        DL_GPS_INT_lon(buf),
+                        DL_GPS_INT_alt(buf),
+                        course,
+                        gspeed,
+                        climb,
+                        DL_GPS_INT_tow(buf));
+      }
+      break;
       default:
         return FALSE;
     }
@@ -182,9 +212,13 @@ void set_ac_info_utm(uint8_t id, uint32_t utm_east, uint32_t utm_north, uint32_t
       ti_acs[ti_acs_id[id]].ac_id = id;
     }
 
+    if (itow < ti_acs[ti_acs_id[id]].itow) {
+      return; // don't update on old data
+    }
+
     ti_acs[ti_acs_id[id]].status = 0;
 
-    uint16_t my_zone = state.utm_origin_f.zone;
+    uint16_t my_zone = stateGetUtmOrigin_f()->zone;
     if (utm_zone == my_zone) {
       ti_acs[ti_acs_id[id]].utm_pos_i.east = utm_east;
       ti_acs[ti_acs_id[id]].utm_pos_i.north = utm_north;
@@ -224,6 +258,10 @@ void set_ac_info_lla(uint8_t id, int32_t lat, int32_t lon, int32_t alt,
       ti_acs[ti_acs_id[id]].ac_id = id;
     }
 
+    if (itow < ti_acs[ti_acs_id[id]].itow) {
+      return; // don't update on old data
+    }
+
     ti_acs[ti_acs_id[id]].status = 0;
 
     struct LlaCoor_i lla = {.lat = lat, .lon = lon, .alt = alt};
@@ -256,7 +294,7 @@ void acInfoCalcPositionUtm_i(uint8_t ac_id)
   if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_I))
   {
     // use my zone as reference, i.e zone extend
-    ti_acs[ac_nr].utm_pos_i.zone = state.utm_origin_f.zone;
+    ti_acs[ac_nr].utm_pos_i.zone = stateGetUtmOrigin_f()->zone;
     utm_of_lla_i(&ti_acs[ac_nr].utm_pos_i, &ti_acs[ac_nr].lla_pos_i);
     update_geoid_height();
     ti_acs[ac_nr].utm_pos_i.alt -= geoid_height;
@@ -266,7 +304,7 @@ void acInfoCalcPositionUtm_i(uint8_t ac_id)
   } else if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_F))
   {
     // use my zone as reference, i.e zone extend
-    ti_acs[ac_nr].utm_pos_i.zone = state.utm_origin_f.zone;
+    ti_acs[ac_nr].utm_pos_i.zone = stateGetUtmOrigin_f()->zone;
     utm_of_lla_f(&ti_acs[ac_nr].utm_pos_f, &ti_acs[ac_nr].lla_pos_f);
     update_geoid_height();
     ti_acs[ac_nr].utm_pos_f.alt -= geoid_height/1000.;
@@ -322,7 +360,7 @@ void acInfoCalcPositionEnu_i(uint8_t ac_id)
     if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_I) || bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_UTM_I))
     {
       struct EnuCoor_i enu;
-      enu_of_lla_point_i(&enu, &state.ned_origin_i, acInfoGetPositionLla_i(ac_id));
+      enu_of_lla_point_i(&enu, stateGetNedOrigin_i(), acInfoGetPositionLla_i(ac_id));
       // convert ENU pos from cm to BFP with INT32_POS_FRAC
       enu.x = POS_BFP_OF_REAL(enu.x) / 100;
       enu.y = POS_BFP_OF_REAL(enu.y) / 100;
@@ -330,14 +368,14 @@ void acInfoCalcPositionEnu_i(uint8_t ac_id)
       ti_acs[ac_nr].enu_pos_i = enu;
     } else if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_F) || bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_UTM_F))
     {
-      enu_of_lla_point_f(&ti_acs[ac_nr].enu_pos_f, &state.ned_origin_f, acInfoGetPositionLla_f(ac_id));
+      enu_of_lla_point_f(&ti_acs[ac_nr].enu_pos_f, stateGetNedOrigin_f(), acInfoGetPositionLla_f(ac_id));
       SetBit(ti_acs[ac_nr].status, AC_INFO_POS_ENU_F);
       ENU_BFP_OF_REAL(ti_acs[ac_nr].enu_pos_i, ti_acs[ac_nr].enu_pos_f)
     }
   } else if (state.utm_initialized_f)
   {
     /* if utm origin is initialized we use the ENU = UTM - UTM_ORIGIN as in state to facilitate comparison */
-    ENU_OF_UTM_DIFF(ti_acs[ac_nr].enu_pos_f, *acInfoGetPositionUtm_f(ac_id), state.utm_origin_f);
+    ENU_OF_UTM_DIFF(ti_acs[ac_nr].enu_pos_f, *acInfoGetPositionUtm_f(ac_id), *stateGetUtmOrigin_f());
     SetBit(ti_acs[ac_nr].status, AC_INFO_POS_ENU_F);
     ENU_BFP_OF_REAL(ti_acs[ac_nr].enu_pos_i, ti_acs[ac_nr].enu_pos_f);
   }
@@ -359,7 +397,7 @@ void acInfoCalcPositionUtm_f(uint8_t ac_id)
   } else if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_I))
   {
     // use my zone as reference, i.e zone extend
-    ti_acs[ac_nr].utm_pos_i.zone = state.utm_origin_f.zone;
+    ti_acs[ac_nr].utm_pos_i.zone = stateGetUtmOrigin_f()->zone;
     utm_of_lla_i(&ti_acs[ac_nr].utm_pos_i, &ti_acs[ac_nr].lla_pos_i);
     update_geoid_height();
     ti_acs[ac_nr].utm_pos_i.alt -= geoid_height;
@@ -368,7 +406,7 @@ void acInfoCalcPositionUtm_f(uint8_t ac_id)
   } else if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_F))
   {
     /* not very accurate with float ~5cm */
-    ti_acs[ac_nr].utm_pos_f.zone = state.utm_origin_f.zone;
+    ti_acs[ac_nr].utm_pos_f.zone = stateGetUtmOrigin_f()->zone;
     utm_of_lla_f(&ti_acs[ac_nr].utm_pos_f, &ti_acs[ac_nr].lla_pos_f);
     update_geoid_height();
     ti_acs[ac_nr].utm_pos_f.alt -= geoid_height/1000.;
@@ -421,11 +459,11 @@ void acInfoCalcPositionEnu_f(uint8_t ac_id)
   {
     if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_F) || bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_UTM_F))
     {
-      enu_of_lla_point_f(&ti_acs[ac_nr].enu_pos_f, &state.ned_origin_f, acInfoGetPositionLla_f(ac_id));
+      enu_of_lla_point_f(&ti_acs[ac_nr].enu_pos_f, stateGetNedOrigin_f(), acInfoGetPositionLla_f(ac_id));
     } else if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_I) || bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_UTM_I))
     {
       struct EnuCoor_i enu;
-      enu_of_lla_point_i(&enu, &state.ned_origin_i, acInfoGetPositionLla_i(ac_id));
+      enu_of_lla_point_i(&enu, stateGetNedOrigin_i(), acInfoGetPositionLla_i(ac_id));
       // convert ENU pos from cm to BFP with INT32_POS_FRAC
       enu.x = POS_BFP_OF_REAL(enu.x) / 100;
       enu.y = POS_BFP_OF_REAL(enu.y) / 100;
@@ -437,7 +475,7 @@ void acInfoCalcPositionEnu_f(uint8_t ac_id)
   } else if (state.utm_initialized_f)
   {
     /* if utm origin is initialized we use the ENU = UTM - UTM_ORIGIN as in state to facilitate comparison */
-    ENU_OF_UTM_DIFF(ti_acs[ac_nr].enu_pos_f, *acInfoGetPositionUtm_f(ac_id), state.utm_origin_f);
+    ENU_OF_UTM_DIFF(ti_acs[ac_nr].enu_pos_f, *acInfoGetPositionUtm_f(ac_id), *stateGetUtmOrigin_f());
   }
   SetBit(ti_acs[ac_nr].status, AC_INFO_POS_ENU_F);
 }

@@ -15,4 +15,5 @@ TBD
     abi
     logging
     debug
+    new_board
 

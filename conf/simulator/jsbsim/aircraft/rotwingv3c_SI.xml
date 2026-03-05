@@ -121,27 +121,27 @@
       <!--First order filter represents actuator dynamics-->
       <lag_filter name="MOTOR_FRONT_lag">
         <input> fcs/MOTOR_FRONT </input>
-        <c1> 10.1 </c1>
+        <c1> 22.0 </c1>
         <output> fcs/MOTOR_FRONT_lag</output>
       </lag_filter>
       <lag_filter name="MOTOR_RIGHT_lag">
         <input> fcs/MOTOR_RIGHT </input>
-        <c1> 10.1 </c1>
+        <c1> 22.0 </c1>
         <output> fcs/MOTOR_RIGHT_lag</output>
       </lag_filter>
       <lag_filter name="MOTOR_BACK_lag">
         <input> fcs/MOTOR_BACK </input>
-        <c1> 10.1 </c1>
+        <c1> 22.0 </c1>
         <output> fcs/MOTOR_BACK_lag</output>
       </lag_filter>
       <lag_filter name="MOTOR_LEFT_lag">
         <input> fcs/MOTOR_LEFT </input>
-        <c1> 10.1 </c1>
+        <c1> 22.0 </c1>
         <output> fcs/MOTOR_LEFT_lag</output>
       </lag_filter>
       <lag_filter name="MOTOR_PUSHER_lag">
         <input> fcs/MOTOR_PUSHER </input>
-        <c1> 24.07 </c1>
+        <c1> 30.0 </c1>
         <output> fcs/MOTOR_PUSHER_lag</output>
       </lag_filter>
       <lag_filter name="ELEVATOR_lag">
@@ -267,7 +267,75 @@
         <output> fcs/coscos3skew </output>
       </fcs_function>
     </channel> 
-
+    <channel name="Effectiveness_Matrix">
+      <!-- Scaling functions -->
+      <fcs_function name="pprz2jsbsim">
+          <function>
+              <value>9600.0</value> 
+          </function>
+          <output>fcs/pprz2jsbsim</output>
+      </fcs_function>
+      <fcs_function name="eff_scaler">
+          <function>
+              <value>0.001</value> 
+          </function>
+          <output>fcs/eff_scaler</output>
+      </fcs_function>      
+      <!-- Quad Motors-->
+      <fcs_function name="MQ_dFdu">
+          <function>
+              <value>3.835</value> 
+          </function>
+          <output>fcs/MQ_dFdu</output>
+      </fcs_function>    
+      <fcs_function name="MQ_dMdu">
+          <function>
+              <value>0.390</value> 
+          </function>
+          <output>fcs/MQ_dMdu</output>
+      </fcs_function> 
+      <fcs_function name="MQ_dMdud">
+          <function>
+              <value>0.02</value> 
+          </function>
+          <output>fcs/MQ_dMdud</output>
+      </fcs_function> 
+      <!-- Pusher Motor -->
+      <fcs_function name="MP_dFdu">
+          <function>
+              <value>3.468</value> 
+          </function>
+          <output>fcs/MP_dFdu</output>
+      </fcs_function>   
+      <!-- Elevator -->   
+      <fcs_function name="ELE_dFdu">
+          <function>
+              <value>19.360</value> 
+          </function>
+          <output>fcs/ELE_dFdu</output>
+      </fcs_function>    
+      <!-- Rudder -->   
+      <fcs_function name="RUD_dFdu">
+          <function>
+              <value>1.207</value> 
+          </function>
+          <output>fcs/RUD_dFdu</output>
+      </fcs_function>
+      <!-- Ailerons -->   
+      <fcs_function name="AIL_dFdu">
+          <function>
+              <value>7.678</value> 
+          </function>
+          <output>fcs/AIL_dFdu</output>
+      </fcs_function> 
+      <!-- Flaperons -->   
+      <fcs_function name="FLP_dFdu">
+          <function>
+              <value>10.825</value> 
+          </function>
+          <output>fcs/FLP_dFdu</output>
+      </fcs_function>                 
+    </channel>
     <channel name="misc">
       <fcs_function name="airspeed2_ms">
         <function>
@@ -307,45 +375,44 @@
         </function>
         <output>fcs/de_lag</output>
       </fcs_function>
-
       <fcs_function name="Ixx_quad">
           <function>
-              <value>0.129</value> 
+              <value>0.1288</value> 
           </function>
           <output>fcs/Ixx_quad</output>
       </fcs_function>
 
       <fcs_function name="Iyy_quad">
           <function>
-              <value>0.950</value> <!-- replace with the actual value -->
+              <value>0.9495</value> 
           </function>
           <output>fcs/Iyy_quad</output>
       </fcs_function>
 
       <fcs_function name="Ixx_body">
         <function>
-          <value>0.0478</value>
+          <value>0.1288</value>
         </function>
         <output>fcs/Ixx_body</output>
       </fcs_function>
 
       <fcs_function name="Iyy_body">
         <function>
-          <value>0.7546</value>
+          <value>0.9495</value>
         </function>
         <output>fcs/Iyy_body</output>
       </fcs_function>
 
       <fcs_function name="Ixx_wing">
         <function>
-          <value>0.08099</value>
+          <value>0.0</value>
         </function>
         <output>fcs/Ixx_wing</output>
       </fcs_function>
 
       <fcs_function name="Iyy_wing">
         <function>
-          <value>0.1949</value>
+          <value>0.0</value>
         </function>
         <output>fcs/Iyy_wing</output>
       </fcs_function>
@@ -446,7 +513,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_FRONT_lag</property>
-          <value> 36.82 </value>
+          <property>fcs/MQ_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.2248</value> <!-- N to LBS -->
         </product>
       </function>
@@ -466,7 +535,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_RIGHT_lag</property>
-          <value> 36.82 </value>
+          <property>fcs/MQ_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.2248</value> <!-- N to LBS -->
         </product>
       </function>
@@ -486,7 +557,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_BACK_lag</property>
-          <value> 36.82 </value>
+          <property>fcs/MQ_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.2248</value> <!-- N to LBS -->
         </product>
       </function>
@@ -506,7 +579,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_LEFT_lag</property>
-          <value> 36.82 </value>
+          <property>fcs/MQ_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.2248</value> <!-- N to LBS -->
         </product>
       </function>
@@ -526,7 +601,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_PUSHER_lag</property>
-          <value> 33.30 </value>
+          <property>fcs/MP_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.2248</value> <!-- N to LBS -->
         </product>
       </function>
@@ -547,8 +624,10 @@
       <function>
         <product>
           <property>fcs/MOTOR_FRONT_lag</property>
-          <value> 36.82 </value>
-          <value> 0.423</value>
+          <property>fcs/MQ_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <value> 0.423</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Iyy_ratio_quad_sched</property>
         </product>
@@ -569,8 +648,10 @@
       <function>
         <product>
           <property>fcs/MOTOR_BACK_lag</property>
-          <value> 36.82 </value>
-          <value> 0.423</value>
+          <property>fcs/MQ_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <value> 0.423</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Iyy_ratio_quad_sched</property>
         </product>
@@ -592,8 +673,10 @@
         <product>
           <property>fcs/MOTOR_RIGHT_lag</property>
           <property>fcs/cosskew</property>
-          <value> 36.82 </value>
-          <value> 0.408</value>
+          <property>fcs/MQ_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <value> 0.408</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Ixx_ratio_quad_sched</property>
         </product>
@@ -615,8 +698,10 @@
         <product>
           <property>fcs/MOTOR_RIGHT_lag</property>
           <property>fcs/sinskew</property>
-          <value> 36.82 </value>
-          <value> 0.408</value>
+          <property>fcs/MQ_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <value> 0.408</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Iyy_ratio_quad_sched</property>
         </product>
@@ -638,8 +723,10 @@
         <product>
           <property>fcs/MOTOR_LEFT_lag</property>
           <property>fcs/cosskew</property>
-          <value> 36.82 </value>
-          <value> 0.408</value>
+          <property>fcs/MQ_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <value> 0.408</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Ixx_ratio_quad_sched</property>
         </product>
@@ -661,8 +748,10 @@
         <product>
           <property>fcs/MOTOR_LEFT_lag</property>
           <property>fcs/sinskew</property>
-          <value> 36.82 </value>
-          <value> 0.408</value>
+          <property>fcs/MQ_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <value> 0.408</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Iyy_ratio_quad_sched</property>
         </product>
@@ -692,10 +781,11 @@
           </table>
           <property>fcs/airspeed2_ms</property>
           <property>fcs/de_lag</property>
-          <!--<value>0.23819</value>--> <!-- dNdjsbsim-->
-          <!--<value>0.28512</value>--> <!-- dNdjsbsim-->
-          <value>0.2112</value> <!-- dNdjsbsim-->
-          <value>0.850</value>   <!-- m --> 
+          <property>fcs/ELE_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <property>fcs/eff_scaler</property>
+          <value>0.850</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Iyy_ratio_quad_sched</property>
         </product>
@@ -717,8 +807,11 @@
         <product>
           <property>fcs/airspeed2_ms</property>
           <property>fcs/RUDDER_lag</property>
-          <value>0.01159</value> <!-- dNdjsbsim-->
-          <value>0.880</value> <!-- m --> 
+          <property>fcs/RUD_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <property>fcs/eff_scaler</property>
+          <value>0.880</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
         </product>
       </function>
@@ -740,8 +833,11 @@
           <property>fcs/AILERONS_lag</property>
           <property>fcs/sin3skew</property>
           <property>fcs/airspeed2_ms</property>
-          <value>0.03920</value> <!-- dNdjsbsim-->
-          <value>0.68</value>    <!-- m -->
+          <property>fcs/AIL_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <property>fcs/eff_scaler</property>
+          <value>0.68</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Ixx_ratio_quad_sched</property>
         </product>
@@ -764,8 +860,11 @@
           <property>fcs/airspeed2_ms</property>
           <property>fcs/FLAPS_lag</property>
           <property>fcs/sin3skew</property>
-          <value>0.05527</value> <!-- dNdjsbsim-->
-          <value>0.355</value>   <!-- m -->
+          <property>fcs/FLP_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <property>fcs/eff_scaler</property>
+          <value>0.355</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Ixx_ratio_quad_sched</property>
         </product>
@@ -788,8 +887,11 @@
           <property>fcs/airspeed2_ms</property>
           <property>fcs/AILERONS_lag</property>
           <property>fcs/coscos3skew</property>
-          <value>0.03920</value> <!-- dNdjsbsim-->
-          <value>0.68</value>    <!-- m -->
+          <property>fcs/AIL_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <property>fcs/eff_scaler</property>
+          <value>0.68</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Iyy_ratio_quad_sched</property>
         </product>
@@ -812,8 +914,11 @@
          <property>fcs/airspeed2_ms</property>
          <property>fcs/FLAPS_lag</property>
          <property>fcs/coscos3skew</property>
-         <value>0.05527</value> <!-- dNdjsbsim-->
-         <value>0.355</value>   <!-- m -->
+          <property>fcs/FLP_dFdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
+          <property>fcs/eff_scaler</property>
+         <value>0.355</value> <!-- Moment arm [m]-->
          <value> 0.738</value> <!-- Nm to ft-lbs -->
          <property>fcs/Iyy_ratio_quad_sched</property>
         </product>
@@ -835,7 +940,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_FRONT_lag</property>
-          <value> 3.74 </value>
+          <property>fcs/MQ_dMdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->
         </product>
       </function>
@@ -855,7 +962,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_RIGHT_lag</property>
-          <value> 3.74 </value>
+          <property>fcs/MQ_dMdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->
         </product>
       </function>
@@ -875,7 +984,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_FRONT_lag</property>
-          <value> 3.74 </value>
+          <property>fcs/MQ_dMdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->
         </product>
       </function>
@@ -895,7 +1006,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_LEFT_lag</property>
-          <value> 3.74 </value>
+          <property>fcs/MQ_dMdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->
         </product>
       </function>
@@ -916,7 +1029,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_FRONT_d</property>
-          <value> 0.187 </value>
+          <property>fcs/MQ_dMdud</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->
         </product>
       </function>
@@ -936,7 +1051,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_RIGHT_lag</property>
-          <value> 0.187 </value>
+          <property>fcs/MQ_dMdud</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->
         </product>
       </function>
@@ -956,7 +1073,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_FRONT_lag</property>
-          <value> 0.187 </value>
+          <property>fcs/MQ_dMdud</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->
         </product>
       </function>
@@ -976,7 +1095,9 @@
       <function>
         <product>
           <property>fcs/MOTOR_RIGHT_lag</property>
-          <value> 0.187 </value>
+          <property>fcs/MQ_dMdud</property>
+          <property>fcs/pprz2jsbsim</property>
+          <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->
         </product>
       </function>

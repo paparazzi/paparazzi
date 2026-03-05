@@ -30,12 +30,12 @@
 #include "mcu_periph/uart.h"
 #include <string.h>
 #include "led.h"
+#include "modules/core/threads.h"
 
 struct syslink_dl syslink;
 
 /** Protect syslink TX with Mutex when using RTOS */
-#include "pprz_mutex.h"
-PPRZ_MUTEX(syslink_tx_mtx);
+pprz_mutex_t syslink_tx_mtx;
 
 /** Send a syslink message
  */
@@ -220,7 +220,7 @@ static void handle_raw(syslink_message_t *msg)
 
   // send next raw message if fifo is not empty
   if (syslink.tx_extract_idx != syslink.tx_insert_idx) {
-    PPRZ_MUTEX_LOCK(syslink_tx_mtx);
+    pprz_mtx_lock(&syslink_tx_mtx);
     syslink_message_t msg_raw;
     msg_raw.type = SYSLINK_RADIO_RAW;
     memcpy(&msg_raw.length, &syslink.msg_tx[syslink.tx_extract_idx], sizeof(crtp_message_t));
@@ -230,7 +230,7 @@ static void handle_raw(syslink_message_t *msg)
     if (syslink.tx_extract_idx == CRTP_BUF_LEN) {
       syslink.tx_extract_idx = 0;
     }
-    PPRZ_MUTEX_UNLOCK(syslink_tx_mtx);
+    pprz_mtx_unlock(&syslink_tx_mtx);
   }
 
 }
@@ -293,7 +293,7 @@ static int syslink_check_free_space(struct syslink_dl *s, long *fd UNUSED, uint1
   }
   int space = CRTP_MAX_DATA_SIZE * (slots - 1);
   if (space >= len) {
-    PPRZ_MUTEX_LOCK(syslink_tx_mtx);
+    pprz_mtx_lock(&syslink_tx_mtx);
     return space;
   }
   return 0;
@@ -342,7 +342,7 @@ static void syslink_put_byte(struct syslink_dl *s, long fd, const uint8_t b)
 // send_message is not needed as messages are stored in a fifo
 static void syslink_send_message(struct syslink_dl *s UNUSED, long fd UNUSED)
 {
-  PPRZ_MUTEX_UNLOCK(syslink_tx_mtx); // release mutex
+  pprz_mtx_lock(&syslink_tx_mtx); // release mutex
 }
 
 static uint8_t syslink_getch(struct syslink_dl *s)
@@ -390,7 +390,7 @@ void syslink_dl_init(void)
   syslink.device.get_byte = (get_byte_t) syslink_getch;
 
   // init mutex if needed
-  PPRZ_MUTEX_INIT(syslink_tx_mtx);
+  pprz_mtx_init(&syslink_tx_mtx);
 }
 
 /** Periodic function */

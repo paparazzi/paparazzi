@@ -29,6 +29,7 @@
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
+#include "modules/ins/ins_ext_pose.h"
 
 #define FORCE_ONELOOP
 #ifdef FORCE_ONELOOP
@@ -66,14 +67,17 @@ float actuator_state_filt_vect[EFF_MAT_COLS_NB] = {0};
 float G2_RW[EFF_MAT_COLS_NB]                       = {0};//ROTWING_EFF_SCHED_G2; //scaled by RW_G_SCALE
 float G1_RW[EFF_MAT_ROWS_NB][EFF_MAT_COLS_NB]      = {0};//{ROTWING_EFF_SCHED_G1_ZERO, ROTWING_EFF_SCHED_G1_ZERO, ROTWING_EFF_SCHED_G1_THRUST, ROTWING_EFF_SCHED_G1_ROLL, ROTWING_EFF_SCHED_G1_PITCH, ROTWING_EFF_SCHED_G1_YAW}; //scaled by RW_G_SCALE 
 float EFF_MAT_RW[EFF_MAT_ROWS_NB][EFF_MAT_COLS_NB] = {0};
-static float flt_cut = 1.0e-4;
+static float flt_cut_ap = 2.0e-3;
+static float flt_cut    = 1.0e-4;
 
 struct FloatEulers eulers_zxy_RW_EFF;
 static Butterworth2LowPass skew_filt; 
 /* Temp variables*/
 bool airspeed_fake_on = false;
 float airspeed_fake = 0.0;
-float ele_eff = 22.0;
+float ele_eff = 19.36; // (0.88*22.0);
+float roll_eff = 5.5 ;//3.835;
+float yaw_eff  = 0.390;
 float ele_min = 0.0;
 /* Define Forces and Moments tructs for each actuator*/
 struct RW_Model RW;
@@ -98,7 +102,7 @@ float skew_meas = 0.0;
 static void wing_position_cb(uint8_t sender_id UNUSED, struct act_feedback_t *pos_msg, uint8_t num_act)
 {
   for (int i=0; i<num_act; i++){
-    if (pos_msg[i].set.position && (pos_msg[i].idx == COMMAND_ROT_MECH))
+    if (pos_msg[i].set.position && (pos_msg[i].idx == SERVO_ROTATION_MECH_IDX))
     {
       skew_meas = 0.5 * M_PI - pos_msg[i].position;
       Bound(skew_meas, 0, 0.5 * M_PI);
@@ -106,6 +110,8 @@ static void wing_position_cb(uint8_t sender_id UNUSED, struct act_feedback_t *po
   }
 }
 
+#include "generated/modules.h"
+PRINT_CONFIG_VAR(EFF_SCHEDULING_ROTWING_PERIODIC_FREQ)
 void eff_scheduling_rotwing_init(void)
 {
   init_RW_Model();
@@ -119,32 +125,32 @@ void eff_scheduling_rotwing_init(void)
 void init_RW_Model(void)
 {
   // Inertia and mass
-  RW.I.b_xx = 0.0478; // [kgm²]
-  RW.I.b_yy = 0.7546; // [kgm²]
-  RW.I.w_xx = 0.08099; // [kgm²]
-  RW.I.w_yy = 0.1949; // [kgm²]
+  RW.I.b_xx = 0.12879; // [kgm²] (0.0478 + 0.08099)
+  RW.I.b_yy = 0.94950; // [kgm²] (0.7546 + 0.1949)
+  RW.I.w_xx = 0.0; // [kgm²]
+  RW.I.w_yy = 0.0; // [kgm²]
   RW.I.xx   = RW.I.b_xx + RW.I.w_xx; // [kgm²]
   RW.I.yy   = RW.I.b_yy + RW.I.b_yy; // [kgm²]
   RW.I.zz   = 0.975; // [kgm²]
   RW.m      = 6.670; // [kg]
   // Motor Front
   RW.mF.dFdu     = 3.835 / RW_G_SCALE; // [N  / pprz] 
-  RW.mF.dMdu     = 0.390 / RW_G_SCALE; // [Nm / pprz]
+  RW.mF.dMdu     = yaw_eff / RW_G_SCALE; // [Nm / pprz]
   RW.mF.dMdud    = 0.020 / RW_G_SCALE; // [Nm / pprz]
-  RW.mF.l        = 0.423             ; // [m]                   
+  RW.mF.l        = 0.423             ; // [m]   435                
   // Motor Right
-  RW.mR.dFdu     = 3.835 / RW_G_SCALE; // [N  / pprz]
-  RW.mR.dMdu     = 0.390 / RW_G_SCALE; // [Nm / pprz]
+  RW.mR.dFdu     = roll_eff / RW_G_SCALE; // [N  / pprz]
+  RW.mR.dMdu     = yaw_eff / RW_G_SCALE; // [Nm / pprz]
   RW.mR.dMdud    = 0.020 / RW_G_SCALE; // [Nm / pprz]
-  RW.mR.l        = 0.408             ; // [m]        
+  RW.mR.l        = 0.408             ; // [m]   375     
   // Motor Back
   RW.mB.dFdu     = 3.835 / RW_G_SCALE; // [N  / pprz]
-  RW.mB.dMdu     = 0.390 / RW_G_SCALE; // [Nm / pprz]
+  RW.mB.dMdu     = yaw_eff / RW_G_SCALE; // [Nm / pprz]
   RW.mB.dMdud    = 0.020 / RW_G_SCALE; // [Nm / pprz]
   RW.mB.l        = 0.423             ; // [m]        
   // Motor Left
-  RW.mL.dFdu     = 3.835 / RW_G_SCALE; // [N  / pprz]
-  RW.mL.dMdu     = 0.390 / RW_G_SCALE; // [Nm / pprz]
+  RW.mL.dFdu     = roll_eff / RW_G_SCALE; // [N  / pprz]
+  RW.mL.dMdu     = yaw_eff / RW_G_SCALE; // [Nm / pprz]
   RW.mL.dMdud    = 0.020 / RW_G_SCALE; // [Nm / pprz]
   RW.mL.l        = 0.408             ; // [m]        
   // Motor Pusher
@@ -164,12 +170,12 @@ void init_RW_Model(void)
   RW.rud.dMdud  = 0;                                 // [Nm / pprz]
   RW.rud.l      = 0.88;                              // [m]        
   // Aileron
-  RW.ail.dFdu   = 4.084 / (RW_G_SCALE * RW_G_SCALE); // [N  / pprz]
+  RW.ail.dFdu   = 7.678 / (RW_G_SCALE * RW_G_SCALE); // [N  / pprz] (1.88 * 4.084)
   RW.ail.dMdu   = 0;                                 // [Nm / pprz]
   RW.ail.dMdud  = 0;                                 // [Nm / pprz]
   RW.ail.l      = 0.68;                              // [m]        
   // Flaperon
-  RW.flp.dFdu   = 5.758 / (RW_G_SCALE * RW_G_SCALE); // [N  / pprz]
+  RW.flp.dFdu   = 10.825 / (RW_G_SCALE * RW_G_SCALE); // [N  / pprz] (1.88 * 5.758)
   RW.flp.dMdu   = 0;                                 // [Nm / pprz]
   RW.flp.dMdud  = 0;                                 // [Nm / pprz]
   RW.flp.l      = 0.36;                              // [m]     
@@ -352,8 +358,21 @@ void sum_EFF_MAT_RW(void) {
   for (i = 0; i < EFF_MAT_ROWS_NB; i++) {
     for(j = 0; j < EFF_MAT_COLS_NB; j++) {
       float abs = fabs(EFF_MAT_RW[i][j]);
-      if (abs < flt_cut) {
-        EFF_MAT_RW[i][j] = 0.0;
+      switch (i) {
+        case (RW_aN):
+        case (RW_aE):
+        case (RW_aD):
+        case (RW_aq):
+        case (RW_ar):
+          if (abs < flt_cut) {
+            EFF_MAT_RW[i][j] = 0.0;
+          }
+          break;
+        case (RW_ap):
+          if (abs < flt_cut_ap) {
+            EFF_MAT_RW[i][j] = 0.0;
+          }
+          break;
       }
     }
   }

@@ -203,7 +203,7 @@ void tfmini_i2c_periodic(void)
         tfmini_i2c.trans.buf[0] = 0x01; // sets register pointer to results register
         tfmini_i2c.trans.buf[1] = 0x02;
         tfmini_i2c.trans.buf[2] = 0x07;
-        if (i2c_blocking_transceive(&TFMINI_I2C_DEV, &tfmini_i2c.trans, tfmini_i2c.addr, 3, 7)) {
+        if (i2c_blocking_transceive(&TFMINI_I2C_DEV, &tfmini_i2c.trans, tfmini_i2c.addr, 3, 7, 0.5)) {
           tfmini_i2c.status = TFMINI_I2C_PARSE;
         }
       };  //fallthrough

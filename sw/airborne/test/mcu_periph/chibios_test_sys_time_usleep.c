@@ -82,7 +82,7 @@ int main(void)
 
   while (1) {
     /* sleep for 1s */
-    sys_time_ssleep(1);
+    sys_time_msleep(1000);
     main_periodic_1();
 
     /* sleep for 0.42s */

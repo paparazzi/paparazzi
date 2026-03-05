@@ -42,6 +42,9 @@
      <property name="editable">
       <bool>false</bool>
      </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QComboBox::AdjustToContents</enum>
+     </property>
     </widget>
    </item>
    <item>
@@ -113,7 +116,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="set_combo"/>
+    <widget class="QComboBox" name="set_combo">
+     <property name="sizeAdjustPolicy">
+      <enum>QComboBox::AdjustToContents</enum>
+     </property>
+    </widget>
    </item>
   </layout>
   <action name="new_ac_action">

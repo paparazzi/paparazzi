@@ -194,7 +194,7 @@ static void write_reg(struct mt9f002_t *mt, uint16_t addr, uint32_t val, uint8_t
   }
 
   // Transmit the buffer
-  i2c_blocking_transmit(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, len + 2);
+  i2c_blocking_transmit(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, len + 2, 0.5);
 }
 
 /**
@@ -207,7 +207,7 @@ static uint32_t read_reg(struct mt9f002_t *mt, uint16_t addr, uint8_t len)
   mt->i2c_trans.buf[1] = addr & 0xFF;
 
   // Transmit the buffer and receive back
-  i2c_blocking_transceive(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, 2, len);
+  i2c_blocking_transceive(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, 2, len, 0.5);
 
   /* Fix signdness */
   for (uint8_t i = 0; i < len; i++) {

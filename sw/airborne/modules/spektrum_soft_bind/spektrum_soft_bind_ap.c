@@ -29,7 +29,7 @@
 
 #include "mcu.h"
 #include "modules/radio_control/radio_control.h"
-#include "mcu_periph/sys_time_arch.h"
+#include "mcu_periph/sys_time.h"
 
 #include "mcu_periph/uart.h"
 #include "mcu_periph/gpio.h"

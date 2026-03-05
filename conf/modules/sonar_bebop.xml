@@ -21,11 +21,10 @@
   </header>
 
   <init fun="sonar_bebop_init()"/>
+  <event fun="sonar_bebop_event()"/>
 
-  <makefile target="ap|sim">
-    <file name="sonar_bebop.c"/>
-  </makefile>
   <makefile target="ap">
+    <file name="sonar_bebop.c"/>
     <define name="USE_SPI0" value="1"/>
     <define name="USE_ADC0" value="1"/>
   </makefile>

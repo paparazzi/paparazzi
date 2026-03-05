@@ -96,10 +96,6 @@
 <define name="MAG_Y_SENS" value="6.56528562457" integer="16"/>
 <define name="MAG_Z_SENS" value="6.89245853894" integer="16"/>
 
-<define name= "MAG_X_CURRENT_COEF" value="0.00349278666278"/>
-<define name= "MAG_Y_CURRENT_COEF" value="-0.00294581023579"/>
-<define name= "MAG_Z_CURRENT_COEF" value="0.00744261463196"/>
-
   </section>
 
   <!-- local magnetic field -->

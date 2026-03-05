@@ -85,7 +85,7 @@ void generic_com_periodic(void)
   com_trans.buf[18] = charge;
   com_trans.buf[19] = (uint8_t)(command_get(COMMAND_THROTTLE) * 100 / MAX_PPRZ);
   com_trans.buf[20] = autopilot_get_mode();
-  com_trans.buf[21] = nav_block;
+  com_trans.buf[21] = get_nav_block();
   FillBufWith16bit(com_trans.buf, 22, autopilot.flight_time);
   i2c_transmit(&GENERIC_COM_I2C_DEV, &com_trans, GENERIC_COM_SLAVE_ADDR, NB_DATA);
 }

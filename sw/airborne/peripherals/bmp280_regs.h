@@ -33,33 +33,33 @@
 
 #include "std.h"
 
+#define BMP280_READ_FLAG     0x80
+
 // I2C addresses (8 bits)
 #define BMP280_I2C_ADDR             0xEC
 #define BMP280_I2C_ADDR_ALT         0xEE
 
-/**\name BMP280 chip identifier */
-#define BMP280_CHIP_ID              0x50
 
 // CALIBRATION REGISTER ADDRESSES
 #define BMP280_CALIB_LSB_DATA_ADDR  0x88
 #define BMP280_CALIB_DATA_LEN       24
 
 #define BMP280_DIG_T1_UINT          0x88
-#define BMP280_DIG_T2_INT       0x8A
-#define BMP280_DIG_T3_INT       0x8C
+#define BMP280_DIG_T2_INT           0x8A
+#define BMP280_DIG_T3_INT           0x8C
 #define BMP280_DIG_P1_UINT          0x8E
 #define BMP280_DIG_P2_INT           0x90
-#define BMP280_DIG_P3_INT       0x92
-#define BMP280_DIG_P4_INT       0x94
+#define BMP280_DIG_P3_INT           0x92
+#define BMP280_DIG_P4_INT           0x94
 #define BMP280_DIG_P5_INT           0x96
 #define BMP280_DIG_P6_INT           0x98
-#define BMP280_DIG_P7_INT       0x9A
-#define BMP280_DIG_P8_INT       0x9C
+#define BMP280_DIG_P7_INT           0x9A
+#define BMP280_DIG_P8_INT           0x9C
 #define BMP280_DIG_P9_INT           0x9E
 
 // CONTROL AND VALUES REGISTER ADDRESSES
-#define BMP280_CONFIG_ADDR      0xF4
-#define BMP280_CONFIG_LEN     0x02
+#define BMP280_CONFIG_ADDR          0xF4
+#define BMP280_CONFIG_LEN           0x02
 #define BMP280_DATA_START_REG_ADDR  0xF7
 #define BMP280_P_T_DATA_LEN         6
 #define BMP280_P_DATA_LEN           3
@@ -77,13 +77,14 @@
 #define BMP280_T_LSB_REG_ADDR       0xFB
 #define BMP280_T_XLSB_REG_ADDR      0xFC
 
-// BMP280 ID
-#define BMP280_ID_NB        0x58
-//BMP280 RESET COMMAND VALUE
-#define BMP280_RESET_VAL      0xB6
 
-#define BMP280_EOC_BIT        (1<<3)
-#define BMP280_NVRAM_COPY_BIT     (1<<0)
+// BMP280 ID
+#define BMP280_ID_NB                0x58
+//BMP280 RESET COMMAND VALUE
+#define BMP280_RESET_VAL            0xB6
+
+#define BMP280_EOC_BIT              (1<<3)
+#define BMP280_NVRAM_COPY_BIT       (1<<0)
 
 // BMP280 CONTROL MEASUREMENT REGISTER BIT VALUES.
 #define BMP280_NO_OVERSAMPLING_T    (0x00<<5)
@@ -142,33 +143,6 @@
 #define BMP280_COMPENSATION BMP280_DOUBLE_PRECISION_COMPENSATION
 #endif
 
-/**
- * @brief Status enum
- */
-enum Bmp280Status {
-  BMP280_STATUS_UNINIT,
-  BMP280_STATUS_GET_CALIB,
-  BMP280_STATUS_CONFIGURE,
-  BMP280_STATUS_READ_STATUS_REG,
-  BMP280_STATUS_READ_DATA_REGS
-};
-
-// brief Register Trim Variables
-struct bmp280_reg_calib_data {
-  uint16_t dig_t1;
-  int16_t dig_t2;
-  int16_t dig_t3;
-  uint16_t dig_p1;
-  int16_t dig_p2;
-  int16_t dig_p3;
-  int16_t dig_p4;
-  int16_t dig_p5;
-  int16_t dig_p6;
-  int16_t dig_p7;
-  int16_t dig_p8;
-  int16_t dig_p9;
-  int32_t t_fine;
-};
 
 
 #endif /* BMP280_REGS_H */

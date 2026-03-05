@@ -57,6 +57,12 @@
 #define SDLOG_CONTIGUOUS_STORAGE_MEM 50
 #endif
 
+// Flush file on power loss
+#ifndef SDLOG_ENABLE_LOWBAT_FLUSH
+#define SDLOG_ENABLE_LOWBAT_FLUSH TRUE
+#endif
+
+
 #if (!defined USE_ADC_WATCHDOG) || (USE_ADC_WATCHDOG == 0)
 #error sdlog_chibios need USE_ADC_WATCHDOG in order to properly close files when power is unplugged
 #endif
@@ -233,6 +239,7 @@ void sdlog_chibios_finish(const bool flush)
 /*
  * Bat survey thread
  */
+#if SDLOG_ENABLE_LOWBAT_FLUSH
 static THD_WORKING_AREA(wa_thd_bat_survey, 1024);
 static __attribute__((noreturn)) void thd_bat_survey(void *arg);
 static void  powerOutageIsr(void);
@@ -241,6 +248,7 @@ event_listener_t powerOutageListener;
 
 #define DefaultAdcOfVoltage(voltage) ((uint32_t) (voltage/(DefaultVoltageOfAdc(1))))
 static const uint16_t V_ALERT = DefaultAdcOfVoltage(5.5f);
+
 
 /*
   powerOutageIsr is called within a lock zone from an isr, so no lock/unlock is needed
@@ -277,6 +285,7 @@ static void thd_bat_survey(void *arg)
   chThdExit(0);
   while (true); // never goes here, only to avoid compiler  warning: 'noreturn' function does return
 }
+#endif // SDLOG_ENABLE_LOWBAT_FLUSH
 #endif
 
 static void thd_startlog(void *arg)
@@ -320,7 +329,7 @@ static void thd_startlog(void *arg)
   }
 
   if (sdOk) {
-#if defined(SDLOG_BAT_ADC) && defined(SDLOG_BAT_CHAN)
+#if defined(SDLOG_BAT_ADC) && defined(SDLOG_BAT_CHAN) && SDLOG_ENABLE_LOWBAT_FLUSH
     // Create Battery Survey Thread with event
     chEvtObjectInit(&powerOutageSource);
     chThdCreateStatic(wa_thd_bat_survey, sizeof(wa_thd_bat_survey),

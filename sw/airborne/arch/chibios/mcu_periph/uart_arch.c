@@ -86,8 +86,7 @@ UNUSED static void handle_uart_rx(struct uart_periph *p)
 UNUSED static void handle_uart_tx(struct uart_periph *p)
 {
   // check if more data to send
-  // TODO send by block with sdWrite (be careful with circular buffer)
-  // not compatible with soft flow control
+  // send by block with sdWrite if possible: not compatible with soft flow control
   struct SerialInit *init_struct = (struct SerialInit *)(p->init_struct);
   chSemWait(init_struct->tx_sem);
   p->tx_running = true;
@@ -97,18 +96,29 @@ UNUSED static void handle_uart_tx(struct uart_periph *p)
       // wait for CTS line to be set to send next byte
       while (gpio_get(init_struct->cts_port, init_struct->cts_pin) == 1) ;
     }
-#endif
     uint8_t data = p->tx_buf[p->tx_extract_idx];
     sdPut((SerialDriver *)p->reg_addr, data);
     chMtxLock(init_struct->tx_mtx);
     p->tx_extract_idx++;
     p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
     chMtxUnlock(init_struct->tx_mtx);
-#if USE_UART_SOFT_FLOW_CONTROL
     if (init_struct->cts_port != 0) {
       // wait for physical transfer to be completed
       while ((((SerialDriver *)p->reg_addr)->usart->SR & USART_SR_TC) == 0) ;
     }
+#else // normal operation without soft flow control
+    chMtxLock(init_struct->tx_mtx);
+    if (p->tx_insert_idx > p->tx_extract_idx) {
+      sdWrite((SerialDriver *)p->reg_addr, &p->tx_buf[p->tx_extract_idx], p->tx_insert_idx - p->tx_extract_idx);
+    } else {
+      // wrapping circular buffer
+      sdWrite((SerialDriver *)p->reg_addr, &p->tx_buf[p->tx_extract_idx], UART_TX_BUFFER_SIZE - p->tx_extract_idx);
+      if(p->tx_insert_idx > 0) {
+        sdWrite((SerialDriver *)p->reg_addr, &p->tx_buf[0], p->tx_insert_idx);
+      }
+    }
+    p->tx_extract_idx = p->tx_insert_idx;
+    chMtxUnlock(init_struct->tx_mtx);
 #endif
   }
   p->tx_running = false;

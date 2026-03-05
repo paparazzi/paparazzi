@@ -20,9 +20,9 @@
 
 	<variables>
 		<var name="mode" default="0" />
-		<set var="mode" value="0" on_event="b3" />
-		<set var="mode" value="1" on_event="b4" />
-		<set var="mode" value="2" on_event="b5" />
+		<set var="mode" value="-127" on_event="b3" />
+		<set var="mode" value="0" on_event="b4" />
+		<set var="mode" value="127" on_event="b5" />
 	</variables>
 
 	<messages period="0.025">

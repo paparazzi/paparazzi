@@ -60,10 +60,10 @@ so e.g. HatDown(dpad)
 
   <variables>
     <!-- manual by default and when pressing A, AUTO1 on B, AUTO2 on Y -->
-    <var name="mode" default="0"/>
-    <set var="mode" value="0" on_event="A"/>
-    <set var="mode" value="1" on_event="B"/>
-    <set var="mode" value="2" on_event="Y"/>
+    <var name="mode" default="-127"/>
+    <set var="mode" value="-127" on_event="A"/>
+    <set var="mode" value="0" on_event="B"/>
+    <set var="mode" value="127" on_event="Y"/>
   </variables>
 
   <messages period="0.05">

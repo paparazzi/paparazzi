@@ -107,17 +107,11 @@ static abi_event gps_ev;
 static abi_event ins_optical_flow_ev;
 static abi_event ins_act_feedback_ev;
 static abi_event aligner_ev;
-//static abi_event mag_ev;
-//static abi_event geo_mag_ev;
+static abi_event reset_ev;
 
 /* All ABI callbacks */
 static void gyro_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *gyro);
 static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel);
-/*static void mag_cb(uint8_t __attribute__((unused)) sender_id,
-                   uint32_t __attribute__((unused)) stamp,
-                   struct Int32Vect3 *mag);
-static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVect3 *h);*/
-//static void body_to_imu_cb(uint8_t sender_id, struct FloatQuat *q_b2i_f);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 void ins_optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x,
                          int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
@@ -126,10 +120,11 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        uint32_t stamp __attribute__((unused)),
                        struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
                        struct Int32Vect3 *lp_mag);
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag);
+
 static void print_ins_flow_state(void);
 static void print_true_state(void);
 /* Static local functions */
-//static bool ahrs_icq_output_enabled;
 static uint32_t ahrs_icq_last_stamp;
 static uint8_t ahrs_flow_id = AHRS_COMP_ID_FLOW;  ///< Component ID for FLOW
 static void set_body_state_from_quat(void);
@@ -537,9 +532,7 @@ void ins_reset_filter(void)
 void ins_flow_init(void)
 {
 
-  //ahrs_icq_output_enabled = AHRS_ICQ_OUTPUT_ENABLED;
   ahrs_icq_init();
-  //ahrs_register_impl(ahrs_icq_enable_output);
 
   struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
   llh_nav0.lat = NAV_LAT0;
@@ -553,7 +546,7 @@ void ins_flow_init(void)
 
   ltp_def_from_ecef_i(&ins_flow.ltp_def, &ecef_nav0);
   ins_flow.ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ins_flow.ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_FLOW_ID, &ins_flow.ltp_def);
   ins_flow.ltp_initialized = true;
   ins_flow.new_flow_measurement = false;
   ins_flow.lp_gyro_pitch = 0.0f;
@@ -649,12 +642,10 @@ void ins_flow_init(void)
   AbiBindMsgIMU_GYRO(INS_FLOW_GYRO_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL(INS_FLOW_ACCEL_ID, &accel_ev, accel_cb);
   AbiBindMsgGPS(INS_FLOW_GPS_ID, &gps_ev, gps_cb);
-  //AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgOPTICAL_FLOW(INS_OPTICAL_FLOW_ID, &ins_optical_flow_ev, ins_optical_flow_cb);
   AbiBindMsgACT_FEEDBACK(INS_RPM_ID, &ins_act_feedback_ev, ins_act_feedback_cb);
   AbiBindMsgIMU_LOWPASSED(INS_FLOW_IMU_ID, &aligner_ev, aligner_cb);
-  // AbiBindMsgIMU_MAG_INT32(ABI_BROADCAST, &mag_ev, mag_cb);
-  // AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
+  AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 
   // Telemetry:
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_FLOW_INFO, send_ins_flow);
@@ -663,13 +654,15 @@ void ins_flow_init(void)
 
 }
 
-void ins_reset_local_origin(void)
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
 {
-  ltp_def_from_ecef_i(&ins_flow.ltp_def, &gps.ecef_pos);
-  ins_flow.ltp_def.lla.alt = gps.lla_pos.alt;
-  ins_flow.ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ins_flow.ltp_def);
-  ins_flow.ltp_initialized = true;
+  if (flag == INS_RESET_REF) {
+    ltp_def_from_ecef_i(&ins_flow.ltp_def, &gps.ecef_pos);
+    ins_flow.ltp_def.lla.alt = gps.lla_pos.alt;
+    ins_flow.ltp_def.hmsl = gps.hmsl;
+    stateSetLocalOrigin_i(MODULE_INS_FLOW_ID, &ins_flow.ltp_def);
+    ins_flow.ltp_initialized = true;
+  }
 }
 
 void ins_optical_flow_cb(uint8_t sender_id UNUSED, uint32_t stamp, int32_t flow_x UNUSED,
@@ -1400,37 +1393,6 @@ static void accel_cb(uint8_t __attribute__((unused)) sender_id,
 #endif
 }
 
-/*
-static void mag_cb(uint8_t __attribute__((unused)) sender_id,
-                   uint32_t __attribute__((unused)) stamp,
-                   struct Int32Vect3 *mag)
-{
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
-  PRINT_CONFIG_MSG("Calculating dt for AHRS int_cmpl_quat mag update.")
-  static uint32_t last_stamp = 0;
-  if (last_stamp > 0 && ahrs_icq.is_aligned) {
-    float dt = (float)(stamp - last_stamp) * 1e-6;
-    //ahrs_icq_update_mag(mag, dt);
-    //set_body_state_from_quat();
-  }
-  last_stamp = stamp;
-#else
-  PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS int_cmpl_quat mag update.")
-  PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
-  if (ahrs_icq.is_aligned) {
-    const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
-    ahrs_icq_update_mag(mag, dt);
-    set_body_state_from_quat();
-  }
-#endif
-}
-
-static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVect3 *h)
-{
-  //VECT3_ASSIGN(ahrs_icq.mag_h, MAG_BFP_OF_REAL(h->x), MAG_BFP_OF_REAL(h->y),
-  //             MAG_BFP_OF_REAL(h->z));
-}
-*/
 
 /** Rotate angles and rates from imu to body frame and set state */
 static void set_body_state_from_quat(void)
@@ -1442,7 +1404,7 @@ static void set_body_state_from_quat(void)
 
   if (use_filter < USE_ANGLE) {
     // Use the orientation as is:
-    stateSetNedToBodyQuat_i(&ltp_to_body_quat);
+    stateSetNedToBodyQuat_i(MODULE_INS_FLOW_ID, &ltp_to_body_quat);
   } else {
 
     // get Euler angles:
@@ -1466,7 +1428,7 @@ static void set_body_state_from_quat(void)
     orient_euler.eulers_f = (*eulers);
 
     struct Int32Quat *quat_i_adapted = orientationGetQuat_i(&orient_euler);
-    stateSetNedToBodyQuat_i(quat_i_adapted);
+    stateSetNedToBodyQuat_i(MODULE_INS_FLOW_ID, quat_i_adapted);
   }
 
   /* compute body rates */
@@ -1474,7 +1436,7 @@ static void set_body_state_from_quat(void)
   // struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_icq.body_to_imu);
   // int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_icq.imu_rate);
   /* Set state */
-  stateSetBodyRates_i(&body_rate);
+  stateSetBodyRates_i(MODULE_INS_FLOW_ID, &body_rate);
 
 }
 
@@ -1499,7 +1461,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     return;
   }
   if (!ins_flow.ltp_initialized) {
-    ins_reset_local_origin();
+    reset_cb(0, INS_RESET_REF);
   }
 
   ahrs_icq_update_gps(gps_s);
@@ -1517,7 +1479,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     ins_flow.ltp_pos.z = z_Ned_i_filter;
   }
 
-  stateSetPositionNed_i(&ins_flow.ltp_pos);
+  stateSetPositionNed_i(MODULE_INS_FLOW_ID, &ins_flow.ltp_pos);
 
 
 
@@ -1554,7 +1516,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     // printf("Changed speed y = %d (%f in float)\n", ins_flow.ltp_speed.y, NED_velocities.y);
   }
 
-  stateSetSpeedNed_i(&ins_flow.ltp_speed);
+  stateSetSpeedNed_i(MODULE_INS_FLOW_ID, &ins_flow.ltp_speed);
 
   /*
   bool vel_ned_valid = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT);
@@ -1575,10 +1537,3 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
 }
 
 
-/* Save the Body to IMU information */
-//// TODO: Is this code still necessary?
-//static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-//                           struct FloatQuat *q_b2i_f)
-//{
-//  ahrs_icq_set_body_to_imu_quat(q_b2i_f);
-//}

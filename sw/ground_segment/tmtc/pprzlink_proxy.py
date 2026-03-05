@@ -63,8 +63,8 @@ class Proxy:
 
         self.gcs_id = int(gcs_conf[0])
         self.gcs_addr = gcs_conf[1]
-        self.gcs = pprzlink.udp.UdpMessagesInterface(self.proccess_gcs_msg, False,
-                int(gcs_conf[3]), int(gcs_conf[2]), 'datalink') # crossing ports here
+        self.gcs = pprzlink.udp.UdpMessagesInterface(self.proccess_gcs_msg, True,
+                int(gcs_conf[3]), int(gcs_conf[2]), 'datalink', None) # crossing ports here
         self.acs = []
         for ac in ac_conf:
             self.acs.append((int(ac[0]), ac[1],
@@ -77,17 +77,17 @@ class Proxy:
             return
         if self.verbose:
             print("new message from %i (%s) [%d Bytes]: %s" % (sender, address, length, msg))
-        if receiver_id == self.gcs_id:
+        if receiver_id == self.gcs_id or receiver_id == 255:
             # normal telemetry message for the GCS
             if self.verbose:
-                print("sending to %i: %s" % (receiver_id, msg))
+                print("mav %d sending to gcs %i: %s" % (sender, receiver_id, msg))
             self.gcs.send(msg, sender, self.gcs_addr, receiver_id, component_id)
-        else:
+        if receiver_id != self.gcs_id or receiver_id == 255:
             for (ac_id, ac_addr, m) in self.acs:
-                if receiver_id == ac_id:
+                if receiver_id == ac_id or receiver_id == 255:
                     # send air to air message to correct MAV
                     if self.verbose:
-                        print("sending to %i (%i): %s" % (receiver_id, ac_id, msg))
+                        print("mav %d sending to %d (%i) [%s]: %s" % (sender, ac_id, receiver_id, ac_addr, msg))
                     m.send(msg, sender, ac_addr, receiver_id, component_id)
 
     def proccess_gcs_msg(self, sender, address, msg, length, receiver_id=None, component_id=None):
@@ -99,7 +99,7 @@ class Proxy:
             for (ac_id, ac_addr, m) in self.acs:
                 # broadcast to all MAVs
                 if self.verbose:
-                    print("sending to %i: %s" % (receiver_id, msg))
+                    print("gcs %d broadcasting to %d (%i) [%s]: %s" % (sender, ac_id, receiver_id, ac_addr, msg))
                 m.send(msg, sender, ac_addr, receiver_id)
         else:
             try:
@@ -107,10 +107,10 @@ class Proxy:
             except:
                 receiver_id = None
             for (ac_id, ac_addr, m) in self.acs:
-                if receiver_id == ac_id:
+                if receiver_id == ac_id or receiver_id == 255:
                     # send datalink message to correct MAV
                     if self.verbose:
-                        print("sending to %i (%i): %s" % (receiver_id, ac_id, msg))
+                        print("gcs %d sending to %i (%i) [%s]: %s" % (sender, ac_id, receiver_id, ac_addr, msg))
                     m.send(msg, sender, ac_addr, receiver_id)
 
     def run(self):

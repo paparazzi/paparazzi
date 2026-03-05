@@ -23,10 +23,9 @@
  *  dummy servos handling for sim
  */
 
-#include "modules/actuators/actuators_pwm_arch.h"
+#include "modules/actuators/actuators_pwm.h"
 
-void actuators_pwm_arch_init(void)
-{
+void actuators_pwm_arch_init(void) {}
 
-}
+void actuators_pwm_arch_commit(void) {}
 

@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifdef SITL
-#include <stdio.h> // for debuging in simulation
+  #include <stdio.h> // for debuging in simulation
 #endif
 
 /* some convenience macros to print debug/config messages at compile time */
@@ -44,42 +44,46 @@
 #define PTR(_f) &_f
 
 #ifndef FALSE
-#define FALSE false
+  #define FALSE false
 #endif
 #ifndef TRUE
-#define TRUE true
+  #define TRUE true
 #endif
 
 #ifndef NULL
-#ifdef __cplusplus
-#define NULL 0
-#else
-#define NULL ((void *)0)
-#endif
+  #ifdef __cplusplus
+    #define NULL 0
+  #else
+    #define NULL ((void *)0)
+  #endif
 #endif
 
 /* Unit (void) values */
 typedef uint8_t unit_t;
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+  #define M_PI 3.14159265358979323846
+#endif
+
+#ifndef M_PI_6
+  #define M_PI_6 (M_PI/6)
 #endif
 
 #ifndef M_PI_4
-#define M_PI_4 (M_PI/4)
+  #define M_PI_4 (M_PI/4)
 #endif
 
 #ifndef M_PI_2
-#define M_PI_2 (M_PI/2)
+  #define M_PI_2 (M_PI/2)
 #endif
 
 
 #ifndef bit_is_set
-#define bit_is_set(x, b) ((x >> b) & 0x1)
+  #define bit_is_set(x, b) ((x >> b) & 0x1)
 #endif
 
 #ifndef _BV
-#define _BV(bit) (1 << (bit))
+  #define _BV(bit) (1 << (bit))
 #endif
 
 #define SetBit(a, n) a |= (1 << n)
@@ -118,6 +122,7 @@ typedef uint8_t unit_t;
 #define DeciDegOfRad(x) ((x) * (1800./ M_PI))
 #define RadOfDeg(x) ((x) * (M_PI/180.))
 #define RadOfDeciDeg(x) ((x) * (M_PI/1800.))
+#define RadOfCentiDeg(x) ((x) * (M_PI/18000.))
 
 #define MOfCm(_x) (((float)(_x))/100.)
 #define MOfMm(_x) (((float)(_x))/1000.)
@@ -130,7 +135,7 @@ typedef uint8_t unit_t;
 #define MoreThan(_x, _y) ((_x) > (_y))
 
 #ifndef ABS
-#define ABS(val) ((val) < 0 ? -(val) : (val))
+  #define ABS(val) ((val) < 0 ? -(val) : (val))
 #endif
 
 #define BoundUpper(_x, _max) { if (_x > (_max)) _x = (_max);}
@@ -266,17 +271,17 @@ static inline bool str_equal(const char *a, const char *b)
 }
 
 #ifdef __GNUC__
-#  define UNUSED __attribute__((__unused__))
-#  define WEAK __attribute__((weak))
+  #define UNUSED __attribute__((__unused__))
+  #define WEAK __attribute__((weak))
 #else
-#  define UNUSED
-#  define WEAK
+  #define UNUSED
+  #define WEAK
 #endif
 
 #if __GNUC__ >= 7
-#  define INTENTIONAL_FALLTHRU __attribute__ ((fallthrough));
+  #define INTENTIONAL_FALLTHRU __attribute__ ((fallthrough));
 #else
-#  define INTENTIONAL_FALLTHRU
+  #define INTENTIONAL_FALLTHRU
 #endif
 
 #endif /* STD_H */

@@ -3,15 +3,57 @@
 <module name="sonar_adc" dir="sonar" task="sensors">
   <doc>
     <description>
-     Sonar ADC driver.
-     Reads an anlog sonar sensor and outputs sonar distance in [m]
-    </description>
-    <configure name="ADC_SONAR" value="ADC_X" description="select ADC to use with the sonar"/>
-    <define name="SONAR_OFFSET" value="0"  description="sensor offset in [adc] - default is 0"/>
-    <define name="SONAR_SCALE" value="0.0166" description="sensor scale factor [m/adc] - default is 0.0166"/>
-    <define name="USE_SONAR" value="" description="activate use of sonar in INS extended filter (only rotorcraft)"/>
-  </doc>
+    A Sonar with an ADC output signal can be used as unidirectional rangefinder. Examples of devices are e.g. Maxbotix MB1210 or MB1010
+    The sensor can be used as a control or measuring tool to detect the range (distance) to a surfaces, used for example in AGL hold, terrain following or landing assist.
 
+    To be able to use the Sonar connected to an ADC input, just add this module in your airframe and set needed parameters.
+
+    Notes:
+    + The maximum useful detection distance is 4m for common simple sonar based small sized sensors, even if datasheet e.g. states 7m.
+    For most ADC sonar rangefinder sensor devices, a sampling rate of at least 15Hz is supported. However, if measurements are taken at longer distances, 
+    the time required for the ultrasonic pulse to return increases, which may limit the maximum achievable sampling rate. 
+    It is recommended to adjust the SONAR_ADC_PERIODIC_FREQUENCY parameter according to the sensor's capabilities and the expected measurement range to ensure reliable readings.
+
+    + If the distance is read but the scale is incorrect, adjust the SONAR_ADC_SCALE parameter to match the sensor's specifications.
+    The scale factor can also be determined experimentally by measuring a known distance and adjusting the scale until the output matches the expected value. 
+    This Scale value adjustment can be performed real-time via the setting panel which make it a little more user friendly.
+    After the correct value is determined, save setting or manually add the value to the airframe file.
+
+    SONAR_ADC_SCALE for common sensors:
+    Maxbotix XL-MaxSonar part MB1210 where sensor VCC is 5v: 0.001855
+    Maxbotix LV-MaxSonar part MB1010 where sensor VCC is 5v: 0.002315
+
+    + If the sensor is used in an airframe with landing gear, it is recommended to set the SONAR_ADC_OFFSET to the height of the landing gear, so that the AGL zero value is correct to the ground. 
+    Keep in mind that most sonar sensors have a deadzone of 0.15m to 0.25m, so the AGL cannot be measured if landinggear shorter than the deadzone range.
+
+    + There is an option to compensate the AGL value for body rotation, which is useful if e.g. a roll maneuver, the sensor is not pointing straight down it compensates the AGL value for the body rotation.
+    
+    + Also an option to filter the sensor output is available, which is useful if the sensor is noisy or has a lot of outliers, in case of a sonar, almost always the case.
+    
+    + Distance compensation for pressure and temperature are not implemented, keep in mind that sonar sensors are susceptible to temperature and pressure changes.
+    </description>
+    <configure name="SONAR_ADC_PORT" value="ADC_X" description="Set the ADC port the sonar sensor is connected to on your flightcontroller, defaults to ADC_3"/>
+    <configure name="USE_SONAR_ADC_AGL" value="TRUE|FALSE" description="Updates the AGL value in state,if not defined, defaults to FALSE"/>
+    <configure name="SONAR_ADC_COMPENSATE_ROTATION" value="TRUE|FALSE" description="Compensate AGL measurements for body rotation. Disabled by default"/>
+    <configure name="SONAR_ADC_USE_FILTER" value="TRUE|FALSE" description="Enable or disable a filter on the sonar output values, defaults to TRUE"/>
+    <configure name="SONAR_ADC_PERIODIC_FREQUENCY" value="30" description="Sensor readings in HZ"/>
+    <configure name="SONAR_ADC_LOWPASS_TAU" value="0.11" description="If filtering is enabled, then one optionally can set this value to filter the output more(or less). Defaults to 0.16"/>
+    <configure name="SONAR_ADC_SCALE" value="0.001789" description="Sensor scale factor [m/adc], defaults to 0.001855"/>
+    <define name="USE_SONAR" value="TRUE|FALSE" description="Activate use of sonar in INS extended filter (only rotorcraft), defaults to FALSE"/>
+    <define name="SONAR_ADC_OFFSET" value="0.56"  description="Sensor offset in meters, as in where one wants zero to be, default is 0.0"/>
+    <define name="SONAR_ADC_MIN_RANGE" value="0.31" unit="m" description="If defined, set limit to minimum value the sensor can reliably measure, default 0.15m"/>
+    <define name="SONAR_ADC_MAX_RANGE" value="3.1" unit="m" description="If defined, set limit to maximum value the sensor can reliably measure, default 4.0m"/>
+    <define name="SONAR_ADC_SYNC_SEND" value="TRUE|FALSE" description="Send RAW and scaled message with each new measurement,useful for debugging sensor issues (default: FALSE)"/> 
+    <define name="SONAR_ADC_RAW_OFFSET" value="0"  description="sensor offset in [adc] units, defaults to 0"/>
+  </doc>
+  <settings>
+    <dl_settings NAME="Rangefinder">
+      <dl_settings NAME="Sonar ADC">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="sonar_adc.update_agl" shortname="Update AGL"/>
+        <dl_setting MAX="0.006" MIN="0.001" STEP="0.00002" VAR="sonar_adc.scale" shortname="Scale"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <dep>
     <depends>adc</depends>
     <provides>sonar</provides>
@@ -19,16 +61,22 @@
   <header>
     <file name="sonar_adc.h"/>
   </header>
-
   <init fun="sonar_adc_init()"/>
-  <periodic fun="sonar_adc_read()" freq="20"/>
-
-  <makefile target="ap|sim">
+  <periodic fun="sonar_adc_periodic()" freq="SONAR_ADC_PERIODIC_FREQUENCY"/>
+  <periodic fun="sonar_adc_report()" freq="SONAR_ADC_PERIODIC_FREQUENCY" autorun="FALSE"/>
+  <makefile target="ap">
+    <configure name="SONAR_ADC_PORT" default="ADC_3" case="lower|upper"/>
+    <configure name="USE_SONAR_ADC_AGL" default="0"/>
+    <configure name="SONAR_ADC_COMPENSATE_ROTATION" default="0"/>
+    <configure name="SONAR_ADC_USE_FILTER" default="1"/>
+    <configure name="SONAR_ADC_PERIODIC_FREQUENCY" default="30"/>
+    <configure name="SONAR_ADC_LOWPASS_TAU" default="0.16"/>
+    <configure name="SONAR_ADC_SCALE" default="0.001855"/>
+    <define name="USE_$(SONAR_ADC_PORT_UPPER)"/>
+    <define name="SONAR_ADC_PORT" value="$(SONAR_ADC_PORT_UPPER)"/>
+    <define name="USE_SONAR_ADC_AGL" value="$(USE_SONAR_ADC_AGL)"/>
+    <define name="SONAR_ADC_PERIODIC_FREQUENCY" value="$(SONAR_ADC_PERIODIC_FREQUENCY)"/>
+    <define name="SONAR_ADC_USE_FILTER" value="$(SONAR_ADC_USE_FILTER)"/>
     <file name="sonar_adc.c"/>
   </makefile>
-  <makefile target="ap">
-    <define name="ADC_CHANNEL_SONAR" value="$(ADC_SONAR)"/>
-    <define name="USE_$(ADC_SONAR)"/>
-  </makefile>
-
 </module>

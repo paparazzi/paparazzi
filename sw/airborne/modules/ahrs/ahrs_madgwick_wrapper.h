@@ -29,11 +29,11 @@
 
 #include "modules/ahrs/ahrs_madgwick.h"
 
-#ifndef PRIMARY_AHRS
-#define PRIMARY_AHRS ahrs_madgwick
-#endif
+extern void ahrs_madgwick_wrapper_init(void);
 
-extern void ahrs_madgwick_register(void);
+// enable setting
+extern uint8_t ahrs_madgwick_enable;
+extern void ahrs_madgwick_wrapper_enable(uint8_t enable);
 
 #endif /* AHRS_MADGWICK_WRAPPER_H */
 

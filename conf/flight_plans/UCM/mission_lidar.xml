@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+  <flight_plan alt="660" ground_alt="650" lat0="40.4512539" lon0="-3.7289867" max_dist_from_home="2500" name="Rover Steering" security_height="0.3">
+  
+  <header>
+  </header>
+
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint lat="40.4515279" lon="-3.7289089" name="STDBY" />
+    <waypoint lat="40.4512609" lon="-3.7290940" name="ELLIPSE" />
+    <waypoint lat="40.4516215" lon="-3.7290142" name="P1" />
+    <waypoint lat="40.4517065" lon="-3.7282202" name="P2"/>
+
+    <waypoint name="_N1" x="90" y="90"/>
+    <waypoint name="_N2" x="90" y="-90"/>
+    <waypoint name="_N3" x="-90" y="-90"/>
+    <waypoint name="_N4" x="-90" y="90"/>
+
+
+    <waypoint name="_G1" x="-50" y="-50"/>
+    <waypoint name="_G2" x="50" y="-50"/>
+    <waypoint name="_G3" x="50" y="50"/>
+    <waypoint name="_G4" x="-50" y="50"/>
+  </waypoints>
+
+  <sectors>
+    <sector color="red" name="Net">
+      <corner name="_N1"/>
+      <corner name="_N2"/>
+      <corner name="_N3"/>
+      <corner name="_N4"/>
+    </sector>
+    <sector color="blue" name="Grid">
+      <corner name="_G1"/>
+      <corner name="_G2"/>
+      <corner name="_G3"/>
+      <corner name="_G4"/>
+    </sector>
+  </sectors>
+
+  <variables>
+    <variable init="5.0" max="10.0" min="1.0" step="1.0" var="a_stb"/>
+    <variable init="5.0" max="10.0" min="1.0" step="1.0" var="b_stb"/>
+  </variables>
+
+  <blocks>
+    <block name="Wait GPS" strip_icon="gps.png">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init" strip_icon="googleearth.png">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
+      <call_once fun="init_grid_4(WP__G1, WP__G2, WP__G3, WP__G4)"/> <!-- Init obstacle grid -->
+    </block>
+    
+    <block name="Start Engine" strip_icon="on.png">
+      <while cond="LessThan(NavBlockTime(), 1)"/>
+      <call_once fun="autopilot_set_motors_on(TRUE)"/>
+    </block>
+    
+    <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <call fun="nav_gvf_ellipse_wp(WP_ELLIPSE, a_stb, b_stb, gvf_ellipse_par.alpha)"/>
+    </block>
+    
+    <block name="line_to_HOME" strip_icon="home_drop.png"> 
+      <call fun="nav_gvf_segment_XY1_XY2(GetPosX(), GetPosY(), 0.f, 0.f)"/>
+    </block>
+    
+    <block name="ellipse_wp" strip_icon="oval.png">
+      <call fun="nav_gvf_ellipse_wp(WP_ELLIPSE, a_stb, b_stb, gvf_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="nav_gvf_ellipse_XY" strip_icon="oval.png">
+      <call fun="nav_gvf_ellipse_XY(10.1, 10.1, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="line_P1_P2" strip_icon="line.png"> 
+      <call fun="nav_gvf_line_wp1_wp2(WP_P1, WP_P2)"/>
+    </block>
+    
+    <block name="segment_turn_P1_P2" strip_icon="line.png"> 
+      <call fun="nav_gvf_segment_loop_wp1_wp2(WP_P1, WP_P2, gvf_segment_par.d1, gvf_segment_par.d2)"/>
+    </block>
+    
+    <block name="sin_p1_p2" strip_icon="line_drop.png"> 
+      <call fun="nav_gvf_sin_wp1_wp2(WP_P1, WP_P2, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
+    </block>
+  </blocks>
+</flight_plan>

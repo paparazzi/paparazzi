@@ -45,6 +45,8 @@
 #warning "Disco actuators require a <servo name=MOTOR>"
 #endif
 
+#define ACTUATORS_DISCO_I2C_TIMEOUT 1.f
+
 /**
  * private observation structure
  */
@@ -98,15 +100,15 @@ void actuators_disco_init(void)
   }
 }
 
-void actuators_disco_set(uint8_t idx, uint16_t val)
+void actuators_disco_set(uint8_t idx, int16_t val)
 {
   if (idx == ACTUATORS_DISCO_MOTOR_IDX) {
-    actuators_disco.motor_rpm = val;
+    actuators_disco.motor_rpm = (uint16_t)val;
   } else if (idx > ACTUATORS_DISCO_PWM_NB) {
     // wrong index, do nothing
   } else {
     // val is a PWM value in ms, convert to ns
-    pwm_sysfs_set_duty(&actuators_disco.pwm[idx-1], val * 1000);
+    pwm_sysfs_set_duty(&actuators_disco.pwm[idx-1], (uint16_t)val * 1000);
   }
 }
 
@@ -119,7 +121,7 @@ void actuators_disco_commit(void)
 
   // Receive the status
   actuators_disco.i2c_trans.buf[0] = ACTUATORS_DISCO_GET_OBS_DATA;
-  i2c_blocking_transceive(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1, sizeof(obs_data));
+  i2c_blocking_transceive(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1, sizeof(obs_data), ACTUATORS_DISCO_I2C_TIMEOUT);
   // copy data from buffer
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
@@ -149,17 +151,17 @@ void actuators_disco_commit(void)
       actuators_disco.motor_rpm > DISCO_BLDC_START_MOTOR_THRESHOLD) {
     // Reset the error
     actuators_disco.i2c_trans.buf[0] = ACTUATORS_DISCO_CLEAR_ERROR;
-    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1);
+    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1, ACTUATORS_DISCO_I2C_TIMEOUT);
 
     // Start the motors
     actuators_disco.i2c_trans.buf[0] = ACTUATORS_DISCO_START_PROP;
-    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1);
+    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1, ACTUATORS_DISCO_I2C_TIMEOUT);
   }
   // Stop the motors
   else if ((bldc_status == DISCO_BLDC_STATUS_RUNNING || bldc_status == DISCO_BLDC_STATUS_RAMPUP) &&
       actuators_disco.motor_rpm < DISCO_BLDC_START_MOTOR_THRESHOLD) {
     actuators_disco.i2c_trans.buf[0] = ACTUATORS_DISCO_STOP_PROP;
-    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1);
+    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1, ACTUATORS_DISCO_I2C_TIMEOUT);
   } else if (bldc_status == DISCO_BLDC_STATUS_RUNNING) {
     // Send the commands
     actuators_disco.i2c_trans.buf[0] = ACTUATORS_DISCO_SET_REF_SPEED;
@@ -170,7 +172,7 @@ void actuators_disco_commit(void)
 #pragma GCC diagnostic ignored "-Wcast-qual"
     actuators_disco.i2c_trans.buf[4] = actuators_disco_checksum((uint8_t *)actuators_disco.i2c_trans.buf, 3);
 #pragma GCC diagnostic pop
-    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 11);
+    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 11, ACTUATORS_DISCO_I2C_TIMEOUT);
   }
 
   // Send ABI message

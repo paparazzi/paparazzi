@@ -189,9 +189,9 @@ void ArduIMU_event(void)
     arduimu_accel.z = ACCEL_FLOAT_OF_BFP(recievedData[8]);
 
     // Update estimator
-    stateSetNedToBodyEulers_f(&arduimu_eulers);
-    stateSetBodyRates_f(&arduimu_rates);
-    stateSetAccelNed_f(&((struct NedCoor_f)arduimu_accel));
+    stateSetNedToBodyEulers_f(MODULE_INS_ARDUIMU_BASIC_ID, &arduimu_eulers);
+    stateSetBodyRates_f(MODULE_INS_ARDUIMU_BASIC_ID, &arduimu_rates);
+    stateSetAccelNed_f(MODULE_INS_ARDUIMU_BASIC_ID, &((struct NedCoor_f)arduimu_accel));
     ardu_ins_trans.status = I2CTransDone;
 
 #ifdef ARDUIMU_SYNC_SEND

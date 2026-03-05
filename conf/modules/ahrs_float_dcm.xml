@@ -14,6 +14,7 @@
       The name DCM for the algorithm is really a misnomer, as that just means that the orientation is represented as a DirectionCosineMatrix (rotation matrix).
       But since people already know it under that name, we kept it.
     </description>
+    <configure name="AHRS_DCM_TYPE" value="AHRS_PRIMARY|AHRS_SECONDARY" description="set if the AHRS is the primary source (default) or one of the secondary sources"/>
     <configure name="USE_MAGNETOMETER" value="FALSE" description="set to FALSE to disable magnetometer"/>
     <define name="USE_MAGNETOMETER_ONGROUND" description="use magnetic compensation before takeoff only while GPS course not good"/>
     <define name="USE_AHRS_GPS_ACCELERATIONS" description="enable forward acceleration compensation from GPS speed"/>
@@ -23,9 +24,10 @@
 
   <settings>
     <dl_settings>
-      <dl_settings NAME="AHRS">
-        <dl_setting MAX="100" MIN="0" STEP="1" VAR="imu_health" shortname="health" module="modules/ahrs/ahrs" />
-        <dl_setting MAX="100" MIN="0" STEP="1" VAR="renorm_sqrt_count" shortname="err_norm" module="modules/ahrs/ahrs" />
+      <dl_settings NAME="AHRS DCM">
+        <dl_setting var="ahrs_dcm_enable" min="0" step="1" max="1" module="modules/ahrs/ahrs_float_dcm_wrapper" values="DISABLE|ENABLE" handler="enable"/>
+        <dl_setting MAX="100" MIN="0" STEP="1" VAR="imu_health" shortname="health" module="modules/ahrs/ahrs_float_dcm" />
+        <dl_setting MAX="100" MIN="0" STEP="1" VAR="renorm_sqrt_count" shortname="err_norm" module="modules/ahrs/ahrs_float_dcm" />
       </dl_settings>
     </dl_settings>
   </settings>
@@ -35,30 +37,19 @@
     <provides>ahrs</provides>
   </dep>
 
+  <header>
+    <file name="ahrs_float_dcm_wrapper.h"/>
+  </header>
+  <init fun="ahrs_dcm_wrapper_init()"/>
   <makefile target="!sim|fbw">
+    <configure name="AHRS_DCM_TYPE" default="AHRS_PRIMARY"/>
+    <define name="AHRS_DCM_TYPE" value="$(AHRS_DCM_TYPE)"/>
     <configure name="USE_MAGNETOMETER" default="0"/>
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
     <file name="ahrs_float_dcm.c"/>
     <file name="ahrs_float_dcm_wrapper.c"/>
     <test firmware="fixedwing">
-        <define name="PRIMARY_AHRS" value="ahrs_dcm"/>
-        <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_float_dcm_wrapper.h" type="string"/>
+      <define name="AHRS_DCM_TYPE" value="AHRS_PRIMARY"/>
     </test>
-    <raw>
-ifdef SECONDARY_AHRS
-ifneq (,$(findstring $(SECONDARY_AHRS), dcm float_dcm))
-# this is the secondary AHRS
-$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"modules/ahrs/ahrs_float_dcm_wrapper.h\"
-$(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_dcm
-else
-# this is the primary AHRS
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_dcm_wrapper.h\"
-$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_dcm
-endif
-else
-# plain old single AHRS usage
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_dcm_wrapper.h\"
-endif
-    </raw>
   </makefile>
 </module>

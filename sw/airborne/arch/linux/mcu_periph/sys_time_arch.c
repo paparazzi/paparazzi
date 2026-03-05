@@ -20,7 +20,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/linux/mcu_periph/sys_time_arch.h
+/** @file arch/linux/mcu_periph/sys_time_arch.c
  * linux timing functions
  */
 
@@ -30,6 +30,9 @@
 #include <sys/timerfd.h>
 #include <time.h>
 #include "rt_priority.h"
+
+#include "std.h"
+#include <unistd.h>
 
 #ifdef SYS_TIME_LED
 #include "led.h"
@@ -41,7 +44,8 @@
 
 static struct timespec startup_time;
 
-static void sys_tick_handler(void);
+void sys_tick_handler(void);
+
 void *sys_time_thread_main(void *data);
 
 #define NSEC_OF_SEC(sec) ((sec) * 1e9)
@@ -108,7 +112,7 @@ void sys_time_arch_init(void)
 #endif
 }
 
-static void sys_tick_handler(void)
+void sys_tick_handler(void)
 {
   /* get current time */
   struct timespec now;
@@ -214,4 +218,13 @@ uint32_t get_sys_time_msec(void)
     d_nsec += 1000000000L;
   }
   return d_sec * 1000 + d_nsec / 1000000;
+}
+
+void sys_time_usleep(uint32_t us)
+{
+  usleep(us);
+}
+
+void sys_time_msleep(uint32_t ms) {
+  sys_time_usleep(ms*1000);
 }

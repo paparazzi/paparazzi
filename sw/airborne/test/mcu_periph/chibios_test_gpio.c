@@ -92,7 +92,7 @@ int main(void)
 
 
   while (TRUE) {
-	  sys_time_ssleep(1);
+	  sys_time_msleep(1000);
 	  main_periodic_2();
   }
 

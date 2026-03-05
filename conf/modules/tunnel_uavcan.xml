@@ -1,0 +1,33 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="tunnel_uavcan" dir="datalink" task="radio_control">
+  <doc>
+    <description>UAVCAN device over `uavcan.tunnel.Broadcast` message.</description>
+    <configure name="TUNNEL_UAVCAN" value="uavcan1" default="uavcan1" description="uavcan interface"/>
+    <define name="TUNNEL_UAVCAN_PROTOCOL" description="uavcan.tunnel.Protocol enum value." value="3"/>
+    <define name="TUNNEL_UAVCAN_CHANNEL_ID" description="uavcan.tunnel.Broadcast.channel_id" value="0"/>
+  </doc>
+  <dep>
+    <depends>uavcan</depends>
+    <provides></provides>
+  </dep>
+  <header>
+    <file name="tunnel_uavcan.h"/>
+  </header>
+  <init fun="tunnel_uavcan_init()"/>
+  <makefile>
+    <configure name="TUNNEL_UAVCAN" default="uavcan1" case="upper|lower"/>
+    <define name="TUNNEL_UAVCAN" value="$(TUNNEL_UAVCAN_LOWER)" />
+    <define name="USE_TUNNEL_UAVCAN"/>
+    <file name="tunnel_uavcan.c" dir="modules/datalink"/>
+    <file name="ring_buffer.c" dir="utils" />
+
+    <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="uavcan.tunnel.Broadcast.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <test>
+      <include name="$(PAPARAZZI_HOME)/sw/ext/dronecan/libcanard"/>
+      <define name="USE_CAN1" />
+      <define name="UAVCAN_USE_CAN1" />
+    </test>
+  </makefile>
+</module>

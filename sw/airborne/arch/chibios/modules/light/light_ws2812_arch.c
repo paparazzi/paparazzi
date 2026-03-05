@@ -34,6 +34,7 @@ https://github.com/joewa/WS2812-LED-Driver_ChibiOS/
 #include "modules/light/light_ws2812_arch.h"
 #include "mcu_periph/hal_stm32_dma.h"
 #include "mcu_periph/gpio.h"
+#include "mcu_periph/sys_time_arch.h"
 
 #include BOARD_CONFIG
 

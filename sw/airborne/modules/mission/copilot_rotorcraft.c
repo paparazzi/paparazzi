@@ -80,13 +80,13 @@ void copilot_parse_move_wp_dl(uint8_t *buf)
       /* WP_alt from message is alt above MSL in mm
        * lla.alt is above ellipsoid in mm
        */
-      lla.alt = DL_MOVE_WP_alt(buf) - state.ned_origin_i.hmsl +
-          state.ned_origin_i.lla.alt;
+      lla.alt = DL_MOVE_WP_alt(buf) - stateGetHmslOrigin_i() +
+          stateGetLlaOrigin_i().alt;
 
 
       if (waypoint_is_global(wp_id)) {
         /* lla->alt is above ellipsoid, WP_MOVED_LLA has hmsl alt */
-        int32_t hmsl = lla.alt - state.ned_origin_i.lla.alt + state.ned_origin_i.hmsl;
+        int32_t hmsl = lla.alt - stateGetLlaOrigin_i().alt + stateGetHmslOrigin_i();
 
         if (buf == extra_dl_buffer) {
           // MOVE_WP came from extra_dl, respond over telemetry

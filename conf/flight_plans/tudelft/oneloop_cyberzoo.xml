@@ -8,7 +8,14 @@
     #include "modules/radio_control/radio_control.h"
     #include "modules/ahrs/ahrs.h"
     #include "modules/gps/gps.h"
-    <!-- #include "sw/airborne/firmwares/rotorcraft/oneloop/oneloop_andi.h" -->
+    inline static void set_demo_skew(void) {
+      float amplitude_skew_demo       = (rotwing_demo_max_skew - rotwing_demo_min_skew) / 2;
+      float offset_skew_demo          = (rotwing_demo_max_skew + rotwing_demo_min_skew) / 2;
+      float time_skew_demo            = (float) rotwing_demo_timestep / NAVIGATION_FREQUENCY;
+      float angle_skew_demo           = amplitude_skew_demo * (-cosf(2 * M_PI * rotwing_demo_freq_skew * time_skew_demo)) + offset_skew_demo;
+      rotwing_state.sp_skew_angle_deg = angle_skew_demo;
+      rotwing_demo_timestep++;
+    }
 </header>
   <waypoints>
     <waypoint lat="51.990631" lon="4.376796" name="HOME"/>
@@ -39,6 +46,12 @@
       <corner name="p4"/>
     </sector>
   </sectors>
+  <variables>
+    <variable var="rotwing_demo_max_skew"  init="50.0f" type="float"  min="0"    step="1"    max="80"   shortname="demo_max_skew"/>
+    <variable var="rotwing_demo_min_skew"  init="0.0f"  type="float"  min="0"    step="1"    max="80"   shortname="demo_min_skew"/>
+    <variable var="rotwing_demo_freq_skew" init="0.1f"  type="float"  min="0.01" step="0.01" max="0.5"  shortname="demo_freq_skew"/>
+    <variable var="rotwing_demo_timestep"  init="0"     type="uint32_t"/>
+  </variables>
   <exceptions>
     <!--Soft Geofencing (go back to Standby)-->
     <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosAlt() @GT 20.0) @AND
@@ -95,6 +108,9 @@
     </block>
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
       <stay wp="STDBY"/>
+    </block>
+    <block key="d" name="Standby Demo" on_enter="rotwing_state.force_skew=true" on_exit="rotwing_state.force_skew=false; rotwing_demo_timestep = 0">  
+      <stay wp="STDBY" pre_call="set_demo_skew()"/>
     </block>
     <block name="go_p5">
       <stay wp="p5"/>

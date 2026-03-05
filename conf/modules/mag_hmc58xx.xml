@@ -21,6 +21,8 @@
       <define name="MAG_TO_IMU_THETA" value="0.0" description="Rotation between sensor frame and IMU frame (theta angle)"/>
       <define name="MAG_TO_IMU_PSI" value="0.0" description="Rotation between sensor frame and IMU frame (psi angle)"/>
     </section>
+    <configure name="MAG_HMC58XX_SA" value="00|01|10|11" description="Number of samples averaged (default HMC5843 and HMC5983: 00, HMC5883: 11)"/>
+    <configure name="MAG_HMC58XX_TC" value="0|1" description="Automatic compensation of sensitivity over temperature (default 0)"/>
   </doc>
   <dep>
     <depends>i2c,@imu</depends>
@@ -44,6 +46,10 @@
     <configure name="MAG_HMC58XX_I2C_DEV" default="TRUE" case="upper|lower"/>
     <define name="USE_$(MAG_HMC58XX_I2C_DEV_UPPER)"/>
     <define name="MAG_HMC58XX_I2C_DEV" value="$(MAG_HMC58XX_I2C_DEV_LOWER)"/>
+    <configure name="MAG_HMC58XX_SA" default="0"/>
+    <configure name="MAG_HMC58XX_TC" default="0"/>
+    <define name="HMC58XX_DEFAULT_SA" value="$(MAG_HMC58XX_SA)"/>
+    <define name="HMC58XX_DEFAULT_TC" value="$(MAG_HMC58XX_SA)"/>
     <test>
       <define name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
       <define name="USE_I2C1"/>

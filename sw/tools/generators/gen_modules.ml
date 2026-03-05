@@ -46,6 +46,22 @@ let lprintf_with_cond out s = function
       let cond_expr = Fp_proc.parse_expression cond in
       fprintf out "#if %s\n%s%s;\n#endif\n" (Expr_syntax.sprint cond_expr) (String.make !margin ' ') s
 
+let replace_point = fun s ->
+  String.map (fun c -> if c == '.' then '_' else c) s
+
+(* Print individual ID for each module
+ * ID is starting at 1. 0 is reserved for disable, 255 for broadcast (accept all)
+ *)
+let print_modules_ids = fun out modules ->
+  List.iteri (fun i m -> lprintf out "#define MODULE_%s_ID %d\n" (String.uppercase_ascii (replace_point m.Module.name)) (i+1)) modules;
+  (* also print a table with modules names *)
+  lprintf out "#define MODULES_NAMES = { \\\n";
+  List.iter (fun m -> lprintf out " \"%s\", \\\n" m.Module.name) modules;
+  lprintf out "}\n";
+  lprintf out "#define NB_MODULES %d\n" (List.length modules);
+  let max_length = List.fold_left (fun length m -> if String.length m.Module.name > length then String.length m.Module.name else length) 0 modules in
+  lprintf out "#define MODULES_NAMES_MAX_LEN %d\n" (max_length + 1)
+
 let print_headers = fun out modules ->
   lprintf out  "#include \"std.h\"\n";
   List.iter (fun m ->
@@ -423,6 +439,10 @@ let generate = fun modules xml_file out_file ->
   fprintf out "#error \"neither MODULES_FREQUENCY or PERIODIC_FREQUENCY are defined\"\n";
   fprintf out "#endif\n";
   fprintf out "#endif\n";
+  fprintf out "\n";
+
+  print_modules_ids out modules;
+
   fprintf out "\n";
   fprintf out "#ifdef MODULES_C\n";
   fprintf out "#define EXTERN_MODULES\n";

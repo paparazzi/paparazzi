@@ -58,7 +58,7 @@
 
 /* Default powerbrick values */
 #define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 10.3208191126f * adc)
-#define MilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 24000.0f * adc)
+#define DefaultMilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 24000.0f * adc)
 
 /* Battery monitoring for file closing */
 #define SDLOG_BAT_ADC ADCD1

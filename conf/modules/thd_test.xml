@@ -1,0 +1,37 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="thd_test" dir="sensors" task="sensors">
+  <doc>
+    <description>
+      A module to test threads functionnalities, like threads, mutexes, semaphores and so on.
+      A thread follow the syracuse suit, cadenced by the main ap thread from a periodic
+      function signaling a binary semaphore.
+      The counter thread and the AP thread exchange data protected by a mutex.
+      The counter thread is joined by the AP thread when the suit reach 1.
+      The counter thread can be restarted by setting the initial value from the settings: Threads test/thd_test_start_value
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Threads test">
+        <dl_setting var="thd_test_start_value" min="1" step="1" max="100" header="modules/sensors/thd_test" handler="syracuse_restart"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <dep>
+    <depends>threads</depends>
+  </dep>
+  <header>
+    <file name="thd_test.h"/>
+  </header>
+  <init fun="thd_test_init()"/>
+  <periodic fun="thd_test_periodic()" freq="5"/>
+  <makefile>
+    <file name="thd_test.c"/>
+    <test>
+        <define name="USE_UART0"/>
+        <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+        <define name="DOWNLINK_DEVICE" value="uart0"/>
+    </test>
+  </makefile>
+</module>

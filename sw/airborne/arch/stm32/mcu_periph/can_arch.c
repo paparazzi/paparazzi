@@ -50,11 +50,26 @@
 
 void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len);
 
-bool can_initialized = false;
+struct can_arch_periph {
+  uint32_t canport;
+  bool can_initialized;
+  struct pprzcan_frame rxframe;
+  bool new_rxframe;
+  struct pprzaddr_can addr;
+};
+
+struct can_arch_periph can1_arch_s = {
+  .canport = CAN1,
+  .can_initialized = false,
+  .addr = {.can_ifindex = 1},
+  .rxframe = {0},
+  .new_rxframe = false;
+};
+
 
 void can_hw_init(void)
 {
-
+  can1.arch_struct = &can1_arch_s;
 
 #ifdef STM32F1
   /* Enable peripheral clocks. */
@@ -94,7 +109,7 @@ void can_hw_init(void)
 
 #endif
   /* Reset CAN. */
-  can_reset(CAN1);
+  can_reset(can1_arch_s.canport);
 
   /* CAN cell init.
    * For time quanta calculation see STM32 reference manual
@@ -122,7 +137,7 @@ void can_hw_init(void)
    * NOTE: Although it is out of spec I managed to have CAN run at 2MBit
    * Just decrease the prescaler to 1. It worked for me(tm) (esden)
    */
-  if (can_init(CAN1,
+  if (can_init(can1_arch_s.canport,
                false,           /* TTCM: Time triggered comm mode? */
                true,            /* ABOM: Automatic bus-off management? */
                false,           /* AWUM: Automatic wakeup mode? */
@@ -146,7 +161,7 @@ void can_hw_init(void)
      * driver should...
      */
 
-    can_reset(CAN1);
+    can_reset(can1_arch_s.canport);
 
     return;
   }
@@ -159,84 +174,86 @@ void can_hw_init(void)
                                 true); /* Enable the filter. */
 
   /* Enable CAN RX interrupt. */
-  can_enable_irq(CAN1, CAN_IER_FMPIE0);
+  can_enable_irq(can1_arch_s.canport, CAN_IER_FMPIE0);
 
   /* Remember that we succeeded to initialize. */
-  can_initialized = true;
+  can1_arch_s.can_initialized = true;
 }
 
-int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
-{
 
-  if (!can_initialized) {
+int can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* addr) {
+  if (!can1_arch_s.can_initialized) {
     return -2;
   }
 
-  if (len > 8) {
-    return -1;
+  if(txframe->len > 8) {
+    return -1; //does not currently support CANFD
   }
 
-
-  /* FIXME: we are discarding the const qualifier for buf here.
-   * We should probably fix libopencm3 to actually have the
-   * const qualifier too...
-   */
-  return can_transmit(CAN1,
-                      id,     /* (EX/ST)ID: CAN ID */
+    return can_transmit(can1_arch_s.canport,      
 #ifdef USE_CAN_EXT_ID
+                      txframe->can_id & CAN_EID_MASK,
                       true,  /* IDE: CAN ID extended */
 #else
-                      false, /* IDE: CAN ID not extended */
+                      txframe->can_id & CAN_SID_MASK,
+                      false, /* IDE: CAN ID standard */
 #endif
-                      false, /* RTR: Request transmit? */
-                      len,   /* DLC: Data length */
-                      (uint8_t *)buf);
+                      txframe->can_id & CAN_FRAME_RTR, /* RTR: Request transmit? */
+                      can_len_to_dlc(txframe->len),   /* DLC: Data length */
+                      (uint8_t *)txframe->data);
+
 }
+
 #ifdef STM32F1
 void usb_lp_can_rx0_isr(void)
+#elif STM32F4
+void can1_rx0_isr(void)
+#else
+#error "CAN unsuported on this MCU!"
+void __unsupported_isr(void)
+#endif
 {
   uint32_t id;
   uint8_t fmi;
   bool ext, rtr;
-  uint8_t length, data[8];
-  uint16_t timestamp;
+  uint8_t dlc;
+  struct pprzcan_frame* rxframe = &can1_arch_s.rxframe;
 
-  can_receive(CAN1,
+
+  can_receive(can1_arch_s.canport,
               0,     /* FIFO: 0 */
               false, /* Release */
-              &id,
+              &rxframe->can_id,
               &ext,
               &rtr,
               &fmi,
-              &length,
-              data,
-              &timestamp);
+              &dlc,
+              rxframe->data,
+              &rxframe->timestamp);
+  
+  rxframe->len = can_dlc_to_len(dlc);
 
-  _can_run_rx_callback(id, data, length);
+  if(ext) {
+    rxframe->can_id |= CAN_FRAME_EFF;
+  }
+  
+  if(rtr) {
+    rxframe->can_id |= CAN_FRAME_RTR;
+  }
 
-  can_fifo_release(CAN1, 0);
+  can1_arch_s.new_rxframe = true;
+
+  can_fifo_release(can1_arch_s.canport, 0);
 }
-#elif STM32F4
-void can1_rx0_isr(void){
-  uint32_t id;
-  uint8_t fmi;
-  bool ext, rtr;
-  uint8_t length, data[8];
-  uint16_t timestamp;
 
-  can_receive(CAN1,
-              0,     /* FIFO: 0 */
-              false, /* Release */
-              &id,
-              &ext,
-              &rtr,
-              &fmi,
-              &length,
-              data,
-              &timestamp);
 
-  _can_run_rx_callback(id, data, length);
-
-  can_fifo_release(CAN1, 0);
+void can_event() {
+  if(can1_arch_s.new_rxframe) {
+    for(int i=0; i<CAN_NB_CALLBACKS_MAX; i++) {
+      if(can1.callbacks[i] != NULL) {
+        can1.callbacks[i](&can1_arch_s.rxframe, &can1_arch_s.addr, can1.callback_user_data[i]);
+      }
+    }
+    can1_arch_s.new_rxframe = false;
+  }
 }
-#endif

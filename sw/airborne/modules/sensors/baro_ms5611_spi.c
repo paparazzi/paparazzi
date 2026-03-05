@@ -36,6 +36,12 @@
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 
+#if USE_BARO_MEDIAN_FILTER
+#include "filters/median_filter.h"
+struct MedianFilterFloat baro_median_temp;
+struct MedianFilterFloat baro_median_pressure;
+#endif
+
 #ifndef MS5611_SPI_DEV
 #define MS5611_SPI_DEV spi1
 #endif
@@ -43,7 +49,6 @@
 #ifndef MS5611_SLAVE_IDX
 #define MS5611_SLAVE_IDX SPI_SLAVE0
 #endif
-
 
 struct Ms5611_Spi baro_ms5611;
 
@@ -58,6 +63,11 @@ float baro_ms5611_sigma2;
 
 void baro_ms5611_init(void)
 {
+#if USE_BARO_MEDIAN_FILTER
+  init_median_filter_f(&baro_median_temp, MEDIAN_DEFAULT_SIZE);
+  init_median_filter_f(&baro_median_pressure, MEDIAN_DEFAULT_SIZE);
+#endif
+
   ms5611_spi_init(&baro_ms5611, &MS5611_SPI_DEV, MS5611_SLAVE_IDX, FALSE);
 
   baro_ms5611_enabled = true;
@@ -69,7 +79,6 @@ void baro_ms5611_init(void)
 
 void baro_ms5611_periodic_check(void)
 {
-
   ms5611_spi_periodic_check(&baro_ms5611);
 
 #if SENSOR_SYNC_SEND
@@ -94,10 +103,19 @@ void baro_ms5611_event(void)
 
   if (baro_ms5611.data_available) {
     uint32_t now_ts = get_sys_time_usec();
+    #if USE_BARO_MEDIAN_FILTER
+      baro_ms5611.data.temperature = update_median_filter_f(&baro_median_temp, baro_ms5611.data.temperature);
+    #endif
+    float temp = baro_ms5611.data.temperature / 100.0f;
+    // First Temp as ABI since pressure could depend on temp
+    AbiSendMsgTEMPERATURE(BARO_MS5611_SENDER_ID, temp);
+
+    #if USE_BARO_MEDIAN_FILTER
+      baro_ms5611.data.pressure = update_median_filter_f(&baro_median_pressure, baro_ms5611.data.pressure);
+    #endif
     float pressure = (float)baro_ms5611.data.pressure;
     AbiSendMsgBARO_ABS(BARO_MS5611_SENDER_ID, now_ts, pressure);
-    float temp = baro_ms5611.data.temperature / 100.0f;
-    AbiSendMsgTEMPERATURE(BARO_MS5611_SENDER_ID, temp);
+
     baro_ms5611.data_available = false;
 
     baro_ms5611_alt = pprz_isa_altitude_of_pressure(pressure);

@@ -256,12 +256,27 @@
 /*
  * PWM defines
  */
+#if defined(LINE_SERVO0)
+#ifndef USE_PWM0
+#define USE_PWM0 1
+#endif
+#if USE_PWM1
+#define PWM_SERVO_0 0
+#define PWM_SERVO_0_GPIO    PAL_PORT(LINE_SERVO0)
+#define PWM_SERVO_0_PIN     PAL_PAD(LINE_SERVO0)
+#define PWM_SERVO_0_AF      AF_LINE_SERVO0
+#define PWM_SERVO_0_DRIVER  CONCAT_BOARD_PARAM(PWMD, SERVO0_TIM)
+#define PWM_SERVO_0_CHANNEL (SERVO0_TIM_CH-1)
+#define PWM_SERVO_0_CONF    CONCAT_BOARD_PARAM(pwmcfg, SERVO0_TIM)
+#endif
+#endif
+
 #if defined(LINE_SERVO1)
 #ifndef USE_PWM1
 #define USE_PWM1 1
 #endif
 #if USE_PWM1
-#define PWM_SERVO_1 0
+#define PWM_SERVO_1 1
 #define PWM_SERVO_1_GPIO    PAL_PORT(LINE_SERVO1)
 #define PWM_SERVO_1_PIN     PAL_PAD(LINE_SERVO1)
 #define PWM_SERVO_1_AF      AF_LINE_SERVO1
@@ -276,7 +291,7 @@
 #define USE_PWM2 1
 #endif
 #if USE_PWM2
-#define PWM_SERVO_2 1
+#define PWM_SERVO_2 2
 #define PWM_SERVO_2_GPIO    PAL_PORT(LINE_SERVO2)
 #define PWM_SERVO_2_PIN     PAL_PAD(LINE_SERVO2)
 #define PWM_SERVO_2_AF      AF_LINE_SERVO2
@@ -291,7 +306,7 @@
 #define USE_PWM3 1
 #endif
 #if USE_PWM3
-#define PWM_SERVO_3 2
+#define PWM_SERVO_3 3
 #define PWM_SERVO_3_GPIO    PAL_PORT(LINE_SERVO3)
 #define PWM_SERVO_3_PIN     PAL_PAD(LINE_SERVO3)
 #define PWM_SERVO_3_AF      AF_LINE_SERVO3
@@ -306,7 +321,7 @@
 #define USE_PWM4 1
 #endif
 #if USE_PWM4
-#define PWM_SERVO_4 3
+#define PWM_SERVO_4 4
 #define PWM_SERVO_4_GPIO    PAL_PORT(LINE_SERVO4)
 #define PWM_SERVO_4_PIN     PAL_PAD(LINE_SERVO4)
 #define PWM_SERVO_4_AF      AF_LINE_SERVO4
@@ -321,7 +336,7 @@
 #define USE_PWM5 1
 #endif
 #if USE_PWM5
-#define PWM_SERVO_5 4
+#define PWM_SERVO_5 5
 #define PWM_SERVO_5_GPIO    PAL_PORT(LINE_SERVO5)
 #define PWM_SERVO_5_PIN     PAL_PAD(LINE_SERVO5)
 #define PWM_SERVO_5_AF      AF_LINE_SERVO5
@@ -336,7 +351,7 @@
 #define USE_PWM6 1
 #endif
 #if USE_PWM6
-#define PWM_SERVO_6 5
+#define PWM_SERVO_6 6
 #define PWM_SERVO_6_GPIO    PAL_PORT(LINE_SERVO6)
 #define PWM_SERVO_6_PIN     PAL_PAD(LINE_SERVO6)
 #define PWM_SERVO_6_AF      AF_LINE_SERVO6
@@ -351,7 +366,7 @@
 #define USE_PWM7 1
 #endif
 #if USE_PWM7
-#define PWM_SERVO_7 6
+#define PWM_SERVO_7 7
 #define PWM_SERVO_7_GPIO    PAL_PORT(LINE_SERVO7)
 #define PWM_SERVO_7_PIN     PAL_PAD(LINE_SERVO7)
 #define PWM_SERVO_7_AF      AF_LINE_SERVO7
@@ -366,7 +381,7 @@
 #define USE_PWM8 1
 #endif
 #if USE_PWM8
-#define PWM_SERVO_8 7
+#define PWM_SERVO_8 8
 #define PWM_SERVO_8_GPIO    PAL_PORT(LINE_SERVO8)
 #define PWM_SERVO_8_PIN     PAL_PAD(LINE_SERVO8)
 #define PWM_SERVO_8_AF      AF_LINE_SERVO8
@@ -753,6 +768,11 @@
 #define SPI_SELECT_SLAVE8_PIN   PAL_PAD(LINE_SPI_SLAVE8)
 #endif
 
+#if defined(LINE_SPI_SLAVE9)
+#define SPI_SELECT_SLAVE9_PORT  PAL_PORT(LINE_SPI_SLAVE9)
+#define SPI_SELECT_SLAVE9_PIN   PAL_PAD(LINE_SPI_SLAVE9)
+#endif
+
 /**
  * SDIO
  */
@@ -788,7 +808,7 @@
  */
  /* Default actuators driver */
 #define DEFAULT_ACTUATORS "modules/actuators/actuators_pwm.h"
-#define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
+#define ActuatorDefaultSet ActuatorPwmSet
 #define ActuatorsDefaultInit() ActuatorsPwmInit()
 #define ActuatorsDefaultCommit() ActuatorsPwmCommit()
 

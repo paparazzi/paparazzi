@@ -47,10 +47,6 @@
 struct MedianFilterFloat sonar_filt;
 uint32_t sonar_bebop_spike_timer;
 
-#ifdef SITL
-#include "state.h"
-#endif
-
 /** SONAR_BEBOP_INX_DIFF_TO_DIST conversion from index difference to distance based on time of flight
  * ADC speed = 160kHz
  * speed of sound = 340m/s   */
@@ -112,6 +108,8 @@ void *sonar_bebop_read(void *data);
 static float sonar_filter_narrow_obstacles(float distance_sonar);
 #endif
 
+static pthread_mutex_t sonar_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 void sonar_bebop_init(void)
 {
   mode = 0; // default mode is low altitude
@@ -119,6 +117,7 @@ void sonar_bebop_init(void)
 
   sonar_bebop.meas = 0;
   sonar_bebop.offset = 0;
+  sonar_bebop.available = false;
 
   /* configure spi transaction */
   sonar_bebop_spi_t.status        = SPITransDone;
@@ -141,6 +140,36 @@ void sonar_bebop_init(void)
   pthread_setname_np(tid, "sonar");
 #endif
 #endif
+  pthread_mutex_init(&sonar_mutex, NULL);
+}
+
+void sonar_bebop_event(void)
+{
+  pthread_mutex_lock(&sonar_mutex);
+  if (sonar_bebop.available) {
+#if SONAR_COMPENSATE_ROTATION
+    float phi = stateGetNedToBodyEulers_f()->phi;
+    float theta = stateGetNedToBodyEulers_f()->theta;
+    float gain = (float)fabs( (double) (cosf(phi) * cosf(theta)));
+    sonar_bebop.distance =  sonar_bebop.distance * gain;
+#endif
+
+#if SONAR_BEBOP_FILTER_NARROW_OBSTACLES
+    sonar_bebop.distance = sonar_filter_narrow_obstacles(sonar_bebop.distance);
+#endif
+
+    // Send ABI message
+    uint32_t now_ts = get_sys_time_usec();
+    AbiSendMsgAGL(AGL_SONAR_ADC_ID, now_ts, sonar_bebop.distance);
+
+#ifdef SENSOR_SYNC_SEND_SONAR
+    // Send Telemetry report
+    DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &sonar_bebop.meas, &sonar_bebop.distance);
+#endif
+
+    sonar_bebop.available = false;
+  }
+  pthread_mutex_unlock(&sonar_mutex);
 }
 
 uint16_t adc_buffer[SONAR_BEBOP_ADC_BUFFER_SIZE];
@@ -150,7 +179,6 @@ uint16_t adc_buffer[SONAR_BEBOP_ADC_BUFFER_SIZE];
 void *sonar_bebop_read(void *data __attribute__((unused)))
 {
   while (true) {
-#ifndef SITL
     uint16_t i;
 
     /* Start ADC and send sonar output */
@@ -193,6 +221,7 @@ void *sonar_bebop_read(void *data __attribute__((unused)))
     uint16_t diff = stop_send - start_send;
     if (diff && diff < SONAR_BEBOP_MAX_TRANS_TIME
         && peak_value > SONAR_BEBOP_MIN_PEAK_VAL) {
+      pthread_mutex_lock(&sonar_mutex);
       sonar_bebop.meas = (uint16_t)(first_peak - (stop_send - diff / 2));
       sonar_bebop.distance = update_median_filter_f(&sonar_filt, (float)sonar_bebop.meas * SONAR_BEBOP_INX_DIFF_TO_DIST);
 
@@ -210,36 +239,10 @@ void *sonar_bebop_read(void *data __attribute__((unused)))
       } else {
         pulse_transition_counter = 0;
       }
-
-#if SONAR_COMPENSATE_ROTATION
-      float phi = stateGetNedToBodyEulers_f()->phi;
-      float theta = stateGetNedToBodyEulers_f()->theta;
-      float gain = (float)fabs( (double) (cosf(phi) * cosf(theta)));
-      sonar_bebop.distance =  sonar_bebop.distance * gain;
-#endif
-
-#else // SITL
-      sonar_bebop.distance = stateGetPositionEnu_f()->z;
-      Bound(sonar_bebop.distance, 0.1f, 7.0f);
-      sonar_bebop.meas = (uint16_t)(sonar_bebop.distance / SONAR_BEBOP_INX_DIFF_TO_DIST);
-#endif // SITL
-
-#if SONAR_BEBOP_FILTER_NARROW_OBSTACLES
-      sonar_bebop.distance = sonar_filter_narrow_obstacles(sonar_bebop.distance);
-#endif
-
-      // Send ABI message
-      uint32_t now_ts = get_sys_time_usec();
-      AbiSendMsgAGL(AGL_SONAR_ADC_ID, now_ts, sonar_bebop.distance);
-
-#ifdef SENSOR_SYNC_SEND_SONAR
-      // Send Telemetry report
-      DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &sonar_bebop.meas, &sonar_bebop.distance);
-#endif
-
-#ifndef SITL
+      sonar_bebop.available = true;
+      pthread_mutex_unlock(&sonar_mutex);
     }
-#endif
+
     usleep(10000); //100Hz  FIXME: use SYS_TIME_FREQUENCY and divisor
   }
   return NULL;

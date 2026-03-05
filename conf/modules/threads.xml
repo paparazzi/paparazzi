@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="threads" dir="core" task="core">
+  <doc>
+    <description>
+      Provide threads and synchronization primitives.
+    </description>
+  </doc>
+  <dep>
+  </dep>
+  <header>
+    <file name="threads.h"/>
+  </header>
+  <makefile>
+    <file_arch name="threads_arch.c"/>
+    <test>
+    </test>
+  </makefile>
+</module>
+

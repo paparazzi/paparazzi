@@ -120,6 +120,11 @@ static inline ioportid_t spi_resolve_slave_port(uint8_t slave)
       return SPI_SELECT_SLAVE8_PORT;
       break;
 #endif //USE_SPI_SLAVE8
+#if USE_SPI_SLAVE9
+    case 9:
+      return SPI_SELECT_SLAVE9_PORT;
+      break;
+#endif //USE_SPI_SLAVE9
     default:
       return 0;
       break;
@@ -182,6 +187,11 @@ static inline uint16_t spi_resolve_slave_pin(uint8_t slave)
       return SPI_SELECT_SLAVE8_PIN;
       break;
 #endif //USE_SPI_SLAVE8
+#if USE_SPI_SLAVE9
+    case 9:
+      return SPI_SELECT_SLAVE9_PIN;
+      break;
+#endif //USE_SPI_SLAVE9
     default:
       return 0;
       break;
@@ -389,6 +399,7 @@ static void handle_spi_thd(struct spi_periph *p)
     t->after_cb(t);
   }
 
+  pprz_bsem_signal(&t->bsem);
 }
 
 /**
@@ -552,6 +563,7 @@ bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
   p->trans_insert_idx = idx;
 
   chSysUnlock();
+  pprz_bsem_init(&t->bsem, true);
   chSemSignal(&((struct spi_init *)p->init_struct)->sem);
   // transaction submitted
   return TRUE;
@@ -611,6 +623,11 @@ void spi_slave_select(uint8_t slave)
       gpio_clear(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
       break;
 #endif //USE_SPI_SLAVE8
+#if USE_SPI_SLAVE9
+    case 9:
+      gpio_clear(SPI_SELECT_SLAVE9_PORT, SPI_SELECT_SLAVE9_PIN);
+      break;
+#endif //USE_SPI_SLAVE9
     default:
       break;
   }
@@ -668,6 +685,11 @@ void spi_slave_unselect(uint8_t slave)
       gpio_set(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
       break;
 #endif //USE_SPI_SLAVE8
+#if USE_SPI_SLAVE9
+    case 9:
+      gpio_set(SPI_SELECT_SLAVE9_PORT, SPI_SELECT_SLAVE9_PIN);
+      break;
+#endif //USE_SPI_SLAVE9
     default:
       break;
   }
@@ -751,5 +773,10 @@ void spi_init_slaves(void)
 #if USE_SPI_SLAVE8
   gpio_setup_output(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
   spi_slave_unselect(8);
+#endif
+
+#if USE_SPI_SLAVE9
+  gpio_setup_output(SPI_SELECT_SLAVE9_PORT, SPI_SELECT_SLAVE9_PIN);
+  spi_slave_unselect(9);
 #endif
 }

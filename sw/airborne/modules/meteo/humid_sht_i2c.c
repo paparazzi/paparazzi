@@ -27,9 +27,6 @@
 
 
 #include "modules/meteo/humid_sht_i2c.h"
-
-#include "mcu_periph/i2c.h"
-#include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 
@@ -40,14 +37,146 @@
 
 #define SHT_SLAVE_ADDR 0x80
 
-struct i2c_transaction sht_trans;
-uint8_t sht_status;
-uint8_t sht_serial[8] = {0};
-uint32_t sht_serial1 = 0, sht_serial2 = 0;
-uint16_t humidsht_i2c, tempsht_i2c;
-float fhumidsht_i2c, ftempsht_i2c;
+#define SHT2_WRITE_USER          0xE6
+#define SHT2_READ_USER           0xE7
+#define SHT2_TRIGGER_TEMP        0xF3
+#define SHT2_TRIGGER_HUMID       0xF5
+#define SHT2_SOFT_RESET          0xFE
 
-int8_t humid_sht_crc(volatile uint8_t *data)
+static void humid_sht_thd(void* arg);
+static void sht_read_serial(struct sht_humid_t* sht);
+static int sht_read_temp(struct sht_humid_t* sht);
+static int sht_read_humid(struct sht_humid_t* sht);
+static int8_t humid_sht_crc(volatile uint8_t *data);
+
+
+
+static struct sht_humid_t sht;
+
+
+void humid_sht_init_i2c(void)
+{
+  sht.sht_status = SHT2_UNINIT;
+  pprz_bsem_init(&sht.bsem_sht_status, true);
+  pprz_thread_create(&sht.thd_handle, 512, "humid_sht25", PPRZ_NORMAL_PRIO+1, humid_sht_thd, &sht);
+}
+
+void humid_sht_periodic_i2c(void)
+{
+  if(sht.sht_status == SHT2_READING) {
+    /* send serial number every 30 seconds */
+      RunOnceEvery((4 * 30), DOWNLINK_SEND_SHT_I2C_SERIAL(DefaultChannel, DefaultDevice, &sht.sht_serial1, &sht.sht_serial2));
+  }
+
+  if(pprz_bsem_wait_timeout(&sht.bsem_sht_status, 0) == 0) {
+    DOWNLINK_SEND_SHT_I2C_STATUS(DefaultChannel, DefaultDevice, &sht.humidsht_i2c, &sht.tempsht_i2c, &sht.fhumidsht_i2c, &sht.ftempsht_i2c);
+  }
+}
+
+
+static void humid_sht_thd(void* arg) {
+  sys_time_usleep(100000);
+  struct sht_humid_t* sht = (struct sht_humid_t*)arg;
+
+  /* soft reset sensor */
+  sht->sht_trans.buf[0] = SHT2_SOFT_RESET;
+  while(i2c_blocking_transmit(&SHT_I2C_DEV, &sht->sht_trans, SHT_SLAVE_ADDR, 1, 0.5) != I2CTransSuccess) {
+    sys_time_usleep(100000);
+  }
+
+  /* read serial number */
+  sht_read_serial(sht);
+  
+  sht->sht_status = SHT2_READING;
+
+  while(true) {
+    /* read temperature */
+    if(sht_read_temp(sht)) {continue;}
+    /* read humidity */
+    if(sht_read_humid(sht)) {continue;}
+    /* signal semaphore to handle data */
+    pprz_bsem_signal(&sht->bsem_sht_status);
+
+    sys_time_usleep(500000);
+  }
+}
+
+
+static void sht_read_serial(struct sht_humid_t* sht) {
+  uint8_t sht_serial[8] = {0};
+
+  /* request serial number part 1 */
+  sht->sht_trans.buf[0] = 0xFA;
+  sht->sht_trans.buf[1] = 0x0F;
+  while(i2c_blocking_transceive(&SHT_I2C_DEV, &sht->sht_trans, SHT_SLAVE_ADDR, 2, 8, 0.5) != I2CTransSuccess) {
+    sys_time_usleep(10000);
+  }
+  /* read serial number part 1 */
+  sht_serial[5] = sht->sht_trans.buf[0];
+  sht_serial[4] = sht->sht_trans.buf[2];
+  sht_serial[3] = sht->sht_trans.buf[4];
+  sht_serial[2] = sht->sht_trans.buf[6];
+  
+  /* request serial number part 2 */
+  sht->sht_trans.buf[0] = 0xFC;
+  sht->sht_trans.buf[1] = 0xC9;
+  while(i2c_blocking_transceive(&SHT_I2C_DEV, &sht->sht_trans, SHT_SLAVE_ADDR, 2, 6, 0.5) != I2CTransSuccess) {
+    sys_time_usleep(10000);
+  }
+  /* read serial number part 2 */
+  sht_serial[1] = sht->sht_trans.buf[0];
+  sht_serial[0] = sht->sht_trans.buf[1];
+  sht_serial[7] = sht->sht_trans.buf[3];
+  sht_serial[6] = sht->sht_trans.buf[4];
+
+  sht->sht_serial1 = sht_serial[7] << 24 | sht_serial[6] << 16 | sht_serial[5] << 8 | sht_serial[4];
+  sht->sht_serial2 = sht_serial[3] << 24 | sht_serial[2] << 16 | sht_serial[1] << 8 | sht_serial[0];
+}
+
+static int sht_read_temp(struct sht_humid_t* sht) {
+  /* trigger temp measurement, no master hold */
+  sht->sht_trans.buf[0] = SHT2_TRIGGER_TEMP;
+  if(i2c_blocking_transmit(&SHT_I2C_DEV, &sht->sht_trans, SHT_SLAVE_ADDR, 1, 0.5) != I2CTransSuccess ) {
+    return -1;
+  }
+  /* needs 85ms delay from temp trigger measurement */
+  sys_time_usleep(85000);
+  /* read temperature */
+  if(i2c_blocking_receive(&SHT_I2C_DEV, &sht->sht_trans, SHT_SLAVE_ADDR, 3, 0.5) != I2CTransSuccess) {
+    return -1;
+  }
+  if (humid_sht_crc(sht->sht_trans.buf) != 0) {
+    /* checksum error*/
+    return -1;
+  }
+
+  sht->tempsht_i2c = ((sht->sht_trans.buf[0] << 8) | sht->sht_trans.buf[1]) & 0xFFFC;
+  sht->ftempsht_i2c = -46.85 + 175.72 / 65536. * sht->tempsht_i2c;
+  return 0;
+}
+
+static int sht_read_humid(struct sht_humid_t* sht) {
+  /* trigger humid measurement, no master hold */
+  sht->sht_trans.buf[0] = SHT2_TRIGGER_HUMID;
+  if(i2c_blocking_transmit(&SHT_I2C_DEV, &sht->sht_trans, SHT_SLAVE_ADDR, 1, 0.5) != I2CTransSuccess) {
+    return -1;
+  }
+  /* needs 29ms delay from humid trigger measurement */
+  sys_time_usleep(29000);
+  /* read humidity */
+  if(i2c_blocking_receive(&SHT_I2C_DEV, &sht->sht_trans, SHT_SLAVE_ADDR, 3, 0.5) != I2CTransSuccess) {
+    return -1;
+  }
+  if (humid_sht_crc(sht->sht_trans.buf) != 0) {
+    /* checksum error */
+    return -1;
+  }
+  sht->humidsht_i2c = ((sht->sht_trans.buf[0] << 8) | sht->sht_trans.buf[1]) & 0xFFFC;
+  sht->fhumidsht_i2c = -6. + 125. / 65536. * sht->humidsht_i2c;
+  return 0;
+}
+
+static int8_t humid_sht_crc(volatile uint8_t *data)
 {
   uint8_t i, bit, crc = 0;
 
@@ -67,147 +196,3 @@ int8_t humid_sht_crc(volatile uint8_t *data)
     return 0;
   }
 }
-
-void humid_sht_init_i2c(void)
-{
-  sht_status = SHT2_UNINIT;
-}
-
-void humid_sht_periodic_i2c(void)
-{
-  switch (sht_status) {
-
-    case SHT2_UNINIT:
-      /* do soft reset, then wait at least 15ms */
-      sht_status = SHT2_RESET;
-      sht_trans.buf[0] = SHT2_SOFT_RESET;
-      i2c_transmit(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 1);
-      break;
-
-    case SHT2_SERIAL:
-      /* get serial number part 1 */
-      sht_status = SHT2_SERIAL1;
-      sht_trans.buf[0] = 0xFA;
-      sht_trans.buf[1] = 0x0F;
-      i2c_transceive(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 2, 8);
-      break;
-
-    case SHT2_SERIAL1:
-    case SHT2_SERIAL2:
-      break;
-
-    default:
-      /* trigger temp measurement, no master hold */
-      sht_trans.buf[0] = SHT2_TRIGGER_TEMP;
-      sht_status = SHT2_TRIG_TEMP;
-      i2c_transmit(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 1);
-      /* send serial number every 30 seconds */
-      RunOnceEvery((4 * 30), DOWNLINK_SEND_SHT_I2C_SERIAL(DefaultChannel, DefaultDevice, &sht_serial1, &sht_serial2));
-      break;
-  }
-}
-
-/* needs 85ms delay from temp trigger measurement */
-void humid_sht_p_temp(void)
-{
-  if (sht_status == SHT2_GET_TEMP) {
-    /* get temp */
-    sht_status = SHT2_READ_TEMP;
-    i2c_receive(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 3);
-  }
-}
-
-/* needs 29ms delay from humid trigger measurement */
-void humid_sht_p_humid(void)
-{
-  if (sht_status == SHT2_GET_HUMID) {
-    /* read humid */
-    sht_status = SHT2_READ_HUMID;
-    i2c_receive(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 3);
-  }
-}
-
-void humid_sht_event_i2c(void)
-{
-  if (sht_trans.status == I2CTransSuccess) {
-    switch (sht_status) {
-
-      case SHT2_TRIG_TEMP:
-        sht_status = SHT2_GET_TEMP;
-        sht_trans.status = I2CTransDone;
-        break;
-
-      case SHT2_READ_TEMP:
-        /* read temperature */
-        tempsht_i2c = (sht_trans.buf[0] << 8) | sht_trans.buf[1];
-        tempsht_i2c &= 0xFFFC;
-        if (humid_sht_crc(sht_trans.buf) == 0) {
-          /* trigger humid measurement, no master hold */
-          sht_trans.buf[0] = SHT2_TRIGGER_HUMID;
-          sht_status = SHT2_TRIG_HUMID;
-          i2c_transmit(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 1);
-        } else {
-          /* checksum error, restart */
-          sht_status = SHT2_IDLE;
-          sht_trans.status = I2CTransDone;
-        }
-        break;
-
-      case SHT2_TRIG_HUMID:
-        sht_status = SHT2_GET_HUMID;
-        sht_trans.status = I2CTransDone;
-        break;
-
-      case SHT2_READ_HUMID:
-        /* read humidity */
-        humidsht_i2c = (sht_trans.buf[0] << 8) | sht_trans.buf[1];
-        humidsht_i2c &= 0xFFFC;
-        fhumidsht_i2c = -6. + 125. / 65536. * humidsht_i2c;
-        ftempsht_i2c = -46.85 + 175.72 / 65536. * tempsht_i2c;
-
-        sht_status = SHT2_IDLE;
-        sht_trans.status = I2CTransDone;
-
-        if (humid_sht_crc(sht_trans.buf) == 0) {
-          DOWNLINK_SEND_SHT_I2C_STATUS(DefaultChannel, DefaultDevice, &humidsht_i2c, &tempsht_i2c, &fhumidsht_i2c, &ftempsht_i2c);
-        }
-        break;
-
-      case SHT2_RESET:
-        sht_status = SHT2_SERIAL;
-        sht_trans.status = I2CTransDone;
-        break;
-
-      case SHT2_SERIAL1:
-        /* read serial number part 1 */
-        sht_serial[5] = sht_trans.buf[0];
-        sht_serial[4] = sht_trans.buf[2];
-        sht_serial[3] = sht_trans.buf[4];
-        sht_serial[2] = sht_trans.buf[6];
-        /* get serial number part 2 */
-        sht_status = SHT2_SERIAL2;
-        sht_trans.buf[0] = 0xFC;
-        sht_trans.buf[1] = 0xC9;
-        i2c_transceive(&SHT_I2C_DEV, &sht_trans, SHT_SLAVE_ADDR, 2, 6);
-        break;
-
-      case SHT2_SERIAL2:
-        /* read serial number part 2 */
-        sht_serial[1] = sht_trans.buf[0];
-        sht_serial[0] = sht_trans.buf[1];
-        sht_serial[7] = sht_trans.buf[3];
-        sht_serial[6] = sht_trans.buf[4];
-        sht_serial1 = sht_serial[7] << 24 | sht_serial[6] << 16 | sht_serial[5] << 8 | sht_serial[4];
-        sht_serial2 = sht_serial[3] << 24 | sht_serial[2] << 16 | sht_serial[1] << 8 | sht_serial[0];
-        DOWNLINK_SEND_SHT_I2C_SERIAL(DefaultChannel, DefaultDevice, &sht_serial1, &sht_serial2);
-        sht_status = SHT2_IDLE;
-        sht_trans.status = I2CTransDone;
-        break;
-
-      default:
-        sht_trans.status = I2CTransDone;
-        break;
-    }
-  }
-}
-

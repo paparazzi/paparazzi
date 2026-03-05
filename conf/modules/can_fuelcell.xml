@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="can_fuelcell" dir="energy">
+  <doc>
+    <description>CAN Fuelcell data sent to GCS</description>
+  </doc>
+  <header>
+    <file name="can_fuelcell.h"/>
+  </header>
+  <init fun="can_fuelcell_init()"/>
+  <periodic fun="can_fuelcell_periodic()" freq="1." autorun="TRUE"/>
+  <makefile>
+    <!-- Sources -->
+    <file name="can_fuelcell.c"/>
+
+      <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="pprz.equipment.fuelcell.Status.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+  </makefile>
+</module>

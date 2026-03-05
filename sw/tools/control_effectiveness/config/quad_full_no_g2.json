@@ -1,0 +1,133 @@
+{
+  "variables" : {
+    "filt_cutoff" : 4.0,
+    "act_freq" : 15.0
+  },
+  "data" : [
+    {
+      "name" : "time",
+      "type" : "timestamp",
+      "column" : 0,
+      "index" : -1,
+      "format" : "float",
+      "scale" : 1.0,
+      "unit" : "s"
+    },
+    {
+      "name" : "rate.x",
+      "type" : "input",
+      "column" : 1,
+      "index" : 0,
+      "format" : "bfp",
+      "resolution" : 12,
+      "filters" : [["butter", [2, "filt_cutoff"]], ["diff_signal", [2]]]
+    },
+    {
+      "name" : "rate.y",
+      "type" : "input",
+      "column" : 2,
+      "index" : 1,
+      "format" : "bfp",
+      "resolution" : 12,
+      "filters" : [["butter", [2, "filt_cutoff"]], ["diff_signal", [2]]]
+    },
+    {
+      "name" : "rate.z",
+      "type" : "input",
+      "column" : 3,
+      "index" : 2,
+      "format" : "bfp",
+      "resolution" : 12,
+      "filters" : [["butter", [2, "filt_cutoff"]], ["diff_signal", [2]]]
+    },
+    {
+      "name" : "accel.x",
+      "type" : "input",
+      "column" : 4,
+      "index" : -1,
+      "format" : "bfp",
+      "resolution" : 10,
+      "filters" : []
+    },
+    {
+      "name" : "accel.y",
+      "type" : "input",
+      "column" : 5,
+      "index" : -1,
+      "format" : "bfp",
+      "resolution" : 10,
+      "filters" : []
+    },
+    {
+      "name" : "accel.z",
+      "type" : "input",
+      "column" : 6,
+      "index" : 3,
+      "format" : "bfp",
+      "resolution" : 10,
+      "filters" : [["butter", [2, "filt_cutoff"]], ["diff_signal", [1]]]
+    },
+    {
+      "name" : "act_1",
+      "type" : "command",
+      "column" : 11,
+      "index" : 0,
+      "format" : "pprz",
+      "filters" : [["1st_order", ["act_freq"]], ["butter", [2, "filt_cutoff"]], ["diff_signal", [1]]]
+    },
+    {
+      "name" : "act_2",
+      "type" : "command",
+      "column" : 12,
+      "index" : 1,
+      "format" : "pprz",
+      "filters" : [["1st_order", ["act_freq"]], ["butter", [2, "filt_cutoff"]], ["diff_signal", [1]]]
+    },
+    {
+      "name" : "act_3",
+      "type" : "command",
+      "column" : 13,
+      "index" : 2,
+      "format" : "pprz",
+      "filters" : [["1st_order", ["act_freq"]], ["butter", [2, "filt_cutoff"]], ["diff_signal", [1]]]
+    },
+    {
+      "name" : "act_4",
+      "type" : "command",
+      "column" : 14,
+      "index" : 3,
+      "format" : "pprz",
+      "filters" : [["1st_order", ["act_freq"]], ["butter", [2, "filt_cutoff"]], ["diff_signal", [1]]]
+    }
+  ],
+  "mixing" : [
+    [ 1.0, 1.0, 1.0, 1.0 ],
+    [ 1.0, 1.0, 1.0, 1.0 ],
+    [ 1.0, 1.0, 1.0, 1.0 ],
+    [ 1.0, 1.0, 1.0, 1.0 ]
+  ],
+  "display" : [
+    {
+      "name" : "G1",
+      "matrix": [
+        [[0,0],[0,1],[0,2],[0,3]],
+        [[1,0],[1,1],[1,2],[1,3]],
+        [[2,0],[2,1],[2,2],[2,3]],
+        [[3,0],[3,1],[3,2],[3,3]]
+      ],
+      "scaling" : 1000
+    },
+    {
+      "name" : "FILT_CUTOFF",
+      "coef" : "filt_cutoff"
+    },
+    {
+      "name" : "FILT_CUTOFF_R",
+      "coef" : "filt_cutoff"
+    },
+    {
+      "name" : "ACT_FREQ",
+      "coef" : ["act_freq","act_freq","act_freq","act_freq"]
+    }
+  ]
+}

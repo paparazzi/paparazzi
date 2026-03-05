@@ -1,6 +1,5 @@
 #!/bin/sh
 # on startup the system is not quite ready when called, so lets play it safe and wait a while
-sleep 4
 if [ -r /data/ftp/internal_000/scripts/pprz.conf ]; then
   source /data/ftp/internal_000/scripts/pprz.conf
   echo "Read config"
@@ -8,13 +7,76 @@ else
   echo "No config found, using default"
   START_TELNET=1
   START_ADB=1
+  START_CDC_ACM=0
   JOIN_WIFI=0
   START_PPRZ=0
   WIFI_ADDRESS="dhcp"
   WIFI_AMODE="none"
 fi
+if [ "$WIFI_AMODE" != "none" ]; then
+  echo "Generate wpa_supplicant conf"
+  wpa_passphrase $WIFI_SSID $WIFI_KEY > /data/ftp/internal_000/scripts/wpa_supplicant.conf
+fi
+
+# wait for joining network
+# $1: max iteration
+# $2: sleep time between checks
+wait_ret=0
+wait_join()
+{
+  join_ssid="none"
+  wait_ret=0
+  cpt_status=1
+  while [ $cpt_status -le $1 ] && [ $wait_ret == 0 ]
+  do
+    join_ssid=$(bcmwl status | egrep $WIFI_SSID -o)
+    sleep $2
+    if [ "$join_ssid" == "$WIFI_SSID" ]; then
+      echo "Wait join successful [$join_ssid]"
+      wait_ret=1
+    fi
+    echo "Still not joined [$join_ssid] ($cpt_status)"
+    cpt_status=$(( cpt_status+1 ))
+  done
+  if [ $wait_ret == 0 ]; then
+    echo "Joining $WIFI_SSID failed"
+  fi
+}
+
+# try to join with authentification
+# $1: number of retry
+join_status=0
+try_join()
+{
+  wificmd="bcmwl join $WIFI_SSID"
+  cpt_join=1
+  join_status=0
+  while [ $join_status != 1 ] && [ $cpt_join -le $1 ]
+  do
+    echo "Trying to join $WIFI_SSID (attenmpt $cpt_join)"
+    eval $wificmd
+    wait_join 5 1
+    join_status=$wait_ret
+    cpt_join=$(( cpt_join+1 ))
+  done
+}
+
+# kill wpa_supplicant if needed and reset wifi chip
+# $1 error message
+reset_wifi()
+{
+  echo $1, reverting back to default
+  killall wpa_supplicant
+  /sbin/broadcom_reset.sh
+  BLDC_Test_Bench -n -M -2
+  echo "Reset broadcom: $1" > /data/ftp/internal_000/scripts/MSG_latest_Failed
+  echo "$(bcmwl status)" >> /data/ftp/internal_000/scripts/MSG_latest_Failed
+}
+
+
 if [ "$JOIN_WIFI" -gt "0" ]
 then
+  sleep 2
   echo "Scanning WiFi networks..."
   # see if wifi network with SSID swarmhub is available
   if (bcmwl escanresults | grep "$WIFI_SSID")
@@ -29,32 +91,21 @@ then
     ifconfig eth0 up
     # set AP mode to 0 (parrot default is 1 for ad-hoc host)
     bcmwl ap 0
+
     # join wifi network
+    sleep 1
     if [ "$WIFI_AMODE" == "none" ]; then
       echo "No Authentication"
-      wificmd="bcmwl join $WIFI_SSID"
+      try_join 5
     else
-      echo "$WIFI_AMODE Authentication"
-      wificmd="bcmwl join $WIFI_SSID key $WIFI_KEY amode $WIFI_AMODE"
+      echo "Connect with wpa_supplicant"
+      wpa_supplicant -B -D wext -i eth0 -c /data/ftp/internal_000/scripts/wpa_supplicant.conf
     fi
-    cpt_join=1
-    while ([ -z $join_ssid ] || [ $join_ssid != $WIFI_SSID ]) && [ $cpt_join -le 5 ]
-    do
-      echo "Trying to join $WIFI_SSID (attenmpt $cpt_join)"
-      eval $wificmd
-      cpt_status=1
-      while ([ -z $join_ssid ] || [ $join_ssid != $WIFI_SSID ]) && [ $cpt_status -le 5 ]
-      do
-        sleep 1
-        join_ssid=$(bcmwl status | egrep $WIFI_SSID -o)
-        cpt_status=$(( cpt_status+1 ))
-      done
-      cpt_join=$(( cpt_join+1 ))
-    done
-    echo $join_ssid > /data/ftp/internal_000/scripts/MSG_latest_Join
-    if [ "$join_ssid" == "$WIFI_SSID" ]; then
-      echo Join succeeded, setting IP
-      if [ "$WIFI_ADDRESS" == "dhcp" ]; then
+    if [ "$WIFI_ADDRESS" == "dhcp" ]; then
+      wait_join 10 3
+      echo $wait_ret > /data/ftp/internal_000/scripts/MSG_latest_Join
+      if [ $wait_ret == 1 ]; then
+        echo Join succeeded, setting IP
         # from the udhcpc message clip the leased IP address
         dhcpmsg=`udhcpc -n -b -i eth0 -s /data/ftp/internal_000/scripts/config_network.script -x hostname:$(hostname)`
         echo $dhcpmsg > /data/ftp/internal_000/scripts/MSG_latest_DHCP
@@ -66,21 +117,17 @@ then
           echo DHCP success, using IP $dhcpip
           BLDC_Test_Bench -n -M 2 # Make beep sound. You are connected!
         else
-          echo DHCP failed, reverting back to default
-          /sbin/broadcom_reset.sh
-          BLDC_Test_Bench -n -M -2
+          reset_wifi "DHCP failed"
         fi
       else
-        ifconfigcmd="ifconfig eth0 $WIFI_ADDRESS"
-        eval $ifconfigcmd
-        sleep 1
-        echo Connected with static IP $WIFI_ADDRESS
-        BLDC_Test_Bench -n -M 2 # Make beep sound. You are connected!
+        reset_wifi "Join failed"
       fi
-    else
-      echo Join failed, reverting back to default
-      /sbin/broadcom_reset.sh
-      BLDC_Test_Bench -n -M -2
+    else # Static IP
+      ifconfigcmd="ifconfig eth0 $WIFI_ADDRESS"
+      eval $ifconfigcmd
+      sleep 1
+      echo Connected with static IP $WIFI_ADDRESS
+      BLDC_Test_Bench -n -M 2 # Make beep sound. You are connected!
     fi
   else
     # print wifi status
@@ -99,9 +146,14 @@ if [ "$START_ADB" -gt "0" ]
 then                                  
   /usr/bin/pstart adbd
 fi
+if [ "$START_CDC_ACM" -gt "0" ]
+then                                  
+  modprobe cdc_acm
+fi
 if [ "$START_PPRZ" -gt "0" ]                                  
 then                                                         
   if [ -r /data/ftp/internal_000/paparazzi/ap.elf ]; then
     /data/ftp/internal_000/paparazzi/ap.elf  > /dev/null 2>&1 &
   fi
-fi  
+fi
+

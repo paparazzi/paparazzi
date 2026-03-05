@@ -79,36 +79,36 @@
     </block>
     
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
-      <call fun="gvf_ellipse_wp(WP_STDBY, a_stb, b_stb, 0)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_STDBY, a_stb, b_stb, 0)"/>
     </block>
     
     <block name="line_to_HOME" strip_icon="home_drop.png"> 
-      <call fun="gvf_segment_XY1_XY2(GetPosX(), GetPosY(), 0.f, 0.f)"/>
+      <call fun="nav_gvf_segment_XY1_XY2(GetPosX(), GetPosY(), 0.f, 0.f)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
     
     <block name="ellipse_wp" strip_icon="oval.png">
-      <call fun="gvf_ellipse_wp(WP_ELLIPSE, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_ELLIPSE, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
 
     <block name="line_P1_P2" strip_icon="line.png"> 
-      <call fun="gvf_line_wp1_wp2(WP_P1, WP_P2)"/>
+      <call fun="nav_gvf_line_wp1_wp2(WP_P1, WP_P2)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
     
     <block name="segment_turn_P1_P2" strip_icon="line.png"> 
-      <call fun="gvf_segment_loop_wp1_wp2(WP_P1, WP_P2, gvf_segment_par.d1, gvf_segment_par.d2)"/>
+      <call fun="nav_gvf_segment_loop_wp1_wp2(WP_P1, WP_P2, gvf_segment_par.d1, gvf_segment_par.d2)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
     
     <block name="sin_p1_p2" strip_icon="line_drop.png"> 
-      <call fun="gvf_sin_wp1_wp2(WP_P1, WP_P2, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
+      <call fun="nav_gvf_sin_wp1_wp2(WP_P1, WP_P2, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
     
     <block name="2D_bezier" strip_icon="eight.png">
-      <call fun="gvf_parametric_2D_bezier_wp(WP_BZ0)"/>
+      <call fun="nav_gvf_parametric_2D_bezier_wp(WP_BZ0)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
     

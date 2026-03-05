@@ -90,24 +90,15 @@ void imu_aspirin_init(void)
 
   // Default scaling values
 #ifdef IMU_ASPIRIN_VERSION_1_5
-  const struct Int32Rates gyro_scale[2] = {
-    {4359, 4359, 4359},
-    {1000, 1000, 1000}
-  };
+  const struct FloatRates gyro_scale_f = { 4.359f, 4.359f, 4.359f };
 #else
-  const struct Int32Rates gyro_scale[2] = {
-    {4973, 4973, 4973},
-    {1000, 1000, 1000}
-  };
+  const struct FloatRates gyro_scale_f = { 4.973f, 4.973f, 4.973f };
 #endif
-  const struct Int32Vect3 accel_scale[2] = {
-    {3791, 3791, 3791},
-    {100,  100,  100}
-  };
+  const struct FloatVect3 accel_scale_f = { 37.91f, 37.91f, 37.91f };
  
   // Set the default scaling
-  imu_set_defaults_gyro(IMU_ASPIRIN_ID, NULL, NULL, gyro_scale);
-  imu_set_defaults_accel(IMU_ASPIRIN_ID, NULL, NULL, accel_scale);
+  imu_set_defaults_gyro(IMU_ASPIRIN_ID, NULL, NULL, &gyro_scale_f);
+  imu_set_defaults_accel(IMU_ASPIRIN_ID, NULL, NULL, &accel_scale_f);
 
   /* initialize mag and set default options */
   hmc58xx_init(&imu_aspirin.mag_hmc, &(ASPIRIN_I2C_DEV), HMC58XX_ADDR);

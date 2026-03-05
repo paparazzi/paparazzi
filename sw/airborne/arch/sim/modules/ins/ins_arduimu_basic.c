@@ -33,9 +33,9 @@ void ArduIMU_periodic(void)
     sim_theta - ins_pitch_neutral,
     0.
   };
-  stateSetNedToBodyEulers_f(&att);
+  stateSetNedToBodyEulers_f(MODULE_INS_ARDUIMU_BASIC_ID, &att);
   struct FloatRates rates = { sim_p, sim_q, sim_r };
-  stateSetBodyRates_f(&rates);
+  stateSetBodyRates_f(MODULE_INS_ARDUIMU_BASIC_ID, &rates);
 }
 void ArduIMU_periodicGPS(void) {}
 void ArduIMU_event(void) {}

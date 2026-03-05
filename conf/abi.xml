@@ -257,6 +257,24 @@
       <field name="data" type="uint8_t*">pointer to the data of the matrix</field>
     </message>
 
+    <message name="INS_RESET" id="38">
+      <field name="flag" type="uint8_t">flag to reset REF|VECTICAL_REF|VERTICAL_POS</field>
+    </message>
+
+    <message name="RELPOS" id="39">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="relpos" type="struct RelPosNED *"/>
+    </message>
+    <message name="ACTUATORS_T4_OUT" id="40">
+      <field name="actuators_t4_out_ptr" type="struct ActuatorsT4Out *">Pointer pointing at the actuators_t4_out struct</field>
+      <field name="actuators_t4_extra_data_out_ptr" type="float *">Pointer pointing at the actuators_t4_extra_data_out array</field>
+    </message>
+
+    <message name="ACTUATORS_T4_IN" id="41">
+      <field name="actuators_t4_in_ptr" type="struct ActuatorsT4In *">Pointer pointing at the actuators_t4_in struct</field>
+      <field name="actuators_t4_extra_data_in_ptr" type="float *">Pointer pointing at the actuators_t4_extra_data_in array</field>
+    </message>
+
   </msg_class>
 
 </protocol>

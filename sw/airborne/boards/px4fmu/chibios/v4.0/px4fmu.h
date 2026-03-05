@@ -67,7 +67,7 @@
 
 // CUR_SENS
 #ifndef USE_ADC_2
-#define USE_ADC_2 2
+#define USE_ADC_2 1
 #endif
 #if USE_ADC_2
 #define AD1_2_CHANNEL ADC_CHANNEL_IN3
@@ -84,6 +84,17 @@
 #define ADC_3_GPIO_PIN GPIO4
 #endif
 
+//ADC_pin_RSSI_IN
+#ifndef USE_ADC_4
+#define USE_ADC_4 1
+#endif
+#if USE_ADC_4
+#define AD1_4_CHANNEL ADC_CHANNEL_IN11
+#define ADC_4 AD1_4
+#define ADC_4_GPIO_PORT GPIOC
+#define ADC_4_GPIO_PIN GPIO1
+#endif
+
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY ADC_1
@@ -94,9 +105,14 @@
 #define ADC_CHANNEL_CURRENT ADC_2
 #endif
 
+#ifndef ADC_CHANNEL_RSSI
+#define ADC_CHANNEL_RSSI ADC_4
+#endif
+
+
 /* Default powerbrick values */
 #define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 10.27708149f * adc)
-#define MilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 36367.51556f * adc)
+#define DefaultMilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 36367.51556f * adc)
 
 /*
  * PWM TIM defines
@@ -233,6 +249,26 @@
 #endif
 #endif
 
+/*
+ * PWM input
+ */
+// On Header 8266 PD pin using TIM9 CH1
+#ifdef USE_PWM_INPUT1
+#define PWM_INPUT1_ICU            ICUD9
+#define PWM_INPUT1_CHANNEL        ICU_CHANNEL_1
+#define PWM_INPUT1_GPIO_PORT      GPIOE
+#define PWM_INPUT1_GPIO_PIN       GPIO5
+#define PWM_INPUT1_GPIO_AF        GPIO_AF3
+#endif
+// On Header 8266 GPIO2 pin using TIM3 CH1 
+#ifdef USE_PWM_INPUT2
+#define PWM_INPUT2_ICU            ICUD3
+#define PWM_INPUT2_CHANNEL        ICU_CHANNEL_1
+#define PWM_INPUT2_GPIO_PORT      GPIOB
+#define PWM_INPUT2_GPIO_PIN       GPIO4
+#define PWM_INPUT2_GPIO_AF        GPIO_AF2
+#endif
+
 /**
  * UART defines
  */
@@ -287,26 +323,6 @@
 #define PERIPHERAL3V3_ENABLE_PIN GPIO5
 #define PERIPHERAL3V3_ENABLE_ON gpio_set
 #define PERIPHERAL3V3_ENABLE_OFF gpio_clear
-
-// /**
-//  * PPM radio defines TODO
-//  */
-// #define RC_PPM_TICKS_PER_USEC 2
-// #define PPM_TIMER_FREQUENCY 2000000
-// #define PPM_CHANNEL ICU_CHANNEL_1
-// #define PPM_TIMER ICUD1
-
-// /*
-//  * PWM input TODO
-//  */
-// // PWM_INPUT 1 on PA8 (also PPM IN)
-// #define PWM_INPUT1_ICU            ICUD1
-// #define PWM_INPUT1_CHANNEL        ICU_CHANNEL_1
-// // PPM in (aka PA8) is used: not compatible with PPM RC receiver
-// #define PWM_INPUT1_GPIO_PORT      GPIOA
-// #define PWM_INPUT1_GPIO_PIN       GPIO8
-// #define PWM_INPUT1_GPIO_AF        GPIO_AF1
-
 
 /**
  * I2C defines
@@ -420,7 +436,7 @@
  */
  /* Default actuators driver */
 #define DEFAULT_ACTUATORS "modules/actuators/actuators_pwm.h"
-#define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
+#define ActuatorDefaultSet ActuatorPwmSet
 #define ActuatorsDefaultInit() ActuatorsPwmInit()
 #define ActuatorsDefaultCommit() ActuatorsPwmCommit()
 

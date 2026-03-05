@@ -29,10 +29,10 @@
 
 #include "modules/ahrs/ahrs_int_cmpl_quat.h"
 
-#ifndef PRIMARY_AHRS
-#define PRIMARY_AHRS ahrs_icq
-#endif
+extern void ahrs_icq_wrapper_init(void);
 
-extern void ahrs_icq_register(void);
+// enable setting
+extern uint8_t ahrs_icq_enable;
+extern void ahrs_int_cmpl_quat_wrapper_enable(uint8_t enable);
 
 #endif /* AHRS_INT_CMPL_QUAT_WRAPPER_H */
