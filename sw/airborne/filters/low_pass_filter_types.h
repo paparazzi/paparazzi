@@ -46,15 +46,15 @@ struct FirstOrderLowPassVect3 {
  * @brief Initialize a set of first order low-pass filters to zero for 3D vector data.
  *
  * @param[out] filter Struct containing first order low-pass filters for x, y, z components.
- * @param[in] cut_off Time constant for the filters (s).
+ * @param[in] omega Cut-off frequencies for the filters (rad/s).
  * @param[in] dt Sampling time interval (seconds).
  */
 static inline void init_first_order_low_pass_vect3(struct FirstOrderLowPassVect3 *filter,
-    const struct FloatVect3 *cut_off, const float dt)
+    const struct FloatVect3 *omega, const float dt)
 {
-  init_first_order_low_pass(&filter->x, 1.0f / cut_off->x, dt, 0.0f);
-  init_first_order_low_pass(&filter->y, 1.0f / cut_off->y, dt, 0.0f);
-  init_first_order_low_pass(&filter->z, 1.0f / cut_off->z, dt, 0.0f);
+  init_first_order_low_pass(&filter->x, 1.0f / omega->x, dt, 0.0f);
+  init_first_order_low_pass(&filter->y, 1.0f / omega->y, dt, 0.0f);
+  init_first_order_low_pass(&filter->z, 1.0f / omega->z, dt, 0.0f);
 }
 
 /**
@@ -150,14 +150,14 @@ static inline void reset_first_order_low_pass_rates(struct FirstOrderLowPassVect
  *
  * @param n Number of filters in the array.
  * @param filter_array Array of FirstOrderLowPass filters to initialize.
- * @param cut_off Time constant for the filters (s).
+ * @param omega Cut-off frequencies for the filters (rad/s).
  * @param dt Sampling time interval (seconds).
  */
 static inline void init_first_order_low_pass_array(const uint8_t n, struct FirstOrderLowPass filter_array[restrict n],
-    const float cut_off[restrict n], const float dt)
+    const float omega[restrict n], const float dt)
 {
   for (uint8_t i = 0; i < n; i++) {
-    init_first_order_low_pass(&filter_array[i], 1.0f / cut_off[i], dt, 0.0f);
+    init_first_order_low_pass(&filter_array[i], 1.0f / omega[i], dt, 0.0f);
   }
 }
 
@@ -217,15 +217,15 @@ struct Butterworth2LowPassVect3 {
  * @brief Initialize a set of Butterworth low-pass filters to zero for 3D vector data.
  *
  * @param[out] filter Struct containing Butterworth filters for x, y, z components.
- * @param[in] cut_off Time constant for the filters (s).
+ * @param[in] omega Cut-off frequencies for the filters (rad/s).
  * @param[in] dt Sampling time interval (seconds).
  */
 static inline void init_butterworth_2_low_pass_vect3(struct Butterworth2LowPassVect3 *filter,
-    const struct FloatVect3 *cut_off, const float dt)
+    const struct FloatVect3 *omega, const float dt)
 {
-  init_butterworth_2_low_pass(&filter->x, 1.0f / cut_off->x, dt, 0.0f);
-  init_butterworth_2_low_pass(&filter->y, 1.0f / cut_off->y, dt, 0.0f);
-  init_butterworth_2_low_pass(&filter->z, 1.0f / cut_off->z, dt, 0.0f);
+  init_butterworth_2_low_pass(&filter->x, 1.0f / omega->x, dt, 0.0f);
+  init_butterworth_2_low_pass(&filter->y, 1.0f / omega->y, dt, 0.0f);
+  init_butterworth_2_low_pass(&filter->z, 1.0f / omega->z, dt, 0.0f);
 }
 
 /**
@@ -321,14 +321,14 @@ static inline void reset_butterworth_2_low_pass_rates(struct Butterworth2LowPass
  *
  * @param[in] n Number of filters to initialize.
  * @param[out] filter_array Array of Butterworth2LowPass filters to initialize.
- * @param[in] cut_off Time constant for the filters (s).
+ * @param[in] omega Cut-off frequencies for the filters (rad/s).
  * @param[in] dt Sampling time interval (seconds).
  */
 static inline void init_butterworth_2_low_pass_array(const uint8_t n, Butterworth2LowPass filter_array[restrict n],
-    const float cut_off[restrict n], const float dt)
+    const float omega[restrict n], const float dt)
 {
   for (uint8_t i = 0; i < n; i++) {
-    init_butterworth_2_low_pass(&filter_array[i], 1.0f / cut_off[i], dt, 0.0f);
+    init_butterworth_2_low_pass(&filter_array[i], 1.0f / omega[i], dt, 0.0f);
   }
 }
 
@@ -387,15 +387,15 @@ struct Butterworth4LowPassVect3 {
  * @brief Initialize a set of Butterworth low-pass filters to zero for 3D vector data.
  *
  * @param[out] filter Struct containing Butterworth filters for x, y, z components.
- * @param[in] cut_off Time constant for the filters (s).
+ * @param[in] omega Cut-off frequencies for the filters (rad/s).
  * @param[in] dt Sampling time interval (seconds).
  */
 static inline void init_butterworth_4_low_pass_vect3(struct Butterworth4LowPassVect3 *filter,
-    const struct FloatVect3 *cut_off, const float dt)
+    const struct FloatVect3 *omega, const float dt)
 {
-  init_butterworth_4_low_pass(&filter->x, 1.0f / cut_off->x, dt, 0.0f);
-  init_butterworth_4_low_pass(&filter->y, 1.0f / cut_off->y, dt, 0.0f);
-  init_butterworth_4_low_pass(&filter->z, 1.0f / cut_off->z, dt, 0.0f);
+  init_butterworth_4_low_pass(&filter->x, 1.0f / omega->x, dt, 0.0f);
+  init_butterworth_4_low_pass(&filter->y, 1.0f / omega->y, dt, 0.0f);
+  init_butterworth_4_low_pass(&filter->z, 1.0f / omega->z, dt, 0.0f);
 }
 
 /**
@@ -491,14 +491,14 @@ static inline void reset_butterworth_4_low_pass_rates(struct Butterworth4LowPass
  *
  * @param[in] n Number of filters to initialize.
  * @param[out] filter_array Array of Butterworth4LowPass filters to initialize.
- * @param[in] cut_off Time constant for the filters (s).
+ * @param[in] omega Cut-off frequencies for the filters (rad/s).
  * @param[in] dt Sampling time interval (seconds).
  */
 static inline void init_butterworth_4_low_pass_array(const uint8_t n, Butterworth4LowPass filter_array[restrict n],
-    const float cut_off[restrict n], const float dt)
+    const float omega[restrict n], const float dt)
 {
   for (uint8_t i = 0; i < n; i++) {
-    init_butterworth_4_low_pass(&filter_array[i], 1.0f / cut_off[i], dt, 0.0f);
+    init_butterworth_4_low_pass(&filter_array[i], 1.0f / omega[i], dt, 0.0f);
   }
 }
 
