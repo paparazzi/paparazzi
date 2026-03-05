@@ -240,7 +240,7 @@
     </section>
 
     <section name="MISC">
-        <!-- <define name="INS_EKF2_GPS_CTRL" value="(EKF2_GPS_CTRL_HPOS|EKF2_GPS_CTRL_VPOS|EKF2_GPS_CTRL_VEL|EKF2_GPS_CTRL_YAW)"/> -->
+        <define name="INS_EKF2_GPS_CTRL" value="(EKF2_GPS_CTRL_HPOS|EKF2_GPS_CTRL_VPOS|EKF2_GPS_CTRL_VEL|EKF2_GPS_CTRL_YAW)"/>
         <!-- <define name="INS_EKF2_OPTITRACK"    value="TRUE"/> -->
 
         <!-- AGL distance -->
