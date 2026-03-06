@@ -1,6 +1,7 @@
 <control_panel name="paparazzi control panel">
   <section name="programs">
     <program name="UnifiedMoCap" command="sw/ext/unifiedmocaprouter/build/mocap-router"/>
+    <program name="GST" command="/usr/bin/gst-launch-1.0"/>
   </section>
   <section name="sessions">
 
@@ -28,6 +29,12 @@
       <program name="RtpViewer">
         <arg flag="-s" constant="1"/>
         <arg flag="-r" constant="3"/>
+      </program>
+      <program name="GST" command="/usr/bin/gst-launch-1.0">
+        <arg flag="udpsrc"/>
+        <arg flag="port=5000"/>
+        <arg flag="caps=application/x-rtp,payload=26"/>
+        <arg flag="! rtpjpegdepay ! jpegdec ! videoflip method=counterclockwise ! autovideosink"/>
       </program>
       <program name="VLC">
         <arg flag="./sw/tools/rtp_viewer/rtp_5000.sdp"/>
@@ -76,8 +83,13 @@
       <program name="VLC">
         <arg flag="./sw/tools/rtp_viewer/rtp_6000.sdp"/>
       </program>
+      <program name="GST" command="/usr/bin/gst-launch-1.0">
+        <arg flag="udpsrc"/>
+        <arg flag="port=5000"/>
+        <arg flag="caps=application/x-rtp,payload=26"/>
+        <arg flag="! rtpjpegdepay ! jpegdec ! videoflip method=counterclockwise ! autovideosink"/>
+      </program>
     </session>
-
     <session name="Distance Counter">
       <program name="Optitrack Distance Counter"/>
     </session>
