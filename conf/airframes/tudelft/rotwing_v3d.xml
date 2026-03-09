@@ -118,7 +118,7 @@
             <define name="WLS_N_V_MAX" value="5"/>
         </module>
 
-        <module name="eff_scheduling_rotwing"/>
+        <module name="eff_scheduling_rotwing_rpm_ctrl"/>
 
         <module name="guidance" type="indi_hybrid_quadplane"/>
         <module name="nav" type="hybrid">

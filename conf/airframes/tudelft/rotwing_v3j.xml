@@ -119,7 +119,7 @@
             <define name="WLS_N_V_MAX" value="5"/>
         </module>
 
-        <module name="eff_scheduling_rotwing"/>
+        <module name="eff_scheduling_rotwing_rpm_ctrl"/>
 
         <module name="guidance" type="indi_hybrid_quadplane"/>
         <module name="nav" type="hybrid">
@@ -142,11 +142,11 @@
 
     <!-- Can bus 1 actuators -->
     <servos driver="Uavcan1">
-        <servo no="0" name="MOTOR_FRONT"   min="0" neutral="1000" max="7372"/>
-        <servo no="1" name="MOTOR_RIGHT"   min="0" neutral="1000" max="7372"/>
-        <servo no="2" name="MOTOR_BACK"    min="0" neutral="1000" max="7372"/>
-        <servo no="3" name="MOTOR_LEFT"    min="0" neutral="1000" max="7372"/>
-        <servo no="4" name="MOTOR_PUSH"      min="0"     neutral="1000" max="7372"/>
+        <servo no="0" name="MOTOR_FRONT"   min="0" neutral="1000" max="8191"/>
+        <servo no="1" name="MOTOR_RIGHT"   min="0" neutral="1000" max="8191"/>
+        <servo no="2" name="MOTOR_BACK"    min="0" neutral="1000" max="8191"/>
+        <servo no="3" name="MOTOR_LEFT"    min="0" neutral="1000" max="8191"/>
+        <servo no="4" name="MOTOR_PUSH"      min="0"     neutral="1000" max="8191"/>
         <servo no="5" name="ROTATION_MECH"    min="-2260" neutral="-380"  max="1500"/>
     </servos>
 
@@ -158,10 +158,10 @@
 
     <!-- Can bus 2 actuators -->
     <servos driver="Uavcan2">
-        <servo no="0" name="BMOTOR_FRONT"   min="0" neutral="1000" max="7372"/>
-        <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="7372"/>
-        <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="7372"/>
-        <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="7372"/>
+        <servo no="0" name="BMOTOR_FRONT"   min="0" neutral="1000" max="8191"/>
+        <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="8191"/>
+        <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="8191"/>
+        <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="8191"/>
         <servo no="5" name="BROTATION_MECH" min="-2260" neutral="-380"  max="1500"/>
     </servos>
 
