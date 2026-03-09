@@ -234,11 +234,6 @@
         <define name="CHIRP_RADIO_CHANNEL" value="9"/>
     </section>
 
-    <section name="ROTWING" prefix="ROTWING_">
-        <!-- Necessary for RPM control -->
-        <define name="QUAD_IDLE_MIN_THRUST" value="250"/>
-    </section>
-
     <section name="MISC">
         <define name="INS_EKF2_FUSION_MODE"  value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
         <!-- <define name="INS_EKF2_OPTITRACK"    value="TRUE"/> -->
