@@ -42,6 +42,7 @@
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
 
             <define name="I2C2_CLOCK_SPEED" value="100000"/>
+            <define name="ADC_CURRENT_DISABLE" value="TRUE"/>
         </target>
 
         <target name="nps" board="pc">
@@ -71,7 +72,7 @@
         </module>
         <module name="airspeed" type="ms45xx_i2c">
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
-            <define name="MS45XX_PRESSURE_SCALE"        value="2.0814"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="1.88"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.25"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
@@ -118,7 +119,7 @@
             <define name="WLS_N_V_MAX" value="5"/>
         </module>
 
-        <module name="eff_scheduling_rotwing"/>
+        <module name="eff_scheduling_rotwing_rpm_ctrl"/>
 
         <module name="guidance" type="indi_hybrid_quadplane"/>
         <module name="nav" type="hybrid">
@@ -141,11 +142,11 @@
 
     <!-- Can bus 1 actuators -->
     <servos driver="Uavcan1">
-        <servo no="0"  name="MOTOR_FRONT"     min="0"     neutral="1000" max="7372"/>
-        <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="7372"/>
-        <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="7372"/>
-        <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="7372"/>
-        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="1000" max="7372"/>
+        <servo no="0"  name="MOTOR_FRONT"     min="0"     neutral="1000" max="8191"/>
+        <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="8191"/>
+        <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="8191"/>
+        <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="8191"/>
+        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="1000" max="8191"/>
         <servo no="5"  name="ROTATION_MECH"   min="-3686" neutral="-123"   max="3440"/>
     </servos>
 
@@ -157,10 +158,10 @@
 
     <!-- Can bus 2 actuators -->
     <servos driver="Uavcan2">
-        <servo no="0" name="BMOTOR_FRONT"   min="0" neutral="1000" max="7372"/>
-        <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="7372"/>
-        <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="7372"/>
-        <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="7372"/>
+        <servo no="0" name="BMOTOR_FRONT"   min="0" neutral="1000" max="8191"/>
+        <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="8191"/>
+        <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="8191"/>
+        <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="8191"/>
         <servo no="5" name="BROTATION_MECH" min="-3686" neutral="-123"  max="3440"/>
     </servos>
 
@@ -174,52 +175,52 @@
 
     <commands>
         <!-- commands from INDI -->
-        <axis name="FRONT_MOTOR" failsafe_value="0"/>
-        <axis name="RIGHT_MOTOR" failsafe_value="0"/>
-        <axis name="BACK_MOTOR"  failsafe_value="0"/>
-        <axis name="LEFT_MOTOR"  failsafe_value="0"/>
-        <axis name="RUDDER"      failsafe_value="0"/>
-        <axis name="ELEVATOR"    failsafe_value="0"/>
-        <axis name="AILERON"     failsafe_value="0"/>
-        <axis name="FLAP"        failsafe_value="0"/>
-        <axis name="THRUST_X"    failsafe_value="0"/>
+        <axis name="MOTOR_FRONT" group ="REAL" failsafe_value="MOTOR_STOP"/>
+        <axis name="MOTOR_RIGHT" group ="REAL" failsafe_value="MOTOR_STOP"/>
+        <axis name="MOTOR_BACK"  group ="REAL" failsafe_value="MOTOR_STOP"/>
+        <axis name="MOTOR_LEFT"  group ="REAL" failsafe_value="MOTOR_STOP"/>
+        <axis name="RUDDER"      group ="REAL" failsafe_value="0"/>
+        <axis name="ELEVATOR"    group ="REAL" failsafe_value="0"/>
+        <axis name="AILERONS"     group ="REAL" failsafe_value="0"/>
+        <axis name="FLAPS"        group ="REAL" failsafe_value="0"/>
+        <axis name="THRUST_X"    group ="REAL" failsafe_value="MOTOR_STOP"/>
         <!-- commands modules -->
-        <axis name="SKEW"        failsafe_value="0"/>
+        <axis name="ROT_MECH"        group ="PASSIVE" failsafe_value="0"/>
         <!-- default commands -->
-        <axis name="THRUST"      failsafe_value="0"/>
-        <axis name="ROLL"        failsafe_value="0"/>
-        <axis name="PITCH"       failsafe_value="0"/>
-        <axis name="YAW"         failsafe_value="0"/>
+        <axis name="THRUST"      group ="OTHER" failsafe_value="0"/>
+        <axis name="ROLL"        group ="VIRTUAL" failsafe_value="0"/>
+        <axis name="PITCH"       group ="VIRTUAL" failsafe_value="0"/>
+        <axis name="YAW"         group ="OTHER" failsafe_value="0"/>
     </commands>
 
     <command_laws>
-        <let var="th_hold" value="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
-        <let VAR="servo_hold" VALUE="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
-        <let VAR="hover_off" VALUE="Or($th_hold, !rotwing_state.hover_motors_enabled)"/>
-        <let var="ail_limit_hit" value="LessThan(rotwing_state.meas_skew_angle_deg, 20)"/>
-        <let var="flap_limit_hit" value="LessThan(rotwing_state.meas_skew_angle_deg, 50)"/>
+        <let VAR="th_hold"          VALUE="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
+        <let VAR="servo_hold"       VALUE="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
+        <let VAR="hover_off"        VALUE="Or($th_hold, !rotwing_state.hover_motors_enabled)"/>
+        <let VAR="ail_limit_hit"    VALUE="LessThan(rotwing_state.meas_skew_angle_deg, 30)"/>
+        <let VAR="flap_limit_hit"   VALUE="LessThan(rotwing_state.meas_skew_angle_deg, 60)"/>
 
         <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
         <call fun="pfc_actuators_run()"/>
-        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(7, -9600)) : actuators_pprz[0])" SERVO="MOTOR_FRONT"/>
-        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(8, -9600)) : actuators_pprz[1])" SERVO="MOTOR_RIGHT"/>
-        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(9, -9600)) : actuators_pprz[2])" SERVO="MOTOR_BACK"/>
-        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(10, -9600)) : actuators_pprz[3])" SERVO="MOTOR_LEFT"/>
-        <set VALUE="($servo_hold? RadioControlValues(RADIO_YAW) : pfc_actuators_value(1, actuators_pprz[4]))" SERVO="SERVO_RUDDER"/>
-        <set VALUE="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? pfc_actuators_value(0, 0) : actuators_pprz[5]))" SERVO="SERVO_ELEVATOR"/>
-        <set VALUE="($th_hold? ($servo_hold? -9600 : pfc_actuators_value(11, -9600)) : actuators_pprz[8])" SERVO="MOTOR_PUSH"/>
-        <set VALUE="pfc_actuators_value(6, rotwing_state.skew_cmd)"  SERVO="ROTATION_MECH"/>
-        <set VALUE="$ail_limit_hit? pfc_actuators_value(2, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_LEFT"/>
-        <set VALUE="$ail_limit_hit? pfc_actuators_value(5, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_RIGHT"/>
-        <set VALUE="$flap_limit_hit? pfc_actuators_value(3, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_LEFT"/>
-        <set VALUE="$flap_limit_hit? pfc_actuators_value(4, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_RIGHT"/>
+        <set SERVO="MOTOR_FRONT"    VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(7, -9600)) : @MOTOR_FRONT)"/>
+        <set SERVO="MOTOR_RIGHT"    VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(8, -9600)) : @MOTOR_RIGHT)"/>
+        <set SERVO="MOTOR_BACK"     VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(9, -9600)) : @MOTOR_BACK)"/>
+        <set SERVO="MOTOR_LEFT"     VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(10, -9600)) : @MOTOR_LEFT)"/>
+        <set SERVO="SERVO_RUDDER"   VALUE="($servo_hold? RadioControlValues(RADIO_YAW) : pfc_actuators_value(1, @RUDDER))"/>
+        <set SERVO="SERVO_ELEVATOR" VALUE="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? pfc_actuators_value(0, 0) : @ELEVATOR))"/>
+        <set SERVO="MOTOR_PUSH"     VALUE="($th_hold? ($servo_hold? -9600 : pfc_actuators_value(11, -9600)) : @THRUST_X)"/>
+        <set SERVO="ROTATION_MECH"  VALUE="pfc_actuators_value(6, rotwing_state.skew_cmd)"/>
+        <set SERVO="AIL_LEFT"       VALUE="$ail_limit_hit? pfc_actuators_value(2, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : @AILERONS)"/>
+        <set SERVO="AIL_RIGHT"      VALUE="$ail_limit_hit? pfc_actuators_value(5, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : @AILERONS)"/>
+        <set SERVO="FLAP_LEFT"      VALUE="$flap_limit_hit? pfc_actuators_value(3, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : @FLAPS)"/>
+        <set SERVO="FLAP_RIGHT"     VALUE="$flap_limit_hit? pfc_actuators_value(4, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : @FLAPS)"/>
 
         <!-- Backup commands -->
-        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(7, -9600)) : actuators_pprz[0])" SERVO="BMOTOR_FRONT"/>
-        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(8, -9600)) : actuators_pprz[1])" SERVO="BMOTOR_RIGHT"/>
-        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(9, -9600)) : actuators_pprz[2])" SERVO="BMOTOR_BACK"/>
-        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(10, -9600)) : actuators_pprz[3])" SERVO="BMOTOR_LEFT"/>
-        <set VALUE="pfc_actuators_value(6, rotwing_state.skew_cmd)"  SERVO="BROTATION_MECH"/>
+        <set SERVO="BMOTOR_FRONT"   VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(7, -9600)) : @MOTOR_FRONT)"/>
+        <set SERVO="BMOTOR_RIGHT"   VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(8, -9600)) : @MOTOR_RIGHT)"/>
+        <set SERVO="BMOTOR_BACK"    VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(9, -9600)) : @MOTOR_BACK)"/>
+        <set SERVO="BMOTOR_LEFT"    VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(10, -9600)) : @MOTOR_LEFT)"/>
+        <set SERVO="BROTATION_MECH" VALUE="pfc_actuators_value(6, @ROT_MECH)"/>
     </command_laws>
 
     <section PREFIX="SYS_ID_" NAME="SYS_ID">
@@ -248,7 +249,7 @@
         <define name="FAILSAFE_THROTTLE"                    value="5300"/>
         
         <!-- Voltage and current measurements -->
-        <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
+        <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 12.104533 * adc)"/>
         <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
 
         <!-- Preflight check actuators (ELE, RUD, AIL_L, FLAP_L, AIL_R, FLAP_R, ROT_M, M_FRONT, M_RIGHT_, M_BACK, M_LEFT, M_PUSH) -->
@@ -327,7 +328,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="763"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -336,7 +337,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="763"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -345,7 +346,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="763"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -354,7 +355,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="763"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -363,7 +364,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="2000"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="3200"/>
+                <field name="high_feedback" value="2800"/>
                 <field name="timeout" value="3"/>
             </field>
         </define>
@@ -378,11 +379,11 @@
                 <field name="abi_id" value="5"/>
                 <field name="calibrated" type="struct">
                     <field name="neutral" value="true"/>
-                    <field name="scale" value="true"/>
+                    <field name="scale_f" value="true"/>
                     <field name="rotation" value="true"/>
                 </field>
-                <field name="neutral" value="-4640,3858,-1617" type="int[]"/>
-                <field name="scale" value="{{9601,30525,4187},{17864,55546,7767}}"/>
+                <field name="neutral" value="-4599,3821,-1601" type="int[]"/>
+                <field name="scale_f" value="{ 0.5475, 0.5635, 0.5455 }"/>
                 <field name="body_to_sensor" value="{{0,-16384,0,16384,0,0,0,0,16384}}"/>
             </field>
         </define>
@@ -418,12 +419,12 @@
     </checklist>
 
     <section name="BAT">
-        <define name="CATASTROPHIC_BAT_LEVEL"   value="18.0" unit="V"/>
-        <define name="CRITIC_BAT_LEVEL"         value="21.3" unit="V"/>
-        <define name="LOW_BAT_LEVEL"            value="22.08" unit="V"/>
-        <define name="MAX_BAT_LEVEL"            value="25.2" unit="V"/>
-        <define name="TAKEOFF_BAT_LEVEL"        value="24.2" unit="V"/>
-        <define name="BAT_NB_CELLS"             value="6"/>
+        <define name="CATASTROPHIC_BAT_LEVEL"   value="23.0" unit="V"/>
+        <define name="CRITIC_BAT_LEVEL"         value="24.0" unit="V"/>
+        <define name="LOW_BAT_LEVEL"            value="25.0" unit="V"/>
+        <define name="MAX_BAT_LEVEL"            value="30.1" unit="V"/>
+        <define name="TAKEOFF_BAT_LEVEL"        value="28.0" unit="V"/>
+        <define name="BAT_NB_CELLS"             value="7"/>
     </section>
 
     <include href="conf/airframes/tudelft/rotwing_7kg_common.xml" />
