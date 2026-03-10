@@ -37,7 +37,7 @@
 #if defined(STM32F1)
 #define UART_RX_BUFFER_SIZE 128
 #else
-#define UART_RX_BUFFER_SIZE 256
+#define UART_RX_BUFFER_SIZE 2048
 #endif
 #endif
 
@@ -46,7 +46,7 @@
 #if defined(STM32F1)
 #define UART_TX_BUFFER_SIZE 128
 #else
-#define UART_TX_BUFFER_SIZE 256
+#define UART_TX_BUFFER_SIZE 2048
 #endif
 #endif
 
