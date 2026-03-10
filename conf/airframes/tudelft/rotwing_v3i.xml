@@ -334,7 +334,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="763"/>
+                <field name="high_feedback" value="975"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -343,7 +343,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="763"/>
+                <field name="high_feedback" value="975"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -352,7 +352,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="763"/>
+                <field name="high_feedback" value="975"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -361,7 +361,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="763"/>
+                <field name="high_feedback" value="975"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -370,7 +370,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="2000"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="2800"/>
+                <field name="high_feedback" value="3000"/>
                 <field name="timeout" value="3"/>
             </field>
         </define>
