@@ -362,9 +362,9 @@
                 <field name="feedback_id" value="SERVO_MOTOR_PUSH_IDX"/>
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-9600"/>
-                <field name="high" value="2000"/>
+                <field name="high" value="3000"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="2800"/>
+                <field name="high_feedback" value="4100"/>
                 <field name="timeout" value="3"/>
             </field>
         </define>
