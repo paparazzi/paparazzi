@@ -13,7 +13,6 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="Ground Detect">
-        <dl_setting var="override_reverse" min="0" max="1" step="1" values="FALSE|TRUE" shortname="Override reverse thrust"/>
         <dl_setting var="reverse_th_level" min="-9600" max="0" step="1" shortname="Reverse thrust level"/>
       </dl_settings>
     </dl_settings>

@@ -57,6 +57,12 @@ PRINT_CONFIG_VAR(USE_GROUND_DETECT_HX711)
 #endif
 PRINT_CONFIG_VAR(GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED)
 
+#if GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED
+#ifndef GROUND_DETECT_REVERSE_THRUST_LEVEL
+#error "GROUND_DETECT_REVERSE_THRUST_LEVEL needs to be defined if GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED is true"
+#endif
+#endif
+
 #ifndef GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD
 #define GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD -5.0
 #endif
@@ -87,12 +93,12 @@ PRINT_CONFIG_VAR(GROUND_DETECT_VERTICAL_ACCEL_THRESHOLD)
 Butterworth2LowPass accel_filter;
 
 bool disarm_on_not_in_flight = false;
-bool allow_reverse_thrust = false;
 
 int32_t counter = 0;
 bool ground_detected = false;
-bool override_reverse = false;
-uint16_t reverse_th_level = -6800;
+
+bool reverse_thrust = false;
+uint16_t reverse_th_level = GROUND_DETECT_REVERSE_THRUST_LEVEL;
 
 union ground_detect_bitmask_t ground_detect_status;
 struct ground_detect_values_t ground_detect_values;
@@ -224,23 +230,20 @@ void ground_detect_filter_accel(void)
 
 bool ground_detect_reverse_thrust(void)
 {
-  // Reverse thrust needs to be enabled with GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED, and allowed through for example a specific fight plan block
-  if (GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED && allow_reverse_thrust) {
+  // Reverse thrust needs to be enabled with GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED, and started through for example a flight plan block
+  if (GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED && reverse_thrust) {
     return true;
-  } else if (override_reverse) {
-    return true;
-  }
-  else {
+  } else {
     return false;
   }
 }
 
-void ground_detect_disallow_reverse_thrust(void)
+void ground_detect_stop_reverse_thrust(void)
 {
-  allow_reverse_thrust = false;
+  reverse_thrust = false;
 }
 
-void ground_detect_allow_reverse_thrust(void)
+void ground_detect_start_reverse_thrust(void)
 {
-  allow_reverse_thrust = true;
+  reverse_thrust = true;
 }
