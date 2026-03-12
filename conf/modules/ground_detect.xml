@@ -10,6 +10,15 @@
 
     <define name="GROUND_DETECT_COUNTER_TRIGGER" value="10" description="Number of times a trigger must be valid to accept ground detection."/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Ground Detect">
+        <dl_setting var="override_reverse" min="0" max="1" step="1" values="FALSE|TRUE" shortname="Override reverse thrust"/>
+        <dl_setting var="reverse_th_level" min="-9600" max="0" step="1" shortname="Reverse thrust level"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
   <header>
     <file name="ground_detect.h"/>
   </header>
