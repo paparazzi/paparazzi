@@ -188,6 +188,7 @@ void ground_detect_periodic()
 
 #if USE_GROUND_DETECT_AGL_DIST
   ground_detect_status.agl_trigger = (agl_dist_valid && (agl_dist_value_filtered < GROUND_DETECT_AGL_MIN_VALUE))? 1:0;
+  ground_detect_values.agl_dist_value_filtered = agl_dist_value_filtered;
 #else
   ground_detect_status.agl_trigger = false;
 #endif
