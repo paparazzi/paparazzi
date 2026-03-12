@@ -225,7 +225,7 @@ void ground_detect_filter_accel(void)
 bool ground_detect_reverse_thrust(void)
 {
   // Reverse thrust needs to be enabled with GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED, and allowed through for example a specific fight plan block
-  if (GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED && ground_detected && allow_reverse_thrust) {
+  if (GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED && allow_reverse_thrust) {
     return true;
   } else if (override_reverse) {
     return true;
