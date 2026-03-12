@@ -42,6 +42,15 @@
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
 
             <define name="I2C2_CLOCK_SPEED" value="100000"/>
+
+            <!-- Strain gauges connected to hx711 load cell -->
+            <module name="hx711">
+                <define name="HX711_DEVICES_NB" value="4"/>
+                <define name="HX711_DEVICES" value="{PWM_SERVO_2_GPIO,PWM_SERVO_2_PIN,0,0},{PWM_SERVO_3_GPIO,PWM_SERVO_3_PIN,0,0},{PWM_SERVO_4_GPIO,PWM_SERVO_4_PIN,0,0},{PWM_SERVO_5_GPIO,PWM_SERVO_5_PIN,0,0}"/>
+                <define name="HX711_GROUND_THRESHOLD" value="100000"/>
+                <define name="HX711_MEDIAN_FILT_SIZE" value="3"/>
+                <define name="HX711_DEBUG" value="true"/>
+            </module>
         </target>
 
         <target name="nps" board="pc">
@@ -128,7 +137,9 @@
         <!-- Other -->
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
-        <module name="ground_detect"/>
+        <module name="ground_detect">
+            <define name="USE_GROUND_DETECT_HX711" value="TRUE"/>
+        </module>
         <module name="rotwing_state"/>
         <module name="preflight_checks">
             <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>

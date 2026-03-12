@@ -39,6 +39,13 @@ union ground_detect_bitmask_t {
   };
 };
 
+struct ground_detect_values_t {
+  float vspeed_ned;
+  float spec_thrust_down;
+  float accel_filter;
+  float agl_dist_value_filtered;
+};
+
 extern void ground_detect_init(void);
 extern void ground_detect_periodic(void);
 

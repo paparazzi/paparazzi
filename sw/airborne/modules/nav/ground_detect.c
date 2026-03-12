@@ -95,15 +95,41 @@ bool override_reverse = false;
 uint16_t reverse_th_level = -6800;
 
 union ground_detect_bitmask_t ground_detect_status;
+struct ground_detect_values_t ground_detect_values;
+
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+static void send_ground_detect(struct transport_tx *trans, struct link_device *dev)
+{
+  uint8_t _ground_detected = ground_detected;
+  pprz_msg_send_GROUND_DETECT(trans, dev, AC_ID,
+                              &_ground_detected,
+                              &ground_detect_values.vspeed_ned,
+                              &ground_detect_values.spec_thrust_down,
+                              &ground_detect_values.accel_filter,
+                              &ground_detect_values.agl_dist_value_filtered,
+                              &ground_detect_status.value
+  );
+}
+#endif
+
 
 void ground_detect_init()
 {
   // Initialize the ground detection status
   ground_detect_status.value = 0;
+  ground_detect_values.vspeed_ned = 0.0;
+  ground_detect_values.spec_thrust_down = 0.0;
+  ground_detect_values.accel_filter = 0.0;
+  ground_detect_values.agl_dist_value_filtered = 0.0;
   
   float tau = 1.0 / (2.0 * M_PI * GROUND_DETECT_FILT_FREQ);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
   init_butterworth_2_low_pass(&accel_filter, tau, sample_time, 0.0);
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GROUND_DETECT, send_ground_detect);
+#endif
 }
 
 bool ground_detect(void)
@@ -132,32 +158,33 @@ void ground_detect_periodic()
 #endif
 
   // vertical component
-  float spec_thrust_down;
   struct FloatRMat *ned_to_body_rmat = stateGetNedToBodyRMat_f();
-  spec_thrust_down = ned_to_body_rmat->m[8] * specific_thrust;
+  ground_detect_values.spec_thrust_down = ned_to_body_rmat->m[8] * specific_thrust;
 
   // Evaluate vertical speed (close to zero, not at terminal velocity)
-  float vspeed_ned = stateGetSpeedNed_f()->z;
+  ground_detect_values.vspeed_ned = stateGetSpeedNed_f()->z;
 
   // Detect free fall (to be done, rearm?)
 
   // Detect noise level (to be done)
 
   // Detect ground based on AND of some triggers
-
 #if USE_GROUND_DETECT_HX711
   ground_detect_status.hx711_trigger = hx711_ground_detect(); 
 #else
   ground_detect_status.hx711_trigger = false;
 #endif
 
-  ground_detect_status.vspeed_trigger = (fabsf(vspeed_ned) < GROUND_DETECT_VERTICAL_SPEED_THRESHOLD)? 1:0;
+  ground_detect_status.vspeed_trigger = (fabsf(ground_detect_values.vspeed_ned) < GROUND_DETECT_VERTICAL_SPEED_THRESHOLD)? 1:0;
 
 #if USE_GROUND_DETECT_INDI_THRUST
-  ground_detect_status.spec_thrust_trigger = (spec_thrust_down > GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD)? 1:0;
+  ground_detect_status.spec_thrust_trigger = (ground_detect_values.spec_thrust_down > GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD)? 1:0;
+#else
+  ground_detect_status.spec_thrust_trigger = false;
 #endif
 
-  ground_detect_status.accel_filt_trigger = (fabsf(accel_filter.o[0]) < GROUND_DETECT_VERTICAL_ACCEL_THRESHOLD)? 1:0;
+  ground_detect_values.accel_filter = accel_filter.o[0];
+  ground_detect_status.accel_filt_trigger = (fabsf(ground_detect_values.accel_filter) < GROUND_DETECT_VERTICAL_ACCEL_THRESHOLD)? 1:0;
 
 #if USE_GROUND_DETECT_AGL_DIST
   ground_detect_status.agl_trigger = (agl_dist_valid && (agl_dist_value_filtered < GROUND_DETECT_AGL_MIN_VALUE))? 1:0;
@@ -182,33 +209,6 @@ void ground_detect_periodic()
     ground_detected = false;
     counter = 0;
   }
-
-  uint8_t _ground_detect = ground_detected;
-  uint8_t _hx711_trigger = ground_detect_status.hx711_trigger;
-
-#if !USE_NPS
-  pprz_msg_send_GROUND_DETECT(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID,
-                              &_ground_detect,
-                              &vspeed_ned,
-                              &spec_thrust_down,
-                              &accel_filter.o[0],
-                              &agl_dist_value_filtered,
-                              &_hx711_trigger,
-                              &ground_detect_status.value
-  );
-#endif
-
-  RunOnceEvery(GROUND_DETECT_PERIODIC_FREQ / 10, {
-    DOWNLINK_SEND_GROUND_DETECT(DefaultChannel, DefaultDevice,
-                                &_ground_detect,
-                                &vspeed_ned,
-                                &spec_thrust_down,
-                                &accel_filter.o[0],
-                                &agl_dist_value_filtered,
-                                &_hx711_trigger,
-                                &ground_detect_status.value
-    );
-  });
 }
 
 /**

@@ -56,6 +56,14 @@
 #define HX711_MEDIAN_FILT_SIZE 3 
 #endif
 
+#ifndef HX711_DEBUG
+#define HX711_DEBUG false
+#endif
+
+#if HX711_DEBUG
+#include <stdio.h>
+#endif
+
 // Running at 50kHz for a full clock pulse (10us high, 10us low)
 #define HX711_PERIOD (HX711_PWM_FREQUENCY / 50000)
 
@@ -151,14 +159,24 @@ void hx711_event(void)
       filt_val[i] = get_median_filter_f(&measurement_filt[i]);
     }
 
+#if HX711_DEBUG
     float current_time = get_sys_time_float();
     float freq = 1 / (current_time - hx711_meas_time);
     hx711_meas_time = current_time;
 
+    char hx711_str[10];
+    char hx711_freq_str[15];
+    int hx711_len = snprintf(hx711_str, sizeof(hx711_str), "HX711");
+    int hx711_freq_len = snprintf(hx711_freq_str, sizeof(hx711_freq_str), "HX711 freq");
     RunOnceEvery(10, {
-      DOWNLINK_SEND_HX711(DefaultChannel, DefaultDevice, &freq, HX711_DEVICES_NB, filt_val);
+      DOWNLINK_SEND_DEBUG_VECT(DefaultChannel, DefaultDevice, hx711_len, hx711_str, HX711_DEVICES_NB, filt_val);
     });
-    pprz_msg_send_HX711(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, &freq, HX711_DEVICES_NB, filt_val);
+    RunOnceEvery(15, {
+      DOWNLINK_SEND_DEBUG_VECT(DefaultChannel, DefaultDevice, hx711_freq_len, hx711_freq_str, 1, &freq);
+    });
+    pprz_msg_send_DEBUG_VECT(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, hx711_len, hx711_str, HX711_DEVICES_NB, filt_val);
+    pprz_msg_send_DEBUG_VECT(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, hx711_freq_len, hx711_freq_str, 1, &freq);
+#endif
 
     hx711.measurement_ready = false;
   }
