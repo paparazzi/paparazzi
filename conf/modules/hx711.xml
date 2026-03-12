@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="hx711" dir="sensors">
+  <doc>
+    <description>
+      Reading of multiple HX711 strain guage sensors.
+    </description>
+    <define name="HX711_GAIN" value="1" description="The gain of the sensor in pulses (128: 1)"/>
+
+    <define name="HX711_PWM_FREQUENCY" value="6000000" description="Frequency of the generated PWM signal for clock precision of 0.5MHz"/>
+    <configure name="HX711_CLOCK" default="PWM_SERVO_1" description="PWM to use for the clock"/>
+    <define name="HX711_DEVICES_NB" value="4" description="The amount of sensors to read"/>
+    <define name="HX711_DEVICES" value="{{port, pin, 0, 0},{port,pin,0,0}}" description="The list of sensor port/pin pairs to read"/>
+  </doc>
+  <settings>
+      <dl_settings>
+        <dl_settings NAME="Strain_Gauge">
+          <dl_setting var="hx711_offset" min="-1000000" max="1000000" step="1" type="int32_t" handler="autoset_offset" module="modules/sensors/hx711"/>
+          <dl_setting var="hx711_ground_threshold" min="-1000000" max="1000000" step="1000" shortname="ground_threshold"/>
+        </dl_settings>
+      </dl_settings>
+    </settings>
+  <header>
+    <file name="hx711.h"/>
+  </header>
+
+  <init fun="hx711_init()"/>
+  <event fun="hx711_event()"/>
+
+  <makefile target="ap">
+    <configure name="HX711_CLOCK" default="PWM_SERVO_1"/>
+    <define name="HX711_PWM_PORT" value="$(HX711_CLOCK)_GPIO"/>
+    <define name="HX711_PWM_PIN" value="$(HX711_CLOCK)_PIN"/>
+    <define name="HX711_PWM_AF" value="$(HX711_CLOCK)_AF"/>
+    <define name="HX711_PWM_CHANNEL" value="$(HX711_CLOCK)_CHANNEL"/>
+    <define name="HX711_PWM_DRIVER" value="$(HX711_CLOCK)_DRIVER"/>
+
+    <file_arch name="hx711.c"/>
+  </makefile>
+</module>
