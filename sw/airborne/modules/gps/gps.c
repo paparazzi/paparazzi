@@ -181,7 +181,7 @@ static void send_gps_relpos(struct transport_tx *trans, struct link_device *dev)
   static uint8_t idx = 0;
   if(gps_relposned[idx].tow == 0)
     return;
-  
+
   pprz_msg_send_GPS_RELPOS(trans, dev, AC_ID,
                         &gps_relposned[idx].reference_id,
                         &gps_relposned[idx].tow,
@@ -191,7 +191,7 @@ static void send_gps_relpos(struct transport_tx *trans, struct link_device *dev)
                         &gps_relposned[idx].pos_acc.x, &gps_relposned[idx].pos_acc.y, &gps_relposned[idx].pos_acc.z,
                         &gps_relposned[idx].distance_acc,
                         &gps_relposned[idx].heading_acc);
-  
+
   // Send the next index that is set
   idx++;
   if(idx >= GPS_RELPOS_MAX || gps_relposned[idx].tow == 0)

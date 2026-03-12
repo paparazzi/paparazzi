@@ -19,6 +19,18 @@ def run(args):
     print("Creating a virtual environment for Paparazzi...")
     venv.create(ENV_NAME, with_pip=True, system_site_packages=args.system)
 
+    # Update pip
+    cmd = [f'./{ENV_NAME}/bin/pip', 'install', '--upgrade', 'pip', 'setuptools', 'wheel']
+    result = subprocess.run(cmd, check=False)
+    if result.returncode:
+        print("Failed to update pip!")
+
+    # do pip cache purge
+    cmd = [f'./{ENV_NAME}/bin/pip', 'cache', 'purge']
+    result = subprocess.run(cmd, check=False)
+    if result.returncode:
+        print("Failed to purge pip cache!")
+
     # installing requirements
     cmd = [f'./{ENV_NAME}/bin/pip', 'install', '-r' , 'requirements.txt']
     result = subprocess.run(cmd, check=False)

@@ -1,9 +1,3 @@
-[submodule "sw/ext/libopencm3"]
-	path = sw/ext/libopencm3
-	url = https://github.com/libopencm3/libopencm3.git
-[submodule "sw/ext/luftboot"]
-	path = sw/ext/luftboot
-	url = https://github.com/paparazzi/luftboot.git
 [submodule "sw/ext/fatfs"]
 	path = sw/ext/fatfs
 	url = https://github.com/paparazzi/fatfs.git
@@ -62,3 +56,6 @@
 [submodule "sw/ext/dronecan/libcanard"]
 	path = sw/ext/dronecan/libcanard
 	url = https://github.com/dronecan/libcanard.git
+[submodule "sw/ext/unifiedmocaprouter"]
+	path = sw/ext/unifiedmocaprouter
+	url = https://github.com/tudelft/UnifiedMocapRouter.git

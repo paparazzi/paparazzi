@@ -101,17 +101,18 @@
   </servos>
 
   <commands>
-    <axis name="ROLL" failsafe_value="0"/>
-    <axis name="PITCH" failsafe_value="0"/>
-    <axis name="YAW" failsafe_value="0"/>
+    <axis name="FR" failsafe_value="MOTOR_STOP"/>
+    <axis name="BR" failsafe_value="MOTOR_STOP"/>
+    <axis name="BL" failsafe_value="MOTOR_STOP"/>
+    <axis name="FL" failsafe_value="MOTOR_STOP"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
   <command_laws>
-    <set servo="FR" value="autopilot_get_motors_on() ? actuators_pprz[0] : -MAX_PPRZ"/>
-    <set servo="BR" value="autopilot_get_motors_on() ? actuators_pprz[1] : -MAX_PPRZ"/>
-    <set servo="BL" value="autopilot_get_motors_on() ? actuators_pprz[2] : -MAX_PPRZ"/>
-    <set servo="FL" value="autopilot_get_motors_on() ? actuators_pprz[3] : -MAX_PPRZ"/>
+    <set servo="FR" value="@FR"/>
+    <set servo="BR" value="@BR"/>
+    <set servo="BL" value="@BL"/>
+    <set servo="FL" value="@FL"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
@@ -196,6 +197,9 @@
 
     <!--Priority for each axis (roll, pitch, yaw and thrust)-->
     <define name="WLS_PRIORITIES" value="{1000, 1000, 1, 100}"/>
+
+    <!-- INDI outputs to commands association -->
+    <define name="COMMANDS" value="{COMMAND_FR, COMMAND_BR, COMMAND_BL, COMMAND_FL}"/>
   </section>
 
   <section name="GUIDANCE_INDI" prefix="GUIDANCE_INDI_">

@@ -171,6 +171,9 @@ ext:
 opencv_bebop:
 	$(MAKE) -C $(EXT) opencv_bebop
 
+mocap:
+	$(MAKE) -C $(EXT) unifiedmocaprouter
+
 #
 # make misc subdirs
 #
@@ -346,6 +349,6 @@ test_full:
 
 .PHONY: all print_build_version _print_building _save_build_version init dox ground_segment ground_segment.opt \
 subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install tmtc tmtc.opt generators\
-static sim_static opencv_bebop\
+static sim_static opencv_bebop mocap \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test test_examples test_math test_all_confs

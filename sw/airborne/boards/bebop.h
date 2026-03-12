@@ -31,6 +31,14 @@
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1
 
+/** To have a direct acces to the GPS with U-Center
+ *  - on ground station (linux), run: socat TCP-LISTEN:5000,reuseaddr PTY,link=/tmp/ttyV0,raw,echo=0
+ *  - connect bebop with telnet and run: nc 192.168.42.84 5000 < /dev/ttyPA1 > /dev/ttyPA1
+ *  - if neeed, first create the virtual com port in .wine/dosdevices with: ln -s /tmp/ttyV0 com36
+ *  - on U-Center, connect the virtual port corresponding to /tmp/ttyV0
+ */
+
+/** NMEA enabled to keep the original firmware working */
 #define GPS_UBX_ENABLE_NMEA_DATA_MASK 0xff
 
 /** For using serial devices via USB to serial converter electronics

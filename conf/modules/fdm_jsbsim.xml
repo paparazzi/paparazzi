@@ -41,6 +41,8 @@
       $(TARGET).LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
       $(TARGET).CFLAGS  += -DNPS_JSBSIM_USE_SGPATH=$(JSBSIM_USE_SGPATH)
       endif
+      # Hide warnings from JSBSim itself
+      $(TARGET).CFLAGS += -isystem $(JSBSIM_ROOT)/include/JSBSim
     </raw>
     <file name="nps_fdm_jsbsim.cpp" dir="nps"/>
   </makefile>

@@ -21,6 +21,7 @@
 #define RTCM3_MSG_4072 0x72
 #define RTCM3_MSG_1077 0xB1
 #define RTCM3_MSG_1087 0xBB
+#define RTCM3_MSG_1097 0xC5
 #define RTCM3_MSG_1230 0xE6
 
 /* Macros for UBX message processing */
@@ -368,6 +369,7 @@ s8 rtcm3_process(msg_state_t *s, unsigned char buff)
           case 4072: s->msg_type = RTCM3_MSG_4072; break;
           case 1077: s->msg_type = RTCM3_MSG_1077; break;
           case 1087: s->msg_type = RTCM3_MSG_1087; break;
+          case 1097: s->msg_type = RTCM3_MSG_1097; break;
           case 1230: s->msg_type = RTCM3_MSG_1230; break;
           default:
 #ifdef DEBUG_PRINT_PACKAGE

@@ -52,7 +52,7 @@ class Bebop(ParrotUtils):
         if self.read_from_config(name) == 'Unknown':
             self.execute_command('echo "' + name + '=' + value + '\" >> ' + self.config_file)
         else:
-            self.execute_command('sed -i "s/\(' + name + ' *= *\).*/\\1' + value + '/g" ' + self.config_file)
+            self.execute_command('sed -i "s/\\(' + name + ' *= *\\).*/\\1' + value + '/g" ' + self.config_file)
 
     def uav_status(self):
         print('Parrot version:\t\t' + str(self.check_version()))
@@ -79,7 +79,7 @@ class Bebop(ParrotUtils):
             self.execute_command("sed -i 's|connect2hub|pprzstarter|' /etc/init.d/rcS")
             self.execute_command("rm /data/ftp/internal_000/scripts/connect2hub")
         else:
-            self.execute_command("sed -i 's|^exit 0|/data/ftp/internal_000/scripts/pprzstarter \& exit 0|' /etc/init.d/rcS")
+            self.execute_command("sed -i 's|^exit 0|/data/ftp/internal_000/scripts/pprzstarter \\& exit 0|' /etc/init.d/rcS")
         self.execute_command("chmod a+x /etc/init.d/rcS")
         self.execute_command("chmod a+x /data/ftp/internal_000/scripts/pprzstarter")
         self.execute_command("chmod a+x /data/ftp/internal_000/scripts/button_switch")
@@ -101,7 +101,7 @@ class Bebop(ParrotUtils):
     def bebop_uninstall_scripts(self):
         print('Uninstalling Paparazzi scripts')
         self.execute_command("mount -o remount,rw /")
-        self.execute_command("sed -i 's|^/data/ftp/internal_000/scripts/pprzstarter \& exit 0|exit 0|' /etc/init.d/rcS")
+        self.execute_command("sed -i 's|^/data/ftp/internal_000/scripts/pprzstarter \\& exit 0|exit 0|' /etc/init.d/rcS")
         self.execute_command("chmod a+x /etc/init.d/rcS")
         self.execute_command("mv /bin/onoffbutton/shortpress_3.sh.backup /bin/onoffbutton/shortpress_3.sh")
         self.execute_command("rm -rf /data/ftp/internal_000/scripts/*")

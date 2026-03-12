@@ -11,7 +11,7 @@ The avoidance strategy is to simply count the total number of orange pixels. Whe
 The color filter settings are set using the cv_detect_color_object. This module can run multiple filters simultaneously
 so you have to define which filter to use with the ORANGE_AVOIDER_VISUAL_DETECTION_ID setting.
     </description>
-    <define name="ORANGE_AVOIDER_VISUAL_DETECTION_ID" value="ABI_BROADCAST" description="which VISUAL_DETECTION message to recieve for orange pole detection."/>
+    <define name="ORANGE_AVOIDER_VISUAL_DETECTION_ID" value="ABI_BROADCAST" description="which VISUAL_DETECTION message to receive for orange pixel detection."/>
   </doc>
     <settings>
     <dl_settings>

@@ -10,7 +10,8 @@ PyOpenGL
 unidecode
 matplotlib
 distro
-empy
+empy<=3.3.4
 pexpect
 setuptools
+dronecan
 
