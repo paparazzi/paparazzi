@@ -99,7 +99,7 @@ static uint32_t uart_read(unsigned char(*buff)[], uint32_t n)
   }
 }
 
-static struct timespec my_wait = { .tv_sec = 0, .tv_nsec = 50000000 }; // 0.05 seconds wait between messages to awoid saturation
+static struct timespec my_wait = { .tv_sec = 0, .tv_nsec = 50000000 }; // 0.05 seconds wait between messages to avoid saturation
 
 static void ivy_send_message(uint8_t packet_id, uint8_t len, uint8_t msg[])
 {
@@ -149,7 +149,7 @@ struct LlaCoor_f  posLla;
 
 static void rtcm3_1005_callback(uint8_t len, uint8_t msg[])
 {
-  printf_debug("\nParsing 1055 callback (len: %d)\n", len);
+  printf_debug("\nParsing 1005 callback (len: %d)\n", len);
   if (len > 0) {
     if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
       ivy_send_message(RTCM3_MSG_1005, len, msg);
@@ -380,7 +380,7 @@ int main(int argc, char **argv)
   rtcm3_register_callback(&msg_state, RTCM3_MSG_1005, &rtcm3_1005_callback, &rtcm3_1005_node);
   rtcm3_register_callback(&msg_state, RTCM3_MSG_1077, &rtcm3_1077_callback, &rtcm3_1077_node);
   rtcm3_register_callback(&msg_state, RTCM3_MSG_1087, &rtcm3_1087_callback, &rtcm3_1087_node);
-  rtcm3_register_callback(&msg_state, RTCM3_MSG_1087, &rtcm3_1097_callback, &rtcm3_1097_node);
+  rtcm3_register_callback(&msg_state, RTCM3_MSG_1097, &rtcm3_1097_callback, &rtcm3_1097_node);
   rtcm3_register_callback(&msg_state, UBX_NAV_SVIN, &ubx_navsvin_callback, &ubx_nav_svin_node);
 
 
