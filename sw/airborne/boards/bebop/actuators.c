@@ -36,13 +36,25 @@
 #include "modules/datalink/telemetry.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
+#ifdef STABILIZATION_INDI_COMMANDS
+static uint8_t act_to_commands[INDI_NUM_ACT] = STABILIZATION_INDI_COMMANDS;
+#endif
+
 static void send_bebop_actuators(struct transport_tx *trans, struct link_device *dev)
 {
+#ifdef STABILIZATION_INDI_COMMANDS
+  int32_t cmd0 = commands[act_to_commands[0]];
+  int32_t cmd1 = commands[act_to_commands[1]];
+  int32_t cmd2 = commands[act_to_commands[2]];
+  int32_t cmd3 = commands[act_to_commands[3]];
+#else
+  int32_t cmd0 = stabilization.cmd[COMMAND_THRUST];
+  int32_t cmd1 = stabilization.cmd[COMMAND_ROLL];
+  int32_t cmd2 = stabilization.cmd[COMMAND_PITCH];
+  int32_t cmd3 = stabilization.cmd[COMMAND_YAW];
+#endif
   pprz_msg_send_BEBOP_ACTUATORS(trans, dev, AC_ID,
-                                &stabilization.cmd[COMMAND_THRUST],
-                                &stabilization.cmd[COMMAND_ROLL],
-                                &stabilization.cmd[COMMAND_PITCH],
-                                &stabilization.cmd[COMMAND_YAW],
+                                &cmd0, &cmd1, &cmd2, &cmd3,
                                 &actuators_bebop.rpm_ref[0],
                                 &actuators_bebop.rpm_ref[1],
                                 &actuators_bebop.rpm_ref[2],
