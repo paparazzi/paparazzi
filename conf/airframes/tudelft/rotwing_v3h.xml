@@ -219,7 +219,7 @@
         <set SERVO="SERVO_RUDDER"   VALUE="($servo_hold? RadioControlValues(RADIO_YAW) : pfc_actuators_value(1, @RUDDER))"/>
         <set SERVO="SERVO_ELEVATOR" VALUE="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? pfc_actuators_value(0, 0) : @ELEVATOR))"/>
         <set SERVO="MOTOR_PUSH"     VALUE="($th_hold? ($servo_hold? -9600 : pfc_actuators_value(11, -9600)) : @THRUST_X)"/>
-        <set SERVO="ROTATION_MECH"  VALUE="pfc_actuators_value(6, rotwing_state.skew_cmd)"/>
+        <set SERVO="ROTATION_MECH"  VALUE="pfc_actuators_value(6, @ROT_MECH)"/>
         <set SERVO="AIL_LEFT"       VALUE="$ail_limit_hit? pfc_actuators_value(2, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : @AILERONS)"/>
         <set SERVO="AIL_RIGHT"      VALUE="$ail_limit_hit? pfc_actuators_value(5, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : @AILERONS)"/>
         <set SERVO="FLAP_LEFT"      VALUE="$flap_limit_hit? pfc_actuators_value(3, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : @FLAPS)"/>
