@@ -68,14 +68,14 @@
 
 
             <!-- MAVLink simulation -->
-            <!-- <module name="mavlink">
+            <module name="mavlink">
                 <define name="MAV_AUTOPILOT_ID" value="MAV_AUTOPILOT_ARDUPILOTMEGA"/>
                 <define name="UDP1_PORT_OUT" value="24550"/>
                 <define name="UDP1_PORT_IN" value="14551"/>
                 <define name="UDP1_HOST" value="127.0.0.1"/>
                 <define name="MAVLINK_DEBUG" value="printf"/>
                 <configure name="MAVLINK_PORT" value="UDP1"/>
-            </module> -->
+            </module>
         </target>
 
         <!-- Herelink datalink -->
