@@ -3,7 +3,7 @@
 <module name="hx711" dir="sensors">
   <doc>
     <description>
-      Reading of multiple HX711 strain guage sensors.
+      Reading of multiple HX711 strain gauge sensors.
     </description>
     <define name="HX711_GAIN" value="1" description="The gain of the sensor in pulses (128: 1)"/>
 
