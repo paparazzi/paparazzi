@@ -68,14 +68,14 @@
 
 
             <!-- MAVLink simulation -->
-            <module name="mavlink">
+            <!-- <module name="mavlink">
                 <define name="MAV_AUTOPILOT_ID" value="MAV_AUTOPILOT_ARDUPILOTMEGA"/>
                 <define name="UDP1_PORT_OUT" value="24550"/>
                 <define name="UDP1_PORT_IN" value="14551"/>
                 <define name="UDP1_HOST" value="127.0.0.1"/>
                 <define name="MAVLINK_DEBUG" value="printf"/>
                 <configure name="MAVLINK_PORT" value="UDP1"/>
-            </module>
+            </module> -->
         </target>
 
         <!-- Herelink datalink -->
@@ -212,11 +212,23 @@
     </servos>
 
     <commands>
-        <axis name="ROLL"       failsafe_value="0"/>
-        <axis name="PITCH"      failsafe_value="0"/>
-        <axis name="YAW"        failsafe_value="0"/>
-        <axis name="THRUST"     failsafe_value="0"/>
-        <axis name="THRUST_X"   failsafe_value="0"/>
+        <!-- commands from INDI -->
+        <axis name="MOTOR_FRONT" group ="REAL" failsafe_value="MOTOR_STOP"/>
+        <axis name="MOTOR_RIGHT" group ="REAL" failsafe_value="MOTOR_STOP"/>
+        <axis name="MOTOR_BACK"  group ="REAL" failsafe_value="MOTOR_STOP"/>
+        <axis name="MOTOR_LEFT"  group ="REAL" failsafe_value="MOTOR_STOP"/>
+        <axis name="RUDDER"      group ="REAL" failsafe_value="0"/>
+        <axis name="ELEVATOR"    group ="REAL" failsafe_value="0"/>
+        <axis name="AILERONS"     group ="REAL" failsafe_value="0"/>
+        <axis name="FLAPS"        group ="REAL" failsafe_value="0"/>
+        <axis name="THRUST_X"    group ="REAL" failsafe_value="MOTOR_STOP"/>
+        <!-- commands modules -->
+        <axis name="ROT_MECH"        group ="PASSIVE" failsafe_value="0"/>
+        <!-- default commands -->
+        <axis name="THRUST"      group ="OTHER" failsafe_value="0"/>
+        <axis name="ROLL"        group ="VIRTUAL" failsafe_value="0"/>
+        <axis name="PITCH"       group ="VIRTUAL" failsafe_value="0"/>
+        <axis name="YAW"         group ="OTHER" failsafe_value="0"/>
     </commands>
 
 
@@ -228,35 +240,35 @@
 
         <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
         <!-- Main bus -->
-        <set servo="MOTOR_FRONT"        value="($hover_off? -9600 : actuators_pprz[0])"/>
-        <set servo="MOTOR_RIGHT"        value="($hover_off? -9600 : actuators_pprz[1])"/>
-        <set servo="MOTOR_BACK"         value="($hover_off? -9600 : actuators_pprz[2])"/>
-        <set servo="MOTOR_LEFT"         value="($hover_off? -9600 : actuators_pprz[3])"/>
-        <set servo="MOTOR_PUSH"         value="($th_hold? -9600 : actuators_pprz[8])"/>
-        <set servo="SERVO_ELEVATOR"     value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))"/>
-        <set servo="SERVO_RUDDER"       value="($servo_hold? RadioControlValues(RADIO_YAW) : (!autopilot_in_flight()? 0 : actuators_pprz[4]))"/>
-        <set servo="AIL_RIGHT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
-        <set servo="FLAP_RIGHT"         value="($servo_hold? (RadioControlValues(RADIO_ROLL) + rw_flap_offset) : actuators_pprz[7] + rw_flap_offset)"/>
-        <set servo="AIL_LEFT"           value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
-        <set servo="FLAP_LEFT"          value="($servo_hold? (RadioControlValues(RADIO_ROLL) - rw_flap_offset) : actuators_pprz[7] - rw_flap_offset)"/>
+        <set servo="MOTOR_FRONT"        value="($hover_off? -9600 : @MOTOR_FRONT)"/>
+        <set servo="MOTOR_RIGHT"        value="($hover_off? -9600 : @MOTOR_RIGHT)"/>
+        <set servo="MOTOR_BACK"         value="($hover_off? -9600 : @MOTOR_BACK)"/>
+        <set servo="MOTOR_LEFT"         value="($hover_off? -9600 : @MOTOR_LEFT)"/>
+        <set servo="MOTOR_PUSH"         value="($th_hold? -9600 : @THRUST_X)"/>
+        <set servo="SERVO_ELEVATOR"     value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : @ELEVATOR))"/>
+        <set servo="SERVO_RUDDER"       value="($servo_hold? RadioControlValues(RADIO_YAW) : (!autopilot_in_flight()? 0 : @RUDDER))"/>
+        <set servo="AIL_RIGHT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : @AILERONS)"/>
+        <set servo="FLAP_RIGHT"         value="($servo_hold? (RadioControlValues(RADIO_ROLL) + rw_flap_offset) : @FLAPS + rw_flap_offset)"/>
+        <set servo="AIL_LEFT"           value="($servo_hold? RadioControlValues(RADIO_ROLL) : @AILERONS)"/>
+        <set servo="FLAP_LEFT"          value="($servo_hold? (RadioControlValues(RADIO_ROLL) - rw_flap_offset) : @FLAPS - rw_flap_offset)"/>
         <set servo="PARACHUTE"          value="RadioControlValues(RADIO_PARACHUTE)"/>
 
         <!-- Second bus -->
-        <set servo="BMOTOR_FRONT"       value="($hover_off? -9600 : actuators_pprz[0])"/>
-        <set servo="BMOTOR_RIGHT"       value="($hover_off? -9600 : actuators_pprz[1])"/>
-        <set servo="BMOTOR_BACK"        value="($hover_off? -9600 : actuators_pprz[2])"/>
-        <set servo="BMOTOR_LEFT"        value="($hover_off? -9600 : actuators_pprz[3])"/>
-        <set servo="BMOTOR_PUSH"        value="($th_hold? -9600 : actuators_pprz[8])"/>
-        <set servo="BSERVO_ELEVATOR"    value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))"/>
-        <set servo="BSERVO_RUDDER"      value="($servo_hold? RadioControlValues(RADIO_YAW) : (!autopilot_in_flight()? 0 : actuators_pprz[4]))"/>
-        <set servo="BAIL_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
-        <set servo="BFLAP_RIGHT"        value="($servo_hold? (RadioControlValues(RADIO_ROLL) + rw_flap_offset) : actuators_pprz[7] + rw_flap_offset)"/>
-        <set servo="BAIL_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
-        <set servo="BFLAP_LEFT"         value="($servo_hold? (RadioControlValues(RADIO_ROLL) - rw_flap_offset) : actuators_pprz[7] - rw_flap_offset)"/>
+        <set servo="BMOTOR_FRONT"       value="($hover_off? -9600 : @MOTOR_FRONT)"/>
+        <set servo="BMOTOR_RIGHT"       value="($hover_off? -9600 : @MOTOR_RIGHT)"/>
+        <set servo="BMOTOR_BACK"        value="($hover_off? -9600 : @MOTOR_BACK)"/>
+        <set servo="BMOTOR_LEFT"        value="($hover_off? -9600 : @MOTOR_LEFT)"/>
+        <set servo="BMOTOR_PUSH"        value="($th_hold? -9600 : @THRUST_X)"/>
+        <set servo="BSERVO_ELEVATOR"    value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : @ELEVATOR))"/>
+        <set servo="BSERVO_RUDDER"      value="($servo_hold? RadioControlValues(RADIO_YAW) : (!autopilot_in_flight()? 0 : @RUDDER))"/>
+        <set servo="BAIL_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : @AILERONS)"/>
+        <set servo="BFLAP_RIGHT"        value="($servo_hold? (RadioControlValues(RADIO_ROLL) + rw_flap_offset) : @FLAPS + rw_flap_offset)"/>
+        <set servo="BAIL_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : @AILERONS)"/>
+        <set servo="BFLAP_LEFT"         value="($servo_hold? (RadioControlValues(RADIO_ROLL) - rw_flap_offset) : @FLAPS - rw_flap_offset)"/>
         <set servo="BPARACHUTE"         value="RadioControlValues(RADIO_PARACHUTE)"/>
 
         <!-- Rotation mechanism -->
-        <set servo="ROTATION_MECH"      value="rotwing_state.skew_cmd"/>
+        <set servo="ROTATION_MECH"      value="@ROT_MECH"/>
     </command_laws>
 
 
