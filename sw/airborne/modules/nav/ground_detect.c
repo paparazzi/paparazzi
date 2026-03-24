@@ -29,6 +29,9 @@
 
 #include "state.h"
 
+#include "pprzlink/messages.h"
+#include "modules/datalink/downlink.h"
+
 /* Number of triggers which need to be active to assume ground has been detected */
 #ifndef GROUND_DETECT_NUM_TRIGGERS
 #define GROUND_DETECT_NUM_TRIGGERS 3
@@ -61,6 +64,9 @@ PRINT_CONFIG_VAR(GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED)
 #ifndef GROUND_DETECT_REVERSE_THRUST_LEVEL
 #error "GROUND_DETECT_REVERSE_THRUST_LEVEL needs to be defined if GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED is true"
 #endif
+uint16_t reverse_th_level = GROUND_DETECT_REVERSE_THRUST_LEVEL;
+#else
+uint16_t reverse_th_level = 0;
 #endif
 
 #ifndef GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD
@@ -77,9 +83,6 @@ PRINT_CONFIG_VAR(GROUND_DETECT_VERTICAL_SPEED_THRESHOLD)
 #define GROUND_DETECT_VERTICAL_ACCEL_THRESHOLD -3.0
 #endif
 PRINT_CONFIG_VAR(GROUND_DETECT_VERTICAL_ACCEL_THRESHOLD)
-
-#include "pprzlink/messages.h"
-#include "modules/datalink/downlink.h"
 
 #ifndef GROUND_DETECT_COUNTER_TRIGGER
 #define GROUND_DETECT_COUNTER_TRIGGER 5
@@ -98,7 +101,6 @@ int32_t counter = 0;
 bool ground_detected = false;
 
 bool reverse_thrust = false;
-uint16_t reverse_th_level = GROUND_DETECT_REVERSE_THRUST_LEVEL;
 
 union ground_detect_bitmask_t ground_detect_status;
 struct ground_detect_values_t ground_detect_values;
