@@ -448,33 +448,39 @@ float guidance_indi_get_liftd(float pitch UNUSED, float theta UNUSED) {
 }
 
 void stabilization_indi_set_wls_settings(void)
-{
-   // Calculate the min and max increments
-    for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
-      wls_stab_p.u_min[i] = -MAX_PPRZ * act_is_servo[i];
-      wls_stab_p.u_max[i] = MAX_PPRZ;
-      wls_stab_p.u_pref[i] = act_pref[i];
-      if (i == 5) { // elevator
+{ 
+  int32_t flap_saturation_limit;
+
+  // Calculate the min and max increments
+  for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
+    wls_stab_p.u_min[i] = -MAX_PPRZ * act_is_servo[i];
+    wls_stab_p.u_max[i] = MAX_PPRZ;
+    wls_stab_p.u_pref[i] = act_pref[i];
+
+    switch(i) {
+      case COMMAND_ELEVATOR:
         wls_stab_p.u_pref[i] = actuator_state_filt_vect[i]; // Set change in prefered state to 0 for elevator
         wls_stab_p.u_min[i] = 0; // cmd 0 is lowest position for elevator
-      }
-      if (i == 7) { // flaperons
+        break;
+      case COMMAND_FLAPS:
         // If an offset is used, limit the max differential command to prevent unilateral saturation.
-        int32_t flap_saturation_limit = MAX_PPRZ - abs(rw_flap_offset);
-        BoundAbs(flap_saturation_limit, MAX_PPRZ);
+        flap_saturation_limit = MAX_PPRZ - abs(rw_flap_offset);
         wls_stab_p.u_min[i] = -flap_saturation_limit;
         wls_stab_p.u_max[i] = flap_saturation_limit;
-      }
-      if (i==8) { // pusher
+        break;
+      case COMMAND_THRUST_X:
         // dt (min to max) MAX_PPRZ / (dt * f) dt_min == 0.002
         Bound(eff_sched_pusher_time, 0.002, 5.);
         float max_increment = MAX_PPRZ / (eff_sched_pusher_time * 500);
         wls_stab_p.u_min[i] = actuators_pprz[i] - max_increment;
         wls_stab_p.u_max[i] = actuators_pprz[i] + max_increment;
+        break;
+      default:
+        break;
+    }  
 
-        Bound(wls_stab_p.u_min[i], 0, MAX_PPRZ);
-        Bound(wls_stab_p.u_max[i], 0, MAX_PPRZ);
-      }
+    Bound(wls_stab_p.u_min[i], -MAX_PPRZ*act_is_servo[i], MAX_PPRZ);
+    Bound(wls_stab_p.u_max[i], -MAX_PPRZ*act_is_servo[i], MAX_PPRZ);
   }
 }
 
