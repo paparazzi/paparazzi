@@ -23,8 +23,8 @@
  * The control effectiveness scheduler for the rotating wing drone type
  */
 
-#ifndef CTRL_EFF_SCHED_ROTWING_H
-#define CTRL_EFF_SCHED_ROTWING_H
+#ifndef CTRL_EFF_SCHED_ROTWING_RPM_CTRL_H
+#define CTRL_EFF_SCHED_ROTWING_RPM_CTRL_H
 
 #include "std.h"
 
@@ -41,10 +41,10 @@ struct rotwing_eff_sched_param_t {
   float Ixx_wing;                 // wing MMOI around the chordwise direction of the wing [kgm²]
   float Iyy_wing;                 // wing MMOI around the spanwise direction of the wing [kgm²]
   float m;                        // mass [kg]
-  float DMdpprz_hover_roll[2];    // Moment coeficients for roll motors (Scaled by 10000)
-  float DMdpprz_hover_pitch[2];   // Moment coeficients for pitch motors (Scaled by 10000)
-  float hover_roll_pitch_coef[2]; // Model coefficients to correct pitch effective for roll motors
-  float hover_roll_roll_coef[2];  // Model coefficients to correct roll effectiveness for roll motors
+  float CT_hover;                    // Thrust coefficient for hover motors in the form of T = CT * RPM^2!
+  float CT_pusher;                   // Thrust coefficient for pusher motor in the form of T = CT * RPM^2!
+  float hover_max_rpm_squared;   // max RPM limit for hover motors as configured in ESC
+  float pusher_max_rpm_squared;  // max RPM limit for pusher motor as configured in ESC
   float k_elevator[3];
   float k_rudder[3];
   float k_aileron;
@@ -52,10 +52,11 @@ struct rotwing_eff_sched_param_t {
   float k_pusher[2];
   float k_elevator_deflection[2];
   float d_rudder_d_pprz;
-  float k_rpm_pprz_pusher[3];
   float k_lift_wing[2];
   float k_lift_fuselage;
   float k_lift_tail;
+  float hover_rpm_lim_coef[2]; // Coefficients for limiting max RPM based on voltage level (following a linear relation)
+  float pusher_rpm_lim_coef[2]; // Coefficients for limiting max RPM based on voltage level (following a linear relation)
 };
 extern struct rotwing_eff_sched_param_t eff_sched_p;
 
@@ -69,10 +70,6 @@ struct rotwing_eff_sched_var_t {
   float cosr2;                // cosine² of wing rotation angle
   float sinr2;                // sine² of wing rotation angle
   float sinr3;                // sine³ of wing rotation angle
-
-  // Set during initialization
-  float pitch_motor_dMdpprz;  // derivative of delta moment with respect to a delta paparazzi command for the pitch motors [Nm/pprz]
-  float roll_motor_dMdpprz;   // derivative of delta moment with respect to a delta paparazzi command for the roll motors [Nm/pprz]
 
   // commands
   float cmd_elevator;
@@ -96,5 +93,5 @@ extern float roll_eff_slider;
 extern void eff_scheduling_rotwing_init(void);
 extern void eff_scheduling_rotwing_periodic(void);
 
-#endif  // CTRL_EFF_SCHED_ROTWING_H
+#endif  // CTRL_EFF_SCHED_ROTWING_RPM_CTRL_H
 
