@@ -275,6 +275,12 @@
       <field name="actuators_t4_extra_data_in_ptr" type="float *">Pointer pointing at the actuators_t4_extra_data_in array</field>
     </message>
 
+    <message name="FORCE_SENSOR" id="42">
+      <field name="stamp" type="uint32_t" unit="us">Timestamp in micro-seconds</field>
+      <field name="count" type="uint8_t">Number of force sensor values in the array</field>
+      <field name="values" type="int32_t *">Pointer to force sensor values (driver raw units)</field>
+    </message>
+
   </msg_class>
 
 </protocol>
