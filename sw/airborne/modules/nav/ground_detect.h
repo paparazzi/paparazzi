@@ -35,7 +35,7 @@ union ground_detect_bitmask_t {
     bool spec_thrust_trigger : 1;  
     bool accel_filt_trigger: 1;     
     bool agl_trigger : 1;  
-    bool hx711_trigger : 1;          
+    bool force_sensor_trigger : 1;
   };
 };
 
@@ -57,6 +57,9 @@ extern bool disarm_on_not_in_flight;
 extern bool ground_detect_reverse_thrust(void);
 extern void ground_detect_stop_reverse_thrust(void);
 extern void ground_detect_start_reverse_thrust(void);
+extern void ground_detect_set_offset_sensors(bool set_offset);
+
+extern float force_sensor_ground_threshold;
 
 extern uint16_t reverse_th_level; // Reverse thrust level in pprz units
 

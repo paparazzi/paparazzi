@@ -51,7 +51,7 @@
 
         <!-- Ground detect -->
         <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"      value="0.24"/>
-        <define name="USE_GROUND_DETECT_AGL_DIST"       value="TRUE"/>
+        <define name="GROUND_DETECT_USE_AGL_DIST"       value="TRUE"/>
 
         <!-- AGL distance -->
         <define name="AGL_DIST_FILTER"                  value="0.07"/>

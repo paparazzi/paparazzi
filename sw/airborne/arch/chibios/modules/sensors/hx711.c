@@ -27,9 +27,10 @@
 
 #include "hx711.h"
 #include "mcu_periph/gpio.h"
+#include "mcu_periph/sys_time.h"
+#include "modules/core/abi.h"
 #include "modules/datalink/downlink.h"
 #include "modules/datalink/telemetry.h"
-#include "filters/median_filter.h"
 #include BOARD_CONFIG
 
 #ifndef HX711_DEVICES_NB
@@ -48,12 +49,8 @@
 #define HX711_DEVICES {}
 #endif
 
-#ifndef HX711_GROUND_THRESHOLD 
-#define HX711_GROUND_THRESHOLD 100000 
-#endif
-
-#ifndef HX711_MEDIAN_FILT_SIZE 
-#define HX711_MEDIAN_FILT_SIZE 3 
+#ifndef HX711_FORCE_SENSOR_ID
+#define HX711_FORCE_SENSOR_ID ABI_BROADCAST
 #endif
 
 #ifndef HX711_DEBUG
@@ -67,9 +64,6 @@
 // Running at 50kHz for a full clock pulse (10us high, 10us low)
 #define HX711_PERIOD (HX711_PWM_FREQUENCY / 50000)
 
-struct MedianFilterFloat measurement_filt[HX711_DEVICES_NB];
-float hx711_ground_threshold = HX711_GROUND_THRESHOLD;
-int32_t hx711_offset = 0;
 float hx711_meas_time = 0;
 struct hx711_dev_t {
   ioportid_t data_port;
@@ -134,9 +128,6 @@ void hx711_init(void)
   hx711.busy = false;
   hx711.measurement_ready = false;
   hx711.read_bit_idx = 0;
-  for(uint8_t i = 0; i < HX711_DEVICES_NB; i++) {
-    init_median_filter_f(&measurement_filt[i], HX711_MEDIAN_FILT_SIZE);
-  }
 }
 
 /**
@@ -150,13 +141,17 @@ void hx711_event(void)
 
   // Check if we have a measurement to read
   if(hx711.measurement_ready) {
-    // Process the measurement ABI??
+    int32_t values[HX711_DEVICES_NB];
+    for(uint8_t i = 0; i < HX711_DEVICES_NB; i++) {
+      values[i] = hx711.devices[i].measurement;
+    }
+
+    AbiSendMsgFORCE_SENSOR(HX711_FORCE_SENSOR_ID, get_sys_time_usec(), HX711_DEVICES_NB, values);
 
     // Send down for debug
-    float filt_val[HX711_DEVICES_NB];
+    float raw_val[HX711_DEVICES_NB];
     for(uint8_t i = 0; i < HX711_DEVICES_NB; i++) {
-      update_median_filter_f(&measurement_filt[i], hx711.devices[i].measurement - hx711.devices[i].offset);
-      filt_val[i] = get_median_filter_f(&measurement_filt[i]);
+      raw_val[i] = values[i];
     }
 
 #if HX711_DEBUG
@@ -169,12 +164,12 @@ void hx711_event(void)
     int hx711_len = snprintf(hx711_str, sizeof(hx711_str), "HX711");
     int hx711_freq_len = snprintf(hx711_freq_str, sizeof(hx711_freq_str), "HX711 freq");
     RunOnceEvery(10, {
-      DOWNLINK_SEND_DEBUG_VECT(DefaultChannel, DefaultDevice, hx711_len, hx711_str, HX711_DEVICES_NB, filt_val);
+      DOWNLINK_SEND_DEBUG_VECT(DefaultChannel, DefaultDevice, hx711_len, hx711_str, HX711_DEVICES_NB, raw_val);
     });
     RunOnceEvery(15, {
       DOWNLINK_SEND_DEBUG_VECT(DefaultChannel, DefaultDevice, hx711_freq_len, hx711_freq_str, 1, &freq);
     });
-    pprz_msg_send_DEBUG_VECT(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, hx711_len, hx711_str, HX711_DEVICES_NB, filt_val);
+    pprz_msg_send_DEBUG_VECT(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, hx711_len, hx711_str, HX711_DEVICES_NB, raw_val);
     pprz_msg_send_DEBUG_VECT(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, hx711_freq_len, hx711_freq_str, 1, &freq);
 #endif
 
@@ -195,16 +190,6 @@ void hx711_event(void)
   pwmEnableChannel(&HX711_PWM_DRIVER, HX711_PWM_CHANNEL, HX711_PERIOD/2); // 50% duty cycle
   pwmEnableChannelNotification(&HX711_PWM_DRIVER, HX711_PWM_CHANNEL);
   chSysUnlock();
-}
-
-/* Ground detected if strain gauges read above a certain threshold */
-bool hx711_ground_detect(void) {
-  for(uint8_t i = 0; i < HX711_DEVICES_NB; i++) {
-    if (fabsf(get_median_filter_f(&measurement_filt[i])) > hx711_ground_threshold) {
-      return true;
-    } 
-  }
-  return false;
 }
 
 /**
@@ -255,11 +240,4 @@ static void pwmpcb(PWMDriver *pwmp __attribute__((unused))) {
   }
 
   chSysUnlockFromISR();
-}
-
-void hx711_autoset_offset(int32_t offset) {
-  (void) offset;
-  for(uint8_t i = 0; i < HX711_DEVICES_NB; i++) {
-    hx711.devices[i].offset += get_median_filter_f(&measurement_filt[i]);
-  }
 }

@@ -25,7 +25,9 @@
 
 #include "ground_detect.h"
 #include "filters/low_pass_filter.h"
+#include "filters/median_filter.h"
 #include "firmwares/rotorcraft/autopilot_firmware.h"
+#include "modules/core/abi.h"
 
 #include "state.h"
 
@@ -37,23 +39,41 @@
 #define GROUND_DETECT_NUM_TRIGGERS 3
 #endif
 
-#if USE_GROUND_DETECT_INDI_THRUST
+#if GROUND_DETECT_USE_INDI_THRUST
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #endif
-PRINT_CONFIG_VAR(USE_GROUND_DETECT_INDI_THRUST)
+PRINT_CONFIG_VAR(GROUND_DETECT_USE_INDI_THRUST)
 
-#if USE_GROUND_DETECT_AGL_DIST
+#if GROUND_DETECT_USE_AGL_DIST
 #include "modules/sonar/agl_dist.h"
 #ifndef GROUND_DETECT_AGL_MIN_VALUE
 #define GROUND_DETECT_AGL_MIN_VALUE 0.1
 #endif
 #endif
-PRINT_CONFIG_VAR(USE_GROUND_DETECT_AGL_DIST)
+PRINT_CONFIG_VAR(GROUND_DETECT_USE_AGL_DIST)
 
-#if USE_GROUND_DETECT_HX711
-#include "modules/sensors/hx711.h"
+#ifndef GROUND_DETECT_USE_FORCE_SENSOR
+#define GROUND_DETECT_USE_FORCE_SENSOR 0
 #endif
-PRINT_CONFIG_VAR(USE_GROUND_DETECT_HX711)
+
+#ifndef GROUND_DETECT_FORCE_SENSOR_THRESHOLD
+#define GROUND_DETECT_FORCE_SENSOR_THRESHOLD 100000
+#endif
+
+#ifndef GROUND_DETECT_FORCE_SENSOR_MEDIAN_FILT_SIZE
+#define GROUND_DETECT_FORCE_SENSOR_MEDIAN_FILT_SIZE 3
+#endif
+
+#ifndef FORCE_SENSOR_MAX_NB
+#define FORCE_SENSOR_MAX_NB 16
+#endif
+
+#if GROUND_DETECT_USE_FORCE_SENSOR
+#ifndef GROUND_DETECT_FORCE_SENSOR_ID
+#define GROUND_DETECT_FORCE_SENSOR_ID ABI_BROADCAST
+#endif
+#endif
+PRINT_CONFIG_VAR(GROUND_DETECT_USE_FORCE_SENSOR)
 
 #ifndef GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED
 #define GROUND_DETECT_REVERSE_THRUST_ON_GROUND_DETECTED false
@@ -105,17 +125,75 @@ bool reverse_thrust = false;
 union ground_detect_bitmask_t ground_detect_status;
 struct ground_detect_values_t ground_detect_values;
 
+float force_sensor_ground_threshold = GROUND_DETECT_FORCE_SENSOR_THRESHOLD;
+
+struct force_sensor_data_t {
+  uint8_t count;
+  int32_t offsets[FORCE_SENSOR_MAX_NB];
+  int32_t values_filt[FORCE_SENSOR_MAX_NB];
+};
+
+static struct force_sensor_data_t force_sensor = {0};
+
+#if GROUND_DETECT_USE_FORCE_SENSOR
+static struct MedianFilterInt force_sensor_filt[FORCE_SENSOR_MAX_NB];
+static bool force_sensor_valid = false;
+static abi_event force_sensor_ev;
+
+static void force_sensor_autoset_offset(void)
+{
+  if (!force_sensor_valid) {
+    return;
+  }
+
+  for (uint8_t i = 0; i < force_sensor.count; i++) {
+    force_sensor.offsets[i] += force_sensor.values_filt[i];
+  }
+}
+
+static void force_sensor_cb(uint8_t sender_id UNUSED, uint32_t stamp UNUSED, uint8_t count, int32_t *values)
+{
+  uint8_t n = count;
+  if (n > FORCE_SENSOR_MAX_NB) {
+    n = FORCE_SENSOR_MAX_NB;
+  }
+
+  force_sensor.count = n;
+  force_sensor_valid = true;
+  for (uint8_t i = 0; i < n; i++) {
+    force_sensor.values_filt[i] = update_median_filter_i(&force_sensor_filt[i], values[i] - force_sensor.offsets[i]);
+  }
+}
+
+static bool force_sensor_detect_ground(void)
+{
+  if (!force_sensor_valid) {
+    return false;
+  }
+
+  for (uint8_t i = 0; i < force_sensor.count; i++) {
+    if (fabsf((float)force_sensor.values_filt[i]) > force_sensor_ground_threshold) {
+      return true;
+    }
+  }
+  return false;
+}
+#endif
+
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 static void send_ground_detect(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t _ground_detected = ground_detected;
+
   pprz_msg_send_GROUND_DETECT(trans, dev, AC_ID,
                               &_ground_detected,
                               &ground_detect_values.vspeed_ned,
                               &ground_detect_values.spec_thrust_down,
                               &ground_detect_values.accel_filter,
                               &ground_detect_values.agl_dist_value_filtered,
+                              force_sensor.count,
+                              force_sensor.values_filt,
                               &ground_detect_status.value
   );
 }
@@ -130,10 +208,24 @@ void ground_detect_init()
   ground_detect_values.spec_thrust_down = 0.0;
   ground_detect_values.accel_filter = 0.0;
   ground_detect_values.agl_dist_value_filtered = 0.0;
+  force_sensor.count = 1; // Needed for force sensor field in ground detect message
+  for (uint8_t i = 0; i < FORCE_SENSOR_MAX_NB; i++) {
+    force_sensor.offsets[i] = 0;
+    force_sensor.values_filt[i] = 0;
+  }
   
   float tau = 1.0 / (2.0 * M_PI * GROUND_DETECT_FILT_FREQ);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
   init_butterworth_2_low_pass(&accel_filter, tau, sample_time, 0.0);
+
+#if GROUND_DETECT_USE_FORCE_SENSOR
+  for (uint8_t i = 0; i < FORCE_SENSOR_MAX_NB; i++) {
+    init_median_filter_i(&force_sensor_filt[i], GROUND_DETECT_FORCE_SENSOR_MEDIAN_FILT_SIZE);
+  }
+  force_sensor.count = 0;
+  force_sensor_valid = false;
+  AbiBindMsgFORCE_SENSOR(GROUND_DETECT_FORCE_SENSOR_ID, &force_sensor_ev, force_sensor_cb);
+#endif
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GROUND_DETECT, send_ground_detect);
@@ -158,7 +250,7 @@ void ground_detect_periodic()
   // Use the control effectiveness in thrust in order to estimate the thrust delivered (only works for multicopters)
   float specific_thrust = 0.0; // m/s2
  
-#if USE_GROUND_DETECT_INDI_THRUST
+#if GROUND_DETECT_USE_INDI_THRUST
   uint8_t i;
   for (i = 0; i < INDI_NUM_ACT; i++) {
     specific_thrust += actuator_state_filt_vect[i] * g1g2[3][i] * -((int32_t) act_is_servo[i] - 1);
@@ -177,15 +269,15 @@ void ground_detect_periodic()
   // Detect noise level (to be done)
 
   // Detect ground based on AND of some triggers
-#if USE_GROUND_DETECT_HX711
-  ground_detect_status.hx711_trigger = hx711_ground_detect(); 
+#if GROUND_DETECT_USE_FORCE_SENSOR
+  ground_detect_status.force_sensor_trigger = force_sensor_detect_ground();
 #else
-  ground_detect_status.hx711_trigger = false;
+  ground_detect_status.force_sensor_trigger = false;
 #endif
 
   ground_detect_status.vspeed_trigger = (fabsf(ground_detect_values.vspeed_ned) < GROUND_DETECT_VERTICAL_SPEED_THRESHOLD)? 1:0;
 
-#if USE_GROUND_DETECT_INDI_THRUST
+#if GROUND_DETECT_USE_INDI_THRUST
   ground_detect_status.spec_thrust_trigger = (ground_detect_values.spec_thrust_down > GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD)? 1:0;
 #else
   ground_detect_status.spec_thrust_trigger = false;
@@ -194,7 +286,7 @@ void ground_detect_periodic()
   ground_detect_values.accel_filter = accel_filter.o[0];
   ground_detect_status.accel_filt_trigger = (fabsf(ground_detect_values.accel_filter) < GROUND_DETECT_VERTICAL_ACCEL_THRESHOLD)? 1:0;
 
-#if USE_GROUND_DETECT_AGL_DIST
+#if GROUND_DETECT_USE_AGL_DIST
   ground_detect_status.agl_trigger = (agl_dist_valid && (agl_dist_value_filtered < GROUND_DETECT_AGL_MIN_VALUE))? 1:0;
   ground_detect_values.agl_dist_value_filtered = agl_dist_value_filtered;
 #else
@@ -248,4 +340,12 @@ void ground_detect_stop_reverse_thrust(void)
 void ground_detect_start_reverse_thrust(void)
 {
   reverse_thrust = true;
+}
+
+void ground_detect_set_offset_sensors(bool set_offset)
+{
+  (void) set_offset;
+#if GROUND_DETECT_USE_FORCE_SENSOR
+  force_sensor_autoset_offset();
+#endif
 }

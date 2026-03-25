@@ -12,14 +12,6 @@
     <define name="HX711_DEVICES_NB" value="4" description="The amount of sensors to read"/>
     <define name="HX711_DEVICES" value="{{port, pin, 0, 0},{port,pin,0,0}}" description="The list of sensor port/pin pairs to read"/>
   </doc>
-  <settings>
-      <dl_settings>
-        <dl_settings NAME="Strain_Gauge">
-          <dl_setting var="hx711_offset" min="-1000000" max="1000000" step="1" type="int32_t" handler="autoset_offset" module="modules/sensors/hx711"/>
-          <dl_setting var="hx711_ground_threshold" min="-1000000" max="1000000" step="1000" shortname="ground_threshold"/>
-        </dl_settings>
-      </dl_settings>
-    </settings>
   <header>
     <file name="hx711.h"/>
   </header>
