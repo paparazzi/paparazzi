@@ -27,6 +27,7 @@
 #define GROUND_DETECT_H
 
 #include "std.h"
+#include "filters/low_pass_filter.h"
 
 union ground_detect_bitmask_t {
   uint16_t value;
@@ -40,9 +41,9 @@ union ground_detect_bitmask_t {
 };
 
 struct ground_detect_values_t {
-  float vspeed_ned;
+  float speed_down;
   float spec_thrust_down;
-  float accel_filter;
+  Butterworth2LowPass accel_down_filt;
   float agl_dist_value_filtered;
 };
 

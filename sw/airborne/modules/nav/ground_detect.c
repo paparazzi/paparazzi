@@ -24,7 +24,6 @@
  */
 
 #include "ground_detect.h"
-#include "filters/low_pass_filter.h"
 #include "filters/median_filter.h"
 #include "firmwares/rotorcraft/autopilot_firmware.h"
 #include "modules/core/abi.h"
@@ -113,8 +112,6 @@ PRINT_CONFIG_VAR(GROUND_DETECT_VERTICAL_ACCEL_THRESHOLD)
 #define GROUND_DETECT_FILT_FREQ 5.0
 #endif
 
-Butterworth2LowPass accel_filter;
-
 bool disarm_on_not_in_flight = false;
 
 int32_t counter = 0;
@@ -188,12 +185,11 @@ static void send_ground_detect(struct transport_tx *trans, struct link_device *d
 
   pprz_msg_send_GROUND_DETECT(trans, dev, AC_ID,
                               &_ground_detected,
-                              &ground_detect_values.vspeed_ned,
+                              &ground_detect_values.speed_down,
                               &ground_detect_values.spec_thrust_down,
-                              &ground_detect_values.accel_filter,
+                              &ground_detect_values.accel_down_filt.o[0],
                               &ground_detect_values.agl_dist_value_filtered,
-                              force_sensor.count,
-                              force_sensor.values_filt,
+                              force_sensor.count, force_sensor.values_filt,
                               &ground_detect_status.value
   );
 }
@@ -204,9 +200,8 @@ void ground_detect_init()
 {
   // Initialize the ground detection status
   ground_detect_status.value = 0;
-  ground_detect_values.vspeed_ned = 0.0;
+  ground_detect_values.speed_down = 0.0;
   ground_detect_values.spec_thrust_down = 0.0;
-  ground_detect_values.accel_filter = 0.0;
   ground_detect_values.agl_dist_value_filtered = 0.0;
   force_sensor.count = 1; // Needed for force sensor field in ground detect message
   for (uint8_t i = 0; i < FORCE_SENSOR_MAX_NB; i++) {
@@ -216,7 +211,7 @@ void ground_detect_init()
   
   float tau = 1.0 / (2.0 * M_PI * GROUND_DETECT_FILT_FREQ);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
-  init_butterworth_2_low_pass(&accel_filter, tau, sample_time, 0.0);
+  init_butterworth_2_low_pass(&ground_detect_values.accel_down_filt, tau, sample_time, 0.0);
 
 #if GROUND_DETECT_USE_FORCE_SENSOR
   for (uint8_t i = 0; i < FORCE_SENSOR_MAX_NB; i++) {
@@ -262,7 +257,7 @@ void ground_detect_periodic()
   ground_detect_values.spec_thrust_down = ned_to_body_rmat->m[8] * specific_thrust;
 
   // Evaluate vertical speed (close to zero, not at terminal velocity)
-  ground_detect_values.vspeed_ned = stateGetSpeedNed_f()->z;
+  ground_detect_values.speed_down = stateGetSpeedNed_f()->z;
 
   // Detect free fall (to be done, rearm?)
 
@@ -275,7 +270,7 @@ void ground_detect_periodic()
   ground_detect_status.force_sensor_trigger = false;
 #endif
 
-  ground_detect_status.vspeed_trigger = (fabsf(ground_detect_values.vspeed_ned) < GROUND_DETECT_VERTICAL_SPEED_THRESHOLD)? 1:0;
+  ground_detect_status.vspeed_trigger = (fabsf(ground_detect_values.speed_down) < GROUND_DETECT_VERTICAL_SPEED_THRESHOLD)? 1:0;
 
 #if GROUND_DETECT_USE_INDI_THRUST
   ground_detect_status.spec_thrust_trigger = (ground_detect_values.spec_thrust_down > GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD)? 1:0;
@@ -283,8 +278,7 @@ void ground_detect_periodic()
   ground_detect_status.spec_thrust_trigger = false;
 #endif
 
-  ground_detect_values.accel_filter = accel_filter.o[0];
-  ground_detect_status.accel_filt_trigger = (fabsf(ground_detect_values.accel_filter) < GROUND_DETECT_VERTICAL_ACCEL_THRESHOLD)? 1:0;
+  ground_detect_status.accel_filt_trigger = (fabsf(ground_detect_values.accel_down_filt.o[0]) < GROUND_DETECT_VERTICAL_ACCEL_THRESHOLD)? 1:0;
 
 #if GROUND_DETECT_USE_AGL_DIST
   ground_detect_status.agl_trigger = (agl_dist_valid && (agl_dist_value_filtered < GROUND_DETECT_AGL_MIN_VALUE))? 1:0;
@@ -319,7 +313,7 @@ void ground_detect_periodic()
 void ground_detect_filter_accel(void)
 {
   struct NedCoor_f *accel = stateGetAccelNed_f();
-  update_butterworth_2_low_pass(&accel_filter, accel->z);
+  update_butterworth_2_low_pass(&ground_detect_values.accel_down_filt, accel->z);
 }
 
 bool ground_detect_reverse_thrust(void)
