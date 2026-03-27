@@ -104,7 +104,7 @@ void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_H
 
   // ZXY Euler order
   Gmat[0][0] =  0.0f;
-  Gmat[1][0] = -cphi*lift_thrust_bz;
+  Gmat[1][0] = -cphi*ctheta*lift_thrust_bz;
   Gmat[2][0] = -ctheta*sphi*lift_thrust_bz;
 
   Gmat[0][1] =  ctheta*lift_thrust_bz*GUIDANCE_INDI_PITCH_EFF_SCALING;
