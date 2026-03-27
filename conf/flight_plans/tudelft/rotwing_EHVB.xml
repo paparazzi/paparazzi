@@ -218,7 +218,7 @@
       <exception cond="GetPosHeight() @LT flare_height" deroute="flare"/>
       <stay climb="-1.0" vmode="climb" wp="TD"/>
     </block>
-    <block name="flare">
+    <block name="flare" on_enter="ground_detect_set_offset_sensors(true)">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <stay climb="-0.5" vmode="climb" wp="TD"/>
       <!--<exception cond="!(GetPosHeight() @LT 2.0)" deroute="flare_low"/>-->

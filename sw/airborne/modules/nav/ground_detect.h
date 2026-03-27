@@ -27,6 +27,25 @@
 #define GROUND_DETECT_H
 
 #include "std.h"
+#include "filters/low_pass_filter.h"
+
+union ground_detect_bitmask_t {
+  uint16_t value;
+  struct {
+    bool vspeed_trigger : 1;      
+    bool spec_thrust_trigger : 1;  
+    bool accel_filt_trigger: 1;     
+    bool agl_trigger : 1;  
+    bool force_sensor_trigger : 1;
+  };
+};
+
+struct ground_detect_values_t {
+  float speed_down;
+  float spec_thrust_down;
+  Butterworth2LowPass accel_down_filt;
+  float agl_dist_value_filtered;
+};
 
 extern void ground_detect_init(void);
 extern void ground_detect_periodic(void);
@@ -36,5 +55,13 @@ extern bool ground_detect(void);
 extern void ground_detect_filter_accel(void);
 
 extern bool disarm_on_not_in_flight;
+extern bool ground_detect_reverse_thrust(void);
+extern void ground_detect_stop_reverse_thrust(void);
+extern void ground_detect_start_reverse_thrust(void);
+extern void ground_detect_set_offset_sensors(bool set_offset);
+
+extern float force_sensor_ground_threshold;
+
+extern uint16_t reverse_th_level; // Reverse thrust level in pprz units
 
 #endif  // GROUND_DETECT_H
