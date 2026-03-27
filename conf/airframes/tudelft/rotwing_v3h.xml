@@ -46,7 +46,7 @@
             <!-- Strain gauges connected to hx711 load cell -->
             <module name="hx711">
                 <define name="HX711_DEVICES_NB" value="4"/>
-                <define name="HX711_DEVICES" value="{PWM_SERVO_2_GPIO,PWM_SERVO_2_PIN,0,0},{PWM_SERVO_3_GPIO,PWM_SERVO_3_PIN,0,0},{PWM_SERVO_4_GPIO,PWM_SERVO_4_PIN,0,0},{PWM_SERVO_5_GPIO,PWM_SERVO_5_PIN,0,0}"/>
+                <define name="HX711_DEVICES" value="{PWM_SERVO_2_GPIO,PWM_SERVO_2_PIN,0},{PWM_SERVO_3_GPIO,PWM_SERVO_3_PIN,0},{PWM_SERVO_4_GPIO,PWM_SERVO_4_PIN,0},{PWM_SERVO_5_GPIO,PWM_SERVO_5_PIN,0}"/>
                 <define name="HX711_DEBUG" value="true"/>
             </module>
 

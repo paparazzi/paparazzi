@@ -10,7 +10,7 @@
     <define name="HX711_PWM_FREQUENCY" value="6000000" description="Frequency of the generated PWM signal for clock precision of 0.5MHz"/>
     <configure name="HX711_CLOCK" default="PWM_SERVO_1" description="PWM to use for the clock"/>
     <define name="HX711_DEVICES_NB" value="4" description="The amount of sensors to read"/>
-    <define name="HX711_DEVICES" value="{{port, pin, 0, 0},{port,pin,0,0}}" description="The list of sensor port/pin pairs to read"/>
+    <define name="HX711_DEVICES" value="{{port,pin,0},{port,pin,0},{port,pin,0},{port,pin,0}}" description="The list of sensor port/pin pairs to read"/>
   </doc>
   <header>
     <file name="hx711.h"/>

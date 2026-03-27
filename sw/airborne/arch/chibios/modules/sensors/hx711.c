@@ -69,7 +69,6 @@ struct hx711_dev_t {
   ioportid_t data_port;
   uint16_t data_pin;
   int32_t measurement;
-  int32_t offset;
 };
 
 struct hx711_t {
