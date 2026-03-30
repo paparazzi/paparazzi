@@ -45,8 +45,8 @@ void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_H
   float cphi = cosf(roll_filt.o[0]);
   float stheta = sinf(pitch_filt.o[0]);
   float ctheta = cosf(pitch_filt.o[0]);
-  float spsi = sinf(yaw_filt.o[0]);
-  float cpsi = cosf(yaw_filt.o[0]);
+  float spsi = sinf(yaw_filt);
+  float cpsi = cosf(yaw_filt);
   //minus gravity is a guesstimate of the thrust force, thrust measurement would be better
 
 #ifndef GUIDANCE_INDI_PITCH_EFF_SCALING
@@ -102,5 +102,3 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3] UNUSED, float roll_an
 
 
 #endif
-
-
