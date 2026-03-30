@@ -101,6 +101,10 @@ fi
 
 print_header "Step 1/3 — Installing Qt platform dependencies"
 
+# ── Install Qt dependencies ──────────────────────────────────────────────────
+
+print_header "Step 1/3 — Installing Qt platform dependencies"
+
 # Solves: Could not load the Qt platform plugin "xcb"
 if run_step "Installing Qt libraries" sudo apt install -y libxcb-xinerama0 libxcb-cursor0 libxkbcommon-x11-0 libglu1-mesa; then
   print_success "Qt dependencies installed successfully"
