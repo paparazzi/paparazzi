@@ -185,11 +185,9 @@ void rtos_mon_periodic_arch(void)
 {
   int i;
   size_t total_fragments, total_fragmented_free_space, largest_free_block;
-  memory_area_t area;
   total_fragments = chHeapStatus(NULL, &total_fragmented_free_space, &largest_free_block);
-  chCoreGetStatusX(&area);
 
-  rtos_mon.core_free_memory = area.size;
+  rtos_mon.core_free_memory = chCoreGetStatusX();
   rtos_mon.heap_fragments = total_fragments;
   rtos_mon.heap_largest = largest_free_block;
   rtos_mon.heap_free_memory = total_fragmented_free_space;
