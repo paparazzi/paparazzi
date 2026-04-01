@@ -47,6 +47,29 @@ struct acInfo ti_acs[NB_ACS];
 /* Geoid height (msl) over ellipsoid [mm] */
 int32_t geoid_height;
 
+/* Send ACINFO_LLA message from the datalink class */
+static void send_acinfo_lla(struct transport_tx *trans, struct link_device *dev)
+{
+  int16_t course = (int16_t)DeciDegOfRad(stateGetHorizontalSpeedDir_f());
+  struct LlaCoor_i* lla = stateGetPositionLla_i();
+  uint32_t itow = gps.tow;
+  uint16_t speed = (uint16_t)(stateGetHorizontalSpeedNorm_f()*10.f);
+  int16_t climb = (int16_t)(stateGetSpeedEnu_f()->z*10.f);
+  uint8_t ac_id = AC_ID;
+
+  // broadcast GPS message
+  struct pprzlink_msg msg;
+  msg.trans = trans;
+  msg.dev = dev;
+  msg.sender_id = AC_ID;
+  msg.receiver_id = PPRZLINK_MSG_BROADCAST;
+  msg.component_id = 0;
+  pprzlink_msg_send_ACINFO_LLA(&msg,
+      &course,
+      &lla->lat, &lla->lon, &lla->alt,
+      &itow, &speed, &climb, &ac_id);
+}
+
 void traffic_info_init(void)
 {
   memset(ti_acs_id, 0, NB_ACS_ID);
@@ -57,6 +80,10 @@ void traffic_info_init(void)
   ti_acs_idx = 2;
 
   geoid_height = NAV_MSL0;
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACINFO_LLA, send_acinfo_lla);
+#endif
 }
 
 /**
