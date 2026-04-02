@@ -15,6 +15,9 @@
       <define name="AIRSPEED" value="FALSE|TRUE" description="log airspeed (float)"/>
     </section>
   </doc>
+  <dep>
+    <depends>logger_utils</depends>
+  </dep>
   <header>
     <file name="logger_control_effectiveness.h" />
   </header>
