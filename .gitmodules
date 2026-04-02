@@ -3,8 +3,7 @@
 	url = https://github.com/paparazzi/fatfs.git
 [submodule "sw/ext/chibios"]
 	path = sw/ext/chibios
-	url = https://github.com/ChibiOS/ChibiOS.git
-	branch = stable_21.11.x
+	url = https://github.com/paparazzi/ChibiOS.git
 [submodule "sw/ext/libzbar"]
 	path = sw/ext/libzbar
 	url = https://github.com/paparazzi/libzbar
