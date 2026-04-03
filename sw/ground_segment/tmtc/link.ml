@@ -417,9 +417,10 @@ let message_uplink = fun device ->
   (* Set a forwarder or a broadcaster for all messages tagged in messages.xml *)
   Hashtbl.iter
     (fun _m_id msg ->
-      match msg.PprzLink.link with
-        | Some PprzLink.Forwarded -> set_forwarder msg.PprzLink.name
-        | Some PprzLink.Broadcasted -> if !ac_info then set_broadcaster msg.PprzLink.name
+      match msg.PprzLink.link, msg.PprzLink.name with
+        | _, "ACINFO" | _, "ACINFO_LLA" -> if !ac_info then set_broadcaster msg.PprzLink.name
+        | Some PprzLink.Forwarded, _ -> set_forwarder msg.PprzLink.name
+        | Some PprzLink.Broadcasted, _ -> set_broadcaster msg.PprzLink.name
         | _ -> ())
     Dl_Pprz.messages
 

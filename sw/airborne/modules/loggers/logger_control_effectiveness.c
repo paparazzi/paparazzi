@@ -24,37 +24,22 @@
  */
 
 #include "modules/loggers/logger_control_effectiveness.h"
+#include "modules/loggers/logger_utils"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 
 #if USE_CHIBIOS_RTOS
-#include "modules/loggers/sdlog_chibios.h"
-#define LogWrite sdLogWriteLog
-#define LogFileIsOpen() (pprzLogFile != -1)
-#define LogOpen(_file) {}
-#define LogClose(_file) {}
 #define LogFormatHeader "%.5f,%ld,%ld,%ld,%ld,%ld,%ld"
 #define LogFormatVect3 ",%ld,%ld,%ld"
 
 #else // assume Linux based OS
-#include <stdio.h>
-#include <time.h>
-#include <unistd.h>
-static void open_log(FILE* file);
-#define LogWrite fprintf
-#define LogFileIsOpen() (pprzLogFile != NULL)
-#define LogOpen(_file) open_log(_file)
-#define LogClose(_file) { \
-    fclose(_file); \
-    _file = NULL; \
-}
 #define LogFormatHeader "%.5f,%d,%d,%d,%d,%d,%d"
 #define LogFormatVect3 ",%d,%d,%d"
 static FILE* pprzLogFile = NULL;
 
 /* Set the default log path to bebop storage */
 #ifndef LOGGER_CONTROL_EFFECTIVENESS_FILE_PATH
-#define LOGGER_CONTROL_EFFECTIVENESS_FILE_PATH /data/ftp/internal_000
+#define LOGGER_CONTROL_EFFECTIVENESS_FILE_PATH /data/ftp/internal_000/control_eff
 #endif
 
 #endif
@@ -94,9 +79,9 @@ static FILE* pprzLogFile = NULL;
 /** Write the log header line according to the enabled parts */
 void logger_control_effectiveness_start(void)
 {
-  LogOpen(pprzLogFile);
+  LogOpen(pprzLogFile, STRINGIFY(LOGGER_CONTROL_EFFECTIVENESS_FILE_PATH), NULL);
 
-  if (LogFileIsOpen()) {
+  if (LogFileIsOpen(pprzLogFile)) {
     LogWrite(pprzLogFile, "time,gyro_p,gyro_q,gyro_r,ax,ay,az");
 #if LOGGER_CONTROL_EFFECTIVENESS_COMMANDS
     for (unsigned int i = 0; i < COMMANDS_NB; i++) {
@@ -123,7 +108,7 @@ void logger_control_effectiveness_start(void)
 
 void logger_control_effectiveness_stop(void)
 {
-  if (LogFileIsOpen()) {
+  if (LogFileIsOpen(pprzLogFile)) {
     LogClose(pprzLogFile);
   }
 }
@@ -131,7 +116,7 @@ void logger_control_effectiveness_stop(void)
 /** Log the values to file */
 void logger_control_effectiveness_periodic(void)
 {
-  if (LogFileIsOpen()) {
+  if (!LogFileIsOpen(pprzLogFile)) {
     return;
   }
 
@@ -182,46 +167,4 @@ void logger_control_effectiveness_periodic(void)
   // end line
   LogWrite(pprzLogFile,"\n");
 }
-
-#if !USE_CHIBIOS_RTOS
-static void open_log(FILE *file)
-{
-  // Create output folder if necessary
-  if (access(STRINGIFY(LOGGER_CONTROL_EFFECTIVENESS_FILE_PATH), F_OK)) {
-    char save_dir_cmd[256];
-    sprintf(save_dir_cmd, "mkdir -p %s", STRINGIFY(LOGGER_CONTROL_EFFECTIVENESS_FILE_PATH));
-    if (system(save_dir_cmd) != 0) {
-      printf("[logger] Could not create log file directory %s.\n", STRINGIFY(LOGGER_CONTROL_EFFECTIVENESS_FILE_PATH));
-      return;
-    }
-  }
-
-  // Get current date/time for filename
-  char date_time[80];
-  time_t now = time(0);
-  struct tm  tstruct;
-  tstruct = *localtime(&now);
-  strftime(date_time, sizeof(date_time), "%Y%m%d-%H%M%S", &tstruct);
-
-  uint32_t counter = 0;
-  char filename[512];
-
-  // Check for available files
-  sprintf(filename, "%s/%s.csv", STRINGIFY(LOGGER_CONTROL_EFFECTIVENESS_FILE_PATH), date_time);
-  while ((file = fopen(filename, "r"))) {
-    fclose(file);
-
-    sprintf(filename, "%s/%s_%05d.csv", STRINGIFY(LOGGER_FILE_PATH), date_time, counter);
-    counter++;
-  }
-
-  file = fopen(filename, "w");
-  if(!file) {
-    printf("[logger] ERROR opening log file %s!\n", filename);
-    return;
-  }
-
-  printf("[logger] Start logging to %s...\n", filename);
-}
-#endif
 

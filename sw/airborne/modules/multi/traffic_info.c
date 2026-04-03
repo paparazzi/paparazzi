@@ -30,12 +30,26 @@
 #include "generated/flight_plan.h"  // NAV_MSL0
 
 #include "modules/datalink/datalink.h"
+#include "modules/datalink/telemetry.h"
 #include "pprzlink/dl_protocol.h"   // datalink messages
 #include "pprzlink/messages.h"	    // telemetry messages
 
 #include "state.h"
 #include "math/pprz_geodetic_utm.h"
 #include "math/pprz_geodetic_wgs84.h"
+
+#if TRAFFIC_INFO_USE_LOG
+#include "modules/loggers/logger_utils.h"
+#if !USE_CHIBIOS_RTOS
+static FILE* pprzLogFile = NULL;
+
+/* Set the default log path to bebop storage */
+#ifndef TRAFFIC_INFO_FILE_PATH
+#define TRAFFIC_INFO_FILE_PATH /data/ftp/internal_000/acinfo
+#endif
+
+#endif // !USE_CHIBIOS_RTOS
+#endif // TRAFFIC_INFO_USE_LOG
 
 /* number of ac being tracked */
 uint8_t ti_acs_idx;
@@ -47,6 +61,42 @@ struct acInfo ti_acs[NB_ACS];
 /* Geoid height (msl) over ellipsoid [mm] */
 int32_t geoid_height;
 
+/* Send ACINFO_LLA message from the datalink class */
+static void send_acinfo_lla(struct transport_tx *trans, struct link_device *dev)
+{
+  int16_t course = (int16_t)DeciDegOfRad(stateGetHorizontalSpeedDir_f());
+  struct LlaCoor_i* lla = stateGetPositionLla_i();
+  uint32_t itow = gps.tow;
+  uint16_t speed = (uint16_t)(stateGetHorizontalSpeedNorm_f()*10.f);
+  int16_t climb = (int16_t)(stateGetSpeedEnu_f()->z*10.f);
+  int32_t alt = (int32_t)(lla->alt/10);
+  uint8_t ac_id = AC_ID;
+
+  // broadcast GPS message
+  struct pprzlink_msg msg;
+  msg.trans = trans;
+  msg.dev = dev;
+  msg.sender_id = AC_ID;
+  msg.receiver_id = PPRZLINK_MSG_BROADCAST;
+  msg.component_id = 0;
+  pprzlink_msg_send_ACINFO_LLA(&msg,
+      &course,
+      &lla->lat, &lla->lon, &alt,
+      &itow, &speed, &climb, &ac_id);
+
+#if TRAFFIC_INFO_USE_LOG
+  struct LlaCoor_f* lla_f = stateGetPositionLla_f();
+  struct EnuCoor_f* enu_f = stateGetPositionEnu_f();
+  if (LogFileIsOpen(pprzLogFile)) {
+    LogWrite(pprzLogFile, "S,%d,%d,%.7f,%.7f,%.3f,%.3f,%.3f,%.3f,%d,0\n", // 0 at the end to have same length than receive log lines
+        msg.sender_id, msg.receiver_id,
+        DegOfRad(lla_f->lat), DegOfRad(lla_f->lon), lla_f->alt,
+        enu_f->x, enu_f->y, enu_f->z,
+        itow);
+  }
+#endif
+}
+
 void traffic_info_init(void)
 {
   memset(ti_acs_id, 0, NB_ACS_ID);
@@ -57,6 +107,10 @@ void traffic_info_init(void)
   ti_acs_idx = 2;
 
   geoid_height = NAV_MSL0;
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACINFO_LLA, send_acinfo_lla);
+#endif
 }
 
 /**
@@ -77,10 +131,12 @@ bool parse_acinfo_dl(uint8_t *buf)
 {
   uint8_t sender_id = SenderIdOfPprzMsg(buf);
   uint8_t msg_id = IdOfPprzMsg(buf);
+  uint8_t class_id = pprzlink_get_msg_class_id(buf);
+  uint32_t itow = 0;
 
   /* handle telemetry message */
 #if PPRZLINK_DEFAULT_VER == 2
-  if (pprzlink_get_msg_class_id(buf) == DL_telemetry_CLASS_ID) {
+  if (class_id == DL_telemetry_CLASS_ID) {
 #else
   if (sender_id > 0) {
 #endif
@@ -102,6 +158,7 @@ bool parse_acinfo_dl(uint8_t *buf)
         if (climb & 0x200) {
           climb |= 0xFC00;  // fix for twos complements
         }
+        itow = gps_tow_from_sys_ticks(sys_time.nb_tick);
 
         set_ac_info_lla(sender_id,
                         DL_GPS_SMALL_lat(buf),
@@ -110,10 +167,11 @@ bool parse_acinfo_dl(uint8_t *buf)
                         course,
                         gspeed,
                         climb,
-                        gps_tow_from_sys_ticks(sys_time.nb_tick));
+                        itow);
       }
       break;
       case DL_GPS: {
+        itow = DL_GPS_itow(buf);
         set_ac_info_utm(sender_id,
                     DL_GPS_utm_east(buf),
                     DL_GPS_utm_north(buf),
@@ -122,10 +180,11 @@ bool parse_acinfo_dl(uint8_t *buf)
                     DL_GPS_course(buf),
                     DL_GPS_speed(buf),
                     DL_GPS_climb(buf),
-                    DL_GPS_itow(buf));
+                    itow);
       }
       break;
       case DL_GPS_LLA: {
+        itow = DL_GPS_LLA_itow(buf);
         set_ac_info_lla(sender_id,
                         DL_GPS_LLA_lat(buf),
                         DL_GPS_LLA_lon(buf),
@@ -133,7 +192,7 @@ bool parse_acinfo_dl(uint8_t *buf)
                         DL_GPS_LLA_course(buf),
                         DL_GPS_LLA_speed(buf),
                         DL_GPS_LLA_climb(buf),
-                        DL_GPS_LLA_itow(buf));
+                        itow);
       }
       break;
       case DL_GPS_INT: {
@@ -156,6 +215,7 @@ bool parse_acinfo_dl(uint8_t *buf)
         int16_t course = (int16_t)(10.f * DegOfRad(atan2f(ned_vel_f.y, ned_vel_f.x))); // decideg
         uint16_t gspeed = (uint16_t)(CM_OF_M(FLOAT_VECT2_NORM(ned_vel_f)));
         int16_t climb = (int16_t)(CM_OF_M(-ned_vel_f.z));
+        itow = DL_GPS_INT_tow(buf);
         set_ac_info_lla(sender_id,
                         DL_GPS_INT_lat(buf),
                         DL_GPS_INT_lon(buf),
@@ -163,17 +223,19 @@ bool parse_acinfo_dl(uint8_t *buf)
                         course,
                         gspeed,
                         climb,
-                        DL_GPS_INT_tow(buf));
+                        itow);
       }
       break;
       default:
         return FALSE;
     }
   /* handle datalink message */
-  } else {
+  } else if (class_id == DL_datalink_CLASS_ID) {
     switch (msg_id) {
       case DL_ACINFO: {
-        set_ac_info_utm(DL_ACINFO_ac_id(buf),
+        sender_id = DL_ACINFO_ac_id(buf); // may overwrite GCS id
+        itow = DL_ACINFO_itow(buf);
+        set_ac_info_utm(sender_id,
                         DL_ACINFO_utm_east(buf),
                         DL_ACINFO_utm_north(buf),
                         DL_ACINFO_alt(buf) * 10,
@@ -181,24 +243,39 @@ bool parse_acinfo_dl(uint8_t *buf)
                         DL_ACINFO_course(buf),
                         DL_ACINFO_speed(buf),
                         DL_ACINFO_climb(buf),
-                        DL_ACINFO_itow(buf));
+                        itow);
       }
       break;
       case DL_ACINFO_LLA: {
-        set_ac_info_lla(DL_ACINFO_LLA_ac_id(buf),
+        sender_id = DL_ACINFO_LLA_ac_id(buf); // may overwrite GCS id
+        itow = DL_ACINFO_LLA_itow(buf);
+        set_ac_info_lla(sender_id,
                   DL_ACINFO_LLA_lat(buf),
                   DL_ACINFO_LLA_lon(buf),
                   DL_ACINFO_LLA_alt(buf) * 10,
                   DL_ACINFO_LLA_course(buf),
                   DL_ACINFO_LLA_speed(buf),
                   DL_ACINFO_LLA_climb(buf),
-                  DL_ACINFO_LLA_itow(buf));
+                  itow);
       }
       break;
       default:
         return FALSE;
     }
+  } else {
+    return FALSE; // unsupported class
   }
+#if TRAFFIC_INFO_USE_LOG
+  struct LlaCoor_f* lla_f = acInfoGetPositionLla_f(sender_id);
+  struct EnuCoor_f* enu_f = acInfoGetPositionEnu_f(sender_id);
+  if (LogFileIsOpen(pprzLogFile)) {
+    LogWrite(pprzLogFile, "R,%d,%d,%.7f,%.7f,%.3f,%.3f,%.3f,%.3f,%d,%d\n",
+        sender_id, AC_ID,
+        DegOfRad(lla_f->lat), DegOfRad(lla_f->lon), lla_f->alt,
+        enu_f->x, enu_f->y, enu_f->z,
+        itow, gps.tow);
+  }
+#endif
   return TRUE;
 }
 
@@ -521,3 +598,20 @@ void acInfoCalcVelocityEnu_f(uint8_t ac_id)
   }
   SetBit(ti_acs[ac_nr].status, AC_INFO_VEL_ENU_F);
 }
+
+void traffic_info_log_start(void)
+{
+#if TRAFFIC_INFO_USE_LOG
+  LogOpen(pprzLogFile, STRINGIFY(TRAFFIC_INFO_FILE_PATH), NULL);
+#endif
+}
+
+void traffic_info_log_stop(void)
+{
+#if TRAFFIC_INFO_USE_LOG
+  if (LogFileIsOpen(pprzLogFile)) {
+    LogClose(pprzLogFile);
+  }
+#endif
+}
+
