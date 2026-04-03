@@ -727,7 +727,7 @@ void stateCalcPositionLla_f(void)
 
   int errno = 0;
   if (bit_is_set(state.pos_status, POS_LLA_I)) {
-    LLA_FLOAT_OF_BFP(state.lla_pos_f, state.lla_pos_f);
+    LLA_FLOAT_OF_BFP(state.lla_pos_f, state.lla_pos_i);
   } else if (bit_is_set(state.pos_status, POS_ECEF_F)) {
     lla_of_ecef_f(&state.lla_pos_f, &state.ecef_pos_f);
   } else if (bit_is_set(state.pos_status, POS_ECEF_I)) {
