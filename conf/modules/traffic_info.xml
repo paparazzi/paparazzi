@@ -3,11 +3,16 @@
 <module name="traffic_info" dir="multi" task="core">
   <doc>
     <description>Keeps track of other aircraft in airspace</description>
+    <define name="TRAFFIC_INFO_USE_LOG" value="FALSE|TRUE" description="Enable traffic info logging"/>
   </doc>
+  <dep>
+    <depends>logger_utils</depends>
+  </dep>
   <header>
     <file name="traffic_info.h"/>
   </header>
   <init fun="traffic_info_init()"/>
+  <periodic fun="traffic_info_log()" start="traffic_info_log_start()" stop="traffic_info_log_stop()" autorun="FALSE"/>
 
   <datalink message="ACINFO"      fun="parse_acinfo_dl(buf)"/>
   <datalink message="ACINFO_LLA"  fun="parse_acinfo_dl(buf)"/>
@@ -19,5 +24,8 @@
   <makefile>
     <file name="traffic_info.c"/>
     <define name="TRAFFIC_INFO"/>
+    <test firmware="rotorcraft">
+      <define name="TRAFFIC_INFO_USE_LOG"/>
+    </test>
   </makefile>
 </module>

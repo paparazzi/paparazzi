@@ -29,7 +29,10 @@
 /** UART connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1
 
-#define GPS_UBX_ENABLE_NMEA_DATA_MASK 0xff
+/** NMEA enabled to keep the original firmware working */
+#ifndef GPX_UBX_UCENTER_ENABLE_NMEA
+#define GPX_UBX_UCENTER_ENABLE_NMEA TRUE
+#endif
 
 /** For using serial devices via USB to serial converter electronics
  *  E.g. a XBee modem, a 3DR radio modem, Serial Stereocam etc. etc.

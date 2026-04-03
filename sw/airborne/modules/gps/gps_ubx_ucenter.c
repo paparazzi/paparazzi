@@ -352,7 +352,9 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
 #define GPS_UBX_NAV5_DYNAMICS NAV5_DYN_AIRBORNE_2G
 #endif
 
-#ifndef GPS_UBX_ENABLE_NMEA_DATA_MASK
+#if GPS_UBX_UCENTER_ENABLE_NMEA
+#define GPS_UBX_ENABLE_NMEA_DATA_MASK 0xff
+#else
 #define GPS_UBX_ENABLE_NMEA_DATA_MASK 0x00
 #endif
 
