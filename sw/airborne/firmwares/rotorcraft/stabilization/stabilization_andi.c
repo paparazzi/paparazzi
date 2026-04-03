@@ -425,13 +425,11 @@ static void send_wls_u_stabilization_andi(struct transport_tx *trans, struct lin
 
 static void send_eff_mat_stabilization_andi(struct transport_tx *trans, struct link_device *dev)
 {
-  float zero = 0.0f;
   pprz_msg_send_EFF_MAT_STAB(trans, dev, AC_ID,
                              ANDI_NUM_ACT, &ce_mat[0 * ANDI_NUM_ACT],
                              ANDI_NUM_ACT, &ce_mat[1 * ANDI_NUM_ACT],
                              ANDI_NUM_ACT, &ce_mat[2 * ANDI_NUM_ACT],
-                             ANDI_NUM_ACT, &ce_mat[3 * ANDI_NUM_ACT],
-                             1,  &zero);
+                             ANDI_NUM_ACT, &ce_mat[3 * ANDI_NUM_ACT]);
 }
 
 static void send_stab_attitude_stabilization_andi(struct transport_tx *trans, struct link_device *dev)
