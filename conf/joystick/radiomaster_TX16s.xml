@@ -1,0 +1,62 @@
+<joystick>
+
+  <!--
+    RadioMaster TX16S (OpenTX/EdgeTX) — Paparazzi UAV joystick configuration
+
+    Axis mapping (verify with: ./sw/ground_segment/joystick/test_stick):
+      Axis 0 : Roll       — right stick X
+      Axis 1 : Pitch      — right stick Y
+      Axis 2 : Throttle   — left stick Y
+      Axis 3 : Yaw        — left stick X
+      Axis 5 : Mode switch — 3-position (SA/SB): low / mid / high
+      Axis 6 : Arm switch  — 2-position (SF/SE): 0 = disarm, ~1024 = arm
+
+    TX16S switch axes output 0 / ~1024 / ~2047 (unsigned), which input2ivy
+    scales to -127 / 0 / +127 internally.
+
+    Pitch and throttle are inverted relative to Paparazzi convention — hence
+    the minus signs in the RC_UP field values below.
+  -->
+
+  <input>
+    <!-- deadband: eliminates stick drift at centre (range 0-127)  -->
+    <!-- exponent: finer control near centre, faster at extremes (range 0-1.0) -->
+    <axis index="0" name="roll"     deadband="10" exponent="0.5" limit="1.0" trim="0"/>
+    <axis index="1" name="pitch"    deadband="10" exponent="0.5" limit="1.0" trim="0"/>
+    <axis index="2" name="throttle" deadband="5"  exponent="0.0" limit="1.0" trim="0"/>
+    <axis index="3" name="yaw"      deadband="10" exponent="0.5" limit="1.0" trim="0"/>
+    <axis index="5" name="mode_sw"/>
+    <axis index="6" name="arm_sw"/>
+  </input>
+
+  <variables>
+    <var name="mode" default="0"/>
+  </variables>
+
+  <messages period="0.05">
+
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field name="channels"
+             value="roll;
+                    -pitch;
+                    yaw;
+                    Fit(-throttle,-127,127,0,127);
+                    Fit(mode_sw,-127,127,0,2)"/>
+    </message>
+
+    <!-- Arm switch: arm_sw > -60 = armed, arm_sw < -60 = disarmed/killed -->
+    <message class="ground" name="DL_SETTING"
+             on_event="arm_sw &gt; -60">
+      <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
+      <field name="value" value="0"/>
+    </message>
+
+    <message class="ground" name="DL_SETTING"
+             on_event="arm_sw &lt; -60">
+      <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
+      <field name="value" value="1"/>
+    </message>
+
+  </messages>
+
+</joystick>

@@ -1,0 +1,42 @@
+<!--
+RadioMaster pocket Transmitter - Used as USB Joystick
+
+The RadioMaster Pocket is a versatile 32CH radio transmitter.
+This configuration assumes no modification were done with jstest-gtk
+
+In this file we will use it as a 6CH joystick to control a UAS.
+- The left stick vertical axis will be used for throttle
+- The right stick horizontal axis will be used for roll
+- The right stick vertical axis will be used for pitch
+- The left stick horizontal axis will be used for yaw
+- The VRA axis will be used for arming (left top switch)
+- The VRC axis will be used for mode switch (right top switch)
+
+If you want to fly your UAS via the joystick add this to your session:
+
+ /home/username/paparazzi/sw/ground_segment/joystick/input2ivy -d 0 -ac yourairframe_name radiomaster_pocket_usb.xml
+
+Where -d 0 must be -d 1 if you have a laptop with accelerometer installed
+
+The basis of steering is the standard signs of aerospace convention
+-->
+
+<joystick>
+  <input>
+    <axis index="3" name="LeftStickHorizontal"/>
+    <axis index="2" name="LeftStickVertical"/>
+    <axis index="0" name="RightStickHorizontal"/>
+    <axis index="1" name="RightStickVertical"/>
+    <!-- VRA is SA and VRC is SC switch -->
+    <axis index="4" name="VRA"/>
+    <axis index="6" name="VRC"/>
+  </input>
+
+  <!-- Follow the order of rc_datalink.h -->
+  <messages period="0.05">
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field name="channels" value="RightStickHorizontal;-RightStickVertical;LeftStickHorizontal;Fit(LeftStickVertical,-127,127,0,127);VRC;VRA"/>
+    </message>
+  </messages>
+
+</joystick>

@@ -1,20 +1,46 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 import time
+from datetime import datetime
 import sys
 import os
 import math
+import socket
+import struct
 import argparse
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
-# if PAPARAZZI_HOME not set, then assume the tree containing this
-# file is a reasonable substitute
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../')))
 sys.path.append(PPRZ_HOME + "/sw/ground_segment/python/natnet3.x")
 
 from NatNetClient import NatNetClient
 
+
+def discover_motive(multicast="239.255.42.99", data_port=1511, timeout=3):
+    """Discover a Motive server by listening for NatNet multicast data."""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.settimeout(timeout)
+    sock.bind(('', data_port))
+
+    # Join the NatNet multicast group
+    mreq = struct.pack('4sL', socket.inet_aton(multicast), socket.INADDR_ANY)
+    sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
+    try:
+        _, addr = sock.recvfrom(4096)
+        sock.close()
+        return addr[0]
+    except socket.timeout:
+        sock.close()
+        return None
+
+# Global state
 recording = False
+pos_x, pos_y, pos_z = 0.0, 0.0, 0.0
+track_id = None
+frame_count = 0
+seen_ids = set()
+
 
 def on_press(event):
     global recording
@@ -24,103 +50,144 @@ def on_press(event):
         plt.close()
 
 
-# This is a callback function that gets connected to the NatNet client. It is called once per rigid body per frame
-def receiveRigidBodyFrame(rigidBodyList, stamp):
-    # print(rigidBodyList)
-    for (id, position, quat, valid) in rigidBodyList:
-        # print( "Received frame for rigid body", id )
-        global pos_x, pos_y, pos_z
-        global track_id
-        if track_id and id != track_id:
+def receive_rigid_body_frame(rigid_body_data, stamp):
+    global pos_x, pos_y, pos_z, frame_count, seen_ids
+    frame_count += 1
+    for rb in rigid_body_data.rigid_body_list:
+        seen_ids.add(rb.id_num)
+        if track_id is not None and rb.id_num != track_id:
             continue
-        
-        # print( "Received frame for rigid body", id )
-        pos_x = position[0]
-        pos_y = position[1]
-        pos_z = position[2]
+        pos_x = rb.pos[0]
+        pos_y = rb.pos[1]
+        pos_z = rb.pos[2]
 
 
 def main(args):
     global track_id
-    track_id = args.id
-    
-    global pos_x, pos_y, pos_z
-    pos_x, pos_y, pos_z = 0.0, 0.0, 0.0
+
+    # Discover or use provided server IP
+    if args.server:
+        server_ip = args.server
+        print(f"Using provided server IP: {server_ip}")
+    else:
+        print("Discovering Motive server on the network...")
+        server_ip = discover_motive()
+        if server_ip is None:
+            print("ERROR: No Motive server found. Check that Motive is running and streaming.")
+            print("You can also specify the IP manually with --server <ip>")
+            return
+        print(f"Found Motive server at {server_ip}")
+
+    client = NatNetClient()
+    client.server_ip_address = server_ip
+    client.local_ip_address = "0.0.0.0"
+    client.set_print_level(0)
+    client.rigid_body_list_listener = receive_rigid_body_frame
+    client.run()
+
+    print("Waiting for rigid body data...")
+    time.sleep(3)
+
+    if frame_count == 0:
+        print("ERROR: No data received. Check that Motive is streaming.")
+        client.shutdown()
+        return
+
+    print(f"Receiving data: {frame_count} frames, rigid body IDs: {sorted(seen_ids)}")
+
+    # Pick which rigid body to track
+    if len(seen_ids) == 1:
+        track_id = list(seen_ids)[0]
+        print(f"Auto-selected ID {track_id}")
+    else:
+        while True:
+            choice = input(f"Enter rigid body ID to track {sorted(seen_ids)}: ").strip()
+            try:
+                choice = int(choice)
+                if choice in seen_ids:
+                    track_id = choice
+                    break
+                print(f"ID {choice} not available.")
+            except ValueError:
+                print("Please enter a valid integer.")
+
+    print(f"Tracking ID {track_id}. Press r to record, q to quit.")
+
+    # Output file with timestamp and rigid body ID
+    if args.outputfile:
+        output_path = args.outputfile
+    else:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_path = f"dist_rb{track_id}_{timestamp}.csv"
+    file = open(output_path, 'w')
+    file.write('time, distance, x, y, z, recording\n')
+    print(f"Writing data to {output_path}")
+
+    # Setup plot
     fig = plt.figure()
     plt.axis([-6, 6, -6, 6])
-    
-    # add key press event
     fig.canvas.mpl_connect('key_press_event', on_press)
-    
-    # title
-    plt.title('Press r to start/stop recording \n press q to quit')
-    
-    # This will create a new NatNet client
-    streamingClient = NatNetClient(
-        server=args.server,
-        multicast=args.multicast,
-        commandPort=args.commandPort,
-        dataPort=args.dataPort,
-        rigidBodyListListener=receiveRigidBodyFrame,
-        version=(3,0,0,0))
-    # Start up the streaming client now that the callbacks are set up.
-    # This will run perpetually, and operate on a separate thread.
-    streamingClient.run()
-    
-    time.sleep(2)
-    print('Start tracking')
-    if args.outputfile:
-        file = open(args.outputfile, 'w')
-        file.write('time, distance, x, y, z, recording \n')
-    
-    old_z = pos_z
+
     old_x = pos_x
+    old_z = pos_z
     distance = 0
+    glitch_count = 0
     start_time = time.time()
     pre_time = time.time()
-    
+    freq_count = 0
+    freq_time = time.time()
+    data_freq = 0.0
+
     while plt.fignum_exists(fig.number):
-            
-        h = math.hypot(pos_z - old_z, pos_x - old_x)
-        
-        if h > 0.10:
+        h = math.hypot(pos_x - old_x, pos_z - old_z)
+
+        if h > 1.0:
+            # Glitch: jump too large, ignore but update position
+            glitch_count += 1
+            old_x = pos_x
+            old_z = pos_z
+        elif h > 0.10:
             if recording:
                 distance += h
-            old_z = pos_z
             old_x = pos_x
-        if time.time() - pre_time > .1:
-            current_time = time.time() - start_time
-            print(f'distance: {distance}; time: {current_time:.2f}; recording: {recording}')
-            pre_time = time.time()
-            
-            if args.outputfile:
-                # data = '{}, {}, {}, {}, {}, {} \n'.format(time.time() - start_time, distance, pos_x, pos_y, pos_z, recording)
-                data = f'{current_time}, {distance}, {pos_x}, {pos_y}, {pos_z}, {recording} \n'
-                file.write(data)
-                
+            old_z = pos_z
+
+        # Track data frequency
+        freq_count += 1
+        now = time.time()
+        if now - freq_time >= 1.0:
+            data_freq = freq_count / (now - freq_time)
+            freq_count = 0
+            freq_time = now
+
+        if now - pre_time > 0.1:
+            current_time = now - start_time
+            print(f'distance: {distance:.2f} m; time: {current_time:.2f} s; freq: {data_freq:.0f} Hz; recording: {recording}')
+            pre_time = now
+
+            data = f'{current_time}, {distance}, {pos_x}, {pos_y}, {pos_z}, {recording}\n'
+            file.write(data)
+
+            rec_str = "RECORDING" if recording else "NOT RECORDING"
+            plt.title(f'Distance: {distance:.2f} m | {data_freq:.0f} Hz | {rec_str}\nPress r to record, q to quit')
+
             if recording:
                 plt.plot(pos_z, pos_x, 'ro')
-                plt.title('Press r to start/stop recording \n press q to quit \n RECORDING')
             else:
                 plt.plot(pos_z, pos_x, 'bo')
-                plt.title('Press r to start/stop recording \n press q to quit \n NOT RECORDING')
-                
+
         plt.pause(0.001)
-        # time.sleep(0.01)
-    
-    streamingClient.stop()
-    if args.outputfile:
-        file.close()
+
+    client.shutdown()
+    file.close()
+    print(f"Total distance: {distance:.2f} m ({glitch_count} glitches ignored)")
+    print(f"Data saved to {output_path}")
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--server', default="127.0.0.1")
-    parser.add_argument('--multicast', default="239.255.42.99")
-    parser.add_argument('--commandPort', type=int, default=1510)
-    parser.add_argument('--dataPort', type=int, default=1511)
-    parser.add_argument('--id', type=int, default=None)
-    parser.add_argument('--outputfile', type=str, default=None)
+    parser = argparse.ArgumentParser(description="Distance counter using Optitrack NatNet stream")
+    parser.add_argument('--server', default=None, help="Motive server IP (auto-discovers if not set)")
+    parser.add_argument('--outputfile', type=str, default=None, help="CSV output file (default: dist_rb<id>_<timestamp>.csv)")
     args = parser.parse_args()
-    
+
     main(args)
