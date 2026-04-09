@@ -24,7 +24,7 @@
  */
 
 #include "modules/loggers/logger_control_effectiveness.h"
-#include "modules/loggers/logger_utils"
+#include "modules/loggers/logger_utils.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 
