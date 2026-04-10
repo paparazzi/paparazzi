@@ -38,14 +38,16 @@ endif
 GTK2_INC = $(shell pkg-config gtk+-2.0 --cflags 2> /dev/null)
 GTK2_LDFLAGS = $(shell pkg-config gtk+-2.0 --libs 2> /dev/null)
 
+PCRE_LDFLAGS= $(shell pcre2-config --libs8)
+
 ifneq ($(GTK2_INC),)
 CFLAGS += -Wall -fPIC -g
 GTK_CFLAGS  = $(GTK2_INC) -DGTK_DISABLE_DEPRECATED
-GTK_LDFLAGS = $(GTK2_LDFLAGS) $(shell pkg-config --libs ivy-glib) $(shell pcre-config --libs) -fPIC
+GTK_LDFLAGS = $(GTK2_LDFLAGS) $(shell pkg-config --libs ivy-glib) $(PCRE_LDFLAGS) -fPIC
 endif
 
 GLIBIVY_CFLAGS = $(shell pkg-config --cflags ivy-glib)
-GLIBIVY_LDFLAGS = $(shell pkg-config --libs ivy-glib) $(shell pcre-config --libs)
+GLIBIVY_LDFLAGS = $(shell pkg-config --libs ivy-glib) $(PCRE_LDFLAGS)
 
 # fallback to ivy-glib pkg-config info if there is no ivy-c.pc
 IVY_INC = $(shell pkg-config --cflags-only-I ivy-c 2> /dev/null)
@@ -56,7 +58,7 @@ IVY_LDFLAGS = $(shell pkg-config --libs-only-L ivy-glib) -livy
 endif
 
 # GLIB libraries
-GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(shell pcre-config --libs)
+GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(PCRE_LDFLAGS)
 
 # Paparazzi includes
 INCLUDES += $(shell pkg-config glib-2.0 --cflags) -I$(PAPARAZZI_SRC)/sw/airborne/ -I$(PAPARAZZI_SRC)/sw/include/ $(IVY_INC)
