@@ -32,6 +32,16 @@ $(TARGET).LDFLAGS += $(shell sdl-config --libs)
 $(TARGET).CFLAGS  += $(shell pkg-config glib-2.0 --cflags)
 $(TARGET).LDFLAGS += $(shell pkg-config glib-2.0 --libs)
 
+PCRE1_LDFLAGS= $(shell pcre-config --libs)
+PCRE2_LDFLAGS= $(shell pcre2-config --libs8)
+ifneq ($(PCRE2_LDFLAGS),)
+PCRE_LDFLAGS= $(PCRE2_LDFLAGS)
+else
+PCRE_LDFLAGS= $(PCRE1_LDFLAGS)
+endif
+
+$(TARGET).LDFLAGS += $(PCRE_LDFLAGS)
+
 #
 # add the simulator and var directory to the make searchpath
 #
@@ -42,7 +52,7 @@ VPATH += $(PAPARAZZI_HOME)/var/share
     <define name="BARO_PERIODIC_FREQUENCY" value="$(BARO_PERIODIC_FREQUENCY)"/>
     <define name="USE_BARO_BOARD" value="FALSE"/>
     <define name="USE_NPS"/>
-    <flag name="LDFLAGS" value="lm -livy $(shell pcre-config --libs) -lgsl -lgslcblas"/>
+    <flag name="LDFLAGS" value="lm -livy -lgsl -lgslcblas"/>
     <include name="$(PAPARAZZI_SRC)/sw/simulator"/>
     <include name="$(PAPARAZZI_SRC)/sw/simulator/nps"/>
     <include name="$(PAPARAZZI_HOME)/conf/simulator/nps"/>
@@ -66,4 +76,3 @@ VPATH += $(PAPARAZZI_HOME)/var/share
     <file name="nps_main_common.c" dir="$(NPS_DIR)"/>
   </makefile>
 </module>
-

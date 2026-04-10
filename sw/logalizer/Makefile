@@ -107,19 +107,28 @@ gtk_export.ml : export.glade
 CC = gcc
 CFLAGS=-g -O2 -Wall
 
+PCRE1_LDFLAGS= $(shell pcre-config --libs)
+PCRE2_LDFLAGS= $(shell pcre2-config --libs8)
+ifneq ($(PCRE2_LDFLAGS),)
+PCRE_LDFLAGS= $(PCRE2_LDFLAGS)
+else
+PCRE_LDFLAGS= $(PCRE1_LDFLAGS)
+$(warning ############ Please update paparazzi-dev ! ####################)
+endif
+
 openlog2tlm: openlog2tlm.c
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -o $@ $^
 
 DISP3D_CFLAGS = $(shell pkg-config --cflags ivy-glib gtk+-2.0 gtkgl-2.0)
-DISP3D_LDFLAGS = $(shell pkg-config --libs ivy-glib gtk+-2.0 gtkgl-2.0) $(shell pcre-config --libs)
+DISP3D_LDFLAGS = $(shell pkg-config --libs ivy-glib gtk+-2.0 gtkgl-2.0) $(PCRE_LDFLAGS)
 
 disp3d: disp3d.c
 	@echo CC $@
 	$(Q)$(CC)  $(CFLAGS) $(DISP3D_CFLAGS) -o $@ $^ $(DISP3D_LDFLAGS)
 
 
-IVY_C_LIBS = $(shell pkg-config --libs ivy-glib) $(shell pcre-config --libs)
+IVY_C_LIBS = $(shell pkg-config --libs ivy-glib) $(PCRE_LDFLAGS)
 GLIBIVY_CFLAGS = $(shell pkg-config --cflags ivy-glib)
 
 #
