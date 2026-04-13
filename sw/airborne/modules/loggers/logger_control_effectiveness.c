@@ -24,9 +24,25 @@
  */
 
 #include "modules/loggers/logger_control_effectiveness.h"
-#include "modules/loggers/sdlog_chibios.h"
+#include "modules/loggers/logger_utils.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
+
+#if USE_CHIBIOS_RTOS
+#define LogFormatHeader "%.5f,%ld,%ld,%ld,%ld,%ld,%ld"
+#define LogFormatVect3 ",%ld,%ld,%ld"
+
+#else // assume Linux based OS
+#define LogFormatHeader "%.5f,%d,%d,%d,%d,%d,%d"
+#define LogFormatVect3 ",%d,%d,%d"
+static FILE* pprzLogFile = NULL;
+
+/* Set the default log path to bebop storage */
+#ifndef LOGGER_CONTROL_EFFECTIVENESS_FILE_PATH
+#define LOGGER_CONTROL_EFFECTIVENESS_FILE_PATH /data/ftp/internal_000/control_eff
+#endif
+
+#endif
 
 // define parameters logged by default
 
@@ -63,36 +79,44 @@
 /** Write the log header line according to the enabled parts */
 void logger_control_effectiveness_start(void)
 {
-  if (pprzLogFile != -1) {
-    sdLogWriteLog(pprzLogFile, "time,gyro_p,gyro_q,gyro_r,ax,ay,az");
+  LogOpen(pprzLogFile, STRINGIFY(LOGGER_CONTROL_EFFECTIVENESS_FILE_PATH), NULL);
+
+  if (LogFileIsOpen(pprzLogFile)) {
+    LogWrite(pprzLogFile, "time,gyro_p,gyro_q,gyro_r,ax,ay,az");
 #if LOGGER_CONTROL_EFFECTIVENESS_COMMANDS
     for (unsigned int i = 0; i < COMMANDS_NB; i++) {
-      sdLogWriteLog(pprzLogFile, ",cmd_%d", i);
+      LogWrite(pprzLogFile, ",cmd_%d", i);
     }
 #endif
 #if LOGGER_CONTROL_EFFECTIVENESS_ACTUATORS
     for (unsigned int i = 0; i < ACTUATORS_NB; i++) {
-      sdLogWriteLog(pprzLogFile, ",act_%d", i);
+      LogWrite(pprzLogFile, ",act_%d", i);
     }
 #endif
 #if LOGGER_CONTROL_EFFECTIVENESS_POS
-    sdLogWriteLog(pprzLogFile, ",pos_x,pos_y,pos_z");
+    LogWrite(pprzLogFile, ",pos_x,pos_y,pos_z");
 #endif
 #if LOGGER_CONTROL_EFFECTIVENESS_SPEED
-    sdLogWriteLog(pprzLogFile, ",speed_x,speed_y,speed_z");
+    LogWrite(pprzLogFile, ",speed_x,speed_y,speed_z");
 #endif
 #if LOGGER_CONTROL_EFFECTIVENESS_AIRSPEED
-    sdLogWriteLog(pprzLogFile, ",eas");
+    LogWrite(pprzLogFile, ",eas");
 #endif
-    sdLogWriteLog(pprzLogFile,"\n");
+    LogWrite(pprzLogFile,"\n");
   }
 }
 
+void logger_control_effectiveness_stop(void)
+{
+  if (LogFileIsOpen(pprzLogFile)) {
+    LogClose(pprzLogFile);
+  }
+}
 
 /** Log the values to file */
 void logger_control_effectiveness_periodic(void)
 {
-  if (pprzLogFile == -1) {
+  if (!LogFileIsOpen(pprzLogFile)) {
     return;
   }
 
@@ -100,7 +124,7 @@ void logger_control_effectiveness_periodic(void)
   struct Int32Vect3 *accel_body = stateGetAccelBody_i();
 
   // log time, rate and accel
-  sdLogWriteLog(pprzLogFile, "%.5f,%ld,%ld,%ld,%ld,%ld,%ld",
+  LogWrite(pprzLogFile, LogFormatHeader,
       get_sys_time_float(),
       rates->p,
       rates->q,
@@ -112,35 +136,35 @@ void logger_control_effectiveness_periodic(void)
   // log commands
 #if LOGGER_CONTROL_EFFECTIVENESS_COMMANDS
   for (unsigned int i = 0; i < COMMANDS_NB; i++) {
-    sdLogWriteLog(pprzLogFile, ",%d", commands[i]);
+    LogWrite(pprzLogFile, ",%d", commands[i]);
   }
 #endif
 
   // log actuators
 #if LOGGER_CONTROL_EFFECTIVENESS_ACTUATORS
   for (unsigned int i = 0; i < ACTUATORS_NB; i++) {
-    sdLogWriteLog(pprzLogFile, ",%d", actuators[i].pprz_val);
+    LogWrite(pprzLogFile, ",%d", actuators[i].pprz_val);
   }
 #endif
 
   // log position
 #if LOGGER_CONTROL_EFFECTIVENESS_POS
   struct EnuCoor_i *pos = stateGetPositionEnu_i();
-  sdLogWriteLog(pprzLogFile, ",%ld,%ld,%ld", pos->x, pos->y, pos->z);
+  LogWrite(pprzLogFile, LogFormatVect3, pos->x, pos->y, pos->z);
 #endif
 
   // log speed
 #if LOGGER_CONTROL_EFFECTIVENESS_SPEED
   struct EnuCoor_i *speed = stateGetSpeedEnu_i();
-  sdLogWriteLog(pprzLogFile, ",%ld,%ld,%ld", speed->x, speed->y, speed->z);
+  LogWrite(pprzLogFile, LogFormatVect3, speed->x, speed->y, speed->z);
 #endif
 
   // log airspeed
 #if LOGGER_CONTROL_EFFECTIVENESS_AIRSPEED
-  sdLogWriteLog(pprzLogFile, ",%.2f", stateGetAirspeed_f());
+  LogWrite(pprzLogFile, ",%.2f", stateGetAirspeed_f());
 #endif
 
   // end line
-  sdLogWriteLog(pprzLogFile,"\n");
+  LogWrite(pprzLogFile,"\n");
 }
 

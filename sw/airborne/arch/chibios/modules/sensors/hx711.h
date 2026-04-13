@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -14,20 +14,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, see
- * <http://www.gnu.org/licenses/>.
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file arch/chibios/modules/sensors/hx711.h
+ * Interface for the HX711 sensor
  *
  */
 
-/** @file modules/loggers/logger_control_effectiveness.h
- *  @brief Log data required to compute control effectiveness
- */
+#include "std.h"
 
-#ifndef LOGGER_CONTROL_EFFECTIVENESS_H
-#define LOGGER_CONTROL_EFFECTIVENESS_H
+#ifndef HX711_H
+#define HX711_H
 
-extern void logger_control_effectiveness_start(void);
-extern void logger_control_effectiveness_stop(void);
-extern void logger_control_effectiveness_periodic(void);
+void hx711_init(void);
+void hx711_event(void);
 
-#endif /* LOGGER_CONTROL_EFFECTIVENESS_H */
+#endif /* HX711_H */

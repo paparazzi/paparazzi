@@ -264,13 +264,12 @@ void wls_alloc(struct WLS_t* WLS_p, float **B, float *u_guess, float *W_init, in
         }
       }
       if (break_flag) {
-
 #if WLS_VERBOSE
         print_final_values(WLS_p, B);
 #endif
-        
         // if solution is found, return number of iterations
         WLS_p->iter = iter;
+        return;
       }
     } else {
       // scaling back actuator command (0-1)

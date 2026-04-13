@@ -352,7 +352,9 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
 #define GPS_UBX_NAV5_DYNAMICS NAV5_DYN_AIRBORNE_2G
 #endif
 
-#ifndef GPS_UBX_ENABLE_NMEA_DATA_MASK
+#if GPS_UBX_UCENTER_ENABLE_NMEA
+#define GPS_UBX_ENABLE_NMEA_DATA_MASK 0xff
+#else
 #define GPS_UBX_ENABLE_NMEA_DATA_MASK 0x00
 #endif
 
@@ -419,6 +421,10 @@ static inline void gps_ubx_ucenter_config_nav(void)
 #define GPS_UBX_UCENTER_RATE 0x00FA // In milliseconds. 0x00FA = 250ms = 4Hz
 #endif
 
+#ifndef GPS_UBX_UCENTER_SAVE
+#define GPS_UBX_UCENTER_SAVE TRUE // try to save conf by default
+#endif
+
 static inline void gps_ubx_ucenter_config_port(void)
 {
   switch (gps_ubx_ucenter.port_id) {
@@ -458,7 +464,7 @@ static inline void gps_ubx_ucenter_config_port(void)
 
 #define GPS_SBAS_RANGING       0x01
 #define GPS_SBAS_CORRECTIONS   0x02
-#define GPS_SBAS_INTEGRITY     0x04
+#define GPS_SBAS_INTEGRITY     0x04 // If enabled, the receiver will only use GPS satellites for which integrity information is available (not recommended)
 
 #define GPS_SBAS_MAX_SBAS    3 // Default ublox setting uses 3 SBAS channels(?)
 
@@ -467,7 +473,7 @@ static inline void gps_ubx_ucenter_config_port(void)
 static inline void gps_ubx_ucenter_config_sbas(void)
 {
   // Since March 2nd 2011 EGNOS is released for aviation purposes
-  UbxSend_CFG_SBAS(gps_ubx_ucenter.dev, GPS_SBAS_ENABLED, GPS_SBAS_RANGING | GPS_SBAS_CORRECTIONS | GPS_SBAS_INTEGRITY,
+  UbxSend_CFG_SBAS(gps_ubx_ucenter.dev, GPS_SBAS_ENABLED, GPS_SBAS_RANGING | GPS_SBAS_CORRECTIONS,
                    GPS_SBAS_MAX_SBAS,
                    GPS_SBAS_AUTOSCAN, GPS_SBAS_AUTOSCAN);
 }
@@ -612,8 +618,10 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       break;
 #endif
     case 22:
+#if GPS_UBX_UCENTER_SAVE
       // Try to save on non-ROM devices...
       UbxSend_CFG_CFG(gps_ubx_ucenter.dev, 0x00000000, 0xffffffff, 0x00000000);
+#endif
       break;
     case 23:
       UbxSend_MON_GET_GNSS(gps_ubx_ucenter.dev);

@@ -236,10 +236,12 @@ float thrust_act = 0.f;
 Butterworth2LowPass filt_accel_ned[3];
 Butterworth2LowPass roll_filt;
 Butterworth2LowPass pitch_filt;
-Butterworth2LowPass yaw_filt;
 Butterworth2LowPass thrust_filt;
 Butterworth2LowPass accely_filt;
 Butterworth2LowPass guidance_indi_airspeed_filt;
+static Butterworth2LowPass yaw_delta_filt;
+static float previous_yaw_raw = 0.0f;
+float yaw_filt = 0.0f;
 
 struct FloatVect2 desired_airspeed;
 float gi_unbounded_airspeed_sp = 0.f;
@@ -361,7 +363,9 @@ void guidance_indi_init(void)
   }
   init_butterworth_2_low_pass(&roll_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, 0.0);
-  init_butterworth_2_low_pass(&yaw_filt, tau, sample_time, 0.0);
+  init_butterworth_2_low_pass(&yaw_delta_filt, tau, sample_time, 0.0);
+  previous_yaw_raw = 0.0f;
+  yaw_filt = 0.0f;
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
 
@@ -406,7 +410,10 @@ void guidance_indi_enter(void)
 
   init_butterworth_2_low_pass(&roll_filt, tau, sample_time, eulers_zxy.phi);
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, eulers_zxy.theta);
-  init_butterworth_2_low_pass(&yaw_filt, tau, sample_time, eulers_zxy.psi);
+  init_butterworth_2_low_pass(&yaw_delta_filt, tau, sample_time, 0.0);
+  // Initialize yaw tracking variables
+  previous_yaw_raw = eulers_zxy.psi;
+  yaw_filt = eulers_zxy.psi;
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, thrust_in);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
 
@@ -879,7 +886,15 @@ void guidance_indi_propagate_filters(void)
 
   update_butterworth_2_low_pass(&roll_filt, eulers_zxy.phi);
   update_butterworth_2_low_pass(&pitch_filt, eulers_zxy.theta);
-  update_butterworth_2_low_pass(&yaw_filt, eulers_zxy.psi);
+  
+  // Filter yaw delta instead of raw angle to handle wrapping properly
+  float yaw_delta = eulers_zxy.psi - previous_yaw_raw;
+  FLOAT_ANGLE_NORMALIZE(yaw_delta);  // Normalize to [-pi, pi]
+  update_butterworth_2_low_pass(&yaw_delta_filt, yaw_delta);
+  previous_yaw_raw = eulers_zxy.psi;
+  // Accumulate filtered delta
+  yaw_filt += yaw_delta_filt.o[0];
+  FLOAT_ANGLE_NORMALIZE(yaw_filt);
 
   // Propagate filter for sideslip correction
   float accely = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->y);

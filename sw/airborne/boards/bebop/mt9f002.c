@@ -1049,7 +1049,7 @@ void mt9f002_init(struct mt9f002_t *mt)
 
   /* Software reset */
   write_reg(mt, MT9F002_SOFTWARE_RESET, 0x1, 1);
-  usleep(1000000); // Wait for one second
+  usleep(1500000); // Wait 1.5 seconds to give time for reset to finish
 
   /* Based on the interface configure stage 1 */
   if (mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {

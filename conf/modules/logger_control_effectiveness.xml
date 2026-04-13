@@ -15,11 +15,15 @@
       <define name="AIRSPEED" value="FALSE|TRUE" description="log airspeed (float)"/>
     </section>
   </doc>
+  <dep>
+    <depends>logger_utils</depends>
+  </dep>
   <header>
     <file name="logger_control_effectiveness.h" />
   </header>
-  <periodic fun="logger_control_effectiveness_periodic()" start="logger_control_effectiveness_start()" autorun="FALSE" />
+  <periodic fun="logger_control_effectiveness_periodic()" start="logger_control_effectiveness_start()" stop="logger_control_effectiveness_stop()" autorun="FALSE" />
   <makefile target="ap">
     <file name="logger_control_effectiveness.c"/>
+    <test/>
   </makefile>
 </module>
