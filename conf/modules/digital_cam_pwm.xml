@@ -1,0 +1,58 @@
+<!DOCTYPE module SYSTEM "./module.dtd">
+
+<module name="digital_cam_pwm" dir="digital_cam">
+  <doc>
+    <description>
+      Trigger using pwm cameras like MAPIR (https://www.mapir.camera/en-gb) 
+      or ThermalCapture 2.0 from TeAx (https://thermalcapture.com/thermalcapture-2-0/)
+ 
+                       **** MAPIR ****
+      Duty cycle == 2000us : TRIGGER_ON
+      Duty cycle == 1500us : SD Unmount
+      Duty cycle == 1000us : TRIGGER_OFF
+      Image capture frequency : 1.5s for JPG and 2.5-3.0s RAW+JPG
+  
+      The quickest the 2000us command should be sent is about once every 1.5s as the camera cannot 
+      capture JPG images more quickly than 1.5s. For RAW+JPG mode we recommend a 2.5-3.0s wait time.
+  
+      RAW images are used for capturing data for reflectance measurements, otherwise the pixels in the JPG are not usable.
+      im_freq_timer should therefore be superior 1.5s (TRIGGER_CAMERA_CAPTURE_IMAGE_PERIOD = 1.5 seconds)
+  
+      NMEA GPS data are stored in metadata
+  
+                    **** ThermalCapture ****
+      Duty cycle inferior 1500us : TRIGGER_OFF
+      Duty cycle superior 1500us : TRIGGER_ON
+      Image capture frequency up to 30 Hz
+      Possibility to capture one frame per trigger in configurator : Trigger frame mode
+      Convert 14-bit data into temperature values : 
+      High gain mode: temp [°C] = raw * 0.04 - 273.15
+      Low gain mode : temp [°C] = raw * 0.4  - 273.15
+  
+      NMEA GPS data are stored in metadata
+      
+    </description>
+    <section name="DC_CAM_PWM">
+      <define name="DC_CAM_PWM_SHUTTER_DELAY" description="how long to push shutter in seconds"/>    
+      <define name="DC_CAM_PWM_SERVO" value="DC_CAM_TRIGGER" description="name of the servo to trigger with PWM"/>
+    </section>
+  </doc>
+  <dep>
+    <depends>digital_cam_common</depends>
+    <conflicts>digital_cam_gpio,digital_cam_i2c,digital_cam_uart,digital_cam_video,digital_cam_pprzlink,digital_cam_servo</conflicts>
+    <recommends>gps_nmea_send</recommends>
+  </dep>
+  <header>
+    <file name="dc_shoot_pwm.h"/>
+  </header>
+  <init fun="dc_shoot_pwm_init()"/>
+  <periodic fun="dc_shoot_pwm_periodic()" freq="20" autorun="TRUE"/>
+  <makefile>
+    <file name="dc_shoot_pwm.c"/>
+    <test arch="chibios">
+      <define name="ACTUATORS_NB" value="1"/>
+      <define name="SERVO_DC_CAM_TRIGGER_IDX" value="0"/>
+      <define name="DC_SHOOT_PWM_PERIODIC_FREQ" value="20"/>
+    </test>
+  </makefile>
+</module>
