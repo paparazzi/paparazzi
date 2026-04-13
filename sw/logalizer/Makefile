@@ -107,14 +107,7 @@ gtk_export.ml : export.glade
 CC = gcc
 CFLAGS=-g -O2 -Wall
 
-PCRE1_LDFLAGS= $(shell pcre-config --libs)
-PCRE2_LDFLAGS= $(shell pcre2-config --libs8)
-ifneq ($(PCRE2_LDFLAGS),)
-PCRE_LDFLAGS= $(PCRE2_LDFLAGS)
-else
-PCRE_LDFLAGS= $(PCRE1_LDFLAGS)
-$(warning ############ Please update paparazzi-dev ! ####################)
-endif
+PCRE_LDFLAGS= $(shell pcre2-config --libs8)
 
 openlog2tlm: openlog2tlm.c
 	@echo CC $@

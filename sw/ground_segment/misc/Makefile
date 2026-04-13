@@ -38,14 +38,7 @@ endif
 GTK2_INC = $(shell pkg-config gtk+-2.0 --cflags 2> /dev/null)
 GTK2_LDFLAGS = $(shell pkg-config gtk+-2.0 --libs 2> /dev/null)
 
-PCRE1_LDFLAGS= $(shell pcre-config --libs)
-PCRE2_LDFLAGS= $(shell pcre2-config --libs8)
-ifneq ($(PCRE2_LDFLAGS),)
-PCRE_LDFLAGS= $(PCRE2_LDFLAGS)
-else
-PCRE_LDFLAGS= $(PCRE1_LDFLAGS)
-$(warning ############ Please update paparazzi-dev ! ####################)
-endif
+PCRE_LDFLAGS= $(shell pcre2-config --libs8)
 
 ifneq ($(GTK2_INC),)
 CFLAGS += -Wall -fPIC -g

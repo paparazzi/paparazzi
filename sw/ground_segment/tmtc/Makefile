@@ -99,14 +99,7 @@ ivy2serial : ivy2serial.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 
 CC = gcc
 
-PCRE1_LDFLAGS= $(shell pcre-config --libs)
-PCRE2_LDFLAGS= $(shell pcre2-config --libs8)
-ifneq ($(PCRE2_LDFLAGS),)
-PCRE_LDFLAGS= $(PCRE2_LDFLAGS)
-else
-PCRE_LDFLAGS= $(PCRE1_LDFLAGS)
-$(warning ############ Please update paparazzi-dev ! ####################)
-endif
+PCRE_LDFLAGS= $(shell pcre2-config --libs8)
 
 GLIBIVY_CFLAGS = -Wall -fPIC $(shell pkg-config --cflags ivy-glib)
 GLIBIVY_LDFLAGS = $(shell pkg-config --libs ivy-glib) $(PCRE_LDFLAGS)
