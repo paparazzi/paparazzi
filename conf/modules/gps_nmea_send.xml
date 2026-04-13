@@ -6,7 +6,7 @@
       module used to send GPS data over for external instrument using NMEA input.
       Example: MAPIR camera stores GPS data in metadata on each frame.
     </description>
-    <configure name="NMEA_SEND_UART" value="UART3" description="UART on which NMEA listener is connected to"/>
+    <configure name="NMEA_SEND_UART" value="UART3" description="UART on which NMEA frames are sent"/>
     <configure name="NMEA_SEND_BAUD" value="B115200" description="UART Baudrate, default to 115200"/>
     <define name="NMEA_SEND_USE_STATE_DATA" value="FALSE|TRUE" description="Use filtered state data rather than raw GPS data (default: FALSE)"/>
   </doc>
