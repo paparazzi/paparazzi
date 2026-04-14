@@ -598,7 +598,14 @@ class IvyModel(QStandardItemModel):
     newPin = pyqtSignal(int,int,int,str,bool)
     multiPinningDone = pyqtSignal()
     
-    def __init__(self,ivy_recorder:IvyRecorder, parent: typing.Optional[QObject] = None):
+    def __init__(self,ivy_recorder:IvyRecorder, parent: typing.Optional[QObject] = None, refresh_time:int = 500):
+        """ Build a QStandardItemModel linked to an IvyRecorder storing messages
+
+        Args:
+            ivy_recorder (IvyRecorder): Interface storing messages
+            parent (typing.Optional[QObject], optional): Parent widget. Defaults to None.
+            refresh_time (int, optional): Time in ms between updates. Defaults to 500ms.
+        """
         super().__init__(parent)
                 
         self.setHorizontalHeaderLabels(["Name","Id/Value","Time/Alt Value"])
@@ -612,7 +619,7 @@ class IvyModel(QStandardItemModel):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
         
-        self.timerDt = 500 # Time between updates, in ms
+        self.timerDt = refresh_time # Time between updates, in ms
         
         self.timer.start(self.timerDt) 
         
