@@ -35,14 +35,14 @@ ifeq ($(USE_LABELGTK),lablgtk2)
 ifeq ($(LABLGTK2GLADE),)
 XPKG = -package lablgtk2,pprz.xlib
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
-all : play plotter sd2log plotprofile openlog2tlm sdlogger_download
+all : play plotter sd2log openlog2tlm sdlogger_download
 else
 XPKG = -package lablgtk2,pprz.xlib,lablgtk2.glade
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
-all : play plotter logplotter sd2log plotprofile openlog2tlm sdlogger_download
+all : play plotter logplotter sd2log openlog2tlm sdlogger_download
 endif
 else # no gtk2
-all: sd2log plotprofile openlog2tlm sdlogger_download
+all: sd2log openlog2tlm sdlogger_download
 endif
 
 
@@ -111,44 +111,9 @@ openlog2tlm: openlog2tlm.c
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -o $@ $^
 
-DISP3D_CFLAGS = $(shell pkg-config --cflags ivy-glib gtk+-2.0 gtkgl-2.0)
-DISP3D_LDFLAGS = $(shell pkg-config --libs ivy-glib gtk+-2.0 gtkgl-2.0) $(shell pcre-config --libs)
-
-disp3d: disp3d.c
-	@echo CC $@
-	$(Q)$(CC)  $(CFLAGS) $(DISP3D_CFLAGS) -o $@ $^ $(DISP3D_LDFLAGS)
-
-
-IVY_C_LIBS = $(shell pkg-config --libs ivy-glib) $(shell pcre-config --libs)
-GLIBIVY_CFLAGS = $(shell pkg-config --cflags ivy-glib)
-
-#
-# try to find include locations on OSX
-#
-UNAME = $(shell uname -s)
-ifeq ("$(UNAME)","Darwin")
-  IVY_C_LIB_INC = $(shell if test -d /opt/paparazzi/lib; then echo "-L/opt/paparazzi/lib"; elif test -d /opt/local/lib; then echo "-L/opt/local/lib"; fi)
-  IVY_C_INCLUDES = $(shell if test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; elif test -d /opt/local/include; then echo "-I/opt/local/include"; fi)
-  GLIBIVY_CFLAGS += $(IVY_C_LIB_INC) $(IVY_C_INCLUDES)
-endif
-
-
-plotprofile: plotprofile.c
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS)
-
-ahrs2fg: ahrs2fg.c network.c flight_gear.c utils.c
-	$(CC) $(CFLAGS) $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS) -lm
-
-
-tmclient: tmclient.c
-	$(CC) -g -O1 -Wall $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS)
-
-ffjoystick: ffjoystick.c
-	$(CC) -g -O2 -Wall $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS) -lm
 
 clean:
-	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg logplotter plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick sd2log sdlogger_download
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play logplotter plotter gtk_export.ml openlog2tlm sd2log sdlogger_download
 
 .PHONY: all clean
 
