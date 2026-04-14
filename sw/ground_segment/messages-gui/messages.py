@@ -88,9 +88,7 @@ QSplitter::handle {
             self.setSizes(ss)
         
 
-
-
-if __name__ == "__main__":
+def main():
     app = QApplication([])
     app.setApplicationName("messages")
     
@@ -103,3 +101,6 @@ if __name__ == "__main__":
     
     window.show()
     app.exec()
+    
+if __name__ == "__main__":
+    main()
