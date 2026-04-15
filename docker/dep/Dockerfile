@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y \
     gedit \
     gcc-arm-none-eabi \
     python3-future \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["/tini", "--"]
