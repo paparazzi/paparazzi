@@ -2,12 +2,12 @@ FROM ubuntu:24.04
 LABEL maintainer="felix.ruess@gmail.com"
 
 # Add Tini
-ENV TINI_VERSION v0.8.4
+ENV TINI_VERSION=v0.8.4
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod +x /tini
 
 # setup environment
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y \
     gedit \
     gcc-arm-none-eabi \
     python3-future \
+    python3-zombie-imp \
     curl \
     lsb-release \
     && rm -rf /var/lib/apt/lists/*
