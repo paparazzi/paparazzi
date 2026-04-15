@@ -7,9 +7,15 @@ RUN /bin/bash -c "source $HOME/.cargo/env; \
     rustup target add thumbv7em-none-eabihf; \
     rustup target add x86_64-unknown-linux-gnu"
 
+RUN curl -sSL https://packages.osrfoundation.org/gazebo.gpg \
+         -o /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] \
+         https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" \
+         > /etc/apt/sources.list.d/gazebo-stable.list
+
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     g++-arm-linux-gnueabi \
-    libgazebo9-dev \
+    gz-harmonic \
     rustc cargo \
     python3-lxml \
     python3-empy \
