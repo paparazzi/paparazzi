@@ -25,10 +25,10 @@ static void get_uavcan_hardware_version(struct uavcan_protocol_HardwareVersion* 
 
 
 void uavcan_init_reporting() {
-  strncpy(ac_can_name, AC_CAN_NAME_PREFIX, 50);
-  size_t prefix_len = strlen(AC_CAN_NAME_PREFIX);
-  strncpy(ac_can_name+prefix_len, AIRFRAME_NAME, 50-prefix_len);
-  ac_can_name_len = prefix_len + strlen(AIRFRAME_NAME);
+  size_t prefix_len = Min(strlen(AC_CAN_NAME_PREFIX), sizeof ac_can_name);
+  memcpy(ac_can_name, AC_CAN_NAME_PREFIX, prefix_len);
+  ac_can_name_len = Min(prefix_len + strlen(AIRFRAME_NAME), sizeof ac_can_name);
+  memcpy(ac_can_name+prefix_len, AIRFRAME_NAME, ac_can_name_len-prefix_len);
 
   uavcan_bind(UAVCAN_PROTOCOL_GETNODEINFO_REQUEST_ID, UAVCAN_PROTOCOL_GETNODEINFO_REQUEST_SIGNATURE, &node_info_ev, node_info_cb);
   uavcan_bind(UAVCAN_PROTOCOL_NODESTATUS_ID, UAVCAN_PROTOCOL_NODESTATUS_SIGNATURE, &node_status_ev, node_status_cb);
