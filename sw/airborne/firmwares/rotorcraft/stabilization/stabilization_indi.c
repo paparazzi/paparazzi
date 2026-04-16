@@ -369,27 +369,6 @@ static void send_eff_mat_g_indi(struct transport_tx *trans, struct link_device *
 #endif
   );
 #endif
-                      INDI_NUM_ACT, g2_est);
-#if INDI_OUTPUTS <= 5
-  float zero = 0;
-#endif
-#if INDI_OUTPUTS > 3
-  pprz_msg_send_EFF_MAT_STAB_THRUST(trans, dev, AC_ID,
-#if INDI_OUTPUTS == 4
-      1, &zero,
-      1, &zero,
-      INDI_NUM_ACT, g1g2[3]
-#elif INDI_OUTPUTS == 5
-      INDI_NUM_ACT, g1g2[4],
-      1, &zero,
-      INDI_NUM_ACT, g1g2[3]
-#elif INDI_OUTPUTS == 6
-      INDI_NUM_ACT, g1g2[3],
-      INDI_NUM_ACT, g1g2[4],
-      INDI_NUM_ACT, g1g2[5]
-#endif
-      );
-#endif
 }
 
 static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *dev)
