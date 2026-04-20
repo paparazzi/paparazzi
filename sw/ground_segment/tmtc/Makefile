@@ -99,7 +99,12 @@ ivy2serial : ivy2serial.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 
 CC = gcc
 
+PCRE_CHECK = $(shell ldd /usr/lib/libivy.so | grep libpcre2-8)
+ifneq ($(PCRE_CHECK),)
 PCRE_LDFLAGS= $(shell pcre2-config --libs8)
+else
+PCRE_LDFLAGS= $(shell pcre-config --libs)
+endif
 
 GLIBIVY_CFLAGS = -Wall -fPIC $(shell pkg-config --cflags ivy-glib)
 GLIBIVY_LDFLAGS = $(shell pkg-config --libs ivy-glib) $(PCRE_LDFLAGS)

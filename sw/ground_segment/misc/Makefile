@@ -38,7 +38,12 @@ endif
 GTK2_INC = $(shell pkg-config gtk+-2.0 --cflags 2> /dev/null)
 GTK2_LDFLAGS = $(shell pkg-config gtk+-2.0 --libs 2> /dev/null)
 
+PCRE_CHECK = $(shell ldd /usr/lib/libivy.so | grep libpcre2-8)
+ifneq ($(PCRE_CHECK),)
 PCRE_LDFLAGS= $(shell pcre2-config --libs8)
+else
+PCRE_LDFLAGS= $(shell pcre-config --libs)
+endif
 
 ifneq ($(GTK2_INC),)
 CFLAGS += -Wall -fPIC -g
