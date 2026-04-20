@@ -37,7 +37,7 @@ XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
 SERVERCMO = server_globals.cmo aircraft_server.cmo wind.cmo airprox.cmo kml.cmo parse_messages_v1.ml intruder.cmo server.cmo
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
-all: link server ivy_tcp_aircraft ivy_tcp_controller ivy2udp ivy2serial app_server ivy2nmea gpsd2ivy gtk_tools
+all: link server ivy_tcp_aircraft ivy_tcp_controller ivy2udp ivy2serial ivy2nmea gpsd2ivy gtk_tools
 
 ifeq ($(USE_LABELGTK),lablgtk2)
 gtk_tools: messages
@@ -46,7 +46,7 @@ endif
 opt: server.opt
 
 clean:
-	$(Q)rm -f link server messages *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller ivy2udp ivy2serial ivy_serial_bridge app_server gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 ivy2nmea
+	$(Q)rm -f link server messages *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller ivy2udp ivy2serial ivy_serial_bridge gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 ivy2nmea
 
 messages : messages.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
@@ -99,7 +99,12 @@ ivy2serial : ivy2serial.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 
 CC = gcc
 
+PCRE_CHECK = $(shell ldd /usr/lib/libivy.so | grep libpcre2-8)
+ifneq ($(PCRE_CHECK),)
 PCRE_LDFLAGS= $(shell pcre2-config --libs8)
+else
+PCRE_LDFLAGS= $(shell pcre-config --libs)
+endif
 
 GLIBIVY_CFLAGS = -Wall -fPIC $(shell pkg-config --cflags ivy-glib)
 GLIBIVY_LDFLAGS = $(shell pkg-config --libs ivy-glib) $(PCRE_LDFLAGS)
@@ -114,10 +119,6 @@ ifeq ("$(UNAME)","Darwin")
   GLIBIVY_CFLAGS += $(IVY_C_LIB_INC) $(IVY_C_INCLUDES)
 endif
 
-
-app_server: app_server.c Makefile
-	@echo OL $@
-	$(Q)$(CC) $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib --cflags) -o $@ $< -lm -lz $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib --libs) $(PCRE_LDFLAGS)
 
 gpsd2ivy: gpsd2ivy.c Makefile
 ifeq (, $(shell which gpsd))
