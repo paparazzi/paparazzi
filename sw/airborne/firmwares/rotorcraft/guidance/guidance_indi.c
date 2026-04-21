@@ -114,6 +114,16 @@ static float Gmat[GUIDANCE_INDI_NV][GUIDANCE_INDI_NU];
 #if GUIDANCE_INDI_USE_WLS
 #include "math/wls/wls_alloc.h"
 
+// priorities on control inputs (ax, ay, az)
+#ifndef GUIDANCE_INDI_WLS_PRIORITIES
+#define GUIDANCE_INDI_WLS_PRIORITIES {100.f, 100.f, 100.f}
+#endif
+
+// weighting of prefered control outputs (phi, theta, psi, Tx, Ty, Tz)
+#ifndef GUIDANCE_INDI_WLS_WU
+#define GUIDANCE_INDI_WLS_WU {1000.f,1000.f,10.f,1.f,1.f,1.f}
+#endif
+
 #define NU_MAX 6    // Example constant value // [dtheta, dphi, dthrust, dtx , dty]
 #define NV_MAX 3    // Example constant value (ax,ay,az)
 static float du_guidance[GUIDANCE_INDI_NU];
@@ -122,10 +132,10 @@ static float *Bwls_gi[GUIDANCE_INDI_NV];
 static struct WLS_t wls_guid_p = {
   .nu        = GUIDANCE_INDI_NU,
   .nv        = GUIDANCE_INDI_NV,
-  .gamma_sq  = 1000.0,
+  .gamma_sq  = 100.0,
   .v         = {0.0},
-  .Wv        = {100.f, 100.f, 100.f},         // x,y,z
-  .Wu        = {10.f,10.f,0.f,0.f,0.f,10.f}, // minimize the control input (thetq,phi,Tx,Ty,Tz,psi)
+  .Wv        = GUIDANCE_INDI_WLS_PRIORITIES,
+  .Wu        = GUIDANCE_INDI_WLS_WU,
   .u_pref    = {0.0},
   .u_min     = {0.0},
   .u_max     = {0.0},
@@ -266,7 +276,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
 #endif
 
 #if GUIDANCE_INDI_USE_WLS
-  float m = GUIDANCE_INDI_MASS;
+  const float m = GUIDANCE_INDI_MASS;
   wls_guid_p.v[0] = m*a_diff.x;
   wls_guid_p.v[1] = m*a_diff.y;
   wls_guid_p.v[2] = m*a_diff.z;
