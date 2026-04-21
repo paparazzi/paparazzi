@@ -69,9 +69,7 @@ ifneq ($(MAKECMDGOALS),clean)
     $(TARGET).CFLAGS += -DAP_LAUNCH=$(AP_LAUNCH)
   endif
 
-  # sort cflags and sources to throw out duplicates
-  #
-  $(TARGET).CFLAGS := $(sort $($(TARGET).CFLAGS))
+  # sort sources to throw out duplicates
   $(TARGET).srcs := $(sort $($(TARGET).srcs))
 endif
 
