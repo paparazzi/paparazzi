@@ -8,68 +8,6 @@
   </section>
 
   <section name="sessions">
-    <session name="Bluegiga">
-      <program name="BluegigaUsbDongle">
-        <arg flag="/dev/ttyACM2" constant="all"/>
-        <arg flag="4242" constant="4252"/>
-      </program>
-      <program name="Data Link">
-        <arg flag="-udp"/>
-        <arg flag="-udp_port" constant="4242"/>
-        <arg flag="-udp_uplink_port" constant="4252"/>
-      </program>
-      <program name="Server"/>
-      <program name="Messages"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
-      <program name="NatNet3">
-        <arg flag="-ac" constant="1"/>
-        <arg flag="12"/>
-        <arg flag="-sm"/>
-        <arg flag="-f" constant="5"/>
-        <arg flag="-o"/>
-        <arg flag="-zf"/>
-      </program>
-      <program name="Joystick">
-        <arg flag="-d" constant="2"/>
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="hobbyking.xml"/>
-      </program>
-    </session>
-
-    <session name="Bluegiga">
-      <program name="Data Link">
-        <arg flag="-udp"/>
-        <arg flag="-udp_port" constant="4242"/>
-        <arg flag="-udp_uplink_port" constant="4252"/>
-      </program>
-      <program name="Server"/>
-      <program name="Messages"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
-      <program name="NatNet3">
-        <arg flag="-ac" constant="7"/>
-        <arg flag="114"/>
-        <arg flag="-sm"/>
-        <arg flag="-f" constant="5"/>
-        <arg flag="-o"/>
-        <arg flag="-zf"/>
-      </program>
-      <program name="Joystick">
-        <arg flag="-d" constant="2"/>
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="hobbyking.xml"/>
-      </program>
-      <program name="BluegigaUsbDongle">
-        <arg flag="/dev/ttyACM2"/>
-        <arg flag="00:07:80:2d:e0:4b"/>
-        <arg flag="4242"/>
-        <arg flag="4252"/>
-      </program>
-    </session>
-
     <session name="EKF Full">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
@@ -453,29 +391,6 @@
       </program>
       <program name="Gazebo"/>
     </session>
-
-    <session name="helidd">
-      <program name="BluegigaUsbDongle">
-        <arg flag="/dev/ttyACM0" constant="00:07:80:2d:d6:d9"/>
-        <arg flag="4242" constant="4252"/>
-      </program>
-      <program name="Data Link">
-        <arg flag="-udp"/>
-        <arg flag="-udp_port" constant="4242"/>
-        <arg flag="-udp_uplink_port" constant="4252"/>
-      </program>
-      <program name="Server"/>
-      <program name="Messages"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
-      <program name="Joystick">
-        <arg flag="-d" constant="2"/>
-        <arg flag="-ac" constant="GeniusDD"/>
-        <arg flag="hobbyking.xml"/>
-      </program>
-    </session>
-
     <session name="Ship">
       <program name="Data Link">
         <arg flag="-udp"/>
