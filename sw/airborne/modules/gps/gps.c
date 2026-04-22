@@ -71,7 +71,7 @@ PRINT_CONFIG_VAR(SECONDARY_GPS)
 #define MSEC_PER_WEEK (1000*60*60*24*7)
 #define TIME_TO_SWITCH 5000 //ten s in ms
 
-struct GpsState gps;
+struct GpsState gps = {0};
 struct GpsTimeSync gps_time_sync;
 static struct RelPosNED gps_relposned[GPS_RELPOS_MAX] = {0};
 

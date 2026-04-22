@@ -110,7 +110,7 @@ struct sirf_msg_41 {
 } __attribute__((packed));
 
 
-struct GpsSirf gps_sirf;
+struct GpsSirf gps_sirf = {0};
 
 void sirf_parse_char(uint8_t c);
 void sirf_parse_msg(void);
