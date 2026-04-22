@@ -29,6 +29,8 @@
 #ifndef GPIO_ARCH_H
 #define GPIO_ARCH_H
 
+#include <stdint.h>
+
 typedef uint32_t gpio_port_t;
 
 #define GPIOA 0
@@ -74,10 +76,6 @@ typedef uint32_t gpio_port_t;
 #define GPIO30 0
 #define GPIO31 0
 
-static inline void gpio_setup_output(gpio_port_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
-static inline void gpio_setup_input(gpio_port_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
-static inline void gpio_set(gpio_port_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
-static inline void gpio_clear(gpio_port_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
 static inline void gpio_toggle(gpio_port_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
 static inline uint16_t gpio_get(gpio_port_t gpioport __attribute__((unused)), uint16_t gpios __attribute__((unused))) { return FALSE; }
 
