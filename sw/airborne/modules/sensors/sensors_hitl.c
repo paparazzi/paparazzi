@@ -42,7 +42,7 @@ struct ImuHitl {
 };
 
 struct ImuHitl imu_hitl;
-struct GpsState gps_hitl;
+struct GpsState gps_hitl = {0};
 bool gps_has_fix;
 
 static bool sensors_hitl_msg_available = false;

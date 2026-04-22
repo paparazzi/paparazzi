@@ -80,7 +80,7 @@
 
 const int8_t DAYS_MONTH[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-struct GpsMtk gps_mtk;
+struct GpsMtk gps_mtk = {0};
 
 #ifdef GPS_CONFIGURE
 #define MTK_DIY_SET_BINARY  "$PGCMD,16,0,0,0,0,0*6A\r\n"
