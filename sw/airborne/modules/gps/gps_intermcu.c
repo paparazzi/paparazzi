@@ -27,7 +27,7 @@
 #include "modules/core/abi.h"
 #include "pprzlink/intermcu_msg.h"
 
-struct GpsState gps_imcu;
+struct GpsState gps_imcu = {0};
 
 /** GPS initialization */
 void gps_intermcu_init(void)

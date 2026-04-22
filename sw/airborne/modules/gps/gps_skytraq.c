@@ -48,7 +48,7 @@
 #define SKYTRAQ_SYNC3 0x0D
 #define SKYTRAQ_SYNC4 0x0A
 
-struct GpsSkytraq gps_skytraq;
+struct GpsSkytraq gps_skytraq = {0};
 
 void gps_skytraq_read_message(void);
 void gps_skytraq_parse(uint8_t c);

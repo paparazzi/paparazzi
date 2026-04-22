@@ -37,7 +37,7 @@
 unsigned char gps_udp_read_buffer[256];
 struct FmsNetwork *gps_network = NULL;
 
-struct GpsState gps_udp;
+struct GpsState gps_udp = {0};
 
 void gps_udp_init(void)
 {
