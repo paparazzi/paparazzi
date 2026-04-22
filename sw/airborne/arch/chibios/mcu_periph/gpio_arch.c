@@ -94,3 +94,12 @@ void gpio_setup_pin_analog(ioportid_t port, uint16_t pin)
   chSysUnlock();
 }
 
+void gpio_set(gpio_port_t port, uint16_t pin)
+{
+  palSetPad(port, pin);
+}
+
+void gpio_clear(gpio_port_t port, uint16_t pin)
+{
+  palClearPad(port, pin);
+}
