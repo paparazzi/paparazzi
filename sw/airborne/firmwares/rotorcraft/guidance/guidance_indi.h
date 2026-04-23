@@ -64,10 +64,10 @@ extern struct FloatVect3 guidance_indi_controller(bool in_flight, struct Horizon
 #endif
 
 // Function to compute efficiency matrix G
-extern void guidance_indi_calcG(float Gmat[GUIDANCE_INDI_NV][GUIDANCE_INDI_NU], struct FloatEulers att);
+extern void guidance_indi_calcG(float Gmat[GUIDANCE_INDI_NV][GUIDANCE_INDI_NU], const struct FloatQuat *att);
 #if GUIDANCE_INDI_USE_WLS
 #include "math/wls/wls_alloc.h"
-extern void guidance_indi_set_wls_settings(struct WLS_t *wls, struct FloatEulers *euler_yxz, float heading_sp);
+extern void guidance_indi_set_wls_settings(struct WLS_t *wls, const struct FloatQuat *att, const float heading_sp);
 #endif
 
 extern float guidance_indi_specific_force_gain;

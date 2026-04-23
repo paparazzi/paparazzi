@@ -89,11 +89,15 @@ static void guidance_indi_calcG_yxz(float Gmat[3][3], struct FloatEulers euler_y
  *
  * @param Gmat Dynamics matrix
  */
-void guidance_indi_calcG(float Gmat[3][3], struct FloatEulers att) {
+void guidance_indi_calcG(float Gmat[3][3], const struct FloatQuat *att) {
 #ifdef GUIDANCE_INDI_CALC_G_ZYX
-  guidance_indi_calcG_zyx(Gmat, att);
+  struct FloatEulers eulers_zyx;
+  float_eulers_of_quat_zxy(&eulers_zyx, att);
+  guidance_indi_calcG_zyx(Gmat, eulers_zyx);
 #else
-  guidance_indi_calcG_yxz(Gmat, att); // default case
+  struct FloatEulers eulers_yxz;
+  float_eulers_of_quat_yxz(&eulers_yxz, att);
+  guidance_indi_calcG_yxz(Gmat, eulers_yxz); // default case
 #endif
 }
 
