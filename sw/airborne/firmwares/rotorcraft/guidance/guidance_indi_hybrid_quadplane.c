@@ -86,7 +86,7 @@ void guidance_indi_quadplane_propagate_filters(void) {
 void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float body_v[GUIDANCE_INDI_HYBRID_V]) {
 
   struct FloatEulers eulers_filtered;
-  float_eulers_of_quat_zxy(&eulers_filtered, &quat_filt);
+  float_eulers_of_quat_zxy(&eulers_filtered, &quat_filt.quat);
   /*Pre-calculate sines and cosines*/
   float sphi = sinf(eulers_filtered.phi);
   float cphi = cosf(eulers_filtered.phi);
