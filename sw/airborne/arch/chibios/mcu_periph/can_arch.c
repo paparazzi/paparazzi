@@ -20,6 +20,8 @@
 #include <ch.h>
 #include <hal.h>
 
+// Determine which ChibiOS CAN driver to use based on the configuration
+#define USE_FDCAN_DRIVER ((STM32_CAN_USE_FDCAN1) || (STM32_CAN_USE_FDCAN2) || (STM32_CAN_USE_FDCAN3))
 
 struct can_arch_periph {
   int if_index;
@@ -36,7 +38,6 @@ static void can_start(struct can_periph* canp);
 static bool canConfigureIface(struct can_arch_periph* cas);
 
 #if USE_CAN1
-
 static THD_WORKING_AREA(can1_rx_wa, 1024 * 2);
 
 struct can_arch_periph can1_arch_s = {
@@ -47,11 +48,9 @@ struct can_arch_periph can1_arch_s = {
   .thread_rx_wa = can1_rx_wa,
   .thread_rx_wa_size = sizeof(can1_rx_wa),
 };
-
 #endif
 
 #if USE_CAN2
-
 static THD_WORKING_AREA(can2_rx_wa, 1024 * 2);
 
 struct can_arch_periph can2_arch_s = {
@@ -62,7 +61,6 @@ struct can_arch_periph can2_arch_s = {
   .thread_rx_wa = can2_rx_wa,
   .thread_rx_wa_size = sizeof(can2_rx_wa),
 };
-
 #endif
 
 void can_hw_init() {
@@ -70,6 +68,7 @@ void can_hw_init() {
   can1.arch_struct = &can1_arch_s;
   can_start(&can1);
   #endif
+
   #if USE_CAN2
   can2.arch_struct = &can2_arch_s;
   can_start(&can2);
@@ -106,6 +105,7 @@ static void can_thd_rx(void* arg) {
     msg_t status = canReceiveTimeout(cas->cand, CAN_ANY_MAILBOX, &rx_frame, chTimeMS2I(50));
     if(status == MSG_OK) { 
       uint32_t id = 0;
+#if USE_FDCAN_DRIVER
       if(rx_frame.common.XTD) {
         id = rx_frame.ext.EID | CAN_FRAME_EFF;
       } else {
@@ -117,6 +117,16 @@ static void can_thd_rx(void* arg) {
       if(rx_frame.common.ESI) {
         id |= CAN_FRAME_ERR;
       }
+#else
+      if(rx_frame.IDE) {
+        id = rx_frame.EID | CAN_FRAME_EFF;
+      } else {
+        id = rx_frame.SID;
+      }
+      if(rx_frame.RTR) {
+        id |= CAN_FRAME_RTR;
+      }
+#endif
 
       struct pprzcan_frame pprz_frame = {
         .can_id = id,
@@ -125,14 +135,14 @@ static void can_thd_rx(void* arg) {
         .timestamp = TIME_I2US(chVTGetSystemTimeX())
       };
       
+#if USE_FDCAN_DRIVER
       if(rx_frame.FDF) {
         pprz_frame.flags |= CANFD_FDF;
       }
       if(rx_frame.common.ESI) {
         pprz_frame.flags |= CANFD_ESI;
       }
-
-
+#endif
 
       memcpy(pprz_frame.data, rx_frame.data8, pprz_frame.len);
 
@@ -149,6 +159,8 @@ static void can_thd_rx(void* arg) {
 int can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* addr) {
   CANTxFrame frame = {0};
   frame.DLC = can_len_to_dlc(txframe->len);
+
+#if USE_FDCAN_DRIVER
   if(txframe->can_id & CAN_FRAME_RTR) {
     frame.common.RTR = 1;
   }
@@ -158,6 +170,18 @@ int can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* addr)
   } else {
     frame.std.SID = txframe->can_id & CAN_SID_MASK;
   }
+#else
+  if(txframe->can_id & CAN_FRAME_RTR) {
+    frame.RTR = 1;
+  }
+  if(txframe->can_id & CAN_FRAME_EFF) {
+    frame.IDE = 1;
+    frame.EID = txframe->can_id & CAN_EID_MASK;
+  } else {
+    frame.SID = txframe->can_id & CAN_SID_MASK;
+  }
+#endif
+
   memcpy(frame.data8, txframe->data, txframe->len);
 
   #if USE_CAN1
@@ -205,7 +229,7 @@ static bool canConfigureIface(struct can_arch_periph* cas)
   }
 
   // Hardware configurationn
-#if defined(STM32_CAN_USE_FDCAN1) || defined(STM32_CAN_USE_FDCAN2)
+#if USE_FDCAN_DRIVER
   const uint32_t pclk = STM32_FDCANCLK;
 #else
   const uint32_t pclk = STM32_PCLK1;
@@ -298,7 +322,7 @@ static bool canConfigureIface(struct can_arch_periph* cas)
   }
 
   // Configure the interface
-#if defined(STM32_CAN_USE_FDCAN1) || defined(STM32_CAN_USE_FDCAN2)
+#if USE_FDCAN_DRIVER
   #if USE_CANFD
     cas->cfg.op_mode = OPMODE_FDCAN;
   #else
