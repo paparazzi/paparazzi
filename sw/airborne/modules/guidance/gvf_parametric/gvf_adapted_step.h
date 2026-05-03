@@ -43,7 +43,7 @@
  * 
  * Given the 3D parametric curve described by f at p and a wanted geometric distance ds, 
  * computes the parametric step dp such that:
- *    |ds| = || f(p+dp) - f(p) || and (dp)(dp) > 0
+ *    |ds| = || f(p+dp) - f(p) || and (ds)(dp) > 0
  * 
  * To do so, it uses second order Taylor approximation around p to reduce the problem to finding
  * a root of a degree 4 polynomial. This root is found using Halley's method.

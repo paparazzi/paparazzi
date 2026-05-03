@@ -28,7 +28,6 @@
 #include <Eigen/Dense> // https://eigen.tuxfamily.org/dox/GettingStarted.html
 
 #include "gvf_parametric.h"
-#include "gvf_adapted_step.h"
 
 #ifndef GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION
 #define GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION 1
@@ -64,6 +63,8 @@ extern "C" {
 #endif
 
 #include "autopilot.h"
+#include "gvf_adapted_step.h"
+
 
 // Control
 gvf_parametric_con gvf_parametric_control;
