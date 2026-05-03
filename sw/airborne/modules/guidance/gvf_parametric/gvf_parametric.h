@@ -46,6 +46,7 @@ extern "C" {
 * @param s Defines the direction to be tracked. It takes the values -1 or 1.
 * @param k_roll Gain for tuning the coordinated turn.
 * @param k_climb Gain for tuning the climbing setting point.
+* @param step_adaptation Use Step adaption, thus setting the carrot at the same speed as the current aircraft speed
 */
 typedef struct {
   float w;
@@ -54,6 +55,7 @@ typedef struct {
   float k_psi;
   float L;
   float beta;
+  bool step_adaptation;
 } gvf_parametric_con;
 
 typedef struct {
