@@ -29,6 +29,7 @@ open Latlong
 module LL = Latlong
 module U = Unix
 module Dl_Pprz = PprzLink.Messages (struct let name = "datalink" end)
+module Gd_Pprz = PprzLink.Messages (struct let name = "ground" end)
 
 
 (* FIXME: bound the loop *)
@@ -39,6 +40,18 @@ let rec norm_course =
     else if c >= _2pi then norm_course (c -. _2pi)
     else c
 
+
+let colormap = fun x ->
+  match x with
+  | 0 -> "black"
+  | 1 -> "red"
+  | 2 -> "green"
+  | 3 -> "yellow"
+  | 4 -> "blue"
+  | 5 -> "magenta"
+  | 6 -> "cyan"
+  | 7 -> "white"
+  | _ -> failwith (sprintf "Receive.log_and_parse: index too high for colormap, got '%d' when values are integers between 0 and 7" (x))
 
 let fvalue = fun x ->
   match x with
@@ -518,4 +531,14 @@ let log_and_parse = fun ac_name (a:Aircraft_server.aircraft) msg values ->
         "resolve", PprzLink.Int (ivalue "resolve")
       ] in
       Dl_Pprz.message_send "ground_dl" "TCAS_RESOLVE" vs
+    | "DRAW" ->
+      let color = ivalue "color" in
+      let opacity = (color land 0b11000000) lsr 6
+      and line_code = (color land 0b00111000) lsr 3
+      and fill_code = (color land 0b00000111) in
+      let line_str = colormap line_code
+      and fill_str = colormap fill_code in
+      let filter_color_filed = fun x -> not(String.equal "color" (fst x)) in
+      Gd_Pprz.message_send "ground" "SHAPE" 
+        (("linecolor",PprzLink.String line_str)::("fillcolor",PprzLink.String fill_str)::("opacity",PprzLink.Int opacity)::(List.filter filter_color_filed values))
     | _ -> ()
