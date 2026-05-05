@@ -29,10 +29,6 @@
 
 #include "gvf_parametric.h"
 
-#ifndef GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION
-#define GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION 1
-#endif
-
 /*! Default gain kroll for tuning the "coordinated turn" */
 #ifndef GVF_PARAMETRIC_CONTROL_KROLL
 #define GVF_PARAMETRIC_CONTROL_KROLL 1
@@ -45,13 +41,22 @@
 
 /*! Default scale for the error signals */
 #ifndef GVF_PARAMETRIC_CONTROL_L
+#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+#define GVF_PARAMETRIC_CONTROL_L 1
+#else
 #define GVF_PARAMETRIC_CONTROL_L 0.1
+#endif
 #endif
 
 /*! Default scale for w  */
 #ifndef GVF_PARAMETRIC_CONTROL_BETA
+#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+#define GVF_PARAMETRIC_CONTROL_BETA 1
+#else
 #define GVF_PARAMETRIC_CONTROL_BETA 0.01
 #endif
+#endif
+
 
 /*! Default gain kpsi for tuning the alignment of the vehicle with the vector field */
 #ifndef GVF_PARAMETRIC_CONTROL_KPSI

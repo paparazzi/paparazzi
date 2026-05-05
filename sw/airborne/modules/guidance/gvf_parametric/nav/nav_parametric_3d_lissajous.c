@@ -29,17 +29,29 @@
 
 /*! Default gain kx for the 3d lissajous trajectory */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_KX
+#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+#define GVF_PARAMETRIC_3D_LISSAJOUS_KX 0.1
+#else
 #define GVF_PARAMETRIC_3D_LISSAJOUS_KX 0.001
+#endif
 #endif
 
 /*! Default gain ky for the 3d lissajous trajectory */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_KY
+#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+#define GVF_PARAMETRIC_3D_LISSAJOUS_KY 0.1
+#else
 #define GVF_PARAMETRIC_3D_LISSAJOUS_KY 0.001
+#endif
 #endif
 
 /*! Default gain kz for the 3d lissajous trajectory */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_KZ
+#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+#define GVF_PARAMETRIC_3D_LISSAJOUS_KZ 0.1
+#else
 #define GVF_PARAMETRIC_3D_LISSAJOUS_KZ 0.001
+#endif
 #endif
 
 /*! Default amplitude of the trajectory in the X plane */

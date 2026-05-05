@@ -19,12 +19,12 @@
           <dl_setting MAX="1.25" MIN="0.75" STEP="0.05" VAR="gvf_c_params.k_roll" shortname="k_roll" param="GVF_PARAMETRIC_CONTROL_KROLL"/>
           <dl_setting MAX="1.25" MIN="0.75" STEP="0.05" VAR="gvf_c_params.k_climb" shortname="k_climb" param="GVF_PARAMETRIC_CONTROL_KCLIMB"/>
           <dl_setting MAX="10" MIN="0.01" STEP="0.05" VAR="gvf_parametric_control.L" shortname="L" param="GVF_PARAMETRIC_CONTROL_L"/>
-          <dl_setting MAX="1" MIN="0.001" STEP="0.005" VAR="gvf_parametric_control.beta" shortname="beta" param="GVF_PARAMETRIC_CONTROL_BETA"/>
+          <dl_setting MAX="2" MIN="0.001" STEP="0.005" VAR="gvf_parametric_control.beta" shortname="beta" param="GVF_PARAMETRIC_CONTROL_BETA"/>
           <dl_setting MAX="1.5" MIN="0.5" STEP="0.01" VAR="gvf_parametric_control.k_psi" shortname="k_psi" param="GVF_PARAMETRIC_CONTROL_KPSI"/>
         </dl_settings>
         <dl_settings NAME="2D_trefoil">
-          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_2d_trefoil_par.kx" shortname="2d_tre_kx" param="GVF_PARAMETRIC_2D_TREFOIL_KX"/>
-          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_2d_trefoil_par.ky" shortname="2d_tre_ky" param="GVF_PARAMETRIC_2D_TREFOIL_KY"/>
+          <dl_setting MAX="0.1" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_2d_trefoil_par.kx" shortname="2d_tre_kx" param="GVF_PARAMETRIC_2D_TREFOIL_KX"/>
+          <dl_setting MAX="0.1" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_2d_trefoil_par.ky" shortname="2d_tre_ky" param="GVF_PARAMETRIC_2D_TREFOIL_KY"/>
           <dl_setting MAX="1" MIN="0.0" STEP="0.01" VAR="gvf_parametric_2d_trefoil_par.w1" shortname="2d_tre_w1" param="GVF_PARAMETRIC_2D_TREFOIL_W1"/>
           <dl_setting MAX="1" MIN="0.0" STEP="0.01" VAR="gvf_parametric_2d_trefoil_par.w2" shortname="2d_tre_w2" param="GVF_PARAMETRIC_2D_TREFOIL_W2"/>
           <dl_setting MAX="200" MIN="10" STEP="5" VAR="gvf_parametric_2d_trefoil_par.ratio" shortname="2d_tre_ratio" param="GVF_PARAMETRIC_2D_TREFOIL_RATIO"/>
@@ -36,8 +36,8 @@
           <dl_setting MAX="9.750" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_2d_bezier_par.ky" shortname="2d_bezier_ky" param="GVF_PARAMETRIC_2D_BEZIER_KY"/>
         </dl_settings>   
         <dl_settings NAME="3D_ellipse">
-          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_ellipse_par.kx" shortname="3d_ell_kx" param="GVF_PARAMETRIC_3D_ELLIPSE_KX"/>
-          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_ellipse_par.ky" shortname="3d_ell_ky" param="GVF_PARAMETRIC_3D_ELLIPSE_KY"/>
+          <dl_setting MAX="0.1" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_ellipse_par.kx" shortname="3d_ell_kx" param="GVF_PARAMETRIC_3D_ELLIPSE_KX"/>
+          <dl_setting MAX="0.1" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_ellipse_par.ky" shortname="3d_ell_ky" param="GVF_PARAMETRIC_3D_ELLIPSE_KY"/>
           <dl_setting MAX="0.1" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_ellipse_par.kz" shortname="3d_ell_kz" param="GVF_PARAMETRIC_3D_ELLIPSE_KZ"/>
           <dl_setting MAX="150" MIN="0.0" STEP="5" VAR="gvf_parametric_3d_ellipse_par.r" shortname="3d_ell_r" param="GVF_PARAMETRIC_3D_ELLIPSE_R"/>
           <dl_setting MAX="150" MIN="10" STEP="5" VAR="gvf_parametric_3d_ellipse_par.zl" shortname="3d_ell_zl" param="GVF_PARAMETRIC_3D_ELLIPSE_ZL"/>

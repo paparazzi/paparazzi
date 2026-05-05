@@ -29,12 +29,20 @@
 
 /*! Default gain kx for the 2d trefoil knot trajectory */
 #ifndef GVF_PARAMETRIC_2D_TREFOIL_KX
+#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+#define GVF_PARAMETRIC_2D_TREFOIL_KX 0.1
+#else
 #define GVF_PARAMETRIC_2D_TREFOIL_KX 0.001
+#endif
 #endif
 
 /*! Default gain ky for the 2d trefoil knot trajectory */
 #ifndef GVF_PARAMETRIC_2D_TREFOIL_KY
+#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+#define GVF_PARAMETRIC_2D_TREFOIL_KY 0.1
+#else
 #define GVF_PARAMETRIC_2D_TREFOIL_KY 0.001
+#endif
 #endif
 
 /*! Default 1st frequency for the 2d trefoil trajectory*/
