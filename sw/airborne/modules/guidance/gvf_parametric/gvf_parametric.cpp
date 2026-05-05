@@ -41,13 +41,22 @@
 
 /*! Default scale for the error signals */
 #ifndef GVF_PARAMETRIC_CONTROL_L
+#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+#define GVF_PARAMETRIC_CONTROL_L 1
+#else
 #define GVF_PARAMETRIC_CONTROL_L 0.1
+#endif
 #endif
 
 /*! Default scale for w  */
 #ifndef GVF_PARAMETRIC_CONTROL_BETA
+#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+#define GVF_PARAMETRIC_CONTROL_BETA 1
+#else
 #define GVF_PARAMETRIC_CONTROL_BETA 0.01
 #endif
+#endif
+
 
 /*! Default gain kpsi for tuning the alignment of the vehicle with the vector field */
 #ifndef GVF_PARAMETRIC_CONTROL_KPSI
@@ -59,6 +68,8 @@ extern "C" {
 #endif
 
 #include "autopilot.h"
+#include "gvf_adapted_step.h"
+
 
 // Control
 gvf_parametric_con gvf_parametric_control;
@@ -125,6 +136,7 @@ void gvf_parametric_init(void)
   gvf_parametric_control.k_psi = GVF_PARAMETRIC_CONTROL_KPSI;
   gvf_parametric_control.L = GVF_PARAMETRIC_CONTROL_L;
   gvf_parametric_control.beta = GVF_PARAMETRIC_CONTROL_BETA;
+  gvf_parametric_control.step_adaptation = GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION;
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GVF_PARAMETRIC, send_gvf_parametric);
@@ -151,6 +163,38 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
   desired_x = f1;
   desired_y = f2;
 #endif
+
+  float f_v2 = f1d * f1d + f2d * f2d;
+  float f_v = sqrtf(f_v2);
+
+  float f_d_dot_f_dd = f1d * f1dd + f2d * f2dd;
+
+  float og_f1d = f1d;
+  float og_f2d = f2d;
+
+  float og_f1dd = f1dd;
+  float og_f2dd = f2dd;
+
+  if (gvf_parametric_control.step_adaptation)
+  {
+    if (f_v < 1e-6) // i.e, f'(w) = 0
+    {
+      // Use an arbitrary direction
+      f1d = 1 / sqrtf(3.);
+      f2d = 1 / sqrtf(3.);
+
+      f1dd = 0.;
+      f2dd = 0.;
+    }
+    else
+    {
+      f1dd = (f1dd - f_d_dot_f_dd * f1d / f_v2) / f_v2;
+      f2dd = (f2dd - f_d_dot_f_dd * f2d / f_v2) / f_v2;
+
+      f1d = f1d / f_v;
+      f2d = f2d / f_v;
+    }
+  }
 
   float L = gvf_parametric_control.L;
   float beta = gvf_parametric_control.beta * gvf_parametric_control.s;
@@ -187,7 +231,17 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
 
   // Guidance algorithm
   float ground_speed = stateGetHorizontalSpeedNorm_f();
-  float w_dot = (ground_speed * X(2)) / sqrtf(X(0) * X(0) + X(1) * X(1));
+  float w_dot;
+
+  if (gvf_parametric_control.step_adaptation)
+  {
+    w_dot = step_adaptation(ground_speed * X(2) * gvf_parametric_control.delta_T * 1e-3,
+      og_f1d, og_f2d, 0., og_f1dd, og_f2dd, 0.) / (gvf_parametric_control.delta_T * 1e-3);
+  }
+  else
+  {
+    w_dot = (ground_speed * X(2)) / sqrtf(X(0) * X(0) + X(1) * X(1));
+  }
 
   Eigen::Vector3f xi_dot;
   struct EnuCoor_f *vel_enu = stateGetSpeedEnu_f();
@@ -258,6 +312,46 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
   Eigen::Vector4f X;
   Eigen::Matrix4f J;
 
+  // Additional values required for using step adaptation
+
+  float f_v2 = f1d * f1d + f2d * f2d + f3d * f3d;
+  float f_v = sqrtf(f_v2);
+
+  float f_d_dot_f_dd = f1d * f1dd + f2d * f2dd + f3d * f3dd;
+
+  float og_f1d = f1d;
+  float og_f2d = f2d;
+  float og_f3d = f3d;
+
+  float og_f1dd = f1dd;
+  float og_f2dd = f2dd;
+  float og_f3dd = f3dd;
+
+  if (gvf_parametric_control.step_adaptation)
+  {
+    if (f_v < 1e-6) // i.e, f'(w) = 0
+    {
+      // Use an arbitrary direction
+      f1d = 1 / sqrtf(3.);
+      f2d = 1 / sqrtf(3.);
+      f3d = 1 / sqrtf(3.);
+
+      f1dd = 0.;
+      f2dd = 0.;
+      f3dd = 0.;
+    }
+    else
+    {
+      f1dd = (f1dd - f_d_dot_f_dd * f1d / f_v2) / f_v2;
+      f2dd = (f2dd - f_d_dot_f_dd * f2d / f_v2) / f_v2;
+      f3dd = (f3dd - f_d_dot_f_dd * f3d / f_v2) / f_v2;
+
+      f1d = f1d / f_v;
+      f2d = f2d / f_v;
+      f3d = f3d / f_v;
+    }
+  }
+
   // Error signals phi_x phi_y and phi_z
   struct EnuCoor_f *pos_enu = stateGetPositionEnu_f();
   float x = pos_enu->x;
@@ -298,7 +392,17 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
 
   // Guidance algorithm
   float ground_speed = stateGetHorizontalSpeedNorm_f();
-  float w_dot = (ground_speed * X(3)) / sqrtf(X(0) * X(0) + X(1) * X(1));
+  float w_dot;
+  
+  if (gvf_parametric_control.step_adaptation)
+  {
+    w_dot = step_adaptation(ground_speed * X(3) * gvf_parametric_control.delta_T * 1e-3, 
+      og_f1d, og_f2d, og_f3d, og_f1dd, og_f2dd, og_f3dd) / (gvf_parametric_control.delta_T * 1e-3);
+  }
+  else
+  {
+    w_dot = (ground_speed * X(3)) / sqrtf(X(0) * X(0) + X(1) * X(1));
+  }
 
   Eigen::Vector4f xi_dot;
   struct EnuCoor_f *vel_enu = stateGetSpeedEnu_f();
