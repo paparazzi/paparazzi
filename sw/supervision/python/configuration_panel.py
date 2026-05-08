@@ -7,7 +7,7 @@ from program_widget import ProgramWidget, TabProgramsState
 from conf import *
 from programs_conf import Tool
 import subprocess
-
+import os
 
 
 class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
@@ -75,9 +75,13 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
 
     def edit_flightplan_gcs(self, path):
         if self.flight_plan_editor is not None:
-            cmd = [os.path.join(utils.PAPARAZZI_SRC, self.flight_plan_editor.command)]
+            if self.flight_plan_editor.command.startswith("$"):
+                cmd = [self.flight_plan_editor.command[1:]]
+            else:
+                cmd = [os.path.join(utils.PAPARAZZI_SRC, self.flight_plan_editor.command)]
             for arg in self.flight_plan_editor.args:
                 cmd += arg.args()
+
             cmd.append(os.path.join(utils.CONF_DIR, path))
             subprocess.Popen(cmd)
             # self.launch_program(self.flight_plan_editor.name, cmd, self.flight_plan_editor.icon)
