@@ -21,36 +21,33 @@
 /**
  * @file modules/guidance/gvf_parametric/gvf_adapted_step.h
  *
- * Dynamic parametric step adaptation for the GVF algorithm 
+ * Dynamic parametric step adaptation for the GVF algorithm
+ *
+ * Contains two macro-defined parameters:
+ *
+ * - ADAPTED_STEP_NULL_TOLERANCE: Numbers with absolute values smaller than `ADAPTED_STEP_NULL_TOLERANCE`
+ *                                will be considered equal to 0. Default to 1e-6
+ * - ADAPTED_STEP_MAX_ROOTFINDING_STEPS: Maximum number of steps used in the root finding algorithm.
+ *                                       Default to 1e6
  */
 
 #ifndef GVF_ADAPTED_STEP_H
 #define GVF_ADAPTED_STEP_H
 
-// Numbers with absolute values smaller than `NULL_TOLERANCE` will be considered equal to 0
-#ifndef NULL_TOLERANCE
-#define NULL_TOLERANCE 1e-6
-#endif
-
-// Maximum number of steps used in the root finding algorithm
-#ifndef MAX_STEPS
-#define MAX_STEPS 1e6
-#endif
-
 
 /**
  * @brief Compute the adapted parametric step given the wanted geometric distance
- * 
- * Given the 3D parametric curve described by f at p and a wanted geometric distance ds, 
+ *
+ * Given the 3D parametric curve described by f at p and a wanted geometric distance ds,
  * computes the parametric step dp such that:
  *    |ds| = || f(p+dp) - f(p) || and (ds)(dp) > 0
- * 
+ *
  * To do so, it uses second order Taylor approximation around p to reduce the problem to finding
  * a root of a degree 4 polynomial. This root is found using Halley's method.
- * 
+ *
  * We assume the curve non 2-singular (that is both f' and f'' does not vanish).
  * (If it is the case, then the method falls back to returning dp = ds, and print an error to `stderr`).
- * 
+ *
  * @param ds Wanted geometric distance
  * @param f1d x value of f'(p)
  * @param f2d y value of f'(p)
