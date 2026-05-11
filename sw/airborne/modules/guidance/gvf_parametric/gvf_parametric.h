@@ -29,12 +29,12 @@
 
 /*! Default GCS trajectory painter */
 #ifndef GVF_OCAML_GCS
-#define GVF_OCAML_GCS true
+  #define GVF_OCAML_GCS true
 #endif
 
 /* By default, enable step adaptation (this should re-set other default parameters values) */
 #ifndef GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION
-#define GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION 1
+  #define GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION 1
 #endif
 
 #ifdef __cplusplus

@@ -29,51 +29,51 @@
 
 /*! Default gain kx for the 2d trefoil knot trajectory */
 #ifndef GVF_PARAMETRIC_2D_TREFOIL_KX
-#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
-#define GVF_PARAMETRIC_2D_TREFOIL_KX 0.1
-#else
-#define GVF_PARAMETRIC_2D_TREFOIL_KX 0.001
-#endif
+  #if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+    #define GVF_PARAMETRIC_2D_TREFOIL_KX 0.1
+  #else
+    #define GVF_PARAMETRIC_2D_TREFOIL_KX 0.001
+  #endif
 #endif
 
 /*! Default gain ky for the 2d trefoil knot trajectory */
 #ifndef GVF_PARAMETRIC_2D_TREFOIL_KY
-#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
-#define GVF_PARAMETRIC_2D_TREFOIL_KY 0.1
-#else
-#define GVF_PARAMETRIC_2D_TREFOIL_KY 0.001
-#endif
+  #if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+    #define GVF_PARAMETRIC_2D_TREFOIL_KY 0.1
+  #else
+    #define GVF_PARAMETRIC_2D_TREFOIL_KY 0.001
+  #endif
 #endif
 
 /*! Default 1st frequency for the 2d trefoil trajectory*/
 #ifndef GVF_PARAMETRIC_2D_TREFOIL_W1
-#define GVF_PARAMETRIC_2D_TREFOIL_W1 0.02
+  #define GVF_PARAMETRIC_2D_TREFOIL_W1 0.02
 #endif
 
 /*! Default 2nd frequency for the 2d trefoil trajectory*/
 #ifndef GVF_PARAMETRIC_2D_TREFOIL_W2
-#define GVF_PARAMETRIC_2D_TREFOIL_W2 0.03
+  #define GVF_PARAMETRIC_2D_TREFOIL_W2 0.03
 #endif
 
 /*! Default ratio for the 2d trefoil trajectory*/
 #ifndef GVF_PARAMETRIC_2D_TREFOIL_RATIO
-#define GVF_PARAMETRIC_2D_TREFOIL_RATIO 160
+  #define GVF_PARAMETRIC_2D_TREFOIL_RATIO 160
 #endif
 
 /*! Default radius of the circles for the 2d trefoil trajectory*/
 #ifndef GVF_PARAMETRIC_2D_TREFOIL_R
-#define GVF_PARAMETRIC_2D_TREFOIL_R 80
+  #define GVF_PARAMETRIC_2D_TREFOIL_R 80
 #endif
 
 /*! Default orientation for the 2d trefoil trajectory*/
 #ifndef GVF_PARAMETRIC_2D_TREFOIL_ALPHA
-#define GVF_PARAMETRIC_2D_TREFOIL_ALPHA 0
+  #define GVF_PARAMETRIC_2D_TREFOIL_ALPHA 0
 #endif
 
 gvf_par_2d_tre_par gvf_parametric_2d_trefoil_par = {
-  GVF_PARAMETRIC_2D_TREFOIL_KX, GVF_PARAMETRIC_2D_TREFOIL_KY, 
-  GVF_PARAMETRIC_2D_TREFOIL_W1, GVF_PARAMETRIC_2D_TREFOIL_W2, 
-  GVF_PARAMETRIC_2D_TREFOIL_RATIO, GVF_PARAMETRIC_2D_TREFOIL_R, 
+  GVF_PARAMETRIC_2D_TREFOIL_KX, GVF_PARAMETRIC_2D_TREFOIL_KY,
+  GVF_PARAMETRIC_2D_TREFOIL_W1, GVF_PARAMETRIC_2D_TREFOIL_W2,
+  GVF_PARAMETRIC_2D_TREFOIL_RATIO, GVF_PARAMETRIC_2D_TREFOIL_R,
   GVF_PARAMETRIC_2D_TREFOIL_ALPHA
 };
 

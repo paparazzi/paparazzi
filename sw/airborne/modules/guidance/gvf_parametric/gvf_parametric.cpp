@@ -31,36 +31,36 @@
 
 /*! Default gain kroll for tuning the "coordinated turn" */
 #ifndef GVF_PARAMETRIC_CONTROL_KROLL
-#define GVF_PARAMETRIC_CONTROL_KROLL 1
+  #define GVF_PARAMETRIC_CONTROL_KROLL 1
 #endif
 
 /*! Default gain kclimb for tuning the climbing setting point */
 #ifndef GVF_PARAMETRIC_CONTROL_KCLIMB
-#define GVF_PARAMETRIC_CONTROL_KCLIMB 1
+  #define GVF_PARAMETRIC_CONTROL_KCLIMB 1
 #endif
 
 /*! Default scale for the error signals */
 #ifndef GVF_PARAMETRIC_CONTROL_L
-#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
-#define GVF_PARAMETRIC_CONTROL_L 1
-#else
-#define GVF_PARAMETRIC_CONTROL_L 0.1
-#endif
+  #if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+    #define GVF_PARAMETRIC_CONTROL_L 1
+  #else
+    #define GVF_PARAMETRIC_CONTROL_L 0.1
+  #endif
 #endif
 
 /*! Default scale for w  */
 #ifndef GVF_PARAMETRIC_CONTROL_BETA
-#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
-#define GVF_PARAMETRIC_CONTROL_BETA 1
-#else
-#define GVF_PARAMETRIC_CONTROL_BETA 0.01
-#endif
+  #if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+    #define GVF_PARAMETRIC_CONTROL_BETA 1
+  #else
+    #define GVF_PARAMETRIC_CONTROL_BETA 0.01
+  #endif
 #endif
 
 
 /*! Default gain kpsi for tuning the alignment of the vehicle with the vector field */
 #ifndef GVF_PARAMETRIC_CONTROL_KPSI
-#define GVF_PARAMETRIC_CONTROL_KPSI 1
+  #define GVF_PARAMETRIC_CONTROL_KPSI 1
 #endif
 
 #ifdef __cplusplus
@@ -73,7 +73,7 @@ extern "C" {
 
 // Control
 gvf_parametric_con gvf_parametric_control;
-gvf_parametric_tel gvf_parametric_telemetry = {{0},1,0};
+gvf_parametric_tel gvf_parametric_telemetry = {{0}, 1, 0};
 
 // Time variables to check if GVF is active
 uint32_t gvf_parametric_t0 = 0;
@@ -94,9 +94,9 @@ static void send_gvf_parametric(struct transport_tx *trans, struct link_device *
   if (delta_T < 200) {
     gvf_parametric_telemetry.splines_ctr = (gvf_parametric_telemetry.splines_ctr + 1) % 3;
     pprz_msg_send_GVF_PARAMETRIC(
-      trans, dev, AC_ID,  
-      &traj_type, &gvf_parametric_control.s, &wb, 
-      gvf_parametric_trajectory.p_len, gvf_parametric_trajectory.p_parametric, 
+      trans, dev, AC_ID,
+      &traj_type, &gvf_parametric_control.s, &wb,
+      gvf_parametric_trajectory.p_len, gvf_parametric_trajectory.p_parametric,
       gvf_parametric_telemetry.e_len, gvf_parametric_telemetry.phi_errors);
   }
 }
@@ -110,8 +110,8 @@ static void send_circle_parametric(struct transport_tx *trans, struct link_devic
   if (delta_T < 200)
     if (gvf_parametric_trajectory.type == ELLIPSE_3D) {
       pprz_msg_send_CIRCLE(
-        trans, dev, AC_ID, 
-        &gvf_parametric_trajectory.p_parametric[0], &gvf_parametric_trajectory.p_parametric[1], 
+        trans, dev, AC_ID,
+        &gvf_parametric_trajectory.p_parametric[0], &gvf_parametric_trajectory.p_parametric[1],
         &gvf_parametric_trajectory.p_parametric[2]);
     }
 }
@@ -175,19 +175,15 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
   float og_f1dd = f1dd;
   float og_f2dd = f2dd;
 
-  if (gvf_parametric_control.step_adaptation)
-  {
-    if (f_v < 1e-6) // i.e, f'(w) = 0
-    {
+  if (gvf_parametric_control.step_adaptation) {
+    if (f_v < 1e-6) { // i.e, f'(w) = 0
       // Use an arbitrary direction
       f1d = 1 / sqrtf(3.);
       f2d = 1 / sqrtf(3.);
 
       f1dd = 0.;
       f2dd = 0.;
-    }
-    else
-    {
+    } else {
       f1dd = (f1dd - f_d_dot_f_dd * f1d / f_v2) / f_v2;
       f2dd = (f2dd - f_d_dot_f_dd * f2d / f_v2) / f_v2;
 
@@ -233,13 +229,10 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
   float ground_speed = stateGetHorizontalSpeedNorm_f();
   float w_dot;
 
-  if (gvf_parametric_control.step_adaptation)
-  {
+  if (gvf_parametric_control.step_adaptation) {
     w_dot = step_adaptation(ground_speed * X(2) * gvf_parametric_control.delta_T * 1e-3,
-      og_f1d, og_f2d, 0., og_f1dd, og_f2dd, 0.) / (gvf_parametric_control.delta_T * 1e-3);
-  }
-  else
-  {
+                            og_f1d, og_f2d, 0., og_f1dd, og_f2dd, 0.) / (gvf_parametric_control.delta_T * 1e-3);
+  } else {
     w_dot = (ground_speed * X(2)) / sqrtf(X(0) * X(0) + X(1) * X(1));
   }
 
@@ -327,10 +320,8 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
   float og_f2dd = f2dd;
   float og_f3dd = f3dd;
 
-  if (gvf_parametric_control.step_adaptation)
-  {
-    if (f_v < 1e-6) // i.e, f'(w) = 0
-    {
+  if (gvf_parametric_control.step_adaptation) {
+    if (f_v < 1e-6) { // i.e, f'(w) = 0
       // Use an arbitrary direction
       f1d = 1 / sqrtf(3.);
       f2d = 1 / sqrtf(3.);
@@ -339,9 +330,7 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
       f1dd = 0.;
       f2dd = 0.;
       f3dd = 0.;
-    }
-    else
-    {
+    } else {
       f1dd = (f1dd - f_d_dot_f_dd * f1d / f_v2) / f_v2;
       f2dd = (f2dd - f_d_dot_f_dd * f2d / f_v2) / f_v2;
       f3dd = (f3dd - f_d_dot_f_dd * f3d / f_v2) / f_v2;
@@ -393,14 +382,11 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
   // Guidance algorithm
   float ground_speed = stateGetHorizontalSpeedNorm_f();
   float w_dot;
-  
-  if (gvf_parametric_control.step_adaptation)
-  {
-    w_dot = step_adaptation(ground_speed * X(3) * gvf_parametric_control.delta_T * 1e-3, 
-      og_f1d, og_f2d, og_f3d, og_f1dd, og_f2dd, og_f3dd) / (gvf_parametric_control.delta_T * 1e-3);
-  }
-  else
-  {
+
+  if (gvf_parametric_control.step_adaptation) {
+    w_dot = step_adaptation(ground_speed * X(3) * gvf_parametric_control.delta_T * 1e-3,
+                            og_f1d, og_f2d, og_f3d, og_f1dd, og_f2dd, og_f3dd) / (gvf_parametric_control.delta_T * 1e-3);
+  } else {
     w_dot = (ground_speed * X(3)) / sqrtf(X(0) * X(0) + X(1) * X(1));
   }
 

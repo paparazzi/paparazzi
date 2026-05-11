@@ -29,86 +29,86 @@
 
 /*! Default gain kx for the 3d lissajous trajectory */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_KX
-#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
-#define GVF_PARAMETRIC_3D_LISSAJOUS_KX 0.1
-#else
-#define GVF_PARAMETRIC_3D_LISSAJOUS_KX 0.001
-#endif
+  #if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+    #define GVF_PARAMETRIC_3D_LISSAJOUS_KX 0.1
+  #else
+    #define GVF_PARAMETRIC_3D_LISSAJOUS_KX 0.001
+  #endif
 #endif
 
 /*! Default gain ky for the 3d lissajous trajectory */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_KY
-#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
-#define GVF_PARAMETRIC_3D_LISSAJOUS_KY 0.1
-#else
-#define GVF_PARAMETRIC_3D_LISSAJOUS_KY 0.001
-#endif
+  #if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+    #define GVF_PARAMETRIC_3D_LISSAJOUS_KY 0.1
+  #else
+    #define GVF_PARAMETRIC_3D_LISSAJOUS_KY 0.001
+  #endif
 #endif
 
 /*! Default gain kz for the 3d lissajous trajectory */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_KZ
-#if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
-#define GVF_PARAMETRIC_3D_LISSAJOUS_KZ 0.1
-#else
-#define GVF_PARAMETRIC_3D_LISSAJOUS_KZ 0.001
-#endif
+  #if GVF_PARAMETRIC_CONTROL_STEP_ADAPTATION > 0
+    #define GVF_PARAMETRIC_3D_LISSAJOUS_KZ 0.1
+  #else
+    #define GVF_PARAMETRIC_3D_LISSAJOUS_KZ 0.001
+  #endif
 #endif
 
 /*! Default amplitude of the trajectory in the X plane */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_CX
-#define GVF_PARAMETRIC_3D_LISSAJOUS_CX 80
+  #define GVF_PARAMETRIC_3D_LISSAJOUS_CX 80
 #endif
 
 /*! Default amplitude of the trajectory in the Y plane */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_CY
-#define GVF_PARAMETRIC_3D_LISSAJOUS_CY 80
+  #define GVF_PARAMETRIC_3D_LISSAJOUS_CY 80
 #endif
 
 /*! Default amplitude of the trajectory in the Z plane */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_CZ
-#define GVF_PARAMETRIC_3D_LISSAJOUS_CZ 10
+  #define GVF_PARAMETRIC_3D_LISSAJOUS_CZ 10
 #endif
 
 /*! Default frequency of the trajectory in the X plane */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_WX
-#define GVF_PARAMETRIC_3D_LISSAJOUS_WX 1
+  #define GVF_PARAMETRIC_3D_LISSAJOUS_WX 1
 #endif
 
 /*! Default frequency of the trajectory in the Y plane */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_WY
-#define GVF_PARAMETRIC_3D_LISSAJOUS_WY 1
+  #define GVF_PARAMETRIC_3D_LISSAJOUS_WY 1
 #endif
 
 /*! Default frequency of the trajectory in the Z plane */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_WZ
-#define GVF_PARAMETRIC_3D_LISSAJOUS_WZ 1
+  #define GVF_PARAMETRIC_3D_LISSAJOUS_WZ 1
 #endif
 
 /*! Default offphase of the trajectory in the X plane */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_DX
-#define GVF_PARAMETRIC_3D_LISSAJOUS_DX 0
+  #define GVF_PARAMETRIC_3D_LISSAJOUS_DX 0
 #endif
 
 /*! Default offphase of the trajectory in the Y plane */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_DY
-#define GVF_PARAMETRIC_3D_LISSAJOUS_DY 0
+  #define GVF_PARAMETRIC_3D_LISSAJOUS_DY 0
 #endif
 
 /*! Default offphase of the trajectory in the Z plane */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_DZ
-#define GVF_PARAMETRIC_3D_LISSAJOUS_DZ 0
+  #define GVF_PARAMETRIC_3D_LISSAJOUS_DZ 0
 #endif
 
 /*! Default orientation in degrees for the trajectory in the XY plane */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_ALPHA
-#define GVF_PARAMETRIC_3D_LISSAJOUS_ALPHA 0
+  #define GVF_PARAMETRIC_3D_LISSAJOUS_ALPHA 0
 #endif
 
 gvf_par_3d_lis_par gvf_parametric_3d_lissajous_par = {
-  GVF_PARAMETRIC_3D_LISSAJOUS_KX, GVF_PARAMETRIC_3D_LISSAJOUS_KY, GVF_PARAMETRIC_3D_LISSAJOUS_KZ, 
-  GVF_PARAMETRIC_3D_LISSAJOUS_CX, GVF_PARAMETRIC_3D_LISSAJOUS_CY, GVF_PARAMETRIC_3D_LISSAJOUS_CZ, 
-  GVF_PARAMETRIC_3D_LISSAJOUS_WX, GVF_PARAMETRIC_3D_LISSAJOUS_WY, GVF_PARAMETRIC_3D_LISSAJOUS_WZ, 
-  GVF_PARAMETRIC_3D_LISSAJOUS_DX, GVF_PARAMETRIC_3D_LISSAJOUS_DY, GVF_PARAMETRIC_3D_LISSAJOUS_DZ, 
+  GVF_PARAMETRIC_3D_LISSAJOUS_KX, GVF_PARAMETRIC_3D_LISSAJOUS_KY, GVF_PARAMETRIC_3D_LISSAJOUS_KZ,
+  GVF_PARAMETRIC_3D_LISSAJOUS_CX, GVF_PARAMETRIC_3D_LISSAJOUS_CY, GVF_PARAMETRIC_3D_LISSAJOUS_CZ,
+  GVF_PARAMETRIC_3D_LISSAJOUS_WX, GVF_PARAMETRIC_3D_LISSAJOUS_WY, GVF_PARAMETRIC_3D_LISSAJOUS_WZ,
+  GVF_PARAMETRIC_3D_LISSAJOUS_DX, GVF_PARAMETRIC_3D_LISSAJOUS_DY, GVF_PARAMETRIC_3D_LISSAJOUS_DZ,
   GVF_PARAMETRIC_3D_LISSAJOUS_ALPHA
 };
 
@@ -121,7 +121,7 @@ static int gvf_parametric_p_len_wps = 0;
 // 3D Lissajous
 
 bool nav_gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy,
-                                     float wz, float dx, float dy, float dz, float alpha)
+    float wz, float dx, float dy, float dz, float alpha)
 {
   // Safety first! If the asked altitude is low
   if ((zo - cz) < 1) {
