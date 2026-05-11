@@ -538,7 +538,7 @@ let log_and_parse = fun ac_name (a:Aircraft_server.aircraft) msg values ->
       and fill_code = (color land 0b00000111) in
       let line_str = colormap line_code
       and fill_str = colormap fill_code in
-      let filter_color_filed = fun x -> not(String.equal "color" (fst x)) in
+      let filter_color_field = fun x -> not(String.equal "color" (fst x)) in
       Gd_Pprz.message_send "ground" "SHAPE" 
-        (("linecolor",PprzLink.String line_str)::("fillcolor",PprzLink.String fill_str)::("opacity",PprzLink.Int opacity)::(List.filter filter_color_filed values))
+        (("linecolor",PprzLink.String line_str)::("fillcolor",PprzLink.String fill_str)::("opacity",PprzLink.Int opacity)::(List.filter filter_color_field values))
     | _ -> ()
