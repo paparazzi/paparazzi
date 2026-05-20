@@ -44,15 +44,15 @@
                     Fit(mode_sw,-127,127,0,2)"/>
     </message>
 
-    <!-- Arm switch: arm_sw > -60 = armed, arm_sw < -60 = disarmed/killed -->
+    <!-- Arm switch: arm_sw gt -60 = armed, arm_sw lt -60 = disarmed/killed -->
     <message class="ground" name="DL_SETTING"
-             on_event="arm_sw &gt; -60">
+             on_event="arm_sw gt -60">
       <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
       <field name="value" value="0"/>
     </message>
 
     <message class="ground" name="DL_SETTING"
-             on_event="arm_sw &lt; -60">
+             on_event="arm_sw lt -60">
       <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
       <field name="value" value="1"/>
     </message>

@@ -43,16 +43,16 @@
       <field name="index" value="IndexOfSetting(booz2_cam_tilt_pwm)"/>
       <field name="value" value="Scale(throttle, 1000, 2000)"/>
     </message-->
-    <message class="ground" name="DL_SETTING" on_event="button11 || button10">
+    <message class="ground" name="DL_SETTING" on_event="button11 or button10">
       <field name="index" value="IndexOfSetting(autopilot.kill_throttle)"/>
       <field name="value" value="mode"/>
     </message>
 
 
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="shoot && button7">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="shoot and button7">
       <field name="block_id" value="IndexOfBlock('land here')"/>
     </message>
-    <!--message class="ground" name="JUMP_TO_BLOCK" on_event="shoot && button8">
+    <!--message class="ground" name="JUMP_TO_BLOCK" on_event="shoot and button8">
       <field name="block_id" value="IndexOfBlock('Joystick')"/>
     </message-->
   </messages>

@@ -92,34 +92,34 @@ TEST STICK DATA OUTPUT:
     </message>
 
     <!-- Set NAV Mode -->
-    <message class="ground" name="DL_SETTING" on_event="select && A">
+    <message class="ground" name="DL_SETTING" on_event="select and A">
       <field name="index" value="IndexOfSetting('autopilot_mode_auto2')"/>
       <field name="value" value="13"/>
     </message>
 
     <!-- Set GUIDED Mode -->
-    <message class="ground" name="DL_SETTING" on_event="select && B">
+    <message class="ground" name="DL_SETTING" on_event="select and B">
       <field name="index" value="IndexOfSetting('autopilot_mode_auto2')"/>
       <field name="value" value="19"/>
     </message>
 
     <!-- go to "Start Engine" block if in AUTO2/NAV -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="start && A">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="start and A">
       <field name="block_id" value="IndexOfBlock('Start Motors')"/>
     </message>
 
     <!-- go to "Takeoff" block if in AUTO2/NAV -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="start && B">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="start and B">
       <field name="block_id" value="IndexOfBlock('Takeoff')"/>
     </message>
 
     <!-- go to "land here" block if in AUTO2/NAV -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="A && B">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="A and B">
       <field name="block_id" value="IndexOfBlock('land')"/>
     </message>
 
     <!-- Set "autopilot.kill_throttle" in AUTO2/NAV -->
-    <message class="ground" name="DL_SETTING" on_event="select && start">
+    <message class="ground" name="DL_SETTING" on_event="select and start">
       <field name="index" value="IndexOfSetting(autopilot.kill_throttle)"/>
       <field name="value" value="2"/>
     </message>

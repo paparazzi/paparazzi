@@ -56,22 +56,22 @@ so e.g. HatDown(hat)
     </message>
 
     <!-- go to "Start Engine" block if in AUTO2 and pressing shift + fire2 -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && shift && fire2">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) and shift and fire2">
       <field name="block_id" value="IndexOfBlock('Start Engine')"/>
     </message>
 
     <!-- go to "Takeoff" block if in AUTO2 and pressing shift + up -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && shift && up">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) and shift and up">
       <field name="block_id" value="IndexOfBlock('Takeoff')"/>
     </message>
 
     <!-- go to "land here" block if in AUTO2 and pressing shift + down -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && shift && down">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) and shift and down">
       <field name="block_id" value="IndexOfBlock('land here')"/>
     </message>
 
     <!-- kill throttle when pressing both fire buttons at the same time -->
-    <message class="ground" name="DL_SETTING" on_event="fire && fire2">
+    <message class="ground" name="DL_SETTING" on_event="fire and fire2">
       <field name="index" value="IndexOfSetting(autopilot.kill_throttle)"/>
       <field name="value" value="1"/>
     </message>

@@ -69,17 +69,17 @@ so e.g. HatDown(dpad)
     </message>
 
     <!-- go to "Start Engine" block if in AUTO2 and pressing start button -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && start">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) and start">
       <field name="block_id" value="IndexOfBlock('Start Engine')"/>
     </message>
 
     <!-- go to "Takeoff" block if in AUTO2 and pressing up on dpad -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatUp(dpad)">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) and HatUp(dpad)">
       <field name="block_id" value="IndexOfBlock('Takeoff')"/>
     </message>
 
     <!-- go to "land here" block if in AUTO2 and pressing down on dpad -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatDown(dpad)">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) and HatDown(dpad)">
       <field name="block_id" value="IndexOfBlock('land here')"/>
     </message>
     

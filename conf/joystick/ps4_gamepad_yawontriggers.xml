@@ -70,22 +70,22 @@
     </message>
 
     <!-- go to "Start Engine" block if in AUTO2 and pressing Options button -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && Options">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) and Options">
       <field name="block_id" value="IndexOfBlock('Start Engine')"/>
     </message>
 
     <!-- go to "Takeoff" block if in AUTO2 and pressing up on dpad -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatUp(dpad)">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) and HatUp(dpad)">
       <field name="block_id" value="IndexOfBlock('Takeoff')"/>
     </message>
 
     <!-- go to "land here" block if in AUTO2 and pressing down on dpad -->
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatDown(dpad)">
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) and HatDown(dpad)">
       <field name="block_id" value="IndexOfBlock('land here')"/>
     </message>
 
     <!-- resurrect throttle if throttle is 0 and R1 button is pressed -->
-    <message class="ground" name="DL_SETTING" on_event="(LeftStickVertical > 120) && R1">
+    <message class="ground" name="DL_SETTING" on_event="(LeftStickVertical > 120) and R1">
       <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
       <field name="value" value="0"/>
     </message>

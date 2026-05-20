@@ -64,33 +64,22 @@ It has 8 buttons.
 
     <!-- trim commands -->
     <!-- uncomment if you have rc_x_trim
-    <message class="ground" name="DL_SETTING" on_event="b_ltb && b_rtb">
+    <message class="ground" name="DL_SETTING" on_event="b_ltb and b_rtb">
       <field name="index" value="IndexOfSetting('rc_roll_trim')"/>
       <field name="value" value="0"/>
     </message>
 
-    <message class="ground" name="DL_SETTING" on_event="b_ltb && b_rtb">
+    <message class="ground" name="DL_SETTING" on_event="b_ltb and b_rtb">
       <field name="index" value="IndexOfSetting('rc_pitch_trim')"/>
       <field name="value" value="0"/>
     </message>
 
-    <message class="ground" name="DL_SETTING" on_event="b_ltb && b_rtb">
+    <message class="ground" name="DL_SETTING" on_event="b_ltb and b_rtb">
       <field name="index" value="IndexOfSetting('rc_yaw_trim')"/>
       <field name="value" value="0-10"/>
     </message>
 
     -->
-    <!--
-        <message class="ground" name="lx" on_event="b8"/>
-        <message class="trim_plus" name="ly" on_event="b10"/>
-        <message class="trim_minus" name="ly" on_event="b11"/>
-        <message class="trim_plus" name="rx" on_event="b2"/>
-        <message class="trim_minus" name="rx" on_event="b0"/>
-        <message class="trim_minus" name="ry" on_event="b3"/>
-        <message class="trim_plus" name="ry" on_event="b1"/>
-        <message class="trim_save" name="" on_event="b5"/>
-    -->
-
     <!-- Camera switch. only uncomment if you have cam_switch -->
     <!--
     <message class="ground" name="DL_SETTING" on_event="b_start">
@@ -110,7 +99,7 @@ It has 8 buttons.
       <field name="value" value="0"/>
     </message>
     <!-- kill throttle when pressing both back and blue buttons at the same time -->
-    <message class="ground" name="DL_SETTING" on_event="b_back && b_blue">
+    <message class="ground" name="DL_SETTING" on_event="b_back and b_blue">
       <field name="index" value="IndexOfSetting(autopilot.kill_throttle)"/>
       <field name="value" value="1"/>
     </message>
