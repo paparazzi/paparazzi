@@ -204,7 +204,7 @@ class MessageSubgroupItem(QStandardItem):
             fieldAltValItem = QStandardItem()
             fieldAltValItem.setEditable(False)
             
-            newitems = [None] * COLUMN_COUNT#####
+            newitems = [None] * COLUMN_COUNT
             newitems[FieldColumns.ROOT] = fieldRootItem
             newitems[FieldColumns.VALUE] = fieldValueItem
             newitems[FieldColumns.ALT_VALUE] = fieldAltValItem
@@ -447,7 +447,7 @@ class MessageClassItem(QStandardItem):
         id = msg.msg_id()
         name = msg.msg_name()
         timestamp = msg.newest().timestamp
-        dt = (time.time_ns() - timestamp)/10e9
+        dt = (time.time_ns() - timestamp)/1e9
         
         try:
             freq = msg.meanFreq()
@@ -759,7 +759,7 @@ class IvyModel(QStandardItemModel):
                 
                 senderItem = SenderItem(senderId)
                 
-                newItems = [QStandardItem()] * COLUMN_COUNT
+                newItems = [QStandardItem() for i in range(COLUMN_COUNT)]
                 newItems[SenderColumns.ROOT] = senderItem
                 
                 for i in newItems:
