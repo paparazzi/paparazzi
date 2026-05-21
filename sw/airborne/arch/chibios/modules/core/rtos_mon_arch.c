@@ -33,9 +33,22 @@
 #error CH_DBG_STATISTICS should be defined to TRUE to use this monitoring tool
 #endif
 
-static uint32_t thread_p_time[RTOS_MON_MAX_THREADS];
+struct rtos_mon_cpu_window {
+  rttime_t thread_time[RTOS_MON_MAX_THREADS];        ///< Current cumulative thread counters.
+  thread_t *thread_ref[RTOS_MON_MAX_THREADS];        ///< Current thread identities for matching samples.
+  rttime_t prev_thread_time[RTOS_MON_MAX_THREADS];   ///< Previous cumulative thread counters.
+  thread_t *prev_thread_ref[RTOS_MON_MAX_THREADS];   ///< Previous thread identities for delta lookup.
+  uint8_t prev_thread_count;                         ///< Number of valid entries in previous arrays.
+  rttime_t prev_isr_time;                            ///< Previous cumulative ISR counter.
+  uint8_t prev_stats_valid;                          ///< True after the first full sampling pass.
+};
+
+static struct rtos_mon_cpu_window cpu_window;
 
 static uint16_t get_stack_free(const thread_t *tp);
+static rttime_t get_thread_delta(const thread_t *tp, rttime_t current_time);
+static uint16_t get_thread_load_x10(rttime_t thread_ticks, rttime_t total_ticks);
+static uint8_t get_cpu_load_percent(rttime_t idle_ticks, rttime_t total_ticks);
 
 #if USE_SHELL
 #include "modules/core/shell.h"
@@ -63,12 +76,12 @@ static void stampThreadCpuInfo(ThreadCpuInfo *ti)
     tp = chRegNextThread((thread_t *)tp);
     idx++;
   } while ((tp != NULL) && (idx < RTOS_MON_MAX_THREADS));
-  ti->totalISRTicks = ch0.kernel_stats.m_crit_isr.cumulative;
+  ti->totalISRTicks = currcore->kernel_stats.m_crit_isr.cumulative;
   ti->totalTicks += ti->totalISRTicks;
   tp =  chRegFirstThread();
   idx = 0;
   do {
-    ti->cpu[idx] = (ti->ticks[idx] * 100.f) / ti->totalTicks;
+    ti->cpu[idx] = (ti->totalTicks > 0.f) ? ((ti->ticks[idx] * 100.f) / ti->totalTicks) : 0.f;
     tp = chRegNextThread((thread_t *)tp);
     idx++;
   } while ((tp != NULL) && (idx < RTOS_MON_MAX_THREADS));
@@ -85,7 +98,7 @@ static float stampThreadGetCpuPercent(const ThreadCpuInfo *ti, const uint32_t id
 
 static float stampISRGetCpuPercent(const ThreadCpuInfo *ti)
 {
-  return ti->totalISRTicks * 100.0f / ti->totalTicks;
+  return (ti->totalTicks > 0.f) ? (ti->totalISRTicks * 100.0f / ti->totalTicks) : 0.f;
 }
 
 static void cmd_threads(BaseSequentialStream *lchp, int argc, const char *const argv[])
@@ -126,8 +139,8 @@ static void cmd_threads(BaseSequentialStream *lchp, int argc, const char *const 
     idx++;
   } while (tp != NULL);
 
-  totalTicks += ch0.kernel_stats.m_crit_isr.cumulative;
-  const float idlePercent = (idleTicks * 100.f) / totalTicks;
+  totalTicks += currcore->kernel_stats.m_crit_isr.cumulative;
+  const float idlePercent = (totalTicks > 0.f) ? ((idleTicks * 100.f) / totalTicks) : 0.f;
   const float cpuPercent = 100.f - idlePercent;
   chprintf(lchp, "Interrupt Service Routine \t\t     %9lu   %.2f%%    \tISR\r\n",
            (uint32_t)RTC2MS(STM32_SYSCLK, threadCpuInfo.totalISRTicks),
@@ -172,11 +185,9 @@ void rtos_mon_periodic_arch(void)
 {
   int i;
   size_t total_fragments, total_fragmented_free_space, largest_free_block;
-  memory_area_t area;
   total_fragments = chHeapStatus(NULL, &total_fragmented_free_space, &largest_free_block);
-  chCoreGetStatusX(&area);
 
-  rtos_mon.core_free_memory = area.size;
+  rtos_mon.core_free_memory = chCoreGetStatusX();
   rtos_mon.heap_fragments = total_fragments;
   rtos_mon.heap_largest = largest_free_block;
   rtos_mon.heap_free_memory = total_fragmented_free_space;
@@ -185,44 +196,59 @@ void rtos_mon_periodic_arch(void)
   // loop threads to find idle thread
   // store info on other threads
   thread_t *tp;
-  float idle_counter = 0.f;
-  float sum = 0.f;
+  rttime_t idle_counter = 0;
+  rttime_t sum = 0;
+  rttime_t isr_time = currcore->kernel_stats.m_crit_isr.cumulative;
   rtos_mon.thread_name_idx = 0;
   tp = chRegFirstThread();
   do {
+    const char *name = chRegGetThreadNameX(tp);
+    if (name == NULL) {
+      name = "";
+    }
+
     // add beginning of thread name to buffer
-    for (i = 0; i < RTOS_MON_NAME_LEN - 1 && tp->name[i] != '\0'; i++) {
-      rtos_mon.thread_names[rtos_mon.thread_name_idx++] = tp->name[i];
+    for (i = 0; i < RTOS_MON_NAME_LEN - 1 && name[i] != '\0'; i++) {
+      rtos_mon.thread_names[rtos_mon.thread_name_idx++] = name[i];
     }
     rtos_mon.thread_names[rtos_mon.thread_name_idx++] = ';';
 
     // store free stack for this thread
-    rtos_mon.thread_free_stack[i] = get_stack_free(tp);
+    rtos_mon.thread_free_stack[rtos_mon.thread_counter] = get_stack_free(tp);
 
-    // store time spend in thread
-    thread_p_time[rtos_mon.thread_counter] = tp->stats.cumulative;
-    sum += (float)(tp->stats.cumulative);
+    // store cumulative time spent in thread
+    cpu_window.thread_time[rtos_mon.thread_counter] = tp->stats.cumulative;
+    rttime_t thread_delta = get_thread_delta(tp, cpu_window.thread_time[rtos_mon.thread_counter]);
+    sum += thread_delta;
 
-    // if current thread is 'idle' thread, store its value separately
+    // if current thread is the idle thread, store its sampled value separately
     if (tp == chSysGetIdleThreadX()) {
-      idle_counter = (float)tp->stats.cumulative;
+      idle_counter = thread_delta;
     }
     // get next thread
+    cpu_window.thread_ref[rtos_mon.thread_counter] = tp;
     tp = chRegNextThread(tp);
     // increment thread counter
     rtos_mon.thread_counter++;
   } while (tp != NULL && rtos_mon.thread_counter < RTOS_MON_MAX_THREADS);
+  rtos_mon.thread_names[rtos_mon.thread_name_idx] = '\0';
+
   // sum the time spent in ISR
-  sum += ch0.kernel_stats.m_crit_isr.cumulative;
-  // store individual thread load (as centi-percent integer, i.e. (th_time/sum)*10*100)
+  rttime_t isr_delta = cpu_window.prev_stats_valid ? (isr_time - cpu_window.prev_isr_time) : 0;
+  sum += isr_delta;
+
+  // store individual thread load (as deci-percent integer, i.e. 10 * %)
   for (i = 0; i < rtos_mon.thread_counter; i ++) {
-    rtos_mon.thread_load[i] = (uint16_t)(1000.f * (float)thread_p_time[i] / sum);
+    rtos_mon.thread_load[i] = get_thread_load_x10(
+      get_thread_delta(cpu_window.thread_ref[i], cpu_window.thread_time[i]), sum);
+    cpu_window.prev_thread_ref[i] = cpu_window.thread_ref[i];
+    cpu_window.prev_thread_time[i] = cpu_window.thread_time[i];
   }
 
-  // assume we call the counter once a second
-  // so the difference in seconds is always one
-  // NOTE: not perfectly precise, +-5% on average so take it into consideration
-  rtos_mon.cpu_load = (uint8_t)((1.f - (idle_counter / sum)) * 100.f);
+  rtos_mon.cpu_load = get_cpu_load_percent(idle_counter, sum);
+  cpu_window.prev_thread_count = rtos_mon.thread_counter;
+  cpu_window.prev_isr_time = isr_time;
+  cpu_window.prev_stats_valid = 1;
 }
 
 static uint16_t get_stack_free(const thread_t *tp)
@@ -237,3 +263,41 @@ static uint16_t get_stack_free(const thread_t *tp)
   return (uint16_t)freeBytes;
 }
 
+static rttime_t get_thread_delta(const thread_t *tp, rttime_t current_time)
+{
+  // Return the sampled runtime accumulated by a thread since the previous
+  // monitoring pass. New threads report zero until they exist in both samples.
+  if (!cpu_window.prev_stats_valid) {
+    return 0;
+  }
+
+  for (uint8_t i = 0; i < cpu_window.prev_thread_count; i++) {
+    if (cpu_window.prev_thread_ref[i] == tp) {
+      return current_time - cpu_window.prev_thread_time[i];
+    }
+  }
+
+  return 0;
+}
+
+static uint16_t get_thread_load_x10(rttime_t thread_ticks, rttime_t total_ticks)
+{
+  // Convert a thread runtime delta into deci-percent of the total sampled
+  // runtime window so the result fits the telemetry representation.
+  if (total_ticks == 0) {
+    return 0;
+  }
+
+  return (uint16_t)((1000ULL * (uint64_t)thread_ticks) / (uint64_t)total_ticks);
+}
+
+static uint8_t get_cpu_load_percent(rttime_t idle_ticks, rttime_t total_ticks)
+{
+  // Compute global CPU load over the sampled window from the non-idle share
+  // of the measured runtime, including ISR time in the total budget.
+  if (total_ticks == 0) {
+    return 0;
+  }
+
+  return (uint8_t)((100ULL * (uint64_t)(total_ticks - idle_ticks)) / (uint64_t)total_ticks);
+}

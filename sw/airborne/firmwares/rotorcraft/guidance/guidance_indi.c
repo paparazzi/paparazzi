@@ -41,6 +41,7 @@
 #include "state.h"
 #include "autopilot.h"
 #include "filters/low_pass_filter.h"
+#include "filters/quaternion_filter.h"
 #include "modules/core/abi.h"
 
 // The acceleration reference is calculated with these gains. If you use GPS,
@@ -104,15 +105,23 @@ static void guidance_indi_filter_thrust(void);
 float thrust_dyn = 0.f;
 float thrust_act = 0.f;
 Butterworth2LowPass filt_accel_ned[3];
-Butterworth2LowPass roll_filt;
-Butterworth2LowPass pitch_filt;
-Butterworth2LowPass yaw_filt;
 Butterworth2LowPass thrust_filt;
+QuatButterworthLowPass quat_filt;
 
 static float Gmat[GUIDANCE_INDI_NV][GUIDANCE_INDI_NU];
 
 #if GUIDANCE_INDI_USE_WLS
 #include "math/wls/wls_alloc.h"
+
+// priorities on control inputs (ax, ay, az)
+#ifndef GUIDANCE_INDI_WLS_PRIORITIES
+#define GUIDANCE_INDI_WLS_PRIORITIES {100.f, 100.f, 100.f}
+#endif
+
+// weighting of prefered control outputs (phi, theta, psi, Tx, Ty, Tz)
+#ifndef GUIDANCE_INDI_WLS_WU
+#define GUIDANCE_INDI_WLS_WU {1000.f,1000.f,10.f,1.f,1.f,1.f}
+#endif
 
 #define NU_MAX 6    // Example constant value // [dtheta, dphi, dthrust, dtx , dty]
 #define NV_MAX 3    // Example constant value (ax,ay,az)
@@ -122,10 +131,10 @@ static float *Bwls_gi[GUIDANCE_INDI_NV];
 static struct WLS_t wls_guid_p = {
   .nu        = GUIDANCE_INDI_NU,
   .nv        = GUIDANCE_INDI_NV,
-  .gamma_sq  = 1000.0,
+  .gamma_sq  = 100.0,
   .v         = {0.0},
-  .Wv        = {100.f, 100.f, 100.f},         // x,y,z
-  .Wu        = {10.f,10.f,0.f,0.f,0.f,10.f}, // minimize the control input (thetq,phi,Tx,Ty,Tz,psi)
+  .Wv        = GUIDANCE_INDI_WLS_PRIORITIES,
+  .Wu        = GUIDANCE_INDI_WLS_WU,
   .u_pref    = {0.0},
   .u_min     = {0.0},
   .u_max     = {0.0},
@@ -154,7 +163,7 @@ struct ThrustSetpoint thrust_sp;
 float thrust_in;
 float thrust_vect[3];
 
-static void guidance_indi_propagate_filters(struct FloatEulers *eulers);
+static void guidance_indi_propagate_filters(void);
 
 //------------------------------------------------------------//
 
@@ -223,10 +232,8 @@ void guidance_indi_enter(void)
   for (int8_t i = 0; i < 3; i++) {
     init_butterworth_2_low_pass(&filt_accel_ned[i], tau, sample_time, 0.0);
   }
-  init_butterworth_2_low_pass(&roll_filt, tau, sample_time, stateGetNedToBodyEulers_f()->phi);
-  init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, stateGetNedToBodyEulers_f()->theta);
-  init_butterworth_2_low_pass(&yaw_filt, tau, sample_time, stateGetNedToBodyEulers_f()->psi);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, thrust_in);
+  init_quat_butterworth_low_pass(&quat_filt, filter_cutoff, sample_time, *stateGetNedToBodyQuat_f());
 }
 
 /**
@@ -238,15 +245,14 @@ void guidance_indi_enter(void)
  */
 struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, float heading_sp)
 {
-  struct FloatEulers euler_yxz;
-  struct FloatQuat * statequat = stateGetNedToBodyQuat_f();
-  float_eulers_of_quat_yxz(&euler_yxz, statequat);
+  struct FloatEulers eulers_filtered;
+  float_eulers_of_quat_yxz(&eulers_filtered, &quat_filt.quat);
 
   // set global accel sp variable FIXME clean this
   sp_accel = *accel_sp;
 
   //filter accel to get rid of noise and filter attitude to synchronize with accel
-  guidance_indi_propagate_filters(&euler_yxz);
+  guidance_indi_propagate_filters();
 
   struct FloatVect3 a_diff = {
     sp_accel.x - filt_accel_ned[0].o[0],
@@ -266,13 +272,13 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
 #endif
 
 #if GUIDANCE_INDI_USE_WLS
-  float m = GUIDANCE_INDI_MASS;
+  const float m = GUIDANCE_INDI_MASS;
   wls_guid_p.v[0] = m*a_diff.x;
   wls_guid_p.v[1] = m*a_diff.y;
   wls_guid_p.v[2] = m*a_diff.z;
 
-  guidance_indi_set_wls_settings(&wls_guid_p, &euler_yxz, heading_sp);
-  guidance_indi_calcG(Gmat, euler_yxz);
+  guidance_indi_set_wls_settings(&wls_guid_p, &quat_filt.quat, heading_sp);
+  guidance_indi_calcG(Gmat, &quat_filt.quat);
   for (int i = 0; i < GUIDANCE_INDI_NV; i++) {
     Bwls_gi[i] = Gmat[i];
   }
@@ -281,9 +287,9 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
     du_guidance [i] = wls_guid_p.u[i];
   }
 
-  guidance_euler_cmd.phi   = roll_filt.o[0]  + du_guidance[0];
-  guidance_euler_cmd.theta = pitch_filt.o[0] + du_guidance[1];
-  guidance_euler_cmd.psi   = yaw_filt.o[0]   + du_guidance[2];
+  guidance_euler_cmd.phi   = eulers_filtered.phi + du_guidance[0];
+  guidance_euler_cmd.theta = eulers_filtered.theta + du_guidance[1];
+  guidance_euler_cmd.psi   = eulers_filtered.psi + du_guidance[2];
   thrust_vect[0] = du_guidance[3]; // (TX)
   thrust_vect[1] = du_guidance[4]; // (TY)
   thrust_vect[2] = du_guidance[5]; // (TZ)
@@ -292,7 +298,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
 #else // !USE_WLS
 
   // Calculate matrix of partial derivatives
-  guidance_indi_calcG(Gmat, euler_yxz);
+  guidance_indi_calcG(Gmat, &quat_filt.quat);
 
   RMAT_ELMT(Ga, 0, 0) = Gmat[0][0];
   RMAT_ELMT(Ga, 1, 0) = Gmat[1][0];
@@ -308,8 +314,8 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   // Calculate roll,pitch and thrust command
   MAT33_VECT3_MUL(control_increment, Ga_inv, a_diff);
 
-  guidance_euler_cmd.theta = pitch_filt.o[0] + control_increment.x;
-  guidance_euler_cmd.phi   = roll_filt.o[0]  + control_increment.y;
+  guidance_euler_cmd.theta = eulers_filtered.theta + control_increment.x;
+  guidance_euler_cmd.phi   = eulers_filtered.phi + control_increment.y;
   guidance_euler_cmd.psi   = heading_sp;
 
   // Compute and store thust setpoint
@@ -447,16 +453,13 @@ void guidance_indi_filter_thrust(void)
  * The roll and pitch also need to be filtered to synchronize them with the
  * acceleration
  */
-void guidance_indi_propagate_filters(struct FloatEulers *eulers)
+void guidance_indi_propagate_filters(void)
 {
   struct NedCoor_f *accel = stateGetAccelNed_f();
   update_butterworth_2_low_pass(&filt_accel_ned[0], accel->x);
   update_butterworth_2_low_pass(&filt_accel_ned[1], accel->y);
   update_butterworth_2_low_pass(&filt_accel_ned[2], accel->z);
-
-  update_butterworth_2_low_pass(&roll_filt, eulers->phi);
-  update_butterworth_2_low_pass(&pitch_filt, eulers->theta);
-  update_butterworth_2_low_pass(&yaw_filt, eulers->psi);
+  update_quat_butterworth_low_pass(&quat_filt, *stateGetNedToBodyQuat_f());
 }
 
 /**

@@ -35,7 +35,6 @@
 #define XBEE 2
 #define SUPERBITRF 3
 #define W5100 4
-#define BLUEGIGA 5
 
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
 extern bool dl_msg_available;

@@ -84,13 +84,16 @@ void guidance_indi_quadplane_propagate_filters(void) {
  * @param body_v 3D vector to write the control objective v
  */
 void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float body_v[GUIDANCE_INDI_HYBRID_V]) {
+
+  struct FloatEulers eulers_filtered;
+  float_eulers_of_quat_zxy(&eulers_filtered, &quat_filt.quat);
   /*Pre-calculate sines and cosines*/
-  float sphi = sinf(roll_filt.o[0]);
-  float cphi = cosf(roll_filt.o[0]);
-  float stheta = sinf(pitch_filt.o[0]);
-  float ctheta = cosf(pitch_filt.o[0]);
-  float spsi = sinf(yaw_filt);
-  float cpsi = cosf(yaw_filt);
+  float sphi = sinf(eulers_filtered.phi);
+  float cphi = cosf(eulers_filtered.phi);
+  float stheta = sinf(eulers_filtered.theta);
+  float ctheta = cosf(eulers_filtered.theta);
+  float spsi = sinf(eulers_filtered.psi);
+  float cpsi = cosf(eulers_filtered.psi);
 
 #ifndef GUIDANCE_INDI_PITCH_EFF_SCALING
 #define GUIDANCE_INDI_PITCH_EFF_SCALING 1.0

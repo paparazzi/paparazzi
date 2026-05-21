@@ -75,7 +75,7 @@
 #define UTM_HEM_NORTH 0
 #define UTM_HEM_SOUTH 1
 
-struct GpsUbx gps_ubx[GPS_UBX_NB];
+struct GpsUbx gps_ubx[GPS_UBX_NB] = {0};
 uint8_t gps_ubx_reset = 0;
 void gps_ubx_parse(struct GpsUbx *gubx, uint8_t c);
 void gps_ubx_msg(struct GpsUbx *gubx);
