@@ -204,7 +204,7 @@ class MessageSubgroupItem(QStandardItem):
             fieldAltValItem = QStandardItem()
             fieldAltValItem.setEditable(False)
             
-            newitems = [None] * COLUMN_COUNT#####
+            newitems = [None] * COLUMN_COUNT
             newitems[FieldColumns.ROOT] = fieldRootItem
             newitems[FieldColumns.VALUE] = fieldValueItem
             newitems[FieldColumns.ALT_VALUE] = fieldAltValItem
@@ -447,7 +447,7 @@ class MessageClassItem(QStandardItem):
         id = msg.msg_id()
         name = msg.msg_name()
         timestamp = msg.newest().timestamp
-        dt = (time.time_ns() - timestamp)/10e9
+        dt = (time.time_ns() - timestamp)/1e9
         
         try:
             freq = msg.meanFreq()
@@ -598,7 +598,14 @@ class IvyModel(QStandardItemModel):
     newPin = pyqtSignal(int,int,int,str,bool)
     multiPinningDone = pyqtSignal()
     
-    def __init__(self,ivy_recorder:IvyRecorder, parent: typing.Optional[QObject] = None):
+    def __init__(self,ivy_recorder:IvyRecorder, parent: typing.Optional[QObject] = None, refresh_time:int = 500):
+        """ Build a QStandardItemModel linked to an IvyRecorder storing messages
+
+        Args:
+            ivy_recorder (IvyRecorder): Interface storing messages
+            parent (typing.Optional[QObject], optional): Parent widget. Defaults to None.
+            refresh_time (int, optional): Time in ms between updates. Defaults to 500ms.
+        """
         super().__init__(parent)
                 
         self.setHorizontalHeaderLabels(["Name","Id/Value","Time/Alt Value"])
@@ -612,7 +619,7 @@ class IvyModel(QStandardItemModel):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
         
-        self.timerDt = 500 # Time between updates, in ms
+        self.timerDt = refresh_time # Time between updates, in ms
         
         self.timer.start(self.timerDt) 
         
@@ -752,7 +759,7 @@ class IvyModel(QStandardItemModel):
                 
                 senderItem = SenderItem(senderId)
                 
-                newItems = [QStandardItem()] * COLUMN_COUNT
+                newItems = [QStandardItem() for i in range(COLUMN_COUNT)]
                 newItems[SenderColumns.ROOT] = senderItem
                 
                 for i in newItems:
