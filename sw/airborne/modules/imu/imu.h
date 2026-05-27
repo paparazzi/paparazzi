@@ -43,6 +43,7 @@ struct imu_calib_t {
   bool scale: 1;      ///< Scale calibrated
   bool scale_f: 1;    ///< Scale calibrated with floating point
   bool rotation: 1;   ///< Rotation calibrated
+  bool rot_euler: 1;  ///< Rotation calibrated with floating point eulers
   bool current: 1;    ///< Current calibrated
   bool filter: 1;     ///< Enable the lowpass filter
 };
@@ -58,6 +59,7 @@ struct imu_gyro_t {
   struct Int32Rates scale[2];         ///< Scaling, first is numerator and second denominator
   struct FloatRates scale_f;          ///< Scaling
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
+  struct FloatEulers body_to_sensor_f;///< Rotation from body to sensor frame (with floating points eulers)
   float filter_freq;                  ///< Filter frequency
   float filter_sample_freq;           ///< Lowpass filter sample frequency (Hz)
   Butterworth2LowPass filter[3];      ///< Lowpass filter optional
@@ -74,6 +76,7 @@ struct imu_accel_t {
   struct Int32Vect3 scale[2];         ///< Scaling, first is numerator and second denominator
   struct FloatVect3 scale_f;          ///< Scaling
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
+  struct FloatEulers body_to_sensor_f;///< Rotation from body to sensor frame (with floating points eulers)
   float filter_freq;                  ///< Lowpass filter frequency (Hz)
   float filter_sample_freq;           ///< Lowpass filter sample frequency (Hz)
   Butterworth2LowPass filter[3];      ///< Lowpass filter optional
@@ -89,6 +92,7 @@ struct imu_mag_t {
   struct FloatVect3 scale_f;          ///< Scaling
   struct FloatVect3 current_scale;    ///< Current scaling multiplying
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
+  struct FloatEulers body_to_sensor_f;///< Rotation from body to sensor frame (with floating points eulers)
 };
 
 
