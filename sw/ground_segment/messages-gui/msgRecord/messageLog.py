@@ -191,6 +191,8 @@ class MessageLog():
                 sublog = MessageLog(self.queue.maxlen)
                 self.__groups[field.val] = sublog
             sublog.addMessage(msg)
+            
+        return self.period
                 
         
     def addMessages(self,msgs:typing.Iterable[TimedPprzMessage]):
@@ -225,7 +227,7 @@ class MessageLog():
         if self.period is None:
             raise NoMessageError()
         else:
-            return 10e9/self.period #ns to s, then s to Hz
+            return 1e9/self.period #ns to s, then s to Hz
     
     def msg_name(self) -> str:
         return self.newest().name

@@ -55,10 +55,16 @@ class IvyRecorder(QObject):
         
         
         # Subscribe to everything for detecting senders
-        self.ivy.subscribe(self.__detectSenders)
+        self.ivy.subscribe(self.__detectSenders,"(.*ALIVE.*)")
         
         # Start Ivy
         self.ivy.start()
+        
+        # Manually add ground
+        self.__known_senders[0] = None
+        self.records[0] = dict()
+        self.new_sender.emit(0)
+        self.recordSender(0)
         
     def getMessage(self,i:MessageIndex) -> MessageLog:
         return self.records[i.sender_id][i.class_id][i.message_id]
@@ -70,14 +76,14 @@ class IvyRecorder(QObject):
                 for m in c.values():
                     m.updateSize(bsize)
         
-    def __detectSenders(self,sender_id:int,msg:PprzMessage):
+    def __detectSenders(self,sender_id,msg:PprzMessage):
         
         if isinstance(sender_id,list):
             for id in sender_id:
                 self.__detectSenders(id,msg)
         elif isinstance(sender_id,str) and '[' in sender_id:
             sender_id = sender_id[1:-1].split(',')
-            self.__detectSenders(sender_id)
+            self.__detectSenders(sender_id,msg)
         else:   
             sender_id = int(sender_id)
 
@@ -94,17 +100,21 @@ class IvyRecorder(QObject):
         try:
             class_dict = self.records[sender_id][timed_msg.class_id]
         except KeyError:
-            self.records[sender_id][timed_msg.class_id] = dict()
+            try:
+                self.records[sender_id][timed_msg.class_id] = dict()
+            except KeyError:
+                self.__detectSenders(sender_id,msg)
+                self.records[sender_id][timed_msg.class_id] = dict()
             class_dict = self.records[sender_id][timed_msg.class_id]
             self.classNames[timed_msg.class_id] = timed_msg.msg_class
         
         try:
-            class_dict[timed_msg.msg_id].addMessage(timed_msg)
+            p = class_dict[timed_msg.msg_id].addMessage(timed_msg)
         except KeyError:
             class_dict[timed_msg.msg_id] = MessageLog(self.__buffer_size)
-            class_dict[timed_msg.msg_id].addMessage(timed_msg)
+            p = class_dict[timed_msg.msg_id].addMessage(timed_msg)
             new_msg = True
-            
+        
         self.data_updated.emit(sender_id,timed_msg.class_id,timed_msg.msg_id,new_msg)
         
     def recordMessage(self,sender_id:int,msg:PprzMessage):
