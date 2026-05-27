@@ -7,7 +7,6 @@
 #include <Ivy/ivy.h>
 
 #include <Ivy/ivyloop.h>
-#include <pthread.h>
 
 #include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"
@@ -27,11 +26,9 @@
 #endif
 
 bool nps_ivy_send_world_env = false;
-pthread_t th_ivy_main; // runs main Ivy loop
 static MsgRcvPtr ivyPtr = NULL;
 static int seq = 1;
 static int ap_launch_index;
-static pthread_mutex_t ivy_mutex; // mutex for ivy send
 
 /* Gaia Ivy functions */
 static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
@@ -43,19 +40,36 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           void *user_data __attribute__((unused)),
                           int argc, char *argv[]);
 
-void* ivy_main_loop(void* data __attribute__((unused)));
+static struct nps_ivy_metadata_t {
+  struct timespec requestStart;
+  long int period_ns; // thread period in nanoseconds
+} nps_ivy_metadata;
 
 int find_launch_index(void);
+void nps_ivy_beforeloop(struct nps_ivy_metadata_t * args);
 
-
-void* ivy_main_loop(void* data __attribute__((unused)))
+void nps_ivy_beforeloop(struct nps_ivy_metadata_t * args)
 {
-  IvyMainLoop();
+  struct timespec now;
+  clock_get_current_time(&now);
+  long int task_ns = (now.tv_sec - args->requestStart.tv_sec) * 1000000000L + (now.tv_nsec - args->requestStart.tv_nsec);
 
-  return NULL;
+  if (task_ns < args->period_ns)
+  {
+    return;
+  }
+  else
+  {
+    #ifdef PRINT_TIME
+          printf("IVY DISPLAY: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
+                (double)task_ns / 1E6, (double)args->period_ns / 1E6);
+    #endif
+    clock_get_current_time(&args->requestStart);
+    nps_ivy_display(&fdm,&sensors);
+  }
 }
 
-void nps_ivy_init(char *ivy_bus)
+void nps_ivy_init(char *ivy_bus, bool nodisplay)
 {
   const char *agent_name = AIRFRAME_NAME"_NPS";
   const char *ready_msg = AIRFRAME_NAME"_NPS Ready";
@@ -66,6 +80,11 @@ void nps_ivy_init(char *ivy_bus)
 
   // to be able to change datalink_enabled setting back on
   IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
+
+  // Register extra Ivy actions only if no_display is false
+  nps_ivy_metadata.period_ns = 3 * DISPLAY_DT * 1000000000L;
+  if (!nodisplay)
+    IvySetBeforeSelectHook((IvyHookPtr)nps_ivy_beforeloop,&nps_ivy_metadata);
 
 #ifdef __APPLE__
   const char *default_ivy_bus = "224.255.255.255";
@@ -81,10 +100,6 @@ void nps_ivy_init(char *ivy_bus)
   nps_ivy_send_world_env = false;
 
   ap_launch_index = find_launch_index();
-
-  // Launch separate thread with IvyMainLoop()
-  pthread_create(&th_ivy_main, NULL, ivy_main_loop, NULL);
-
 }
 
 /*
@@ -126,8 +141,6 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
 
 void nps_ivy_send_WORLD_ENV_REQ(void)
 {
-  pthread_mutex_lock(&ivy_mutex);
-
   // First unbind from previous request if needed
   if (ivyPtr != NULL) {
     IvyUnbindMsg(ivyPtr);
@@ -154,8 +167,6 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
   seq++;
 
   nps_ivy_send_world_env = false;
-
-  pthread_mutex_unlock(&ivy_mutex);
 }
 
 int find_launch_index(void)
@@ -229,9 +240,6 @@ void nps_ivy_display(struct NpsFdm* fdm_data, struct NpsSensors* sensors_data)
   memcpy(&sensors_ivy, sensors_data, sizeof(sensors));
   pthread_mutex_unlock(&fdm_mutex);
 
-  // protect Ivy thread
-  pthread_mutex_lock(&ivy_mutex);
-
   IvySendMsg("%d NPS_RATE_ATTITUDE %f %f %f %f %f %f",
              AC_ID,
              DegOfRad(fdm_ivy.body_ecef_rotvel.p),
@@ -286,8 +294,6 @@ void nps_ivy_display(struct NpsFdm* fdm_data, struct NpsSensors* sensors_data)
              fdm_ivy.wind.x,
              fdm_ivy.wind.y,
              fdm_ivy.wind.z);
-
-  pthread_mutex_unlock(&ivy_mutex);
 
   if (nps_ivy_send_world_env) {
     nps_ivy_send_WORLD_ENV_REQ();
