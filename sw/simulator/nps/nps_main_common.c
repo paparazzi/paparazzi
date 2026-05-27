@@ -30,6 +30,8 @@
 
 #include "nps_ivy.h"
 
+#include <Ivy/ivyloop.h>
+
 pthread_t th_flight_gear;
 pthread_t th_display_ivy;
 pthread_t th_main_loop;
@@ -312,39 +314,9 @@ void *nps_flight_gear_loop(void *data __attribute__((unused)))
 
 void *nps_main_display(void *data __attribute__((unused)))
 {
-  struct timespec requestStart;
-  struct timespec requestEnd;
-  struct timespec waitFor;
-  long int period_ns = 3 * DISPLAY_DT * 1000000000L; // thread period in nanoseconds
-  long int task_ns = 0; // time it took to finish the task in nanoseconds
+  nps_ivy_init(nps_main.ivy_bus, nps_main.nodisplay);
 
-  nps_ivy_init(nps_main.ivy_bus);
+  IvyMainLoop();
 
-  // start the loop only if no_display is false
-  if (!nps_main.nodisplay) {
-    while (TRUE) {
-      clock_get_current_time(&requestStart);
-
-      nps_ivy_display(&fdm, &sensors);
-
-      clock_get_current_time(&requestEnd);
-
-      // Calculate time it took
-      task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
-
-      // task took less than one period, sleep for the rest of time
-      if (task_ns < period_ns) {
-        waitFor.tv_sec = 0;
-        waitFor.tv_nsec = period_ns - task_ns;
-        nanosleep(&waitFor, NULL);
-      } else {
-        // task took longer than the period
-  #ifdef PRINT_TIME
-        printf("IVY DISPLAY THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
-               (double)task_ns / 1E6, (double)period_ns / 1E6);
-  #endif
-      }
-    }
-  }
   return(NULL);
 }
