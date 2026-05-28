@@ -223,7 +223,7 @@ void *nps_sensors_loop(void *data __attribute__((unused)))
       float gps_vx = (float)sensors.gps.ecef_vel.x;
       float gps_vy = (float)sensors.gps.ecef_vel.y;
       float gps_vz = (float)sensors.gps.ecef_vel.z;
-      float gps_time = (float)nps_main.sim_time;
+      float gps_time = (float)nps_main.real_initial_time+nps_main.sim_time;
       uint8_t gps_fix = 3; // GPS fix
       pprz_msg_send_HITL_GPS(&dev.pprz_tp.trans_tx, &dev.device, 0,
           &gps_lat, &gps_lon, &gps_alt, &gps_hmsl,
