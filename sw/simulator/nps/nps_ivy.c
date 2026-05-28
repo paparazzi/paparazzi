@@ -299,3 +299,8 @@ void nps_ivy_display(struct NpsFdm* fdm_data, struct NpsSensors* sensors_data)
     nps_ivy_send_WORLD_ENV_REQ();
   }
 }
+
+void nps_ivy_run(void)
+{
+  IvyMainLoop();
+}

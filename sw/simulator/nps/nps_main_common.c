@@ -30,8 +30,6 @@
 
 #include "nps_ivy.h"
 
-#include <Ivy/ivyloop.h>
-
 pthread_t th_flight_gear;
 pthread_t th_display_ivy;
 pthread_t th_main_loop;
@@ -316,7 +314,7 @@ void *nps_main_display(void *data __attribute__((unused)))
 {
   nps_ivy_init(nps_main.ivy_bus, nps_main.nodisplay);
 
-  IvyMainLoop();
+  nps_ivy_run();
 
   return(NULL);
 }
