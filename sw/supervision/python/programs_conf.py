@@ -19,16 +19,18 @@ class Arg:
         constant = xml_arg.get("constant")
         return Arg(flag, constant)
 
-    def args(self, ac: Aircraft = None) -> List[str]:
+    def args(self, ac: Optional[Aircraft] = None) -> List[str]:
+        output = [self.flag] if self.flag is not None else []
         if self.constant is not None:
             constant = self.constant
             if "@AIRCRAFT" in self.constant:
                 constant = self.constant.replace("@AIRCRAFT", ac.name)
             if "@AC_ID" in self.constant:
                 constant = constant.replace("@AC_ID", str(ac.ac_id))
-            return [self.flag, constant]
-        else:
-            return [self.flag]
+            output.append(constant)
+        
+        return output
+    
 
     def to_xml(self) -> ET.Element:
         xml = ET.Element("arg")
