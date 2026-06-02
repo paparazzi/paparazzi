@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="pdec" dir="decawave" task="sensors">
+  <doc>
+    <description>
+      Driver for the Pprz Decawave module, based on the DWM3001C. Allows ranging, as well as TDOA.
+    </description>
+  </doc>
+  <dep>
+    <depends>uart</depends>
+  </dep>
+  <header>
+    <file name="pdec.h"/>
+  </header>
+  <init fun="pdec_init()"/>
+  <periodic fun="pdec_periodic()"/>
+  <event fun="pdec_event()"/>
+  <makefile>
+    <configure name="PDEC_UART" default="UART3" case="upper|lower"/>
+    <define name="$(PDEC_UART_UPPER)_BAUD" value="B115200"/>
+    <define name="PDEC_UART_DEV" value="$(PDEC_UART_LOWER)"/>
+    <define name="USE_$(PDEC_UART_UPPER)"/>
+    <file name="pdec.c"/>
+    <test/>
+  </makefile>
+</module>
