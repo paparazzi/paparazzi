@@ -304,8 +304,8 @@
 #define GPS_IMCU_ID 14
 #endif
 
-#ifndef GPS_DW1000_ID
-#define GPS_DW1000_ID 15
+#ifndef GPS_UWB_ID
+#define GPS_UWB_ID 15
 #endif
 
 #ifndef GPS_UBX2_ID
@@ -538,6 +538,10 @@
 #define UWB_DW1000_ARDUINO_ID 2
 #endif
 
+
+#ifndef UWB_PDEC_ID
+#define UWB_PDEC_ID 3
+#endif
 /*
  * IDs of Obstacle detection systems
  */
