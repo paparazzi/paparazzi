@@ -1,4 +1,18 @@
+/** 
+ * Copyright (C) 2026 Fabien-B <fabien-b@github.com>
+ * This file is part of paparazzi. See LICENCE file.
+ * 
+ * @file "modules/decawave/dw1000_range_arduino.c"
+ * @author Fabien-B <fabien-b@github.com>
+ * 
+ * Driver to get ranging data from Decawave DW1000 modules connected to Arduino
+ * Decawave DW1000 modules (http://www.decawave.com/products/dwm1000-module) are Ultra-Wide-Band devices that can be used for communication and ranging.
+ * Especially, using 3 modules as anchors can provide data for a localization system based on trilateration.
+ * The DW1000 is using a SPI connection, but an arduino-compatible board can be used with the library https://github.com/thotro/arduino-dw1000 to hyde the low level drivers and provide direct ranging informations.
+ * 
+ */
 
+#include "modules/decawave/dw1000_range_arduino.h"
 
 #include "std.h"
 #include "mcu_periph/uart.h"
@@ -20,8 +34,8 @@
 #define DW_GET_CK 2
 #define DW_NB_DATA 6
 
-/** DW1000 positionning system structure */
-struct DW1000_periph {
+/** DW1000 Arduino range parser state */
+struct DW1000RangeArduino {
   struct uart_periph *dev;
   uint8_t buf[DW_NB_DATA];    ///< incoming data buffer
   uint8_t idx;                ///< buffer index
@@ -29,7 +43,7 @@ struct DW1000_periph {
   uint8_t state;              ///< parser state
 };
 
-struct DW1000_periph dw1000_periph;
+struct DW1000RangeArduino dw1000_range_arduino;
 
 
 /** Utility function to get float from buffer */
@@ -46,8 +60,8 @@ static inline uint16_t uint16_from_buf(uint8_t* b) {
   return u16;
 }
 
-/** Utility function to fill anchor from buffer */
-static void send_anchor_data(struct DW1000_periph *dw) {
+/** Send range data decoded from the serial frame */
+static void send_anchor_data(struct DW1000RangeArduino *dw) {
   uint16_t dst_id = uint16_from_buf(dw->buf);
   uint16_t src_id = DW1000_TAG_ID;
   float raw_dist = float_from_buf(dw->buf + 2);
@@ -57,7 +71,7 @@ static void send_anchor_data(struct DW1000_periph *dw) {
 }
 
 /** Data parsing function */
-static void dw1000_arduino_parse(struct DW1000_periph *dw, uint8_t c)
+static void dw1000_range_arduino_parse(struct DW1000RangeArduino *dw, uint8_t c)
 {
   switch (dw->state) {
 
@@ -92,16 +106,16 @@ static void dw1000_arduino_parse(struct DW1000_periph *dw, uint8_t c)
   }
 }
 
-void dw1000_arduino_periph_init(void)
+void dw1000_range_arduino_init(void)
 {
-  dw1000_periph.dev = &DW1000_ARDUINO_DEV;
+  dw1000_range_arduino.dev = &DW1000_RANGE_ARDUINO_DEV;
 }
 
-void dw1000_arduino_periph_event(void)
+void dw1000_range_arduino_event(void)
 {
   // Look for data on serial link and send to parser
-  while (uart_char_available(dw1000_periph.dev)) {
-    uint8_t ch = uart_getch(dw1000_periph.dev);
-    dw1000_arduino_parse(&dw1000_periph, ch);
+  while (uart_char_available(dw1000_range_arduino.dev)) {
+    uint8_t ch = uart_getch(dw1000_range_arduino.dev);
+    dw1000_range_arduino_parse(&dw1000_range_arduino, ch);
   }
 }
