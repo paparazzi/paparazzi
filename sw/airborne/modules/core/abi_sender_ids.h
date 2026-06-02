@@ -528,10 +528,14 @@
 #endif
 
 /*
- * UWB communication (message 19)
+ * UWB communication and ranging (messages 19, 43, 44)
 */
 #ifndef UWB_COMM_ID
 #define UWB_COMM_ID 1
+#endif
+
+#ifndef UWB_DW1000_ARDUINO_ID
+#define UWB_DW1000_ARDUINO_ID 2
 #endif
 
 /*

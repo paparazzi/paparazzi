@@ -42,8 +42,8 @@ extern void dw1000_arduino_update_ekf_r_speed(float v);
 
 extern void dw1000_arduino_init(void);
 extern void dw1000_arduino_periodic(void);
+extern void dw1000_arduino_range_periodic(void);
 extern void dw1000_arduino_report(void);
-extern void dw1000_arduino_event(void);
 
 /** Reset reference heading to current heading
  * AHRS/INS should be aligned before calling this function
@@ -54,6 +54,8 @@ extern void dw1000_reset_heading_ref(void);
 #ifndef PRIMARY_GPS
 #define PRIMARY_GPS GPS_DW1000
 #endif
+
+void uwb_range(uint16_t id);
 
 #endif
 

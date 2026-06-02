@@ -74,6 +74,11 @@
 #define DW1000_SCALE { 1.f, 1.f, 1.f }
 #endif
 
+/** My UWB tag id */
+#ifndef DW1000_TAG_ID
+#define DW1000_TAG_ID 0
+#endif
+
 /** default initial heading correction between anchors frame and global frame */
 #ifndef DW1000_INITIAL_HEADING
 #define DW1000_INITIAL_HEADING 0.f
@@ -153,21 +158,10 @@
 static bool log_started;
 #endif
 
-/** frame sync byte */
-#define DW_STX 0xFE
 
-/** Parsing states */
-#define DW_WAIT_STX 0
-#define DW_GET_DATA 1
-#define DW_GET_CK 2
-#define DW_NB_DATA 6
 
 /** DW1000 positionning system structure */
 struct DW1000 {
-  uint8_t buf[DW_NB_DATA];    ///< incoming data buffer
-  uint8_t idx;                ///< buffer index
-  uint8_t ck;                 ///< checksum
-  uint8_t state;              ///< parser state
   float initial_heading;      ///< initial heading correction
   struct Anchor anchors[DW1000_NB_ANCHORS];   ///< anchors data
   float raw_dist[DW1000_NB_ANCHORS];          ///< raw distance from anchors
@@ -179,12 +173,15 @@ struct DW1000 {
   bool ekf_running;           ///< EKF logic status
   struct EKFRange ekf_range;  ///< EKF filter
   struct MedianFilterFloat mf[DW1000_NB_ANCHORS]; ///< median filter for EKF input data
+  uint8_t anchor_ranging_idx; ///< Next anchor index (in the anchors array) to be ranged 
 #if SITL
   uint8_t anchor_sim_wp[DW1000_NB_ANCHORS];   ///< WP index for simulation
 #endif
 };
 
 static struct DW1000 dw1000;
+
+static abi_event uwb_ranging_ev;
 
 bool dw1000_use_ekf;
 float dw1000_ekf_q;
@@ -199,75 +196,30 @@ static const float pos_z[] = DW1000_ANCHORS_POS_Z;
 static const float offset[] = DW1000_OFFSET;
 static const float scale[] = DW1000_SCALE;
 
-#if !SITL
-/** Utility function to get float from buffer */
-static inline float float_from_buf(uint8_t* b) {
-  float f;
-  memcpy((uint8_t*)(&f), b, sizeof(float));
-  return f;
-}
+static void process_data(struct DW1000 *dw);
 
-/** Utility function to get uint16_t from buffer */
-static inline uint16_t uint16_from_buf(uint8_t* b) {
-  uint16_t u16;
-  memcpy ((uint8_t*)(&u16), b, sizeof(uint16_t));
-  return u16;
-}
-
-/** Utility function to fill anchor from buffer */
-static void fill_anchor(struct DW1000 *dw) {
+static void uwb_ranging_cb(uint8_t __attribute__((unused)) sender_id, uint32_t __attribute__((unused)) stamp, uint16_t src_id, uint16_t dst_id, float range)
+{
   for (int i = 0; i < DW1000_NB_ANCHORS; i++) {
-    uint16_t id = uint16_from_buf(dw->buf);
-    if (dw->anchors[i].id == id) {
-      dw->raw_dist[i] = float_from_buf(dw->buf + 2);
-      // median filter for EKF
-      const float dist = scale[i] * (dw->raw_dist[i] - offset[i]);
+    bool from_me = dw1000.anchors[i].id == dst_id && DW1000_TAG_ID == src_id;
+    bool to_me   = dw1000.anchors[i].id == src_id && DW1000_TAG_ID == dst_id;
+
+    if (from_me || to_me) {
+      dw1000.raw_dist[i] = range;
+        // median filter for EKF
+      const float dist = scale[i] * (range - offset[i]);
       // store scaled distance
-      dw->anchors[i].distance = update_median_filter_f(&dw->mf[i], dist);
-      dw->anchors[i].time = get_sys_time_float();
-      dw->anchors[i].updated = true;
-      dw->updated = true; // at least one of the anchor is updated
+      dw1000.anchors[i].distance = update_median_filter_f(&dw1000.mf[i], dist);
+      // TODO: use received stamp instead
+      dw1000.anchors[i].time = get_sys_time_float();
+      dw1000.anchors[i].updated = true;
+      dw1000.updated = true; // at least one of the anchor is updated
       break;
     }
   }
+
+  process_data(&dw1000);
 }
-
-/** Data parsing function */
-static void dw1000_arduino_parse(struct DW1000 *dw, uint8_t c)
-{
-  switch (dw->state) {
-
-    case DW_WAIT_STX:
-      /* Waiting Synchro */
-      if (c == DW_STX) {
-        dw->idx = 0;
-        dw->ck = 0;
-        dw->state = DW_GET_DATA;
-      }
-      break;
-
-    case DW_GET_DATA:
-      /* Read Bytes */
-      dw->buf[dw->idx++] = c;
-      dw->ck += c;
-      if (dw->idx == DW_NB_DATA) {
-        dw->state = DW_GET_CK;
-      }
-      break;
-
-    case DW_GET_CK:
-      /* Checksum */
-      if (dw->ck == c) {
-        fill_anchor(dw);
-      }
-      dw->state = DW_WAIT_STX;
-      break;
-
-    default:
-      dw->state = DW_WAIT_STX;
-  }
-}
-#endif // !SITL
 
 #if DW1000_USE_AS_GPS
 static void send_gps_dw1000_small(struct DW1000 *dw)
@@ -513,9 +465,6 @@ static void compute_anchors_dist_from_wp(struct DW1000 *dw)
 void dw1000_arduino_init(void)
 {
   // init DW1000 structure
-  dw1000.idx = 0;
-  dw1000.ck = 0;
-  dw1000.state = DW_WAIT_STX;
   dw1000.initial_heading = DW1000_INITIAL_HEADING;
   dw1000.pos.x = 0.f;
   dw1000.pos.y = 0.f;
@@ -563,6 +512,10 @@ void dw1000_arduino_init(void)
   for (int i = 0; i < DW1000_NB_ANCHORS; i++) {
     init_median_filter_f(&dw1000.mf[i], 3);
   }
+
+  dw1000.anchor_ranging_idx = 0;
+
+  AbiBindMsgUWB_RANGING(ABI_BROADCAST, &uwb_ranging_ev, uwb_ranging_cb);
 }
 
 void dw1000_arduino_periodic(void)
@@ -596,6 +549,12 @@ void dw1000_arduino_periodic(void)
 #endif
 }
 
+void dw1000_arduino_range_periodic(void) {
+  struct Anchor* anchor = &dw1000.anchors[dw1000.anchor_ranging_idx];
+  uwb_range(anchor->id);
+  dw1000.anchor_ranging_idx = (dw1000.anchor_ranging_idx + 1) % DW1000_NB_ANCHORS;
+}
+
 void dw1000_arduino_report(void)
 {
   float buf[12];
@@ -614,17 +573,7 @@ void dw1000_arduino_report(void)
   DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 12, buf);
 }
 
-void dw1000_arduino_event(void)
-{
-#if !SITL
-  // Look for data on serial link and send to parser
-  while (uart_char_available(&DW1000_ARDUINO_DEV)) {
-    uint8_t ch = uart_getch(&DW1000_ARDUINO_DEV);
-    dw1000_arduino_parse(&dw1000, ch);
-    process_data(&dw1000);
-  }
-#endif
-}
+
 
 
 void dw1000_arduino_update_ekf_q(float v)
@@ -645,3 +594,5 @@ void dw1000_arduino_update_ekf_r_speed(float v)
   ekf_range_update_noise(&dw1000.ekf_range, dw1000_ekf_q, dw1000_ekf_r_dist, dw1000_ekf_r_speed);
 }
 
+/** Weak empty implementation */
+void WEAK uwb_range(uint16_t __attribute__((unused)) id) {}
