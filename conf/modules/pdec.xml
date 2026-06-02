@@ -12,7 +12,7 @@
     <file name="pdec.h"/>
   </header>
   <init fun="pdec_init()"/>
-  <periodic fun="pdec_periodic()"/>
+  <periodic fun="pdec_periodic_report()" freq="10" autorun="FALSE"/>
   <event fun="pdec_event()"/>
   <makefile>
     <configure name="PDEC_UART" default="UART3" case="upper|lower"/>

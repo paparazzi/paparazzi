@@ -148,7 +148,7 @@ typedef struct {
 extern pdec_t pdec;
 
 void pdec_init(void);
-void pdec_periodic(void);
+void pdec_periodic_report(void);
 void pdec_event(void);
 
 bool pdec_range(uint16_t dst_id);

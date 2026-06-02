@@ -22,7 +22,7 @@
 pdec_t pdec;
 
 static void _pdec_init(pdec_t *pdec);
-static void _pdec_periodic(pdec_t *pdec);
+static void _pdec_periodic_report(pdec_t *pdec);
 static void _pdec_event(pdec_t *pdec);
 
 struct pdec_cmd_payload {
@@ -204,6 +204,12 @@ static void pdec_dispatch_frame(pdec_t *pdec)
       pdec->last_ranging_event.dst_id = msg->dst_id;
       pdec->last_ranging_event.distance = msg->distance;
       pdec->last_ranging_event.updated = true;
+      AbiSendMsgUWB_RANGING(UWB_PDEC_ID,
+        get_sys_time_usec(),
+        msg->src_id,
+        msg->dst_id,
+        msg->distance
+      );
       break;
     }
 
@@ -226,13 +232,23 @@ static void pdec_dispatch_frame(pdec_t *pdec)
       pdec->last_tdoa_report_event.total_count = total_count;
       pdec->last_tdoa_report_event.count = total_count > PDEC_MAX_TDOA_REPORTS ? PDEC_MAX_TDOA_REPORTS : total_count;
       pdec->last_tdoa_report_event.timed_out = msg->timed_out != 0;
-      pdec->last_tdoa_report_event.truncated =
-        pdec->last_tdoa_report_event.total_count > pdec->last_tdoa_report_event.count;
+      pdec->last_tdoa_report_event.truncated = pdec->last_tdoa_report_event.total_count > pdec->last_tdoa_report_event.count;
+      uint16_t src_id[PDEC_MAX_TDOA_REPORTS];
+      float range_diff[PDEC_MAX_TDOA_REPORTS];
       for (uint8_t i = 0; i < pdec->last_tdoa_report_event.count; i++) {
-        pdec->last_tdoa_report_event.reports[i].reporter_id = msg->reports[i].reporter_id;
-        pdec->last_tdoa_report_event.reports[i].distance = msg->reports[i].distance;
+        src_id[i] = msg->reports[i].reporter_id;
+        range_diff[i] = msg->reports[i].distance;
+        pdec->last_tdoa_report_event.reports[i].reporter_id = src_id[i];
+        pdec->last_tdoa_report_event.reports[i].distance = range_diff[i];
       }
       pdec->last_tdoa_report_event.updated = true;
+      AbiSendMsgUWB_TDOA(UWB_PDEC_ID,
+        get_sys_time_usec(),
+        (uint16_t)msg->blink_id,
+        pdec->last_tdoa_report_event.count,
+        src_id,
+        range_diff
+      );
       break;
     }
 
@@ -298,11 +314,10 @@ static void _pdec_init(pdec_t *pdec)
   pdec->rx_state = PDEC_RX_SYNC_1;
 }
 
-static void _pdec_periodic(pdec_t *pdec __attribute__((unused)))
+static void _pdec_periodic_report(pdec_t *pdec __attribute__((unused)))
 {
   char buf[100];
 
-  // TODO move ABI send to pdec_dispatch_frame
   if(pdec->last_error.updated) {
     
     
@@ -323,15 +338,6 @@ static void _pdec_periodic(pdec_t *pdec __attribute__((unused)))
   }
   if(pdec->last_ranging_event.updated) {
     pdec->last_ranging_event.updated = false;
-
-    uint32_t now_ts = get_sys_time_usec();
-    AbiSendMsgUWB_RANGING(UWB_PDEC_ID,
-      now_ts,
-      pdec->last_ranging_event.src_id,
-      pdec->last_ranging_event.dst_id,
-      pdec->last_ranging_event.distance
-    );
-
 
     int len = snprintf(buf, sizeof(buf), "[RNG]%x->%x:%0.2f",
       pdec->last_ranging_event.src_id,
@@ -413,9 +419,9 @@ void pdec_init(void)
   _pdec_init(&pdec);
 }
 
-void pdec_periodic(void)
+void pdec_periodic_report(void)
 {
-  _pdec_periodic(&pdec);
+  _pdec_periodic_report(&pdec);
 }
 
 void pdec_event(void)
