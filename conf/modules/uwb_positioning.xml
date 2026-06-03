@@ -1,0 +1,80 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="uwb_positioning" dir="decawave">
+  <doc>
+    <description>
+      Estimate local position from UWB anchor measurements.
+
+      UWB devices can be used for communication, ranging, and positioning.
+      This module consumes anchor measurements and estimates a local position.
+      With range measurements, 3 anchors are required/supported by the current trilateration path.
+
+      See https://hal-enac.archives-ouvertes.fr/hal-01936955 for more information on the EKF filtering.
+    </description>
+    <configure name="UWB_POSITIONING_USE_AS_LOCAL_POS" value="FALSE|TRUE" description="use as a local positioning system (default: TRUE)"/>
+    <configure name="UWB_POSITIONING_USE_AS_GPS" value="FALSE|TRUE" description="use as a fake GPS positioning system (default: FALSE)"/>
+    <section name="UWB_POSITIONING" prefix="UWB_POSITIONING_">
+      <define name="ANCHORS_IDS" value="1, 2, 3" type="int[]" description="Comma separated list of anchors ID"/>
+      <define name="ANCHORS_POS_X" value="0., 0., 5." type="float[]" description="Comma separated list of anchors ID over X axis"/>
+      <define name="ANCHORS_POS_Y" value="0., 5., 0." type="float[]" description="Comma separated list of anchors ID over Y axis"/>
+      <define name="ANCHORS_POS_Z" value="0., 0., 0." type="float[]" description="Comma separated list of anchors ID over Z axis"/>
+      <define name="RANGE_OFFSET" value="0., 0., 0." type="float[]" description="Offset applied to individual range measurements"/>
+      <define name="RANGE_SCALE" value="1., 1., 1." type="float[]" description="Scale factor applied to individual range measurements"/>
+      <define name="INITIAL_HEADING" value="0." description="Initial heading correction between anchors frame and global frame"/>
+      <define name="NB_ANCHORS" value="3" description="Set number of anchors, only 3 are required/supported at the moment"/>
+      <define name="USE_EKF" value="FALSE|TRUE" description="Enable EKF filtering, required to estimate speed"/>
+      <define name="EKF_Q" value="1.0" description="EKF process noise"/>
+      <define name="EKF_R_DIST" value="0.1" description="EKF noise on distance measurements"/>
+      <define name="EKF_R_SPEED" value="0.1" description="EKF noise on speed measurements (if available)"/>
+      <define name="NOISE_X|Y|Z" value="0.1" description="Noise level reported by the POSITION_ESTIMATE message when USE_AS_LOCAL_POS is activated"/>
+      <define name="VEL_NOISE_X|Y|Z" value="0.1" description="Noise level reported by the VELOCITY_ESTIMATE message when USE_AS_LOCAL_POS is activated"/>
+    </section>
+  </doc>
+  <dep>
+    <depends>@ranging</depends>
+  </dep>
+  <settings>
+    <dl_settings>
+      <dl_settings name="uwb_positioning">
+        <dl_setting max="1" min="0" step="1" module="decawave/uwb_positioning" var="uwb_positioning_use_ekf" shortname="use_ekf" values="FALSE|TRUE"/>
+        <dl_setting max="5.0" min="0.01" step="0.01" module="decawave/uwb_positioning" var="uwb_positioning_ekf_q" shortname="q_noise" handler="update_ekf_q"/>
+        <dl_setting max="1.0" min="0.01" step="0.01" module="decawave/uwb_positioning" var="uwb_positioning_ekf_r_dist" shortname="r_dist" handler="update_ekf_r_dist"/>
+        <dl_setting max="1.0" min="0.01" step="0.01" module="decawave/uwb_positioning" var="uwb_positioning_ekf_r_speed" shortname="r_speed" handler="update_ekf_r_speed"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="uwb_positioning.h"/>
+  </header>
+  <init fun="uwb_positioning_init()"/>
+  <periodic fun="uwb_positioning_periodic()" freq="10"/>
+  <periodic fun="uwb_positioning_range_periodic()" freq="10"/>
+  <periodic fun="uwb_positioning_report()" freq="10" autorun="FALSE"/>
+  <periodic fun="uwb_positioning_reset_heading_ref()" freq="1" autorun="FALSE"/>
+  <makefile>
+    <configure name="UWB_POSITIONING_USE_AS_LOCAL_POS" default="TRUE"/>
+    <configure name="UWB_POSITIONING_USE_AS_GPS" default="FALSE"/>
+    <file name="uwb_positioning.c"/>
+    <file name="trilateration.c"/>
+    <file name="ekf_range.c"/>
+    <define name="UWB_POSITIONING_USE_AS_LOCAL_POS" value="$(UWB_POSITIONING_USE_AS_LOCAL_POS)"/>
+    <define name="UWB_POSITIONING_USE_AS_GPS" value="$(UWB_POSITIONING_USE_AS_GPS)"/>
+    <raw>
+      ifeq (,$(findstring $(UWB_POSITIONING_USE_AS_GPS),0 FALSE))
+        ifdef SECONDARY_GPS
+          ifneq (,$(findstring $(SECONDARY_GPS), uwb_positioning))
+            # this is the secondary GPS
+            $(TARGET).CFLAGS += -DGPS_SECONDARY_TYPE_H=\"modules/decawave/uwb_positioning.h\"
+            $(TARGET).CFLAGS += -DSECONDARY_GPS=GPS_UWB
+          else
+            $(TARGET).CFLAGS += -DGPS_TYPE_H=\"modules/decawave/uwb_positioning.h\"
+            $(TARGET).CFLAGS += -DPRIMARY_GPS=GPS_UWB
+          endif
+        else
+          # plain old single GPS usage
+          $(TARGET).CFLAGS += -DGPS_TYPE_H=\"modules/decawave/uwb_positioning.h\"
+        endif
+      endif
+    </raw>
+  </makefile>
+</module>
