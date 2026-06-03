@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import QProcess
 from PyQt5.QtGui import QIcon
-import utils
+import utils,shlex
 from typing import List
 from enum import Enum
 
@@ -53,14 +53,14 @@ class ProgramWidget(QWidget, Ui_Program):
 
     def handle_cmd_return(self):
         if self.process.state() == QProcess.NotRunning:
-            self.cmd = self.program_lineedit.text().split(" ")
+            self.cmd = shlex.split(self.program_lineedit.text())
             self.start_program()
         elif self.process.state() == QProcess.Running:
             self.terminate()
 
     def handle_run(self):
         if self.process.state() == QProcess.NotRunning:
-            self.cmd = self.program_lineedit.text().split(" ")
+            self.cmd = shlex.split(self.program_lineedit.text())
             self.start_program()
         elif self.process.state() == QProcess.Running:
             self.process.terminate()

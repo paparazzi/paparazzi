@@ -1,0 +1,3 @@
+<program command="pprzEnv/bin/python" name="Command line (Python)" icon="terminal-python.svg">
+    <arg flag="-c" constant="&quot;print('Hello, World!')&quot;" />
+</program>
