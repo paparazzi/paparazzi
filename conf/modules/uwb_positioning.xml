@@ -30,6 +30,9 @@
       <define name="VEL_NOISE_X|Y|Z" value="0.1" description="Noise level reported by the VELOCITY_ESTIMATE message when USE_AS_LOCAL_POS is activated"/>
     </section>
   </doc>
+  <dep>
+    <depends>@ranging</depends>
+  </dep>
   <settings>
     <dl_settings>
       <dl_settings name="uwb_positioning">

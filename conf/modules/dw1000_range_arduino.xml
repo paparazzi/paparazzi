@@ -12,6 +12,8 @@
   </doc>
   <dep>
     <depends>uart</depends>
+    <provides>ranging</provides>
+    <suggests>uwb_positioning</suggests>
   </dep>
   <header>
     <file name="dw1000_range_arduino.h"/>

@@ -7,6 +7,8 @@
   </doc>
   <dep>
     <depends>uart</depends>
+    <provides>ranging</provides>
+    <suggests>uwb_positioning</suggests>
   </dep>
   <header>
     <file name="pdec.h"/>
