@@ -20,6 +20,12 @@
     <define name="PDEC_UART_DEV" value="$(PDEC_UART_LOWER)"/>
     <define name="USE_$(PDEC_UART_UPPER)"/>
     <file name="pdec.c"/>
-    <test/>
+    <test>
+      <define name="PDEC_UART_DEV" value="uart3"/>
+      <define name="USE_UART3"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>

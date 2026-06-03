@@ -24,7 +24,12 @@
     <define name="USE_$(DW1000_RANGE_ARDUINO_UART_UPPER)"/>
     <define name="DW1000_RANGE_ARDUINO_DEV" value="$(DW1000_RANGE_ARDUINO_UART_LOWER)"/>
     <define name="$(DW1000_RANGE_ARDUINO_UART_UPPER)_BAUD" value="$(DW1000_RANGE_ARDUINO_BAUD)"/>
+    <define name="UWB_POSITIONING_TAG_ID" value="0" />
     <file name="dw1000_range_arduino.c"/>
-    <test/>
+    <test>
+      <define name="DW1000_RANGE_ARDUINO_DEV" value="uart3"/>
+      <define name="USE_UART3"/>
+      <define name="UWB_POSITIONING_TAG_ID" value="0" />
+    </test>
   </makefile>
 </module>

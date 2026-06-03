@@ -63,7 +63,7 @@ static inline uint16_t uint16_from_buf(uint8_t* b) {
 /** Send range data decoded from the serial frame */
 static void send_anchor_data(struct DW1000RangeArduino *dw) {
   uint16_t dst_id = uint16_from_buf(dw->buf);
-  uint16_t src_id = DW1000_TAG_ID;
+  uint16_t src_id = UWB_POSITIONING_TAG_ID;
   float raw_dist = float_from_buf(dw->buf + 2);
   uint32_t now_ts = get_sys_time_usec();
 
