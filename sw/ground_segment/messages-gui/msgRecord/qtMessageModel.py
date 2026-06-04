@@ -76,7 +76,10 @@ def format_field_vals(field:PprzMessageField,val:typing.Optional[typing.Any] = N
         val = field.val
        
     if field.format and '%' in field.format:
-        valstr = field.format % val
+        if type(val) == list:
+            valstr = '['+', '.join([field.format % v for v in val])+']'
+        else:
+            valstr = field.format % val
     else:
         valstr = str(val)
     
@@ -862,4 +865,4 @@ class FilteredIvyModel(QSortFilterProxyModel):
             
         return checkstatus and regex_result
     
-    
+
