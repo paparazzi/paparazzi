@@ -31,7 +31,11 @@ pthread_t th_ivy_main; // runs main Ivy loop
 static MsgRcvPtr ivyPtr = NULL;
 static int seq = 1;
 static int ap_launch_index;
-static pthread_mutex_t ivy_mutex; // mutex for ivy send
+/* Serializes ALL access to the (non thread-safe) Ivy bus state.
+ * Held by the IvyMainLoop thread while it processes events (via the
+ * before/after-select hooks installed in ivy_main_loop()) and by the
+ * display thread around every IvySendMsg/IvyBindMsg/IvyUnbindMsg call. */
+static pthread_mutex_t ivy_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* Gaia Ivy functions */
 static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
@@ -47,10 +51,26 @@ void* ivy_main_loop(void* data __attribute__((unused)));
 
 int find_launch_index(void);
 
+static void ivy_loop_before_select(void *data __attribute__((unused)))
+{
+  pthread_mutex_unlock(&ivy_mutex);
+}
+
+static void ivy_loop_after_select(void *data __attribute__((unused)))
+{
+  pthread_mutex_lock(&ivy_mutex);
+}
 
 void* ivy_main_loop(void* data __attribute__((unused)))
 {
+  IvySetBeforeSelectHook(ivy_loop_before_select, NULL);
+  IvySetAfterSelectHook(ivy_loop_after_select, NULL);
+
+  /* The loop expects the lock to be held on entry: its first action each
+   * iteration is the before-select hook, which releases ivy_mutex. */
+  pthread_mutex_lock(&ivy_mutex);
   IvyMainLoop();
+  pthread_mutex_unlock(&ivy_mutex);
 
   return NULL;
 }
@@ -139,9 +159,11 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
   // Bind to the reply
   ivyPtr = IvyBindMsg(on_WORLD_ENV, NULL, "^%d_%d (\\S*) WORLD_ENV (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)", pid, seq);
 
-  // Send actual request
+  // Send actual request (copy the shared fdm under fdm_mutex, like nps_ivy_display)
   struct NpsFdm fdm_ivy;
+  pthread_mutex_lock(&fdm_mutex);
   memcpy(&fdm_ivy, &fdm, sizeof(struct NpsFdm));
+  pthread_mutex_unlock(&fdm_mutex);
 
   IvySendMsg("nps %d_%d WORLD_ENV_REQ %f %f %f %f %f %f",
       pid, seq,
@@ -152,8 +174,6 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
       (fdm_ivy.ltpprz_pos.y),
       (fdm_ivy.ltpprz_pos.z));
   seq++;
-
-  nps_ivy_send_world_env = false;
 
   pthread_mutex_unlock(&ivy_mutex);
 }
@@ -289,7 +309,15 @@ void nps_ivy_display(struct NpsFdm* fdm_data, struct NpsSensors* sensors_data)
 
   pthread_mutex_unlock(&ivy_mutex);
 
-  if (nps_ivy_send_world_env) {
+  /* Test-and-clear the world-env request flag under fdm_mutex - the same lock
+   * the sim-loop thread holds when it sets the flag in nps_atmosphere_update()
+   * - so the flag is never accessed concurrently without synchronization. */
+  pthread_mutex_lock(&fdm_mutex);
+  bool do_world_env_req = nps_ivy_send_world_env;
+  nps_ivy_send_world_env = false;
+  pthread_mutex_unlock(&fdm_mutex);
+
+  if (do_world_env_req) {
     nps_ivy_send_WORLD_ENV_REQ();
   }
 }
