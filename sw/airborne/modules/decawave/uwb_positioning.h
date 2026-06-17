@@ -18,42 +18,40 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/decawave/dw1000_arduino.h"
+ * @file "modules/decawave/uwb_positioning.h"
  * @author Gautier Hattenberger
- * Driver to get ranging data from Decawave DW1000 modules connected to Arduino
+ * UWB positioning from anchor measurements.
  */
 
-#ifndef DW1000_ARDUINO_H
-#define DW1000_ARDUINO_H
+#pragma once
 
 #include "std.h"
 
 /** enable EKF filtering */
-extern bool dw1000_use_ekf;
+extern bool uwb_positioning_use_ekf;
 
 /** process and measurements noise */
-extern float dw1000_ekf_q;
-extern float dw1000_ekf_r_dist;
-extern float dw1000_ekf_r_speed;
+extern float uwb_positioning_ekf_q;
+extern float uwb_positioning_ekf_r_dist;
+extern float uwb_positioning_ekf_r_speed;
 /**  settings handler */
-extern void dw1000_arduino_update_ekf_q(float v);
-extern void dw1000_arduino_update_ekf_r_dist(float v);
-extern void dw1000_arduino_update_ekf_r_speed(float v);
+extern void uwb_positioning_update_ekf_q(float v);
+extern void uwb_positioning_update_ekf_r_dist(float v);
+extern void uwb_positioning_update_ekf_r_speed(float v);
 
-extern void dw1000_arduino_init(void);
-extern void dw1000_arduino_periodic(void);
-extern void dw1000_arduino_report(void);
-extern void dw1000_arduino_event(void);
+extern void uwb_positioning_init(void);
+extern void uwb_positioning_periodic(void);
+extern void uwb_positioning_range_periodic(void);
+extern void uwb_positioning_report(void);
 
 /** Reset reference heading to current heading
  * AHRS/INS should be aligned before calling this function
  */
-extern void dw1000_reset_heading_ref(void);
+extern void uwb_positioning_reset_heading_ref(void);
 
 // when used as a GPS
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS GPS_DW1000
+#define PRIMARY_GPS GPS_UWB
 #endif
 
-#endif
-
+void uwb_range(uint16_t id);

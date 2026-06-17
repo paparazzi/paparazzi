@@ -281,6 +281,21 @@
       <field name="values" type="int32_t *">Pointer to force sensor values (driver raw units)</field>
     </message>
 
+    <message name="UWB_RANGING" id="43">
+      <field name="stamp" type="uint32_t" unit="us">Timestamp in micro-seconds</field>
+      <field name="src_id" type="uint16_t">Ranging initiator</field>
+      <field name="dst_id" type="uint16_t">Ranging responder</field>
+      <field name="range" type="float" unit="m">Distance between the devices</field>
+    </message>
+
+    <message name="UWB_TDOA" id="44">
+      <field name="stamp" type="uint32_t" unit="us">Timestamp in micro-seconds</field>
+      <field name="blink_id" type="uint16_t"/>
+      <field name="count" type="uint8_t">Number of beacons in the array</field>
+      <field name="src_id" type="uint16_t*">Beacons ids</field>
+      <field name="range_diff" type="float*" unit="m">Range difference with the closest beacon</field>
+    </message>
+
   </msg_class>
 
 </protocol>
