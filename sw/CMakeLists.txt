@@ -73,7 +73,23 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Xml Network Svg Charts)
+# ---------------------------------------------------------------------------
+# Qt6 is required to build every native ground-segment / tool app defined
+# below. On hosts without a Qt6 development install (e.g. a firmware-only build
+# server) we deliberately do NOT hard-fail the whole configure step: detect Qt6
+# quietly and, when it is absent, emit a clear notice and skip the rest of this
+# super-build instead of aborting with a fatal find_package() error. Install
+# the Qt6 development packages and re-run CMake to actually build the apps.
+# ---------------------------------------------------------------------------
+find_package(Qt6 QUIET COMPONENTS Core Gui Widgets Xml Network Svg Charts)
+if(NOT Qt6_FOUND)
+    message(WARNING
+        "Qt6 (Core Gui Widgets Xml Network Svg Charts) not found -- skipping the "
+        "Qt ground-segment/tool super-build (messages, gaia, plotter, logplotter, "
+        "play, tmtc). Install the Qt6 development packages and re-run CMake to "
+        "build them.")
+    return()
+endif()
 
 # One central compilation of the shared Qt link libraries (IvyQt + pprzlinkQt),
 # taken from the Paparazzi sw/ext tree. The helper provides IvyQt from the
