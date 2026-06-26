@@ -1,0 +1,72 @@
+# ----------------------------------------------------------------------------
+# Shared CMake bootstrap for the native Qt6 / C++ ground-segment & tool apps
+# (gcs, messages, gaia, plotter, logplotter, play).
+#
+# This single include centralizes so an application Makefile only needs:
+#
+#     include <relative-path-to>/conf/Makefile.qt
+#
+#     myapp: qt-configure
+#         $(Q)$(QT_CMAKE_BUILD) <cmake-target>
+#
+# All Qt apps share ONE CMake build tree ($(QT_BUILD_DIR), pointed at the sw/
+# super-build root $(QT_SRC_DIR)), so the common libraries (pprzlinkQt, IvyQt)
+# are configured and compiled exactly once and re-used by every consumer.
+#
+# Every variable below is overridable from the command line or the parent make,
+# e.g.  make QT_BUILD_TYPE=Debug  or  make QT_BUILD_DIR=/tmp/build_qt.
+# ----------------------------------------------------------------------------
+
+# Quiet echo unless the including Makefile already chose otherwise.
+Q ?= @
+
+# Absolute path to THIS file, captured immediately (before any further include
+# can shift MAKEFILE_LIST). conf/Makefile.qt lives one level below the source
+# root, so the paparazzi source tree is its parent directory -- derived here so
+# the include works from any sub-Makefile depth and whether or not PAPARAZZI_SRC
+# happens to be exported.
+QT_MK_SELF  := $(abspath $(lastword $(MAKEFILE_LIST)))
+QT_PPRZ_SRC := $(abspath $(dir $(QT_MK_SELF))/..)
+
+# Build configuration (all overridable).
+QT_BUILD_TYPE ?= Release
+QT_SRC_DIR    ?= $(QT_PPRZ_SRC)/sw
+QT_BUILD_DIR  ?= $(QT_PPRZ_SRC)/var/build_qt
+QT_JOBS       ?= $(shell nproc 2>/dev/null || echo 2)
+
+# Prefer Ninja when present (faster, finer-grained parallelism); otherwise fall
+# back to the portable "Unix Makefiles" generator.
+QT_GENERATOR  := $(shell command -v ninja >/dev/null 2>&1 && echo Ninja || echo "Unix Makefiles")
+
+# Reusable build command -- append one or more CMake target names, e.g.
+#     $(QT_CMAKE_BUILD) gcs
+#     $(QT_CMAKE_BUILD) plotter logplotter play
+QT_CMAKE_BUILD = cmake --build "$(QT_BUILD_DIR)" --config $(QT_BUILD_TYPE) --parallel $(QT_JOBS) --target
+
+# Preserve the including Makefile's default goal. This file is usually included
+# near the top of an application Makefile and defines real targets below; without
+# this guard the first of them (qt-configure) would silently become that
+# Makefile's default goal, so a bare `make` would only configure and never build.
+# We snapshot the current default goal here and restore it at the very end.
+__QT_SAVED_DEFAULT_GOAL := $(.DEFAULT_GOAL)
+
+# Configure the shared build tree exactly once. Safe to list as a prerequisite
+# of every Qt target: the CMakeCache.txt guard turns re-invocations into no-ops,
+# and as a single shared prerequisite make runs it at most once per build.
+.PHONY: qt-configure
+qt-configure:
+	$(Q)if [ ! -f "$(QT_BUILD_DIR)/CMakeCache.txt" ]; then \
+		cmake -B "$(QT_BUILD_DIR)" -S "$(QT_SRC_DIR)" -G "$(QT_GENERATOR)" -DCMAKE_BUILD_TYPE=$(QT_BUILD_TYPE); \
+	fi
+
+# Remove the shared Qt build tree. The per-app `clean` rules invoke this so a
+# top-level `make clean` (which recurses into every sub-Makefile) wipes it, and
+# it is idempotent when several apps trigger it in turn.
+.PHONY: qt-clean
+qt-clean:
+	$(Q)rm -rf "$(QT_BUILD_DIR)"
+
+# Restore the including Makefile's default goal (see note above). If none had
+# been set yet, this clears it again so the next target the includer defines
+# (conventionally `all`) becomes the default goal as expected.
+.DEFAULT_GOAL := $(__QT_SAVED_DEFAULT_GOAL)

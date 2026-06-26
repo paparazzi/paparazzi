@@ -41,6 +41,8 @@
 #ifndef PPRZ_VERSION_H
 #define PPRZ_VERSION_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -71,11 +73,11 @@ static inline uint8_t nibble_from_char(char c)
  */
 static inline void get_pprz_git_version(uint8_t sha1[8])
 {
-  static char *git_sha = GIT_VERSION;
-  uint8_t *p;
+  static const char *git_sha = GIT_VERSION;
+  const uint8_t *p;
   uint8_t i;
 
-  for (i = 0, p = (uint8_t *) git_sha; i < 8; i++) {
+  for (i = 0, p = (const uint8_t *) git_sha; i < 8; i++) {
     sha1[i] = (nibble_from_char(*p) << 4) | nibble_from_char(*(p + 1));
     p += 2;
   }
