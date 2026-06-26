@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/python3
 
 #  Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
 #
@@ -79,7 +79,7 @@ def main():
         parser.error("Please specify the aircraft name.")
 
     # get environment
-    paparazzi_home = os.environ['PAPARAZZI_HOME']
+    paparazzi_home = os.environ.get('PAPARAZZI_HOME')
     if not paparazzi_home:
         paparazzi_home = os.getcwd()
     if options.verbose:
