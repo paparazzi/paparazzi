@@ -155,6 +155,7 @@ class SessionWidget(QWidget, Ui_Session):
             cmd = [os.path.join(utils.PAPARAZZI_SRC, tool.command)] + flat_args
 
         pw = ProgramWidget(tool.name, cmd, tool.icon, self.programs_widget)
+        pw.aircraft = self.ac
         self.program_widgets.append(pw)
         lay: QVBoxLayout = self.programs_widget.layout()
         lay.insertWidget(lay.count()-1, pw)

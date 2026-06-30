@@ -8,8 +8,9 @@ import utils
 from program_widget import ProgramWidget
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, List, Optional
 import re
+from conf import Aircraft
 
 
 class Level(Enum):
@@ -46,10 +47,15 @@ class ConsoleWidget(QWidget, Ui_Console):
         self.setupUi(self)
         self.records: List[Record] = []
         self.p_checkboxes: Dict[ProgramWidget, QCheckBox] = {}
+        self.current_aircraft: Optional[Aircraft] = None
         self.programs_checkbox.stateChanged.connect(self.handle_check_all)
         self.log_level_slider.valueChanged.connect(self.log_level_changed)
         self.clear_button.clicked.connect(self.clear)
         self.splitter.setSizes([500, 100])
+
+    def set_aircraft(self, ac: Aircraft):
+        self.current_aircraft = ac
+        self.update_content()
 
     def display_record(self, record):
         if record.level == Level.ERROR:
@@ -100,8 +106,10 @@ class ConsoleWidget(QWidget, Ui_Console):
 
             level = self.classify(line)
             r = Record(level, line, pw, channel)
+            r.aircraft = getattr(pw, "aircraft", None)
             self.records.append(r)
-            self.display_record(r)
+            if self.filter(r):
+                self.display_record(r)
 
     def handle_stdout(self, pw: ProgramWidget):
         data = pw.process.readAllStandardOutput()
@@ -119,8 +127,10 @@ class ConsoleWidget(QWidget, Ui_Console):
 
     def post_message(self, pw: ProgramWidget, msg):
         r = Record(Level.ALL, msg, pw, Channel.MANAGEMENT)
+        r.aircraft = getattr(pw, "aircraft", None)
         self.records.append(r)
-        self.display_record(r)
+        if self.filter(r):
+            self.display_record(r)
 
     def new_program(self, pw: ProgramWidget):
         chk = QCheckBox(pw.shortname, self.programs_widget)
@@ -186,8 +196,12 @@ class ConsoleWidget(QWidget, Ui_Console):
         if self.programs_checkbox.checkState() != Qt.Unchecked:
             if r.emitter is None:
                 return False
+            if r.emitter not in self.p_checkboxes:
+                return False
             if self.p_checkboxes[r.emitter].checkState() != Qt.Checked:
                 return False
+        if self.current_aircraft is not None:
+            return getattr(r, "aircraft", getattr(r.emitter, "aircraft", None)) == self.current_aircraft
         return True
 
     def update_content(self):

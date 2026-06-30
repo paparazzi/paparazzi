@@ -9,6 +9,7 @@ import utils
 
 MOD_DEP = os.path.join(utils.PAPARAZZI_SRC, "sw", "tools", "generators", "dump_modules_list.out")
 CONF = os.path.join(utils.PAPARAZZI_HOME, "conf", "conf.xml")
+PLACEHOLDER = "<...>"
 
 
 class ConfError(Exception):
@@ -174,6 +175,36 @@ class Aircraft:
             raise ConfError("XMLSyntaxError, file {} is illformed !".format(self.airframe))
 
 
+def common_aircraft_config(aircrafts: List[Aircraft]) -> AircraftConfig:
+    if not aircrafts:
+        return AircraftConfig()
+
+    configs = [ac.get_config() for ac in aircrafts]
+
+    def common_value(field: str) -> str:
+        first = getattr(configs[0], field)
+        if all(getattr(config, field) == first for config in configs[1:]):
+            return first
+        return PLACEHOLDER
+
+    def common_settings(field: str) -> List[Setting]:
+        first = getattr(configs[0], field)
+        settings_lists = [getattr(config, field) for config in configs]
+        common = [setting for setting in first if all(setting in settings for settings in settings_lists[1:])]
+        if any(settings != first for settings in settings_lists[1:]):
+            common.append(Setting(PLACEHOLDER, False))
+        return common
+
+    return AircraftConfig(
+        common_value("airframe"),
+        common_value("radio"),
+        common_value("telemetry"),
+        common_value("flight_plan"),
+        common_settings("settings"),
+        common_settings("settings_modules"),
+    )
+
+
 class Conf:
     def __init__(self, file: str):
         self.file = file        # type: str
@@ -274,7 +305,6 @@ class Conf:
         except OSError as e:
             os.remove(CONF)
             os.symlink(conf, CONF)
-
 
 
 

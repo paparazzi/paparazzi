@@ -14,6 +14,7 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
 
     clear_error = QtCore.pyqtSignal()
     ac_edited = QtCore.pyqtSignal(Aircraft)
+    config_file_changed = QtCore.pyqtSignal(str, str)
     program_state_changed = QtCore.pyqtSignal(TabProgramsState)
 
     def __init__(self, parent=None, *args, **kwargs):
@@ -23,6 +24,7 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
         self.currentAC = None   # type: Aircraft
         self.flight_plan_editor = None
         self.programs_state: TabProgramsState = TabProgramsState.IDLE
+        self.conf_widget.file_changed.connect(self.handle_config_file_changed)
         self.conf_widget.conf_changed.connect(self.handle_conf_changed)
         self.conf_widget.setting_changed.connect(self.handle_setting_changed)
         self.conf_widget.flight_plan.edit_alt.connect(self.edit_flightplan_gcs)
@@ -46,11 +48,20 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
         self.conf_widget.set_ac(ac)
         self.build_widget.update_targets(ac)
 
+    def display_config(self, config: AircraftConfig):
+        self.currentAC = None
+        self.conf_widget.setDisabled(False)
+        self.conf_widget.set_config(config)
+
     def handle_setting_changed(self):
         self.apply_current_widget_config()
 
     def handle_conf_changed(self):
         self.apply_current_widget_config()
+
+    def handle_config_file_changed(self, field: str, path: str):
+        if self.currentAC is None:
+            self.config_file_changed.emit(field, path)
 
     def apply_current_widget_config(self):
         if self.currentAC is None:
@@ -77,8 +88,9 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
             subprocess.Popen(cmd)
             # self.launch_program(self.flight_plan_editor.name, cmd, self.flight_plan_editor.icon)
 
-    def launch_program(self, shortname, cmd, icon, cb):
+    def launch_program(self, shortname, cmd, icon, cb, aircraft=None):
         pw = ProgramWidget(shortname, cmd, icon, self.programs_widget)
+        pw.aircraft = aircraft if aircraft is not None else self.currentAC
         self.programs_widget.layout().addWidget(pw)
         pw.ready_read_stderr.connect(lambda: self.console_widget.handle_stderr(pw))
         pw.ready_read_stdout.connect(lambda: self.console_widget.handle_stdout(pw))
