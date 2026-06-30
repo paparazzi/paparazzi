@@ -71,6 +71,9 @@ class BuildWidget(Ui_Build, QWidget):
     def update_targets(self, ac: Aircraft):
         self.ac = ac
         self.target_combo.clear()
+        self.device_combo.clear()
+        if ac is None:
+            return
 
         for target in ac.boards.keys():
             self.target_combo.addItem(target)

@@ -37,38 +37,29 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
     def set_ac(self, ac: Aircraft):
         if ac is None:
             self.conf_widget.setDisabled(True)
+            self.currentAC = None
+            self.conf_widget.reset()
+            self.build_widget.update_targets(ac)
+            return
+        self.conf_widget.setDisabled(False)
         self.currentAC = ac
         self.conf_widget.set_ac(ac)
         self.build_widget.update_targets(ac)
 
     def handle_setting_changed(self):
-        def make_setting(item: QListWidgetItem):
-            name = item.text()
-            state = True if item.checkState() == QtCore.Qt.Checked else False
-            return Setting(name, state)
+        self.apply_current_widget_config()
 
-        modules, settings = [], []
-        for i in range(self.conf_widget.settings.settings.count()):
-            item = self.conf_widget.settings.settings.item(i)
-            s = make_setting(item)
-            if item.text().startswith("module"):
-                modules.append(s)
-            else:
-                settings.append(s)
+    def handle_conf_changed(self):
+        self.apply_current_widget_config()
 
-        self.currentAC.settings_modules = modules
-        self.currentAC.settings = settings
+    def apply_current_widget_config(self):
+        if self.currentAC is None:
+            return
+        self.currentAC.set_config(self.conf_widget.get_config())
         self.ac_edited.emit(self.currentAC)
         # should we save each time a tiny change is made ? very inefficient !
         # self.conf.save()
 
-    def handle_conf_changed(self):
-        self.currentAC.airframe = self.conf_widget.airframe.path
-        self.currentAC.flight_plan = self.conf_widget.flight_plan.path
-        self.currentAC.radio = self.conf_widget.radio.path
-        self.currentAC.telemetry = self.conf_widget.telemetry.path
-        self.ac_edited.emit(self.currentAC)
-    
     def handle_tools_changed(self, tools: Dict[str, Tool]):
         if "Flight Plan Editor" in tools:
             self.flight_plan_editor = tools["Flight Plan Editor"]

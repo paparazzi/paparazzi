@@ -3,6 +3,7 @@ from PyQt5 import QtCore
 
 import conf
 import utils
+from conf import AircraftConfig, Setting
 from conf_file_widget import ConfFileWidget
 from conf_settings_widget import ConfSettingsWidget
 
@@ -40,15 +41,40 @@ class ConfWidget(QWidget):
         lay.addWidget(self.telemetry)
 
     def set_ac(self, ac: conf.Aircraft):
-        self.airframe.set_path(ac.airframe)
-        self.telemetry.set_path(ac.telemetry)
-        self.radio.set_path(ac.radio)
-        self.flight_plan.set_path(ac.flight_plan)
+        self.set_config(ac.get_config())
+
+    def set_config(self, config: AircraftConfig):
+        self.airframe.set_path(config.airframe)
+        self.telemetry.set_path(config.telemetry)
+        self.radio.set_path(config.radio)
+        self.flight_plan.set_path(config.flight_plan)
         self.settings.settings.clear()
-        for setting in ac.settings + ac.settings_modules:
+        for setting in config.settings + config.settings_modules:
             item = QListWidgetItem(setting.name)
             item.setCheckState(QtCore.Qt.Checked if setting.enabled else QtCore.Qt.Unchecked)
             self.settings.settings.addItem(item)
+
+    def get_config(self) -> AircraftConfig:
+        settings, modules = self.get_settings()
+        return AircraftConfig(
+            self.airframe.path,
+            self.radio.path,
+            self.telemetry.path,
+            self.flight_plan.path,
+            settings,
+            modules,
+        )
+
+    def get_settings(self):
+        modules, settings = [], []
+        for i in range(self.settings.settings.count()):
+            item = self.settings.settings.item(i)
+            setting = Setting(item.text(), item.checkState() == QtCore.Qt.Checked)
+            if item.text().startswith("module"):
+                modules.append(setting)
+            else:
+                settings.append(setting)
+        return settings, modules
 
     def edit_setting(self, item: QListWidgetItem):
         utils.edit_file(item.text())
@@ -59,4 +85,3 @@ class ConfWidget(QWidget):
         self.telemetry.set_path("")
         self.radio.set_path("")
         self.settings.settings.clear()
-

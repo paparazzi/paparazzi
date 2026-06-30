@@ -28,6 +28,26 @@ class Setting:
 
 
 @dataclass
+class AircraftConfig:
+    airframe: str = ""
+    radio: str = ""
+    telemetry: str = ""
+    flight_plan: str = ""
+    settings: List[Setting] = field(default_factory=list)
+    settings_modules: List[Setting] = field(default_factory=list)
+
+    def copy(self) -> "AircraftConfig":
+        return AircraftConfig(
+            self.airframe,
+            self.radio,
+            self.telemetry,
+            self.flight_plan,
+            list(self.settings),
+            list(self.settings_modules),
+        )
+
+
+@dataclass
 class Aircraft:
     name: str = ""
     ac_id: int = 0
@@ -59,6 +79,24 @@ class Aircraft:
             self.gui_color = "#{}00{}00{}00".format(r, g, b)
         else:
             self.gui_color = color
+
+    def get_config(self) -> AircraftConfig:
+        return AircraftConfig(
+            self.airframe,
+            self.radio,
+            self.telemetry,
+            self.flight_plan,
+            list(self.settings),
+            list(self.settings_modules),
+        )
+
+    def set_config(self, config: AircraftConfig):
+        self.airframe = config.airframe
+        self.radio = config.radio
+        self.telemetry = config.telemetry
+        self.flight_plan = config.flight_plan
+        self.settings = list(config.settings)
+        self.settings_modules = list(config.settings_modules)
 
     def update(self):
         self.update_targets()
@@ -236,7 +274,6 @@ class Conf:
         except OSError as e:
             os.remove(CONF)
             os.symlink(conf, CONF)
-
 
 
 
