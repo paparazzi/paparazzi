@@ -23,8 +23,6 @@ from aircraft_list_widget import AircraftListWidget
 
 
 dirname = os.path.dirname(os.path.abspath(__file__))
-MODE_MONO = "mono"
-MODE_MULTI = "multi"
 
 
 TAB_ICONS = {TabProgramsState.IDLE: QtGui.QIcon(),
@@ -38,27 +36,21 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.setupUi(self)
         self.conf: Conf = None
         self.currentAc: Aircraft = None
-        self.selection_mode = MODE_MONO
         self.multi_programs_running = 0
         icon = QtGui.QIcon(os.path.join(utils.PAPARAZZI_HOME, "data", "pictures", "penguin_logo.svg"))
         self.setWindowIcon(icon)
 
         self.settings_action.triggered.connect(self.edit_settings)
         self.about_action.triggered.connect(lambda: QMessageBox.about(self, "About Paparazzi", utils.ABOUT_TEXT))
-        self.setup_selection_mode_ui()
+        self.setup_aircraft_list_ui()
 
         self.status_msg = QLabel()
         self.statusBar().addWidget(self.status_msg)
         self.fill_status_bar()
 
         self.header.set_changed.connect(self.handle_set_changed)
-        self.header.ac_changed.connect(self.handle_ac_changed)
         self.header.ac_edited.connect(self.handle_ac_edited)
-        self.header.ac_rename.connect(self.handle_rename_ac)
-        self.header.ac_delete.connect(self.handle_remove_ac)
-        self.header.ac_duplicate.connect(self.handle_new_ac)
         self.header.ac_save.connect(lambda _: self.conf.save())
-        self.header.ac_new.connect(self.handle_new_ac)
 
         self.configuration_panel.build_widget.refresh_ac.connect(self.handle_ac_edited)
         self.configuration_panel.config_file_changed.connect(self.handle_multi_config_file_changed)
@@ -78,12 +70,12 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         settings = utils.get_settings()
         window_size = settings.value("ui/window_size", QtCore.QSize(1000, 600), QtCore.QSize)
         self.resize(window_size)
-        self.set_selection_mode(settings.value("ui/selection_mode", MODE_MONO, str))
+        self.configuration_panel.build_widget.set_multi_mode(True)
         self.configuration_panel.init()
         self.operation_panel.session.init()
         QtCore.QTimer.singleShot(100, self.header.update_sets)
 
-    def setup_selection_mode_ui(self):
+    def setup_aircraft_list_ui(self):
         self.header.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.header.setFixedHeight(self.header.sizeHint().height())
 
@@ -105,47 +97,12 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.verticalLayout.setStretch(0, 0)
         self.verticalLayout.setStretch(1, 1)
 
-        self.mode_menu = self.menuBar().addMenu("Mode")
-        self.mode_action_group = QActionGroup(self)
-        self.mode_action_group.setExclusive(True)
-        self.mono_selection_action = QAction("Mono selection", self)
-        self.mono_selection_action.setCheckable(True)
-        self.multi_selection_action = QAction("Multi selection", self)
-        self.multi_selection_action.setCheckable(True)
-        self.mode_action_group.addAction(self.mono_selection_action)
-        self.mode_action_group.addAction(self.multi_selection_action)
-        self.mode_menu.addAction(self.mono_selection_action)
-        self.mode_menu.addAction(self.multi_selection_action)
-        self.mono_selection_action.triggered.connect(lambda: self.set_selection_mode(MODE_MONO))
-        self.multi_selection_action.triggered.connect(lambda: self.set_selection_mode(MODE_MULTI))
-
-    def set_selection_mode(self, mode: str):
-        if mode not in (MODE_MONO, MODE_MULTI):
-            mode = MODE_MONO
-        self.selection_mode = mode
-        self.header.setVisible(mode == MODE_MONO)
-        self.aircraft_list.setVisible(mode == MODE_MULTI)
-        self.configuration_panel.build_widget.set_multi_mode(mode == MODE_MULTI)
-        self.mono_selection_action.setChecked(mode == MODE_MONO)
-        self.multi_selection_action.setChecked(mode == MODE_MULTI)
-        if mode == MODE_MULTI:
-            if self.multi_programs_running == 0:
-                self.configuration_panel.build_widget.enable_buttons(True)
-            self.update_multi_selection_config()
-        elif self.currentAc is not None:
-            if self.multi_programs_running == 0:
-                self.configuration_panel.build_widget.enable_buttons(True)
-            self.configuration_panel.set_ac(self.currentAc)
-        utils.get_settings().setValue("ui/selection_mode", mode)
-
     def handle_aircraft_list_current_changed(self, ac: Aircraft):
-        if self.selection_mode == MODE_MULTI and ac is not None:
+        if ac is not None:
             self.change_ac(ac)
             self.update_multi_selection_config()
 
     def handle_aircraft_list_row_requested(self, item: QListWidgetItem):
-        if self.selection_mode != MODE_MULTI:
-            return
         with QtCore.QSignalBlocker(self.aircraft_list.list_widget):
             for row in range(self.aircraft_list.list_widget.count()):
                 self.aircraft_list.list_widget.item(row).setCheckState(QtCore.Qt.Unchecked)
@@ -159,8 +116,6 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         if color.isValid():
             color_name = color.name()
             ac.set_color(color_name)
-            if self.currentAc == ac:
-                self.header.color_button.setStyleSheet("background-color: {};".format(color_name))
             self.aircraft_list.list_widget.viewport().update()
 
     def open_aircraft_action_menu(self, ac: Aircraft, pos: QtCore.QPoint):
@@ -184,12 +139,10 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
             self.handle_new_ac()
 
     def handle_aircraft_list_double_clicked(self, ac: Aircraft):
-        if self.selection_mode == MODE_MULTI:
-            self.handle_rename_ac(ac)
+        self.handle_rename_ac(ac)
 
     def handle_aircraft_selection_changed(self):
-        if self.selection_mode == MODE_MULTI:
-            self.update_multi_selection_config()
+        self.update_multi_selection_config()
 
     def update_multi_selection_config(self):
         selected = self.aircraft_list.checked_aircrafts()
@@ -219,18 +172,12 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         return not has_error
 
     def refresh_multi_targets(self):
-        if self.selection_mode != MODE_MULTI:
-            return
         self.configuration_panel.build_widget.update_targets_for_aircrafts(self.aircraft_list.checked_aircrafts())
 
     def refresh_multi_flash_modes(self):
-        if self.selection_mode != MODE_MULTI:
-            return
         self.configuration_panel.build_widget.update_flash_modes_for_aircrafts(self.aircraft_list.checked_aircrafts())
 
     def handle_multi_config_file_changed(self, field: str, path: str):
-        if self.selection_mode != MODE_MULTI:
-            return
         selected = self.aircraft_list.checked_aircrafts()
         for ac in selected:
             setattr(ac, field, path)
@@ -244,9 +191,6 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.update_multi_selection_config()
 
     def run_multi_build_action(self, action: str):
-        if self.selection_mode != MODE_MULTI:
-            return
-
         selected = self.aircraft_list.checked_aircrafts()
         if not selected:
             QMessageBox.warning(self, "No aircraft", "Select at least one aircraft.")
@@ -346,7 +290,6 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.configuration_panel.build_widget.set_conf(self.conf)
         self.log_widget.set_conf(self.conf)
         acs = [ac.name for ac in self.conf.aircrafts]
-        self.header.set_acs(acs)
         self.aircraft_list.set_aircrafts(self.conf.aircrafts)
 
         # set last AC as current if it exits in the current conf
@@ -360,15 +303,9 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         last_target: QtCore.QVariant = settings.value("ui/last_target", None, str)
         if last_target:
             self.configuration_panel.build_widget.target_combo.setCurrentText(last_target)
-        if self.selection_mode == MODE_MULTI:
-            self.update_multi_selection_config()
+        self.update_multi_selection_config()
 
     def handle_ac_edited(self, ac: Aircraft):
-        # check AC ID
-        if len(self.conf.get_all(ac.ac_id)) > 1:
-            self.header.id_spinBox.setStyleSheet("background-color: red;")
-        else:
-            self.header.id_spinBox.setStyleSheet("background-color: white;")
         # update ac, then update all widgets
         try:
             ac.update()
@@ -392,7 +329,6 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         button = QMessageBox.question(self, "Remove AC", "Remove AC <strong>{}</strong>?".format(ac.name))
         if button == QMessageBox.Yes:
             self.conf.remove(ac)
-            self.header.remove_ac(ac)
             self.refresh_aircraft_list()
 
     def handle_new_ac(self, orig: Aircraft = None):
@@ -436,7 +372,6 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
                 new_ac.name = name
                 new_ac.ac_id = ac_id
                 self.conf.append(new_ac)
-                self.header.add_ac(new_ac)
                 self.change_ac(new_ac)
                 self.refresh_aircraft_list()
 
@@ -471,8 +406,7 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
             return
         self.aircraft_list.set_aircrafts(self.conf.aircrafts)
         self.check_only_current_aircraft()
-        if self.selection_mode == MODE_MULTI:
-            self.update_multi_selection_config()
+        self.update_multi_selection_config()
 
     def handle_rename_ac(self, orig: Aircraft):
         ui_dialog = Ui_NewACDialog()
@@ -513,7 +447,6 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
             if result:
                 orig.name = ui_dialog.name_edit.text()
                 orig.ac_id = ui_dialog.id_spinbox.value()
-                self.header.rename_ac(orig.name)
                 self.refresh_aircraft_list()
 
         ui_dialog.buttonBox.accepted.connect(accept)

@@ -237,7 +237,7 @@ class AircraftListWidget(QWidget):
         with QtCore.QSignalBlocker(self.list_widget):
             self.list_widget.clear()
             for ac in aircrafts:
-                item = QListWidgetItem("{} ({})".format(ac.name, ac.ac_id))
+                item = QListWidgetItem("{:>3} - {}".format(ac.ac_id, ac.name))
                 item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
                 item.setCheckState(QtCore.Qt.Unchecked)
                 item.setData(AIRCRAFT_ROLE, ac)
