@@ -7,7 +7,7 @@ import lxml.etree as ET
 import os
 import utils
 from conf import Aircraft, Conf
-from typing import List, Dict
+from typing import Dict, List, Optional, Set
 from dataclasses import dataclass, field
 import re
 
@@ -29,6 +29,7 @@ class BuildWidget(Ui_Build, QWidget):
 
     spawn_program = QtCore.pyqtSignal(str, list, str, object)
     refresh_ac = QtCore.pyqtSignal(object)
+    multi_action_requested = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
@@ -37,6 +38,7 @@ class BuildWidget(Ui_Build, QWidget):
         self.ac: Aircraft = None
         self.conf: Conf = None      # to save conf before building
         self.flash_modes: List[FlashMode] = self.parse_flash_modes()
+        self.multi_mode = False
         self.build_button.clicked.connect(self.build)
         self.clean_button.clicked.connect(self.clean)
         self.flash_button.clicked.connect(self.flash)
@@ -68,9 +70,15 @@ class BuildWidget(Ui_Build, QWidget):
         mode_names = [mode.name for mode in modes]
         return mode_names
 
+    def set_multi_mode(self, enabled: bool):
+        self.multi_mode = enabled
+
     def update_targets(self, ac: Aircraft):
         self.ac = ac
         self.target_combo.clear()
+        self.device_combo.clear()
+        if ac is None:
+            return
 
         for target in ac.boards.keys():
             self.target_combo.addItem(target)
@@ -78,8 +86,27 @@ class BuildWidget(Ui_Build, QWidget):
         if last_target is not None and last_target in ac.boards.keys():
             self.target_combo.setCurrentText(last_target)
 
+    def update_targets_for_aircrafts(self, aircrafts: List[Aircraft]):
+        selected_target = self.target_combo.currentText()
+        self.ac = None
+        self.target_combo.clear()
+        self.device_combo.clear()
+        if not aircrafts:
+            return
+
+        common_targets = set(aircrafts[0].boards.keys())
+        for ac in aircrafts[1:]:
+            common_targets.intersection_update(ac.boards.keys())
+        for target in sorted(common_targets):
+            self.target_combo.addItem(target)
+        if selected_target in common_targets:
+            self.target_combo.setCurrentText(selected_target)
+        self.update_flash_modes_for_aircrafts(aircrafts)
+
     def update_flash_mode(self, target):
         self.device_combo.clear()
+        if self.multi_mode:
+            return
         if target != "":
             self.device_combo.addItem("Default")
             board = self.ac.boards[target]
@@ -89,10 +116,31 @@ class BuildWidget(Ui_Build, QWidget):
             if last_flash_mode in flash_modes:
                 self.device_combo.setCurrentText(last_flash_mode)
 
+    def update_flash_modes_for_aircrafts(self, aircrafts: List[Aircraft]):
+        selected_flash_mode = self.device_combo.currentText()
+        self.device_combo.clear()
+        self.device_combo.addItem("Default")
+        target = self.target_combo.currentText()
+        if not aircrafts or not target:
+            return
+
+        common_modes: Optional[Set[str]] = None
+        for ac in aircrafts:
+            board = ac.boards.get(target)
+            modes = set(self.get_flash_modes(board)) if board is not None else set()
+            common_modes = modes if common_modes is None else common_modes.intersection(modes)
+        if common_modes:
+            self.device_combo.addItems(sorted(common_modes))
+        if selected_flash_mode and self.device_combo.findText(selected_flash_mode) >= 0:
+            self.device_combo.setCurrentText(selected_flash_mode)
+
     def get_current_target(self) -> str:
         return self.target_combo.currentText()
 
     def build(self):
+        if self.multi_mode:
+            self.multi_action_requested.emit("Build")
+            return
         target = self.target_combo.currentText()
         cmd = ["make", "-C", utils.PAPARAZZI_HOME, "-f", "Makefile.ac",
                "AIRCRAFT={}".format(self.ac.name), "{}.compile".format(target)]
@@ -107,6 +155,9 @@ class BuildWidget(Ui_Build, QWidget):
         self.spawn_program.emit(shortname, cmd, None, lambda: self.enable_buttons(True))
 
     def clean(self):
+        if self.multi_mode:
+            self.multi_action_requested.emit("Clean")
+            return
         cmd = ["make", "-C", utils.PAPARAZZI_HOME, "-f", "Makefile.ac",
                "AIRCRAFT={}".format(self.ac.name), "clean_ac"]
         shortname = "Clean {}".format(self.ac.name)
@@ -114,6 +165,9 @@ class BuildWidget(Ui_Build, QWidget):
         self.spawn_program.emit(shortname, cmd, None, lambda: self.enable_buttons(True))
 
     def flash(self):
+        if self.multi_mode:
+            self.multi_action_requested.emit("Flash")
+            return
         target = self.target_combo.currentText()
         vars = []
         flash_mode = self.device_combo.currentText()
@@ -133,3 +187,4 @@ class BuildWidget(Ui_Build, QWidget):
     def enable_buttons(self, enable: bool):
         self.build_button.setEnabled(enable)
         self.clean_button.setEnabled(enable)
+        self.flash_button.setEnabled(enable)

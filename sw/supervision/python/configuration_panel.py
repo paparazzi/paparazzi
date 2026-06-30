@@ -14,6 +14,7 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
 
     clear_error = QtCore.pyqtSignal()
     ac_edited = QtCore.pyqtSignal(Aircraft)
+    config_file_changed = QtCore.pyqtSignal(str, str)
     program_state_changed = QtCore.pyqtSignal(TabProgramsState)
 
     def __init__(self, parent=None, *args, **kwargs):
@@ -23,6 +24,7 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
         self.currentAC = None   # type: Aircraft
         self.flight_plan_editor = None
         self.programs_state: TabProgramsState = TabProgramsState.IDLE
+        self.conf_widget.file_changed.connect(self.handle_config_file_changed)
         self.conf_widget.conf_changed.connect(self.handle_conf_changed)
         self.conf_widget.setting_changed.connect(self.handle_setting_changed)
         self.conf_widget.flight_plan.edit_alt.connect(self.edit_flightplan_gcs)
@@ -37,38 +39,38 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
     def set_ac(self, ac: Aircraft):
         if ac is None:
             self.conf_widget.setDisabled(True)
+            self.currentAC = None
+            self.conf_widget.reset()
+            self.build_widget.update_targets(ac)
+            return
+        self.conf_widget.setDisabled(False)
         self.currentAC = ac
         self.conf_widget.set_ac(ac)
         self.build_widget.update_targets(ac)
 
+    def display_config(self, config: AircraftConfig):
+        self.currentAC = None
+        self.conf_widget.setDisabled(False)
+        self.conf_widget.set_config(config)
+
     def handle_setting_changed(self):
-        def make_setting(item: QListWidgetItem):
-            name = item.text()
-            state = True if item.checkState() == QtCore.Qt.Checked else False
-            return Setting(name, state)
+        self.apply_current_widget_config()
 
-        modules, settings = [], []
-        for i in range(self.conf_widget.settings.settings.count()):
-            item = self.conf_widget.settings.settings.item(i)
-            s = make_setting(item)
-            if item.text().startswith("module"):
-                modules.append(s)
-            else:
-                settings.append(s)
+    def handle_conf_changed(self):
+        self.apply_current_widget_config()
 
-        self.currentAC.settings_modules = modules
-        self.currentAC.settings = settings
+    def handle_config_file_changed(self, field: str, path: str):
+        if self.currentAC is None:
+            self.config_file_changed.emit(field, path)
+
+    def apply_current_widget_config(self):
+        if self.currentAC is None:
+            return
+        self.currentAC.set_config(self.conf_widget.get_config())
         self.ac_edited.emit(self.currentAC)
         # should we save each time a tiny change is made ? very inefficient !
         # self.conf.save()
 
-    def handle_conf_changed(self):
-        self.currentAC.airframe = self.conf_widget.airframe.path
-        self.currentAC.flight_plan = self.conf_widget.flight_plan.path
-        self.currentAC.radio = self.conf_widget.radio.path
-        self.currentAC.telemetry = self.conf_widget.telemetry.path
-        self.ac_edited.emit(self.currentAC)
-    
     def handle_tools_changed(self, tools: Dict[str, Tool]):
         if "Flight Plan Editor" in tools:
             self.flight_plan_editor = tools["Flight Plan Editor"]
@@ -86,8 +88,9 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
             subprocess.Popen(cmd)
             # self.launch_program(self.flight_plan_editor.name, cmd, self.flight_plan_editor.icon)
 
-    def launch_program(self, shortname, cmd, icon, cb):
+    def launch_program(self, shortname, cmd, icon, cb, aircraft=None):
         pw = ProgramWidget(shortname, cmd, icon, self.programs_widget)
+        pw.aircraft = aircraft if aircraft is not None else self.currentAC
         self.programs_widget.layout().addWidget(pw)
         pw.ready_read_stderr.connect(lambda: self.console_widget.handle_stderr(pw))
         pw.ready_read_stdout.connect(lambda: self.console_widget.handle_stdout(pw))
