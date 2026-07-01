@@ -28,7 +28,6 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
         self.conf_widget.conf_changed.connect(self.handle_conf_changed)
         self.conf_widget.setting_changed.connect(self.handle_setting_changed)
         self.conf_widget.flight_plan.edit_alt.connect(self.edit_flightplan_gcs)
-        self.build_widget.spawn_program.connect(self.launch_program)
 
     def init(self):
         settings = utils.get_settings()
@@ -41,12 +40,10 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
             self.conf_widget.setDisabled(True)
             self.currentAC = None
             self.conf_widget.reset()
-            self.build_widget.update_targets(ac)
             return
         self.conf_widget.setDisabled(False)
         self.currentAC = ac
         self.conf_widget.set_ac(ac)
-        self.build_widget.update_targets(ac)
 
     def display_config(self, config: AircraftConfig):
         self.currentAC = None

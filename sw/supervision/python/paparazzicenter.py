@@ -52,12 +52,8 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.header.ac_edited.connect(self.handle_ac_edited)
         self.header.ac_save.connect(lambda _: self.conf.save())
 
-        self.configuration_panel.build_widget.refresh_ac.connect(self.handle_ac_edited)
         self.configuration_panel.config_file_changed.connect(self.handle_multi_config_file_changed)
-        self.configuration_panel.build_widget.multi_action_requested.connect(self.run_multi_build_action)
-        self.configuration_panel.build_widget.target_combo.currentTextChanged.connect(
-            lambda _: self.refresh_multi_flash_modes()
-        )
+        self.configuration_panel.build_widget.multi_action_requested.connect(self.handle_build_widget_action)
         self.configuration_panel.program_state_changed.connect(lambda state: self.programs_state_changed(state, 0))
         self.operation_panel.session.program_state_changed.connect(lambda state: self.programs_state_changed(state, 1))
 
@@ -70,7 +66,6 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         settings = utils.get_settings()
         window_size = settings.value("ui/window_size", QtCore.QSize(1000, 600), QtCore.QSize)
         self.resize(window_size)
-        self.configuration_panel.build_widget.set_multi_mode(True)
         self.configuration_panel.init()
         self.operation_panel.session.init()
         QtCore.QTimer.singleShot(100, self.header.update_sets)
@@ -152,7 +147,7 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
             self.configuration_panel.set_ac(None)
             return
         if self.refresh_selected_aircrafts(selected):
-            self.refresh_multi_targets()
+            self.configuration_panel.build_widget.update_targets_for_aircrafts(self.aircraft_list.checked_aircrafts())
         else:
             self.configuration_panel.build_widget.update_targets_for_aircrafts([])
         self.configuration_panel.display_config(common_aircraft_config(selected))
@@ -171,12 +166,6 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
             self.clear_error()
         return not has_error
 
-    def refresh_multi_targets(self):
-        self.configuration_panel.build_widget.update_targets_for_aircrafts(self.aircraft_list.checked_aircrafts())
-
-    def refresh_multi_flash_modes(self):
-        self.configuration_panel.build_widget.update_flash_modes_for_aircrafts(self.aircraft_list.checked_aircrafts())
-
     def handle_multi_config_file_changed(self, field: str, path: str):
         selected = self.aircraft_list.checked_aircrafts()
         for ac in selected:
@@ -189,6 +178,12 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
                 self.aircraft_list.set_error(ac, e.__str__())
                 self.handle_error(e.__str__())
         self.update_multi_selection_config()
+
+    def handle_build_widget_action(self, action: str):
+        if action == "RefreshFlashModes":
+            self.configuration_panel.build_widget.update_flash_modes_for_aircrafts(self.aircraft_list.checked_aircrafts())
+        else:
+            self.run_multi_build_action(action)
 
     def run_multi_build_action(self, action: str):
         selected = self.aircraft_list.checked_aircrafts()
@@ -287,7 +282,6 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
     def handle_set_changed(self, conf_file):
         self.conf = Conf(conf_file)
         Conf.set_current_conf(conf_file)
-        self.configuration_panel.build_widget.set_conf(self.conf)
         self.log_widget.set_conf(self.conf)
         acs = [ac.name for ac in self.conf.aircrafts]
         self.aircraft_list.set_aircrafts(self.conf.aircrafts)
