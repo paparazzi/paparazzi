@@ -117,7 +117,7 @@
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == DROP_NONE" deroute="Standby"/>
       <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == RUN_TRACK" deroute="Run Track"/>
-      <call_once fun="ins_reset_vertical_pos()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
       <call_once fun="DropClose()"/>
       <call_once fun="NavResurrect()"/>
       <set value="false" var="force_forward"/>

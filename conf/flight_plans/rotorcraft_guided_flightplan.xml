@@ -51,7 +51,7 @@ Remember to choose AP_MODE_GUIDED or else it won't work!!!
       <set var = "vel_body_x_FF" value="0."/>
       <set var = "vel_body_y_FF" value="0."/>
       <set var = "vel_body_z_FF" value="0."/>
-      <call_once fun="ins_reset_altitude_ref()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
       <while cond="1"/>
     </block>
 
