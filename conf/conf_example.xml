@@ -1,17 +1,6 @@
 <conf>
   <aircraft
-   name="ardrone2"
-   ac_id="31"
-   airframe="airframes/examples/ardrone2.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/nps.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml modules/geo_mag.xml modules/gps.xml modules/gps_ublox.xml modules/gps_ubx_ucenter.xml modules/guidance_pid_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_rotorcraft.xml modules/stabilization_int_quat.xml modules/video_rtp_stream.xml"
-   gui_color="red"
-  />
-  <aircraft
-   name="bebop2"
+   name="Bebop2"
    ac_id="203"
    airframe="airframes/examples/bebop2_indi.xml"
    radio="radios/dummy.xml"
@@ -22,15 +11,26 @@
    gui_color="red"
   />
   <aircraft
-   name="bebop2_gvf"
+   name="Disco"
    ac_id="204"
-   airframe="airframes/examples/bebop2_gvf.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/GVF/gvf_default_rotorcraft.xml"
-   flight_plan="flight_plans/demo_gvf_rotorcraft.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/gps_ubx_ucenter.xml modules/guidance_pid_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gvf_classic.xml~GVF~ modules/imu_common.xml modules/ins_ekf2.xml modules/nav_rotorcraft.xml modules/stabilization_indi_simple.xml"
+   airframe="airframes/test_boards/disco.xml"
+   radio="radios/T10CG_SBUS.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/fixedwing_basic.xml"
+   settings_modules="modules/ahrs_float_dcm.xml modules/air_data.xml modules/airspeed_ms45xx_i2c.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/gps_ubx_ucenter.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_adaptive_fw.xml"
    gui_color="#6200a000ea00"
+  />
+  <aircraft
+   name="Ardrone2"
+   ac_id="31"
+   airframe="airframes/examples/ardrone2.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/nps.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml modules/geo_mag.xml modules/gps.xml modules/gps_ublox.xml modules/gps_ubx_ucenter.xml modules/guidance_pid_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_rotorcraft.xml modules/stabilization_int_quat.xml modules/video_rtp_stream.xml"
+   gui_color="red"
   />
   <aircraft
    name="bebop2_opticflow"
