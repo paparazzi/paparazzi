@@ -405,14 +405,17 @@ public:
         // Now parse the standard XML properties (Conf and Protocols). Many Paparazzi .log files
         // miss a single root element wrapper.
         QDomDocument doc;
-        QDomDocument::ParseResult result = doc.setContent(content);
-        if (!result) {
+        QString errorMsg;
+        int errorLine = 0;
+        int errorColumn = 0;
+        bool ok = doc.setContent(content, &errorMsg, &errorLine, &errorColumn);
+        if (!ok) {
             // Attempt to wrap it
             QString wrapped = QStringLiteral("<root>") + content + QStringLiteral("</root>");
-            result = doc.setContent(wrapped);
-            if (!result) {
-                qWarning() << "XML Parse Error:" << result.errorMessage
-                           << "at line:" << result.errorLine;
+            ok = doc.setContent(wrapped, &errorMsg, &errorLine, &errorColumn);
+            if (!ok) {
+                qWarning() << "XML Parse Error:" << errorMsg
+                           << "at line:" << errorLine;
             }
         }
 
@@ -803,8 +806,7 @@ private:
             return {};
         const QByteArray data = f.readAll();
         f.close();
-        const QDomDocument::ParseResult res = docOut.setContent(data);
-        if (!res)
+        if (!docOut.setContent(data))
             return {};
         const QDomElement root = docOut.documentElement();
         if (root.tagName() != QLatin1String("protocol"))
