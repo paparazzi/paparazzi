@@ -80,7 +80,7 @@ class SessionWidget(QWidget, Ui_Session):
     def update_control_panels(self):
         cpfs = paparazzi.get_list_of_controlpanel_files()
         self.control_panel_combo.addItems(cpfs)
-        last_cp = utils.get_settings().value("ui/last_control_panel", None, str)
+        last_cp = utils.get_settings().value("ui/last_control_panel", "control_panel.xml", str)
         if last_cp is not None and last_cp in cpfs:
             self.control_panel_combo.setCurrentText(last_cp)
 

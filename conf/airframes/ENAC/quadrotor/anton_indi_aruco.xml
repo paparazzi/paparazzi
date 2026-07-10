@@ -11,12 +11,10 @@
   </description>
 
   <firmware name="rotorcraft">
-    <!--autopilot name="rotorcraft_autopilot"/-->
-
-    <configure name="PERIODIC_FREQUENCY" value="1000"/>
+    <configure name="PERIODIC_FREQUENCY" value="500"/>
     <configure name="AHRS_PROPAGATE_FREQUENCY" value="$(PERIODIC_FREQUENCY)"/>
 
-    <target name="ap" board="tawaki_1.0">
+    <target name="ap" board="tawaki_1.1">
       <configure name="BARO_PERIODIC_FREQUENCY" value="50"/>
       <module name="radio_control" type="sbus"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
@@ -35,7 +33,7 @@
 
     <module name="board" type="tawaki">
       <define name="IMU_MPU_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
-      <define name="IMU_MPU_ACCEL_LOWPASS_FILTER" value="MPU60X0_DLPF_ACC_218HZ"/>
+      <define name="IMU_MPU_ACCEL_LOWPASS_FILTER" value="MPU60X0_DLPF_ACC_44HZ"/>
       <define name="IMU_MPU_SMPLRT_DIV" value="0"/>
     </module>
     <module name="gps" type="ublox">
@@ -86,14 +84,16 @@
     </module>
 
     <module name="flight_recorder"/>
-    <!--module name="logger" type="tune_indi"/-->
+    <module name="logger_control_effectiveness">
+      <define name="LOGGER_CONTROL_EFFECTIVENESS_ACTUATORS" value="TRUE"/>
+    </module>
   </firmware>
 
   <servos driver="DShot">
-    <servo name="FR" no="3" min="0" neutral="100" max="2000"/>
-    <servo name="BR" no="4" min="0" neutral="100" max="2000"/>
-    <servo name="BL" no="2" min="0" neutral="100" max="2000"/>
-    <servo name="FL" no="1" min="0" neutral="100" max="2000"/>
+    <servo name="FR" no="1" min="0" neutral="100" max="2000"/>
+    <servo name="BR" no="3" min="0" neutral="100" max="2000"/>
+    <servo name="BL" no="4" min="0" neutral="100" max="2000"/>
+    <servo name="FL" no="2" min="0" neutral="100" max="2000"/>
   </servos>
 
   <servos driver="Pwm">
@@ -116,33 +116,40 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="GYRO_P_SIGN" value="-1"/>
-    <define name="GYRO_Q_SIGN" value="-1"/>
-    <define name="GYRO_R_SIGN" value="1"/>
-
-    <define name="ACCEL_X_SIGN" value="-1"/>
-    <define name="ACCEL_Y_SIGN" value="-1"/>
-    <define name="ACCEL_Z_SIGN" value="1"/>
-    <define name="ACCEL_X_NEUTRAL" value="-90"/>
-    <define name="ACCEL_Y_NEUTRAL" value="40"/>
-    <define name="ACCEL_Z_NEUTRAL" value="12"/>
-    <define name="ACCEL_X_SENS" value="2.321864827044042" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.450207588413862" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="2.4560049628471914" integer="16"/>
-
-    <define name="MAG_X_SIGN" value="-1"/>
-    <define name="MAG_Y_SIGN" value="-1"/>
-    <define name="MAG_Z_SIGN" value="1"/>
-    <define name="MAG_X_NEUTRAL" value="437"/>
-    <define name="MAG_Y_NEUTRAL" value="-2357"/>
-    <define name="MAG_Z_NEUTRAL" value="1978"/>
-    <define name="MAG_X_SENS" value="0.6420696170457475" integer="16"/>
-    <define name="MAG_Y_SENS" value="0.6426945667319279" integer="16"/>
-    <define name="MAG_Z_SENS" value="0.6220200205771864" integer="16"/>
-
+    <define name="ACCEL_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="9"/>
+        <field name="calibrated" type="struct">
+          <field name="neutral" value="true"/>
+          <field name="scale_f" value="true"/>
+        </field>
+        <field name="neutral" value="10,68,3" type="int[]"/>
+        <field name="scale_f" value="{ 2.3211, 2.5230, 2.4626 }"/>
+      </field>
+    </define>
+    <define name="GYRO_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="9"/>
+        <field name="calibrated" type="struct">
+          <field name="neutral" value="false"/>
+          <field name="scale" value="false"/>
+        </field>
+      </field>
+    </define>
+    <define name="MAG_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="3"/>
+        <field name="calibrated" type="struct">
+          <field name="neutral" value="true"/>
+          <field name="scale_f" value="true"/>
+        </field>
+        <field name="neutral" value="-2363,-1822,465" type="int[]"/>
+        <field name="scale_f" value="{ 0.6602, 0.6527, 0.6475 }"/>
+      </field>
+    </define>
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI" value="-45." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="-135." unit="deg"/>
   </section>
 
   <section name="MAG">
@@ -157,7 +164,7 @@
     <!-- setpoints -->
     <define name="SP_MAX_PHI" value="45." unit="deg"/>
     <define name="SP_MAX_THETA" value="45." unit="deg"/>
-    <define name="SP_MAX_R" value="60." unit="deg/s"/>
+    <define name="SP_MAX_R" value="80." unit="deg/s"/>
     <define name="DEADBAND_R" value="250"/>
   </section>
 
@@ -184,15 +191,15 @@
     <!-- Full INDI -->
     <!-- control effectiveness -->
     <define name="G1" type="matrix">
-      <field value="{-40 , -40, 40 , 40 }"/>
-      <field value="{40 , -40, -40 , 40 }"/>
-      <field value="{5, -5, 5, -5}"/>
-      <field value="{-1.5, -1.5, -1.5, -1.5}"/>
+      <field value="{-31, -31,  31, 31 }"/>
+      <field value="{ 31, -31, -31, 31 }"/>
+      <field value="{-2.5, 2.5, -2.5, 2.5}"/>
+      <field value="{-1., -1., -1., -1.}"/>
     </define>
     <!--Counter torque effect of spinning up a rotor-->
-    <define name="G2" value="{150.0,   -150.0,  150.0,   -150.0 }"/>
+    <define name="G2" value="{-150.0, 150.0, -150.0, 150.0 }"/>
     <!-- first order actuator dynamics -->
-    <define name="ACT_FREQ" value="{30.5, 30.5, 30.5, 30.5}"/>
+    <define name="ACT_FREQ" value="{19.4, 19.4, 19.4, 19.4}"/>
     <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
 
     <!--Priority for each axis (roll, pitch, yaw and thrust)-->
@@ -231,13 +238,13 @@
   <section name="BAT">
     <define name="MilliAmpereOfAdc(_adc)" value="(20.76*_adc-9970)"/>
     <!-- 3 Cells -->
-    <!--define name="CRITIC_BAT_LEVEL" value="9.3" unit="V"/-->
+    <define name="CRITIC_BAT_LEVEL" value="9.3" unit="V"/>
     <!-- 4 Cells -->
-    <define name="CATASTROPHIC_BAT_LEVEL" value="12.3" unit="V"/>
+    <!--define name="CATASTROPHIC_BAT_LEVEL" value="12.3" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="13." unit="V"/>
     <define name="LOW_BAT_LEVEL" value="13.5" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="17.0" unit="V"/>
-    <define name="BAT_NB_CELLS" value="4"/>
+    <define name="BAT_NB_CELLS" value="4"/-->
   </section>
 
   <section name="AUTOPILOT">
