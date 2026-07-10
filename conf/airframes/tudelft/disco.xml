@@ -57,7 +57,6 @@ ffmpeg -f concat -safe 0 -i images.txt -c:v libx264 -crf 18 -profile:v baseline 
     </module>
     <module name="airspeed" type="ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c1"/>
-      <define name="MS45XX_PRESSURE_RANVE" value="0.05"/>
     </module>
     <module name="air_data"/>
     <module name="actuators" type="disco"/>

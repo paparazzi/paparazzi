@@ -142,7 +142,7 @@
       <exception cond="GetPosHeight() @GT 3. @AND mission_nb == DROP_NONE" deroute="Standby"/>
       <exception cond="GetPosHeight() @GT 3. @AND mission_nb == SEARCH_UNC" deroute="Run Search Uncertain"/>
       <exception cond="GetPosHeight() @GT 3. @AND mission_nb == SEARCH_AREA" deroute="Start Search Area" />
-      <call_once fun="ins_reset_vertical_pos()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0.1" until="stage_time @GT 2" vmode="throttle"/>
       <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>

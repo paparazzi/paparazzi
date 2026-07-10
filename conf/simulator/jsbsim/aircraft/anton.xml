@@ -126,7 +126,7 @@
 
   <flight_control name="actuator_dynamics">
 
-    <property value="30.">fcs/motor_lag</property>
+    <property value="40.">fcs/motor_lag</property>
     <property value="50.">fcs/motor_d_filter</property>
     <property value="1.">fcs/g1_gain</property>
     <property value="1.">fcs/g2_gain</property>
@@ -355,7 +355,7 @@
       <direction>
         <x>0</x>
         <y>0</y>
-        <z>1</z>
+        <z>-1</z>
       </direction>
     </moment>
 
@@ -375,7 +375,7 @@
       <direction>
         <x>0</x>
         <y>0</y>
-        <z>1</z>
+        <z>-1</z>
       </direction>
     </moment>
 
@@ -395,7 +395,7 @@
       <direction>
         <x>0</x>
         <y>0</y>
-        <z>-1</z>
+        <z>1</z>
       </direction>
     </moment>
 
@@ -415,7 +415,7 @@
       <direction>
         <x>0</x>
         <y>0</y>
-        <z>-1</z>
+        <z>1</z>
       </direction>
     </moment>
 
