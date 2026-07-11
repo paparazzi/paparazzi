@@ -15,6 +15,9 @@
   <dep>
     <depends>guidance_indi_base</depends>
   </dep>
+  <header>
+    <file name="guidance_indi_fully_actuated.h"/>
+  </header>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="guidance_indi_fully_actuated.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <define name="GUIDANCE_INDI_USE_WLS"/>
