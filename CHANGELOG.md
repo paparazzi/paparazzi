@@ -1,3 +1,73 @@
+Paparazzi v7.0.0_stable
+=======================
+
+After a long time, let's start a v7.0 stable.
+
+## What's Changed
+* [control] rework the stabilization for rotorcraft by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3248
+* [module] parachute by @dewagter in https://github.com/paparazzi/paparazzi/pull/3273
+* [modules] Support dual ublox GPS modules by @fvantienen in https://github.com/paparazzi/paparazzi/pull/3267
+* [pfc] Add ground checklists by @fvantienen in https://github.com/paparazzi/paparazzi/pull/3276
+* [chibios] Update and add Pixhawk 6X autopilot by @fvantienen in https://github.com/paparazzi/paparazzi/pull/3254
+* [actuators] array of structs with pprz units and driver units by @dewagter in https://github.com/paparazzi/paparazzi/pull/3205
+* [modules] UAVCan battery information by @dewagter in https://github.com/paparazzi/paparazzi/pull/3284
+* [ocaml] use glib from gtk3 if gtk2 is not found by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3290
+* Update natnet SDK. by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3249
+* [indi] fix thrust filtering after #3248 by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3297
+* Actuator Faulhaber by @dewagter in https://github.com/paparazzi/paparazzi/pull/3283
+* Auto-doublet-settings by @dewagter in https://github.com/paparazzi/paparazzi/pull/3302
+* [tag tracking] handle multiples ARUCO by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3304
+* [tag tracking] Compute tag orientation. by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3313
+* [gps] Fix relative position by @fvantienen in https://github.com/paparazzi/paparazzi/pull/3328
+* Implement classic GVF for rotorcrafts by @Pelochus in https://github.com/paparazzi/paparazzi/pull/3327
+* ONELOOP controller updates by @tmldeponti in https://github.com/paparazzi/paparazzi/pull/3333
+* Add rotorcraft support for circularFormation.py by @Pelochus in https://github.com/paparazzi/paparazzi/pull/3336
+* [imu] better default configuration for ICM42688 by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3339
+* Fuel-Cell Monitoring over CAN by @dewagter in https://github.com/paparazzi/paparazzi/pull/3359
+* mavlink update by @dewagter in https://github.com/paparazzi/paparazzi/pull/3369
+* [flight plan] add on_enter and on_exit functions for nav blocks by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3385
+* [flight plan] add a max_speed attribute to fp instruction by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3387
+* Python virtual environment by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3305
+* Driver for MPU6500, HMC59xx and BMP280 by @FlorianSan in https://github.com/paparazzi/paparazzi/pull/3406
+* Add new shell commands (sys_time and imu) by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3411
+* State interface input filter by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3409
+* Threads abstraction by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3423
+* CAN abstraction by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3430
+* SLCAN bridge by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3433
+* [generator] add global node for selection of modes in gen_autopilot by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3436
+* Add betafpv AIO and tmotor AIO by @FlorianSan in https://github.com/paparazzi/paparazzi/pull/3413
+* [airspeed] fix auto offset for SDP3X driver by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3448
+* [nav] navigation around poles for rotorcraft and hybrids by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3461
+* Mag viewer by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3465
+* [hybrid] add basic support for Heewing T1 Ranger VTOL by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3464
+* [guided] support full ref update in guided mode by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3502
+* Add Bayesian Obstacle Grid Mapping with TFmini Lidar Support and Simulation by @alrochas1 in https://github.com/paparazzi/paparazzi/pull/3510
+* [imu/board] Add support for ICM45686 and LTS release of the Cube Orange+ by @lthoma5 in https://github.com/paparazzi/paparazzi/pull/3519
+* [traffic] support GPS_INT message for air-to-air traffic info by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3529
+* [cam_gimbal] rewrite the pan/tilt control module by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3538
+* [parrot] add support for wpa_supplicant for bebop by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3572
+* Remove old GCS and supervision. by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3587
+* Remove stm32 arch by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3586
+* Upgrade to OpenCV 4.10.0 for Bebop - Fix compiling on Ubuntu 22 and 24 by @dewagter in https://github.com/paparazzi/paparazzi/pull/3600
+* Add UnifiedMocapRouter by @dewagter in https://github.com/paparazzi/paparazzi/pull/3598
+* [stabilization] set commands from indi actuators array by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3606
+* [indi] used proper quaternion 2nd order filtering by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3651
+* Draw shapes on the GCS directly from the aircraft by @spacewolfXfr in https://github.com/paparazzi/paparazzi/pull/3655
+* Integration of Normalized Parametric Guiding Vector Fields by @spacewolfXfr in https://github.com/paparazzi/paparazzi/pull/3653
+
+## New Contributors
+* @NoahWe made their first contribution in https://github.com/paparazzi/paparazzi/pull/3310
+* @Pelochus made their first contribution in https://github.com/paparazzi/paparazzi/pull/3327
+* @CyrilCarlier31 made their first contribution in https://github.com/paparazzi/paparazzi/pull/3348
+* @ReinierZwikker made their first contribution in https://github.com/paparazzi/paparazzi/pull/3429
+* @alrochas1 made their first contribution in https://github.com/paparazzi/paparazzi/pull/3510
+* @lthoma5 made their first contribution in https://github.com/paparazzi/paparazzi/pull/3519
+* @jpgdubois made their first contribution in https://github.com/paparazzi/paparazzi/pull/3578
+
+**Full Changelog**: https://github.com/paparazzi/paparazzi/compare/v7.0_unstable...v7.0.0_stable
+
+
+
 Paparazzi v6.4.0_stable
 =======================
 
