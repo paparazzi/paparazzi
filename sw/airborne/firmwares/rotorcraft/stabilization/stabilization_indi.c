@@ -951,7 +951,7 @@ void get_actuator_state(void)
 void set_rotorcraft_commands(pprz_t *cmd_out, int32_t *cmd_in, bool in_flight __attribute__((unused)), bool motors_on)
 {
   for (int i = 0; i < INDI_NUM_ACT; i++) {
-    bool is_motor = act_thrust_mat[0][i] || act_thrust_mat[1][i] || act_thrust_mat[2][i];
+    bool is_motor = (act_thrust_mat[0][i] || act_thrust_mat[1][i] || act_thrust_mat[2][i]) && !act_is_servo[i];
     if (is_motor && !motors_on) {
       cmd_out[act_to_commands[i]] = MIN_PPRZ;
     } else {
