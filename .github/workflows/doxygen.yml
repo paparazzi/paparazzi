@@ -2,7 +2,7 @@ name: Doxygen
 
 on:
   push:
-    branches: [ master, v5.14, v5.16, v5.18, v6.1, v6.2 ]
+    branches: [ master, v6.1, v6.2, v6.3, v6.4, v7.0 ]
 
   workflow_dispatch:
 
