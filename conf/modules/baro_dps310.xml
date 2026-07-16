@@ -1,0 +1,33 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_dps310" dir="sensors" task="sensors">
+  <doc>
+    <description>
+      Infineon DPS310 pressure sensor driver. The DPS310 is a high precision, low noise, and low power pressure sensor with an integrated temperature sensor. It can be used for altitude measurement.
+    </description>
+    <configure name="DPS310_I2C_PORT" value="i2cX" description="Select which i2c port the sensor is connected to (default i2c1)"/>
+    <define name="DPS310_SLAVE_ADDR" value="DPS310_I2C_ADDR|DPS310_I2C_ADDR_ALT" description="i2c slave address (default DPS310_I2C_ADDR)"/>
+    <define name="DPS310_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
+  </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>baro</provides>
+  </dep>
+  <header>
+    <file name="baro_dps310.h"/>
+  </header>
+  <init fun="baro_dps310_init()"/>
+  <periodic fun="baro_dps310_periodic()" freq="25"/>
+  <event fun="baro_dps310_event()"/>
+  <makefile target="ap">
+    <configure name="DPS310_I2C_PORT" default="i2c1" case="upper|lower"/>
+    <define name="USE_$(DPS310_I2C_PORT_UPPER)"/>
+    <define name="DPS310_I2C_PORT" value="$(DPS310_I2C_PORT_LOWER)"/>
+    <file name="baro_dps310.c"/>
+    <file name="dps310_i2c.c" dir="peripherals"/>
+    <test>
+      <define name="USE_I2C1"/>
+      <define name="DPS310_I2C_PORT" value="i2c1"/>
+    </test>
+  </makefile>
+</module>
