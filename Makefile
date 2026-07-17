@@ -133,7 +133,7 @@ conf/%.xml :conf/%_example.xml
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
 
 conf/conf.xml: conf/conf_example.xml
-	[ -L $@ ] || [ -f $@ ] || cd conf && ln -s conf_example.xml conf.xml
+	[ -L $@ ] || [ -f $@ ] || ln -s $(<F) $@
 
 conf/tools/blacklisted: conf/tools/blacklisted_example
 	cp conf/tools/blacklisted_example conf/tools/blacklisted
