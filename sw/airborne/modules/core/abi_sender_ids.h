@@ -78,6 +78,7 @@
 
 #ifndef BARO_DPS310_SENDER_ID
 #define BARO_DPS310_SENDER_ID 21
+#endif
 
 #ifndef BARO_SPA_SENDER_ID
 #define BARO_SPA_SENDER_ID 22
