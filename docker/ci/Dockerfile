@@ -20,4 +20,5 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     python3-lxml \
     python3-empy \
     python3-pexpect \
+    build-essential cmake extra-cmake-modules qt6-base-dev qt6-svg-dev qt6-charts-devlibxml2-dev libzip-dev \
     && rm -rf /var/lib/apt/lists/*
