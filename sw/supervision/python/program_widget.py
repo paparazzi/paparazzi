@@ -41,6 +41,8 @@ class ProgramWidget(QWidget, Ui_Program):
         self.process.finished.connect(self.handle_finished)
         self.process.started.connect(self.handle_started)
         self.process.errorOccurred.connect(self.handle_error)
+        if icon is None:
+            icon = "default_tool_icon.svg"
         i = QIcon(os.path.join(utils.PAPARAZZI_HOME, "data", "pictures", "tools_icons", icon))
         self.icon_label.setPixmap(i.pixmap(20, 20))
         self.icon_label.setToolTip(shortname)

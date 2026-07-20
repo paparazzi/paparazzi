@@ -9,6 +9,7 @@ import utils
 
 MOD_DEP = os.path.join(utils.PAPARAZZI_SRC, "sw", "tools", "generators", "dump_modules_list.out")
 CONF = os.path.join(utils.PAPARAZZI_HOME, "conf", "conf.xml")
+PLACEHOLDER = "<...>"
 
 
 class ConfError(Exception):
@@ -25,6 +26,26 @@ class Setting:
             return self.name
         else:
             return f"[{self.name}]"
+
+
+@dataclass
+class AircraftConfig:
+    airframe: str = ""
+    radio: str = ""
+    telemetry: str = ""
+    flight_plan: str = ""
+    settings: List[Setting] = field(default_factory=list)
+    settings_modules: List[Setting] = field(default_factory=list)
+
+    def copy(self) -> "AircraftConfig":
+        return AircraftConfig(
+            self.airframe,
+            self.radio,
+            self.telemetry,
+            self.flight_plan,
+            list(self.settings),
+            list(self.settings_modules),
+        )
 
 
 @dataclass
@@ -59,6 +80,24 @@ class Aircraft:
             self.gui_color = "#{}00{}00{}00".format(r, g, b)
         else:
             self.gui_color = color
+
+    def get_config(self) -> AircraftConfig:
+        return AircraftConfig(
+            self.airframe,
+            self.radio,
+            self.telemetry,
+            self.flight_plan,
+            list(self.settings),
+            list(self.settings_modules),
+        )
+
+    def set_config(self, config: AircraftConfig):
+        self.airframe = config.airframe
+        self.radio = config.radio
+        self.telemetry = config.telemetry
+        self.flight_plan = config.flight_plan
+        self.settings = list(config.settings)
+        self.settings_modules = list(config.settings_modules)
 
     def update(self):
         self.update_targets()
@@ -134,6 +173,36 @@ class Aircraft:
             raise ConfError("OSError, file {} probably not found!".format(self.airframe))
         except ET.XMLSyntaxError as e:
             raise ConfError("XMLSyntaxError, file {} is illformed !".format(self.airframe))
+
+
+def common_aircraft_config(aircrafts: List[Aircraft]) -> AircraftConfig:
+    if not aircrafts:
+        return AircraftConfig()
+
+    configs = [ac.get_config() for ac in aircrafts]
+
+    def common_value(field: str) -> str:
+        first = getattr(configs[0], field)
+        if all(getattr(config, field) == first for config in configs[1:]):
+            return first
+        return PLACEHOLDER
+
+    def common_settings(field: str) -> List[Setting]:
+        first = getattr(configs[0], field)
+        settings_lists = [getattr(config, field) for config in configs]
+        common = [setting for setting in first if all(setting in settings for settings in settings_lists[1:])]
+        if any(settings != first for settings in settings_lists[1:]):
+            common.append(Setting(PLACEHOLDER, False))
+        return common
+
+    return AircraftConfig(
+        common_value("airframe"),
+        common_value("radio"),
+        common_value("telemetry"),
+        common_value("flight_plan"),
+        common_settings("settings"),
+        common_settings("settings_modules"),
+    )
 
 
 class Conf:
@@ -236,8 +305,6 @@ class Conf:
         except OSError as e:
             os.remove(CONF)
             os.symlink(conf, CONF)
-
-
 
 
 
