@@ -143,8 +143,8 @@ void guidance_indi_set_wls_settings(struct WLS_t *wls, const struct FloatQuat *a
 struct ThrustSetpoint guidance_set_rc_h_thrust(struct ThrustSetpoint *v_sp)
 {
   float thrust[3];
-  thrust[0] = -radio_control_get(RADIO_PITCH) / MAX_PPRZ;
-  thrust[1] = radio_control_get(RADIO_ROLL) / MAX_PPRZ;
+  thrust[0] = -(float)radio_control_get(RADIO_PITCH) / MAX_PPRZ;
+  thrust[1] = (float)radio_control_get(RADIO_ROLL) / MAX_PPRZ;
   thrust[2] = th_sp_to_thrust_f(v_sp, 0, THRUST_AXIS_Z);
   return th_sp_from_thrust_vect_f(thrust);
 }
