@@ -43,6 +43,7 @@
     <define name="INS_EKF2_MAG_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for magnetic measurements"/>
     <define name="INS_EKF2_GPS_ID" value="GPS_MULTI_ID" description="ABI sensor ID used ad input for GPS measurements"/>
     <define name="INS_EKF2_RELPOS_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for Relative Position heading measurements"/>
+    <define name="INS_EKF2_FORCE_NAV_REF" value="FALSE|TRUE" description="force to use the reference defined in the flight plan and not the one computed by the filter after first good GPS position"/>
 
     <configure name="USE_ALT_LLA_WAYPOINTS" value="FALSE|TRUE" description="Use LLA altitude instead of LTP z for long distance flight (default=TRUE)"/>
   </doc>

@@ -708,6 +708,7 @@ static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
       break;
   }
 }
+
 /* Update the INS state */
 void ins_ekf2_update(void)
 {
@@ -762,13 +763,25 @@ void ins_ekf2_update(void)
       // Only update the origin when the state estimator has updated the origin
       bool ekf_origin_valid = ekf.getEkfGlobalOrigin(origin_time, ekf_origin_lat, ekf_origin_lon, ref_alt);
       if (ekf_origin_valid && (origin_time > ekf2.ltp_stamp)) {
+#if INS_EKF2_FORCE_NAV_REF && USE_INS_NAV_INIT
+        if (ekf.setEkfGlobalOrigin(NAV_LAT0*1e-7, NAV_LON0*1e-7, (NAV_ALT0)*1e-3)) {
+          struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
+          llh_nav0.lat = NAV_LAT0;
+          llh_nav0.lon = NAV_LON0;
+          llh_nav0.alt = NAV_ALT0 + NAV_MSL0; // in millimeters above WGS84 reference ellipsoid
+
+          ltp_def_from_lla_i(&ekf2.ltp_def, &llh_nav0);
+          ekf2.ltp_def.hmsl = NAV_ALT0;
+          stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
+        }
+#else
         lla_ref.lat = ekf_origin_lat * 1e7; // WGS-84 lat
         lla_ref.lon = ekf_origin_lon * 1e7; // WGS-84 lon
         lla_ref.alt = ref_alt * 1e3 + wgs84_ellipsoid_to_geoid_i(lla_ref.lat, lla_ref.lon); // in millimeters above WGS84 reference ellipsoid (ref_alt is in HMSL)
         ltp_def_from_lla_i(&ekf2.ltp_def, &lla_ref);
         ekf2.ltp_def.hmsl = ref_alt * 1e3;
         stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
-
+#endif
         /* update local ENU coordinates of global waypoints */
         waypoints_localize_all();
 
