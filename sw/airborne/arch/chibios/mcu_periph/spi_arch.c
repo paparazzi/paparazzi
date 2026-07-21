@@ -348,8 +348,12 @@ static void handle_spi_thd(struct spi_periph *p)
     t_length = (size_t)t->output_length;
   }
 
-  // Configure SPI bus with the current slave select pin
-  spiStart((SPIDriver *)p->reg_addr, &spi_cfg);
+  // Restart only if slave select pin changed
+  SPIDriver* spid = (SPIDriver *)p->reg_addr;
+  if(spid->config->ssport != spi_cfg.ssport || spid->config->sspad != spi_cfg.sspad) {
+    spiStart(spid, &spi_cfg);
+  }
+  
   // Select the slave after reconfiguration of the peripheral
   if (t->select == SPISelectUnselect || t->select == SPISelect) {
     spiSelect((SPIDriver *)p->reg_addr);
