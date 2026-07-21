@@ -93,16 +93,16 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
   // Flow [px/s] (body-frame)
   float flow_x = (c * delta_x - s * delta_y) / dt;
   float flow_y = (s * delta_x + c * delta_y) / dt;
-  int16_t flow_x_subpix = (int16_t)(of_pmw.subpixel_factor * flow_x);
-  int16_t flow_y_subpix = (int16_t)(of_pmw.subpixel_factor * flow_y);
+  int32_t flow_x_subpix = (int32_t)(of_pmw.subpixel_factor * flow_x);
+  int32_t flow_y_subpix = (int32_t)(of_pmw.subpixel_factor * flow_y);
   // Derotated flow [px/s] (body-frame)
   struct FloatRates *rates = stateGetBodyRates_f();
   float flow_dy_p =  rates->p / of_pmw.pmw.rad_per_px;
   float flow_dx_q = -rates->q / of_pmw.pmw.rad_per_px;
   float flow_der_x = flow_x - flow_dx_q;
   float flow_der_y = flow_y - flow_dy_p;
-  int16_t flow_der_x_subpix = (int16_t)(of_pmw.subpixel_factor * flow_der_x);
-  int16_t flow_der_y_subpix = (int16_t)(of_pmw.subpixel_factor * flow_der_y);
+  int32_t flow_der_x_subpix = (int32_t)(of_pmw.subpixel_factor * flow_der_x);
+  int32_t flow_der_y_subpix = (int32_t)(of_pmw.subpixel_factor * flow_der_y);
   // Velocity
   static float vel_x = 0;  // static: keep last measurement for telemetry if agl not valid
   static float vel_y = 0;
@@ -178,16 +178,12 @@ void opticflow_pmw3901_init(void) {
 }
 
 void opticflow_pmw3901_periodic(void) {
-  if (pmw3901_is_idle(&of_pmw.pmw)) {
-    pmw3901_start_read(&of_pmw.pmw);
-  }
+  pprz_bsem_signal(&of_pmw.pmw.bsem);
 }
 
 void opticflow_pmw3901_event(void) {
-  pmw3901_event(&of_pmw.pmw);
-  if (pmw3901_data_available(&of_pmw.pmw)) {
-    int16_t delta_x, delta_y;
-    pmw3901_get_data(&of_pmw.pmw, &delta_x, &delta_y);
+  int16_t delta_x, delta_y;
+  if (pmw3901_get_data(&of_pmw.pmw, &delta_x, &delta_y)) {
     opticflow_pmw3901_publish(delta_x, delta_y, get_sys_time_usec());
   }
 }
