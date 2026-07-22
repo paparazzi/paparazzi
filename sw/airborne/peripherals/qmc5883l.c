@@ -36,6 +36,7 @@
 
 /* Register I2C bus transaction Status */
 #define QMC5883L_REG_STATUS 0x06
+#define QMC5883L_STATUS_OVL  0x02
 
 /* Registers Temperature, relative thus not so useful ATM, therefore not implemented in reading */
 #define QMC5883L_REG_TEMPM  0x07
@@ -96,20 +97,20 @@ void qmc5883l_configure(struct Qmc5883l *mag)
     case QMC5883L_CONF_UNINIT:
       /* prepare config request */
       mag->i2c_trans.buf[0] = QMC5883L_REG_RESET_PERIOD;
-      mag->i2c_trans.buf[0] = 0x01;
+      mag->i2c_trans.buf[1] = 0x01;
       /* send config request, ask for i2c frame for set/reset period */
       i2c_transmit(mag->i2c_p, &(mag->i2c_trans), mag->i2c_trans.slave_addr, 2);
       break;
 
     case QMC5883L_CONF_CCR_DONE:
       mag->i2c_trans.buf[0] = QMC5883L_REG_CONTROL_1;
-      mag->i2c_trans.buf[1] = (QMC5883L_MODE_CONT|QMC5883L_ODR_200|QMC5883L_RNG_8G|QMC5883L_OSR_512);//todo datarate from settings mag->data_rate; 
+      mag->i2c_trans.buf[1] = QMC5883L_MODE_CONT | mag->data_rate | QMC5883L_RNG_8G | QMC5883L_OSR_512;
       i2c_transmit(mag->i2c_p, &(mag->i2c_trans), mag->i2c_trans.slave_addr, 2);
       break;
 
     case QMC5883L_CONF_TMRC_DONE:
       mag->i2c_trans.buf[0] = QMC5883L_REG_CONTROL_1;
-      mag->i2c_trans.buf[1] = (QMC5883L_MODE_CONT|QMC5883L_ODR_200|QMC5883L_RNG_8G|QMC5883L_OSR_512);//todo datarate from settings //mag->data_rate;
+      mag->i2c_trans.buf[1] = QMC5883L_MODE_CONT | mag->data_rate | QMC5883L_RNG_8G | QMC5883L_OSR_512;
       i2c_transmit(mag->i2c_p, &(mag->i2c_trans), mag->i2c_trans.slave_addr, 2);
       break;
 
@@ -165,15 +166,8 @@ void qmc5883l_event(struct Qmc5883l *mag)
         mag->data.vect.y = Int16FromBuf(mag->i2c_trans.buf, 2);
         mag->data.vect.z = Int16FromBuf(mag->i2c_trans.buf, 4);
 
-        /* only set available if measurements valid: -4096 if ADC under/overflow in sensor 
-        The sensor sends out 12 bit wrapped in 16 bit, that sometimes gets corrupded */
-        if (mag->data.vect.x >= 4096 || mag->data.vect.y >= 4096 || mag->data.vect.z >= 4096) {
-          //mag->data.adc_overflow_cnt++;
-          mag->data_available = false;
-        }
-        else { 
-          mag->data_available = true;
-        }
+        const uint8_t sample_status = mag->i2c_trans.buf[6];
+        mag->data_available = (sample_status & QMC5883L_STATUS_OVL) == 0;
         /* End of measure reading, go back to idle */
         mag->status = QMC5883L_STATUS_IDLE;
       }
