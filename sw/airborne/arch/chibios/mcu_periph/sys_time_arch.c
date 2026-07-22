@@ -120,7 +120,7 @@ void sys_time_usleep(uint32_t us)
   if (us < 1000) {
     // for small time, use the polled version instead of thread sleep
     chSysDisable();
-    chSysPolledDelayX(US2RTC(STM32_HCLK, us));
+    chSysPolledDelayX(US2RTC(STM32_SYSCLK, us));
     chSysEnable();
   } else {
     chThdSleepMicroseconds(us);
