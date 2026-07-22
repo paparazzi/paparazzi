@@ -121,7 +121,6 @@ typedef struct {
 #if defined(FIXEDWING_FIRMWARE)
 static void mag_compass(void);
 #endif
-static void send_mag_heading(struct transport_tx *trans, struct link_device *dev);
 static void vSubtractVectors(VECTOR *svA, VECTOR svB, VECTOR svC);
 static void vMultiplyMatrixByVector(VECTOR *svA, MATRIX smB, VECTOR svC);
 static float home_direction(void);
@@ -236,17 +235,6 @@ void mag_compass(void)
   return;
 }
 #endif
-
-
-static void send_mag_heading(struct transport_tx *trans, struct link_device *dev)
-{
-  uint8_t abi_id = ABI_BROADCAST;
-#if DOWNLINK
-  pprz_msg_send_IMU_MAG(trans, dev, AC_ID, &abi_id, &mag_course_deg, &gps_course_deg, &home_dir_deg);
-#endif
-
-  return;
-}
 
 //*******************************************************************
 //   function name:   vSubtractVectors
@@ -944,9 +932,6 @@ void max7456_init(void)
   osd_enable_val = OSD_IMAGE_ENABLE;
   max7456_osd_status = OSD_UNINIT;
 
-#if DOWNLINK
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG, send_mag_heading);
-#endif
   home_direction();
 
   return;
