@@ -175,7 +175,6 @@ static int32_t get_vertical_thrust_coeff(void)
   // cos(30°) = 0.8660254
   static const int32_t max_bank_coef = BFP_OF_REAL(0.8660254f, INT32_TRIG_FRAC);
 
-  struct Int32RMat *att = stateGetNedToBodyRMat_i();
   /* thrust vector:
    *  int32_rmat_vmult(&thrust_vect, &att, &zaxis)
    * same as last colum of rmat with INT32_TRIG_FRAC
@@ -189,8 +188,32 @@ static int32_t get_vertical_thrust_coeff(void)
    *  thrust_coeff = dot(v1, v2)
    * also can be simplified considering: v1 is zaxis with (0,0,1)
    *  dot(v1, v2) = v1.z * v2.z = v2.z
+   *
+   * That value is m[8] of the NED->body rotation matrix. Reading it via
+   * stateGetNedToBodyRMat_i() forces a full attitude conversion if the rmat isn't
+   * already the cached representation. Compute it instead from whatever
+   * representation is already cached, so no conversion is ever triggered.
    */
-  int32_t coef = att->m[8];
+  struct OrientationReps *att = &state.ned_to_body_orientation;
+  int32_t coef;
+  if (bit_is_set(att->status, ORREP_RMAT_I)) {
+    coef = att->rmat_i.m[8];
+  } else if (bit_is_set(att->status, ORREP_QUAT_I)) {
+    /* m[8] = 2*qz^2 + 2*qi^2 - 1, the same identity INT32_RMAT_OF_QUAT uses,
+     * without building the full rotation matrix. */
+    struct Int32Quat *q = &att->quat_i;
+    const int32_t frac = INT32_QUAT_FRAC + INT32_QUAT_FRAC - INT32_TRIG_FRAC - 1;
+    coef = INT_MULT_RSHIFT(q->qz, q->qz, frac) + INT_MULT_RSHIFT(q->qi, q->qi, frac) - TRIG_BFP_OF_REAL(1);
+  } else if (bit_is_set(att->status, ORREP_EULER_I)) {
+    struct Int32Eulers *e = &att->eulers_i;
+    int32_t cphi, ctheta;
+    PPRZ_ITRIG_COS(cphi, e->phi);
+    PPRZ_ITRIG_COS(ctheta, e->theta);
+    coef = (cphi * ctheta) >> INT32_TRIG_FRAC;
+  } else {
+    /* nothing cached yet (startup) -- fall back to the original path */
+    coef = stateGetNedToBodyRMat_i()->m[8];
+  }
   if (coef < max_bank_coef) {
     coef = max_bank_coef;
   }
