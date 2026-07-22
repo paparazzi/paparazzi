@@ -24,6 +24,8 @@
 
 Q=@
 
+PYTHON ?= python3
+
 PAPARAZZI_SRC=../../..
 DRONECAN_DIR=$(PAPARAZZI_SRC)/sw/ext/dronecan
 DSDL_DIR := $(DRONECAN_DIR)/DSDL
@@ -39,14 +41,12 @@ dronecan_dsdlc : dronecan_dsdlc.sync dronecan_dsdlc.update dronecan_dsdlc.build
 
 pydronecan : pydronecan.sync pydronecan.update
 
-
-
 dronecan_dsdlc.build:
 	$(eval DSDL_ROOTS_PART := $(sort $(dir $(wildcard $(DSDL_DIR)/*/))))
 	$(eval DSDL_ROOTS := $(filter-out $(DRONECAN_DIR)/DSDL/tests/ $(DRONECAN_DIR)/DSDL/,$(DSDL_ROOTS_PART)))
 	$(eval DSDL_ROOTS := $(DSDL_ROOTS) $(CUSTOM_DSDL))
 	@echo Generating dsdl code from $(DSDL_ROOTS) to $(PAPARAZZI_SRC)/var/include/DSDLcode
-	$(Q) python $(DRONECAN_DIR)/dronecan_dsdlc/dronecan_dsdlc.py -O $(PAPARAZZI_SRC)/var/include/DSDLcode $(DSDL_ROOTS)
+	$(Q)$(PYTHON) $(DRONECAN_DIR)/dronecan_dsdlc/dronecan_dsdlc.py -O $(PAPARAZZI_SRC)/var/include/DSDLcode $(DSDL_ROOTS)
 	@echo Done
 
 
@@ -61,7 +61,6 @@ dronecan_dsdlc.build:
 	$(Q)if [ -d $(PAPARAZZI_SRC)/.git ]; then \
 		cd $(PAPARAZZI_SRC) && git submodule sync --recursive sw/ext/dronecan/$*; \
 	fi
-
 
 clean:
 	$(Q)rm -r $(PAPARAZZI_SRC)/var/include/DSDLcode
