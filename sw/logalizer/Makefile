@@ -24,6 +24,7 @@
 Q=@
 
 include ../Makefile.ocaml
+include ../../conf/Makefile.qt
 INCLUDES=
 PKG = -package glibivy,pprz,$(USE_LABELGTK)
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink,$(USE_LABELGTK)
@@ -35,32 +36,28 @@ ifeq ($(USE_LABELGTK),lablgtk2)
 ifeq ($(LABLGTK2GLADE),)
 XPKG = -package lablgtk2,pprz.xlib
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
-all : play plotter sd2log openlog2tlm sdlogger_download
+all : play plotter sd2log openlog2tlm sdlogger_download logplotter
 else
 XPKG = -package lablgtk2,pprz.xlib,lablgtk2.glade
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
 all : play plotter logplotter sd2log openlog2tlm sdlogger_download
 endif
 else # no gtk2
-all: sd2log openlog2tlm sdlogger_download
+all: sd2log openlog2tlm sdlogger_download plotter logplotter play
 endif
 
 
-play : log_file.cmo play_core.cmo play.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
+# play, plotter and logplotter are native Qt6/C++ applications built through the
+# shared Qt super-build (see conf/Makefile.qt and sw/CMakeLists.txt). The legacy
+# OCaml GUIs have been reimplemented in sw/logalizer/{play,plotter,logplotter}.cpp.
+play: qt-configure
+	$(Q)$(QT_CMAKE_BUILD) play
 
-play-nox : play_core.cmo play-nox.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
+plotter: qt-configure
+	$(Q)$(QT_CMAKE_BUILD) plotter
 
-plotter : plotter.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA) $(XLIBPPRZCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
-
-logplotter : log_file.cmo gtk_export.cmo export.cmo logplotter.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA) $(XLIBPPRZCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
+logplotter: qt-configure
+	$(Q)$(QT_CMAKE_BUILD) logplotter
 
 sd2log : sd2log.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
@@ -112,10 +109,10 @@ openlog2tlm: openlog2tlm.c
 	$(Q)$(CC) $(CFLAGS) -o $@ $^
 
 
-clean:
+clean: qt-clean
 	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play logplotter plotter gtk_export.ml openlog2tlm sd2log sdlogger_download
 
-.PHONY: all clean
+.PHONY: all clean play plotter logplotter
 
 #
 # Dependencies
