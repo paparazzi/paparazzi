@@ -52,7 +52,7 @@
 #endif
 
 bool extra_dl_msg_available;
-uint8_t extra_dl_buffer[MSG_SIZE]  __attribute__((aligned));
+uint8_t extra_dl_buffer[DATALINK_MSG_SIZE]  __attribute__((aligned));
 
 struct pprz_transport extra_pprz_tp;
 
@@ -61,13 +61,11 @@ void extra_pprz_dl_init(void)
   pprz_transport_init(&extra_pprz_tp);
 }
 
-
 void extra_pprz_dl_event(void)
 {
   pprz_check_and_parse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp, extra_dl_buffer, &extra_dl_msg_available);
   DlCheckAndParse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp.trans_tx, extra_dl_buffer, &extra_dl_msg_available, EXTRA_PPRZ_UPDATE_DL);
 }
-
 
 void extra_pprz_dl_periodic(void)
 {
@@ -76,3 +74,9 @@ void extra_pprz_dl_periodic(void)
   periodic_telemetry_send_Extra(DefaultPeriodic, &extra_pprz_tp.trans_tx, &(EXTRA_DOWNLINK_DEVICE).device);
 #endif
 }
+
+uint8_t* extra_dl_get_buffer(void)
+{
+  return extra_dl_buffer;
+}
+

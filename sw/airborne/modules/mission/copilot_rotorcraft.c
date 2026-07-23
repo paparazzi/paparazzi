@@ -88,19 +88,19 @@ void copilot_parse_move_wp_dl(uint8_t *buf)
         /* lla->alt is above ellipsoid, WP_MOVED_LLA has hmsl alt */
         int32_t hmsl = lla.alt - stateGetLlaOrigin_i().alt + stateGetHmslOrigin_i();
 
-        if (buf == extra_dl_buffer) {
+        if (buf == extra_dl_get_buffer()) {
           // MOVE_WP came from extra_dl, respond over telemetry
           DOWNLINK_SEND_WP_MOVED_LLA(DefaultChannel, DefaultDevice, &wp_id,
               &lla.lat, &lla.lon, &hmsl);
         }
 
-        if (buf == dl_buffer) {
+        if (buf == datalink_get_buffer()) {
           // MOVE_WP came over telemetry, respond over extra_dl
           DOWNLINK_SEND_WP_MOVED_LLA(extra_pprz_tp, DefaultDevice, &wp_id,
               &lla.lat, &lla.lon, &hmsl);
         }
       } else {
-        if (buf == extra_dl_buffer) {
+        if (buf == extra_dl_get_buffer()) {
           // MOVE_WP came from extra_dl, respond over telemetry
           DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
               &waypoints[wp_id].enu_i.x,
@@ -108,7 +108,7 @@ void copilot_parse_move_wp_dl(uint8_t *buf)
               &waypoints[wp_id].enu_i.z);
         }
 
-        if (buf == dl_buffer) {
+        if (buf == datalink_get_buffer()) {
           // MOVE_WP came over telemetry, respond over extra_dl
           DOWNLINK_SEND_WP_MOVED_ENU(extra_pprz_tp, DefaultDevice, &wp_id,
               &waypoints[wp_id].enu_i.x,

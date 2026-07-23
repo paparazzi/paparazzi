@@ -46,7 +46,7 @@ struct GpsState gps_hitl = {0};
 bool gps_has_fix;
 
 static bool sensors_hitl_msg_available = false;
-static uint8_t sensors_hitl_dl_buffer[MSG_SIZE]  __attribute__((aligned));
+static uint8_t sensors_hitl_dl_buffer[DATALINK_MSG_SIZE]  __attribute__((aligned));
 static struct pprz_transport sensors_hitl_tp;
 
 void sensors_hitl_init(void)
