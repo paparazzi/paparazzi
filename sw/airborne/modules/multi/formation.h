@@ -7,7 +7,6 @@
 #ifndef FORMATION_H
 #define FORMATION_H
 
-#include "modules/datalink/datalink.h" // dl_buffer
 #include "generated/airframe.h"           // AC_ID
 #include "modules/multi/traffic_info.h"
 

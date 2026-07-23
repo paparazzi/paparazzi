@@ -36,6 +36,8 @@
 #define SUPERBITRF 3
 #define W5100 4
 
+#define DATALINK_MSG_SIZE 256
+
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
 extern bool dl_msg_available;
 
@@ -45,25 +47,18 @@ extern uint16_t datalink_time;
 /** number of datalink/uplink messages received */
 extern uint16_t datalink_nb_msgs;
 
-#define MSG_SIZE 256
-extern uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
+/** get datalink buffer address */
+extern uint8_t* datalink_get_buffer(void);
 
-/** Should be called when chars are available in dl_buffer */
+/** Should be called when chars are available in datalink uffer */
 extern void dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
 
 #if USE_NPS
 extern bool datalink_enabled;
 #endif
 
-/** Convenience macro to fill dl_buffer */
-// TODO: replace with a memcpy for efficiency
-#define DatalinkFillDlBuffer(_buf, _len) { \
-  uint16_t _i = 0; \
-  for (_i = 0; _i < _len; _i++) { \
-    dl_buffer[_i] = _buf[_i]; \
-  } \
-  dl_msg_available = true; \
-}
+/** fill datalink buffer */
+extern void datalink_fill_buffer(uint8_t *buf, uint16_t len);
 
 /** init function */
 extern void datalink_init(void);
