@@ -38,7 +38,7 @@
 bool dl_msg_available;
 uint16_t datalink_time;
 uint16_t datalink_nb_msgs;
-uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
+static uint8_t dl_buffer[DATALINK_MSG_SIZE]  __attribute__((aligned));
 
 #if USE_NPS
 bool datalink_enabled = true;
@@ -66,6 +66,21 @@ void datalink_parse_PING(struct link_device *dev, struct transport_tx *trans, ui
   msg.receiver_id = pprzlink_get_msg_sender_id(buf);
   msg.component_id = 0;
   pprzlink_msg_send_PONG(&msg);
+}
+
+uint8_t* datalink_get_buffer(void)
+{
+  return dl_buffer;
+}
+
+void datalink_fill_buffer(uint8_t *buf, uint16_t len)
+{
+  // TODO: replace with a memcpy for efficiency
+  uint16_t i = 0;
+  for (i = 0; i < len; i++) {
+    dl_buffer[i] = buf[i];
+  }
+  dl_msg_available = true;
 }
 
 void WEAK dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf)
