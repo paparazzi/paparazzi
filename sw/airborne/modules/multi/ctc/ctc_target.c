@@ -25,7 +25,6 @@
 #include <stdio.h>
 
 #include "modules/multi/ctc/ctc_target.h"
-//#include "modules/datalink/datalink.h" // dl_buffer
 #include "modules/datalink/telemetry.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "autopilot.h"
@@ -67,11 +66,11 @@ void ctc_target_send_info_to_nei(void)
     }
 }
 
-void parse_ctc_target_RegTable(void)
+void parse_ctc_target_RegTable(uint8_t *buf)
 {
-  uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
+  uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(buf);
   if (ac_id == AC_ID) {
-    uint8_t nei_id = DL_CTC_REG_TABLE_nei_id(dl_buffer);
+    uint8_t nei_id = DL_CTC_REG_TABLE_nei_id(buf);
     for (int i = 0; i < CTC_MAX_AC; i++)
       if (tableNei[i][0] == -1) {
         tableNei[i][0] = (int16_t)nei_id;
@@ -80,9 +79,9 @@ void parse_ctc_target_RegTable(void)
   }
 }
 
-void parse_ctc_target_CleanTable(void)
+void parse_ctc_target_CleanTable(uint8_t *buf)
 {
-  uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
+  uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(buf);
   if (ac_id == AC_ID)
     for (int i = 0; i < CTC_MAX_AC; i++) {
       tableNei[i][0] = -1;

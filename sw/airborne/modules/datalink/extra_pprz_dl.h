@@ -41,11 +41,11 @@
 /* PPRZ transport structure */
 extern struct pprz_transport extra_pprz_tp;
 
-extern uint8_t extra_dl_buffer[MSG_SIZE]  __attribute__((aligned));
+/* get extra dl buffer */
+extern uint8_t* extra_dl_get_buffer(void);
 
 /** Datalink Event */
-void extra_pprz_dl_event(void);
-
+extern void extra_pprz_dl_event(void);
 
 /** Init function */
 extern void extra_pprz_dl_init(void);
