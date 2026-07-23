@@ -106,6 +106,7 @@ let expand_aicraft x =
     | Module.Module_not_found m -> handle_error_message "Module not found" m
     | Dtd.Prove_error err -> handle_error_message "Dtd error" (Dtd.prove_error err)
     | Not_found -> handle_error_message "Not found" "sorry, something went wrong somewhere"
+    | _ as e -> handle_error_message "Error" (Printexc.to_string e)
 
 let make_element = fun t a c -> Xml.Element (t,a,c)
 
