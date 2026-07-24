@@ -83,8 +83,6 @@ void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float
   struct FloatVect3 thrust_vect;
   VECT3_ASSIGN(thrust_vect, R_rp.m[6], R_rp.m[7], R_rp.m[8]);
 
-  /// @todo optimize yaw angle calculation
-
   /*
    * Instead of using the psi setpoint angle to rotate around the body z-axis,
    * calculate the real angle needed to align the projection of the body x-axis
@@ -111,19 +109,31 @@ void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float
   VECT3_CROSS_PRODUCT(cross, b_x, b);
   // norm of the cross product
   float nc = FLOAT_VECT3_NORM(cross);
-  // angle = atan2(norm(cross(a,b)), dot(a,b))
-  float yaw2 = atan2(nc, dot) / 2.0;
 
-  // negative angle if needed
-  // sign(dot(cross(a,b), n)
-  float dot_cross_ab = VECT3_DOT_PRODUCT(cross, thrust_vect);
-  if (dot_cross_ab < 0) {
-    yaw2 = -yaw2;
+  /* cos(yaw)/sin(yaw) come from (nc, dot) via cos(yaw) = dot/n, and half-angle
+   * identities give cos(yaw/2)/sin(yaw/2) directly from cos(yaw) -- no atan2, no
+   * angle round trip through cosf/sinf. yaw/2 is in [-pi/2, pi/2], so cos(yaw/2)
+   * is never negative; sin(yaw/2) needs the same sign correction the atan2 form
+   * applied to the full angle (sign(dot(cross(a,b), n))), since sine is odd where
+   * cosine is even.
+   */
+  float n = sqrtf(nc * nc + dot * dot);
+  float cy = 1.0f, sy = 0.0f;
+  if (n >= 1e-8f) {
+    float c = dot / n;
+    cy = sqrtf((1.0f + c) * 0.5f);
+    sy = sqrtf((1.0f - c) * 0.5f);
+    // negative angle if needed
+    // sign(dot(cross(a,b), n)
+    float dot_cross_ab = VECT3_DOT_PRODUCT(cross, thrust_vect);
+    if (dot_cross_ab < 0) {
+      sy = -sy;
+    }
   }
 
   /* quaternion with yaw command */
   struct FloatQuat q_yaw;
-  QUAT_ASSIGN(q_yaw, cosf(yaw2), 0.0, 0.0, sinf(yaw2));
+  QUAT_ASSIGN(q_yaw, cy, 0.0, 0.0, sy);
 
   /* final setpoint: apply roll/pitch, then yaw around resulting body z-axis */
   float_quat_comp(quat, &q_rp, &q_yaw);
