@@ -32,6 +32,16 @@
 
 static inline void reset_psi_ref(struct AttRefEulerFloat *ref, float psi);
 
+/* FLOAT_ANGLE_NORMALIZE (pprz_algebra_float.h) wraps with double M_PI literals,
+ * which promotes this reference model's per-cycle angle wraps to double
+ * arithmetic on FPU-less targets. This float-precision equivalent is scoped to
+ * this file rather than changing the shared macro, since that macro has ~40
+ * other call sites across the codebase not exercised by this change. */
+#define ATT_REF_ANGLE_NORMALIZE_F(_a) {                             \
+    while ((_a) >  ((float)M_PI)) { (_a) -= (2.f * (float)M_PI); }  \
+    while ((_a) < -((float)M_PI)) { (_a) += (2.f * (float)M_PI); }  \
+  }
+
 /*
  *
  * Implementation.
@@ -73,7 +83,7 @@ void attitude_ref_euler_float_update(struct AttRefEulerFloat *ref, struct FloatE
   struct FloatEulers delta_angle;
   EULERS_ASSIGN(delta_angle, delta_rate.p, delta_rate.q, delta_rate.r);
   EULERS_ADD(ref->euler, delta_angle);
-  FLOAT_ANGLE_NORMALIZE(ref->euler.psi);
+  ATT_REF_ANGLE_NORMALIZE_F(ref->euler.psi);
 
   /* integrate reference rotational speeds   */
   struct FloatRates delta_accel;
@@ -84,14 +94,14 @@ void attitude_ref_euler_float_update(struct AttRefEulerFloat *ref, struct FloatE
   struct FloatEulers ref_err;
   EULERS_DIFF(ref_err, ref->euler, *sp_eulers);
   /* wrap it in the shortest direction       */
-  FLOAT_ANGLE_NORMALIZE(ref_err.psi);
+  ATT_REF_ANGLE_NORMALIZE_F(ref_err.psi);
 
   /* compute reference angular accelerations -2*zeta*omega*rate - omega*omega*ref_err */
-  ref->accel.p = -2. * ref->model.zeta.p * ref->model.omega.p * ref->rate.p -
+  ref->accel.p = -2.f * ref->model.zeta.p * ref->model.omega.p * ref->rate.p -
     ref->model.omega.p * ref->model.omega.p * ref_err.phi;
-  ref->accel.q = -2. * ref->model.zeta.q * ref->model.omega.p * ref->rate.q -
+  ref->accel.q = -2.f * ref->model.zeta.q * ref->model.omega.p * ref->rate.q -
     ref->model.omega.q * ref->model.omega.q * ref_err.theta;
-  ref->accel.r = -2. * ref->model.zeta.r * ref->model.omega.p * ref->rate.r -
+  ref->accel.r = -2.f * ref->model.zeta.r * ref->model.omega.p * ref->rate.r -
     ref->model.omega.r * ref->model.omega.r * ref_err.psi;
 
   /*  saturate acceleration */
