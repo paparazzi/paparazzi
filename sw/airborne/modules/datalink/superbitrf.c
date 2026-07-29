@@ -293,7 +293,7 @@ void superbitrf_dl_init(void)
  */
 void superbitrf_dl_event(void)
 {
-  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_srf_tp.trans_tx, dl_buffer, &dl_msg_available, SUPERBITRF_UPDATE_DL);
+  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_srf_tp.trans_tx, datalink_get_buffer(), &dl_msg_available, SUPERBITRF_UPDATE_DL);
 }
 
 void superbitrf_set_mfg_id(uint32_t id)
@@ -892,7 +892,7 @@ static inline void superbitrf_receive_packet_cb(bool error, uint8_t status, uint
 
             // When we have a full message
             if (superbitrf.rx_transport.trans_rx.msg_received) {
-              DatalinkFillDlBuffer(superbitrf.rx_transport.trans_rx.payload, superbitrf.rx_transport.trans_rx.payload_len);
+              datalink_fill_buffer(superbitrf.rx_transport.trans_rx.payload, superbitrf.rx_transport.trans_rx.payload_len);
               superbitrf.rx_transport.trans_rx.msg_received = false;
             }
           }
@@ -952,7 +952,7 @@ static inline void superbitrf_receive_packet_cb(bool error, uint8_t status, uint
 
             // When we have a full message
             if (superbitrf.rx_transport.trans_rx.msg_received) {
-              DatalinkFillDlBuffer(superbitrf.rx_transport.trans_rx.payload, superbitrf.rx_transport.trans_rx.payload_len);
+              datalink_fill_buffer(superbitrf.rx_transport.trans_rx.payload, superbitrf.rx_transport.trans_rx.payload_len);
               superbitrf.rx_transport.trans_rx.msg_received = false;
             }
           }
@@ -1038,7 +1038,7 @@ static inline void superbitrf_receive_packet_cb(bool error, uint8_t status, uint
 
             // When we have a full message
             if (superbitrf.rx_transport.trans_rx.msg_received) {
-              DatalinkFillDlBuffer(superbitrf.rx_transport.trans_rx.payload, superbitrf.rx_transport.trans_rx.payload_len);
+              datalink_fill_buffer(superbitrf.rx_transport.trans_rx.payload, superbitrf.rx_transport.trans_rx.payload_len);
               superbitrf.rx_transport.trans_rx.msg_received = false;
             }
           }

@@ -546,10 +546,10 @@ void gec_dl_event(void)
           // copy the buffer over
           // NOTE:the real payload_len is at least one byte shorter
           // but we can copy whole buffer anyway since we don't overflow
-          DatalinkFillDlBuffer(gec_tp.pprz_tp.trans_rx.payload,
+          datalink_fill_buffer(gec_tp.pprz_tp.trans_rx.payload,
                                gec_tp.pprz_tp.trans_rx.payload_len);
           // pass to datalink
-          DlCheckAndParse(&DOWNLINK_DEVICE.device, &gec_tp.trans_tx, dl_buffer,
+          DlCheckAndParse(&DOWNLINK_DEVICE.device, &gec_tp.trans_tx, datalink_get_buffer(),
                           &dl_msg_available, GEC_UPDATE_DL);
         }
         break;
