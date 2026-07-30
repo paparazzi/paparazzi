@@ -90,9 +90,7 @@
 
     <module name="approach_moving_target"/>
 
-    <module name="ins"           type="ekf2">
-      <define name="USE_INS_NAV_INIT" value="TRUE"/>
-    </module>
+    <module name="ins"           type="ekf2"/>
 
     <module name="actuators"     type="uavcan">
       <configure name="UAVCAN_USE_CAN1" value="TRUE"/>
