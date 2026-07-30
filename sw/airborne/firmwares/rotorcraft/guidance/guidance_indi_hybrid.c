@@ -454,19 +454,6 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   // filter accel to get rid of noise and filter attitude to synchronize with accel
   guidance_indi_propagate_filters();
 
-#if GUIDANCE_INDI_RC_DEBUG
-#warning "GUIDANCE_INDI_RC_DEBUG lets you control the accelerations via RC, but disables autonomous flight!"
-  // for rc control horizontal, rotate from body axes to NED
-  float psi = eulers_zxy.psi;
-  float rc_x = -(radio_control.values[RADIO_PITCH]/9600.0)*8.0;
-  float rc_y = (radio_control.values[RADIO_ROLL]/9600.0)*8.0;
-  sp_accel.x = cosf(psi) * rc_x - sinf(psi) * rc_y;
-  sp_accel.y = sinf(psi) * rc_x + cosf(psi) * rc_y;
-
-  // for rc vertical control
-  sp_accel.z = -(radio_control.values[RADIO_THROTTLE]-4500)*8.0/9600.0;
-#endif
-
   struct FloatVect3 accel_filt;
   accel_filt.x = filt_accel_ned[0].o[0];
   accel_filt.y = filt_accel_ned[1].o[0];
@@ -603,11 +590,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   // Add the increment in specific force * specific_force_to_thrust_gain to the filtered thrust
   thrust_in = thrust_filt.o[0] + euler_cmd.z * guidance_indi_specific_force_gain;
   Bound(thrust_in, GUIDANCE_INDI_MIN_THROTTLE, 9600);
-#if GUIDANCE_INDI_RC_DEBUG
-  if (radio_control.values[RADIO_THROTTLE] < 300) {
-    thrust_in = 0;
-  }
-#endif
+
   // return required thrust
   thrust_sp = th_sp_from_thrust_i(thrust_in, THRUST_AXIS_Z);
 
