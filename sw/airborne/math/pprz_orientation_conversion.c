@@ -194,5 +194,20 @@ void orientationCalcEulers_f(struct OrientationReps *orientation)
   /* set bit to indicate this representation is computed */
   SetBit(orientation->status, ORREP_EULER_F);
 }
+
+void orientationCalcEulersZxy_f(struct OrientationReps *orientation)
+{
+  if (bit_is_set(orientation->status, ORREP_EULER_ZXY_F)) {
+    return;
+  }
+
+  if (!bit_is_set(orientation->status, ORREP_QUAT_F)) {
+    orientationCalcQuat_f(orientation);
+  }
+  float_eulers_of_quat_zxy(&(orientation->eulers_zxy_f), &(orientation->quat_f));
+
+  /* set bit to indicate this representation is computed */
+  SetBit(orientation->status, ORREP_EULER_ZXY_F);
+}
 /** @}*/
 /** @}*/

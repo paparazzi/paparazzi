@@ -133,7 +133,7 @@ void schdule_control_effectiveness(void) {
 
   float ratio = 0.0;
   struct FloatEulers eulers_zxy;
-  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+  eulers_zxy = *stateGetNedToBodyEulersZxy_f();
 
   // Ratio is only based on pitch now, as the pitot tube is often not mounted.
   if (use_scheduling == 1) {

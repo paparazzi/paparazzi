@@ -1315,6 +1315,12 @@ static inline struct FloatEulers *stateGetNedToBodyEulers_f(void)
 {
   return orientationGetEulers_f(&state.ned_to_body_orientation);
 }
+
+/// Get vehicle body attitude ZXY euler angles (float).
+static inline struct FloatEulers *stateGetNedToBodyEulersZxy_f(void)
+{
+  return orientationGetEulersZxy_f(&state.ned_to_body_orientation);
+}
 /** @}*/
 
 
