@@ -63,7 +63,7 @@ void eff_scheduling_falcon_periodic(void)
   if (airspeed > EFF_SCHEDULING_FALCON_LOW_AIRSPEED) {
     airspeed -= EFF_SCHEDULING_FALCON_LOW_AIRSPEED; //offset for start eff at zero!
     struct FloatEulers eulers_zxy;
-    float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+    eulers_zxy = *stateGetNedToBodyEulersZxy_f();
 
     float pitch_ratio = 0.0f;
     if (eulers_zxy.theta > -M_PI_4) {

@@ -1628,7 +1628,7 @@ void oneloop_andi_RM(bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, 
 void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, int rm_order_v)
 {
   // At beginnig of the loop: (1) Register Attitude, (2) Initialize gains of RM and EC, (3) Calculate Normalization of Actuators Signals, (4) Propagate Actuator Model, (5) Update effectiveness matrix
-  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+  eulers_zxy = *stateGetNedToBodyEulersZxy_f();
   init_controller();
   calc_normalization();
   get_act_state_oneloop();

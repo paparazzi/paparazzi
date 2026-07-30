@@ -72,6 +72,7 @@ extern "C" {
 #define ORREP_QUAT_F  3  ///< Quaternion (float)
 #define ORREP_EULER_F 4  ///< zyx Euler (float)
 #define ORREP_RMAT_F  5  ///< Rotation Matrix (float)
+#define ORREP_EULER_ZXY_F 6  ///< zxy Euler (float)
 
 /*
  * @brief Struct with euler/rmat/quaternion orientation representations in BFP int and float
@@ -115,6 +116,12 @@ struct OrientationReps {
   struct FloatEulers eulers_f;
 
   /**
+   * Orientation in zxy euler angles.
+   * Units: rad
+   */
+  struct FloatEulers eulers_zxy_f;
+
+  /**
    * Orientation rotation matrix.
    * Units: rad
    */
@@ -128,6 +135,7 @@ extern void orientationCalcEulers_i(struct OrientationReps *orientation);
 extern void orientationCalcQuat_f(struct OrientationReps *orientation);
 extern void orientationCalcRMat_f(struct OrientationReps *orientation);
 extern void orientationCalcEulers_f(struct OrientationReps *orientation);
+extern void orientationCalcEulersZxy_f(struct OrientationReps *orientation);
 
 
 /*********************** validity test functions ******************/
@@ -246,6 +254,15 @@ static inline struct FloatEulers *orientationGetEulers_f(struct OrientationReps 
     orientationCalcEulers_f(orientation);
   }
   return &orientation->eulers_f;
+}
+
+/// Get orientation as ZXY euler angles (float).
+static inline struct FloatEulers *orientationGetEulersZxy_f(struct OrientationReps *orientation)
+{
+  if (!bit_is_set(orientation->status, ORREP_EULER_ZXY_F)) {
+    orientationCalcEulersZxy_f(orientation);
+  }
+  return &orientation->eulers_zxy_f;
 }
 
 #ifdef __cplusplus
