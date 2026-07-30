@@ -289,7 +289,6 @@
       <define name="WLS_N_V_MAX" value="4" />
     </module>
     <module name="guidance"      type="indi_hybrid_tailsitter">
-      <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
       <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
       <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>
       <define name="GUIDANCE_INDI_POS_GAINZ" value="0.5"/>
