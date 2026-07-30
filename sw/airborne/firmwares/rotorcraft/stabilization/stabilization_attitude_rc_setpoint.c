@@ -199,7 +199,11 @@ void stabilization_attitude_read_rc_setpoint_earth_bound(struct AttitudeRCInput 
 /// reset to current state
 void stabilization_attitude_reset_rc_setpoint(struct AttitudeRCInput *rc_sp)
 {
+#if USE_EARTH_BOUND_RC_SETPOINT
+  rc_sp->rc_eulers = *stateGetNedToBodyEulersZxy_f();
+#else
   rc_sp->rc_eulers = *stateGetNedToBodyEulers_f();
+#endif
   rc_sp->rc_quat = *stateGetNedToBodyQuat_f();
 }
 
