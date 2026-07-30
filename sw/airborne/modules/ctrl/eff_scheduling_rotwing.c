@@ -495,9 +495,6 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   wls_guid_p.Wv[0] = Wv_original[0] * (1.0f + fixed_wing_percentile *
                                          AIRSPEED_IMPORTANCE_IN_FORWARD_WEIGHT); // stall n low hover motor_off (weight 16x more important than vertical weight)
 
-  struct FloatEulers eulers_zxy;
-  eulers_zxy = *stateGetNedToBodyEulersZxy_f();
-
   float du_min_thrust_z = ((MAX_PPRZ - actuator_state_filt_vect[0]) * g1g2[3][0] + (MAX_PPRZ -
                            actuator_state_filt_vect[1]) * g1g2[3][1] + (MAX_PPRZ - actuator_state_filt_vect[2]) * g1g2[3][2] +
                            (MAX_PPRZ - actuator_state_filt_vect[3]) * g1g2[3][3]) * rotwing_state_hover_motors_running();
