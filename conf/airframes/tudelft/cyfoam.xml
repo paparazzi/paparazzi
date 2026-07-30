@@ -277,9 +277,7 @@
 
     <!--<module name="servo_tester"/>-->
 
-    <module name="air_data">
-      <define name="USE_AIRSPEED_AIR_DATA" value="FALSE"/>
-    </module>
+    <module name="air_data"/>
     <module name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
@@ -300,9 +298,6 @@
       <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1500"/>
       <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="16.0"/>
       <define name="GUIDANCE_INDI_HEADING_BANK_GAIN" value="15.0"/>
-      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
-      <define name="GUIDANCE_INDI_THRUST_DYNAMICS_FREQ" value="23.6"/>
-      <!--<define name="KNIFE_EDGE_TEST" value="TRUE"/>-->
       <!--Flap effectiveness on lift-->
       <define name="FE_LIFT_A_PITCH" value="0.00018"/>
       <define name="FE_LIFT_B_PITCH" value="0.00072"/>
