@@ -273,7 +273,6 @@
   </section>
 
   <section name="GUIDANCE_INDI">
-    <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
     <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
     <define name="GUIDANCE_INDI_SPEED_GAIN" value="0.8"/>
     <define name="GUIDANCE_INDI_POS_GAINZ" value="0.6"/>
