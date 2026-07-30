@@ -339,7 +339,7 @@ void aoa_t4_update(void)
     aoa_t4.angle = a_rad;
 
 #if AOA_T4_USE_COMPENSATION
-    float_eulers_of_quat_zxy(&eulers_t4, stateGetNedToBodyQuat_f());
+    eulers_t4 = *stateGetNedToBodyEulersZxy_f();
     // First order fn
     if (eulers_t4.theta >= 0)
     {

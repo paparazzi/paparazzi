@@ -390,7 +390,7 @@ static void send_att_full_indi(struct transport_tx *trans, struct link_device *d
   struct FloatRates *body_rates = stateGetBodyRates_f();
   struct FloatEulers att, att_sp;
 #if GUIDANCE_INDI_HYBRID
-  float_eulers_of_quat_zxy(&att, stateGetNedToBodyQuat_f());
+  att = *stateGetNedToBodyEulersZxy_f();
   struct FloatQuat stab_att_sp_quat_f;
   QUAT_FLOAT_OF_BFP(stab_att_sp_quat_f, stab_att_sp_quat);
   float_eulers_of_quat_zxy(&att_sp, &stab_att_sp_quat_f);

@@ -156,7 +156,7 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
   struct EnuCoor_i *pos = stateGetPositionEnu_i();
 #if GUIDANCE_INDI_HYBRID
   struct FloatEulers eulers_zxy;
-  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+  eulers_zxy = *stateGetNedToBodyEulersZxy_f();
   struct Int32Eulers att;
   EULERS_BFP_OF_REAL(att, eulers_zxy);
 #else
