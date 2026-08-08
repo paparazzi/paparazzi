@@ -372,8 +372,8 @@ void guidance_indi_init(void)
  */
 void guidance_indi_enter(void)
 {
-  /* Obtain eulers with zxy rotation order*/
-  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+  /*Obtain eulers with zxy rotation order*/
+  eulers_zxy = *stateGetNedToBodyEulersZxy_f();
   nav.heading = eulers_zxy.psi;
   guidance_indi_hybrid_heading_sp = eulers_zxy.psi;
   // reset filters
@@ -412,7 +412,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   sp_accel = *accel_sp;
 
   /* Obtain eulers with zxy rotation order */
-  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+  eulers_zxy = *stateGetNedToBodyEulersZxy_f();
   struct FloatEulers eulers_filtered;
   float_eulers_of_quat_zxy(&eulers_filtered, &quat_filt.quat);
 
@@ -587,7 +587,7 @@ static struct FloatVect3 compute_accel_from_speed_sp(struct FloatVect3 *speed_sp
 {
   struct FloatVect3 accel_sp = { 0.f, 0.f, 0.f };
 
-  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+  eulers_zxy = *stateGetNedToBodyEulersZxy_f();
 
   //for rc control horizontal, rotate from body axes to NED
   float psi = eulers_zxy.psi;

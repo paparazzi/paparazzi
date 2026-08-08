@@ -209,7 +209,7 @@ void init_RW_Model(void)
 /*Update the attitude*/
 void  update_attitude(void)
 {
-  float_eulers_of_quat_zxy(&eulers_zxy_RW_EFF, stateGetNedToBodyQuat_f());
+  eulers_zxy_RW_EFF = *stateGetNedToBodyEulersZxy_f();
   RW.att.phi    = eulers_zxy_RW_EFF.phi;
   RW.att.theta  = eulers_zxy_RW_EFF.theta;
   RW.att.psi    = eulers_zxy_RW_EFF.psi;

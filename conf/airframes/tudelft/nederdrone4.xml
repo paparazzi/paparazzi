@@ -95,9 +95,7 @@
 
     <module name="approach_moving_target"/>
 
-    <module name="ins"           type="ekf2">
-      <define name="USE_INS_NAV_INIT" value="FALSE"/>
-    </module>
+    <module name="ins"           type="ekf2"/>
 
     <module name="actuators"     type="uavcan">
       <configure name="UAVCAN_USE_CAN1" value="TRUE"/>
@@ -152,7 +150,6 @@
     </module>
 
     <module name="guidance" type="indi_hybrid_tailsitter">
-      <define name="GUIDANCE_INDI_HYBRID_USE_WLS" value="TRUE"/>
       <define name="GUIDANCE_INDI_POS_GAIN" value="0.3"/>
       <define name="GUIDANCE_INDI_SPEED_GAIN" value="0.5"/>
       <define name="GUIDANCE_INDI_POS_GAINZ" value="0.3"/>
