@@ -76,13 +76,6 @@ struct FloatVect3 sp_accel = {0.0f, 0.0f, 0.0f};
 float guidance_indi_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
 static void guidance_indi_filter_thrust(void);
 
-#ifdef GUIDANCE_INDI_THRUST_DYNAMICS
-#warning GUIDANCE_INDI_THRUST_DYNAMICS is deprecated, use GUIDANCE_INDI_THRUST_DYNAMICS_FREQ instead.
-#warning "The thrust dynamics are now specified in continuous time with the corner frequency of the first order model!"
-#warning "define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ in rad/s"
-#warning "Use -ln(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old value."
-#endif
-
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS_FREQ
 #ifndef STABILIZATION_INDI_ACT_FREQ_P
 #error "You need to define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ to be able to use indi vertical control"
@@ -220,11 +213,7 @@ void guidance_indi_enter(void)
   thrust_act = thrust_in;
 
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
-#ifdef GUIDANCE_INDI_THRUST_DYNAMICS
-  thrust_dyn = GUIDANCE_INDI_THRUST_DYNAMICS;
-#else
   thrust_dyn = 1-exp(-GUIDANCE_INDI_THRUST_DYNAMICS_FREQ/PERIODIC_FREQUENCY);
-#endif //GUIDANCE_INDI_THRUST_DYNAMICS
 #endif //GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 
   float tau = 1.0 / (2.0 * M_PI * filter_cutoff);
