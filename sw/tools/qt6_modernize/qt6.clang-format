@@ -1,0 +1,79 @@
+# =============================================================================
+# Qt6 application coding style (mirrors the official qtbase `_clang-format`).
+#
+# This file is passed EXPLICITLY by qt6-modernize.sh via
+#     clang-format --style=file:<this-file>
+# so it is NEVER auto-discovered by editors and does NOT impose Qt style on the
+# rest of the (mostly C / OCaml) Paparazzi tree. The repo's firmware C code keeps
+# using its own 2-space astyle profile (see fix_code_style.sh); this profile is
+# only for the native Qt6/C++ ground-segment apps under sw/.
+# =============================================================================
+---
+Language: Cpp
+# WebKit is the base from which the official Qt coding style is derived.
+BasedOnStyle: WebKit
+
+# --- Indentation -------------------------------------------------------------
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 8
+ConstructorInitializerIndentWidth: 4
+AccessModifierOffset: -4
+NamespaceIndentation: None
+IndentCaseLabels: false
+
+# --- Line length -------------------------------------------------------------
+ColumnLimit: 100
+
+# --- Braces: Qt attaches braces for control flow but puts the opening brace of
+#     a function / class / struct on its own line. -----------------------------
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: true
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+
+# --- Pointers / references bind to the name: `Type *p`, `Type &r` (Qt style) --
+PointerAlignment: Right
+ReferenceAlignment: Right
+DerivePointerAlignment: false
+
+# --- Wrapping ----------------------------------------------------------------
+AlignAfterOpenBracket: Align
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Empty
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
+BreakConstructorInitializers: BeforeComma
+Cpp11BracedListStyle: true
+
+# --- Spacing -----------------------------------------------------------------
+SpaceAfterCStyleCast: true
+SpaceBeforeParens: ControlStatements
+SpacesBeforeTrailingComments: 1
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+
+# --- Includes ----------------------------------------------------------------
+# Preserve the project's existing 3 include groups (C/C++ stdlib, Qt, local) and
+# only alphabetize WITHIN each group. This keeps the carefully curated, IWYU-style
+# include hygiene intact and never moves a local header above the Qt block.
+SortIncludes: CaseInsensitive
+IncludeBlocks: Preserve
+
+Standard: c++17
+...

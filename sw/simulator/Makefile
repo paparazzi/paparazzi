@@ -22,61 +22,17 @@
 # Quiet compilation
 Q=@
 
-
 include ../../conf/Makefile.local
-include ../Makefile.ocaml
+include ../../conf/Makefile.qt
 
-OCAMLC += -g
-INCLUDES =
-PKG = -package glibivy,pprz,$(USE_LABELGTK)
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink,$(USE_LABELGTK)
-
-AIRBORNE = ../airborne
-VARINCLUDE=$(PAPARAZZI_HOME)/var/include
-ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
-
-CAML_CFLAGS = -I $(shell $(OCAMLC) -where)
-
-ifeq ($(USE_LABELGTK),lablgtk2)
 all : gaia
-else
-all :
-endif
 
-gaia : gaia.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
+# gaia is a native Qt6/C++ application built through the shared Qt super-build
+# (see conf/Makefile.qt and sw/CMakeLists.txt).
+gaia: qt-configure
+	$(Q)$(QT_CMAKE_BUILD) gaia
 
-%.cmo : %.ml
-	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $(PKG) $<
+clean: qt-clean
+	$(Q)rm -f *~ *.out .depend *.o *.a gaia
 
-%.o : %.c
-	@echo CC $<
-	$(Q)$(CC) -fPIC -c $< $(CAML_CFLAGS)
-
-%.cmx : %.ml
-	@echo OOC $<
-	$(Q)$(OCAMLOPT) $(INCLUDES) -c $(PKG) $<
-
-%.cmi : %.mli
-	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $(PKG) $<
-
-clean :
-	$(Q)rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia
-
-.PHONY: all clean
-
-
-#
-# Dependencies
-#
-
-.depend: Makefile
-	@echo DEPEND $@
-	$(Q)$(OCAMLDEP) -I $(LIBPPRZDIR) *.ml* > .depend
-
-ifneq ($(MAKECMDGOALS),clean)
--include .depend
-endif
+.PHONY: all clean gaia

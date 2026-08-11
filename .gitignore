@@ -64,6 +64,7 @@ Cargo.lock
 
 /var
 /dox
+/build
 
 # /conf/
 /conf/conf.xml
@@ -86,6 +87,7 @@ Cargo.lock
 /sw/ground_segment/cockpit/gtk_save_settings.ml
 /sw/ground_segment/cockpit/gtk_setting_time.ml
 /sw/ground_segment/cockpit/gcs
+/sw/ground_segment/cockpit/pprzgcs
 /sw/ground_segment/cockpit/gcs.opt
 /sw/ground_segment/cockpit/gtk_strip.ml
 /sw/ground_segment/cockpit/ant_track
