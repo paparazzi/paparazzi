@@ -672,32 +672,33 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
   struct FloatRates rates_sp = stab_sp_to_rates_f(sp);
   angular_accel_ref = stabilization_indi_rate_controller(rates_filt, rates_sp);
 
+  // Compute estimated thrust
+  FLOAT_VECT3_ZERO(stab_thrust_filt);
+  for (i = 0; i < INDI_NUM_ACT; i++) {
+#if INDI_OUTPUTS == 4
+    stab_thrust_filt.z += Bwls[3][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[2][i];
+#endif
+#if INDI_OUTPUTS == 5 // FIXME change order of Z and X, or better detect that automatically ?
+    stab_thrust_filt.x += Bwls[4][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[0][i];
+    stab_thrust_filt.z += Bwls[3][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[2][i];
+#endif
+#if INDI_OUTPUTS == 6
+    stab_thrust_filt.x += Bwls[3][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[0][i];
+    stab_thrust_filt.y += Bwls[4][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[1][i];
+    stab_thrust_filt.z += Bwls[5][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[2][i];
+#endif
+  }
+
   // compute virtual thrust
   struct FloatVect3 v_thrust = { 0.f, 0.f, 0.f };
   if (thrust->type == THRUST_INCR_SP) {
     v_thrust.x = th_sp_to_incr_f(thrust, 0, THRUST_AXIS_X);
     v_thrust.y = th_sp_to_incr_f(thrust, 0, THRUST_AXIS_Y);
     v_thrust.z = th_sp_to_incr_f(thrust, 0, THRUST_AXIS_Z);
-
-    // Compute estimated thrust
-    FLOAT_VECT3_ZERO(stab_thrust_filt);
-    for (i = 0; i < INDI_NUM_ACT; i++) {
-#if INDI_OUTPUTS == 4
-      stab_thrust_filt.z += Bwls[3][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[2][i];
-#endif
-#if INDI_OUTPUTS == 5 // FIXME change order of Z and X, or better detect that automatically ?
-      stab_thrust_filt.x += Bwls[4][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[0][i];
-      stab_thrust_filt.z += Bwls[3][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[2][i];
-#endif
-#if INDI_OUTPUTS == 6
-      stab_thrust_filt.x += Bwls[3][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[0][i];
-      stab_thrust_filt.y += Bwls[4][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[1][i];
-      stab_thrust_filt.z += Bwls[5][i] * actuator_lowpass_filters[i].o[0] * (int32_t) act_thrust_mat[2][i];
-#endif
-    }
     // Add the current estimated thrust to the increment
     VECT3_ADD(v_thrust, stab_thrust_filt);
-  } else {
+  }
+  else {
     // build incremental thrust
     struct FloatVect3 th_cmd;
     th_cmd.x = (float)th_sp_to_thrust_i(thrust, 0, THRUST_AXIS_X);
@@ -708,6 +709,9 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
     cmd[COMMAND_THRUST_X] = radio_control.values[RADIO_CONTROL_THRUST_X];
     th_cmd.x = (float)cmd[COMMAND_THRUST_X];
 #endif
+    // compute v_thrust based on the efficiency matrix
+    // this will work if internal forces are not equilibrated
+    // which is usually the case for Z thrust
     for (i = 0; i < INDI_NUM_ACT; i++) {
 #if INDI_OUTPUTS == 4
       v_thrust.z += th_cmd.z * Bwls[3][i] * (int32_t) act_thrust_mat[2][i];
@@ -722,8 +726,17 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
       v_thrust.z += th_cmd.z * Bwls[5][i] * (int32_t) act_thrust_mat[2][i];
 #endif
     }
-    // store estimated thrust
-    stab_thrust_filt = v_thrust;
+    // overwritte v_thrust if needed
+    // this can be the case for multirotor with fixed tilted motors
+#ifdef STABILIZATION_INDI_V_THRUST_X
+    v_thrust.x = th_cmd.x * STABILIZATION_INDI_V_THRUST_X / MAX_PPRZ;
+#endif
+#ifdef STABILIZATION_INDI_V_THRUST_Y
+    v_thrust.y = th_cmd.y * STABILIZATION_INDI_V_THRUST_Y / MAX_PPRZ;
+#endif
+#ifdef STABILIZATION_INDI_V_THRUST_Z
+    v_thrust.z = th_cmd.z * STABILIZATION_INDI_V_THRUST_Z / MAX_PPRZ;
+#endif
   }
 
   // This term compensates for the spinup torque in the yaw axis
