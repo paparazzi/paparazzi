@@ -1,12 +1,9 @@
 <?xml version='1.0'?>
-<sdf version='1.4'>
+<sdf version='1.9'>
   <model name="simple_x_quad">
     <pose>0 0 .1 0 0 0</pose>
 
     <link name="chassis">
-      <velocity_decay>
-        <linear>0.001</linear>
-      </velocity_decay>
       
     
       <inertial><!-- Converted to SI from Paparazzi's ARDrone model for JSBsim -->
