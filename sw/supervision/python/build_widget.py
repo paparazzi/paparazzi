@@ -27,7 +27,7 @@ class FlashMode:
 
 class BuildWidget(Ui_Build, QWidget):
 
-    multi_action_requested = QtCore.pyqtSignal(str)
+    action_requested = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
@@ -37,7 +37,7 @@ class BuildWidget(Ui_Build, QWidget):
         self.build_button.clicked.connect(self.build)
         self.clean_button.clicked.connect(self.clean)
         self.flash_button.clicked.connect(self.flash)
-        self.target_combo.currentTextChanged.connect(lambda _: self.multi_action_requested.emit("RefreshFlashModes"))
+        self.target_combo.currentTextChanged.connect(lambda _: self.action_requested.emit("RefreshFlashModes"))
 
     @staticmethod
     def parse_flash_modes() -> List[FlashMode]:
@@ -80,6 +80,8 @@ class BuildWidget(Ui_Build, QWidget):
 
     def update_flash_modes_for_aircrafts(self, aircrafts: List[Aircraft]):
         selected_flash_mode = self.device_combo.currentText()
+        if not selected_flash_mode:
+            selected_flash_mode = utils.get_settings().value("ui/last_flash_mode", None, str)
         self.device_combo.clear()
         self.device_combo.addItem("Default")
         target = self.target_combo.currentText()
@@ -100,13 +102,13 @@ class BuildWidget(Ui_Build, QWidget):
         return self.target_combo.currentText()
 
     def build(self):
-        self.multi_action_requested.emit("Build")
+        self.action_requested.emit("Build")
 
     def clean(self):
-        self.multi_action_requested.emit("Clean")
+        self.action_requested.emit("Clean")
 
     def flash(self):
-        self.multi_action_requested.emit("Flash")
+        self.action_requested.emit("Flash")
 
     def enable_buttons(self, enable: bool):
         self.build_button.setEnabled(enable)
