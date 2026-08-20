@@ -56,7 +56,16 @@ static int baudrates[] = {
     B38400,
     B57600,
     B115200,
-    B230400 };
+    B230400,
+    /* Keep the ordinal aligned with type Serial.speed even where the platform
+     * has no such constant: the OCaml variant index is used directly as the
+     * array index, so a missing entry would silently shift every rate above it
+     * onto the wrong value. -1 is rejected explicitly below. */
+#ifdef B460800
+    B460800 };
+#else
+    -1 };
+#endif
 #else /* regular Linux with higher baudrates */
 static int baudrates[] = {
     B0,
@@ -78,10 +87,13 @@ static int baudrates[] = {
     B57600,
     B115200,
     B230400,
+    B460800,
     B921600,
     B1500000,
     B3000000 };
 #endif /* ifdef __APPLE__ */
+
+#define NB_BAUDRATES ((int)(sizeof(baudrates) / sizeof(baudrates[0])))
 
 
 
@@ -94,10 +106,16 @@ value c_init_serial(value device, value speed, value hw_flow_control)
   struct termios orig_termios, cur_termios;
 
   int br_idx = Int_val(speed);
-  if (br_idx >= sizeof(baudrates)){
-    caml_failwith("Baud rate not supported - are you using MacOS? (br_idx out of bounds)");
+  /* sizeof(baudrates) is the size in BYTES; the comparison has to be against
+   * the ELEMENT COUNT or every index from the count up to four times it reads
+   * past the end of the table. */
+  if (br_idx < 0 || br_idx >= NB_BAUDRATES) {
+    caml_failwith("Baud rate not supported on this platform (index out of range)");
   }
   int br = baudrates[br_idx];
+  if (br == -1) {
+    caml_failwith("Baud rate not supported by this platform's termios");
+  }
 
   int fd = open(String_val(device), O_RDWR|O_NOCTTY|O_NONBLOCK);
 
@@ -170,7 +188,11 @@ value c_serial_set_baudrate(value val_fd, value speed)
 
   tio.c_lflag &= ~(ICANON | ISIG | ECHO | ECHONL | ECHOE | ECHOK);
 
-  int br = baudrates[Int_val(speed)];
+  int br_idx2 = Int_val(speed);
+  if (br_idx2 < 0 || br_idx2 >= NB_BAUDRATES || baudrates[br_idx2] == -1) {
+    caml_failwith("Baud rate not supported on this platform");
+  }
+  int br = baudrates[br_idx2];
 
   cfsetispeed(&tio, br);
   cfsetospeed(&tio, br);
