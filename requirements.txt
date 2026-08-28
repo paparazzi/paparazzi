@@ -3,6 +3,7 @@ numpy
 scipy
 ivy-python
 pyserial
+pyubx2
 PyQt5
 PyQtWebEngine
 pyqtgraph
