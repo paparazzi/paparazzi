@@ -1,12 +1,9 @@
 <?xml version='1.0'?>
-<sdf version='1.4'>
+<sdf version='1.9'>
   <model name="bebop2_with_slamdunk">
     <pose>0 0 .1 0 0 0</pose>
 
     <link name="chassis">
-      <velocity_decay>
-        <linear>0.001</linear>
-      </velocity_decay>
       
       <inertial>
         <mass>0.536</mass>
