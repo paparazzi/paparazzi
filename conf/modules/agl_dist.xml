@@ -23,6 +23,10 @@
   <periodic fun="agl_dist_report()" freq="2" autorun="FALSE"/>
   <makefile>
     <file name="agl_dist.c"/>
-    <test/>
+    <test>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>
