@@ -93,6 +93,8 @@ class IvyRecorder(QObject):
             self.new_sender.emit(sender_id)
         
     def __logMessage(self,sender_id:int,msg:PprzMessage):
+        if isinstance(sender_id,str) and sender_id[:6] == "replay":
+            sender_id = sender_id[6:]
         sender_id = int(sender_id)
         timed_msg = TimedPprzMessage(msg)
         new_msg = False
