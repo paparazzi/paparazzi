@@ -73,8 +73,10 @@
     <define name="$(TFMINI_PORT_UPPER)_BAUD" value="$(TFMINI_BAUD)"/>
     <define name="TFMINI_PORT" value="$(TFMINI_PORT_LOWER)"/>
     
+    <configure name="USE_TFMINI_AGL" default="true"/>
     <configure name="LIDAR_MIN_RANGE" default="0.1"/>
     <configure name="LIDAR_MAX_RANGE" default="12.0"/>
+    <define name="USE_TFMINI_AGL" value="$(USE_TFMINI_AGL)"/>
     <define name="LIDAR_MIN_RANGE" value="$(LIDAR_MIN_RANGE)"/>
     <define name="LIDAR_MAX_RANGE" value="$(LIDAR_MAX_RANGE)"/>
     <file name="tfmini_nps.c"/>
