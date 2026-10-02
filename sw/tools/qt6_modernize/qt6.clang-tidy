@@ -1,0 +1,49 @@
+# =============================================================================
+# Qt6 application modernization & quality checks for clang-tidy.
+#
+# Passed EXPLICITLY by qt6-modernize.sh via `clang-tidy --config-file=<this-file>`,
+# so it does not affect any other part of the repository.
+#
+# Philosophy: enable the whole modernize / performance / readability / bugprone
+# families (the bulk of "write it the modern, idiomatic way" fixes), then switch
+# OFF the handful of checks that are noisy, opinionated, ABI-changing, or that
+# actively fight the Qt house style. Most enabled checks carry an automatic
+# fix-it; the diagnostic-only ones still surface real issues during a --check run.
+# =============================================================================
+---
+Checks: >
+  -*,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-use-nodiscard,
+  -modernize-avoid-c-arrays,
+  -modernize-pass-by-value,
+  -modernize-use-auto,
+  performance-*,
+  readability-*,
+  -readability-identifier-naming,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-function-cognitive-complexity,
+  -readability-implicit-bool-conversion,
+  -readability-braces-around-statements,
+  -readability-uppercase-literal-suffix,
+  -readability-else-after-return,
+  -readability-named-parameter,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions,
+  -bugprone-implicit-widening-of-multiplication-result
+
+# Treat nothing as a hard error; this is a refactor aid, not a gate.
+WarningsAsErrors: ''
+
+# The dedicated clang-format stage of qt6-modernize.sh reformats the whole file
+# afterwards, so clang-tidy must not apply its own (region-only) formatting.
+FormatStyle: none
+
+# Left empty on purpose: qt6-modernize.sh injects --header-filter at run time,
+# scoped to the target directory, so project headers get fixed while Qt/system
+# headers are never touched.
+HeaderFilterRegex: ''
+...

@@ -1,0 +1,6 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    <file alias="penguin_icon_rep.png">../../data/pictures/penguin_icon_rep.png</file>
+  </qresource>
+</RCC>

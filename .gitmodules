@@ -59,3 +59,9 @@
 [submodule "sw/ext/unifiedmocaprouter"]
 	path = sw/ext/unifiedmocaprouter
 	url = https://github.com/tudelft/UnifiedMocapRouter.git
+[submodule "sw/ext/pprzlink-qt"]
+	path = sw/ext/pprzlink-qt
+	url = https://github.com/Fabien-B/pprzlinkQt.git
+[submodule "sw/ext/ivy-qt"]
+	path = sw/ext/ivy-qt
+	url = https://gitlab.com/ivybus/IvyQt.git

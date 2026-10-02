@@ -61,6 +61,7 @@ STATICINCLUDE=$(PAPARAZZI_HOME)/var/include
 CONF=$(PAPARAZZI_SRC)/conf
 AIRBORNE=sw/airborne
 SIMULATOR=sw/simulator
+COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 GENERATORS=$(PAPARAZZI_SRC)/sw/tools/generators
 JOYSTICK=sw/ground_segment/joystick
@@ -106,9 +107,21 @@ MAVLINK_PROTOCOL_H=$(MAVLINK_DIR)protocol.h
 
 GEN_HEADERS = $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H)
 
+# Wall-clock build timer: capture the start time once when this Makefile is read
+# (the very beginning of the make invocation) and report the total elapsed time
+# at the end of a full build. pprz_report_build_time is appended to the recipes
+# of the top-level build targets (core / all / ground_segment.opt) so it runs
+# only after every prerequisite has finished, and exactly once per invocation.
+PPRZ_BUILD_START := $(shell date +%s)
+define pprz_report_build_time
+@echo "Building took $$(($$(date +%s) - $(PPRZ_BUILD_START))) seconds."
+endef
+
 core: ground_segment ext subdirs_extra
+	$(pprz_report_build_time)
 
 all: ground_segment ext subdirs_extra $(MAVLINK_PROTOCOL_H)
+	$(pprz_report_build_time)
 
 _print_building:
 	@echo "------------------------------------------------------------"
@@ -139,9 +152,10 @@ conf/tools/blacklisted: conf/tools/blacklisted_example
 	cp conf/tools/blacklisted_example conf/tools/blacklisted
 
 ground_segment: _print_building conf libpprz subdirs static
-ground_segment.opt: ground_segment tmtc.opt
+ground_segment.opt: ground_segment cockpit.opt tmtc.opt
+	$(pprz_report_build_time)
 
-static: tmtc generators sim_static joystick static_h
+static: cockpit tmtc generators sim_static joystick static_h
 
 libpprzlink.update:
 	$(MAKE) -C $(EXT) pprzlink.update
@@ -151,6 +165,29 @@ libpprzlink.install:
 
 libpprz: libpprzlink.update libpprzlink.install _save_build_version
 	$(MAKE) -C $(LIB)/ocaml
+	
+# Message printed when the GCS source is not present. Kept on a single line (no
+# embedded newlines) so it expands cleanly inside the recipe shell-if below;
+# printf prints each quoted argument on its own line.
+COCKPIT_MISSING_MSG = printf '%s\n' "" "------------------------------------------------------------" "No '$(COCKPIT)' found -- skipping the GCS (cockpit) build." "Make a symlink to your PprzGCS source code if you want to compile a GCS, e.g.:" "    cd $(dir $(COCKPIT)) && ln -s yourpprzgcssourcedir cockpit" "------------------------------------------------------------" ""
+
+# The cockpit is normally a symlink to an external PprzGCS checkout. It is
+# optional: if the directory is missing the build must NOT fail -- print how to
+# add it and continue. ([ -d ] follows the symlink, so a dangling or absent link
+# both take the skip branch.)
+cockpit: libpprz
+	$(Q)if [ -d $(COCKPIT) ]; then \
+		$(MAKE) -C $(COCKPIT) ISCOCKPIT=1 COCKPIT_SRC=$(abspath $(COCKPIT)); \
+	else \
+		$(COCKPIT_MISSING_MSG); \
+	fi
+
+cockpit.opt: libpprz
+	$(Q)if [ -d $(COCKPIT) ]; then \
+		$(MAKE) -C $(COCKPIT) ISCOCKPIT=1 COCKPIT_SRC=$(abspath $(COCKPIT)) opt; \
+	else \
+		$(COCKPIT_MISSING_MSG); \
+	fi
 
 tmtc: libpprz
 	$(MAKE) -C $(TMTC)
@@ -266,7 +303,7 @@ clean:
 	$(Q)rm -f  $(GEN_HEADERS)
 	$(Q)MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) uninstall
 	$(Q)rm -fr $(MAVLINK_DIR)
-	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
+	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@ || true' \;
 	$(Q)$(MAKE) -C $(EXT) clean
 	$(Q)find . -name '*~' -exec rm -f {} \;
 	$(Q)find . -name '*.pyc' -exec rm -f {} \;
@@ -350,7 +387,48 @@ test_full:
 
 
 .PHONY: all print_build_version _print_building _save_build_version init dox ground_segment ground_segment.opt \
-subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install tmtc tmtc.opt generators\
+subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install cockpit cockpit.opt tmtc tmtc.opt generators\
 static sim_static opencv_bebop mocap \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test test_examples test_math test_all_confs
+
+.PHONY: plotter
+plotter:
+	$(MAKE) -C sw/logalizer plotter
+
+.PHONY: logplotter
+logplotter:
+	$(MAKE) -C sw/logalizer logplotter
+
+.PHONY: play
+play:
+	$(MAKE) -C sw/logalizer play
+
+.PHONY: messages
+messages:
+	$(MAKE) -C sw/ground_segment/tmtc messages
+
+.PHONY: gaia
+gaia:
+	$(MAKE) -C sw/simulator gaia
+
+# Build the PprzGCS Ground Control Station (a native Qt6/C++ app), mirroring the
+# lightweight `make play` / `make gaia` convenience targets above. Unlike the
+# in-tree tools, PprzGCS lives in its own repository and is wired into the tree
+# through the OPTIONAL sw/ground_segment/cockpit symlink ($(COCKPIT)). When that
+# logical location is present we build it exactly like `make cockpit` does
+# (out-of-tree into var/build_qt/cockpit, reusing the shared sw/ext Qt libs);
+# when it is absent we print how to add it instead of failing, so `make gcs` is
+# always safe to run. (`make cockpit` additionally rebuilds the OCaml libpprz the
+# legacy GCS needed; the C++ PprzGCS does not, so `gcs` skips it for a fast build.)
+.PHONY: gcs
+gcs:
+	$(Q)if [ -d $(COCKPIT) ]; then \
+		$(MAKE) -C $(COCKPIT) ISCOCKPIT=1 COCKPIT_SRC=$(abspath $(COCKPIT)); \
+	else \
+		$(COCKPIT_MISSING_MSG); \
+	fi
+
+# 'pprzgcs' is an alias for 'gcs' -- both build the PprzGCS Ground Control Station.
+.PHONY: pprzgcs
+pprzgcs: gcs
