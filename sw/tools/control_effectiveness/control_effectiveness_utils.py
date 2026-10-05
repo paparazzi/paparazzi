@@ -192,7 +192,7 @@ def extract_filtered_data(conf, var, data, nb_in, nb_out, start, end):
 # Display functions
 #
 
-def plot_results(x, y, y_raw, z, t, freq, label, show=False):
+def plot_results(x, y, y_raw, z, t, freq, label, show=False, spec=False):
     '''
     plot two curves for comparison
     '''
@@ -216,14 +216,21 @@ def plot_results(x, y, y_raw, z, t, freq, label, show=False):
     
     # FFT
     N = len(y)
-    T = 1./freq
-    yf = fft(y_raw)
-    xf = np.linspace(0.0, 1.0/(2.0*T), int(N/2))
-    ax_fft.plot(xf, 2.0/N * np.abs(yf[0:int(N/2)]))
-    ax_fft.grid()
-    ax_fft.set_xlabel('Freq (Hz)')
-    ax_fft.set_yticks([])
-    ax_fft.set_ylabel('FFT Amplitude')
+    if spec is False:
+        # show FFT
+        T = 1./freq
+        yf = fft(y_raw)
+        xf = np.linspace(0.0, 1.0/(2.0*T), int(N/2))
+        ax_fft.plot(xf, 2.0/N * np.abs(yf[0:int(N/2)]))
+        ax_fft.grid()
+        ax_fft.set_xlabel('Freq (Hz)')
+        ax_fft.set_yticks([])
+        ax_fft.set_ylabel('FFT Amplitude')
+    else:
+        # show spectrogram
+        ax_fft.specgram(y_raw.reshape(N), Fs=freq)
+        ax_fft.set_xlabel('Time (s)')
+        ax_fft.set_ylabel('Freq (Hz)')
 
     if show:
         plt.show()

@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 
 import control_effectiveness_utils as ut
 
-def process_data(conf, f_name, start, end, freq=None, variables=None, verbose=False, use_ranges=False, plot=False):
+def process_data(conf, f_name, start, end, freq=None, variables=None, verbose=False, use_ranges=False, plot=False, spec=False):
 
     # Read data from log file
     data = genfromtxt(f_name, delimiter=',', skip_header=1)
@@ -100,7 +100,7 @@ def process_data(conf, f_name, start, end, freq=None, variables=None, verbose=Fa
             output[[i],:] = axis_fit.T
             cmd_fit = np.dot(cmd, axis_fit)
             lin_fit, res = ut.fit_lin(cmd_fit[:,0], inputs[:,[i]][:,0], name, True)
-            ut.plot_results(cmd_fit, inputs[:,[i]], raw_inputs[:,[i]], lin_fit, time, freq, name)
+            ut.plot_results(cmd_fit, inputs[:,[i]], raw_inputs[:,[i]], lin_fit, time, freq, name, spec=spec)
 
     else:
         for e in ranges:
@@ -161,6 +161,9 @@ def main():
     parser.add_argument("-p", "--plot",
                       help="Show resulting plots",
                       action="store_true", dest="plot")
+    parser.add_argument("-spec", "--spectrogram",
+                      help="Show spectrogram instead of FFT in resutls plots",
+                      action="store_true", dest="spec")
     parser.add_argument("-r", "--use_ranges",
                       action="store_true", dest="use_ranges")
     parser.add_argument("-v", "--verbose",
@@ -179,7 +182,7 @@ def main():
 
     with open(args.config, 'r') as f:
         conf = json.load(f)
-        process_data(conf, args.data, start, end, freq, args.vars, args.verbose, args.use_ranges, args.plot)
+        process_data(conf, args.data, start, end, freq, args.vars, args.verbose, args.use_ranges, args.plot, args.spec)
 
 
 if __name__ == "__main__":
