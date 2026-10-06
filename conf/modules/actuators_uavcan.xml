@@ -6,6 +6,7 @@
       UAVCan actuators
    </description>
    <define name="UAVCAN_ACTUATORS_USE_CURRENT" value="TRUE" description="Enable the usage of the current sensing in the ESC telemetry"/>
+   <define name="UAVCAN_ACTUATORS_TELEM_IDX" value="{4}" description="Only report these ESC indices in the ESC telemetry message (counted over UAVCAN1 then UAVCAN2), to get a higher update rate for them. Default: all ESCs"/>
   </doc>
   <dep>
     <depends>uavcan,actuators</depends>
