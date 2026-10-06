@@ -236,8 +236,10 @@
         <define name="MULTI_DOUBLET_COMBINATIONS" value="{{1,0,1,0},{0,1,0,1}}"/>
         <!-- <define name="DOUBLET_RADIO_CHANNEL" value="6"/> -->
         <define name="AUTO_DOUBLETS_N_ACTUATORS" value="4"/>
-        <define name="AUTO_DOUBLETS_ACTUATORS" value="{0,1,2,3}"/>
+        <define name="AUTO_DOUBLETS_ACTUATORS" value="{0,1,0,1}"/>
         <define name="AUTO_DOUBLETS_AMPLITUDE" value="{1500,1500,1500,1500}"/>
+        <define name="AUTO_DOUBLETS_MOD"              value="3"/>    <!-- highspeed doublets -->
+        <define name="AUTO_DOUBLETS_TIME"             value="0.25"/>
     </section>    
     <section name="ROTWING" prefix="ROTWING_">
         <define name="FW_MIN_AIRSPEED"          value="17.0"/>  <!-- Forward stall airspeed + margin (motors off) -->
