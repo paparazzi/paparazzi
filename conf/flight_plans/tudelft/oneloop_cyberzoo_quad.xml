@@ -1,0 +1,223 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="60" name="Safe TU Delft Cyberzoo" security_height="0.4">
+  <header>
+    #include "autopilot.h"
+    #include "modules/datalink/datalink.h"
+    #include "modules/energy/electrical.h"
+    #include "modules/radio_control/radio_control.h"
+    #include "modules/ahrs/ahrs.h"
+    #include "modules/gps/gps.h"
+    #include "firmwares/rotorcraft/oneloop/oneloop_nB.h"
+    #ifndef FP_SQUARE_TIME // Time spent at each square corner [s], set per airframe (section FLIGHT_PLAN, prefix FP_)
+    #define FP_SQUARE_TIME 5.0
+    #endif
+</header>
+  <waypoints>
+    <waypoint lat="51.990631" lon="4.376796" name="HOME"/>
+    <waypoint name="CLIMB" x="1.9" y="1.0"/>
+    <waypoint name="STDBY" lat="51.9906312" lon="4.3767855" alt="2.5"/>
+    <!-- SMALL SQUARE-->
+    <!-- <waypoint lat="51.9906267" lon="4.3767782" alt="2.5" name="i1"/>
+    <waypoint lat="51.9906267" lon="4.3767928" alt="2.5" name="i2"/>
+    <waypoint lat="51.9906357" lon="4.3767928" alt="2.5" name="i3"/>
+    <waypoint lat="51.9906357" lon="4.3767782" alt="2.5" name="i4"/> -->
+    <!-- MEDIUM SQUARE-->
+    <waypoint lat="51.9906222" lon="4.3767709" alt="2.5" name="i1"/>
+    <waypoint lat="51.9906222" lon="4.3768001" alt="2.5" name="i2"/>
+    <waypoint lat="51.9906402" lon="4.3768001" alt="2.5" name="i3"/>
+    <waypoint lat="51.9906402" lon="4.3767709" alt="2.5" name="i4"/>
+    <!-- LARGE SQUARE-->
+    <!-- <waypoint lat="51.9906155" lon="4.3767599" alt="2.5" name="i1"/>
+    <waypoint lat="51.9906155" lon="4.3768111" alt="2.5" name="i2"/>
+    <waypoint lat="51.9906469" lon="4.3768111" alt="2.5" name="i3"/>
+    <waypoint lat="51.9906469" lon="4.3767599" alt="2.5" name="i4"/> -->
+
+    <waypoint name="p5" x="0.2" y="0.3"/>
+    <waypoint name="TD" x="0.8" y="-1.7"/>
+    <waypoint lat="51.9905979" lon="4.3767279" name="CZ1"/>
+    <waypoint lat="51.9906685" lon="4.3767327" name="CZ2"/>
+    <waypoint lat="51.9906652" lon="4.3768481" name="CZ3"/>
+    <waypoint lat="51.9905941" lon="4.3768441" name="CZ4"/>
+    <waypoint lat="51.9906028" lon="4.3767375" name="p1"/>
+    <waypoint lat="51.9906633" lon="4.3767411" name="p2"/>
+    <waypoint lat="51.9906601" lon="4.3768415" name="p3"/>
+    <waypoint lat="51.9905979" lon="4.3768386" name="p4"/>
+
+  </waypoints>
+  <sectors>
+    <sector color="blue" name="CyberZoo">
+      <corner name="CZ1"/>
+      <corner name="CZ2"/>
+      <corner name="CZ3"/>
+      <corner name="CZ4"/>
+    </sector>
+    <sector color="red" name="Flyzone">
+      <corner name="p1"/>
+      <corner name="p2"/>
+      <corner name="p3"/>
+      <corner name="p4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <!-- TRUE while the spin square demo runs: the shared square ends with the spin down instead of Standby -->
+    <variable var="spin_square" type="bool" init="FALSE"/>
+    <!-- Time spent at each square corner, default from the airframe (FP_SQUARE_TIME), changeable from the GCS -->
+    <variable var="square_time" type="float" init="FP_SQUARE_TIME" min="1.0" max="30.0" step="0.5" shortname="square_time"/>
+  </variables>
+  <exceptions>
+    <!--Soft Geofencing (go back to Standby)-->
+    <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosAlt() @GT 20.0) @AND
+     !(nav_block == IndexOfBlock('Wait GPS')) @AND
+     !(nav_block == IndexOfBlock('Geo init'))" deroute="safe"/>
+    <!-- Hard Geofencing (Kill) -->
+    <exception cond="(Or(!InsideCyberZoo(GetPosX(), GetPosY()), GetPosAlt() @GT 80.0) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
+      (autopilot_in_flight() == true) )" deroute="Landed"/>
+    <!-- RC lost -->
+    <exception cond="((radio_control.status == RC_REALLY_LOST) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
+      (autopilot_in_flight() == true) )" deroute="Landed"/>
+    <!-- Datalink lost  -->
+    <exception cond="((datalink_time @GT 5) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
+      (autopilot_in_flight() == true) )" deroute="Landed"/>
+    <!-- Bat low (constant RPM descent)-->
+    <exception cond="(electrical.bat_low @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
+      (autopilot_in_flight() == true) )" deroute="land here"/>
+    <!-- Bat critical (constant RPM no stabilization)-->
+    <exception cond="(electrical.bat_critical @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
+      (autopilot_in_flight() == true) )" deroute="land here"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 2)"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block key="r" name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+      <call_once fun="NavResurrect()"/>
+    </block>
+    <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="GetPosAlt() @GT 0.8" deroute="Standby"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <!-- SPIN SQUARE DEMO: spin up and fault spin_man_pair at STDBY, wait 5 s, fly the square, back to STDBY,
+         wait 5 s, spin down and unfault, then stay at STDBY. Only works in an nB mode (NAV or FORWARD),
+         otherwise the manoeuvre is rejected and the drone goes back to Standby.
+         NOTE: the faulted motors' static command comes from the throttle stick, also in NAV. -->
+    <block name="Spin Square">
+      <set value="TRUE" var="spin_square"/>
+      <set value="TRUE" var="spin_man_up"/>
+      <deroute block="spin_up_wait"/>
+    </block>
+    <block name="spin_up_wait">
+      <!-- spin_man_up clears itself when the spin up is done (pair faulted) or rejected/aborted (no fault) -->
+      <exception cond="!spin_man_up @AND (fault_pitch_motors || fault_roll_motors)" deroute="spin_hold"/>
+      <exception cond="!spin_man_up @AND !fault_pitch_motors @AND !fault_roll_motors" deroute="Standby"/>
+      <stay wp="STDBY"/>
+    </block>
+    <block name="spin_hold">
+      <stay wp="STDBY"/>
+      <exception cond="NavBlockTime() @GT 5" deroute="square_i1"/>
+    </block>
+    <!-- NORMAL SQUARE DEMO: the square blocks below are shared with the spin square demo -->
+    <block name="Start Square">
+      <set value="FALSE" var="spin_square"/>
+      <deroute block="square_i1"/>
+    </block>
+    <block name="square_i1">
+      <stay wp="i1"/>
+      <exception cond="NavBlockTime() @GT square_time" deroute="go_i2"/>
+    </block>
+    <block name="go_i2">
+      <stay wp="i2"/>
+      <exception cond="NavBlockTime() @GT square_time" deroute="go_i3"/>
+    </block>
+    <block name="go_i3">
+      <stay wp="i3"/>
+      <exception cond="NavBlockTime() @GT square_time" deroute="go_i4"/>
+    </block>
+    <block name="go_i4">
+      <stay wp="i4"/>
+      <exception cond="NavBlockTime() @GT square_time" deroute="return_i1"/>
+    </block>
+    <block name="return_i1">
+      <stay wp="i1"/>
+      <exception cond="(NavBlockTime() @GT square_time) @AND spin_square" deroute="spin_back"/>
+      <exception cond="(NavBlockTime() @GT square_time) @AND !spin_square" deroute="Standby"/>
+    </block>
+    <!-- SPIN SQUARE DEMO (end): back to STDBY, spin down -->
+    <block name="spin_back">
+      <stay wp="STDBY"/>
+      <exception cond="NavBlockTime() @GT 5" deroute="Spin Down"/>
+    </block>
+    <block name="Spin Down">
+      <set value="FALSE" var="spin_square"/>
+      <set value="TRUE" var="spin_man_down"/>
+      <deroute block="spin_down_wait"/>
+    </block>
+    <block name="spin_down_wait">
+      <!-- spin_man_down clears itself when the spin is stopped (no fault) or when rejected/aborted -->
+      <exception cond="!spin_man_down" deroute="Standby"/>
+      <stay wp="STDBY"/>
+    </block>
+    <block name="go_p5">
+      <stay wp="p5"/>
+    </block>
+    <block name="safe">
+      <stay wp="p5"/>
+      <exception cond="NavBlockTime() @GT 5" deroute="go_p5"/>
+    </block>
+    <block key="l" name="land here" strip_button="land here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+      <go wp="TD"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Land">
+      <go wp="TD"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="Landed"/>
+      <exception cond="0.10 @GT GetPosAlt()" deroute="Landed"/>
+      <call_once fun="NavStartDetectGround()"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Safe landing">
+      <exception cond="!nav_is_in_flight()" deroute="Manual"/>
+      <exception cond="0.10 @GT GetPosAlt()" deroute="Manual"/>
+      <call_once fun="NavStartDetectGround()"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Manual">
+      <set value="AP_MODE_ATTITUDE_DIRECT" var="autopilot_mode_auto2"/>
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>

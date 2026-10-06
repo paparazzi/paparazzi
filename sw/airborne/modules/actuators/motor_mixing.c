@@ -284,4 +284,9 @@ void motor_mixing_run(bool motors_on, bool override_on, pprz_t in_cmd[])
       motor_mixing.commands[i] = MOTOR_MIXING_STOP_MOTOR;
     }
   }
+#ifdef MOTOR_MIXING_USE_COMMANDS
+  for(i = 0; i < MOTOR_MIXING_NB_MOTOR; i++) {
+    commands[i] = motor_mixing.commands[i];
+  }
+#endif
 }
