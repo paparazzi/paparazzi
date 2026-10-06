@@ -243,7 +243,7 @@
         <define name="NO_GPS_LOST_WITH_RC_VALID"            value="TRUE"/>
         <define name="USE_AIRSPEED"                         value="TRUE"/>
         <define name="FWD_SIDESLIP_GAIN"                    value="0.2"/> <!-- cyfoam 0.32-->
-        <define name="FORCE_RPM_FEEDBACK_IDX"               value="{1, 3}"/>
+        <define name="UAVCAN_ACTUATORS_TELEM_IDX"               value="{1, 3}"/>
     </section>
     <section name="GROUND_DETECT">
         <define name="THRESHOLD_GROUND_DETECT"              value="40"/>

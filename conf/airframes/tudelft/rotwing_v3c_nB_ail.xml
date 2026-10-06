@@ -274,7 +274,7 @@
         <define name="USE_AIRSPEED"                         value="TRUE"/>
         <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/> <!-- cyfoam 0.32-->
         <define name="INS_EXT_VISION_ROTATION"              value="TRUE"/>
-        <define name="FORCE_RPM_FEEDBACK_IDX"               value="{4}"/>
+        <define name="UAVCAN_ACTUATORS_TELEM_IDX"               value="{4}"/>
     </section>
     <section name="GROUND_DETECT">
         <define name="THRESHOLD_GROUND_DETECT"              value="40"/>

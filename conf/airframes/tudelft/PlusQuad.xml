@@ -172,7 +172,7 @@
         <define name="USE_AIRSPEED"                         value="TRUE"/>
         <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/> <!-- cyfoam 0.32-->
         <!-- <define name="INS_EXT_VISION_ROTATION"              value="TRUE"/> -->
-        <!-- <define name="FORCE_RPM_FEEDBACK_IDX"               value="{1, 3}"/> -->
+        <!-- <define name="UAVCAN_ACTUATORS_TELEM_IDX"               value="{1, 3}"/> -->
     </section>
 
     <section name="IMU" prefix="IMU_">
