@@ -55,6 +55,12 @@ void doublet_init(struct doublet_t *doublet, float length_s, float extra_waiting
         doublet->t3 = doublet->t1 * 6;
         doublet->t4 = doublet->t1 * 7;
         doublet->t5 = doublet->t1 * 8;
+    } else if (mod==3) { // highspeed doublet: one doublet, no waiting time
+        doublet->t1 = 0;
+        doublet->t2 = length_s / 2;
+        doublet->t3 = doublet->tf;
+        doublet->t4 = 0; // not used
+        doublet->t5 = 0; // not used
     }
 }
 
@@ -78,7 +84,7 @@ float doublet_update(struct doublet_t *doublet, float current_time_s){
 
     float t = current_time_s - doublet->t0; // since the start of the doublet
     if ((t>=0) & (t<=doublet->tf)){
-        if (doublet->mod == 0) {
+        if (doublet->mod == 0 || doublet->mod == 3) {
             if((t >= doublet->t1) & (t <= doublet->t2)){
                 doublet->current_value = 1.0f;
             }else if((t >= doublet->t2) & (t <= doublet->t3)){
