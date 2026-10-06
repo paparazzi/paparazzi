@@ -140,21 +140,6 @@
       <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="FAILSAFE"/>
     </mode>
 
-    <mode name="DIRECT" shortname="DIR">
-      <on_enter>
-        <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>
-        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_KILL)"/>
-        <call fun="stabilization_mode_changed(STABILIZATION_MODE_NONE, STABILIZATION_ATT_SUBMODE_HEADING)"/>
-      </on_enter>
-      <control freq="NAVIGATION_FREQUENCY">
-        <call fun="nav_periodic_task()"/>
-      </control>
-      <control>
-        <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
-      </control>
-      <exception cond="RadioControlIsLost()" deroute="FAILSAFE"/>
-    </mode>
-
     <mode name="HOME">
       <on_enter>
         <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NAV)"/>

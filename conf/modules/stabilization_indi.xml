@@ -49,6 +49,9 @@
       <define name="WLS_WU" value="{1, 1, 1, 1}" description="WLS actuator cost (size of INDI_NUM_ACT)"/>
       <define name="RPM_FEEDBACK" value="FALSE" description="enable RPM feedback"/>
       <define name="ACT_FEEDBACK_ID" value="ABI_BROADCAST" description="listening for RPM feedback on this ABI id"/>
+      <define name="V_THRUST_X" value="2." description="manually define the maximum virtual thrust produced on X axis"/>
+      <define name="V_THRUST_Y" value="2." description="manually define the maximum virtual thrust produced on Y axis"/>
+      <define name="V_THRUST_Z" value="2." description="manually define the maximum virtual thrust produced on Z axis"/>
     </section>
   </doc>
   <settings>
