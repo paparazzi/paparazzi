@@ -35,13 +35,13 @@
   </metrics>
 
   <mass_balance>
-    <ixx unit="KG*M2">  0.1156</ixx>
-    <iyy unit="KG*M2">  1.2639</iyy>
+    <ixx unit="KG*M2">  0.0338</ixx>
+    <iyy unit="KG*M2">  1.1245</iyy>
     <izz unit="KG*M2">  1.2842</izz> <!-- 1.2842 FIXME-->
     <ixy unit="KG*M2">  0.0 </ixy>
     <ixz unit="KG*M2">  0.0 </ixz>
     <iyz unit="KG*M2">  0.0 </iyz>
-    <emptywt unit="KG"> 7.200 </emptywt>
+    <emptywt unit="KG"> 6.5 </emptywt>
     <location name="CG" unit="M">
       <x> 0 </x>
       <y> 0 </y>
@@ -126,7 +126,7 @@
       </lag_filter>
       <lag_filter name="MOTOR_RIGHT_lag">
         <input> fcs/MOTOR_RIGHT </input>
-        <c1> 22.0 </c1>
+        <c1> 29.0 </c1>
         <output> fcs/MOTOR_RIGHT_lag</output>
       </lag_filter>
       <lag_filter name="MOTOR_BACK_lag">
@@ -136,7 +136,7 @@
       </lag_filter>
       <lag_filter name="MOTOR_LEFT_lag">
         <input> fcs/MOTOR_LEFT </input>
-        <c1> 22.0 </c1>
+        <c1> 29.0 </c1>
         <output> fcs/MOTOR_LEFT_lag</output>
       </lag_filter>
       <lag_filter name="MOTOR_PUSHER_lag">
@@ -286,13 +286,13 @@
       <fcs_function name="mF_T">
           <function>
               <sum>
-            <product>
+                <product>
                   <value>5.00e-7</value>
-              <property>fcs/MOTOR_FRONT_lag</property>
                   <property>fcs/MOTOR_FRONT_lag</property>
-              <property>fcs/pprz2jsbsim</property>
+                  <property>fcs/MOTOR_FRONT_lag</property>
                   <property>fcs/pprz2jsbsim</property>
-            </product>
+                  <property>fcs/pprz2jsbsim</property>
+              </product>
                 <product>
                   <value>2.05e-4</value>
                   <property>fcs/MOTOR_FRONT_lag</property>
@@ -306,21 +306,11 @@
       <!-- Right Motor-->
       <fcs_function name="mR_T">
           <function>
-              <sum>
-            <product>
-                  <value>5.37e-7</value>
-              <property>fcs/MOTOR_RIGHT_lag</property>
-                  <property>fcs/MOTOR_RIGHT_lag</property>
-              <property>fcs/pprz2jsbsim</property>
-                  <property>fcs/pprz2jsbsim</property>
-            </product>
                 <product>
-                  <value>2.20e-4</value>
+                  <value>1.37e-3</value>
                   <property>fcs/MOTOR_RIGHT_lag</property>
                   <property>fcs/pprz2jsbsim</property>
                 </product>
-                <value>1.53</value>
-              </sum>
           </function>
           <output>fcs/mR_T</output>
       </fcs_function>   
@@ -348,21 +338,11 @@
       <!-- Left Motor-->
       <fcs_function name="mL_T">
           <function>
-              <sum>
-            <product>
-                  <value>5.37e-7</value>
-              <property>fcs/MOTOR_LEFT_lag</property>
-                  <property>fcs/MOTOR_LEFT_lag</property>
-              <property>fcs/pprz2jsbsim</property>
-                  <property>fcs/pprz2jsbsim</property>
-            </product>
-                <product>
-                  <value>2.20e-4</value>
-                  <property>fcs/MOTOR_LEFT_lag</property>
-                  <property>fcs/pprz2jsbsim</property>
-                </product>
-                <value>1.53</value>
-              </sum>
+              <product>
+                <value>1.37e-3</value>
+                <property>fcs/MOTOR_LEFT_lag</property>
+                <property>fcs/pprz2jsbsim</property>
+              </product>
           </function>
           <output>fcs/mL_T</output>
       </fcs_function>
@@ -373,15 +353,21 @@
           </function>
           <output>fcs/MQ_dFdu</output>
       </fcs_function>    
-      <fcs_function name="MQ_dMdu">
+      <fcs_function name="MB_dMdu">
           <function>
-              <value>0.390</value> 
+              <value>0.150</value> 
           </function>
-          <output>fcs/MQ_dMdu</output>
+          <output>fcs/MB_dMdu</output>
+      </fcs_function> 
+      <fcs_function name="MS_dMdu">
+          <function>
+              <value>0.258</value> 
+          </function>
+          <output>fcs/MS_dMdu</output>
       </fcs_function> 
       <fcs_function name="MQ_dMdud">
           <function>
-              <value>0.02</value> 
+              <value>0.0</value> 
           </function>
           <output>fcs/MQ_dMdud</output>
       </fcs_function> 
@@ -428,6 +414,7 @@
             <property>aero/qbar-psf</property>
             <value>47.880259</value>  <!--Pound Per Square Foot to N/m² (Pascal)-->
             <value>1.6327</value>     <!-- 2/rho-->
+            <value>0.0</value>        <!-- Fixme Airspeed off temp-->
           </product>
         </function>
         <output>fcs/airspeed2_ms</output>
@@ -463,7 +450,7 @@
 
       <fcs_function name="Ixx_body">
         <function>
-          <value>0.0535</value>
+          <value>0.0214</value>
         </function>
         <output>fcs/Ixx_body</output>
       </fcs_function>
@@ -477,14 +464,14 @@
 
       <fcs_function name="Ixx_wing">
         <function>
-          <value>0.0621</value>
+          <value>0.0124</value>
         </function>
         <output>fcs/Ixx_wing</output>
       </fcs_function>
 
       <fcs_function name="Iyy_wing">
         <function>
-          <value>0.2788</value>
+          <value>0.1394</value>
         </function>
         <output>fcs/Iyy_wing</output>
       </fcs_function>
@@ -1002,7 +989,7 @@
       <function>
         <product>
           <property>fcs/MOTOR_FRONT_lag</property>
-          <property>fcs/MQ_dMdu</property>
+          <property>fcs/MB_dMdu</property>
           <property>fcs/pprz2jsbsim</property>
           <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->
@@ -1024,7 +1011,7 @@
       <function>
         <product>
           <property>fcs/MOTOR_RIGHT_lag</property>
-          <property>fcs/MQ_dMdu</property>
+          <property>fcs/MS_dMdu</property>
           <property>fcs/pprz2jsbsim</property>
           <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->
@@ -1046,7 +1033,7 @@
       <function>
         <product>
           <property>fcs/MOTOR_FRONT_lag</property>
-          <property>fcs/MQ_dMdu</property>
+          <property>fcs/MB_dMdu</property>
           <property>fcs/pprz2jsbsim</property>
           <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->
@@ -1068,7 +1055,7 @@
       <function>
         <product>
           <property>fcs/MOTOR_LEFT_lag</property>
-          <property>fcs/MQ_dMdu</property>
+          <property>fcs/MS_dMdu</property>
           <property>fcs/pprz2jsbsim</property>
           <property>fcs/eff_scaler</property>
           <value> 0.738</value> <!-- Nm to ft-lbs -->

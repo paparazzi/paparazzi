@@ -118,6 +118,35 @@
 #ifndef ROTWING_STATE_ACT_FEEDBACK_ID
 #define ROTWING_STATE_ACT_FEEDBACK_ID ABI_BROADCAST
 #endif
+
+/**
+ * Climb speed when navigation is making turns instead of direct lines
+ */
+#ifndef GUIDANCE_INDI_FWD_CLIMB_SPEED
+#define GUIDANCE_INDI_FWD_CLIMB_SPEED 4.0
+#endif
+
+/**
+ * Descend speed when navigation is making turns instead of direct lines
+ */
+#ifndef GUIDANCE_INDI_FWD_DESCEND_SPEED
+#define GUIDANCE_INDI_FWD_DESCEND_SPEED -4.0
+#endif
+
+/**
+ * Climb speed when navigation is doing direct lines
+ */
+#ifndef GUIDANCE_INDI_QUAD_CLIMB_SPEED
+#define GUIDANCE_INDI_QUAD_CLIMB_SPEED 2.0
+#endif
+
+/**
+ * Descend speed when navigation is doing direct lines
+ */
+#ifndef GUIDANCE_INDI_QUAD_DESCEND_SPEED
+#define GUIDANCE_INDI_QUAD_DESCEND_SPEED -2.0
+#endif
+
 abi_event rotwing_state_feedback_ev;
 static void rotwing_state_feedback_cb(uint8_t sender_id, struct act_feedback_t *feedback_msg, uint8_t num_act);
 struct rotwing_state_t rotwing_state;
