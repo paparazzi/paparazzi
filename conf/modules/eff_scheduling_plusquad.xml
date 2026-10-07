@@ -82,6 +82,38 @@
       <define name="ZERO_ELE_PPRZ"               value="8000"/>
       <define name="ELE_MIN_AS"                  value="8.8"/>
       <define name="ELE_MAX_AS"                  value="16.0"/>
+      <define name="PLUSQUAD_EFF_SCHED_IXX"        value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_IYY"        value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_IZZ"        value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_M"          value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MF_dFdu"    value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MF_dMdu"    value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MF_dMdud"   value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MF_l"       value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MF_k1"      value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MF_k2"      value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MF_k3"      value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MR_dFdu"    value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MR_dMdu"    value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MR_dMdud"   value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MR_l"       value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MR_k1"      value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MR_k2"      value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MR_k3"      value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MB_dFdu"    value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MB_dMdu"    value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MB_dMdud"   value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MB_l"       value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MB_k1"      value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MB_k2"      value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_MB_k3"      value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_ML_dFdu"    value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_ML_dMdu"    value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_ML_dMdud"   value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_ML_l"       value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_ML_k1"      value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_ML_k2"      value="1"/>
+      <define name="PLUSQUAD_EFF_SCHED_ML_k3"      value="1"/>
     </test>
   </makefile>
 </module>
