@@ -38,6 +38,11 @@
 #include <ch.h>
 #include "led.h"
 
+#if HAL_USE_RTC
+#include <hal_rtc.h>
+#include <time.h>
+#endif
+
 static MUTEX_DECL(sys_time_mtx);
 
 /*
@@ -181,3 +186,13 @@ void sys_tick_handler(void)
   chMtxUnlock(&sys_time_mtx);
 }
 
+
+uint32_t sys_time_rtc_millisecond() {
+#if HAL_USE_RTC
+  RTCDateTime timespec;
+  rtcGetTime (&RTCD1, &timespec);
+  return timespec.millisecond;
+#else
+  return 0;
+#endif
+}
