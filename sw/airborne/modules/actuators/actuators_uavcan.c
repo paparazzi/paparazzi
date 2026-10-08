@@ -122,6 +122,40 @@ static uavcan_event device_temperature_ev;
 static uint8_t old_idx = 0;
 static uint8_t esc_idx = 0;
 static struct actuators_uavcan_telem_t *actuators_uavcan_next_telem(void) {
+#ifdef UAVCAN_ACTUATORS_TELEM_IDX
+  // Only report the ESCs listed in UAVCAN_ACTUATORS_TELEM_IDX (index counted over UAVCAN1, then UAVCAN2)
+  static const uint8_t telem_idx[] = UAVCAN_ACTUATORS_TELEM_IDX;
+  static uint8_t idx_cur = 0;
+
+  // Randomness added for multiple transport devices
+  if (rand_uniform() > 0.02f) {
+    idx_cur++;
+  }
+  if (idx_cur >= (sizeof(telem_idx) / sizeof(telem_idx[0]))) {
+    idx_cur = 0;
+  }
+
+  uint8_t idx = telem_idx[idx_cur];
+  uint8_t offset = 0;
+  old_idx = idx;
+  esc_idx = idx;
+
+  // Skip the ESC if no telemetry was received from it (same as the default mode)
+#ifdef UAVCAN1_TELEM_NB
+  if (idx < UAVCAN1_TELEM_NB) {
+    return uavcan1_telem[idx].set ? &uavcan1_telem[idx] : NULL;
+  }
+  offset += UAVCAN1_TELEM_NB;
+#endif
+#ifdef UAVCAN2_TELEM_NB
+  if (idx < offset + UAVCAN2_TELEM_NB) {
+    return uavcan2_telem[idx - offset].set ? &uavcan2_telem[idx - offset] : NULL;
+  }
+#endif
+  esc_idx = 0;
+  return NULL;
+
+#else
   // Randomness added for multiple  transport devices
   uint8_t add_idx = 0;
   if (rand_uniform() > 0.02) {
@@ -158,6 +192,7 @@ static struct actuators_uavcan_telem_t *actuators_uavcan_next_telem(void) {
   // Going round or no telemetry found
   esc_idx = 0;
   return NULL;
+#endif
 }
 
 static void actuators_uavcan_send_esc(struct transport_tx *trans, struct link_device *dev)
