@@ -190,7 +190,7 @@ void mcu_arch_init(void)
     hard_fault = false;
   }
   // *MANDATORY* clear of rcc bits
-  __RCC_RESET_REGISTER = __RCC_RESET_REMOVE_FLAG;
+  __RCC_RESET_REGISTER |= __RCC_RESET_REMOVE_FLAG;
   // end of reset bit probing
 #endif /* USE_HARD_FAULT_RECOVERY */
 }
