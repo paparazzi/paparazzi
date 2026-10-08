@@ -301,11 +301,8 @@ bool autopilot_get_motors_on(void)
  */
 void autopilot_set_kill_throttle(bool kill)
 {
-  if (kill) {
-    autopilot_set_motors_on(false);
-  } else {
-    autopilot_set_motors_on(true);
-  }
+  autopilot.kill_throttle = kill;
+  autopilot_set_motors_on(!kill);
 }
 
 /** get kill status
