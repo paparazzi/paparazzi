@@ -256,10 +256,7 @@ void sim_overwrite_ins(void)
   else if (state.utm_initialized_f) {
     struct LlaCoor_f lla;
     LLA_COPY(lla, fdm.lla_pos);
-    struct UtmCoor_f utm;
-    utm.zone = (lla.lon / 1e7 + 180) / 6 + 1;
-    utm_of_lla_f(&utm, &lla);
-    stateSetPositionUtm_f(MODULE_NPS_ID, &utm);
+    stateSetPositionLla_f(MODULE_NPS_ID, &lla);
   }
 
   struct NedCoor_f ltp_speed;
