@@ -29,6 +29,9 @@
 #include "std.h"
 #include <time.h>
 
+// number of milliseconds since midnight at the start time.
+static uint32_t rtc_ms_start;
+
 void sys_tick_handler(void);
 
 void sys_time_arch_init(void)
@@ -36,6 +39,14 @@ void sys_time_arch_init(void)
   // simulate 1us cpu ticks
   sys_time.cpu_ticks_per_sec = 1e6;
   sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution * sys_time.cpu_ticks_per_sec + 0.5);
+
+
+  struct timespec now;
+  struct tm local_time;
+  clock_gettime(CLOCK_REALTIME, &now);
+  gmtime_r(&now.tv_sec, &local_time);
+  rtc_ms_start = (local_time.tm_hour * 3600 + local_time.tm_min * 60 + local_time.tm_sec) * 1000
+                + now.tv_nsec / 1000000;
 }
 
 uint32_t get_sys_time_usec(void)
@@ -84,12 +95,8 @@ void sys_time_msleep(uint32_t ms) {
 
 uint32_t sys_time_rtc_millisecond(void)
 {
-  struct timespec now;
-  struct tm local_time;
-
-  clock_gettime(CLOCK_REALTIME, &now);
-  gmtime_r(&now.tv_sec, &local_time);
-  uint32_t ms = (local_time.tm_hour * 3600 + local_time.tm_min * 60 + local_time.tm_sec) * 1000
-                + now.tv_nsec / 1000000;
+  uint32_t ms = rtc_ms_start
+                + sys_time.nb_sec * 1000
+                + (uint64_t)(sys_time.nb_sec_rem*1000LLU) / sys_time.cpu_ticks_per_sec;
   return ms;
 }
