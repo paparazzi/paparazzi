@@ -123,7 +123,7 @@
 #define STM32_SW                            STM32_SW_PLL1_P_CK
 
 #if HAL_USE_RTC
-#define STM32_RTCSEL                        STM32_RTCSEL_LSI_CK
+#define STM32_RTCSEL                        STM32_RTCSEL_HSE_1M_CK
 #else
 #define STM32_RTCSEL                        STM32_RTCSEL_NOCLK
 #endif
@@ -397,8 +397,8 @@
 /*
  * RTC driver system settings.
  */
-#define STM32_RTC_PRESA_VALUE               32
-#define STM32_RTC_PRESS_VALUE               1024
+#define STM32_RTC_PRESA_VALUE               125
+#define STM32_RTC_PRESS_VALUE               8000
 #define STM32_RTC_CR_INIT                   0
 #define STM32_RTC_TAMPCR_INIT               0
 
