@@ -27,6 +27,7 @@
 
 #include "mcu_periph/sys_time.h"
 #include "std.h"
+#include <time.h>
 
 void sys_tick_handler(void);
 
@@ -79,4 +80,16 @@ void sys_time_usleep(uint32_t us __attribute__((unused))) {}
 
 void sys_time_msleep(uint32_t ms) {
   sys_time_usleep(ms*1000);
+}
+
+uint32_t sys_time_rtc_millisecond(void)
+{
+  struct timespec now;
+  struct tm local_time;
+
+  clock_gettime(CLOCK_REALTIME, &now);
+  gmtime_r(&now.tv_sec, &local_time);
+  uint32_t ms = (local_time.tm_hour * 3600 + local_time.tm_min * 60 + local_time.tm_sec) * 1000
+                + now.tv_nsec / 1000000;
+  return ms;
 }

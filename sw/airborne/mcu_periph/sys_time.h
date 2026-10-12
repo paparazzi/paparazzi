@@ -116,6 +116,12 @@ uint32_t get_sys_time_usec100(void);
 uint32_t get_sys_time_msec(void);
 
 /**
+ * Get the RTC time in milliseconds since midnight.
+ * @return milliseconds since midnight as uint32_t
+ */
+uint32_t sys_time_rtc_millisecond(void);
+
+/**
  * Register a new system timer.
  * @param duration Duration in seconds until the timer elapses.
  * @param cb Callback function that is called from the ISR when timer elapses, or NULL
