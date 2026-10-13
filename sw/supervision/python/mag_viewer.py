@@ -15,7 +15,6 @@ try:
     sys.path.append(utils.PAPARAZZI_HOME + "/var/lib/python") # pprzlink
 
     from pprzlink.message import PprzMessage
-    from pprz_connect import PprzConnect, PprzConfig
 
 
     class MagViewer(QtWidgets.QWidget):
@@ -68,11 +67,15 @@ try:
 
             self.mean_norm = 1
 
-            self.connect = PprzConnect(notify=self.connect_cb)
+            self.connect = None
             self.mag_sig.connect(self.update_mag)
 
             self.raw_bind_id = None
-            self.confs:dict[int, PprzConfig] = {}
+            self.ivy_sub_button.setEnabled(False)
+
+        def set_connection(self, connection):
+            self.connect = connection
+            self.ivy_sub_button.setEnabled(connection is not None)
         
         def setup_cmds(self):
             mag_lbl = QtWidgets.QLabel("mags:", self)
@@ -103,7 +106,10 @@ try:
             calibrate_button.clicked.connect(self.calibrate)
         
         def stop(self):
-            self.connect.shutdown()
+            if self.raw_bind_id is not None:
+                self.connect.ivy.unsubscribe(self.raw_bind_id)
+                self.raw_bind_id = None
+            self.ivy_sub_button.setText("Start listening data")
         
         def sub_unsub(self):
             if self.raw_bind_id is None:
@@ -119,14 +125,12 @@ try:
             self.set_points(self.mag_data)
             self.mean_norm = 1
         
-        def connect_cb(self, conf: PprzConfig):
-            self.confs[conf.id] = conf
-
         def mag_raw_cb(self, sender, msg):
             ac_id = str(sender)
-            if ac_id not in self.confs:
+            conf = self.connect.conf_by_id().get(ac_id)
+            if conf is None:
                 return
-            ac_name = self.confs[ac_id].name
+            ac_name = conf.name
             mag_id = int(msg['id'])
             mag_label = f"{ac_name}: {mag_id}"
 
@@ -205,4 +209,7 @@ except ImportError:
             self.vlay.addWidget(self.error_label)
         
         def stop(self):
+            pass
+
+        def set_connection(self, connection):
             pass

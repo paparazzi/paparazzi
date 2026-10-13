@@ -22,7 +22,6 @@
 from __future__ import print_function, division
 
 import re
-from telnetlib import theNULL
 import numpy as np
 from numpy import sin, cos
 from scipy import linalg, stats, optimize
