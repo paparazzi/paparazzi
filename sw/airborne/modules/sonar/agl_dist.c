@@ -29,6 +29,7 @@
 #include "modules/sonar/agl_dist.h"
 #include "modules/core/abi.h"
 #include "generated/airframe.h"
+#include "modules/datalink/downlink.h"
 
 float agl_dist_valid;
 float agl_dist_value;
@@ -47,6 +48,10 @@ float agl_measurement_time;
 #endif
 #ifndef AGL_DIST_FILTER
 #define AGL_DIST_FILTER 0.1f
+#endif
+
+#ifndef AGL_DIST_TIMEOUT
+#define AGL_DIST_TIMEOUT 1.f
 #endif
 
 abi_event agl_ev;
@@ -97,4 +102,17 @@ static void agl_cb(uint8_t __attribute__((unused)) sender_id, uint32_t __attribu
   } else {
     agl_dist_valid = false;
   }
+}
+
+void agl_dist_timeout(void) {
+  float dt = get_sys_time_float() - agl_measurement_time;
+  if(dt > AGL_DIST_TIMEOUT) {
+    agl_dist_valid = false;
+  }
+}
+
+
+void agl_dist_report(void) {
+  float f[3] = {agl_dist_value, agl_dist_value_filtered, agl_dist_valid};
+  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 3, f);
 }
