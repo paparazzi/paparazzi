@@ -72,6 +72,7 @@ try:
 
             self.raw_bind_id = None
             self.ivy_sub_button.setEnabled(False)
+            self.refresh_filter()
 
         def set_connection(self, connection):
             self.connect = connection
@@ -104,6 +105,32 @@ try:
             calibrate_button.setSizePolicy(QSP.Policy.Fixed, QSP.Policy.Fixed)
             self.cmds_lay.addWidget(calibrate_button)
             calibrate_button.clicked.connect(self.calibrate)
+
+            noise_lay = QtWidgets.QHBoxLayout()
+            self.vlay.addLayout(noise_lay)
+            noise_lay.addWidget(QtWidgets.QLabel("Noise threshold:", self))
+            self.noise_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
+            self.noise_slider.setRange(0, 10000)
+            self.noise_slider.setValue(0)
+            self.auto_noise_threshold = True
+            self.noise_slider.setToolTip(
+                "Zero selects the script's automatic threshold. Otherwise accept "
+                "samples when the norm of the per-axis standard deviations "
+                "over 20 neighboring samples is below this threshold.")
+            noise_lay.addWidget(self.noise_slider, 1)
+            self.noise_label = QtWidgets.QLabel(self)
+            noise_lay.addWidget(self.noise_label)
+            self.noise_slider.valueChanged.connect(self.threshold_changed)
+            self.filter_status = QtWidgets.QLabel(self)
+            self.vlay.addWidget(self.filter_status)
+            for index in range(noise_lay.count()):
+                widget = noise_lay.itemAt(index).widget()
+                policy = widget.sizePolicy()
+                policy.setVerticalPolicy(QSP.Fixed)
+                widget.setSizePolicy(policy)
+            policy = self.filter_status.sizePolicy()
+            policy.setVerticalPolicy(QSP.Fixed)
+            self.filter_status.setSizePolicy(policy)
         
         def stop(self):
             if self.raw_bind_id is not None:
@@ -122,8 +149,9 @@ try:
 
         def reset_data(self):
             self.mag_data = np.empty((0,3))
-            self.set_points(self.mag_data)
+            self.refresh_filter()
             self.mean_norm = 1
+            self.mag_id = None
         
         def mag_raw_cb(self, sender, msg):
             ac_id = str(sender)
@@ -150,7 +178,7 @@ try:
             self.mag_id, mag = mag_data
             self.mag_data = np.vstack([self.mag_data, mag])
             mag_unit = mag / np.linalg.norm(mag)
-            self.set_points(self.mag_data)           
+            self.refresh_filter()
             shaft = np.array([[0,0,0], mag_unit*self.mean_norm])
             self.arrow.setData(pos=shaft)
 
@@ -173,11 +201,14 @@ try:
                 self.gl_widget.setCameraPosition(distance=self.mean_norm*5)
         
         def calibrate(self):
-            import calibration_utils
             calib_text = ""
             try:
-                p0 = calibration_utils.get_min_max_guess(self.mag_data, 1.)
-                p1, msg, success = calibration_utils.optimize_calibration(self.mag_data, 1., p0)
+                import calibration_utils
+                points = self.mag_data[self.accepted_indices()]
+                if len(points) < 6 or np.any(np.ptp(points, axis=0) == 0):
+                    raise ValueError("Collect more accepted samples covering different orientations.")
+                p0 = calibration_utils.get_min_max_guess(points, 1.)
+                p1, msg, success = calibration_utils.optimize_calibration(points, 1., p0)
                 if success in [1, 2, 3, 4]:
                     calib_text = calibration_utils.format_xml(p1, "MAG", self.mag_id, 11)
                 else:
@@ -188,6 +219,46 @@ try:
                 dia = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Icon.Information,"Calibration", calib_text, QtWidgets.QMessageBox.StandardButton.Ok, self)
                 dia.open()
 
+        def noise_threshold(self):
+            if self.auto_noise_threshold:
+                if not len(self.mag_data):
+                    return 0
+                neutral = np.mean(self.mag_data)
+                return 0.6 * np.median(np.linalg.norm(
+                    self.mag_data - neutral, axis=1))
+            return self.noise_slider.value()
+
+        def threshold_changed(self, value):
+            self.auto_noise_threshold = value == 0
+            self.refresh_filter()
+
+        def accepted_indices(self):
+            # Match calibration_utils.filter_meas with MAG's window_size=10.
+            window = 10
+            if len(self.mag_data) <= 2 * window:
+                return np.empty(0, dtype=int)
+            windows = np.lib.stride_tricks.sliding_window_view(
+                self.mag_data, 2 * window, axis=0)[:-1]
+            noise = np.linalg.norm(windows.std(axis=2), axis=1)
+            return np.flatnonzero(noise < self.noise_threshold()) + window
+
+        def refresh_filter(self):
+            threshold = self.noise_threshold()
+            if self.auto_noise_threshold:
+                with QtCore.QSignalBlocker(self.noise_slider):
+                    value = int(round(threshold))
+                    self.noise_slider.setMaximum(max(self.noise_slider.maximum(), value))
+                    self.noise_slider.setValue(value)
+            self.noise_label.setText(
+                f"Auto ({threshold:.1f})" if self.auto_noise_threshold
+                else str(self.noise_slider.value()))
+            indices = self.accepted_indices()
+            colors = np.tile((1., 0., 0., 1.), (len(self.mag_data), 1))
+            colors[indices] = (0., 1., 0., 1.)
+            self.set_points(self.mag_data, color=colors)
+            self.filter_status.setText(
+                f"{len(indices)} / {len(self.mag_data)} samples accepted "
+                "(green); excluded samples are red")
 
         def set_points(self, points, color=(1, 0, 0, 1), size=5):
             """
@@ -195,10 +266,11 @@ try:
             color: tuple (r, g, b, a)
             size: point size
             """
-            if self.scatter:
-                self.gl_widget.removeItem(self.scatter)
-            self.scatter = gl.GLScatterPlotItem(pos=points, color=color, size=size)
-            self.gl_widget.addItem(self.scatter)
+            if self.scatter is None:
+                self.scatter = gl.GLScatterPlotItem(pos=points, color=color, size=size)
+                self.gl_widget.addItem(self.scatter)
+            else:
+                self.scatter.setData(pos=points, color=color, size=size)
 except ImportError:
     
     class MagViewer(QtWidgets.QWidget):
