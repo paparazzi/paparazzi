@@ -35,6 +35,7 @@ try:
             self.setup_cmds()
 
             self.gl_widget = gl.GLViewWidget()
+            self.gl_widget.installEventFilter(self)
             self.vlay.addWidget(self.gl_widget)
             self.gl_widget.setCameraPosition(distance=20)
 
@@ -77,6 +78,15 @@ try:
         def set_connection(self, connection):
             self.connect = connection
             self.ivy_sub_button.setEnabled(connection is not None)
+
+        def eventFilter(self, watched, event):
+            if watched is self.gl_widget:
+                if event.type() == QtCore.QEvent.Wheel or (
+                    event.type() == QtCore.QEvent.MouseMove
+                    and event.buttons() & (QtCore.Qt.LeftButton | QtCore.Qt.MiddleButton)
+                ):
+                    self.distance_auto_chk.setChecked(False)
+            return super().eventFilter(watched, event)
         
         def setup_cmds(self):
             mag_lbl = QtWidgets.QLabel("mags:", self)

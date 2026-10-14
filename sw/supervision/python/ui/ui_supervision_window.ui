@@ -73,7 +73,7 @@
           </widget>
           <widget class="MagViewer" name="magviewer_widget">
            <attribute name="title">
-            <string>Mag Viewer</string>
+            <string>Mag Calib</string>
            </attribute>
           </widget>
           <widget class="AccelCalib" name="accel_calib_widget">

@@ -91,7 +91,7 @@ class Ui_SupervisionWindow(object):
         self.tabwidget.setTabText(self.tabwidget.indexOf(self.operation_panel), _translate("SupervisionWindow", "Operation"))
         self.tabwidget.setTabText(self.tabwidget.indexOf(self.doc_panel), _translate("SupervisionWindow", "Documentation"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_log), _translate("SupervisionWindow", "SD log"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.magviewer_widget), _translate("SupervisionWindow", "Mag Viewer"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.magviewer_widget), _translate("SupervisionWindow", "Mag Calib"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.accel_calib_widget), _translate("SupervisionWindow", "Accel calib"))
         self.tabwidget.setTabText(self.tabwidget.indexOf(self.tab), _translate("SupervisionWindow", "Utilities"))
         self.menuFile.setTitle(_translate("SupervisionWindow", "File"))

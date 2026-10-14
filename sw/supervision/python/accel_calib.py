@@ -49,6 +49,11 @@ class AccelCalib(QtWidgets.QWidget):
         clear_button = QtWidgets.QPushButton("Clear data", self)
         clear_button.clicked.connect(self.reset_data)
         controls.addWidget(clear_button)
+        self.distance_auto_chk = QtWidgets.QCheckBox("size auto", self)
+        self.distance_auto_chk.setSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.distance_auto_chk.setChecked(True)
+        controls.addWidget(self.distance_auto_chk)
         self.calibrate_button = QtWidgets.QPushButton("calibrate", self)
         self.calibrate_button.clicked.connect(self.calibrate)
         controls.addWidget(self.calibrate_button)
@@ -68,6 +73,10 @@ class AccelCalib(QtWidgets.QWidget):
         self.noise_slider.valueChanged.connect(self.threshold_changed)
 
         self.plot_widget = pg.PlotWidget(self)
+        self.distance_auto_chk.toggled.connect(
+            lambda enabled: self.plot_widget.enableAutoRange(x=enabled, y=enabled))
+        self.plot_widget.getViewBox().sigRangeChangedManually.connect(
+            lambda: self.distance_auto_chk.setChecked(False))
         self.plot_widget.setLabel("bottom", "Collection time", units="s")
         self.plot_widget.setLabel("left", "Raw acceleration")
         self.plot_widget.showGrid(x=True, y=True)
@@ -147,6 +156,7 @@ class AccelCalib(QtWidgets.QWidget):
         self.refresh_plot()
 
         self.plot_widget.setRange(xRange=(0, 1), yRange=(-1, 1), padding=0)
+        self.distance_auto_chk.setChecked(True)
         self.plot_widget.enableAutoRange(x=True, y=True)
 
     def threshold_changed(self):
