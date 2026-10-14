@@ -52,6 +52,9 @@ class Ui_SupervisionWindow(object):
         self.magviewer_widget = MagViewer()
         self.magviewer_widget.setObjectName("magviewer_widget")
         self.tabWidget.addTab(self.magviewer_widget, "")
+        self.accel_calib_widget = AccelCalib()
+        self.accel_calib_widget.setObjectName("accel_calib_widget")
+        self.tabWidget.addTab(self.accel_calib_widget, "")
         self.verticalLayout_4.addWidget(self.tabWidget)
         self.tabwidget.addTab(self.tab, "")
         self.verticalLayout.addWidget(self.tabwidget)
@@ -88,12 +91,14 @@ class Ui_SupervisionWindow(object):
         self.tabwidget.setTabText(self.tabwidget.indexOf(self.operation_panel), _translate("SupervisionWindow", "Operation"))
         self.tabwidget.setTabText(self.tabwidget.indexOf(self.doc_panel), _translate("SupervisionWindow", "Documentation"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_log), _translate("SupervisionWindow", "SD log"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.magviewer_widget), _translate("SupervisionWindow", "Mag Viewer"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.magviewer_widget), _translate("SupervisionWindow", "Mag Calib"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.accel_calib_widget), _translate("SupervisionWindow", "Accel calib"))
         self.tabwidget.setTabText(self.tabwidget.indexOf(self.tab), _translate("SupervisionWindow", "Utilities"))
         self.menuFile.setTitle(_translate("SupervisionWindow", "File"))
         self.menuHelp.setTitle(_translate("SupervisionWindow", "Help"))
         self.settings_action.setText(_translate("SupervisionWindow", "Edit Settings"))
         self.about_action.setText(_translate("SupervisionWindow", "About"))
+from accel_calib import AccelCalib
 from configuration_panel import ConfigurationPanel
 from doc_panel import DocPanel
 from header_widget import HeaderWidget
