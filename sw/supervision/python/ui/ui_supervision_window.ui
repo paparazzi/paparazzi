@@ -73,7 +73,12 @@
           </widget>
           <widget class="MagViewer" name="magviewer_widget">
            <attribute name="title">
-            <string>Mag Viewer</string>
+            <string>Mag Calib</string>
+           </attribute>
+          </widget>
+          <widget class="AccelCalib" name="accel_calib_widget">
+           <attribute name="title">
+            <string>Accel calib</string>
            </attribute>
           </widget>
          </widget>
@@ -121,6 +126,12 @@
   </action>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>AccelCalib</class>
+   <extends>QWidget</extends>
+   <header>accel_calib.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>HeaderWidget</class>
    <extends>QWidget</extends>
