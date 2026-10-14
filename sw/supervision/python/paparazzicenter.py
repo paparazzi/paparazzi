@@ -21,6 +21,10 @@ from generated.ui_new_ac_dialog import Ui_NewACDialog
 from program_widget import TabProgramsState
 from aircraft_list_widget import AircraftListWidget
 
+try:
+    from pprz_connect import PprzConnect
+except ImportError:
+    PprzConnect = None
 
 dirname = os.path.dirname(os.path.abspath(__file__))
 MODE_MONO = "mono"
@@ -36,6 +40,9 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent=parent)
         self.setupUi(self)
+        self.pprz_connect = PprzConnect() if PprzConnect is not None else None
+        self.magviewer_widget.set_connection(self.pprz_connect)
+        self.accel_calib_widget.set_connection(self.pprz_connect)
         self.conf: Conf = None
         self.currentAc: Aircraft = None
         self.selection_mode = MODE_MONO
@@ -523,7 +530,6 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         settings_dialog.show()
 
     def quit(self, interactive=True):
-        self.magviewer_widget.stop()
         quit_accepted = True
         if self.operation_panel.session.any_program_running():
             quit_accepted = False
@@ -546,6 +552,11 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
                 self.conf.restore_conf()
             self.conf.save()
             self.save_gconf()
+        if quit_accepted:
+            self.magviewer_widget.stop()
+            self.accel_calib_widget.stop()
+            if self.pprz_connect is not None:
+                self.pprz_connect.shutdown()
         return quit_accepted
 
     def closeEvent(self, e: QtGui.QCloseEvent) -> None:
