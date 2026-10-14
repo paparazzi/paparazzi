@@ -68,7 +68,7 @@ class AccelCalib(QtWidgets.QWidget):
         self.noise_slider.valueChanged.connect(self.threshold_changed)
 
         self.plot_widget = pg.PlotWidget(self)
-        self.plot_widget.setLabel("bottom", "Time since first sample", units="s")
+        self.plot_widget.setLabel("bottom", "Collection time", units="s")
         self.plot_widget.setLabel("left", "Raw acceleration")
         self.plot_widget.showGrid(x=True, y=True)
         self.plot_widget.addLegend()
@@ -104,6 +104,8 @@ class AccelCalib(QtWidgets.QWidget):
 
     def sub_unsub(self):
         if self.raw_bind_id is None:
+            self.start_time = None
+
             def callback(sender, msg):
                 self.accel_sig.emit((str(sender), int(msg['id']),
                                      time.monotonic(),
@@ -131,7 +133,8 @@ class AccelCalib(QtWidgets.QWidget):
         if self.accel_combo.currentData() != key or not np.isfinite(sample).all():
             return
         if self.start_time is None:
-            self.start_time = timestamp
+            # Continue from the last sample, excluding the gap between sessions.
+            self.start_time = timestamp - (self.times[-1] if self.times else 0)
         self.times.append(timestamp - self.start_time)
         self.samples.append(sample)
         self.dirty = True
