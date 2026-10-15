@@ -35,8 +35,14 @@ https://github.com/joewa/WS2812-LED-Driver_ChibiOS/
 #include "mcu_periph/hal_stm32_dma.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/sys_time_arch.h"
+#include "mcu_periph/ram_arch.h"
 
 #include BOARD_CONFIG
+
+// STM32H7 names the system clock STM32_SYS_CK
+#if !defined(STM32_SYSCLK) && defined(STM32_SYS_CK)
+#define STM32_SYSCLK STM32_SYS_CK
+#endif
 
 #define WS2812_SERVO_HZ       800000
 #define WS2812_PWM_FREQUENCY  (STM32_SYSCLK/2)
@@ -63,7 +69,11 @@ https://github.com/joewa/WS2812-LED-Driver_ChibiOS/
  */
 typedef struct  {
   uint32_t dma_stream;
+#if STM32_DMA_SUPPORTS_DMAMUX
+  uint32_t dmamux;
+#else
   uint8_t dma_channel;
+#endif
   uint8_t pwm_channel;
   uint8_t dma_priority;
   PWMDriver *pwmp;
@@ -80,11 +90,13 @@ typedef struct  {
   DMAConfig dma_conf;
   PWMConfig pwm_conf;
   DMADriver dmap;
-  uint32_t buf[WS2812_BIT_N + 1];
 } WS2812Driver;
 
 // Driver
 static WS2812Driver WS2812D;
+
+// DMA buffer, must be in a DMA reachable (and on H7 non-cached) section
+static IN_DMA_SECTION_CLEAR(uint32_t ws2812_buf[WS2812_BIT_N + 1]);
 
 void light_ws2812_arch_init(void)
 {
@@ -93,17 +105,21 @@ void light_ws2812_arch_init(void)
 
   uint32_t i;
   for (i = 0; i < WS2812_COLOR_BIT_N; i++) {
-    WS2812D.buf[i] = WS2812_DUTYCYCLE_0;
+    ws2812_buf[i] = WS2812_DUTYCYCLE_0;
   }
   for (i = 0; i < WS2812_RESET_BIT_N; i++) {
-    WS2812D.buf[i + WS2812_COLOR_BIT_N] = 0;
+    ws2812_buf[i + WS2812_COLOR_BIT_N] = 0;
   }
 
   WS2812D.config = &WS2812CFG;
 
   WS2812D.dma_conf = (DMAConfig) {
     .stream = WS2812CFG.dma_stream,
+#if STM32_DMA_SUPPORTS_DMAMUX
+    .dmamux = WS2812CFG.dmamux,
+#else
     .channel = WS2812CFG.dma_channel,
+#endif
     .dma_priority = WS2812CFG.dma_priority,
     .irq_priority = WS2812_DMA_IRQ_PRIORITY,
     .direction = DMA_DIR_M2P,
@@ -147,7 +163,7 @@ void light_ws2812_arch_init(void)
 
   dmaObjectInit(&WS2812D.dmap);
   dmaStart(&WS2812D.dmap, &WS2812D.dma_conf);
-  dmaStartTransfert(&WS2812D.dmap, &(WS2812D.config->pwmp->tim->CCR[WS2812D.config->pwm_channel]), &WS2812D.buf, WS2812_BIT_N);
+  dmaStartTransfert(&WS2812D.dmap, &(WS2812D.config->pwmp->tim->CCR[WS2812D.config->pwm_channel]), ws2812_buf, WS2812_BIT_N);
 
   WS2812D.pwm_conf.channels[WS2812D.config->pwm_channel].mode = PWM_OUTPUT_ACTIVE_HIGH;
   pwmStart(WS2812D.config->pwmp, &WS2812D.pwm_conf);
@@ -164,9 +180,9 @@ void light_ws2812_arch_set(uint32_t led_number, uint8_t r, uint8_t g, uint8_t b)
   uint32_t bit;
   if (led_number < WS2812_NB_LEDS) {
     for (bit = 0; bit < 8; bit++) {
-      WS2812D.buf[WS2812_RED_BIT(led_number, bit)]    = ((r >> bit) & 0x01) ? WS2812_DUTYCYCLE_1 : WS2812_DUTYCYCLE_0;
-      WS2812D.buf[WS2812_GREEN_BIT(led_number, bit)]  = ((g >> bit) & 0x01) ? WS2812_DUTYCYCLE_1 : WS2812_DUTYCYCLE_0;
-      WS2812D.buf[WS2812_BLUE_BIT(led_number, bit)]   = ((b >> bit) & 0x01) ? WS2812_DUTYCYCLE_1 : WS2812_DUTYCYCLE_0;
+      ws2812_buf[WS2812_RED_BIT(led_number, bit)]    = ((r >> bit) & 0x01) ? WS2812_DUTYCYCLE_1 : WS2812_DUTYCYCLE_0;
+      ws2812_buf[WS2812_GREEN_BIT(led_number, bit)]  = ((g >> bit) & 0x01) ? WS2812_DUTYCYCLE_1 : WS2812_DUTYCYCLE_0;
+      ws2812_buf[WS2812_BLUE_BIT(led_number, bit)]   = ((b >> bit) & 0x01) ? WS2812_DUTYCYCLE_1 : WS2812_DUTYCYCLE_0;
     }
   }
 }

@@ -30,7 +30,47 @@
 #ifndef LIGHT_SCHEDULER_H
 #define LIGHT_SCHEDULER_H
 
+#include "std.h"
+
+/** Light modes */
+#define LIGHT_SCHEDULER_MODE_RAINBOW 0
+#define LIGHT_SCHEDULER_MODE_COLOR   1
+#define LIGHT_SCHEDULER_MODE_OFF     2
+
+extern uint8_t light_scheduler_mode;       ///< one of LIGHT_SCHEDULER_MODE_*
+extern uint8_t light_scheduler_red;        ///< red value in color mode
+extern uint8_t light_scheduler_green;      ///< green value in color mode
+extern uint8_t light_scheduler_blue;       ///< blue value in color mode
+extern uint8_t light_scheduler_brightness; ///< brightness scaling (255 = full)
+
+/** Color presets and flags, order must match the values of the color setting
+ *  Flags are shown as three equal bands along each strip
+ */
+enum light_scheduler_color_t {
+  LIGHT_SCHEDULER_COLOR_CUSTOM,
+  LIGHT_SCHEDULER_COLOR_RED,
+  LIGHT_SCHEDULER_COLOR_GREEN,
+  LIGHT_SCHEDULER_COLOR_BLUE,
+  LIGHT_SCHEDULER_COLOR_WHITE,
+  LIGHT_SCHEDULER_COLOR_YELLOW,
+  LIGHT_SCHEDULER_COLOR_ORANGE,
+  LIGHT_SCHEDULER_COLOR_CYAN,
+  LIGHT_SCHEDULER_COLOR_MAGENTA,
+  LIGHT_SCHEDULER_COLOR_PURPLE,
+  LIGHT_SCHEDULER_COLOR_FLAG_ITALY,       ///< first flag, red | white | green
+  LIGHT_SCHEDULER_COLOR_FLAG_NETHERLANDS, ///< red | white | blue
+  LIGHT_SCHEDULER_COLOR_FLAG_FRANCE,      ///< blue | white | red
+  LIGHT_SCHEDULER_COLOR_NB
+};
+
+#define LIGHT_SCHEDULER_COLOR_FLAG_FIRST LIGHT_SCHEDULER_COLOR_FLAG_ITALY
+
+extern uint8_t light_scheduler_color;      ///< selected preset (light_scheduler_color_t)
+
 extern void light_scheduler_init(void);
 extern void light_scheduler_periodic(void);
+
+/** Settings handler: apply a color preset to red/green/blue (or select a flag) and switch to color mode */
+extern void light_scheduler_set_color(uint8_t color);
 
 #endif /* LIGHT_SCHEDULER_H */
