@@ -24,6 +24,7 @@
 Q=@
 
 include ../../../conf/Makefile.local
+include ../../../conf/Makefile.qt
 include ../../Makefile.ocaml
 CONF = ../../../conf
 VAR = ../../../var
@@ -39,18 +40,15 @@ SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 all: link server ivy_tcp_aircraft ivy_tcp_controller ivy2udp ivy2serial ivy2nmea gpsd2ivy gtk_tools
 
-ifeq ($(USE_LABELGTK),lablgtk2)
 gtk_tools: messages
-endif
 
 opt: server.opt
 
-clean:
+clean: qt-clean
 	$(Q)rm -f link server messages *.bak *~ core *.o .depend *.opt *.out *.cm* ivy_tcp_aircraft ivy_tcp_controller ivy2udp ivy2serial ivy_serial_bridge gpsd2ivy c_ivy_client_example_1 c_ivy_client_example_2 ivy2nmea
 
-messages : messages.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
+messages: qt-configure
+	$(Q)$(QT_CMAKE_BUILD) messages
 
 server : $(SERVERCMO) $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
@@ -137,7 +135,7 @@ c_ivy_client_example_1: c_ivy_client_example_1.c Makefile
 c_ivy_client_example_2: c_ivy_client_example_2.c Makefile
 	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)
 
-.PHONY: all opt clean gtk_tools
+.PHONY: all opt clean gtk_tools messages
 
 #
 # Dependencies
