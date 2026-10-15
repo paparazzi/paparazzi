@@ -107,9 +107,7 @@
         </module>
 
         <!-- Control -->      
-        <module name="stabilization" type="oneloop" >
-            <configure name="INDI_NUM_ACT" value="9"/>
-        </module>
+        <module name="stabilization" type="int_quat"/>
         
         <module name="guidance" type="oneloop"/>
         <module name="nav" type="hybrid">
@@ -124,6 +122,11 @@
         <module name="oneloop" type="andi">
             <configure name="ANDI_OUTPUTS" value="6"/>
         </module>
+
+        <!-- Backup Control for quad-->
+        <module name="stabilization" type="rate"/>
+        <module name="stabilization" type="int_quat"/>
+        <module name="motor_mixing"/>
 
         <module name="eff_scheduling_rotwing_V2"/>
 
@@ -284,9 +287,9 @@
         <define name  = "HEADING_MANUAL"            value = "TRUE"/>
         <define name  = "YAW_STICK_IN_AUTO"         value = "TRUE"/>
         <define name  = "MAX_R"                     value = "120.0" unit="deg/s"/>
-        <define name  = "FILT_CUTOFF"               value = "3.0" />
+        <define name  = "FILT_CUTOFF"               value = "2.0" />
         <define name  = "FILT_CUTOFF_ACC"           value = "2.0"/>
-        <define name  = "FILT_CUTOFF_VEL"           value = "5.0"/>
+        <define name  = "FILT_CUTOFF_VEL"           value = "30.0"/>
         <define name  = "FILT_CUTOFF_POS"           value = "10.0"/>
         <define name  = "ESTIMATION_FILT_CUTOFF"    value = "3.2" />
         <define name  = "FILT_CUTOFF_P"             value = "2.0"/>
@@ -307,6 +310,44 @@
     </section>
 
     <section name="CTRL_EFF_SHED" prefix="ROTWING_EFF_SCHED_">
+        <!-- Per motor effectiveness parameters (RW3C values) -->
+        <define name="MF_dFdu"               value="5.005f" /><!-- [N/pprz] -->
+        <define name="MF_dMdu"               value="0.150f" /><!-- [Nm/pprz] -->
+        <define name="MF_dMdud"              value="27.74f" /><!-- [Nm/pprz] -->
+        <define name="MF_l"                  value="0.440f" /><!-- [m] -->
+        <define name="MF_k1"                 value="5.00e-7f"/>
+        <define name="MF_k2"                 value="2.05e-4f"/>
+        <define name="MF_k3"                 value="1.43f"/>
+        <!--Motor Right-->
+        <define name="MR_dFdu"               value="5.375f" /><!-- [N/pprz] -->
+        <define name="MR_dMdu"               value="0.150f" /><!-- [Nm/pprz] -->
+        <define name="MR_dMdud"              value="27.74f" /><!-- [Nm/pprz] -->
+        <define name="MR_l"                  value="0.380f" /><!-- [m] -->
+        <define name="MR_k1"                 value="5.37e-7f"/>
+        <define name="MR_k2"                 value="2.20e-4f"/>
+        <define name="MR_k3"                 value="1.53f"/>
+        <!--Motor Back-->
+        <define name="MB_dFdu"               value="5.005f" /><!-- [N/pprz] -->
+        <define name="MB_dMdu"               value="0.150f" /><!-- [Nm/pprz] -->
+        <define name="MB_dMdud"              value="27.74f" /><!-- [Nm/pprz] -->
+        <define name="MB_l"                  value="0.440f" /><!-- [m] -->
+        <define name="MB_k1"                 value="5.00e-7f"/>
+        <define name="MB_k2"                 value="2.05e-4f"/>
+        <define name="MB_k3"                 value="1.43f"/>
+        <!--Motor Left-->
+        <define name="ML_dFdu"               value="5.375f" /><!-- [N/pprz] -->
+        <define name="ML_dMdu"               value="0.150f" /><!-- [Nm/pprz] -->
+        <define name="ML_dMdud"              value="27.74f" /><!-- [Nm/pprz] -->
+        <define name="ML_l"                  value="0.380f" /><!-- [m] -->
+        <define name="ML_k1"                 value="5.37e-7f"/>
+        <define name="ML_k2"                 value="2.20e-4f"/>
+        <define name="ML_k3"                 value="1.53f"/>
+        <!--Motor Pusher-->
+        <define name="MP_dFdu"               value="0.000f" /><!-- [N/pprz] -->
+        <define name="MP_dMdu"               value="0.000f" /><!-- [Nm/pprz] -->
+        <define name="MP_dMdud"              value="0.000f" /><!-- [Nm/pprz] -->
+        <define name="MP_l"                  value="0.000f" /><!-- [m] -->
+
         <!--                                          | MF   |   MR   |   MB   |   ML   |   MP   |   ELE  |   RUD  |   AIL  |   FLA  |   PHI  |   THETA | -->
         <!-- <define name  = "dFdu"               value = "{-0.50f,  -0.50f,  -0.50f,  -0.50f,   0.55f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f }"/>  
         <define name  = "dMzdu"              value = "{-0.40f,   0.40f,  -0.40f,   0.40f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f }"/>
@@ -319,6 +360,82 @@
         <define name="IYY_WING"              value="0.1949"/>
         <define name="M"                     value="6.67"/>
     </section>   
+
+    <section name="MIXING" prefix="MOTOR_MIXING_">
+      <define name="TRIM_ROLL"  value="0"/>
+      <define name="TRIM_PITCH" value="0"/>
+      <define name="TRIM_YAW"   value="0"/>
+      <define name="TYPE"       value="QUAD_PLUS"/>
+      <define name="USE_COMMANDS" value="TRUE"/>
+    </section>
+
+    <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+        <!-- setpoints -->
+        <define name="SP_MAX_PHI"   value="45." unit="deg"/>
+        <define name="SP_MAX_THETA" value="45." unit="deg"/>
+        <define name="SP_MAX_PSI"   value="45." unit="deg"/>
+        <define name="SP_MAX_R"     value="90." unit="deg/s"/>
+        <define name="SP_MAX_P"     value="90." unit="deg/s"/>
+        <define name="DEADBAND_R"   value="250"/>
+        <define name="DEADBAND_A"   value="250"/>
+
+        <!-- reference -->
+        <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
+        <define name="REF_ZETA_P"   value="0.85"/>
+        <define name="REF_MAX_P"    value="400." unit="deg/s"/>
+        <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+        <define name="REF_OMEGA_Q"  value="800" unit="deg/s"/>
+        <define name="REF_ZETA_Q"   value="0.85"/>
+        <define name="REF_MAX_Q"    value="400." unit="deg/s"/>
+        <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+        <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
+        <define name="REF_ZETA_R"   value="0.85"/>
+        <define name="REF_MAX_R"    value="90." unit="deg/s"/>
+        <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
+
+        <!-- feedback -->
+        <define name="PHI_PGAIN" value="400"/>
+        <define name="PHI_DGAIN" value="200"/>
+        <define name="PHI_IGAIN" value="100"/>
+
+        <define name="THETA_PGAIN" value="800"/>
+        <define name="THETA_DGAIN" value="400"/>
+        <define name="THETA_IGAIN" value="100"/>
+
+        <define name="PSI_PGAIN" value="600"/>
+        <define name="PSI_DGAIN" value="500"/>
+        <define name="PSI_IGAIN" value="10"/>
+
+        <!-- feedforward -->
+        <define name="PHI_DDGAIN"   value="0"/>
+        <define name="THETA_DDGAIN" value="0"/>
+        <define name="PSI_DDGAIN"   value="300"/>
+
+        <define name="PHI_AGAIN"    value="0"/>
+        <define name="THETA_AGAIN"  value="0"/>
+        <define name="PSI_AGAIN"    value="0"/>
+    </section>
+
+    <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
+        <!-- setpoints -->
+        <define name="SP_MAX_P" value="140" unit="deg/s"/>
+        <define name="SP_MAX_Q" value="140" unit="deg/s"/>
+        <define name="SP_MAX_R" value="140" unit="deg/s"/>
+        <define name="DEADBAND_P" value="20"/>
+        <define name="DEADBAND_Q" value="20"/>
+        <define name="DEADBAND_R" value="200"/>
+    
+        <!-- feedback -->
+        <define name="GAIN_P" value="244"/>
+        <define name="GAIN_Q" value="2440"/>
+        <define name="GAIN_R" value="6100"/>
+    
+        <define name="IGAIN_P" value="371"/>
+        <define name="IGAIN_Q" value="3713"/>
+        <define name="IGAIN_R" value="9283"/>
+    </section>
 
     <section name="AUTOPILOT">
         <define name="MODE_MANUAL"      value="AP_MODE_ATTITUDE_DIRECT"/>

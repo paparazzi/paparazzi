@@ -63,25 +63,36 @@ float actuator_state_filt_vect[EFF_MAT_COLS_NB] = {0};
 #error "NO ROTWING_EFF_SCHED_M defined"
 #endif
 
+bool manual_roll  = false;
+bool manual_pitch = false;
+bool manual_yaw   = false;
 /* Effectiveness Matrix definition */
 float G2_RW[EFF_MAT_COLS_NB]                       = {0};//ROTWING_EFF_SCHED_G2; //scaled by RW_G_SCALE
 float G1_RW[EFF_MAT_ROWS_NB][EFF_MAT_COLS_NB]      = {0};//{ROTWING_EFF_SCHED_G1_ZERO, ROTWING_EFF_SCHED_G1_ZERO, ROTWING_EFF_SCHED_G1_THRUST, ROTWING_EFF_SCHED_G1_ROLL, ROTWING_EFF_SCHED_G1_PITCH, ROTWING_EFF_SCHED_G1_YAW}; //scaled by RW_G_SCALE 
 float EFF_MAT_RW[EFF_MAT_ROWS_NB][EFF_MAT_COLS_NB] = {0};
+float I_inv[3][3]                                  = {0};
+static float flt_cut_a  = 1.0e-6;
 static float flt_cut_ap = 2.0e-3;
 static float flt_cut    = 1.0e-4;
 
 struct FloatEulers eulers_zxy_RW_EFF;
 static Butterworth2LowPass skew_filt; 
+static Butterworth2LowPass phi_filt;
+static Butterworth2LowPass theta_filt;
+static Butterworth2LowPass psi_filt;
 /* Temp variables*/
+int G2_on = 0;
 bool airspeed_fake_on = false;
 float airspeed_fake = 0.0;
 float ele_eff = 19.36; // (0.88*22.0);
-float roll_eff = 5.5 ;//3.835;
-float yaw_eff  = 0.390;
+float roll_eff = 8.9;//15.402;//3.835;//3.835;5.5
+float yaw_eff  = 0.237; // 1.3171*0.390=0.514 or 0.659 and 0.812 (pitch - roll)
 float ele_min = 0.0;
 /* Define Forces and Moments tructs for each actuator*/
 struct RW_Model RW;
 
+int thrust_curve = 1.0;
+float temp_mQ_k = 1.37; //Manual Value For Tuning2
 inline void eff_scheduling_rotwing_update_wing_angle(void);
 inline void eff_scheduling_rotwing_update_airspeed(void);
 void  ele_pref_sched(void);
@@ -89,6 +100,10 @@ void  update_attitude(void);
 void  sum_EFF_MAT_RW(void);
 void  init_RW_Model(void);
 void  calc_G1_G2_RW(void);  
+float calc_thrust_curve(float k1, float k2, float k3, float u);
+float calc_thrust_curve_d(float k1, float k2, float u);
+void calc_all_thrust_curve(void);
+void init_all_thrust_curve(void);
 
 /** ABI binding wing position data.
  */
@@ -118,46 +133,59 @@ void eff_scheduling_rotwing_init(void)
   update_attitude();
   AbiBindMsgACT_FEEDBACK(WING_ROTATION_CAN_ROTWING_ID, &wing_position_ev, wing_position_cb);
   float tau_skew = 1.0 / (2.0 * M_PI * 5.0);
+  float tau_att = 1.0 / (2.0 * M_PI * 2.0);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
   init_butterworth_2_low_pass(&skew_filt, tau_skew, sample_time, 0.0);
+  init_butterworth_2_low_pass(&phi_filt, tau_att, sample_time, 0.0);
+  init_butterworth_2_low_pass(&theta_filt, tau_att, sample_time, 0.0);
+  init_butterworth_2_low_pass(&psi_filt, tau_att, sample_time, 0.0);
 }
 
 void init_RW_Model(void)
 {
   // Inertia and mass
-  RW.I.b_xx = 0.12879; // [kgm²] (0.0478 + 0.08099)
-  RW.I.b_yy = 0.94950; // [kgm²] (0.7546 + 0.1949)
-  RW.I.w_xx = 0.0; // [kgm²]
-  RW.I.w_yy = 0.0; // [kgm²]
-  RW.I.xx   = RW.I.b_xx + RW.I.w_xx; // [kgm²]
-  RW.I.yy   = RW.I.b_yy + RW.I.b_yy; // [kgm²]
-  RW.I.zz   = 0.975; // [kgm²]
-  RW.m      = 6.670; // [kg]
+  RW.I.b_xx = ROTWING_EFF_SCHED_IXX_BODY; // [kgm²] 
+  RW.I.b_yy = ROTWING_EFF_SCHED_IYY_BODY; // [kgm²] 
+  RW.I.w_xx = ROTWING_EFF_SCHED_IXX_WING; // [kgm²] 
+  RW.I.w_yy = ROTWING_EFF_SCHED_IYY_WING; // [kgm²] 
+  RW.I.xx   = (RW.I.b_xx + RW.I.w_xx);    // [kgm²]
+  RW.I.yy   = RW.I.b_yy + RW.I.w_yy;      // [kgm²]
+  RW.I.zz   = ROTWING_EFF_SCHED_IZZ;      // [kgm²]
+  RW.m      = ROTWING_EFF_SCHED_M;        // [kg]
+  
+  // Init the thrust curves
+  init_all_thrust_curve();
   // Motor Front
-  RW.mF.dFdu     = 3.835 / RW_G_SCALE; // [N  / pprz] 
-  RW.mF.dMdu     = yaw_eff / RW_G_SCALE; // [Nm / pprz]
-  RW.mF.dMdud    = 0.020 / RW_G_SCALE; // [Nm / pprz]
-  RW.mF.l        = 0.423             ; // [m]   435                
+  RW.mF.dFdu  = ROTWING_EFF_SCHED_MF_dFdu / RW_G_SCALE;
+  RW.mF.dMdu  = ROTWING_EFF_SCHED_MF_dMdu / RW_G_SCALE;
+  RW.mF.dMdud = ROTWING_EFF_SCHED_MF_dMdud / (RW_G_SCALE * RW_G_SCALE);
+  printf("RW.mF.dFdu: %f\n", RW.mF.dFdu);
+  RW.mF.l     = ROTWING_EFF_SCHED_MF_l;
+
   // Motor Right
-  RW.mR.dFdu     = roll_eff / RW_G_SCALE; // [N  / pprz]
-  RW.mR.dMdu     = yaw_eff / RW_G_SCALE; // [Nm / pprz]
-  RW.mR.dMdud    = 0.020 / RW_G_SCALE; // [Nm / pprz]
-  RW.mR.l        = 0.408             ; // [m]   375     
+  RW.mR.dFdu  = ROTWING_EFF_SCHED_MR_dFdu / RW_G_SCALE;
+  RW.mR.dMdu  = ROTWING_EFF_SCHED_MR_dMdu / RW_G_SCALE;
+  RW.mR.dMdud = ROTWING_EFF_SCHED_MR_dMdud / (RW_G_SCALE * RW_G_SCALE);
+  RW.mR.l     = ROTWING_EFF_SCHED_MR_l;
+
   // Motor Back
-  RW.mB.dFdu     = 3.835 / RW_G_SCALE; // [N  / pprz]
-  RW.mB.dMdu     = yaw_eff / RW_G_SCALE; // [Nm / pprz]
-  RW.mB.dMdud    = 0.020 / RW_G_SCALE; // [Nm / pprz]
-  RW.mB.l        = 0.423             ; // [m]        
+  RW.mB.dFdu  = ROTWING_EFF_SCHED_MB_dFdu / RW_G_SCALE;
+  RW.mB.dMdu  = ROTWING_EFF_SCHED_MB_dMdu / RW_G_SCALE;
+  RW.mB.dMdud = ROTWING_EFF_SCHED_MB_dMdud / (RW_G_SCALE * RW_G_SCALE);
+  RW.mB.l     = ROTWING_EFF_SCHED_MB_l;
+
   // Motor Left
-  RW.mL.dFdu     = roll_eff / RW_G_SCALE; // [N  / pprz]
-  RW.mL.dMdu     = yaw_eff / RW_G_SCALE; // [Nm / pprz]
-  RW.mL.dMdud    = 0.020 / RW_G_SCALE; // [Nm / pprz]
-  RW.mL.l        = 0.408             ; // [m]        
+  RW.mL.dFdu  = ROTWING_EFF_SCHED_ML_dFdu / RW_G_SCALE;
+  RW.mL.dMdu  = ROTWING_EFF_SCHED_ML_dMdu / RW_G_SCALE;
+  RW.mL.dMdud = ROTWING_EFF_SCHED_ML_dMdud / (RW_G_SCALE * RW_G_SCALE);
+  RW.mL.l     = ROTWING_EFF_SCHED_ML_l;
+
   // Motor Pusher
-  RW.mP.dFdu     = 3.468 / RW_G_SCALE; // [N  / pprz]
-  RW.mP.dMdu     = 0.000 / RW_G_SCALE; // [Nm / pprz]
-  RW.mP.dMdud    = 0.000 / RW_G_SCALE; // [Nm / pprz]
-  RW.mP.l        = 0.000             ; // [m]        
+  RW.mP.dFdu  = ROTWING_EFF_SCHED_MP_dFdu / RW_G_SCALE;
+  RW.mP.dMdu  = ROTWING_EFF_SCHED_MP_dMdu / RW_G_SCALE;
+  RW.mP.dMdud = ROTWING_EFF_SCHED_MP_dMdud / (RW_G_SCALE * RW_G_SCALE);
+  RW.mP.l     = ROTWING_EFF_SCHED_MP_l;     
+
   // Elevator
   RW.ele.dFdu    = ele_eff / (RW_G_SCALE * RW_G_SCALE); // [N  / pprz]   old value: 24.81 29.70
   RW.ele.dMdu    = 0;                                 // [Nm / pprz]
@@ -165,7 +193,7 @@ void init_RW_Model(void)
   RW.ele.l       = 0.85;                              // [m]    
   RW.ele_pref    = 0;           
   // Rudder
-  RW.rud.dFdu   = 1.207 / (RW_G_SCALE * RW_G_SCALE); // [N  / pprz] 
+  RW.rud.dFdu   = 1.2015 / (RW_G_SCALE * RW_G_SCALE); // [N  / pprz] 
   RW.rud.dMdu   = 0;                                 // [Nm / pprz]
   RW.rud.dMdud  = 0;                                 // [Nm / pprz]
   RW.rud.l      = 0.88;                              // [m]        
@@ -210,9 +238,13 @@ void init_RW_Model(void)
 void  update_attitude(void)
 {
   eulers_zxy_RW_EFF = *stateGetNedToBodyEulersZxy_f();
-  RW.att.phi    = eulers_zxy_RW_EFF.phi;
-  RW.att.theta  = eulers_zxy_RW_EFF.theta;
-  RW.att.psi    = eulers_zxy_RW_EFF.psi;
+  update_butterworth_2_low_pass(&phi_filt, eulers_zxy_RW_EFF.phi);
+  update_butterworth_2_low_pass(&theta_filt, eulers_zxy_RW_EFF.theta);
+  update_butterworth_2_low_pass(&psi_filt, eulers_zxy_RW_EFF.psi);
+  RW.att.phi    = phi_filt.o[0];//eulers_zxy_RW_EFF.phi;
+  RW.att.theta  = theta_filt.o[0];//eulers_zxy_RW_EFF.theta;
+  RW.att.psi    = psi_filt.o[0];//eulers_zxy_RW_EFF.psi;
+  //printf("Attitude filt: %f %f %f\n", RW.att.phi, RW.att.theta, RW.att.psi);
   RW.att.sphi   = sinf(eulers_zxy_RW_EFF.phi);
   RW.att.cphi   = cosf(eulers_zxy_RW_EFF.phi);
   RW.att.stheta = sinf(eulers_zxy_RW_EFF.theta);
@@ -224,53 +256,75 @@ void  update_attitude(void)
 void calc_G1_G2_RW(void)
 {
   // Inertia
-  RW.I.xx = RW.I.b_xx + RW.skew.cosr2 * RW.I.w_xx + RW.skew.sinr2 * RW.I.w_yy;
-  RW.I.yy = RW.I.b_yy + RW.skew.sinr2 * RW.I.w_xx + RW.skew.cosr2 * RW.I.w_yy;
-  Bound(RW.I.xx, 0.01, 100.);
-  Bound(RW.I.yy, 0.01, 100.);
+  int x = 0;
+  int y = 1;
+  int z = 2;
+  float sigma = (RW.I.b_xx*RW.I.b_yy + RW.I.b_xx*RW.I.w_yy*RW.skew.cosr2 + RW.I.b_yy*RW.I.w_xx*RW.skew.cosr2 + RW.I.w_xx*RW.I.w_yy*RW.skew.cosr4 + RW.I.b_xx*RW.I.w_xx*RW.skew.sinr2 + RW.I.b_yy*RW.I.w_yy*RW.skew.sinr2 + RW.I.w_xx*RW.I.w_yy*RW.skew.sinr4 + 2*RW.I.w_xx*RW.I.w_yy*RW.skew.cosr2*RW.skew.sinr2);
+  I_inv[x][x] = (RW.I.w_yy*RW.skew.cosr2 + RW.I.w_xx*RW.skew.sinr2 + RW.I.b_yy)/(sigma);
+  I_inv[x][y] = (RW.skew.cosr*RW.skew.sinr*(RW.I.w_xx - RW.I.w_yy))/sigma;
+  I_inv[x][z] = 0.0;
+  I_inv[y][x] = I_inv[x][y];
+  I_inv[y][y] = (RW.I.w_xx*RW.skew.cosr2 + RW.I.w_yy*RW.skew.sinr2 + RW.I.b_xx)/sigma;
+  I_inv[y][z] = 0.0;
+  I_inv[z][x] = 0.0;
+  I_inv[z][y] = 0.0;
+  I_inv[z][z] = 1/RW.I.zz;
+  //printf("I_inv_x: %f %f %f\n", I_inv[x][x], I_inv[x][y], I_inv[x][z]);
+  //printf("I_inv_y: %f %f %f\n", I_inv[y][x], I_inv[y][y], I_inv[y][z]);
+  //printf("I_inv_z: %f %f %f\n", I_inv[z][x], I_inv[z][y], I_inv[z][z]);
+  //printf("Control - I: %f %f %f\n", 1.0/I_inv[x][x], 1.0/I_inv[y][y], 1.0/I_inv[z][z]);
+  // Calc motor and control effectiveness
+  calc_all_thrust_curve();
+
+  float sigma1 = I_inv[y][y]*RW.skew.sinr - I_inv[x][y]*RW.skew.cosr;
+  float sigma2 = I_inv[x][x]*RW.skew.cosr - I_inv[x][y]*RW.skew.sinr;
   // Motor Front
   G1_RW[RW_aZ][COMMAND_MOTOR_FRONT]  = -RW.mF.dFdu / RW.m;
-  G1_RW[RW_aq][COMMAND_MOTOR_FRONT]  =  (RW.mF.dFdu * RW.mF.l) / RW.I.yy;
-  G1_RW[RW_ar][COMMAND_MOTOR_FRONT]  = -RW.mF.dMdu  / RW.I.zz;
-  G2_RW[COMMAND_MOTOR_FRONT]      = -RW.mF.dMdud / RW.I.zz;
+  G1_RW[RW_ap][COMMAND_MOTOR_FRONT]  =  (RW.mF.dFdu * RW.mF.l) * I_inv[x][y];
+  G1_RW[RW_aq][COMMAND_MOTOR_FRONT]  =  (RW.mF.dFdu * RW.mF.l) * I_inv[y][y];
+  G1_RW[RW_ar][COMMAND_MOTOR_FRONT]  = -RW.mF.dMdu  * I_inv[z][z];
+  G2_RW[COMMAND_MOTOR_FRONT]         = -G2_on*RW.mF.dMdud * I_inv[z][z] * PERIODIC_FREQUENCY;
   // Motor Right
   G1_RW[RW_aZ][COMMAND_MOTOR_RIGHT]  = -RW.mR.dFdu / RW.m;
-  G1_RW[RW_ap][COMMAND_MOTOR_RIGHT]  = -(RW.mR.dFdu * RW.mR.l * RW.skew.cosr) / RW.I.xx;
-  G1_RW[RW_aq][COMMAND_MOTOR_RIGHT]  =  (RW.mR.dFdu * RW.mR.l * RW.skew.sinr) / RW.I.yy;
-  G1_RW[RW_ar][COMMAND_MOTOR_RIGHT]  =  RW.mR.dMdu  / RW.I.zz;
-  G2_RW[COMMAND_MOTOR_RIGHT]      =  RW.mR.dMdud / RW.I.zz;
+  G1_RW[RW_ap][COMMAND_MOTOR_RIGHT]  = -RW.mR.dFdu * RW.mR.l * sigma2;
+  G1_RW[RW_aq][COMMAND_MOTOR_RIGHT]  =  RW.mR.dFdu * RW.mR.l * sigma1;
+  G1_RW[RW_ar][COMMAND_MOTOR_RIGHT]  =  RW.mR.dMdu  * I_inv[z][z];
+  G2_RW[COMMAND_MOTOR_RIGHT]         =  G2_on*RW.mR.dMdud * I_inv[z][z] * PERIODIC_FREQUENCY;
   // Motor Back
   G1_RW[RW_aZ][COMMAND_MOTOR_BACK]   = -RW.mB.dFdu / RW.m;
-  G1_RW[RW_aq][COMMAND_MOTOR_BACK]   = -(RW.mB.dFdu * RW.mB.l) / RW.I.yy;
-  G1_RW[RW_ar][COMMAND_MOTOR_BACK]   = -RW.mB.dMdu  / RW.I.zz;
-  G2_RW[COMMAND_MOTOR_BACK]       = -RW.mB.dMdud / RW.I.zz;
+  G1_RW[RW_ap][COMMAND_MOTOR_BACK]   = -(RW.mB.dFdu * RW.mB.l) * I_inv[x][y];
+  G1_RW[RW_aq][COMMAND_MOTOR_BACK]   = -(RW.mB.dFdu * RW.mB.l) * I_inv[y][y];
+  G1_RW[RW_ar][COMMAND_MOTOR_BACK]   = -RW.mB.dMdu  * I_inv[z][z];
+  G2_RW[COMMAND_MOTOR_BACK]          = -G2_on*RW.mB.dMdud * I_inv[z][z] * PERIODIC_FREQUENCY;
   // Motor Left
   G1_RW[RW_aZ][COMMAND_MOTOR_LEFT]   = -RW.mL.dFdu / RW.m;
-  G1_RW[RW_ap][COMMAND_MOTOR_LEFT]   =  (RW.mL.dFdu * RW.mL.l * RW.skew.cosr) / RW.I.xx;
-  G1_RW[RW_aq][COMMAND_MOTOR_LEFT]   = -(RW.mL.dFdu * RW.mL.l * RW.skew.sinr) / RW.I.yy;
-  G1_RW[RW_ar][COMMAND_MOTOR_LEFT]   =  RW.mL.dMdu  / RW.I.zz;
-  G2_RW[COMMAND_MOTOR_LEFT]       =  RW.mL.dMdud / RW.I.zz;
+  G1_RW[RW_ap][COMMAND_MOTOR_LEFT]   =  RW.mL.dFdu * RW.mL.l * sigma2;
+  G1_RW[RW_aq][COMMAND_MOTOR_LEFT]   = -RW.mL.dFdu * RW.mL.l * sigma1;
+  G1_RW[RW_ar][COMMAND_MOTOR_LEFT]   =  RW.mL.dMdu  * I_inv[z][z];
+  G2_RW[COMMAND_MOTOR_LEFT]          =  G2_on*RW.mL.dMdud * I_inv[z][z] * PERIODIC_FREQUENCY;
   // Motor Pusher
   G1_RW[RW_aX][COMMAND_MOTOR_PUSHER] =  RW.mP.dFdu / RW.m;
   // Elevator
-  RW.ele.dFdu                     = ele_eff / (RW_G_SCALE * RW_G_SCALE);
-  G1_RW[RW_aq][COMMAND_ELEVATOR]     =  (RW.ele.dFdu * RW.as2 * RW.ele.l) / RW.I.yy;
+  RW.ele.dFdu                        =  ele_eff / (RW_G_SCALE * RW_G_SCALE);
+  G1_RW[RW_ap][COMMAND_ELEVATOR]     =  (RW.ele.dFdu * RW.as2 * RW.ele.l) * I_inv[x][y];
+  G1_RW[RW_aq][COMMAND_ELEVATOR]     =  (RW.ele.dFdu * RW.as2 * RW.ele.l) * I_inv[y][y];
   // Rudder
-  G1_RW[RW_ar][COMMAND_RUDDER]       =  (RW.rud.dFdu * RW.as2 * RW.rud.l) / RW.I.zz ;
+  G1_RW[RW_ar][COMMAND_RUDDER]       =  (RW.rud.dFdu * RW.as2 * RW.rud.l) * I_inv[z][z];
   // Aileron
-  G1_RW[RW_ap][COMMAND_AILERONS]     =  (RW.ail.dFdu * RW.as2 * RW.ail.l * RW.skew.sinr3) / RW.I.xx;
-  G1_RW[RW_aq][COMMAND_AILERONS]     =  (RW.ail.dFdu * RW.as2 * RW.ail.l * (RW.skew.cosr-RW.skew.cosr3)) / RW.I.yy;
-  
+  float Mx_a = RW.ail.dFdu * RW.as2 * RW.ail.l * RW.skew.sinr3;
+  float My_a = RW.ail.dFdu * RW.as2 * RW.ail.l * (RW.skew.cosr-RW.skew.cosr3);
+  G1_RW[RW_ap][COMMAND_AILERONS]     =  Mx_a * I_inv[x][x] + My_a * I_inv[x][y];
+  G1_RW[RW_aq][COMMAND_AILERONS]     =  Mx_a * I_inv[x][y] + My_a * I_inv[y][y];
   // Flaperon
-  G1_RW[RW_ap][COMMAND_FLAPS]        =  (RW.flp.dFdu * RW.as2 * RW.flp.l * RW.skew.sinr3) / RW.I.xx;
-  G1_RW[RW_aq][COMMAND_FLAPS]        =  (RW.flp.dFdu * RW.as2 * RW.flp.l * (RW.skew.cosr-RW.skew.cosr3)) / RW.I.yy;
+  float Mx_f = RW.flp.dFdu * RW.as2 * RW.flp.l * RW.skew.sinr3;
+  float My_f = RW.flp.dFdu * RW.as2 * RW.flp.l * (RW.skew.cosr-RW.skew.cosr3);
+  G1_RW[RW_ap][COMMAND_FLAPS]        =  Mx_f * I_inv[x][x] + My_f * I_inv[x][y];
+  G1_RW[RW_aq][COMMAND_FLAPS]        =  Mx_f * I_inv[x][y] + My_f * I_inv[y][y];
   // Lift and thrust
   RW.wing.dLdtheta                =  (RW.wing.k0 + RW.wing.k1 * RW.skew.sinr2) * RW.as2;
   Bound(RW.wing.dLdtheta, 0.0, 1300.0);
   RW.wing.L                       =  RW.wing.k0 * RW.att.theta * RW.as2 + RW.wing.k1 * RW.att.theta * RW.skew.sinr2 * RW.as2 + RW.wing.k2 * RW.skew.sinr2 * RW.as2;
   Bound(RW.wing.L, 0.0, 350.0);
-  RW.T = actuator_state_1l[COMMAND_MOTOR_FRONT] * RW.mF.dFdu + actuator_state_1l[COMMAND_MOTOR_RIGHT] * RW.mR.dFdu + actuator_state_1l[COMMAND_MOTOR_BACK] * RW.mB.dFdu + actuator_state_1l[COMMAND_MOTOR_LEFT] * RW.mL.dFdu;
-  Bound(RW.T, 0.0, 180.0);
   RW.P                            = actuator_state_1l[COMMAND_MOTOR_PUSHER] * RW.mP.dFdu;
 }
 
@@ -362,6 +416,10 @@ void sum_EFF_MAT_RW(void) {
         case (RW_aN):
         case (RW_aE):
         case (RW_aD):
+          if (abs < flt_cut_a) {
+            EFF_MAT_RW[i][j] = 0.0;
+          }
+          break;
         case (RW_aq):
         case (RW_ar):
           if (abs < flt_cut) {
@@ -375,6 +433,28 @@ void sum_EFF_MAT_RW(void) {
           break;
       }
     }
+  }
+  if(manual_roll){
+    //EFF_MAT_RW[RW_ap][1] = -0.012149; 
+    //EFF_MAT_RW[RW_ap][3] = 0.012149;
+    //EFF_MAT_RW[RW_ap][1] = -roll_eff/1000.0; 
+    //EFF_MAT_RW[RW_ap][3] =  roll_eff/1000.0;
+    EFF_MAT_RW[RW_ap][0] = 0.0006;
+    EFF_MAT_RW[RW_ap][2] = -0.0006;
+  }
+  if(manual_pitch){
+    EFF_MAT_RW[RW_aq][0] = 0.001708; 
+    EFF_MAT_RW[RW_aq][2] = -0.001708;
+  }
+  if(manual_yaw){
+    EFF_MAT_RW[RW_ar][0] = -0.000421; 
+    EFF_MAT_RW[RW_ar][1] = 0.000421;
+    EFF_MAT_RW[RW_ar][2] = -0.000421;
+    EFF_MAT_RW[RW_ar][3] = 0.000421;
+    G2_RW[0] = -2.1e-5;
+    G2_RW[1] = 2.1e-5;
+    G2_RW[2] = -2.1e-5;
+    G2_RW[3] = 2.1e-5;
   }
 }
 
@@ -390,6 +470,8 @@ void eff_scheduling_rotwing_update_wing_angle(void)
   RW.skew.sinr2 = RW.skew.sinr * RW.skew.sinr;
   RW.skew.sinr3 = RW.skew.sinr2 * RW.skew.sinr;
   RW.skew.cosr3 = RW.skew.cosr2 * RW.skew.cosr;
+  RW.skew.cosr4 = RW.skew.cosr2 * RW.skew.cosr2;
+  RW.skew.sinr4 = RW.skew.sinr2 * RW.skew.sinr2;
 #ifdef INS_EXT_VISION_ROTATION
   // Define an INS external pose quaternion rotation from the wing rotation angle
   struct FloatEulers rot_e = {0, 0, RW.skew.rad};
@@ -397,7 +479,6 @@ void eff_scheduling_rotwing_update_wing_angle(void)
 #endif
 
 }
-float time = 0.0;
 void eff_scheduling_rotwing_update_airspeed(void)
 {
   RW.as = stateGetAirspeed_f();
@@ -405,13 +486,8 @@ void eff_scheduling_rotwing_update_airspeed(void)
   RW.as2 = RW.as * RW.as;
   Bound(RW.as2, 0. , 900.);
   if(airspeed_fake_on) {
-    //float freq = 0.5;
-    //float amp = 3.0;
-    time = time + 0.002;
-    RW.as = airspeed_fake ;//+ amp * sinf(2.0 * M_PI * freq * time);
+    RW.as = airspeed_fake;
     RW.as2 = RW.as * RW.as;
-  } else {
-    time = 0.0;
   }
 }
 
@@ -423,4 +499,62 @@ void ele_pref_sched(void)
   } else {
     RW.ele_pref = ele_min;
   }
+}
+
+float calc_thrust_curve(float k1, float k2, float k3, float u){
+  return k1*u*u + k2*u + k3;
+}
+
+float calc_thrust_curve_d(float k1, float k2, float u){
+  float out= 2.0*k1*u + k2;
+  Bound(out, 1.0e-3, 1.0e-2);
+  return out;
+}
+
+void calc_all_thrust_curve(void){
+  switch(thrust_curve){
+    case(0):
+      // Curve calculated at the Current Motor State
+      RW.mF.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_MF_k1, ROTWING_EFF_SCHED_MF_k2, actuator_state_1l[COMMAND_MOTOR_FRONT]);
+      RW.mR.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_MR_k1, ROTWING_EFF_SCHED_MR_k2, actuator_state_1l[COMMAND_MOTOR_RIGHT]);
+      RW.mB.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_MB_k1, ROTWING_EFF_SCHED_MB_k2, actuator_state_1l[COMMAND_MOTOR_BACK]) ;
+      RW.mL.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_ML_k1, ROTWING_EFF_SCHED_ML_k2, actuator_state_1l[COMMAND_MOTOR_LEFT]) ;
+      break;
+    case(1):
+      // Curve statically calculated at 50% throttle
+      RW.mF.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_MF_k1, ROTWING_EFF_SCHED_MF_k2, 4800.0);
+      RW.mR.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_MR_k1, ROTWING_EFF_SCHED_MR_k2, 4800.0);
+      RW.mB.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_MB_k1, ROTWING_EFF_SCHED_MB_k2, 4800.0);
+      RW.mL.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_ML_k1, ROTWING_EFF_SCHED_ML_k2, 4800.0);
+      break;
+    case(2):
+      // Manual thrust for tuning
+      RW.mF.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_MF_k1, ROTWING_EFF_SCHED_MF_k2, 4800.0);
+      RW.mR.dFdu = temp_mQ_k/RW_G_SCALE;
+      RW.mB.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_MB_k1, ROTWING_EFF_SCHED_MB_k2, 4800.0);;
+      RW.mL.dFdu = temp_mQ_k/RW_G_SCALE;
+      break;
+  }
+  // T = k1*u^2 + k2*u + k3-----|k1                      | k2                     | k3                     | u
+  float T_mF = calc_thrust_curve(ROTWING_EFF_SCHED_MF_k1, ROTWING_EFF_SCHED_MF_k2, ROTWING_EFF_SCHED_MF_k3, actuator_state_1l[COMMAND_MOTOR_FRONT]);
+  float T_mR = calc_thrust_curve(ROTWING_EFF_SCHED_MR_k1, ROTWING_EFF_SCHED_MR_k2, ROTWING_EFF_SCHED_MR_k3, actuator_state_1l[COMMAND_MOTOR_RIGHT]);
+  float T_mB = calc_thrust_curve(ROTWING_EFF_SCHED_MB_k1, ROTWING_EFF_SCHED_MB_k2, ROTWING_EFF_SCHED_MB_k3, actuator_state_1l[COMMAND_MOTOR_BACK]);
+  float T_mL = calc_thrust_curve(ROTWING_EFF_SCHED_ML_k1, ROTWING_EFF_SCHED_ML_k2, ROTWING_EFF_SCHED_ML_k3, actuator_state_1l[COMMAND_MOTOR_LEFT]);
+  RW.T = RW.m*9.81;//T_mF + T_mR + T_mB + T_mL;
+  Bound(RW.T, 30.0, 180.0);
+}
+
+void init_all_thrust_curve(void){
+  // dTdu    = 2*k1*u + k2--------|k1                      | k2                      | u
+  RW.mF.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_MF_k1, ROTWING_EFF_SCHED_MF_k2, 4800.0);
+  RW.mR.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_MR_k1, ROTWING_EFF_SCHED_MR_k2, 4800.0);
+  RW.mB.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_MB_k1, ROTWING_EFF_SCHED_MB_k2, 4800.0);
+  RW.mL.dFdu = calc_thrust_curve_d(ROTWING_EFF_SCHED_ML_k1, ROTWING_EFF_SCHED_ML_k2, 4800.0);
+  // T = k1*u^2 + k2*u + k3-------|k1                     | k2                    | k3                     | u
+  float T_mF = calc_thrust_curve(ROTWING_EFF_SCHED_MF_k1, ROTWING_EFF_SCHED_MF_k2, ROTWING_EFF_SCHED_MF_k3, 4800.0);
+  float T_mR = calc_thrust_curve(ROTWING_EFF_SCHED_MR_k1, ROTWING_EFF_SCHED_MR_k2, ROTWING_EFF_SCHED_MR_k3, 4800.0);
+  float T_mB = calc_thrust_curve(ROTWING_EFF_SCHED_MB_k1, ROTWING_EFF_SCHED_MB_k2, ROTWING_EFF_SCHED_MB_k3, 4800.0);
+  float T_mL = calc_thrust_curve(ROTWING_EFF_SCHED_ML_k1, ROTWING_EFF_SCHED_ML_k2, ROTWING_EFF_SCHED_ML_k3, 4800.0);
+  RW.T = T_mF + T_mR + T_mB + T_mL;
+  Bound(RW.T, 0.0, 180.0);
 }

@@ -33,6 +33,10 @@
 #define EFF_MAT_ROWS_NB 6
 #endif
 
+#ifndef COMMANDS_NB_VIRTUAL
+#define COMMANDS_NB_VIRTUAL 0
+#endif
+
 #define RW_aX 0 // X body axis (linear acceleration) 
 #define RW_aY 1 // Y body axis (linear acceleration)
 #define RW_aZ 2 // Z body axis (linear acceleration)
@@ -160,6 +164,8 @@ struct RW_skew{
   float sinr2;                // sine² of wing rotation angle
   float cosr3;                // cosine³ of wing rotation angle
   float sinr3;                // sine³ of wing rotation angle
+  float cosr4;                // cosine⁴ of wing rotation angle
+  float sinr4;                // sine⁴ of wing rotation angle
 };
 struct RW_Model{
   struct I I;     // Inertia matrix
@@ -183,6 +189,14 @@ struct RW_Model{
   float ele_pref;
 
 };
+
+extern bool manual_roll  ;
+extern bool manual_pitch ;
+extern bool manual_yaw   ;
+
+extern int G2_on;
+extern int thrust_curve; 
+extern float temp_mQ_k;
 
 extern bool airspeed_fake_on;
 extern float airspeed_fake;
