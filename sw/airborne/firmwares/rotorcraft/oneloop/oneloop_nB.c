@@ -819,7 +819,6 @@ static void send_oneloop_nB(struct transport_tx *trans, struct link_device *dev)
                               3, oneloop_nB.sta_ref.att_3d,
                               ANDI_NUM_ACT, actuator_state_1l);
 }
-#ifdef PPRZ_MSG_ID_NB_CTRL // message only available in recent pprzlink versions
 static void send_oneloop_nB_ctrl(struct transport_tx *trans, struct link_device *dev)
 {
   float nI_des[3] = {oneloop_nB.sta_nB_state.nI_des.x, oneloop_nB.sta_nB_state.nI_des.y, oneloop_nB.sta_nB_state.nI_des.z};
@@ -844,7 +843,6 @@ static void send_oneloop_nB_ctrl(struct transport_tx *trans, struct link_device 
                         3, nB_3d,
                         3, mu_B);
 }
-#endif
 static void send_guidance_oneloop_nB(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_GUIDANCE(trans, dev, AC_ID,
@@ -2329,9 +2327,7 @@ void oneloop_nB_init(void)
 // Start telemetry
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_oneloop_nB);
-#ifdef PPRZ_MSG_ID_NB_CTRL
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_NB_CTRL, send_oneloop_nB_ctrl);
-#endif
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_STAB, send_eff_mat_stab_oneloop_nB);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_STAB_THRUST, send_eff_mat_stab_thrust_oneloop_nB);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_GUID, send_eff_mat_guid_oneloop_nB);
