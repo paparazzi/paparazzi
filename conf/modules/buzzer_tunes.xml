@@ -1,0 +1,37 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="buzzer_tunes" dir="sound">
+  <doc>
+    <description>
+      Play tunes on a passive piezo buzzer
+
+      Plays a tune at startup, and any tune on request from the GCS settings.
+      The buzzer is driven with a PWM output, the board defines BUZZER_GPIO, BUZZER_PIN,
+      BUZZER_AF, BUZZER_PWMD and BUZZER_PWM_CHANNEL.
+      On the Cube Orange this is the ALARM pin (TIM2_CH1), on the BUZZER pin (5) of the carrier board USB port.
+      Implementation for ChibiOS.
+    </description>
+    <configure name="BUZZER_TIM" value="TIM2" description="Timer of the buzzer pin"/>
+    <define name="BUZZER_TUNES_STARTUP_TUNE" value="BUZZER_TUNES_STARTUP" description="Tune at startup (BUZZER_TUNES_x), BUZZER_TUNES_NONE for silence"/>
+    <define name="BUZZER_TUNES_RTTTL_1" value="&quot;name:d=4,o=6,b=120:c,e,g&quot;" description="Custom tunes 1 to 3 (BUZZER_TUNES_RTTTL_1..3) in RTTTL format, set them in an airframe section with type string"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="Buzzer">
+        <dl_setting var="buzzer_tunes_tune" min="0" max="15" step="1" values="Stop|Startup|Ode to Joy|Twinkle|Italy|Netherlands|France|Happy Birthday|Mushroom Song|Nokia|Fur Elise|La Cucaracha|William Tell|Custom 1|Custom 2|Custom 3" shortname="tune" type="uint8_t" module="sound/buzzer_tunes" handler="play"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="buzzer_tunes.h"/>
+  </header>
+  <init fun="buzzer_tunes_init()"/>
+  <periodic fun="buzzer_tunes_periodic()" freq="100"/>
+  <makefile target="ap">
+    <configure name="BUZZER_TIM" default="TIM2" case="upper"/>
+    <define name="STM32_PWM_USE_$(BUZZER_TIM)" cond="ifeq ($(RTOS),chibios)"/>
+    <file name="buzzer_tunes.c"/>
+    <file_arch name="buzzer_arch.c"/>
+    <test/>
+  </makefile>
+</module>

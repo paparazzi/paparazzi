@@ -19,6 +19,17 @@
             </module>
             <module name="sys_mon"/>
             <module name="flight_recorder"/>
+            <!-- WS2812 LEDs: data on AUX6 (TIM4_CH3), 5V/GND from the second PM07 power connector -->
+            <module name="light_scheduler">
+                <configure name="WS2812_TIM" value="TIM4"/>
+                <define name="WS2812_NB_LEDS" value="5"/>
+            </module>
+            <!-- Piezo buzzer on the carrier board USB port, tune at startup -->
+            <module name="buzzer_tunes"/>
+            <!-- TIM4 is used by the LEDs, so AUX5 and AUX6 are not available as servos -->
+            <define name="USE_PWM_TIM4" value="FALSE"/>
+            <define name="USE_PWM5" value="FALSE"/>
+            <define name="USE_PWM6" value="FALSE"/>
     
             <!-- RC switches -->
             <define name="RADIO_TH_HOLD"            value="RADIO_AUX1"/>
@@ -156,6 +167,15 @@
         <define name="AUTO_DOUBLETS_MOD"              value="3"/>    <!-- highspeed doublets -->
         <define name="AUTO_DOUBLETS_TIME"             value="0.25"/>
     </section>    
+
+    <section name="LIGHT_SCHEDULER" prefix="LIGHT_SCHEDULER_">
+        <!-- Green at startup -->
+        <define name="MODE"         value="LIGHT_SCHEDULER_MODE_COLOR"/>
+        <define name="COLOR"        value="LIGHT_SCHEDULER_COLOR_GREEN"/>
+        <!-- Red while the nB controller has failed motors -->
+        <define name="ALERT"        value="(fault_pitch_motors || fault_roll_motors)"/>
+        <define name="ALERT_HEADER" value="firmwares/rotorcraft/oneloop/oneloop_nB.h" type="string"/>
+    </section>
 
     <section NAME="MISC">
         <!-- Others -->

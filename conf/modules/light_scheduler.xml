@@ -11,7 +11,28 @@
     </description>
     <configure name="WS2812_TIM" value="TIM1" description="Select the timer used to control the LEDs"/>
     <define name="WS2812_NB_LEDS" value="8" description="Number of leds"/>
+    <define name="LIGHT_SCHEDULER_MODE" value="0" description="Startup mode: 0 rainbow, 1 fixed color, 2 off"/>
+    <define name="LIGHT_SCHEDULER_RED" value="255" description="Startup red value of the fixed color (0-255)"/>
+    <define name="LIGHT_SCHEDULER_GREEN" value="255" description="Startup green value of the fixed color (0-255)"/>
+    <define name="LIGHT_SCHEDULER_BLUE" value="255" description="Startup blue value of the fixed color (0-255)"/>
+    <define name="LIGHT_SCHEDULER_BRIGHTNESS" value="255" description="Startup brightness (0-255)"/>
+    <define name="LIGHT_SCHEDULER_COLOR" value="LIGHT_SCHEDULER_COLOR_GREEN" description="Startup color preset (LIGHT_SCHEDULER_COLOR_x), overrides RED/GREEN/BLUE"/>
+    <define name="LIGHT_SCHEDULER_ALERT" value="electrical.bat_low" description="Optional C condition: while true, all LEDs show the alert color in every mode"/>
+    <define name="LIGHT_SCHEDULER_ALERT_HEADER" value="modules/energy/electrical.h" type="string" description="Header to include for the alert condition"/>
+    <define name="LIGHT_SCHEDULER_ALERT_COLOR" value="LIGHT_SCHEDULER_COLOR_RED" description="Alert color preset"/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="Light">
+        <dl_setting var="light_scheduler_mode" min="0" max="2" step="1" values="Rainbow|Color|Off" shortname="mode" type="uint8_t"/>
+        <dl_setting var="light_scheduler_color" min="0" max="12" step="1" values="Custom|Red|Green|Blue|White|Yellow|Orange|Cyan|Magenta|Purple|Italy|Netherlands|France" shortname="color" type="uint8_t" module="light/light_scheduler" handler="set_color"/>
+        <dl_setting var="light_scheduler_red" min="0" max="255" step="1" shortname="red" type="uint8_t"/>
+        <dl_setting var="light_scheduler_green" min="0" max="255" step="1" shortname="green" type="uint8_t"/>
+        <dl_setting var="light_scheduler_blue" min="0" max="255" step="1" shortname="blue" type="uint8_t"/>
+        <dl_setting var="light_scheduler_brightness" min="0" max="255" step="1" shortname="brightness" type="uint8_t"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="light_scheduler.h"/>
   </header>
@@ -23,5 +44,8 @@
     <file name="light_scheduler.c"/>
     <file_arch name="light_ws2812_arch.c"/>
     <file_arch name="hal_stm32_dma.c" dir="mcu_periph" cond="ifeq ($(RTOS),chibios)"/>
+    <test>
+      <define name="LIGHT_SCHEDULER_ALERT" value="false"/>
+    </test>
   </makefile>
 </module>
