@@ -102,6 +102,22 @@
 #if INS_EXT_POSE
 #include "modules/ins/ins_ext_pose.h"
 #endif
+
+#ifdef ONELOOP_ANDI_CONSTANT_EFFECTIVENESS
+/* Quadrotor without an effectiveness scheduling module: the effectiveness matrix is built here
+ * from the airframe rows ONELOOP_ANDI_G1_THRUST/ROLL/PITCH/YAW and ONELOOP_ANDI_G2 (scaled by ANDI_G_SCALING).
+ * Do not combine with an effectiveness scheduling module, those provide EFF_MAT_RW themselves.
+ */
+#define RW_aN 0 // North axis (linear acceleration)
+#define RW_aE 1 // East axis (linear acceleration)
+#define RW_aD 2 // Down axis (linear acceleration)
+#define RW_ap 3 // X body axis (angular acceleration)
+#define RW_aq 4 // Y body axis (angular acceleration)
+#define RW_ar 5 // Z body axis (angular acceleration)
+float EFF_MAT_RW[ANDI_OUTPUTS][ANDI_NUM_ACT_TOT];
+float G2_RW[ANDI_NUM_ACT_TOT];
+static void oneloop_andi_constant_eff(void);
+#endif
 //====================================================================================================================================
 //====================================================================================================================================
 // Define configuration variables with default values if not defined in the airframe file
@@ -1663,7 +1679,9 @@ void oneloop_andi_init(void)
  */
 void oneloop_andi_enter(bool half_loop_sp, int ctrl_type)
 {
+#ifndef ONELOOP_ANDI_SIMPLE_QUAD
   ele_min = 0.0;
+#endif
   oneloop_andi.half_loop = half_loop_sp;
   oneloop_andi.ctrl_type = ctrl_type;
   psi_des_rad = eulers_zxy.psi;
@@ -2350,6 +2368,50 @@ void get_act_state_oneloop(void)
   }
 }
 
+#ifdef ONELOOP_ANDI_CONSTANT_EFFECTIVENESS
+/**
+ * @brief Effectiveness matrix of a quadrotor from the airframe rows
+ * Same structure as the effectiveness scheduling modules: the thrust row is rotated with the attitude,
+ * the virtual roll and pitch columns use the hover thrust (specific force g)
+ */
+static void oneloop_andi_constant_eff(void)
+{
+  static const float g1_thrust[ANDI_NUM_ACT_TOT] = ONELOOP_ANDI_G1_THRUST;
+  static const float g1_roll[ANDI_NUM_ACT_TOT]   = ONELOOP_ANDI_G1_ROLL;
+  static const float g1_pitch[ANDI_NUM_ACT_TOT]  = ONELOOP_ANDI_G1_PITCH;
+  static const float g1_yaw[ANDI_NUM_ACT_TOT]    = ONELOOP_ANDI_G1_YAW;
+  static const float g2[ANDI_NUM_ACT_TOT]        = ONELOOP_ANDI_G2;
+  struct FloatEulers *eul = stateGetNedToBodyEulersZxy_f();
+  float sphi = sinf(eul->phi), cphi = cosf(eul->phi);
+  float stheta = sinf(eul->theta), ctheta = cosf(eul->theta);
+  float spsi = sinf(eul->psi), cpsi = cosf(eul->psi);
+  float T = 9.81f; // hover thrust specific force
+  int i;
+  for (i = 0; i < ANDI_NUM_ACT; i++) {
+    float gz = g1_thrust[i] / ANDI_G_SCALING;
+    G2_RW[i] = g2[i] / ANDI_G_SCALING;
+    EFF_MAT_RW[RW_aN][i] = (cpsi * stheta + ctheta * sphi * spsi) * gz;
+    EFF_MAT_RW[RW_aE][i] = (spsi * stheta - cpsi * ctheta * sphi) * gz;
+    EFF_MAT_RW[RW_aD][i] = (cphi * ctheta) * gz;
+    EFF_MAT_RW[RW_ap][i] = g1_roll[i] / ANDI_G_SCALING;
+    EFF_MAT_RW[RW_aq][i] = g1_pitch[i] / ANDI_G_SCALING;
+    EFF_MAT_RW[RW_ar][i] = g1_yaw[i] / ANDI_G_SCALING + G2_RW[i];
+  }
+  for (i = ANDI_NUM_ACT; i < ANDI_NUM_ACT_TOT; i++) {
+    G2_RW[i] = 0.0f;
+    EFF_MAT_RW[RW_ap][i] = 0.0f;
+    EFF_MAT_RW[RW_aq][i] = 0.0f;
+    EFF_MAT_RW[RW_ar][i] = 0.0f;
+  }
+  EFF_MAT_RW[RW_aN][COMMAND_ROLL]  = -cphi * ctheta * spsi * T;
+  EFF_MAT_RW[RW_aE][COMMAND_ROLL]  =  cphi * ctheta * cpsi * T;
+  EFF_MAT_RW[RW_aD][COMMAND_ROLL]  =  sphi * ctheta * T;
+  EFF_MAT_RW[RW_aN][COMMAND_PITCH] = -(ctheta * cpsi - sphi * stheta * spsi) * T;
+  EFF_MAT_RW[RW_aE][COMMAND_PITCH] = -(ctheta * spsi + sphi * stheta * cpsi) * T;
+  EFF_MAT_RW[RW_aD][COMMAND_PITCH] =  stheta * cphi * T;
+}
+#endif
+
 /**
  * @brief Function that samples and scales the effectiveness matrix
  * FIXME: make this function into a for loop to make it more adaptable to different configurations
@@ -2358,6 +2420,9 @@ void G1G2_oneloop(int ctrl_type)
 {
   int i = 0;
   float scaler = 1.0;
+#ifdef ONELOOP_ANDI_CONSTANT_EFFECTIVENESS
+  oneloop_andi_constant_eff();
+#endif
   for (i = 0; i < ANDI_NUM_ACT_TOT; i++)
   {
     // printf("act_dyn_ctrl[%d] = %f\n", i, act_dyn_ctrl[i]);
