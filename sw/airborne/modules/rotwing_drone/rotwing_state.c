@@ -104,6 +104,19 @@
 #define ROTWING_STATE_MIN_FW_DIST 200.0
 #endif
 
+/* Sweep of the forced skew angle: lowest and highest skew angle (deg) and frequency (Hz) */
+#ifndef ROTWING_SKEW_SWEEP_MIN
+#define ROTWING_SKEW_SWEEP_MIN 0.f
+#endif
+
+#ifndef ROTWING_SKEW_SWEEP_MAX
+#define ROTWING_SKEW_SWEEP_MAX 60.f
+#endif
+
+#ifndef ROTWING_SKEW_SWEEP_FREQ
+#define ROTWING_SKEW_SWEEP_FREQ 0.1f
+#endif
+
 /* Fix for not having double can busses */
 #ifndef SERVO_BMOTOR_PUSH_IDX
 #define SERVO_BMOTOR_PUSH_IDX SERVO_MOTOR_PUSH_IDX
@@ -149,6 +162,7 @@
 
 abi_event rotwing_state_feedback_ev;
 static void rotwing_state_feedback_cb(uint8_t sender_id, struct act_feedback_t *feedback_msg, uint8_t num_act);
+static void rotwing_state_skew_sweep(bool run, float time);
 struct rotwing_state_t rotwing_state;
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -206,6 +220,10 @@ void rotwing_state_init(void)
   rotwing_state.meas_skew_angle_time = 0;
   rotwing_state.skew_cmd = 0;
   rotwing_state.force_skew = false;
+  rotwing_state.skew_sweep.active = false;
+  rotwing_state.skew_sweep.min_deg = ROTWING_SKEW_SWEEP_MIN;
+  rotwing_state.skew_sweep.max_deg = ROTWING_SKEW_SWEEP_MAX;
+  rotwing_state.skew_sweep.freq = ROTWING_SKEW_SWEEP_FREQ;
   for (int i = 0; i < 5; i++) {
     rotwing_state.meas_rpm[i] = 0;
     rotwing_state.meas_rpm_time[i] = 0;
@@ -243,6 +261,26 @@ bool rotwing_state_hover_motors_idling(void) {
     return true;
   }
   return false;
+}
+
+/**
+ * Sweep the skew angle setpoint between skew_sweep.min_deg and skew_sweep.max_deg at skew_sweep.freq,
+ * starting from min_deg. Only runs while the skew is forced and the sweep is active,
+ * otherwise the setpoint is left as it is.
+ */
+static void rotwing_state_skew_sweep(bool run, float time)
+{
+  static float start_time = -1.f;
+  if (!run) {
+    start_time = -1.f;
+    return;
+  }
+  if (start_time < 0.f) {
+    start_time = time;
+  }
+  float mid = (rotwing_state.skew_sweep.max_deg + rotwing_state.skew_sweep.min_deg) / 2.f;
+  float amplitude = (rotwing_state.skew_sweep.max_deg - rotwing_state.skew_sweep.min_deg) / 2.f;
+  rotwing_state.sp_skew_angle_deg = mid - amplitude * cosf(2.f * M_PI * rotwing_state.skew_sweep.freq * (time - start_time));
 }
 
 void rotwing_state_periodic(void)
@@ -304,8 +342,9 @@ void rotwing_state_periodic(void)
 
 
   /* Handle the skew angle setpoint */
+  rotwing_state_skew_sweep(rotwing_state.force_skew && rotwing_state.skew_sweep.active, current_time);
   if (rotwing_state.force_skew) {
-    // Do nothing
+    // Set by the GCS (or by the skew sweep)
   }
   else if(rotwing_state.state == ROTWING_STATE_FORCE_HOVER) {
     rotwing_state.sp_skew_angle_deg = 0.f;
