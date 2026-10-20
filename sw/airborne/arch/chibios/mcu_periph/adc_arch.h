@@ -28,7 +28,7 @@
  * @file arch/chibios/mcu_periph/adc_arch.h
  * ADC driver
  *
- * Right now for STM32F1xx only
+ * ADC channel declarations for ChibiOS STM32 targets
  */
 #ifndef ADC_ARCH_H
 #define ADC_ARCH_H
@@ -37,60 +37,7 @@
 
 #include BOARD_CONFIG
 
-// NB_ADCx_CHANNELS
-enum adc1_channels {
-#ifdef AD1_1_CHANNEL
-  AD1_1,
-#endif
-#ifdef AD1_2_CHANNEL
-  AD1_2,
-#endif
-#ifdef AD1_3_CHANNEL
-  AD1_3,
-#endif
-#ifdef AD1_4_CHANNEL
-  AD1_4,
-#endif
-#ifdef AD1_5_CHANNEL
-  AD1_5,
-#endif
-#ifdef AD1_6_CHANNEL
-  AD1_6,
-#endif
-#ifdef AD1_7_CHANNEL
-  AD1_7,
-#endif
-#ifdef AD1_8_CHANNEL
-  AD1_8,
-#endif
-#ifdef AD1_9_CHANNEL
-  AD1_9,
-#endif
-#ifdef AD1_10_CHANNEL
-  AD1_10,
-#endif
-#ifdef AD1_11_CHANNEL
-  AD1_11,
-#endif
-#ifdef AD1_12_CHANNEL
-  AD1_12,
-#endif
-#ifdef AD1_13_CHANNEL
-  AD1_13,
-#endif
-#ifdef AD1_14_CHANNEL
-  AD1_14,
-#endif
-#ifdef AD1_15_CHANNEL
-  AD1_15,
-#endif
-#ifdef AD1_16_CHANNEL
-  AD1_16,
-#endif
-  NB_ADC1_CHANNELS
-};
-
-#define ADC_NUM_CHANNELS (NB_ADC1_CHANNELS)
+#define ADC_NUM_CHANNELS 9
 
 // ADC error flags
 extern uint8_t adc_error_flag;

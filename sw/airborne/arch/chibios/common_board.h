@@ -37,6 +37,8 @@
  */
 #define _CONCAT_BOARD_PARAM(_s1, _s2) _s1 ## _s2
 #define CONCAT_BOARD_PARAM(_s1, _s2) _CONCAT_BOARD_PARAM(_s1, _s2)
+#define CONCAT_BOARD_PARAM3(_s1, _s2, _s3) CONCAT_BOARD_PARAM(CONCAT_BOARD_PARAM(_s1, _s2), _s3)
+#define CONCAT_BOARD_PARAM4(_s1, _s2, _s3, _s4) CONCAT_BOARD_PARAM(CONCAT_BOARD_PARAM3(_s1, _s2, _s3), _s4)
 
 /*
  * LEDs
@@ -166,11 +168,11 @@
 #endif
 #if USE_ADC_1
 #if defined(ADC1_ADC_IN)
-#define AD1_1_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC1_ADC_IN)
+#define ADC_1_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC1_ADC_IN)
 #elif defined(ADC1_ADC_INP)
-#define AD1_1_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC1_ADC_INP)
+#define ADC_1_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC1_ADC_INP)
 #endif
-#define ADC_1             AD1_1
+#define ADC_1             0
 #define ADC_1_GPIO_PORT   PAL_PORT(LINE_ADC1)
 #define ADC_1_GPIO_PIN    PAL_PAD(LINE_ADC1)
 #endif
@@ -182,11 +184,11 @@
 #endif
 #if USE_ADC_2
 #if defined(ADC2_ADC_IN)
-#define AD1_2_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC2_ADC_IN)
+#define ADC_2_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC2_ADC_IN)
 #elif defined(ADC2_ADC_INP)
-#define AD1_2_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC2_ADC_INP)
+#define ADC_2_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC2_ADC_INP)
 #endif
-#define ADC_2             AD1_2
+#define ADC_2             1
 #define ADC_2_GPIO_PORT   PAL_PORT(LINE_ADC2)
 #define ADC_2_GPIO_PIN    PAL_PAD(LINE_ADC2)
 #endif
@@ -198,11 +200,11 @@
 #endif
 #if USE_ADC_3
 #if defined(ADC3_ADC_IN)
-#define AD1_3_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC3_ADC_IN)
+#define ADC_3_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC3_ADC_IN)
 #elif defined(ADC3_ADC_INP)
-#define AD1_3_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC3_ADC_INP)
+#define ADC_3_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC3_ADC_INP)
 #endif
-#define ADC_3             AD1_3
+#define ADC_3             2
 #define ADC_3_GPIO_PORT   PAL_PORT(LINE_ADC3)
 #define ADC_3_GPIO_PIN    PAL_PAD(LINE_ADC3)
 #endif
@@ -214,11 +216,11 @@
 #endif
 #if USE_ADC_4
 #if defined(ADC4_ADC_IN)
-#define AD1_4_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC4_ADC_IN)
+#define ADC_4_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC4_ADC_IN)
 #elif defined(ADC4_ADC_INP)
-#define AD1_4_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC4_ADC_INP)
+#define ADC_4_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC4_ADC_INP)
 #endif
-#define ADC_4             AD1_4
+#define ADC_4             3
 #define ADC_4_GPIO_PORT   PAL_PORT(LINE_ADC4)
 #define ADC_4_GPIO_PIN    PAL_PAD(LINE_ADC4)
 #endif
@@ -230,11 +232,11 @@
 #endif
 #if USE_ADC_5
 #if defined(ADC5_ADC_IN)
-#define AD1_5_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC5_ADC_IN)
+#define ADC_5_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC5_ADC_IN)
 #elif defined(ADC5_ADC_INP)
-#define AD1_5_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC5_ADC_INP)
+#define ADC_5_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC5_ADC_INP)
 #endif
-#define ADC_5             AD1_5
+#define ADC_5             4
 #define ADC_5_GPIO_PORT   PAL_PORT(LINE_ADC5)
 #define ADC_5_GPIO_PIN    PAL_PAD(LINE_ADC5)
 #endif
@@ -243,13 +245,61 @@
 #if defined(LINE_ADC6)
 #if USE_ADC_6
 #if defined(ADC6_ADC_IN)
-#define AD1_6_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC6_ADC_IN)
+#define ADC_6_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC6_ADC_IN)
 #elif defined(ADC6_ADC_INP)
-#define AD1_6_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC6_ADC_INP)
+#define ADC_6_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC6_ADC_INP)
 #endif
-#define ADC_6             AD1_6
+#define ADC_6             5
 #define ADC_6_GPIO_PORT   PAL_PORT(LINE_ADC6)
 #define ADC_6_GPIO_PIN    PAL_PAD(LINE_ADC6)
+#endif
+#endif
+
+#if defined(LINE_ADC7)
+#ifndef USE_ADC_7
+#define USE_ADC_7 1
+#endif
+#if USE_ADC_7
+#if defined(ADC7_ADC_IN)
+#define ADC_7_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC7_ADC_IN)
+#elif defined(ADC7_ADC_INP)
+#define ADC_7_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC7_ADC_INP)
+#endif
+#define ADC_7             6
+#define ADC_7_GPIO_PORT   PAL_PORT(LINE_ADC7)
+#define ADC_7_GPIO_PIN    PAL_PAD(LINE_ADC7)
+#endif
+#endif
+
+#if defined(LINE_ADC8)
+#ifndef USE_ADC_8
+#define USE_ADC_8 1
+#endif
+#if USE_ADC_8
+#if defined(ADC8_ADC_IN)
+#define ADC_8_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC8_ADC_IN)
+#elif defined(ADC8_ADC_INP)
+#define ADC_8_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC8_ADC_INP)
+#endif
+#define ADC_8             7
+#define ADC_8_GPIO_PORT   PAL_PORT(LINE_ADC8)
+#define ADC_8_GPIO_PIN    PAL_PAD(LINE_ADC8)
+#endif
+#endif
+
+#if defined(LINE_ADC9)
+#ifndef USE_ADC_9
+#define USE_ADC_9 1
+#endif
+#if USE_ADC_9
+#if defined(ADC9_ADC_IN)
+#define ADC_9_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC9_ADC_IN)
+#elif defined(ADC9_ADC_INP)
+#define ADC_9_CHANNEL     CONCAT_BOARD_PARAM(ADC_CHANNEL_IN, ADC9_ADC_INP)
+#endif
+#define ADC_9             8
+#define ADC_9_GPIO_PORT   PAL_PORT(LINE_ADC9)
+#define ADC_9_GPIO_PIN    PAL_PAD(LINE_ADC9)
 #endif
 #endif
 
