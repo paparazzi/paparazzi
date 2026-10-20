@@ -28,6 +28,8 @@
 #include "modules/core/settings.h"
 #include "generated/settings.h"
 #include "generated/airframe.h"
+#include "modules/loggers/flight_recorder.h"
+#include "modules/loggers/pprzlog_tp.h"
 #include "pprzlink/messages.h"
 #include "pprzlink/dl_protocol.h"
 
@@ -41,6 +43,23 @@ struct PersistentSettings pers_settings;
 bool settings_store_flag;
 
 bool settings_clear_flag;
+
+
+static void settings_send_dl_value(struct link_device *dev, struct transport_tx *trans,
+                                   uint8_t receiver_id, uint8_t index, float value)
+{
+  struct pprzlink_msg msg;
+  msg.trans = trans;
+  msg.dev = dev;
+  msg.sender_id = AC_ID;
+  msg.receiver_id = receiver_id;
+  msg.component_id = 0;
+  pprzlink_msg_send_DL_VALUE(&msg, &index, &value);
+
+#if FLIGHTRECORDER_SDLOG
+  pprz_msg_send_DL_VALUE(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, &index, &value);
+#endif
+}
 
 
 void settings_init(void)
@@ -100,14 +119,7 @@ void settings_parse_msg_SETTING(struct link_device *dev, struct transport_tx *tr
   uint8_t i = DL_SETTING_index(buf);
   float var = DL_SETTING_value(buf);
   DlSetting(i, var);
-  // Reply to the sender of the message
-  struct pprzlink_msg msg;
-  msg.trans = trans;
-  msg.dev = dev;
-  msg.sender_id = AC_ID;
-  msg.receiver_id = sender_id;
-  msg.component_id = 0;
-  pprzlink_msg_send_DL_VALUE(&msg, &i, &var);
+  settings_send_dl_value(dev, trans, sender_id, i, var);
 #else
   (void)dev;
   (void)trans;
@@ -122,14 +134,7 @@ void settings_parse_msg_GET_SETTING(struct link_device *dev, struct transport_tx
   uint8_t sender_id = pprzlink_get_msg_sender_id(buf);
   uint8_t i = DL_GET_SETTING_index(buf);
   float val = settings_get_value(i);
-  // Reply to the sender of the message
-  struct pprzlink_msg msg;
-  msg.trans = trans;
-  msg.dev = dev;
-  msg.sender_id = AC_ID;
-  msg.receiver_id = sender_id;
-  msg.component_id = 0;
-  pprzlink_msg_send_DL_VALUE(&msg, &i, &val);
+  settings_send_dl_value(dev, trans, sender_id, i, val);
 #else
   (void)dev;
   (void)trans;
