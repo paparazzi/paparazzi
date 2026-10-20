@@ -38,10 +38,9 @@ struct Waypoint waypoints[NB_WAYPOINT];
 static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
 {
   static uint8_t i;
-  i++;
 
   // Randomness added for multiple transport devices
-  if (rand_uniform() > 0.02) { i++; }
+  if (rand_uniform() > 0.02f) { i++; }
 
   if (i >= nb_waypoint) { i = 0; }
   pprz_msg_send_WP_MOVED_ENU(trans, dev, AC_ID,
