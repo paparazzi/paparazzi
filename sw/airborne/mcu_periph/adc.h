@@ -72,4 +72,13 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf *s, uint8_t av_nb_sampl
 /** Starts conversions */
 void adc_init(void);
 
+/** Get filtered value from buffer */
+static inline uint16_t adc_buf_get(struct adc_buf *s) {
+  if (s->av_nb_sample != 0) {
+    return (uint16_t)(s->sum / s->av_nb_sample);
+  } else {
+    return 0;
+  }
+};
+
 #endif

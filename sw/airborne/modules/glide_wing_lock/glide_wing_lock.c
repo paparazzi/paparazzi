@@ -64,7 +64,7 @@ void glide_wing_lock_event()
 {
   static int lockstate = 0;
   if (radio_control.values[WING_POS_LOCK_SWITCH] > (MIN_PPRZ / 2)) { // check glide switch
-    float wpos = adcbuf.sum / adcbuf.av_nb_sample;
+    float wpos = (float)adc_buf_get(&adcbuf);
     switch (lockstate) {
       case 0:
         if (wpos < WING_POS_DOWN_THRESH) { //set wings to fixed speed for one rotation starting from when wings are at lowest position
@@ -100,7 +100,7 @@ void glide_wing_lock_event()
 
 void glide_wing_lock_periodic()
 {
-  uint16_t wpos = adcbuf.sum / adcbuf.av_nb_sample;
+  uint16_t wpos = adc_buf_get(&adcbuf);
   DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, DefaultDevice, &wpos, &wpos);
 }
 
