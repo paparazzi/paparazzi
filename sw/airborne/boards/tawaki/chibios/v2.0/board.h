@@ -1634,7 +1634,7 @@
 #define AUX_B4_UART	 4
 #define AUX_B4_UART_FN	 TX
 #define AUX_B4_UART_AF	 8
-#define VBAT_MEAS_ADC	 3
+#define VBAT_MEAS_ADC	 1
 #define VBAT_MEAS_ADC_FN	 INP
 #define VBAT_MEAS_ADC_INP	 10
 #define RC2_USART	 6

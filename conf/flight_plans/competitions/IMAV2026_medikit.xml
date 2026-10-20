@@ -1,0 +1,189 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<flight_plan alt="162" ground_alt="142.2" lat0="48.806623" lon0="7.852214" max_dist_from_home="1000" name="IMAV2026 Medikit" security_height="10" home_mode_height="30">
+
+  <header>
+    #define FP_NONE       0
+    #define FP_SEARCH     1
+
+    #ifndef SwitchServoOn
+    #define SwitchServoOn(_x) {}
+    #endif
+    #ifndef SwitchServoOff
+    #define SwitchServoOff(_x) {}
+    #endif
+    #define DropOpen SwitchServoOn
+    #define DropClose SwitchServoOff
+
+    #ifdef NAV_C
+
+    static inline bool delay_test_rc(bool test, int delay) {
+      static int nb = 0;
+        if (test) {
+        nb++;
+        if (nb == delay) {
+          nb = 0;
+          return true;
+        }
+        return false;
+      } else {
+        nb = 0;
+        return false;
+      }
+    }
+
+    #endif
+  </header>
+  <waypoints>
+    <waypoint name="HOME" lat="48.8068" lon="7.8521"/>
+    <waypoint name="STDBY" lat="48.8067" lon="7.85205"/>
+    <waypoint name="LANDPAD" lat="48.806623" lon="7.852214"/>
+    <waypoint name="_HERE" lat="48.8065608" lon="7.8530971"/>
+    <waypoint name="SEARCH" lat="48.8102294" lon="7.8517356"/>
+    <waypoint name="TEST" lat="48.807959" lon="7.851744"/>
+    <waypoint name="RESCUE" lat="48.8100689" lon="7.8516697"/>
+    <waypoint name="SCOUT" lat="48.81006" lon="7.85166" height="0"/>
+  </waypoints>
+  <variables>
+    <variable init="0" type="int" var="mission_nb"/>
+    <variable init="20." var="goto_height" min="5." max="80." step="0.1"/>
+    <variable init="7." var="goto_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="4." var="takeoff_height" min="0.5" max="15." step="0.1"/>
+    <variable init="3." var="land_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="6." var="search_height" min="5." max="80." step="0.1"/>
+    <variable init="3." var="search_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="15." var="search_radius" min="-1." max="100." step="1.0"/>
+    <variable init="4." var="search_sweep" min="5." max="20." step="0.1"/>
+    <variable init="1.5" var="search_speed_2" min="0.5" max="6." step="0.1"/>
+    <variable init="2." var="search_radius_2" min="-1." max="30." step="1.0"/>
+    <variable init="3." var="search_height_2" min="1." max="20." step="0.1"/>
+    <variable init="1.5" var="drop_height" min="1." max="3." step="0.1"/>
+    <variable init="6." var="fp_search_height"/>
+  </variables>
+  <modules>
+    <module name="scout_detector"/>
+    <module name="agl_dist"/>
+  </modules>
+  <includes>
+    <include name="Data" procedure="IMAV2026_data.xml"/>
+  </includes>
+  <exceptions>
+    <exception cond="(!InsideFlight_Area(GetPosX(), GetPosY()) @OR (GetPosHeight() @GT 70)) @AND (nav_block @GT IndexOfBlock('Holding point')) @AND (nav_block @LT IndexOfBlock('Kill landed'))" deroute="Standby"/>
+    <exception cond="(!InsideKill(GetPosX(), GetPosY()) @OR (GetPosHeight() @GT 80)) @AND (nav_block @GT IndexOfBlock('Holding point')) @AND (nav_block @LT IndexOfBlock('Kill landed'))" deroute="Kill landed"/>
+    <exception cond="(nav_block @GT IndexOfBlock('Holding point') @AND nav_block @LT IndexOfBlock('Kill landed')) @AND (GpsIsLost() @AND delay_test_rc(RadioControlIsLost(),20) @AND (datalink_time @GT 5))" deroute="Kill landed"/>
+    <exception cond="(nav_block @GT IndexOfBlock('Holding point') @AND nav_block @LT IndexOfBlock('Kill landed')) @AND (delay_test_rc(RadioControlIsLost(),20) @AND (datalink_time @GT 15))" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <call_once fun="DropOpen()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 4)"/>
+    </block>
+    <block name="Holding point" strip_button="H. Point" group="home">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_NONE" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_SEARCH" deroute="Goto Search"/>
+      <!--call_once fun="NavSetAltitudeReferenceHere()"/-->
+      <call_once fun="DropClose()"/>
+      <!--call_once fun="NavSetWaypointHere(WP_LANDPAD)"/-->
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0.1" until="stage_time @GT 2" vmode="throttle"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="_HERE"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <stay wp="STDBY"/>
+    </block>
+
+    <block group="mission" name="Start Search" strip_button="Search">
+      <set var="mission_nb" value="FP_SEARCH"/>
+      <deroute block="Takeoff"/>
+    </block>
+    <block name="Goto Search">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <stay wp="_HERE" until="stage_time @GT 3" height="goto_height"/>
+      <go wp="STDBY" from="_HERE" hmode="route" height="goto_height"/>
+      <go wp="SEARCH" from="STDBY" hmode="route" height="goto_height" approaching_time="3"/>
+      <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
+      <stay wp="SEARCH" vmode="climb" climb="-1.0" until="(GetPosHeight() @LT 8) @OR (!nav_is_in_flight())"/>
+      <stay wp="SEARCH" vmode="climb" climb="-0.5" until="(agl_dist_valid @AND (agl_dist_value_filtered @LT 3.)) @OR (!nav_is_in_flight())"/>
+      <set var="fp_search_height" value="GetPosHeight()+search_height-agl_dist_value_filtered"/>
+      <deroute block="Run Search"/>
+    </block>
+    <block name="Run Search">
+      <!-- exception to deroute to drop if validated target -->
+      <call_once fun="search_map_init_from_wp(Ptr(scout_map), WP_SEARCH, 1.f)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
+      <for var="i" from="1" to="search_radius/search_sweep">
+        <circle wp="SEARCH" radius="search_sweep*$i" height="fp_search_height" until="NavCircleCount() @GT 0.9"/>
+      </for>
+      <call_once fun="search_map_update_wp(Ptr(scout_map), 0.8f, WP_SEARCH)"/>
+      <deroute block="Run Search step 2"/>
+      <!--deroute block="Landing"/-->
+    </block>
+    <block name="Run Search step 2">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <go wp="SEARCH" from="_HERE" hmode="route" height="fp_search_height"/>
+      <stay wp="SEARCH" vmode="climb" climb="-0.5" until="(agl_dist_valid @AND (agl_dist_value_filtered @LT 3.)) @OR (!nav_is_in_flight())"/>
+      <set var="fp_search_height" value="GetPosHeight()+search_height_2-agl_dist_value_filtered"/>
+      <call_once fun="guidance_h_SetMaxSpeed(search_speed_2)"/>
+      <call_once fun="search_map_init(Ptr(scout_map), *stateGetPositionNed_f(), 0.2f)"/>
+      <circle wp="SEARCH" radius="search_radius_2" height="fp_search_height" until="NavCircleCount() @GT 1.2"/>
+      <call_once fun="search_map_update_wp(Ptr(scout_map), 0.8f, WP_RESCUE)"/>
+      <deroute block="Goto Drop"/>
+    </block>
+
+    <block name="Goto Drop">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
+      <go wp="RESCUE" from="_HERE" hmode="route" height="fp_search_height"/>
+      <deroute block="Drop Medikit"/>
+    </block>
+    <block name="Drop Medikit">
+      <stay wp="RESCUE" until="stage_time @GT 3" height="fp_search_height"/>
+      <stay wp="RESCUE" vmode="climb" climb="-0.5" until="(agl_dist_valid @AND (agl_dist_value_filtered @LT drop_height)) @OR (!nav_is_in_flight())"/>
+      <call_once fun="DropOpen()"/>
+      <stay wp="RESCUE" until="stage_time @GT 3" height="goto_height"/>
+      <deroute block="Landing"/>
+    </block>
+
+    <block name="Land here" strip_button="Land here" strip_icon="land-right.png" group="land">
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Landing" strip_button="Land on pad" group="land">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <go wp="STDBY" from="_HERE" hmode="route" height="goto_height"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <go wp="LANDPAD" from="STDBY" hmode="route" height="goto_height"/>
+    </block>
+    <block name="Flare">
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <stay climb="2*nav.descend_vspeed" vmode="climb" wp="LANDPAD" until="GetPosHeight() @LT takeoff_height"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block>
+    <block name="Kill landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+
+  </blocks>
+
+</flight_plan>

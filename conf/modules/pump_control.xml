@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="pump_control" dir="pump_control">
+  <doc>
+    <description>Pump control for IMAV2026</description>
+    <configure name="PUMP_CONTROL_ADC" default="ADC_4"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="Water">
+        <dl_setting var="pump_ctrl_state" min="0" max="3" values="OFF|PUMP|VALVE" handler="handler" module="pump_control/pump_control">
+          <strip_button name="Pump ON" value="1" group="water"/>
+          <strip_button name="Valve ON" value="2" group="water"/>
+          <strip_button name="Pump OFF" value="0" group="water"/>
+        </dl_setting>
+      </dl_settings>
+      
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>adc</depends>
+  </dep>
+  <header>
+    <file name="pump_control.h"/>
+  </header>
+  <init fun="pump_control_init()"/>
+  <periodic fun="pump_control_report()" freq="2" autorun="FALSE"/>
+  <makefile>
+    <file name="pump_control.c"/>
+    <configure name="PUMP_CONTROL_ADC" default="ADC_4"/>
+    <define name="PUMP_CONTROL_ADC" value="$(PUMP_CONTROL_ADC)"/>
+    <define name="USE_$(PUMP_CONTROL_ADC)" />
+    <test/>
+  </makefile>
+</module>
