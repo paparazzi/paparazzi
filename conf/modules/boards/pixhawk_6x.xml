@@ -14,11 +14,11 @@
     <configure name="SDLOG_USE_RTC" value="FALSE"/>
     <configure name="SDLOG_SDIO" value="SDCD2"/>
 
-    <!-- On FMU board -->
+    <!-- On FMU board BMP388 (version 4) / ICP20100 (version 8) -->
     <!--configure name="BMP3_I2C_DEV" value="i2c2"/>
     <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR"/-->
 
-    <!-- On IMU board -->
+    <!-- On IMU board BMP388 (version 4 and 8) -->
     <configure name="BMP3_I2C_DEV" value="i2c4"/>
     <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR_ALT"/>
   </makefile>
