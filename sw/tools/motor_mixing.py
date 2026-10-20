@@ -3,7 +3,6 @@
 from __future__ import print_function, division
 
 import numpy as np
-import string
 
 
 class MotorMixing(object):
@@ -90,8 +89,8 @@ class MotorMixing(object):
         print('  <define name="SCALE"       value="{}"/>'.format(scale))
         rows = ['ROLL_COEF"   ', 'PITCH_COEF"  ', 'YAW_COEF"    ']
         for i, r in enumerate(rows):
-            print('  <define name="' + r + 'value="{' + string.join([fmt(c) for c in coeffs[i]], ', ') + '}"/>')
-        print('  <define name="THRUST_COEF" value="{' + string.join([fmt(scale)] * coeffs.shape[1], ', ') + '}"/>')
+            print('  <define name="' + r + 'value="{' + ', '.join([fmt(c) for c in coeffs[i]]) + '}"/>')
+        print('  <define name="THRUST_COEF" value="{' + ', '.join([fmt(scale)] * coeffs.shape[1]) + '}"/>')
         print('</section>')
 
     def print_rotors(self, header=None):
