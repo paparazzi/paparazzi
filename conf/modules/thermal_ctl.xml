@@ -1,0 +1,44 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="thermal_ctl" dir="digital_cam" task="sensors">
+  <doc>
+    <description>
+      Control a thermal camera connected to a companion computer.
+
+      See https://github.com/enacuavlab/thermal_imav2026 for more information
+      about the integration of a MLX90640 thermal camera.
+
+      Payload is controlled via PAYLOAD_COMMAND messages.
+      Designed for IMAV2026 competition.
+    </description>
+  </doc>
+  <settings>
+  <dl_settings>
+    <dl_settings NAME="Thermal">
+        <dl_setting MIN="0" MAX="3"  STEP="1" var="thermal_ctl" values="NONE|PWR_OFF|REC|STOP_REC" header="digital_cam/thermal_ctl" handler="thermal_ctl_handler">
+          <strip_button name="PWR_OFF"  value="1" group="speed_mode"/>
+          <strip_button name="REC"      value="2" group="speed_mode"/>
+          <strip_button name="STOP_REC" value="3" group="speed_mode"/>
+        </dl_setting>
+        <dl_setting MIN="-200" MAX="200"  STEP="1" var="thermal_threshold" header="digital_cam/thermal_ctl" handler="thermal_threshold_handler"/>
+    </dl_settings>
+  </dl_settings>
+</settings>
+  <dep>
+    <depends>extra_dl</depends>
+  </dep>
+  <header>
+    <file name="thermal_ctl.h"/>
+  </header>
+  <periodic fun="thermal_cluster_periodic()" freq="1" />
+  <datalink fun="thermal_clusters_cb(buf)" message="PAYLOAD_FLOAT" class="telemetry"/>
+  <makefile target="ap">
+    <file name="thermal_ctl.c"/>
+    <test>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="EXTRA_DOWNLINK_DEVICE" value="uart1"/>
+      <define name="USE_UART0"/>
+      <define name="USE_UART1"/>
+    </test>
+  </makefile>
+</module>
