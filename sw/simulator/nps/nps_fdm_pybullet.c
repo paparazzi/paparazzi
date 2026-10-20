@@ -25,17 +25,18 @@
 #define _WIDEN(x)  L ## x
 #define WIDEN(x)   _WIDEN(x)
 
-#ifndef PYTHON_EXEC
-#define PYTHON_EXEC "python3"
-#endif
-MESSAGE("PyBullet using" VALUE(PYTHON_EXEC))
-
-#ifndef PYBULLET_GUI
-#define PYBULLET_GUI TRUE
+#ifndef NPS_PYTHON_EXEC
+#define NPS_PYTHON_EXEC "python3"
+#else
+MESSAGE("PyBullet using" VALUE(NPS_PYTHON_EXEC))
 #endif
 
-#ifdef NPS_ACTUATORS_ORDER
-  int actuators_order[ACTUATORS_NB] = NPS_ACTUATORS_ORDER;
+#ifndef NPS_PYBULLET_GUI
+#define NPS_PYBULLET_GUI TRUE
+#endif
+
+#ifdef NPS_PYBULLET_ACTUATORS_ORDER
+  int actuators_order[ACTUATORS_NB] = NPS_PYBULLET_ACTUATORS_ORDER;
 #else
   #error "[PyBullet] missing NPS_ACTUATORS_ORDER define!"
 #endif
@@ -58,7 +59,8 @@ struct NpsFdm fdm;
 // Reference point
 static struct LtpDef_d ltpdef;
 
-//rotation from pybullet to pprz
+// rotation from pybullet to pprz
+// due to ENU body_x and NED body_x having a rotatio of 90° around z
 struct DoubleQuat quat_to_pprz = {
   1/sqrt(2),
   0,
@@ -88,8 +90,6 @@ static void get_ang_acc(PyObject* pang_acc);
 
 void nps_fdm_init(double dt)
 {
-  python_init(dt);
-
   fdm.init_dt = dt; // (1 / simulation freq)
   fdm.curr_dt = dt;
   fdm.time = dt;
@@ -105,23 +105,28 @@ void nps_fdm_init(double dt)
 
   fdm.ltpprz_to_body_eulers.psi = 0.0;
   init_ltp();
+}
+
+void nps_fdm_run_init_step(void)
+{
+  python_init(fdm.init_dt);
 
   // run a first step to initialize all fdm fields
-  double dummy_commands[] = {1, 2, 3, 4};
+  double dummy_commands[] = {0., 0., 0., 0.};
   nps_fdm_run_step(false, dummy_commands, 4);
 }
 
-void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int commands_nb __attribute__((unused)))
+void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int commands_nb)
 {
   // TODO create a np.array instead ?
   PyObject* pcmd = PyList_New(commands_nb);
 
-  for(int i=0; i<commands_nb; i++) {
+  for (int i=0; i<commands_nb; i++) {
     int j = actuators_order[i];
     PyList_SetItem(pcmd, i, PyFloat_FromDouble(commands[j]));
   }
 
-  if(commands[0] < 0) {
+  if (commands[0] < 0) {
     return;
   }
 
@@ -132,11 +137,10 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   PyObject* ppos = PyDict_GetItemString(ret, "pos");
   PyObject* pvel = PyDict_GetItemString(ret, "vel");
   PyObject* pacc = PyDict_GetItemString(ret, "accel");
-  
+
   PyObject* pquat = PyDict_GetItemString(ret, "quat");
   PyObject* pang_v = PyDict_GetItemString(ret, "ang_v");
   PyObject* pang_acc = PyDict_GetItemString(ret, "ang_accel");
-  //PyObject* prpy = PyDict_GetItemString(ret, "rpy");
   py_check(true, __LINE__);
 
 
@@ -152,7 +156,7 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
 }
 
 static void get_pos(PyObject* ppos) {
-    // get position from pybullet, in ENU, in the local frame
+  // get position from pybullet, in ENU, in the local frame
   struct EnuCoor_d enu_pos;
   enu_pos.x = PyFloat_AsDouble(PyTuple_GetItem(ppos, 0));
   enu_pos.y = PyFloat_AsDouble(PyTuple_GetItem(ppos, 1));
@@ -177,7 +181,7 @@ static void get_vel(PyObject* pvel) {
 
     /***********     velocities     *************/
   /** velocity in LTP frame, wrt ECEF frame (NedCoor_d) */
-  VECT3_NED_OF_ENU(fdm.ltp_ecef_vel, enu_vel)
+  VECT3_NED_OF_ENU(fdm.ltp_ecef_vel, enu_vel);
   /** velocity in ECEF frame, wrt ECEF frame */
   ecef_of_enu_vect_d(&fdm.ecef_ecef_vel, &ltpdef, &enu_vel);
   // /** velocity in body frame, wrt ECEF frame */
@@ -195,10 +199,10 @@ static void get_acc(PyObject* pacc) {
   };
 
   /** accel in ltppprz frame, wrt ECEF frame */
-  VECT3_NED_OF_ENU(fdm.ltpprz_ecef_accel, enu_accel)
-/** acceleration in LTP frame, wrt ECEF frame */
-  VECT3_COPY(fdm.ltp_ecef_accel, fdm.ltpprz_ecef_accel)
-  
+  VECT3_NED_OF_ENU(fdm.ltpprz_ecef_accel, enu_accel);
+  /** acceleration in LTP frame, wrt ECEF frame */
+  VECT3_COPY(fdm.ltp_ecef_accel, fdm.ltpprz_ecef_accel);
+
   /** acceleration in ECEF frame, wrt ECEF frame */
   ecef_of_enu_vect_d(&fdm.ecef_ecef_accel, &ltpdef, &enu_accel);
 
@@ -206,7 +210,7 @@ static void get_acc(PyObject* pacc) {
   struct DoubleVect3 tmp = {
     fdm.ltp_ecef_accel.x,
     fdm.ltp_ecef_accel.y,
-    fdm.ltp_ecef_accel.z - 10,
+    fdm.ltp_ecef_accel.z - 9.81,
   };
   double_quat_vmult(&fdm.body_accel, &fdm.ltp_to_body_quat, &tmp);
 
@@ -215,12 +219,11 @@ static void get_acc(PyObject* pacc) {
   // /** acceleration in body frame, wrt ECI inertial frame */
   // fdm.body_inertial_accel;
 
-
 }
 
 static void get_orient(PyObject* pquat) {
-    // /* attitude */
 
+  // convert ENU to NED world frames for quaternion
   struct DoubleQuat enu_quat = {
     PyFloat_AsDouble(PyTuple_GetItem(pquat, 3)),
     PyFloat_AsDouble(PyTuple_GetItem(pquat, 1)),
@@ -228,6 +231,7 @@ static void get_orient(PyObject* pquat) {
     -PyFloat_AsDouble(PyTuple_GetItem(pquat, 2)),
   };
 
+  // extra rotation to 90° yaw rotation (due to ENU/NED body frames x axis)
   double_quat_comp(&fdm.ltpprz_to_body_quat, &enu_quat, &quat_to_pprz);
   double_eulers_of_quat(&fdm.ltpprz_to_body_eulers, &fdm.ltpprz_to_body_quat);
   QUAT_COPY(fdm.ltp_to_body_quat, fdm.ltpprz_to_body_quat);
@@ -236,34 +240,31 @@ static void get_orient(PyObject* pquat) {
 
 static void get_ang_vel(PyObject* pang_vel) {
 
+  // convert ENU to NED body frames (with x front)
+  struct DoubleVect3 body_rates = {
+    .x = PyFloat_AsDouble(PyTuple_GetItem(pang_vel, 0)),
+    .y = -PyFloat_AsDouble(PyTuple_GetItem(pang_vel, 1)),
+    .z = -PyFloat_AsDouble(PyTuple_GetItem(pang_vel, 2)),
+  };
 
-  struct DoubleVect3 sim_rates, pprz_rates;
-  sim_rates.x = PyFloat_AsDouble(PyTuple_GetItem(pang_vel, 1));
-  sim_rates.y = PyFloat_AsDouble(PyTuple_GetItem(pang_vel, 0));
-  sim_rates.z = -PyFloat_AsDouble(PyTuple_GetItem(pang_vel, 2));
-
-  double_quat_vmult(&pprz_rates, &fdm.ltp_to_body_quat, &sim_rates);
-
-  fdm.body_inertial_rotvel.p = pprz_rates.x;
-  fdm.body_inertial_rotvel.q = pprz_rates.y;
-  fdm.body_inertial_rotvel.r = pprz_rates.z;
+  fdm.body_inertial_rotvel.p = body_rates.x;
+  fdm.body_inertial_rotvel.q = body_rates.y;
+  fdm.body_inertial_rotvel.r = body_rates.z;
   fdm.body_ecef_rotvel = fdm.body_inertial_rotvel;
-
-
 }
 
 static void get_ang_acc(PyObject* pang_acc) {
 
-  struct DoubleVect3 sim_rotaccel, pprz_rotaccel;
-  sim_rotaccel.x = PyFloat_AsDouble(PyTuple_GetItem(pang_acc, 1));
-  sim_rotaccel.y = PyFloat_AsDouble(PyTuple_GetItem(pang_acc, 0));
-  sim_rotaccel.z = -PyFloat_AsDouble(PyTuple_GetItem(pang_acc, 2));
+  // convert ENU to NED body frames (with x front)
+  struct DoubleVect3 body_rotaccel = {
+    .x = PyFloat_AsDouble(PyTuple_GetItem(pang_acc, 0)),
+    .y = -PyFloat_AsDouble(PyTuple_GetItem(pang_acc, 1)),
+    .z = -PyFloat_AsDouble(PyTuple_GetItem(pang_acc, 2)),
+  };
 
-  double_quat_vmult(&pprz_rotaccel, &fdm.ltp_to_body_quat, &sim_rotaccel);
-
-  fdm.body_inertial_rotaccel.p = pprz_rotaccel.x;
-  fdm.body_inertial_rotaccel.q = pprz_rotaccel.y;
-  fdm.body_inertial_rotaccel.r = pprz_rotaccel.z;
+  fdm.body_inertial_rotaccel.p = body_rotaccel.x;
+  fdm.body_inertial_rotaccel.q = body_rotaccel.y;
+  fdm.body_inertial_rotaccel.r = body_rotaccel.z;
   fdm.body_ecef_rotaccel = fdm.body_inertial_rotaccel;
 }
 
@@ -288,7 +289,6 @@ static void init_ltp(void)
   ltp_def_from_ecef_d(&ltpdef, &ecef_nav0);
   fdm.ecef_pos = ecef_nav0;
 
-
 // TODO vérifier tout ça
   fdm.ltp_g.x = 0.;
   fdm.ltp_g.y = 0.;
@@ -300,9 +300,9 @@ static void init_ltp(void)
   fdm.ltp_h.z = AHRS_H_Z;
   PRINT_CONFIG_MSG("Using magnetic field as defined in airframe file.")
 #else
-  fdm.ltp_h.x = 0.4912;
-  fdm.ltp_h.y = 0.1225;
-  fdm.ltp_h.z = 0.8624;
+  fdm.ltp_h.x = 1.;
+  fdm.ltp_h.y = 0.;
+  fdm.ltp_h.z = 0.;
 #endif
 
 }
@@ -340,7 +340,7 @@ static void python_init(double dt) {
   config.configure_c_stdio = 1;
   config.buffered_stdio = 0;
 
-  status = PyConfig_SetString(&config, &config.program_name, WIDEN(PYTHON_EXEC));
+  status = PyConfig_SetString(&config, &config.program_name, WIDEN(NPS_PYTHON_EXEC));
   py_check_status(&config, &status);
   status = Py_InitializeFromConfig(&config);
   py_check_status(&config, &status);
@@ -356,11 +356,11 @@ static void python_init(double dt) {
 
   PyObject* bullet_fdm_class = PyObject_GetAttrString(fdm_module, "BulletFDM");
   py_check(true, __LINE__);
-  
+
   PyObject* fdm_ctor_args = Py_BuildValue("(d)", dt);
-  PyObject* fdm_ctor_kwargs = Py_BuildValue("{siss}", "GUI", PYBULLET_GUI, "urdf", NPS_PYBULLET_URDF);
+  PyObject* fdm_ctor_kwargs = Py_BuildValue("{siss}", "GUI", NPS_PYBULLET_GUI, "urdf", NPS_PYBULLET_URDF);
   bullet_fdm = PyObject_Call(bullet_fdm_class, fdm_ctor_args, fdm_ctor_kwargs);
-  
+
   py_check(true, __LINE__);
   Py_DECREF(fdm_ctor_args);
   Py_DECREF(bullet_fdm_class);

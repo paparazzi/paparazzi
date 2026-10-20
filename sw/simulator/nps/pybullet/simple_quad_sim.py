@@ -24,6 +24,7 @@ class BulletFDM():
             self.physicsClient = p.connect(p.GUI)
         else:
             self.physicsClient = p.connect(p.DIRECT)
+        p.configureDebugVisualizer(p.COV_ENABLE_GUI,0) # remove useless graphical elements from GUI
 
         # Add path for pybullet assests e.g : plane and grid...
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -138,7 +139,6 @@ class BulletFDM():
     def get_observation(self):
         # Get observation
         v_pos, v_quat = p.getBasePositionAndOrientation(self.vehicle)
-        # print(v_Pos, type(v_Pos))
         v_rpy = p.getEulerFromQuaternion(v_quat)
         v_vel, v_ang_v = p.getBaseVelocity(self.vehicle)
 
@@ -146,14 +146,17 @@ class BulletFDM():
         self.vel = np.array(v_vel)
         self.ang_accel = (np.array(v_ang_v) - self.ang_vel)/self.dt
         self.ang_vel = np.array(v_ang_v)
+        R = np.array(p.getMatrixFromQuaternion(v_quat)).reshape(3, 3)
+        body_ang_vel = R.T.dot(self.ang_vel)
+        body_ang_accel = R.T.dot(self.ang_accel)
 
         self.observation = {'pos':v_pos,
                             'quat':v_quat,
                             'rpy':v_rpy,
                             'vel':tuple(self.vel),
-                            'ang_v':tuple(self.ang_vel),
+                            'ang_v':tuple(body_ang_vel),
                             'accel':tuple(self.accel),
-                            'ang_accel':tuple(self.ang_accel)
+                            'ang_accel':tuple(body_ang_accel)
         }
         return self.observation
 
