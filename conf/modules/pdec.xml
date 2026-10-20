@@ -16,7 +16,7 @@
   <init fun="pdec_init()"/>
   <periodic fun="pdec_periodic_report()" freq="10" autorun="FALSE"/>
   <event fun="pdec_event()"/>
-  <makefile>
+  <makefile target="ap">
     <configure name="PDEC_UART" default="UART3" case="upper|lower"/>
     <define name="$(PDEC_UART_UPPER)_BAUD" value="B115200"/>
     <define name="PDEC_UART_DEV" value="$(PDEC_UART_LOWER)"/>
