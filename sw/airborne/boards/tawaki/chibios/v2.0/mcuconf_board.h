@@ -234,7 +234,7 @@
 #define STM32_ADC_DUAL_MODE                 FALSE
 #define STM32_ADC_SAMPLES_SIZE              16
 #define STM32_ADC_USE_ADC12                 TRUE
-#define STM32_ADC_USE_ADC3                  TRUE
+#define STM32_ADC_USE_ADC3                  FALSE
 #define STM32_ADC_ADC12_DMA_STREAM          STM32_DMA_STREAM_ID_ANY
 #define STM32_ADC_ADC3_DMA_STREAM           STM32_DMA_STREAM_ID_ANY
 #define STM32_ADC_ADC3_USE_BDMA             TRUE
@@ -428,9 +428,9 @@
 #define STM32_SERIAL_USE_USART3             FALSE
 #endif
 #if USE_UART4
-#define STM32_SERIAL_USE_USART4             TRUE
+#define STM32_SERIAL_USE_UART4             TRUE
 #else
-#define STM32_SERIAL_USE_USART4             FALSE
+#define STM32_SERIAL_USE_UART4             FALSE
 #endif
 #define STM32_SERIAL_USE_UART5              FALSE
 #define STM32_SERIAL_USE_USART6             FALSE

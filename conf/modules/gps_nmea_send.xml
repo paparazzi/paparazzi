@@ -17,7 +17,7 @@
     <file name="gps_nmea_send.h"/>
   </header>
   <init fun="gps_nmea_send_init()"/>
-  <periodic fun="gps_nmea_send_periodic()" freq="5" autorun="TRUE"/>
+  <periodic fun="gps_nmea_send_periodic()" freq="10" autorun="TRUE"/>
   <makefile target="ap">
     <configure name="NMEA_SEND_UART" default="uart3" case="upper|lower"/>
     <configure name="NMEA_SEND_BAUD" default="B115200"/>
