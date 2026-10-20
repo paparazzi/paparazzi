@@ -61,12 +61,12 @@ void wing_rotation_adc_init(void)
 {
   // ADC init
   adc_buf_channel(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION, &buf_wing_rot_pos,
-                  ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_NB_SAMPLES);    
+                  ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_NB_SAMPLES);
 }
 
 void wing_rotation_adc_to_deg(void)
 {
-  float adc_wing_rotation = buf_wing_rot_pos.sum / buf_wing_rot_pos.av_nb_sample;
+  float adc_wing_rotation = (float)adc_buf_get(&buf_wing_rot_pos);
   float wing_angle_deg = adc_scale * adc_wing_rotation + adc_offset;
 
   // SEND ABI Message to ctr_eff_sched and other modules that want Actuator position feedback

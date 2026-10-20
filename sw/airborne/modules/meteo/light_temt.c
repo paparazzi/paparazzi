@@ -55,7 +55,7 @@ void light_temt_periodic(void)
 {
   float f_light_temt;
 
-  adc_light_temt = buf_light_temt.sum / buf_light_temt.av_nb_sample;
+  adc_light_temt = adc_buf_get(&buf_light_temt);
 
   /* 3.6k/6.8k voltage divider, 10 bits adc */
   f_light_temt = (adc_light_temt / 1024.) * 100.;

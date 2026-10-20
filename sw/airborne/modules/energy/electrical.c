@@ -170,22 +170,20 @@ void electrical_periodic(void)
   static bool vsupply_check_started = false;
 
 #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL) && !USE_BATTERY_MONITOR
-  electrical.vsupply = VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum /
-                                          electrical_priv.vsupply_adc_buf.av_nb_sample));
+  electrical.vsupply = VoltageOfAdc((adc_buf_get(&electrical_priv.vsupply_adc_buf)));
 #endif
 
 #if defined(ADC_CHANNEL_VBOARD) && !defined(SITL)
-  electrical.vboard = VBoardOfAdc((electrical_priv.vboard_adc_buf.sum /
-                                         electrical_priv.vboard_adc_buf.av_nb_sample));
+  electrical.vboard = VBoardOfAdc((adc_buf_get(&electrical_priv.vboard_adc_buf)));
 #endif
 
 #ifdef ADC_CHANNEL_CURRENT
 #ifndef SITL
-  int32_t current_adc = electrical_priv.current_adc_buf.sum / electrical_priv.current_adc_buf.av_nb_sample;
+  int32_t current_adc = adc_buf_get(&electrical_priv.current_adc_buf);
   electrical.current = MilliAmpereOfAdc(current_adc) / 1000.f;
 
 #ifdef ADC_CHANNEL_CURRENT2
-  current_adc = electrical_priv.current2_adc_buf.sum / electrical_priv.current2_adc_buf.av_nb_sample;
+  current_adc = adc_buf_get(&electrical_priv.current2_adc_buf);
   electrical.current += MilliAmpereOfAdc2(current_adc) / 1000.f;
 #endif
 #endif

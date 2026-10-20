@@ -63,7 +63,7 @@ void humid_hih_periodic(void)
   fhih_temp = ftempsht;
   /****************************************/
 
-  adc_humid_hih = buf_humid_hih.sum / buf_humid_hih.av_nb_sample;
+  adc_humid_hih = adc_buf_get(&buf_humid_hih);
 
   /* 36k/68k voltage divider, 3.3V full sweep, 10 bits adc */
   fvout = (adc_humid_hih / 1024.) * 3.3 * (104. / 68.);
