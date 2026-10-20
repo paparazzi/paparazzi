@@ -139,6 +139,11 @@ void nps_fdm_init(double dt)
 }
 
 
+void nps_fdm_run_init_step(void)
+{
+  // nothing to do
+}
+
 /** Minimum complexity flight dynamic model
  *  In legacy Paparazzi simulator, was implemented in OCaml
  *  and correspond to the 'sim' target

@@ -214,6 +214,11 @@ void nps_fdm_init(double dt)
 
 }
 
+void nps_fdm_run_init_step(void)
+{
+  // nothing to do
+}
+
 void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int commands_nb)
 {
 
