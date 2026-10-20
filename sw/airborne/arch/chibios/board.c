@@ -316,6 +316,9 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp)
  */
 void boardInit(void)
 {
+#if defined(BOARD_SYSCFG_PMCR_CLEAR)
+  SYSCFG->PMCR &= ~BOARD_SYSCFG_PMCR_CLEAR;
+#endif
 #if defined(AFIO_MAPR_VAL)
   AFIO->MAPR |= AFIO_MAPR_VAL;
 #endif
