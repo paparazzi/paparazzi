@@ -1,6 +1,14 @@
 #ifndef CONFIG_PC_SIM_H
 #define CONFIG_PC_SIM_H
 
+#define ADC_1 1
+#define ADC_2 2
+#define ADC_3 3
+#define ADC_4 4
+#define ADC_5 5
+#define ADC_6 6
+#define ADC_7 7
+#define ADC_8 8
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "modules/actuators/actuators_pwm.h"
