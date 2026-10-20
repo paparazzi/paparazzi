@@ -147,8 +147,7 @@ void sonar_adc_periodic(void)
 #ifndef SITL
 
   // Here the spot where the sonar ADC value is read
-  sonar_adc.raw = (sonar_adc_buf.sum / sonar_adc_buf.av_nb_sample) -
-                  SONAR_ADC_RAW_OFFSET; // Get the average value from the ADC buffer and apply the offset to it
+  sonar_adc.raw = adc_buf_get(&sonar_adc_buf) - SONAR_ADC_RAW_OFFSET; // Get the average value from the ADC buffer and apply the offset to it
 
   // Time of when measurement was taken, not when ABI message was send, to be as close as possible to real measurement time data
   uint32_t now_ts = get_sys_time_usec();

@@ -150,10 +150,10 @@ void temp_adc_init(void)
 
 void temp_adc_periodic(void)
 {
-  uint16_t adc_raw;
+  uint16_t gdc_raw;
 
 #ifdef TEMP_ADC_CHANNEL1
-  adc_raw = temp_buf1.sum / temp_buf1.av_nb_sample;
+  adc_raw = adc_buf_get(&temp_buf1);
 #if TEMP_ADC_CHANNEL1_TYPE == LM35
   temp_c1 = calc_lm35(adc_raw);
 #elif TEMP_ADC_CHANNEL1_TYPE == NTC
@@ -163,7 +163,7 @@ void temp_adc_periodic(void)
 #endif
 
 #ifdef TEMP_ADC_CHANNEL2
-  adc_raw = temp_buf2.sum / temp_buf2.av_nb_sample;
+  adc_raw = adc_buf_get(&temp_buf2);
 #if TEMP_ADC_CHANNEL2_TYPE == LM35
   temp_c2 = calc_lm35(adc_raw);
 #elif TEMP_ADC_CHANNEL2_TYPE == NTC
@@ -173,7 +173,7 @@ void temp_adc_periodic(void)
 #endif
 
 #ifdef TEMP_ADC_CHANNEL3
-  adc_raw = temp_buf3.sum / temp_buf3.av_nb_sample;
+  adc_raw = adc_buf_get(&temp_buf3);
 #if TEMP_ADC_CHANNEL3_TYPE == LM35
   temp_c3 = calc_lm35(adc_raw);
 #elif TEMP_ADC_CHANNEL3_TYPE == NTC
