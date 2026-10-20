@@ -28,8 +28,10 @@
 #include "modules/core/settings.h"
 #include "generated/settings.h"
 #include "generated/airframe.h"
+#if FLIGHTRECORDER_SDLOG
 #include "modules/loggers/flight_recorder.h"
 #include "modules/loggers/pprzlog_tp.h"
+#endif
 #include "pprzlink/messages.h"
 #include "pprzlink/dl_protocol.h"
 
