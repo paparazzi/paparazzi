@@ -467,12 +467,15 @@ bool nav_survey_hybrid_run(void)
         LastPoint = survey_private.to_wp;
 
 #ifdef DIGITAL_CAM
-        float line_length = fabsf((fabsf(survey_private.segment_from.x) - fabsf(survey_private.segment_to.x)));
-        double inteiro;
-        double fract = modf(line_length / dc_distance_interval, &inteiro);
-        if (fract > .5) {
-          //if last shot is more than shot_distance/2 from the corner then take a picture in the corner before go to the next sweep
-          dc_send_command(DC_SHOOT);
+        // if last shot is more than shot_distance/2 from the corner and in survey autoshoot mode,
+        // then take a picture in the corner before go to the next sweep
+        if (dc_autoshoot == DC_AUTOSHOOT_SURVEY) {
+          float line_length = fabsf((fabsf(survey_private.segment_from.x) - fabsf(survey_private.segment_to.x)));
+          double inteiro;
+          double fract = modf(line_length / dc_distance_interval, &inteiro);
+          if (fract > .5) {
+            dc_send_command(DC_SHOOT);
+          }
         }
 #endif
 
