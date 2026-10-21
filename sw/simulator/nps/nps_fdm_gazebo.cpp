@@ -224,6 +224,11 @@ inline struct DoubleVect3 to_pprz_ltp(ignition::math::Vector3d xyz)
 
 // External functions, interface with Paparazzi's NPS as declared in nps_fdm.h
 
+void nps_fdm_run_init_step(void)
+{
+  // nothing to do
+}
+
 /**
  * Initialize actuator dynamics, set unused fields in fdm
  * @param dt
