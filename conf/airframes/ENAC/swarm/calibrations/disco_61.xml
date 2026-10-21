@@ -1,0 +1,35 @@
+<!DOCTYPE airframe SYSTEM "../../../airframe.dtd">
+
+<airframe>
+  <servos>
+    <servo name="MOTOR" no="0" min="1000" neutral="1000" max="12500"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1900" neutral="1396" max="1100"/>
+    <servo name="AILEVON_LEFT" no="1" min="1100" neutral="1548" max="1900"/>
+  </servos>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="ACCEL_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="1"/>
+        <field name="calibrated" type="struct">
+          <field name="neutral" value="true"/>
+          <field name="scale_f" value="true"/>
+        </field>
+        <field name="neutral" value="-193,12,-296" type="int[]"/>
+        <field name="scale_f" value="{ 2.4430, 2.4542, 2.4194 }"/>
+      </field>
+    </define>
+    <define name="MAG_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="1"/>
+        <field name="calibrated" type="struct">
+          <field name="neutral" value="true"/>
+          <field name="scale_f" value="true"/>
+        </field>
+        <field name="neutral" value="-164,-244,-590" type="int[]"/>
+        <field name="scale_f" value="{ 7.762686, 7.537779, 8.130335 }"/>
+      </field>
+    </define>
+  </section>
+</airframe>
+
