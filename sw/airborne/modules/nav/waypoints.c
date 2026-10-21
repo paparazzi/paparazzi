@@ -28,8 +28,31 @@
 #include "modules/datalink/downlink.h"
 #include "generated/flight_plan.h"
 
+#if FLIGHTRECORDER_SDLOG
+#include "modules/loggers/flight_recorder.h"
+#include "modules/loggers/pprzlog_tp.h"
+#endif
+
 const uint8_t nb_waypoint = NB_WAYPOINT;
 struct Waypoint waypoints[NB_WAYPOINT];
+
+static void waypoint_send_moved_enu(uint8_t wp_id, const int32_t *x, const int32_t *y, const int32_t *z)
+{
+  DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, x, y, z);
+#if FLIGHTRECORDER_SDLOG
+  pprz_msg_send_WP_MOVED_ENU(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID,
+                            &wp_id, x, y, z);
+#endif
+}
+
+static void waypoint_send_moved_lla(uint8_t wp_id, const int32_t *lat, const int32_t *lon, const int32_t *hmsl)
+{
+  DOWNLINK_SEND_WP_MOVED_LLA(DefaultChannel, DefaultDevice, &wp_id, lat, lon, hmsl);
+#if FLIGHTRECORDER_SDLOG
+  pprz_msg_send_WP_MOVED_LLA(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID,
+                            &wp_id, lat, lon, hmsl);
+#endif
+}
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -194,7 +217,7 @@ void waypoint_move_enu_i(uint8_t wp_id, struct EnuCoor_i *new_pos)
 {
   if (wp_id < nb_waypoint) {
     waypoint_set_enu_i(wp_id, new_pos);
-    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(new_pos->x),
+    waypoint_send_moved_enu(wp_id, &(new_pos->x),
                                &(new_pos->y), &(new_pos->z));
   }
 }
@@ -219,7 +242,7 @@ void waypoint_move_xy_i(uint8_t wp_id, int32_t x, int32_t y)
 {
   if (wp_id < nb_waypoint) {
     waypoint_set_xy_i(wp_id, x, y);
-    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &x, &y,
+    waypoint_send_moved_enu(wp_id, &x, &y,
         &(waypoints[wp_id].enu_i.z));
   }
 }
@@ -263,10 +286,10 @@ void waypoint_move_lla(uint8_t wp_id, struct LlaCoor_i *lla)
   if (waypoint_is_global(wp_id)) {
     /* lla->alt is above ellipsoid, WP_MOVED_LLA has hmsl alt */
     int32_t hmsl = lla->alt - stateGetLlaOrigin_i().alt + stateGetHmslOrigin_i();
-    DOWNLINK_SEND_WP_MOVED_LLA(DefaultChannel, DefaultDevice, &wp_id,
+    waypoint_send_moved_lla(wp_id,
                                &lla->lat, &lla->lon, &hmsl);
   } else {
-    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
+    waypoint_send_moved_enu(wp_id,
                                &waypoints[wp_id].enu_i.x,
                                &waypoints[wp_id].enu_i.y,
                                &waypoints[wp_id].enu_i.z);
@@ -320,10 +343,10 @@ void waypoint_move_here_2d(uint8_t wp_id)
     /* lla->alt is above ellipsoid, WP_MOVED_LLA has hmsl alt */
     struct LlaCoor_i *lla = &(waypoints[wp_id].lla);
     int32_t hmsl = lla->alt - stateGetLlaOrigin_i().alt + stateGetHmslOrigin_i();
-    DOWNLINK_SEND_WP_MOVED_LLA(DefaultChannel, DefaultDevice, &wp_id,
+    waypoint_send_moved_lla(wp_id,
                                &lla->lat, &lla->lon, &hmsl);
   } else {
-    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
+    waypoint_send_moved_enu(wp_id,
                                    &waypoints[wp_id].enu_i.x,
                                    &waypoints[wp_id].enu_i.y,
                                    &waypoints[wp_id].enu_i.z);
