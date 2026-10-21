@@ -1,0 +1,29 @@
+<!DOCTYPE airframe SYSTEM "../../../airframe.dtd">
+
+<airframe>
+  <section name="IMU" prefix="IMU_">
+    <define name="ACCEL_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="1"/>
+        <field name="calibrated" type="struct">
+          <field name="neutral" value="true"/>
+          <field name="scale_f" value="true"/>
+        </field>
+        <field name="neutral" value="96,20,219" type="int[]"/>
+        <field name="scale_f" value="{ 2.4395, 2.4643, 2.4206 }"/>
+      </field>
+    </define>
+    <define name="MAG_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="1"/>
+        <field name="calibrated" type="struct">
+          <field name="neutral" value="true"/>
+          <field name="scale_f" value="true"/>
+        </field>
+        <field name="neutral" value="-7,122,90" type="int[]"/>
+        <field name="scale_f" value="{ 7.1811, 7.2994, 7.2890 }"/>
+      </field>
+    </define>
+  </section>
+</airframe>
+
