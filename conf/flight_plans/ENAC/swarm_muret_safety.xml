@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<flight_plan alt="190" ground_alt="185" lat0="43.4625474" lon0="1.2732371" max_dist_from_home="150" name="Muret safety" security_height="1" wp_frame="ltp">
+  <header>
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="-11.596" y="6.168"/>
+    <waypoint name="TD" x="-5.782" y="2.583"/>
+    <waypoint name="p1" x="-35.971" y="34.283"/>
+    <waypoint name="p2" x="-26.586" y="30.028"/>
+    <waypoint name="p3" x="-17.077" y="24.965"/>
+    <waypoint name="p4" x="-8.784" y="20.876"/>
+    <waypoint name="p5" x="0.7" y="17.322"/>
+    <waypoint name="p6" x="9.776" y="12.908"/>
+    <waypoint name="p7" x="19.039" y="9.472"/>
+    <waypoint name="p8" x="28.28" y="4.954"/>
+    <waypoint name="p9" x="36.67" y="1.319"/>
+    <waypoint name="p10" x="46.128" y="-3.203"/>
+    <waypoint name="_FLY1" x="-20.813" y="102.774"/>
+    <waypoint name="_FLY2" x="78.797" y="60.272"/>
+    <waypoint name="_FLY3" x="48.515" y="-45.771"/>
+    <waypoint name="_FLY4" x="-57.668" y="5.369"/>
+    <waypoint name="_KILL1" x="-25.083" y="113.34"/>
+    <waypoint name="_KILL2" x="89.222" y="66.313"/>
+    <waypoint name="_KILL3" x="52.903" y="-57.12"/>
+    <waypoint name="_KILL4" x="-68.966" y="-3.388"/>
+  </waypoints>
+  <sectors>
+    <sector color="lime" name="Flight_Area">
+      <corner name="_FLY1"/>
+      <corner name="_FLY2"/>
+      <corner name="_FLY3"/>
+      <corner name="_FLY4"/>
+    </sector>
+    <sector color="red" name="Kill">
+      <corner name="_KILL1"/>
+      <corner name="_KILL2"/>
+      <corner name="_KILL3"/>
+      <corner name="_KILL4"/>
+    </sector>
+  </sectors>
+  <modules>
+    <module name="nav_fish"/>
+  </modules>
+  <exceptions>
+    <exception cond="(!InsideFlight_Area(GetPosX(), GetPosY()) @OR (GetPosAlt() @GT GetAltRef() + 50)) @AND (nav_block @GEQ IndexOfBlock('Takeoff')) @AND (nav_block @LT IndexOfBlock('Flare'))" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <!--while cond="LessThan(NavBlockTime(), 10)"/-->
+      <!--call_once fun="NavSetGroundReferenceHere()"/-->
+      <!--<call_once fun="NavSetAltitudeReferenceHere()"/>-->
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="GetPosHeight() @GT 1.5" deroute="Standby"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time @GT 2"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="STDBY"/>
+    </block>
+    <block name="Standby" pre_call="if(!InsideKill(GetPosX(), GetPosY())) NavKillThrottle();" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Stay P1">
+      <stay wp="p1"/>
+    </block>
+    <block name="Stay P2">
+      <stay wp="p2"/>
+    </block>
+    <block name="Stay P3">
+      <stay wp="p3"/>
+    </block>
+    <block name="Stay P4">
+      <stay wp="p4"/>
+    </block>
+    <block name="Stay P5">
+      <stay wp="p5"/>
+    </block>
+    <block name="Stay P6">
+      <stay wp="p6"/>
+    </block>
+    <block name="Stay P7">
+      <stay wp="p7"/>
+    </block>
+    <block name="Stay P8">
+      <stay wp="p8"/>
+    </block>
+    <block name="Stay P9">
+      <stay wp="p9"/>
+    </block>
+    <block name="Stay P10">
+      <stay wp="p10"/>
+    </block>
+    <block group="fish" name="Nav Fish" strip_button="Fish" on_enter="autopilot_set_mode(AP_MODE_GUIDED)" on_exit="autopilot_set_mode(AP_MODE_NAV)">
+      <call fun="nav_fish_velocity_run()"/>
+    </block>
+    <block name="Land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="Land">
+      <go wp="TD"/>
+    </block>
+    <block name="Flare">
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <call_once fun="NavStartDetectGround()"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Kill landed">
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>

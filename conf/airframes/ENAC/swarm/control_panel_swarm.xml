@@ -1,0 +1,117 @@
+<control_panel name="paparazzi control panel">
+  <section name="sessions">
+    <session name="Simu 3 Bebop">
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_10"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_11"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_12"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_broadcast"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="PprzGCS"/>
+      <program name="PprzLink Proxy">
+        <arg flag="--ac" constant="10:4262:4263"/>
+        <arg flag="--ac" constant="11:4264:4265"/>
+        <arg flag="--ac" constant="12:4266:4267"/>
+      </program>
+    </session>
+    <session name="Simu 10 Bebop">
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_10"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_11"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_12"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_13"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_14"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_15"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_16"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_17"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_18"/>
+      </program>
+      <program name="Simulator">
+        <arg flag="-a" constant="BEBOP2_19"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_broadcast"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="PprzGCS"/>
+      <program name="PprzLink Proxy">
+        <arg flag="--ac" constant="10:4262:4263"/>
+        <arg flag="--ac" constant="11:4264:4265"/>
+        <arg flag="--ac" constant="12:4266:4267"/>
+        <arg flag="--ac" constant="13:4268:4269"/>
+        <arg flag="--ac" constant="14:4270:4271"/>
+        <arg flag="--ac" constant="15:4272:4273"/>
+        <arg flag="--ac" constant="16:4274:4275"/>
+        <arg flag="--ac" constant="17:4276:4277"/>
+        <arg flag="--ac" constant="18:4278:4279"/>
+        <arg flag="--ac" constant="19:4280:4281"/>
+      </program>
+    </session>
+    <session name="Flight: Swarm">
+      <program name="Server"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-noac_info"/>
+      </program>
+      <program name="PprzGCS"/>
+      <program name="rtcm2ivy">
+        <arg flag=""/>
+      </program>
+    </session>
+    <session name="Test: Swarm">
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-noac_info"/>
+      </program>
+      <program name="PprzGCS"/>
+    </session>
+    <session name="Flight: UDP">
+      <program name="Server"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="PprzGCS"/>
+    </session>
+    <session name="Test: UDP">
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="PprzGCS"/>
+    </session>
+  </section>
+</control_panel>
