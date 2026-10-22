@@ -10,10 +10,26 @@
        - predict attitude and path with gyroscopes and accelerometers
        - correct attitude and path with external pose and position message
        - estimate gyro and accelerometer biases
+       - drop delayed poses using the capture time in the EXTERNAL_POSE timestamp field (ms)
+       - drop poses whose attitude innovation is too large (reset after repeated rejections)
        
       Bypassed when simulating.
     </description>
+    <define name="INS_EXT_POSE_MAX_AGE" value="30." description="maximum pose age above the lowest receive delay [ms], 0 to disable"/>
+    <define name="INS_EXT_POSE_GATE_PSI" value="RadOfDeg(40.)" description="heading innovation gate [rad], 0 to disable"/>
+    <define name="INS_EXT_POSE_GATE_TILT" value="RadOfDeg(15.)" description="roll/pitch innovation gate [rad], 0 to disable"/>
+    <define name="INS_EXT_POSE_GATE_RESET_NB" value="10" description="consecutive gated poses before resetting the filter on the pose"/>
+    <define name="INS_EXT_POSE_TIMEOUT" value="0.5" description="time without fused pose before the filter status is reported lost [s]"/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="ins_ext_pose">
+        <dl_setting var="ins_ext_pose_max_age" min="0" step="1" max="200" shortname="max_age" unit="ms"/>
+        <dl_setting var="ins_ext_pose_gate_psi" min="0" step="0.0175" max="3.15" shortname="gate_psi" unit="rad" alt_unit="deg"/>
+        <dl_setting var="ins_ext_pose_gate_tilt" min="0" step="0.0175" max="1.58" shortname="gate_tilt" unit="rad" alt_unit="deg"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <dep>
     <depends>@gps,@datalink,@imu</depends>
     <provides>ahrs,ins</provides>
