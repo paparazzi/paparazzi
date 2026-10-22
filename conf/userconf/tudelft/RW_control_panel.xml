@@ -54,6 +54,9 @@
       <arg flag="-fbw" variable="fbw_serial_port"/>
       <arg flag="-ap" variable="ap_serial_port"/>
     </program>
+    <program name="Herelink Check" command="sw/misc/link/herelink_check.sh"/>
+    <program name="Herelink USB" command="sw/misc/link/herelink_usb.sh"/>
+    <program name="Herelink WiFi" command="sw/misc/link/herelink_wifi.sh"/>
   </section>
   <section name="sessions">
     <session name="Accelo only Debug Graphs">
@@ -794,6 +797,7 @@
       <program name="Data Link">
         <arg flag="-udp"/>
       </program>
+      <program name="Herelink USB"/>
       <program name="NatNet3">
         <arg flag="--long_edge" constant="right"/>
         <arg flag="--x_side" constant="right"/>
@@ -1226,6 +1230,31 @@
         <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_E_ref"/>
         <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_E"/>
       </program>
+    </session>
+    <session name="PlusQuad_nB_optitrack_v2">
+      <program name="PprzGCS"/>
+      <program name="Server">
+        <arg flag=""/>
+      </program>
+      <program name="Messages"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-t" constant="POS_N"/>
+        <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_N_ref"/>
+        <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_N"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-t" constant="POS_E"/>
+        <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_E_ref"/>
+        <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_E"/>
+      </program>
+      <program name="Herelink USB"/>
     </session>
     <session name="RW25">
       <program name="Data Link">
@@ -1674,30 +1703,6 @@
         <arg flag="-g" constant="1050x300+0+1000"/>
       </program>
       <program name="RotWingStatus"/>
-    </session>
-    <session name="PlusQuad_nB_optitrack_v2">
-      <program name="PprzGCS"/>
-      <program name="Server">
-        <arg flag=""/>
-      </program>
-      <program name="Messages"/>
-      <program name="Data Link">
-        <arg flag="-udp"/>
-      </program>
-      <program name="Real-time Plotter">
-        <arg flag="-m" constant="1000"/>
-        <arg flag="-u" constant="0.05"/>
-        <arg flag="-t" constant="POS_N"/>
-        <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_N_ref"/>
-        <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_N"/>
-      </program>
-      <program name="Real-time Plotter">
-        <arg flag="-m" constant="1000"/>
-        <arg flag="-u" constant="0.05"/>
-        <arg flag="-t" constant="POS_E"/>
-        <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_E_ref"/>
-        <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_E"/>
-      </program>
     </session>
   </section>
 </control_panel>
