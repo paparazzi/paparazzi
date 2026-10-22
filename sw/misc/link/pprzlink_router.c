@@ -27,6 +27,7 @@
 ./pprzlink_router_cc -e udp://192.168.0.11:5242:192.168.0.10:5243 -e udp://0.0.0.0:4243:192.168.43.255:4242
  */
 
+#define _GNU_SOURCE
 #include <stdio.h>  
 #include <unistd.h>
 #include <getopt.h>
@@ -39,9 +40,23 @@
 #include <string.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <sched.h>
+#include <sys/resource.h>
+#include <sys/syscall.h>
 
 #define UDP_BUFFER_SIZE   1024
 #define MAX_ENDPOINTS     32
+#define PPRZ_STX          0x99
+
+/* Parser for pprzlink v2 frames: STX, LEN (whole frame), payload, CK_A, CK_B */
+struct pprz_parser_t {
+  uint8_t status;
+  uint8_t len;
+  uint8_t idx;
+  uint8_t ck_a;
+  uint8_t ck_b;
+  uint8_t frame[256];
+};
 
 struct endpoint_udp_t {
   char server_addr[128];
@@ -51,6 +66,7 @@ struct endpoint_udp_t {
 
   int fd;
   pthread_t thread;
+  struct pprz_parser_t parser;
 };
 
 struct endpoint_uart_t {
@@ -59,6 +75,7 @@ struct endpoint_uart_t {
 
   int fd;
   pthread_t thread;
+  struct pprz_parser_t parser;
 };
 
 enum endpoint_type_t {
@@ -76,9 +93,13 @@ struct endpoint_t {
 };
 
 static bool verbose = false;
+static bool keep_awake = true;
+static bool pprz_frames = false;
 static struct endpoint_t endpoints[MAX_ENDPOINTS];
+static pthread_mutex_t send_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void packet_handler(void *ep, uint8_t *data, uint16_t len);
+void input_handler(void *ep, struct pprz_parser_t *parser, uint8_t *data, uint16_t len);
 
 /**
  * Create an UDP endpoint thread
@@ -123,7 +144,7 @@ void *udp_endpoint(void *arg) {
     if(verbose) printf("Got packet at endpoint [%s:%d] with length %d\r\n", ep->server_addr, ep->server_port, n);
     
     // Send the message to the handler
-    packet_handler(ep, buffer, n);
+    input_handler(ep, &ep->parser, buffer, n);
   }
 }
 
@@ -301,7 +322,7 @@ void *uart_endpoint(void *arg) {
       if(verbose) printf("Got packet at endpoint [%s:%d] with length %d\r\n", ep->devname, ep->baudrate, len);
     
       // Send the message to the handler
-      packet_handler(ep, buffer, len);
+      input_handler(ep, &ep->parser, buffer, len);
     }
   }
 }
@@ -347,9 +368,103 @@ void uart_create(char *devname, uint32_t baudrate) {
 }
 
 /**
+ * Keep the CPU awake
+ * The Herelink ground unit holds the forwarding for ~35 ms once per second when its CPU is idle.
+ * A busy thread at the lowest priority avoids this without delaying the other threads; letting it
+ * sleep part of the time (even 50%) does not help. It runs on CPU 0, a low power core on the Herelink.
+ */
+void *keep_awake_thread(void *arg __attribute__((unused))) {
+  pid_t tid = syscall(SYS_gettid);
+  setpriority(PRIO_PROCESS, tid, 19);
+
+  cpu_set_t cpus;
+  CPU_ZERO(&cpus);
+  CPU_SET(0, &cpus);
+  sched_setaffinity(tid, sizeof(cpus), &cpus);
+
+  volatile uint32_t counter = 0;
+  while(true) {
+    counter++;
+  }
+  return NULL;
+}
+
+/**
+ * Parse one byte of a pprzlink v2 frame and forward the frame when it is complete and valid.
+ * After a bad length or checksum the bytes after the STX are parsed again, so a valid frame that
+ * starts inside a broken one is not lost.
+ */
+static void pprz_parse(void *ep, struct pprz_parser_t *p, uint8_t c) {
+  switch(p->status) {
+    case 0: // Wait for STX
+      if(c == PPRZ_STX) {
+        p->frame[0] = c;
+        p->idx = 1;
+        p->status = 1;
+      }
+      return;
+    case 1: // Length of the whole frame
+      p->frame[p->idx++] = c;
+      if(c < 4)
+        break;
+      p->len = c;
+      p->ck_a = p->ck_b = c;
+      p->status = (c > 4) ? 2 : 3;
+      return;
+    case 2: // Payload
+      p->frame[p->idx++] = c;
+      p->ck_a += c;
+      p->ck_b += p->ck_a;
+      if(p->idx == p->len - 2)
+        p->status = 3;
+      return;
+    case 3: // Checksum A
+      p->frame[p->idx++] = c;
+      if(c != p->ck_a)
+        break;
+      p->status = 4;
+      return;
+    case 4: // Checksum B
+      p->frame[p->idx++] = c;
+      if(c != p->ck_b)
+        break;
+      packet_handler(ep, p->frame, p->len);
+      p->status = 0;
+      return;
+    default:
+      p->status = 0;
+      return;
+  }
+
+  // Invalid frame: parse the bytes after its STX again
+  if(verbose) printf("Dropped invalid frame of %d bytes\r\n", p->idx);
+  uint8_t retry[256];
+  uint8_t n = p->idx - 1;
+  memcpy(retry, &p->frame[1], n);
+  p->status = 0;
+  for(uint8_t i = 0; i < n; ++i)
+    pprz_parse(ep, p, retry[i]);
+}
+
+/**
+ * Handle received bytes: forward them as they are, or with --pprz only complete frames with a
+ * valid checksum, one frame at a time (so frames from different endpoints are never mixed)
+ */
+void input_handler(void *ep, struct pprz_parser_t *p, uint8_t *data, uint16_t len) {
+  if(!pprz_frames) {
+    packet_handler(ep, data, len);
+    return;
+  }
+
+  for(uint16_t i = 0; i < len; ++i)
+    pprz_parse(ep, p, data[i]);
+}
+
+/**
  * Handle incoming packets from server side
  */
 void packet_handler(void *ep, uint8_t *data, uint16_t len) {
+  pthread_mutex_lock(&send_mutex);
   for(uint16_t i = 0; i < MAX_ENDPOINTS; ++i) {
     switch(endpoints[i].type) {
       case ENDPOINT_TYPE_UDP:
@@ -372,6 +487,7 @@ void packet_handler(void *ep, uint8_t *data, uint16_t len) {
         break;
     }
   }
+  pthread_mutex_unlock(&send_mutex);
 }
 
 int main(int argc, char** argv) {
@@ -385,6 +501,8 @@ int main(int argc, char** argv) {
     {"endpoint", required_argument, NULL, 'e'},
     {"help", no_argument, NULL, 'h'},
     {"verbose", no_argument, NULL, 'v'},
+    {"no-keep-awake", no_argument, NULL, 'n'},
+    {"pprz", no_argument, NULL, 'p'},
     {0, 0, 0, 0}
   };
   static const char* usage =
@@ -392,11 +510,13 @@ int main(int argc, char** argv) {
     " Options :\n"
     "   -e --endpoint [endpoint_str]           Endpoint address to route to/from\n"
     "   -h --help                              Display this help\n"
-    "   -v --verbose                           Print verbose information\n";
+    "   -v --verbose                           Print verbose information\n"
+    "   -n --no-keep-awake                     Do not keep the CPU awake (see keep_awake_thread)\n"
+    "   -p --pprz                              Only forward complete pprzlink v2 frames, one at a time\n";
   
   int c;
   int option_index = 0;
-  while((c = getopt_long(argc, argv, "e:hv", long_options, &option_index)) != -1) {  
+  while((c = getopt_long(argc, argv, "e:hvnp", long_options, &option_index)) != -1) {  
     switch (c) {
       case 'e':
         // Parse the endpoint argument UDP
@@ -429,6 +549,14 @@ int main(int argc, char** argv) {
         verbose = true;
         break;
 
+      case 'n':
+        keep_awake = false;
+        break;
+
+      case 'p':
+        pprz_frames = true;
+        break;
+
       case 'h':
         fprintf(stderr, usage, argv[0]);
         return 0;
@@ -438,6 +566,13 @@ int main(int argc, char** argv) {
         fprintf(stderr, usage, argv[0]);
         return 1;
     }
+  }
+
+  /* Start the keep awake thread */
+  if(keep_awake) {
+    pthread_t thread;
+    if(verbose) printf("Keeping the CPU awake\r\n");
+    pthread_create(&thread, NULL, keep_awake_thread, NULL);
   }
 
   while(true) {
