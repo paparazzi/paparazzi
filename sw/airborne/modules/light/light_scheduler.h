@@ -36,6 +36,7 @@
 #define LIGHT_SCHEDULER_MODE_RAINBOW 0
 #define LIGHT_SCHEDULER_MODE_COLOR   1
 #define LIGHT_SCHEDULER_MODE_OFF     2
+#define LIGHT_SCHEDULER_MODE_SPARKLE 3
 
 extern uint8_t light_scheduler_mode;       ///< one of LIGHT_SCHEDULER_MODE_*
 extern uint8_t light_scheduler_red;        ///< red value in color mode
