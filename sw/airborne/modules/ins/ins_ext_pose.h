@@ -77,6 +77,10 @@ enum ins_ext_pose_outputs {
 
 extern float ekf_X[EKF_NUM_STATES];
 
+extern float ins_ext_pose_max_age;
+extern float ins_ext_pose_gate_psi;
+extern float ins_ext_pose_gate_tilt;
+
 extern void ins_ext_pose_init(void);
 extern void ins_ext_pose_run(void);
 
