@@ -10,15 +10,24 @@
       BUZZER_AF, BUZZER_PWMD and BUZZER_PWM_CHANNEL.
       On the Cube Orange this is the ALARM pin (TIM2_CH1), on the BUZZER pin (5) of the carrier board USB port.
       Implementation for ChibiOS.
+      To add a melody from an audio file (mp3, wav, ...), sw/tools/buzzer/mp3_to_buzzer.py writes the
+      buzzer_note C array to add to buzzer_tunes.c (needs ffmpeg and numpy, see its --help).
     </description>
     <configure name="BUZZER_TIM" value="TIM2" description="Timer of the buzzer pin"/>
     <define name="BUZZER_TUNES_STARTUP_TUNE" value="BUZZER_TUNES_STARTUP" description="Tune at startup (BUZZER_TUNES_x), BUZZER_TUNES_NONE for silence"/>
+    <define name="BUZZER_TUNES_EVENTS_ON" value="FALSE" description="Armed and alert tunes enabled at startup (also a GCS setting), off by default"/>
+    <define name="BUZZER_TUNES_ARMED_TUNE" value="BUZZER_TUNES_STARTUP" description="Optional tune played in a loop while the motors are armed, stopped when disarmed"/>
+    <define name="BUZZER_TUNES_ALERT" value="electrical.bat_low" description="Optional C condition: while true, BUZZER_TUNES_ALERT_TUNE plays in a loop (Stop from the GCS mutes it until the next alert)"/>
+    <define name="BUZZER_TUNES_ALERT_HEADER" value="modules/energy/electrical.h" type="string" description="Header to include for the alert condition"/>
+    <define name="BUZZER_TUNES_ALERT_TUNE" value="BUZZER_TUNES_STAR" description="Tune played in a loop while the alert condition is true"/>
+    <define name="BUZZER_TUNES_ALERT_END_TUNE" value="BUZZER_TUNES_NONE" description="Tune played once when the alert condition becomes false (stopped if the motors are disarmed)"/>
     <define name="BUZZER_TUNES_RTTTL_1" value="&quot;name:d=4,o=6,b=120:c,e,g&quot;" description="Custom tunes 1 to 3 (BUZZER_TUNES_RTTTL_1..3) in RTTTL format, set them in an airframe section with type string"/>
   </doc>
   <settings>
     <dl_settings>
       <dl_settings name="Buzzer">
-        <dl_setting var="buzzer_tunes_tune" min="0" max="15" step="1" values="Stop|Startup|Ode to Joy|Twinkle|Italy|Netherlands|France|Happy Birthday|Mushroom Song|Nokia|Fur Elise|La Cucaracha|William Tell|Custom 1|Custom 2|Custom 3" shortname="tune" type="uint8_t" module="sound/buzzer_tunes" handler="play"/>
+        <dl_setting var="buzzer_tunes_tune" min="0" max="16" step="1" values="Stop|Startup|Ode to Joy|Twinkle|Italy|Netherlands|France|Happy Birthday|Mushroom Song|Nokia|Fur Elise|La Cucaracha|William Tell|Star Song|Custom 1|Custom 2|Custom 3" shortname="tune" type="uint8_t" module="sound/buzzer_tunes" handler="play"/>
+        <dl_setting var="buzzer_tunes_events_on" min="0" max="1" step="1" values="OFF|ON" shortname="event_tunes" type="uint8_t" module="sound/buzzer_tunes" handler="set_events"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -32,6 +41,9 @@
     <define name="STM32_PWM_USE_$(BUZZER_TIM)" cond="ifeq ($(RTOS),chibios)"/>
     <file name="buzzer_tunes.c"/>
     <file_arch name="buzzer_arch.c"/>
-    <test/>
+    <test firmware="rotorcraft">
+      <define name="BUZZER_TUNES_ALERT" value="false"/>
+      <define name="BUZZER_TUNES_ARMED_TUNE" value="BUZZER_TUNES_STARTUP"/>
+    </test>
   </makefile>
 </module>

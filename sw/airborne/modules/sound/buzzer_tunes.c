@@ -28,6 +28,31 @@
 #include "mcu_periph/sys_time.h"
 #include "generated/airframe.h"
 
+/** Optional header needed by the alert condition */
+#ifdef BUZZER_TUNES_ALERT_HEADER
+#include BUZZER_TUNES_ALERT_HEADER
+#endif
+
+/** Event tunes (armed and alert tunes) enabled at startup, off by default */
+#ifndef BUZZER_TUNES_EVENTS_ON
+#define BUZZER_TUNES_EVENTS_ON FALSE
+#endif
+
+/** Tune played in a loop while the motors are armed (optional), stopped when disarmed */
+#ifdef BUZZER_TUNES_ARMED_TUNE
+#include "autopilot.h"
+#endif
+
+/** Tune played in a loop while BUZZER_TUNES_ALERT is true (optional condition) */
+#ifndef BUZZER_TUNES_ALERT_TUNE
+#define BUZZER_TUNES_ALERT_TUNE BUZZER_TUNES_NONE
+#endif
+
+/** Tune played once when BUZZER_TUNES_ALERT becomes false (stopped if the motors are disarmed) */
+#ifndef BUZZER_TUNES_ALERT_END_TUNE
+#define BUZZER_TUNES_ALERT_END_TUNE BUZZER_TUNES_NONE
+#endif
+
 /** Tune played at startup, BUZZER_TUNES_NONE for silence */
 #ifndef BUZZER_TUNES_STARTUP_TUNE
 #define BUZZER_TUNES_STARTUP_TUNE BUZZER_TUNES_STARTUP
@@ -36,8 +61,20 @@
 /** Silence at the end of each note, so repeated notes are heard separately [ms] */
 #define BUZZER_TUNES_GAP_MS 30
 
-/** Note frequencies [Hz], s for sharp, octaves 5 to 7 sound loudest on a piezo */
+/** Note frequencies [Hz], s for sharp, octaves 5 to 7 sound loudest on a piezo (octave 4 is quieter) */
 #define REST 0
+#define C4 262
+#define Cs4 277
+#define D4 294
+#define Ds4 311
+#define E4 330
+#define F4 349
+#define Fs4 370
+#define G4 392
+#define Gs4 415
+#define A4 440
+#define As4 466
+#define B4 494
 #define C5 523
 #define Cs5 554
 #define D5 587
@@ -253,6 +290,22 @@ static const struct buzzer_note tune_william_tell[] = {
   {G6, 100}, {G6, 100}, {C7, 200}, {D7, 200}, {E7, 400}, {C7, 600}, TUNE_END
 };
 
+/** Star Song */
+static const struct buzzer_note tune_star[] = {
+  {C7, 150}, {REST, 50}, {C7, 150}, {REST, 50}, {C7, 150}, {REST, 150}, {C7, 150}, {REST, 50},
+  {C7, 150}, {REST, 150}, {C7, 80}, {REST, 20}, {C7, 80}, {REST, 20}, {C7, 150}, {REST, 50},
+  {B6, 150}, {REST, 50}, {B6, 150}, {REST, 50}, {B6, 150}, {REST, 150}, {B6, 150}, {REST, 50},
+  {B6, 150}, {REST, 150}, {B6, 150}, {REST, 50}, {B6, 150}, {REST, 50}, {C7, 150}, {REST, 50},
+  {C7, 150}, {REST, 50}, {C7, 150}, {REST, 150}, {C7, 150}, {REST, 50}, {C7, 150}, {REST, 150},
+  {C7, 150}, {REST, 50}, {C7, 150}, {REST, 50}, {B6, 150}, {REST, 50}, {B6, 150}, {REST, 50},
+  {B6, 150}, {REST, 150}, {B6, 150}, {REST, 50}, {B6, 150}, {REST, 150}, {B6, 150}, {REST, 50},
+  {B6, 150}, {REST, 50}, {C7, 150}, {REST, 50}, {C7, 150}, {REST, 50}, {C7, 150}, {REST, 150},
+  {C7, 150}, {REST, 50}, {C7, 150}, {REST, 150}, {C7, 150}, {REST, 50}, {C7, 150}, {REST, 50},
+  {B6, 150}, {REST, 50}, {B6, 150}, {REST, 50}, {B6, 150}, {REST, 150}, {B6, 150}, {REST, 50},
+  {B6, 150}, {REST, 150}, {B6, 150}, {REST, 50}, {B6, 150},
+  TUNE_END
+};
+
 static const struct buzzer_note *const buzzer_tunes_list[BUZZER_TUNES_CUSTOM_1] = {
   [BUZZER_TUNES_NONE]               = NULL,
   [BUZZER_TUNES_STARTUP]            = tune_startup,
@@ -267,6 +320,7 @@ static const struct buzzer_note *const buzzer_tunes_list[BUZZER_TUNES_CUSTOM_1] 
   [BUZZER_TUNES_FUR_ELISE]          = tune_fur_elise,
   [BUZZER_TUNES_LA_CUCARACHA]       = tune_la_cucaracha,
   [BUZZER_TUNES_WILLIAM_TELL]       = tune_william_tell,
+  [BUZZER_TUNES_STAR]               = tune_star,
 };
 
 /** Custom tunes, RTTTL strings */
@@ -284,6 +338,19 @@ static struct buzzer_note note;                     ///< note being played
 static bool playing = false;
 static uint32_t note_start_ms = 0;                  ///< start time of the note
 static bool note_gap = false;                       ///< in the silent gap at the end of the note
+
+uint8_t buzzer_tunes_events_on = BUZZER_TUNES_EVENTS_ON;
+static bool event_tune = false;                     ///< current tune was started by an event
+#ifdef BUZZER_TUNES_ALERT
+static bool alert_active = false;                   ///< alert condition was true at the last update
+static bool alert_muted = false;                    ///< alert tune stopped from the GCS
+#endif
+#ifdef BUZZER_TUNES_ARMED_TUNE
+static bool motors_were_on = false;
+static bool armed_muted = false;                    ///< armed tune stopped from the GCS
+#endif
+
+static void tune_start(uint8_t tune);
 
 static uint16_t rtttl_number(const char **p)
 {
@@ -373,7 +440,7 @@ static bool next_note(struct buzzer_note *n)
 static void start_next_note(void)
 {
   if (!next_note(&note)) {
-    buzzer_tunes_play(BUZZER_TUNES_NONE);  // end of tune
+    tune_start(BUZZER_TUNES_NONE);  // end of tune
     return;
   }
   note_start_ms = get_sys_time_msec();
@@ -383,6 +450,45 @@ static void start_next_note(void)
 
 void buzzer_tunes_play(uint8_t tune)
 {
+  // Stop from the GCS silences the event tunes until the next alert or arming
+  if (tune == BUZZER_TUNES_NONE) {
+#ifdef BUZZER_TUNES_ALERT
+    alert_muted = alert_active;
+#endif
+#ifdef BUZZER_TUNES_ARMED_TUNE
+    armed_muted = motors_were_on;
+#endif
+  }
+  tune_start(tune);
+}
+
+/** Start a tune from an event */
+static void event_start(uint8_t tune)
+{
+  tune_start(tune);
+  event_tune = (buzzer_tunes_tune != BUZZER_TUNES_NONE);
+}
+
+void buzzer_tunes_set_events(uint8_t on)
+{
+  buzzer_tunes_events_on = on;
+  if (!on && event_tune) {
+    tune_start(BUZZER_TUNES_NONE);
+  }
+  // follow the current state again when enabled
+#ifdef BUZZER_TUNES_ALERT
+  alert_active = false;
+  alert_muted = false;
+#endif
+#ifdef BUZZER_TUNES_ARMED_TUNE
+  motors_were_on = false;
+  armed_muted = false;
+#endif
+}
+
+static void tune_start(uint8_t tune)
+{
+  event_tune = false;
   playing = false;
   tune_notes = NULL;
   rtttl = NULL;
@@ -409,8 +515,49 @@ void buzzer_tunes_init(void)
   buzzer_tunes_play(BUZZER_TUNES_STARTUP_TUNE);
 }
 
+/** Event tunes: alert tune in a loop while the alert condition is true,
+ *  armed tune in a loop while the motors are armed
+ */
+static void event_update(void)
+{
+  if (!buzzer_tunes_events_on) {
+    return;
+  }
+  bool in_alert = false;
+#ifdef BUZZER_TUNES_ALERT
+  bool alert = BUZZER_TUNES_ALERT;
+  if (alert && !alert_active) {
+    alert_active = true;
+    alert_muted = false;
+    event_start(BUZZER_TUNES_ALERT_TUNE);
+  } else if (!alert && alert_active) {
+    alert_active = false;
+    event_start(BUZZER_TUNES_ALERT_END_TUNE);
+  } else if (alert && !playing && !alert_muted) {
+    event_start(BUZZER_TUNES_ALERT_TUNE);  // loop
+  }
+  in_alert = alert_active;
+#endif
+#ifdef BUZZER_TUNES_ARMED_TUNE
+  bool motors_on = autopilot_get_motors_on();
+  if (motors_on && !motors_were_on) {
+    armed_muted = false;
+    if (!in_alert) {
+      event_start(BUZZER_TUNES_ARMED_TUNE);
+    }
+  } else if (!motors_on && motors_were_on && event_tune && !in_alert) {
+    tune_start(BUZZER_TUNES_NONE);  // disarmed: stop the armed (or alert end) tune
+  } else if (motors_on && !in_alert && !playing && !armed_muted) {
+    event_start(BUZZER_TUNES_ARMED_TUNE);  // loop, also after an alert
+  }
+  motors_were_on = motors_on;
+#endif
+  (void)in_alert;
+}
+
 void buzzer_tunes_periodic(void)
 {
+  event_update();
   if (!playing) {
     return;
   }
