@@ -57,14 +57,40 @@
 #include "mcu_periph/ram_arch.h"
 
 
-// Macros to automatically enable the correct ADC
-// FIXME we can't use NB_ADC1_CHANNELS it is not a macro
-//#if NB_ADC1_CHANNELS != 0
+// Enable a converter when the board configuration assigns at least one pin to it.
 #ifndef USE_AD1
+#if (defined(ADC_1) && ADC1_ADC == 1) || (defined(ADC_2) && ADC2_ADC == 1) || \
+    (defined(ADC_3) && ADC3_ADC == 1) || (defined(ADC_4) && ADC4_ADC == 1) || \
+    (defined(ADC_5) && ADC5_ADC == 1) || (defined(ADC_6) && ADC6_ADC == 1) || \
+    (defined(ADC_7) && ADC7_ADC == 1) || (defined(ADC_8) && ADC8_ADC == 1) || \
+    (defined(ADC_9) && ADC9_ADC == 1)
 #define USE_AD1 1
+#else
+#define USE_AD1 0
 #endif
-///#endif
-
+#endif
+#ifndef USE_AD2
+#if (defined(ADC_1) && ADC1_ADC == 2) || (defined(ADC_2) && ADC2_ADC == 2) || \
+    (defined(ADC_3) && ADC3_ADC == 2) || (defined(ADC_4) && ADC4_ADC == 2) || \
+    (defined(ADC_5) && ADC5_ADC == 2) || (defined(ADC_6) && ADC6_ADC == 2) || \
+    (defined(ADC_7) && ADC7_ADC == 2) || (defined(ADC_8) && ADC8_ADC == 2) || \
+    (defined(ADC_9) && ADC9_ADC == 2)
+#define USE_AD2 1
+#else
+#define USE_AD2 0
+#endif
+#endif
+#ifndef USE_AD3
+#if (defined(ADC_1) && ADC1_ADC == 3) || (defined(ADC_2) && ADC2_ADC == 3) || \
+    (defined(ADC_3) && ADC3_ADC == 3) || (defined(ADC_4) && ADC4_ADC == 3) || \
+    (defined(ADC_5) && ADC5_ADC == 3) || (defined(ADC_6) && ADC6_ADC == 3) || \
+    (defined(ADC_7) && ADC7_ADC == 3) || (defined(ADC_8) && ADC8_ADC == 3) || \
+    (defined(ADC_9) && ADC9_ADC == 3)
+#define USE_AD3 1
+#else
+#define USE_AD3 0
+#endif
+#endif
 
 /* Set the default sample rate */
 #if !defined(ADC_SAMPLE_RATE)
@@ -77,80 +103,227 @@
 #endif
 #endif
 
-// Create channel map
-static const uint8_t adc_channel_map[ADC_NUM_CHANNELS] = {
-#ifdef AD1_1_CHANNEL
-  AD1_1_CHANNEL,
+// Build converter-specific channel maps from the generated board pin data.
+#if USE_AD1
+static const uint8_t adc1_channel_map[] = {
+#if defined(ADC_1) && ADC1_ADC == 1
+  ADC_1_CHANNEL,
 #endif
-#ifdef AD1_2_CHANNEL
-  AD1_2_CHANNEL,
+#if defined(ADC_2) && ADC2_ADC == 1
+  ADC_2_CHANNEL,
 #endif
-#ifdef AD1_3_CHANNEL
-  AD1_3_CHANNEL,
+#if defined(ADC_3) && ADC3_ADC == 1
+  ADC_3_CHANNEL,
 #endif
-#ifdef AD1_4_CHANNEL
-  AD1_4_CHANNEL,
+#if defined(ADC_4) && ADC4_ADC == 1
+  ADC_4_CHANNEL,
 #endif
-#ifdef AD1_5_CHANNEL
-  AD1_5_CHANNEL,
+#if defined(ADC_5) && ADC5_ADC == 1
+  ADC_5_CHANNEL,
 #endif
-#ifdef AD1_6_CHANNEL
-  AD1_6_CHANNEL,
+#if defined(ADC_6) && ADC6_ADC == 1
+  ADC_6_CHANNEL,
 #endif
-#ifdef AD1_7_CHANNEL
-  AD1_7_CHANNEL,
+#if defined(ADC_7) && ADC7_ADC == 1
+  ADC_7_CHANNEL,
 #endif
-#ifdef AD1_8_CHANNEL
-  AD1_8_CHANNEL,
+#if defined(ADC_8) && ADC8_ADC == 1
+  ADC_8_CHANNEL,
 #endif
-#ifdef AD1_9_CHANNEL
-  AD1_9_CHANNEL,
-#endif
-#ifdef AD1_10_CHANNEL
-  AD1_10_CHANNEL,
-#endif
-#ifdef AD1_11_CHANNEL
-  AD1_11_CHANNEL,
-#endif
-#ifdef AD1_12_CHANNEL
-  AD1_12_CHANNEL,
-#endif
-#ifdef AD1_13_CHANNEL
-  AD1_13_CHANNEL,
-#endif
-#ifdef AD1_14_CHANNEL
-  AD1_14_CHANNEL,
-#endif
-#ifdef AD1_15_CHANNEL
-  AD1_15_CHANNEL,
-#endif
-#ifdef AD1_16_CHANNEL
-  AD1_16_CHANNEL,
+#if defined(ADC_9) && ADC9_ADC == 1
+  ADC_9_CHANNEL,
 #endif
 };
+static const uint8_t adc1_channel_ids[] = {
+#if defined(ADC_1) && ADC1_ADC == 1
+  ADC_1,
+#endif
+#if defined(ADC_2) && ADC2_ADC == 1
+  ADC_2,
+#endif
+#if defined(ADC_3) && ADC3_ADC == 1
+  ADC_3,
+#endif
+#if defined(ADC_4) && ADC4_ADC == 1
+  ADC_4,
+#endif
+#if defined(ADC_5) && ADC5_ADC == 1
+  ADC_5,
+#endif
+#if defined(ADC_6) && ADC6_ADC == 1
+  ADC_6,
+#endif
+#if defined(ADC_7) && ADC7_ADC == 1
+  ADC_7,
+#endif
+#if defined(ADC_8) && ADC8_ADC == 1
+  ADC_8,
+#endif
+#if defined(ADC_9) && ADC9_ADC == 1
+  ADC_9,
+#endif
+};
+#define ADC1_CONFIGURED_CHANNELS (sizeof(adc1_channel_map) / sizeof(adc1_channel_map[0]))
+#endif
+
+#if USE_AD2
+static const uint8_t adc2_channel_map[] = {
+#if defined(ADC_1) && ADC1_ADC == 2
+  ADC_1_CHANNEL,
+#endif
+#if defined(ADC_2) && ADC2_ADC == 2
+  ADC_2_CHANNEL,
+#endif
+#if defined(ADC_3) && ADC3_ADC == 2
+  ADC_3_CHANNEL,
+#endif
+#if defined(ADC_4) && ADC4_ADC == 2
+  ADC_4_CHANNEL,
+#endif
+#if defined(ADC_5) && ADC5_ADC == 2
+  ADC_5_CHANNEL,
+#endif
+#if defined(ADC_6) && ADC6_ADC == 2
+  ADC_6_CHANNEL,
+#endif
+#if defined(ADC_7) && ADC7_ADC == 2
+  ADC_7_CHANNEL,
+#endif
+#if defined(ADC_8) && ADC8_ADC == 2
+  ADC_8_CHANNEL,
+#endif
+#if defined(ADC_9) && ADC9_ADC == 2
+  ADC_9_CHANNEL,
+#endif
+};
+static const uint8_t adc2_channel_ids[] = {
+#if defined(ADC_1) && ADC1_ADC == 2
+  ADC_1,
+#endif
+#if defined(ADC_2) && ADC2_ADC == 2
+  ADC_2,
+#endif
+#if defined(ADC_3) && ADC3_ADC == 2
+  ADC_3,
+#endif
+#if defined(ADC_4) && ADC4_ADC == 2
+  ADC_4,
+#endif
+#if defined(ADC_5) && ADC5_ADC == 2
+  ADC_5,
+#endif
+#if defined(ADC_6) && ADC6_ADC == 2
+  ADC_6,
+#endif
+#if defined(ADC_7) && ADC7_ADC == 2
+  ADC_7,
+#endif
+#if defined(ADC_8) && ADC8_ADC == 2
+  ADC_8,
+#endif
+#if defined(ADC_9) && ADC9_ADC == 2
+  ADC_9,
+#endif
+};
+#define ADC2_CONFIGURED_CHANNELS (sizeof(adc2_channel_map) / sizeof(adc2_channel_map[0]))
+#endif
+
+#if USE_AD3
+static const uint8_t adc3_channel_map[] = {
+#if defined(ADC_1) && ADC1_ADC == 3
+  ADC_1_CHANNEL,
+#endif
+#if defined(ADC_2) && ADC2_ADC == 3
+  ADC_2_CHANNEL,
+#endif
+#if defined(ADC_3) && ADC3_ADC == 3
+  ADC_3_CHANNEL,
+#endif
+#if defined(ADC_4) && ADC4_ADC == 3
+  ADC_4_CHANNEL,
+#endif
+#if defined(ADC_5) && ADC5_ADC == 3
+  ADC_5_CHANNEL,
+#endif
+#if defined(ADC_6) && ADC6_ADC == 3
+  ADC_6_CHANNEL,
+#endif
+#if defined(ADC_7) && ADC7_ADC == 3
+  ADC_7_CHANNEL,
+#endif
+#if defined(ADC_8) && ADC8_ADC == 3
+  ADC_8_CHANNEL,
+#endif
+#if defined(ADC_9) && ADC9_ADC == 3
+  ADC_9_CHANNEL,
+#endif
+};
+static const uint8_t adc3_channel_ids[] = {
+#if defined(ADC_1) && ADC1_ADC == 3
+  ADC_1,
+#endif
+#if defined(ADC_2) && ADC2_ADC == 3
+  ADC_2,
+#endif
+#if defined(ADC_3) && ADC3_ADC == 3
+  ADC_3,
+#endif
+#if defined(ADC_4) && ADC4_ADC == 3
+  ADC_4,
+#endif
+#if defined(ADC_5) && ADC5_ADC == 3
+  ADC_5,
+#endif
+#if defined(ADC_6) && ADC6_ADC == 3
+  ADC_6,
+#endif
+#if defined(ADC_7) && ADC7_ADC == 3
+  ADC_7,
+#endif
+#if defined(ADC_8) && ADC8_ADC == 3
+  ADC_8,
+#endif
+#if defined(ADC_9) && ADC9_ADC == 3
+  ADC_9,
+#endif
+};
+#define ADC3_CONFIGURED_CHANNELS (sizeof(adc3_channel_map) / sizeof(adc3_channel_map[0]))
+#endif
 
 uint8_t adc_error_flag = 0;
 ADCDriver *adcp_err = NULL;
 
-// adc_samples buffer
-// FIXME compute size to have to correct number of samples ?
-#ifndef ADC_BUF_DEPTH
-#define ADC_BUF_DEPTH (MAX_AV_NB_SAMPLE/2)
+// adc_samples buffers
+// The DMA buffer is circular with MAX_AV_NB_SAMPLE samples per channel and the
+// conversion callback fires once per half, so each update averages
+// MAX_AV_NB_SAMPLE/2 samples (MAX_AV_NB_SAMPLE must be even).
+#if USE_AD1
+static IN_DMA_SECTION(adcsample_t adc1_samples[ADC1_CONFIGURED_CHANNELS * MAX_AV_NB_SAMPLE]);
 #endif
-static IN_DMA_SECTION(adcsample_t adc_samples[ADC_NUM_CHANNELS * MAX_AV_NB_SAMPLE]);
+#if USE_AD2
+static IN_DMA_SECTION(adcsample_t adc2_samples[ADC2_CONFIGURED_CHANNELS * MAX_AV_NB_SAMPLE]);
+#endif
+#if USE_AD3
+static IN_DMA_SECTION(adcsample_t adc3_samples[ADC3_CONFIGURED_CHANNELS * MAX_AV_NB_SAMPLE]);
+#endif
 
 #if USE_AD1
 static ADCConversionGroup adc1_group;
-static struct adc_buf *adc1_buffers[ADC_NUM_CHANNELS];
-static uint32_t adc1_sum_tmp[ADC_NUM_CHANNELS];
-static uint8_t adc1_samples_tmp[ADC_NUM_CHANNELS];
+static uint32_t adc1_sum_tmp[ADC1_CONFIGURED_CHANNELS];
+static uint8_t adc1_samples_tmp[ADC1_CONFIGURED_CHANNELS];
 #endif
 #if USE_AD2
-#error ADC2_not implemented in ChibiOS
+static ADCConversionGroup adc2_group;
+static uint32_t adc2_sum_tmp[ADC2_CONFIGURED_CHANNELS];
+static uint8_t adc2_samples_tmp[ADC2_CONFIGURED_CHANNELS];
 #endif
 #if USE_AD3
-#error ADC3_not implemented in ChibiOS
+static ADCConversionGroup adc3_group;
+static uint32_t adc3_sum_tmp[ADC3_CONFIGURED_CHANNELS];
+static uint8_t adc3_samples_tmp[ADC3_CONFIGURED_CHANNELS];
 #endif
+
+static struct adc_buf *adc_buffers[ADC_NUM_CHANNELS];
 
 #if USE_ADC_WATCHDOG
 // watchdog structure with adc bank and callback
@@ -229,7 +402,7 @@ static void adc_configure(ADCConversionGroup *cfg, uint8_t num_channels, const u
 }
 
 /**
- * Adc1 callback
+ * ADC callback processing
  *
  * Callback, fired after half of the buffer is filled (i.e. half of the samples
  * is collected). Since we are assuming continuous ADC conversion, the ADC state is
@@ -240,47 +413,48 @@ static void adc_configure(ADCConversionGroup *cfg, uint8_t num_channels, const u
  * @param[in] buffer pointer to a @p buffer with samples
  * @param[in] n number of samples
  */
-void adc1callback(ADCDriver *adcp)
+static void adc_process_samples(ADCDriver *adcp, const uint8_t channel_ids[], size_t num_channels,
+                                adcsample_t samples[], uint32_t sums[], uint8_t sample_counts[])
 {
   if (adcp->state != ADC_STOP) {
-#if USE_AD1
-    const size_t n = ADC_BUF_DEPTH / 2U;
+    const size_t n = MAX_AV_NB_SAMPLE / 2U;
     // depending on half buffer that has just been filled
     // if adcIsBufferComplete return true, the last filled
     // half buffer start in the middle of buffer, else, is start at
     // beginiing of buffer
-    const adcsample_t *buffer = adc_samples + (adcIsBufferComplete(adcp) ?
-                                n *ADC_NUM_CHANNELS : 0U);
-    cacheBufferInvalidate(adc_samples, sizeof(adc_samples));
+    const adcsample_t *buffer = samples + (adcIsBufferComplete(adcp) ?
+                                n * num_channels : 0U);
+    cacheBufferInvalidate(samples, MAX_AV_NB_SAMPLE * num_channels * sizeof(adcsample_t));
 
-    for (int channel = 0; channel < ADC_NUM_CHANNELS; channel++) {
-      if (adc1_buffers[channel] != NULL) {
-        adc1_sum_tmp[channel] = 0;
+    for (size_t channel = 0; channel < num_channels; channel++) {
+      const uint8_t buffer_id = channel_ids[channel];
+      if (adc_buffers[buffer_id] != NULL) {
+        sums[channel] = 0;
         if (n > 0) {
-          adc1_samples_tmp[channel] = n;
+          sample_counts[channel] = n;
         } else {
-          adc1_samples_tmp[channel] = 1;
+          sample_counts[channel] = 1;
         }
         for (unsigned int sample = 0; sample < n; sample++) {
-          adc1_sum_tmp[channel] += buffer[channel + sample * ADC_NUM_CHANNELS];
+          sums[channel] += buffer[channel + sample * num_channels];
         }
       }
     }
     chSysLockFromISR();
-    for (int channel = 0; channel < ADC_NUM_CHANNELS; channel++) {
-      if (adc1_buffers[channel] != NULL) {
-        adc1_buffers[channel]->sum = adc1_sum_tmp[channel];
-        adc1_buffers[channel]->av_nb_sample = adc1_samples_tmp[channel];
+    for (size_t channel = 0; channel < num_channels; channel++) {
+      const uint8_t buffer_id = channel_ids[channel];
+      if (adc_buffers[buffer_id] != NULL) {
+        adc_buffers[buffer_id]->sum = sums[channel];
+        adc_buffers[buffer_id]->av_nb_sample = sample_counts[channel];
       }
     }
 #if USE_ADC_WATCHDOG
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits" // remove warning when ADC_NUM_CHANNELS is 0 and test always false
-    if ((adc_watchdog.adc == adcp) &&
-        (adc_watchdog.channel < ADC_NUM_CHANNELS) &&
-        (adc_watchdog.cb != NULL)) {
-      if (adc1_buffers[adc_watchdog.channel]->sum <
-          (adc1_buffers[adc_watchdog.channel]->av_nb_sample * adc_watchdog.vmin)) {
+    if ((adc_watchdog.adc == adcp) && (adc_watchdog.channel < ADC_NUM_CHANNELS) &&
+        (adc_watchdog.cb != NULL) && (adc_buffers[adc_watchdog.channel] != NULL)) {
+      if (adc_buffers[adc_watchdog.channel]->sum <
+          (adc_buffers[adc_watchdog.channel]->av_nb_sample * adc_watchdog.vmin)) {
         adc_watchdog.cb();
       }
     }
@@ -288,10 +462,38 @@ void adc1callback(ADCDriver *adcp)
 #endif // USE_ADC_WATCHDOG
 
     chSysUnlockFromISR();
-#endif
   }
 }
 
+void adc1callback(ADCDriver *adcp)
+{
+#if USE_AD1
+  adc_process_samples(adcp, adc1_channel_ids, ADC1_CONFIGURED_CHANNELS, adc1_samples,
+                      adc1_sum_tmp, adc1_samples_tmp);
+#else
+  (void)adcp;
+#endif
+}
+
+void adc2callback(ADCDriver *adcp)
+{
+#if USE_AD2
+  adc_process_samples(adcp, adc2_channel_ids, ADC2_CONFIGURED_CHANNELS, adc2_samples,
+                      adc2_sum_tmp, adc2_samples_tmp);
+#else
+  (void)adcp;
+#endif
+}
+
+void adc3callback(ADCDriver *adcp)
+{
+#if USE_AD3
+  adc_process_samples(adcp, adc3_channel_ids, ADC3_CONFIGURED_CHANNELS, adc3_samples,
+                      adc3_sum_tmp, adc3_samples_tmp);
+#else
+  (void)adcp;
+#endif
+}
 
 /**
  * Adc error callback
@@ -316,7 +518,7 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf *s, uint8_t av_nb_sampl
 #pragma GCC diagnostic ignored "-Wtype-limits" // remove warning when ADC_NUM_CHANNELS is 0 and test always true
   if (adc_channel >= ADC_NUM_CHANNELS) { return; }
 #pragma GCC diagnostic pop
-  adc1_buffers[adc_channel] = s;
+  adc_buffers[adc_channel] = s;
   if (av_nb_sample <= MAX_AV_NB_SAMPLE) {
     s->av_nb_sample = av_nb_sample;
   } else {
@@ -377,26 +579,76 @@ void adc_init(void)
   adc_watchdog.vmin = (1 << 12) - 1; // max adc
 #endif
 
+#if USE_AD1
   // Configure the ADC structure
-  adc_configure(&adc1_group, ADC_NUM_CHANNELS, adc_channel_map, ADC_SAMPLE_RATE, adc1callback, adcerrorcallback);
+  adc_configure(&adc1_group, ADC1_CONFIGURED_CHANNELS, adc1_channel_map, ADC_SAMPLE_RATE, adc1callback, adcerrorcallback);
 
   // Start ADC in continious conversion mode
   adcStart(&ADCD1, NULL);
-  adcStartConversion(&ADCD1, &adc1_group, adc_samples, ADC_BUF_DEPTH);
+  adcStartConversion(&ADCD1, &adc1_group, adc1_samples, MAX_AV_NB_SAMPLE);
+#endif
+
+#if USE_AD2
+  // Configure the ADC structure
+  adc_configure(&adc2_group, ADC2_CONFIGURED_CHANNELS, adc2_channel_map, ADC_SAMPLE_RATE, adc2callback, adcerrorcallback);
+
+  // Start ADC in continuous conversion mode
+  adcStart(&ADCD2, NULL);
+  adcStartConversion(&ADCD2, &adc2_group, adc2_samples, MAX_AV_NB_SAMPLE);
+#endif
+
+#if USE_AD3
+  // Configure the ADC structure
+  adc_configure(&adc3_group, ADC3_CONFIGURED_CHANNELS, adc3_channel_map, ADC_SAMPLE_RATE, adc3callback, adcerrorcallback);
+
+  // Start ADC in continious conversion mode
+  adcStart(&ADCD3, NULL);
+  adcStartConversion(&ADCD3, &adc3_group, adc3_samples, MAX_AV_NB_SAMPLE);
+#endif
 }
 
 #if USE_ADC_WATCHDOG
 void register_adc_watchdog(ADCDriver *adc, adc_channels_num_t channel, adcsample_t vmin,
                            adc_watchdog_callback cb)
 {
-  for (int i = 0; i < NB_ADC1_CHANNELS; i++) { // FIXME when more than ADC1 will be in use
-    if (adc_channel_map[i] == channel) {
-      adc_watchdog.adc = adc;
-      adc_watchdog.channel = i;
-      adc_watchdog.vmin = vmin;
-      adc_watchdog.cb = cb;
-      break;
+#if USE_AD1
+  if (adc == &ADCD1) {
+    for (size_t i = 0; i < ADC1_CONFIGURED_CHANNELS; i++) {
+      if (adc1_channel_map[i] == channel) {
+        adc_watchdog.adc = adc;
+        adc_watchdog.channel = adc1_channel_ids[i];
+        adc_watchdog.vmin = vmin;
+        adc_watchdog.cb = cb;
+        return;
+      }
     }
   }
+#endif
+#if USE_AD2
+  if (adc == &ADCD2) {
+    for (size_t i = 0; i < ADC2_CONFIGURED_CHANNELS; i++) {
+      if (adc2_channel_map[i] == channel) {
+        adc_watchdog.adc = adc;
+        adc_watchdog.channel = adc2_channel_ids[i];
+        adc_watchdog.vmin = vmin;
+        adc_watchdog.cb = cb;
+        return;
+      }
+    }
+  }
+#endif
+#if USE_AD3
+  if (adc == &ADCD3) {
+    for (size_t i = 0; i < ADC3_CONFIGURED_CHANNELS; i++) {
+      if (adc3_channel_map[i] == channel) {
+        adc_watchdog.adc = adc;
+        adc_watchdog.channel = adc3_channel_ids[i];
+        adc_watchdog.vmin = vmin;
+        adc_watchdog.cb = cb;
+        return;
+      }
+    }
+  }
+#endif
 }
 #endif
