@@ -57,6 +57,15 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.status_msg = QLabel()
         self.statusBar().addWidget(self.status_msg)
         self.fill_status_bar()
+        self.upload_status = QPushButton()
+        self.upload_status.setFlat(True)
+        self.upload_status.setToolTip("Show the log uploads in the Utilities tab")
+        self.upload_status.setVisible(False)
+        self.upload_status.clicked.connect(self.show_log_upload)
+        self.statusBar().addPermanentWidget(self.upload_status)
+        self.log_upload_widget.set_session(self.operation_panel.session)
+        self.log_upload_widget.status.connect(self.set_upload_status)
+        self.log_widget.extracted.connect(self.log_upload_widget.add_finished_log)
 
         self.header.set_changed.connect(self.handle_set_changed)
         self.header.ac_changed.connect(self.handle_ac_changed)
@@ -528,6 +537,14 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
     def edit_settings(self):
         settings_dialog = AppSettings(self)
         settings_dialog.show()
+
+    def set_upload_status(self, text):
+        self.upload_status.setText(text)
+        self.upload_status.setVisible(bool(text))
+
+    def show_log_upload(self):
+        self.tabwidget.setCurrentWidget(self.tab)
+        self.tabWidget.setCurrentWidget(self.log_upload_widget)
 
     def quit(self, interactive=True):
         quit_accepted = True
