@@ -68,7 +68,7 @@ static void send_autopilot_version(struct transport_tx *trans, struct link_devic
   static char *ver_desc = PPRZ_VERSION_DESC;
   static uint32_t build_time = PPRZ_BUILD_TIME;
   uint8_t sha1[20];
-  uint8_t uid[12];
+  uint8_t uid[18];
   get_pprz_git_sha1(sha1, sizeof(sha1));
   uint8_t uid_len = mcu_get_uid(uid, sizeof(uid));
   pprz_msg_send_AUTOPILOT_VERSION(trans, dev, AC_ID, &ap_version, strlen(ver_desc), ver_desc,
