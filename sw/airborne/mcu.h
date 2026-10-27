@@ -29,6 +29,7 @@
 #define MCU_H
 
 
+#include "std.h"
 #include <mcu_arch.h>
 
 /**
@@ -72,6 +73,14 @@ extern void mcu_reboot(enum reboot_state_t reboot_state);
  * example to quickly write to the SD card while powering off.
  */
 extern void mcu_energy_save(void);
+
+/**
+ * Get the unique hardware ID of the MCU
+ * @param uid Buffer to write the ID to
+ * @param max_len Size of the buffer
+ * @return Number of bytes written, 0 if not available
+ */
+extern uint8_t mcu_get_uid(uint8_t *uid, uint8_t max_len);
 
 /**
  * Optional board init function called at the start of mcu_init().
