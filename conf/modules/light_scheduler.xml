@@ -11,7 +11,7 @@
     </description>
     <configure name="WS2812_TIM" value="TIM1" description="Select the timer used to control the LEDs"/>
     <define name="WS2812_NB_LEDS" value="8" description="Number of leds"/>
-    <define name="LIGHT_SCHEDULER_MODE" value="0" description="Startup mode: 0 rainbow, 1 fixed color, 2 off"/>
+    <define name="LIGHT_SCHEDULER_MODE" value="0" description="Startup mode: 0 rainbow, 1 fixed color, 2 off, 3 sparkle"/>
     <define name="LIGHT_SCHEDULER_RED" value="255" description="Startup red value of the fixed color (0-255)"/>
     <define name="LIGHT_SCHEDULER_GREEN" value="255" description="Startup green value of the fixed color (0-255)"/>
     <define name="LIGHT_SCHEDULER_BLUE" value="255" description="Startup blue value of the fixed color (0-255)"/>
@@ -20,11 +20,12 @@
     <define name="LIGHT_SCHEDULER_ALERT" value="electrical.bat_low" description="Optional C condition: while true, all LEDs show the alert color in every mode"/>
     <define name="LIGHT_SCHEDULER_ALERT_HEADER" value="modules/energy/electrical.h" type="string" description="Header to include for the alert condition"/>
     <define name="LIGHT_SCHEDULER_ALERT_COLOR" value="LIGHT_SCHEDULER_COLOR_RED" description="Alert color preset"/>
+    <define name="LIGHT_SCHEDULER_ALERT_SPARKLE" value="FALSE" description="Show the sparkle effect (random bright colors) instead of the alert color"/>
   </doc>
   <settings>
     <dl_settings>
       <dl_settings name="Light">
-        <dl_setting var="light_scheduler_mode" min="0" max="2" step="1" values="Rainbow|Color|Off" shortname="mode" type="uint8_t"/>
+        <dl_setting var="light_scheduler_mode" min="0" max="3" step="1" values="Rainbow|Color|Off|Sparkle" shortname="mode" type="uint8_t"/>
         <dl_setting var="light_scheduler_color" min="0" max="12" step="1" values="Custom|Red|Green|Blue|White|Yellow|Orange|Cyan|Magenta|Purple|Italy|Netherlands|France" shortname="color" type="uint8_t" module="light/light_scheduler" handler="set_color"/>
         <dl_setting var="light_scheduler_red" min="0" max="255" step="1" shortname="red" type="uint8_t"/>
         <dl_setting var="light_scheduler_green" min="0" max="255" step="1" shortname="green" type="uint8_t"/>
@@ -37,7 +38,7 @@
     <file name="light_scheduler.h"/>
   </header>
   <init fun="light_scheduler_init()"/>
-  <periodic fun="light_scheduler_periodic()" freq="8"/>
+  <periodic fun="light_scheduler_periodic()" freq="16"/>
   <makefile target="ap">
     <configure name="WS2812_TIM" default="TIM1" case="upper"/>
     <define name="STM32_PWM_USE_$(WS2812_TIM)" cond="ifeq ($(RTOS),chibios)"/>

@@ -43,6 +43,7 @@ enum buzzer_tunes_t {
   BUZZER_TUNES_FUR_ELISE,
   BUZZER_TUNES_LA_CUCARACHA,
   BUZZER_TUNES_WILLIAM_TELL,
+  BUZZER_TUNES_STAR,
   BUZZER_TUNES_CUSTOM_1,    ///< custom RTTTL tunes, see BUZZER_TUNES_RTTTL_x
   BUZZER_TUNES_CUSTOM_2,
   BUZZER_TUNES_CUSTOM_3,
@@ -51,8 +52,13 @@ enum buzzer_tunes_t {
 
 extern uint8_t buzzer_tunes_tune; ///< tune being played, BUZZER_TUNES_NONE when silent
 
+extern uint8_t buzzer_tunes_events_on; ///< armed and alert tunes enabled
+
 extern void buzzer_tunes_init(void);
 extern void buzzer_tunes_periodic(void);
+
+/** Settings handler: enable or disable the armed and alert tunes */
+extern void buzzer_tunes_set_events(uint8_t on);
 
 /** Start a tune (BUZZER_TUNES_NONE stops), also the settings handler */
 extern void buzzer_tunes_play(uint8_t tune);

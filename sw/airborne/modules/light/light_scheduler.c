@@ -66,6 +66,11 @@
 #define LIGHT_SCHEDULER_ALERT_COLOR LIGHT_SCHEDULER_COLOR_RED
 #endif
 
+/** Show the sparkle effect instead of the alert color while LIGHT_SCHEDULER_ALERT is true */
+#ifndef LIGHT_SCHEDULER_ALERT_SPARKLE
+#define LIGHT_SCHEDULER_ALERT_SPARKLE FALSE
+#endif
+
 uint8_t light_scheduler_mode = LIGHT_SCHEDULER_MODE;
 uint8_t light_scheduler_red = LIGHT_SCHEDULER_RED;
 uint8_t light_scheduler_green = LIGHT_SCHEDULER_GREEN;
@@ -98,12 +103,41 @@ static const uint8_t light_scheduler_flags[LIGHT_SCHEDULER_COLOR_NB - LIGHT_SCHE
 };
 
 static uint32_t s = 0;
+static uint32_t sparkle_seed = 0x2545F491;
 
 /** set one led, scaled by the brightness setting */
 static void light_scheduler_set(uint32_t n, uint8_t r, uint8_t g, uint8_t b)
 {
   uint16_t k = light_scheduler_brightness;
   light_ws2812_arch_set(n, (r * k) / 255, (g * k) / 255, (b * k) / 255);
+}
+
+/** xorshift32 pseudo random numbers for the sparkle effect */
+static uint32_t sparkle_rand(void)
+{
+  sparkle_seed ^= sparkle_seed << 13;
+  sparkle_seed ^= sparkle_seed >> 17;
+  sparkle_seed ^= sparkle_seed << 5;
+  return sparkle_seed;
+}
+
+/** Sparkle: every led takes a random bright color, with white twinkles and short dark blinks */
+static void light_scheduler_sparkle(void)
+{
+  static const uint8_t palette[] = {
+    LIGHT_SCHEDULER_COLOR_YELLOW, LIGHT_SCHEDULER_COLOR_WHITE, LIGHT_SCHEDULER_COLOR_ORANGE,
+    LIGHT_SCHEDULER_COLOR_RED, LIGHT_SCHEDULER_COLOR_GREEN, LIGHT_SCHEDULER_COLOR_CYAN,
+    LIGHT_SCHEDULER_COLOR_BLUE, LIGHT_SCHEDULER_COLOR_MAGENTA
+  };
+  for (uint32_t n = 0; n < WS2812_NB_LEDS; n++) {
+    uint32_t r = sparkle_rand();
+    if ((r >> 8) % 5 == 0) {
+      light_ws2812_arch_set(n, 0, 0, 0);
+    } else {
+      const uint8_t *c = light_scheduler_presets[palette[r % sizeof(palette)]];
+      light_scheduler_set(n, c[0], c[1], c[2]);
+    }
+  }
 }
 
 void light_scheduler_set_color(uint8_t color)
@@ -134,6 +168,10 @@ void light_scheduler_periodic(void)
   uint32_t n, s0;
 #ifdef LIGHT_SCHEDULER_ALERT
   if (LIGHT_SCHEDULER_ALERT) {
+    if (LIGHT_SCHEDULER_ALERT_SPARKLE) {
+      light_scheduler_sparkle();
+      return;
+    }
     const uint8_t *c = light_scheduler_presets[LIGHT_SCHEDULER_ALERT_COLOR];
     for (n = 0; n < WS2812_NB_LEDS; n++) {
       light_scheduler_set(n, c[0], c[1], c[2]);
@@ -141,6 +179,11 @@ void light_scheduler_periodic(void)
     return;
   }
 #endif
+
+  if (light_scheduler_mode == LIGHT_SCHEDULER_MODE_SPARKLE) {
+    light_scheduler_sparkle();
+    return;
+  }
 
   for (n = 0; n < WS2812_NB_LEDS; n++) {
     if (light_scheduler_mode == LIGHT_SCHEDULER_MODE_COLOR &&
@@ -166,5 +209,5 @@ void light_scheduler_periodic(void)
       light_scheduler_set(n, s0 % 255, (s0 + 85) % 255, (s0 + 170) % 255);
     }
   }
-  s += 10;
+  s += 5;  // rainbow speed at 16 Hz
 }
