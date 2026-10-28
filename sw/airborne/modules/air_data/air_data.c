@@ -210,6 +210,17 @@ static void send_amsl(struct transport_tx *trans, struct link_device *dev)
   float amsl_gps_ft = stateGetPositionLla_f()->alt / MeterPerFeet;
   pprz_msg_send_AMSL(trans, dev, AC_ID, &amsl_baro_ft, &amsl_gps_ft);
 }
+
+static void send_wind_info_ret(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID,
+                              &air_data.wind_flags,
+                              &air_data.wind_east,
+                              &air_data.wind_north,
+                              &air_data.wind_up,
+                              &air_data.wind_airspeed,
+                              &air_data.wind_temp);
+}
 #endif
 
 /** AirData initialization. Called at startup.
@@ -237,6 +248,13 @@ void air_data_init(void)
   air_data.amsl_baro = 0.0f;
   air_data.aoa = 0.0f;
   air_data.sideslip = 0.0f;
+  air_data.wind_flags = 0;
+  air_data.wind_north = 0.0f;
+  air_data.wind_east = 0.0f;
+  air_data.wind_up = 0.0f;
+  air_data.wind_airspeed = 0.0f;
+  air_data.wind_temp = -1000.0f;
+  air_data.wind_last_stamp = 0;
   air_data.wind_speed = 0.0f;
   air_data.wind_dir = 0.0f;
 
@@ -253,6 +271,7 @@ void air_data_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BARO_RAW, send_baro_raw);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIR_DATA, send_air_data);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AMSL, send_amsl);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind_info_ret);
 #endif
 }
 
@@ -279,31 +298,31 @@ void air_data_periodic(void)
 void air_data_parse_WIND_INFO(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
 {
   if (DL_WIND_INFO_ac_id(buf) != AC_ID) { return; }
-  uint8_t flags = DL_WIND_INFO_flags(buf);
-  struct FloatVect2 wind = { 0.f, 0.f };
-  float upwind = 0.f;
-  if (bit_is_set(flags, 0)) {
-    wind.x = DL_WIND_INFO_north(buf);
-    wind.y = DL_WIND_INFO_east(buf);
+  air_data.wind_flags = DL_WIND_INFO_flags(buf);
+  air_data.wind_last_stamp = get_sys_time_usec();
+  if (bit_is_set(air_data.wind_flags, 0)) {
+    air_data.wind_north = DL_WIND_INFO_north(buf);
+    air_data.wind_east = DL_WIND_INFO_east(buf);
+    struct FloatVect2 wind = {air_data.wind_north, air_data.wind_east};
     stateSetHorizontalWindspeed_f(MODULE_AIR_DATA_ID, &wind);
     air_data.wind_speed = float_vect2_norm(&wind);
     air_data.wind_dir = atan2f(wind.y, wind.x);
   }
-  if (bit_is_set(flags, 1)) {
-    upwind = DL_WIND_INFO_up(buf);
-    stateSetVerticalWindspeed_f(MODULE_AIR_DATA_ID, upwind);
+  if (bit_is_set(air_data.wind_flags, 1)) {
+    air_data.wind_up = DL_WIND_INFO_up(buf);
+    stateSetVerticalWindspeed_f(MODULE_AIR_DATA_ID, air_data.wind_up);
   }
+  if (bit_is_set(air_data.wind_flags, 2)) {
+    air_data.wind_airspeed = DL_WIND_INFO_airspeed(buf);
 #if !USE_AIRSPEED
-  if (bit_is_set(flags, 2)) {
-    air_data.tas = DL_WIND_INFO_airspeed(buf);
+    air_data.tas = air_data.wind_airspeed;
     air_data.airspeed = eas_from_tas(air_data.tas);
     stateSetAirspeed_f(MODULE_AIR_DATA_ID, air_data.airspeed);
+#endif
   }
-#endif
-#ifdef WIND_INFO_RET
-  float airspeed = stateGetAirspeed_f();
-  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags, &wind.y, &wind.x, &upwind, &airspeed);
-#endif
+  if (bit_is_set(air_data.wind_flags, 3)) {
+    air_data.wind_temp = DL_WIND_INFO_temp(buf); // only logged/echoed, not used as air temperature
+  }
 }
 
 /**
