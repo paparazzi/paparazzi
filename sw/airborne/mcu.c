@@ -95,6 +95,12 @@ void WEAK mcu_energy_save(void)
   /* default power saving function does nothing... */
 }
 
+uint8_t WEAK mcu_get_uid(uint8_t *uid __attribute__((unused)), uint8_t max_len __attribute__((unused)))
+{
+  /* default has no unique ID */
+  return 0;
+}
+
 void mcu_init(void)
 {
   /* If we have a board specific init function, call it.
