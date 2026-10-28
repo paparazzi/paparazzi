@@ -757,8 +757,11 @@ static void send_wind_info_ret(struct transport_tx *trans, struct link_device *d
   float tas = Vector3f(vel(0) - wind(0), vel(1) - wind(1), vel(2)).norm();
   uint8_t flags = 0x5;
   float f_zero = 0;
+  float temp_unknown = -1000.f;
 
-  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags, &wind(1), &wind(0), &f_zero, &tas);
+  ekf.get_true_airspeed(&tas);
+
+  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags, &wind(1), &wind(0), &f_zero, &tas, &temp_unknown);
 }
 
 static void send_ahrs_bias(struct transport_tx *trans, struct link_device *dev)
