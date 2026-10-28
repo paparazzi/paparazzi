@@ -165,14 +165,16 @@
         <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_D_ref"/>
         <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_D"/>
       </program>
-      <program name="NatNet3">
+      <program name="UnifiedMoCap">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="512"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
         <arg flag="--long_edge" constant="right"/>
-        <arg flag="--x_side" constant="right"/>
-        <arg flag="--ac_nose" constant="right"/>
-        <arg flag="-ac" constant="1"/>
-        <arg flag="30"/>
-        <arg flag="-f" constant="512"/>
-        <arg flag="-o"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="1"/>
+        <arg flag="--ac_id" constant="30"/>
       </program>
     </session>
     <session name="Bebop Simulation">
@@ -498,13 +500,16 @@
         <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_D_ref"/>
         <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_D"/>
       </program>
-      <program name="NatNet3">
+      <program name="UnifiedMoCap">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="10"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
         <arg flag="--long_edge" constant="right"/>
-        <arg flag="--x_side" constant="right"/>
-        <arg flag="--ac_nose" constant="right"/>
-        <arg flag="-ac" constant="1"/>
-        <arg flag="31"/>
-        <arg flag="-o"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="1"/>
+        <arg flag="--ac_id" constant="31"/>
       </program>
     </session>
     <session name="Bebop2 Simulation">
@@ -798,13 +803,16 @@
         <arg flag="-udp"/>
       </program>
       <program name="Herelink USB"/>
-      <program name="NatNet3">
+      <program name="UnifiedMoCap">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="100"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
         <arg flag="--long_edge" constant="right"/>
-        <arg flag="--x_side" constant="right"/>
-        <arg flag="--ac_nose" constant="right"/>
-        <arg flag="-ac" constant="4"/>
-        <arg flag="1"/>
-        <arg flag="-f" constant="100"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="4"/>
+        <arg flag="--ac_id" constant="1"/>
       </program>
       <program name="Real-time Plotter"/>
       <program name="Real-time Plotter"/>
@@ -929,13 +937,16 @@
         <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_D_ref"/>
         <arg flag="-c" constant="*:telemetry:GUIDANCE:pos_D"/>
       </program>
-      <program name="NatNet3">
+      <program name="UnifiedMoCap">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="100"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
         <arg flag="--long_edge" constant="right"/>
-        <arg flag="--x_side" constant="right"/>
-        <arg flag="--ac_nose" constant="right"/>
-        <arg flag="-ac" constant="3"/>
-        <arg flag="29"/>
-        <arg flag="-f" constant="100"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="3"/>
+        <arg flag="--ac_id" constant="29"/>
       </program>
     </session>
     <session name="Flight_udp_rw3c">
@@ -1157,13 +1168,16 @@
       <program name="Data Link">
         <arg flag="-udp"/>
       </program>
-      <program name="NatNet3">
+      <program name="UnifiedMoCap">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="100"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
         <arg flag="--long_edge" constant="right"/>
-        <arg flag="--x_side" constant="right"/>
-        <arg flag="--ac_nose" constant="right"/>
-        <arg flag="-ac" constant="2"/>
-        <arg flag="13"/>
-        <arg flag="-f" constant="100"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="2"/>
+        <arg flag="--ac_id" constant="13"/>
       </program>
       <program name="Real-time Plotter">
         <arg flag="-m" constant="1000"/>
@@ -1190,13 +1204,16 @@
         <arg flag="-d" constant="/dev/ttyUSB0"/>
         <arg flag="-s" constant="115200"/>
       </program>
-      <program name="NatNet3">
+      <program name="UnifiedMoCap">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="100"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
         <arg flag="--long_edge" constant="right"/>
-        <arg flag="--x_side" constant="right"/>
-        <arg flag="--ac_nose" constant="right"/>
-        <arg flag="-ac" constant="3"/>
-        <arg flag="29"/>
-        <arg flag="-f" constant="100"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="3"/>
+        <arg flag="--ac_id" constant="29"/>
       </program>
     </session>
     <session name="PlusQuad_nB_optitrack">
@@ -1208,13 +1225,16 @@
       <program name="Data Link">
         <arg flag="-udp"/>
       </program>
-      <program name="NatNet3">
+      <program name="UnifiedMoCap">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="100"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
         <arg flag="--long_edge" constant="right"/>
-        <arg flag="--x_side" constant="right"/>
-        <arg flag="--ac_nose" constant="right"/>
-        <arg flag="-ac" constant="4"/>
-        <arg flag="4"/>
-        <arg flag="-f" constant="100"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="4"/>
+        <arg flag="--ac_id" constant="4"/>
       </program>
       <program name="Real-time Plotter">
         <arg flag="-m" constant="1000"/>
