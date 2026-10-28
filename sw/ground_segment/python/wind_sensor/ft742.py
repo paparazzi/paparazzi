@@ -1,6 +1,36 @@
 #!/usr/bin/env python3
+#
+# Copyright (C) 2026 TU Delft
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+"""
+Read a FT Technologies FT742-SM ultrasonic wind sensor on the ground and
+forward the wind (and optionally temperature) to an aircraft with WIND_INFO.
+
+The sensor is polled over serial with `$//,WV?*//` and answers with
+`$<talker>,WVP=<speed>,<angle>,<status>*<checksum>`. Temperature is read
+with `$//,HT?*//` when --temperature is given.
+
+Usage: ./ft742.py /dev/ttyUSB0 --ac-id 2 [--temperature]
+"""
+
 import argparse
-import json
 import math
 import sys
 import time
@@ -8,392 +38,156 @@ from os import path, getenv
 
 import serial
 
-# Setup Paparazzi paths
-PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../')))
+PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 sys.path.append(PPRZ_HOME + "/var/lib/python")
+from pprzlink.ivy import IvyMessagesInterface
+from pprzlink.message import PprzMessage
 
-try:
-    from pprzlink.ivy import IvyMessagesInterface
-    from pprzlink.message import PprzMessage
-    HAS_PPRZLINK = True
-except ImportError:
-    HAS_PPRZLINK = False
-    IvyMessagesInterface = None
-    PprzMessage = None
+WIND_QUERY = b"$//,WV?*//\r\n"
+TEMP_QUERY = b"$//,HT?*//\r\n"
+TEMP_TIMEOUT = 5.0  # s, temperature older than this is not sent
 
-
-FT742_QUERY = b"$//,WV?*//\r\n"
+WIND_INFO_HORIZONTAL = 0x01
+WIND_INFO_TEMPERATURE = 0x08
 
 
-def build_query_bytes(query_text: str) -> bytes:
-    query_text = query_text.strip()
-    if not query_text:
-        raise ValueError("query must not be empty")
-    if not query_text.endswith("\r\n"):
-        query_text += "\r\n"
-    return query_text.encode("ascii")
-
-
-def normalize_query_text(query_text: str) -> str:
-    query_text = query_text.strip()
-    if not query_text:
-        raise ValueError("query must not be empty")
-    # Allow shorthand like "WV?" and expand to FT742 query envelope.
-    if not query_text.startswith("$"):
-        query_text = f"$//,{query_text}*//"
-    return query_text
-
-def init_pprzlink(app_name: str = "ft742_reader"):
-    """Initialize pprzlink interface if available."""
-    if not HAS_PPRZLINK:
+def parse_frame(line):
+    """Parse a FT742 frame, return a (sentence, fields) tuple or None if invalid."""
+    line = line.strip()
+    if not line.startswith("$") or "*" not in line:
         return None
+    body, checksum = line[1:].split("*", 1)
     try:
-        interface = IvyMessagesInterface(app_name)
-        return interface
-    except Exception as e:
-        print(f"Warning: Could not initialize pprzlink: {e}", file=sys.stderr)
+        if int(checksum, 16) != _checksum(body):
+            return None
+    except ValueError:
         return None
+    if "," not in body or "=" not in body:
+        return None
+    sentence, data = body.split(",", 1)[1].split("=", 1)
+    return sentence, data.split(",")
 
 
-
-def send_wind_info(pprzlink_interface, ac_id: int, wind_speed_mps: float, direction_rad: float, temp_celsius: float | None = None) -> None:
-    """Send WIND_INFO uplink message via pprzlink."""
-    if pprzlink_interface is None:
-        return
-    try:
-        msg = PprzMessage("datalink", "WIND_INFO")
-        msg.set_value_by_name("ac_id", ac_id)
-
-        flags = 0x01  # bit 0: horizontal wind valid
-        msg.set_value_by_name("east", wind_speed_mps * math.sin(direction_rad))
-        msg.set_value_by_name("north", wind_speed_mps * math.cos(direction_rad))
-        msg.set_value_by_name("up", 0.0)
-        msg.set_value_by_name("airspeed", 0.0)
-
-        if temp_celsius is not None:
-            flags |= 0x08  # bit 3: temperature valid
-            msg.set_value_by_name("temp", temp_celsius)
-        else:
-            msg.set_value_by_name("temp", -1000.0)  # matches air_data's "unknown" sentinel
-
-        msg.set_value_by_name("flags", flags)
-        pprzlink_interface.send_raw_datalink(msg)
-    except Exception as e:
-        print(f"Warning: Could not send WIND_INFO: {e}", file=sys.stderr)
-
-
-
-
-def probe_queries(port: str, baud: int, query_candidates: list[str]):
-    with serial.Serial(port=port, baudrate=baud, timeout=0.35) as ser:
-        print(f"Connected to {port} at {baud} baud. Probe mode")
-        for candidate in query_candidates:
-            query_text = normalize_query_text(candidate)
-            ser.write(build_query_bytes(query_text))
-            raw_line = ser.readline().decode("ascii", errors="ignore").strip()
-            if raw_line:
-                print(f"probe query={query_text} raw={raw_line}")
-            else:
-                print(f"probe query={query_text} raw=<no response>")
-
-
-def compute_checksum(payload: str) -> int:
+def _checksum(body):
     value = 0
-    for ch in payload:
-        value ^= ord(ch)
+    for c in body:
+        value ^= ord(c)
     return value
 
 
-def parse_ft742_line(line: str):
-    line = line.strip()
-
-    if not line.startswith("$") or "*" not in line:
-        return None
-
-    body, checksum_text = line[1:].split("*", 1)
-    checksum_text = checksum_text.strip()
-
-    if not checksum_text:
-        return None
-
+def parse_wind(fields):
+    """Return (speed in m/s, angle in deg the wind comes from) or None."""
     try:
-        rx_checksum = int(checksum_text, 16)
-    except ValueError:
+        speed_text, angle, status = fields[0], float(fields[1]), int(fields[2])
+        # Speed without decimal point is given in tenths of m/s
+        speed = float(speed_text) if "." in speed_text else int(speed_text) / 10.
+    except (IndexError, ValueError):
+        return None
+    if status != 0:
+        print(f"Sensor status {status}, wind ignored", file=sys.stderr)
+        return None
+    return speed, angle
+
+
+def parse_temperature(fields):
+    """Return temperature in deg C from a HT frame (humidity, status, temperature) or None."""
+    try:
+        return float(fields[2])
+    except (IndexError, ValueError):
         return None
 
-    if compute_checksum(body) != rx_checksum:
-        return None
 
-    marker = None
-    for candidate in (",WVP=", ",WVC=", ",HT="):
-        if candidate in body:
-            marker = candidate
-            break
+class FT742:
+    def __init__(self, port, baud, ac_id, rate, temperature):
+        self.ser = serial.Serial(port=port, baudrate=baud, timeout=0.2)
+        self.ivy = IvyMessagesInterface("ft742")
+        self.ac_id = ac_id
+        self.period = 1. / rate
+        self.read_temperature = temperature
+        self.temperature = None
+        self.temperature_time = 0.
 
-    if marker is None:
-        return None
+    def query(self, cmd):
+        self.ser.reset_input_buffer()
+        self.ser.write(cmd)
+        return parse_frame(self.ser.readline().decode("ascii", errors="ignore"))
 
-    talker, data = body.split(marker, 1)
-    sentence = marker.strip(",=")
-    fields = data.split(",")
+    def update_temperature(self):
+        frame = self.query(TEMP_QUERY)
+        if frame is not None and frame[0] == "HT":
+            temp = parse_temperature(frame[1])
+            if temp is not None:
+                self.temperature = temp
+                self.temperature_time = time.time()
 
-    sample = {
-        "talker": talker,
-        "sentence": sentence,
-    }
+    def send_wind(self, speed, angle):
+        # The sensor gives the direction the wind comes from (0 deg is north, clockwise),
+        # WIND_INFO expects the vector the wind blows to, hence the 180 deg.
+        # This assumes the sensor north mark is aligned with true north.
+        to_dir = math.radians(angle + 180.)
+        msg = PprzMessage("datalink", "WIND_INFO")
+        msg['ac_id'] = self.ac_id
+        msg['flags'] = WIND_INFO_HORIZONTAL
+        msg['east'] = speed * math.sin(to_dir)
+        msg['north'] = speed * math.cos(to_dir)
+        msg['up'] = 0.
+        msg['airspeed'] = 0.
+        msg['temp'] = -1000.  # unknown
+        if self.temperature is not None and time.time() - self.temperature_time < TEMP_TIMEOUT:
+            msg['flags'] |= WIND_INFO_TEMPERATURE
+            msg['temp'] = self.temperature
+        self.ivy.send_raw_datalink(msg)
 
-    if sentence in {"WVP", "WVC"}:
-        if len(fields) < 3:
-            return None
-
-        speed_text, angle_text, status_text = fields[0], fields[1], fields[2]
-
-        try:
-            # FT742 commonly reports speed as tenths when no decimal point is present.
-            speed = float(speed_text) if "." in speed_text else int(speed_text) / 10.0
-            angle_deg = float(angle_text)
-            status = int(status_text)
-        except ValueError:
-            return None
-
-        sample.update(
-            {
-                "speed": speed,
-                "angle_deg": angle_deg,
-                "direction_rad": math.radians(angle_deg - 180.0),
-                "status": status,
-            }
-        )
-
-    elif sentence == "HT":
-        # Observed frame example: $WI,HT=99,00,+25*3F
-        # Interpreted as: humidity, status, temperature.
-        if len(fields) < 1:
-            return None
-
-        try:
-            sample["humidity"] = float(fields[0])
-            sample["humidity_unit"] = "%"
-        except ValueError:
-            pass
-
-        if len(fields) >= 2 and fields[1]:
-            try:
-                sample["status"] = int(fields[1])
-            except ValueError:
-                sample["status_text"] = fields[1]
-
-        if len(fields) >= 3 and fields[2]:
-            try:
-                sample["temperature"] = float(fields[2])
-                sample["temperature_unit"] = "C"
-            except ValueError:
-                pass
-
-        if "humidity" not in sample and "temperature" not in sample:
-            return None
-
-    # Extended fields can include triplets such as:
-    #   <value>,<unit>,<validity>
-    # e.g. +029.1,C,A or 45.2,%,A
-    extras = fields[3:] if sentence in {"WVP", "WVC"} else fields[3:]
-    if extras:
-        # Parse as repeating value/unit pairs; treat trailing single letter as validity.
-        i = 0
-        while i < len(extras):
-            token = extras[i].strip()
-
-            # A/V style validity flags are often sent as standalone trailing token.
-            if len(token) == 1 and token.isalpha():
-                sample["validity"] = token
-                i += 1
-                continue
-
-            if i + 1 >= len(extras):
-                break
-
-            unit = extras[i + 1].strip()
-
-            try:
-                value = float(token)
-            except ValueError:
-                i += 1
-                continue
-
-            unit_upper = unit.upper()
-
-            if unit_upper in {"C", "F", "K"}:
-                sample["temperature"] = value
-                sample["temperature_unit"] = unit
-            elif "%" in unit_upper or unit_upper in {"RH", "%RH"}:
-                # Relative humidity in percent (0-100).
-                sample["humidity"] = value
-                sample["humidity_unit"] = "%"
-            else:
-                # Keep unknown numeric/unit pair for troubleshooting sentence variants.
-                sample.setdefault("extra_values", []).append({"value": value, "unit": unit})
-
-            i += 2
-
-    return sample
-
-
-def run(port: str, baud: int, rate_hz: float, query_text: str | None, ac_id: int, multi_query: bool = False, use_pprzlink: bool = True, verbose: bool = False) -> None:
-    period_s = 1.0 / rate_hz
-
-    if multi_query:
-        # Alternate between WV? (wind) and HT? (humidity) queries.
-        queries = ["WV?", "HT?"]
-        query_list = [build_query_bytes(normalize_query_text(q)) for q in queries]
-        query_idx = 0
-    else:
-        query_bytes = build_query_bytes(normalize_query_text(query_text)) if query_text else None
-        query_list = None
-
-    latest_data = {}
-    pprzlink_interface = init_pprzlink() if use_pprzlink else None
-
-    with serial.Serial(port=port, baudrate=baud, timeout=0.2) as ser:
-        if multi_query:
-            mode = "multi-query (alternating WV? and HT?)"
-        elif query_text:
-            mode = f"query={query_text!r}"
-        else:
-            mode = "listen-only"
-
-        pprzlink_status = "pprzlink enabled" if pprzlink_interface else "pprzlink disabled"
-        print(f"Connected to {port} at {baud} baud. Polling at {rate_hz:.1f} Hz ({mode}) [{pprzlink_status}]")
-
+    def run(self):
+        cycle = 0
+        missed = 0
         while True:
-            cycle_start = time.time()
-            if multi_query:
-                ser.write(query_list[query_idx])
-                query_idx = (query_idx + 1) % len(query_list)
-            elif query_bytes is not None:
-                ser.write(query_bytes)
-            raw_line = ser.readline().decode("ascii", errors="ignore")
-            raw = raw_line.strip()
+            start = time.time()
+            # Read the temperature once a second, it changes slowly
+            if self.read_temperature and cycle % max(1, round(1. / self.period)) == 0:
+                self.update_temperature()
+            cycle += 1
 
-            if not raw_line:
-                print("No response")
+            frame = self.query(WIND_QUERY)
+            wind = parse_wind(frame[1]) if frame is not None and frame[0] == "WVP" else None
+            if wind is None:
+                missed += 1
+                if missed == 10:
+                    print("No valid wind from sensor", file=sys.stderr)
             else:
-                sample = parse_ft742_line(raw_line)
-                if verbose:
-                    print(f"raw={raw}")
-                if sample is None:
-                    if verbose:
-                        print("parsed=None (invalid frame)")
-                else:
-                    if multi_query:
-                        latest_data.update(sample)
-                        if verbose:
-                            print(f"parsed={json.dumps(latest_data, sort_keys=True)}")
-                        data_to_send = latest_data
-                    else:
-                        if verbose:
-                            print(f"parsed={json.dumps(sample, sort_keys=True)}")
-                        data_to_send = sample
+                missed = 0
+                self.send_wind(*wind)
+                print(f"\rwind {wind[0]:5.1f} m/s from {wind[1]:5.1f} deg, temp {self.temperature}   ", end="")
 
-                    # Extract wind data and send via pprzlink if available.
+            time.sleep(max(0., self.period - (time.time() - start)))
 
-                    if "speed" in data_to_send and "angle_deg" in data_to_send:
-                        wind_speed_mps = float(data_to_send["speed"])
-                        direction_rad = float(data_to_send.get("direction_rad", math.radians(data_to_send["angle_deg"] - 180.0)))
-                        temp_c = data_to_send.get("temperature")  # None if not yet received this cycle
-
-                        send_wind_info(pprzlink_interface, ac_id, wind_speed_mps, direction_rad, temp_c)
-
-                        if not verbose:
-                            temp_str = f"{temp_c:.1f}C" if temp_c is not None else "n/a"
-                            print(f"wind_speed={wind_speed_mps:.2f}m/s dir={data_to_send['angle_deg']:.1f}deg temp={temp_str}")
-
-
-
-            elapsed = time.time() - cycle_start
-            sleep_time = period_s - elapsed
-            if sleep_time > 0:
-                time.sleep(sleep_time)
+    def stop(self):
+        self.ivy.shutdown()
+        self.ser.close()
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Simple FT742 serial reader")
-    parser.add_argument("port", help="Serial port, e.g. /dev/ttyUSB0")
-    parser.add_argument("--baud", type=int, default=9600, help="Serial baud rate")
-    parser.add_argument("--rate", type=float, default=10.0, help="Polling rate in Hz (max 10)")
-    parser.add_argument(
-        "--query",
-        default="WV?",
-        help="Command to send each cycle; can be full frame or shorthand like 'WV?' (default: WV?)",
-    )
-    parser.add_argument(
-        "--no-pprzlink",
-        action="store_true",
-        help="Do not send messages via pprzlink",
-    )
-    parser.add_argument(
-        "--verbose",
-        "-v",
-        action="store_true",
-        help="Print raw and parsed frames (otherwise just prints compact output)",
-    )
-    parser.add_argument(
-        "--no-query",
-        action="store_true",
-        help="Do not send any command, only listen for streamed frames",
-    )
-    parser.add_argument(
-        "--multi-query",
-        action="store_true",
-        help="Alternate WV? (wind) and HT? (humidity) queries, merge latest values",
-    )
-    parser.add_argument(
-        "--probe",
-        action="store_true",
-        help="Probe candidate queries once each and print raw replies, then exit",
-    )
-    parser.add_argument(
-        "--probe-list",
-        default="WV?,WVC?,WH?,RH?,HU?,WT?",
-        help="Comma-separated query candidates used by --probe",
-    )
-    parser.add_argument(
-    "--ac-id",
-    type=int,
-    default=2,
-    help="Aircraft ID for Paparazzi logging"
-    )
-
-
+    parser = argparse.ArgumentParser(description="FT742-SM ground wind sensor to WIND_INFO")
+    parser.add_argument("port", help="serial port, e.g. /dev/ttyUSB0")
+    parser.add_argument("--ac-id", type=int, required=True, help="aircraft ID to send the wind to")
+    parser.add_argument("--baud", type=int, default=9600, help="serial baud rate")
+    parser.add_argument("--rate", type=float, default=10., help="polling rate in Hz (max 10)")
+    parser.add_argument("--temperature", action="store_true", help="also read and send the temperature")
     args = parser.parse_args()
 
-    if args.rate <= 0 or args.rate > 10.0:
-        print("--rate must be in range (0, 10]", file=sys.stderr)
-        raise SystemExit(2)
-
-    probe_candidates = [q.strip() for q in args.probe_list.split(",") if q.strip()]
-    if args.probe and not probe_candidates:
-        print("--probe-list must contain at least one candidate", file=sys.stderr)
-        raise SystemExit(2)
+    if not 0 < args.rate <= 10.:
+        parser.error("--rate must be in (0, 10]")
 
     try:
-        if args.probe:
-            probe_queries(args.port, args.baud, probe_candidates)
-        else:
-            run(
-                args.port,
-                args.baud,
-                args.rate,
-                None if args.no_query else args.query,
-                args.ac_id,
-                args.multi_query,
-                use_pprzlink=not args.no_pprzlink,
-                verbose=args.verbose,
-            )
-    except serial.SerialException as exc:
-        print(f"Serial error: {exc}", file=sys.stderr)
-        raise SystemExit(1)
+        sensor = FT742(args.port, args.baud, args.ac_id, args.rate, args.temperature)
+    except serial.SerialException as e:
+        sys.exit(f"Serial error: {e}")
+    try:
+        sensor.run()
     except KeyboardInterrupt:
-        print("\nStopped")
+        pass
+    finally:
+        sensor.stop()
 
 
 if __name__ == "__main__":

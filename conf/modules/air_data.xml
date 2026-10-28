@@ -41,26 +41,15 @@
     A sensor with a filter_freq (Hz) is low-pass filtered, a second order Butterworth at the measured rate of the sensor.
     Without filter_freq it isn't filtered. The airspeedFilter setting changes it for the airspeed sensor in use.
     </description>
-    <define name="AIR_DATA_BARO_CALIB" value="array of structs" description="calibration of the barometers, also their priority (see the description)"/>
-    <define name="AIR_DATA_DIFF_CALIB" value="array of structs" description="calibration of the differential pressure sensors, the scale is the pitot correction"/>
-    <define name="AIR_DATA_AIRSPEED_CALIB" value="array of structs" description="calibration of the airspeed sensors"/>
-    <define name="AIR_DATA_TEMP_CALIB" value="array of structs" description="calibration of the temperatures"/>
-    <define name="AIR_DATA_BARO_ID" value="ABI_SENDER_ID" description="barometer to use (default: ABI_BROADCAST, the first healthy one)"/>
-    <define name="AIR_DATA_AIRSPEED_ID" value="ABI_SENDER_ID" description="differential pressure or airspeed sensor to use (default: ABI_BROADCAST, the first healthy one)"/>
-    <define name="AIR_DATA_TEMP_ID" value="ABI_SENDER_ID" description="temperature to use (default: ABI_BROADCAST, an air temperature probe, then a pitot, then a barometer)"/>
-    <define name="AIR_DATA_BARO_SEND_ID" value="ABI_SENDER_ID" description="barometer in the BARO_RAW telemetry (default: ABI_BROADCAST, all in turn; ABI_DISABLE for none)"/>
-    <define name="AIR_DATA_AIRSPEED_SEND_ID" value="ABI_SENDER_ID" description="airspeed sensor in the AIRSPEED_RAW telemetry (default: ABI_BROADCAST, all in turn; ABI_DISABLE for none)"/>
-    <define name="AIR_DATA_SEND_ALL_SENSORS" value="FALSE|TRUE" description="also send every calibrated sensor with its own ABI id (default: FALSE)"/>
-    <define name="AIR_DATA_TIMEOUT" value="0.5" description="minimum time in s without a valid value before a sensor is unhealthy"/>
-    <define name="AIR_DATA_TIMEOUT_FACTOR" value="5." description="a sensor is unhealthy without a valid value for this times its interval"/>
-    <define name="AIR_DATA_ALIGN_NB" value="20" description="number of values to line up a barometer that starts after the calibration"/>
-    <define name="AIR_DATA_DIFF_MAX" value="10000." description="differential pressures above this (Pa) are ignored"/>
-    <define name="AIR_DATA_CALIB_AT_BOOT" value="TRUE|FALSE" description="line up the barometers and check the differential pressures at rest at boot (default: TRUE)"/>
-    <define name="AIR_DATA_CALIB_BOOT_DELAY" value="3." description="time after boot of the calibration in s"/>
-    <define name="AIR_DATA_CALIB_TIME" value="2." description="calibration time in s"/>
-    <define name="AIR_DATA_DIFF_REST_MAX" value="20." description="maximum differential pressure at rest in Pa, above it a warning is sent at boot and in the preflight checks"/>
-    <define name="AIR_DATA_CALIB_ARMED" value="FALSE|TRUE" description="allow the calibration while armed (default: FALSE)"/>
-    <define name="USE_AIRSPEED_AIR_DATA" value="TRUE|FALSE" description="set airspeed in state interface (default: TRUE)"/>
+    <define name="AIR_DATA_BARO_ABS_ID" value="ABI_SENDER_ID" description="ABI sender id for absolute baro measurement (default: ABI_BROADCAST)"/>
+    <define name="AIR_DATA_BARO_DIFF_ID" value="ABI_SENDER_ID" description="ABI sender id for differential baro measurement (default: ABI_BROADCAST)"/>
+    <define name="AIR_DATA_TEMPERATURE_ID" value="ABI_SENDER_ID" description="ABI sender id for temperature measurement (default: ABI_BROADCAST)"/>
+    <define name="AIR_DATA_AIRSPEED_ID" value="ABI_SENDER_ID" description="ABI sender id for airspeed measurement (default: ABI_BROADCAST)"/>
+    <define name="AIR_DATA_CALC_AIRSPEED" value="FALSE|TRUE" description="Calculate Airspeed from differential pressure (default: TRUE)"/>
+    <define name="AIR_DATA_CALC_TAS_FACTOR" value="FALSE|TRUE" description="Calculate TAS factor from temp and pressure (default: TRUE)"/>
+    <define name="AIR_DATA_CALC_AMSL_BARO" value="FALSE|TRUE" description="Calculate AMS from baro and QNH (default: FALSE)"/>
+    <define name="USE_AIRSPEED_AIR_DATA" value="TRUE|FALSE" description="set airspeed in state interface (defaults to TRUE if USE_AIRSPEED)"/>
+    <define name="WIND_INFO_RET" description="periodically echo the last received WIND_INFO (e.g. from a ground wind sensor) in WIND_INFO_RET"/>
   </doc>
   <settings>
     <dl_settings>
