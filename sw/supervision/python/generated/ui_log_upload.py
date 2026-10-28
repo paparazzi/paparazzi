@@ -89,7 +89,7 @@ class Ui_LogUpload(object):
         self.server_label.setText(_translate("LogUpload", "Log server URL"))
         self.server_edit.setPlaceholderText(_translate("LogUpload", "https://logs.example.org"))
         self.key_label.setText(_translate("LogUpload", "API key"))
-        self.key_edit.setToolTip(_translate("LogUpload", "Create an API key on your account page of the log server"))
+        self.key_edit.setToolTip(_translate("LogUpload", "Create an API key on your account page of the log server. Enter the key, or the path of a file holding it (starting with / or ~)"))
         self.save_button.setToolTip(_translate("LogUpload", "Save the server URL and API key and check for logs to upload. Clear both to stop uploading."))
         self.save_button.setText(_translate("LogUpload", "Save"))
         self.upload_button.setToolTip(_translate("LogUpload", "Upload finished logs now instead of waiting for the next automatic run"))

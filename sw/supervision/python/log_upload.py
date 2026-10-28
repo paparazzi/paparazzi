@@ -131,6 +131,15 @@ class Client:
         return self.request("POST", "/api/upload", body(), headers)
 
 
+def resolve_key(value):
+    """The API key setting is either the key itself or the path of a file holding it (starting with / or ~),
+    so the key does not have to be stored in the settings. The file is read on every run."""
+    if not value.startswith(("/", "~")):
+        return value
+    with open(os.path.expanduser(value)) as f:
+        return f.read().strip()
+
+
 def sha256_file(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -365,6 +374,14 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
             return
         if self.session_running():
             self.status.emit("Log upload: waiting for the session to stop")
+            return
+        try:
+            key = resolve_key(key)
+        except OSError as e:
+            self.status.emit(f"Log upload: cannot read the API key file ({e.strerror})")
+            return
+        if not key:
+            self.status.emit("Log upload: the API key file is empty")
             return
         self.cancel.clear()
         self.rerun = False

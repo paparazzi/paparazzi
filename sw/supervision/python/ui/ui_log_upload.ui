@@ -52,7 +52,7 @@
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>Create an API key on your account page of the log server</string>
+        <string>Create an API key on your account page of the log server. Enter the key, or the path of a file holding it (starting with / or ~)</string>
        </property>
        <property name="echoMode">
         <enum>QLineEdit::Password</enum>
