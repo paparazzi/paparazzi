@@ -227,19 +227,21 @@ def upload_new_logs(server, key, sessions=(), finished=(), cancel=None, report=p
         if not state["history"] or state["history"][-1][2] != result:
             add("", None, result, f"{e} (retried later)")
         return
-    counts = {"uploaded": 0, "failed": 0}
+    counts = {"uploaded": 0, "on_server": 0, "skipped": 0, "failed": 0}
     for i, (name, data, log, sig) in enumerate(todo):
         if cancel is not None and cancel.is_set():
             report(f"Log upload: paused, {len(todo) - i} waiting for the session to stop")
             return
         if sig[0][0] == 0:
+            counts["skipped"] += 1
             add(name, sig, "Skipped", "empty .data file (no telemetry received)")
             continue
-        report(f"Log upload: uploading {i + 1}/{len(todo)}...")
+        report(f"Log upload: verifying {i + 1}/{len(todo)}...")
         try:
             digest = sha256_file(data)
             known = client.check([digest]).get(digest)
             if known and known.get("has_log") and known.get("mine", True):
+                counts["on_server"] += 1
                 add(name, sig, "On server", "already uploaded")
                 continue
             try:
@@ -271,8 +273,10 @@ def upload_new_logs(server, key, sessions=(), finished=(), cancel=None, report=p
             report(f"Log upload: stopped, {e}")
             add(name, None, "Failed", f"{e} (retried later)")
             return
-    failed_txt = f", {counts['failed']} rejected" if counts["failed"] else ""
-    report(f"Log upload: {counts['uploaded']} uploaded{failed_txt}{waiting_txt}")
+    others = ((counts["on_server"], "already on the server"), (counts["skipped"], "skipped (empty)"),
+              (counts["failed"], "rejected"))
+    others_txt = "".join(f", {n} {what}" for n, what in others if n)
+    report(f"Log upload: {counts['uploaded']} uploaded{others_txt}{waiting_txt}")
 
 
 class LogUploadWidget(QWidget, Ui_LogUpload):
