@@ -21,6 +21,8 @@ OTHER_TAGS = ["AIRCRAFT", "AC_ID"]
 
 class LogWidget(QWidget, Ui_LogWidget):
 
+    extracted = QtCore.pyqtSignal(str)  # path of the extracted .data file
+
     def __init__(self, parent=None, *args, **kwargs):
         QWidget.__init__(self, parent=parent, *args, **kwargs)
         self.setupUi(self)
@@ -100,6 +102,7 @@ class LogWidget(QWidget, Ui_LogWidget):
         shutil.move(f"{TMP_DIR}/{self.basename}.log", f"{out}/{self.basename}.log")
         shutil.move(f"{TMP_DIR}/{self.basename}.tlm", f"{out}/{self.basename}.tlm")
         self.status_label.setText(f"Files extracted in {out}")
+        self.extracted.emit(f"{out}/{self.basename}.data")
 
     def get_ac_id(self, filename) -> int:
         with open(filename, 'r') as data:
