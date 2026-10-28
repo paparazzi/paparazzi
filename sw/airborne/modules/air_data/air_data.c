@@ -211,8 +211,11 @@ static void send_amsl(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_AMSL(trans, dev, AC_ID, &amsl_baro_ft, &amsl_gps_ft);
 }
 
+#ifdef WIND_INFO_RET
+/** Echo the last received WIND_INFO, only once one was received */
 static void send_wind_info_ret(struct transport_tx *trans, struct link_device *dev)
 {
+  if (air_data.wind_last_stamp == 0) { return; }
   pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID,
                               &air_data.wind_flags,
                               &air_data.wind_east,
@@ -221,6 +224,7 @@ static void send_wind_info_ret(struct transport_tx *trans, struct link_device *d
                               &air_data.wind_airspeed,
                               &air_data.wind_temp);
 }
+#endif
 #endif
 
 /** AirData initialization. Called at startup.
@@ -271,7 +275,9 @@ void air_data_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BARO_RAW, send_baro_raw);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIR_DATA, send_air_data);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AMSL, send_amsl);
+#ifdef WIND_INFO_RET
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind_info_ret);
+#endif
 #endif
 }
 
