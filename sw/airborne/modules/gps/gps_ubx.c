@@ -64,6 +64,8 @@
 
 #define RXM_RTCM_VERSION        0x02
 #define NAV_RELPOSNED_VERSION   0x01
+#define NAV_DAHEADING_VERSION   0x02
+#define NAV_DAHEADING_REF_ID    0xFFFF  ///< RELPOS reference id used for the dual-antenna heading
 /* last error type */
 #define GPS_UBX_ERR_NONE         0
 #define GPS_UBX_ERR_OVERRUN      1
@@ -458,6 +460,46 @@ static void gps_ubx_parse_nav_relposned(struct GpsUbx *gubx)
 #endif
 }
 
+/* Dual-antenna heading (e.g. ZED-X20D) from antenna 1 to antenna 2, published as RELPOS */
+static void gps_ubx_parse_nav_daheading(struct GpsUbx *gubx)
+{
+  uint8_t version = UBX_NAV_DAHEADING_version(gubx->msg_buf);
+  if (version != NAV_DAHEADING_VERSION) {
+    return;
+  }
+
+  uint32_t flags = UBX_NAV_DAHEADING_flags(gubx->msg_buf);
+  bool relPosValid = (flags >> 2) & 0x1;
+  bool relPosHeadingValid = (flags >> 6) & 0x1;
+  if (!relPosValid) {
+    return;
+  }
+
+  uint32_t now_ts = get_sys_time_usec();
+  struct RelPosNED relpos = {0};
+  relpos.reference_id = NAV_DAHEADING_REF_ID;
+  relpos.tow = UBX_NAV_DAHEADING_iTOW(gubx->msg_buf);
+  relpos.pos.x = UBX_NAV_DAHEADING_relPosN(gubx->msg_buf) * 1e-3;
+  relpos.pos.y = UBX_NAV_DAHEADING_relPosE(gubx->msg_buf) * 1e-3;
+  relpos.pos.z = UBX_NAV_DAHEADING_relPosD(gubx->msg_buf) * 1e-3;
+  relpos.distance = UBX_NAV_DAHEADING_relPosLength(gubx->msg_buf) * 1e-3;
+  relpos.pos_acc.x = UBX_NAV_DAHEADING_accN(gubx->msg_buf) * 1e-3;
+  relpos.pos_acc.y = UBX_NAV_DAHEADING_accE(gubx->msg_buf) * 1e-3;
+  relpos.pos_acc.z = UBX_NAV_DAHEADING_accD(gubx->msg_buf) * 1e-3;
+  relpos.distance_acc = UBX_NAV_DAHEADING_accLength(gubx->msg_buf) * 1e-3;
+
+  // The heading is only valid when relPosHeadingValid is set (NAN is ignored by the INS)
+  if (relPosHeadingValid) {
+    relpos.heading = RadOfDeg(UBX_NAV_DAHEADING_relPosHeading(gubx->msg_buf) * 1e-5);
+    relpos.heading_acc = RadOfDeg(UBX_NAV_DAHEADING_accHeading(gubx->msg_buf) * 1e-5);
+  } else {
+    relpos.heading = NAN;
+    relpos.heading_acc = NAN;
+  }
+
+  AbiSendMsgRELPOS(gubx->state.comp_id, now_ts, &relpos);
+}
+
 void gps_ubx_read_message(struct GpsUbx *gubx);
 void gps_ubx_read_message(struct GpsUbx *gubx)
 {
@@ -496,6 +538,9 @@ void gps_ubx_read_message(struct GpsUbx *gubx)
         break;
       case UBX_NAV_RELPOSNED_ID:
         gps_ubx_parse_nav_relposned(gubx);
+        break;
+      case UBX_NAV_DAHEADING_ID:
+        gps_ubx_parse_nav_daheading(gubx);
         break;
       default:
         break;

@@ -10,6 +10,10 @@
         - Hotstart  (GPS_UBX_BOOTRESET = 1)
         - Warmstart (GPS_UBX_BOOTRESET = 2)
         - Coldstart (GPS_UBX_BOOTRESET = 3) 
+
+      Dual-antenna heading receivers (e.g. ZED-X20D) report the heading from antenna 1 to antenna 2 in
+      UBX-NAV-DAHEADING (enable it on the receiver with CFG-MSGOUT-UBX_NAV_DAHEADING_xxx). It is published
+      as RELPOS (reference id 0xFFFF), which ins_ekf2 uses as GPS yaw with INS_EKF2_GPS_YAW_OFFSET.
     </description>
     <configure name="UBX_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
     <configure name="UBX_GPS_BAUD" value="B38400" description="UART baud rate"/>
