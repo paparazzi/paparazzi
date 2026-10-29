@@ -78,6 +78,8 @@ ifneq ($(words $(GIT_SHA1)),1)
 GIT_SHA1 := "UNKNOWN"
 endif
 GIT_DESC := $(shell ./paparazzi_version)
+# build time as UTC unix timestamp, SOURCE_DATE_EPOCH for reproducible builds
+BUILD_TIME := $(or $(SOURCE_DATE_EPOCH),$(shell date -u +%s))
 BUILD_DESC := $(shell cat $(PAPARAZZI_HOME)/var/build_version.txt 2> /dev/null || echo UNKNOWN)
 # extract only version number in format <major>.<minor>.<patch>
 PPRZ_VER := $(shell echo $(GIT_DESC) | sed 's/[^0-9.]*\([0-9.]*\).*/\1/')
@@ -90,6 +92,7 @@ endif
 export GIT_DESC
 export BUILD_DESC
 export GIT_SHA1
+export BUILD_TIME
 export PPRZ_VER_MAJOR
 export PPRZ_VER_MINOR
 export PPRZ_VER_PATCH
