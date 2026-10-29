@@ -33,6 +33,8 @@
  * vector has to be relocated for Luftboot
  */
 
+#include <string.h>
+
 /* ChibiOS includes */
 #include "ch.h"
 #include "hal.h"
@@ -238,6 +240,25 @@ void mcu_energy_save(void)
   BOARD_GROUP_DECLFOREACH(input_low, ENERGY_SAVE_LOWS) {
     palClearLine(input_low);
   }
+#endif
+}
+
+/**
+ * @brief Get the 96-bit unique device ID of the STM32
+ * @param uid Buffer to write the ID to
+ * @param max_len Size of the buffer
+ * @return Number of bytes written, 0 if not available
+ */
+uint8_t mcu_get_uid(uint8_t *uid, uint8_t max_len)
+{
+#if defined(UID_BASE)
+  uint8_t len = Min(max_len, 12);
+  memcpy(uid, (const uint8_t *)UID_BASE, len);
+  return len;
+#else
+  (void)uid;
+  (void)max_len;
+  return 0;
 #endif
 }
 

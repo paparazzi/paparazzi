@@ -29,6 +29,7 @@
  * - PPRZ_VER_MAJOR: major version number
  * - PPRZ_VER_MINOR: minor version number
  * - PPRZ_VER_PATCH: patch version number
+ * - BUILD_TIME: build time as UTC unix timestamp
  *
  * Stringified defines provided:
  * - GIT_VERSION
@@ -65,20 +66,47 @@ static inline uint8_t nibble_from_char(char c)
   return 255;
 }
 
+/** Build time as UTC unix timestamp, 0 if unknown */
+#ifdef BUILD_TIME
+#define PPRZ_BUILD_TIME ((uint32_t)BUILD_TIME)
+#else
+#define PPRZ_BUILD_TIME ((uint32_t)0)
+#endif
+
+/** Get git SHA1 of paparazzi version.
+ * Write the first len bytes (2*len chars) to byte array.
+ * Bytes are set to zero when the hash is unknown.
+ * @param sha1 array to write to
+ * @param len number of bytes to write (at most 20)
+ */
+static inline void get_pprz_git_sha1(uint8_t *sha1, uint8_t len)
+{
+  static const char *git_sha = GIT_VERSION;
+  const char *p = git_sha;
+  uint8_t i;
+
+  for (i = 0; i < len; i++) {
+    uint8_t hi = (*p != '\0') ? nibble_from_char(*p) : 255;
+    uint8_t lo = (hi != 255 && *(p + 1) != '\0') ? nibble_from_char(*(p + 1)) : 255;
+    if (hi == 255 || lo == 255) {
+      // unknown or too short hash
+      for (i = 0; i < len; i++) {
+        sha1[i] = 0;
+      }
+      return;
+    }
+    sha1[i] = (hi << 4) | lo;
+    p += 2;
+  }
+}
+
 /** Get git SHA1 of paparazzi version.
  * Write the first 8bytes (16chars) to byte array.
  * @param sha1 array to write to
  */
 static inline void get_pprz_git_version(uint8_t sha1[8])
 {
-  static char *git_sha = GIT_VERSION;
-  uint8_t *p;
-  uint8_t i;
-
-  for (i = 0, p = (uint8_t *) git_sha; i < 8; i++) {
-    sha1[i] = (nibble_from_char(*p) << 4) | nibble_from_char(*(p + 1));
-    p += 2;
-  }
+  get_pprz_git_sha1(sha1, 8);
 }
 
 #ifdef __cplusplus

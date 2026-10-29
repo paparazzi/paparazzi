@@ -34,6 +34,9 @@ $(TARGET).CFLAGS += -DBEBOP_VERSION2
 # handle linux signals by hand
 $(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL -D_GNU_SOURCE
 
+# unique ID from the Parrot factory serial number (MAC address if missing)
+$(TARGET).CFLAGS += -DLINUX_UID_FILE=\"/factory/serial.txt\"
+
 # board specific init function
 $(TARGET).srcs +=  $(SRC_BOARD)/board.c
 
