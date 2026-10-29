@@ -81,6 +81,11 @@
             <string>Accel calib</string>
            </attribute>
           </widget>
+          <widget class="LogUploadWidget" name="log_upload_widget">
+           <attribute name="title">
+            <string>Log upload</string>
+           </attribute>
+          </widget>
          </widget>
         </item>
        </layout>
@@ -160,6 +165,12 @@
    <class>LogWidget</class>
    <extends>QWidget</extends>
    <header>log_widget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LogUploadWidget</class>
+   <extends>QWidget</extends>
+   <header>log_upload.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
