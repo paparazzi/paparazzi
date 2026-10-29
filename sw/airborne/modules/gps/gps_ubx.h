@@ -48,7 +48,9 @@ extern void gps_ubx_event(void);
 extern void gps_ubx_parse_HITL_UBX(uint8_t *buf);
 
 #define GPS_UBX_NB_CHANNELS 40
-#define GPS_UBX_MAX_PAYLOAD 512
+#ifndef GPS_UBX_MAX_PAYLOAD
+#define GPS_UBX_MAX_PAYLOAD 1024  ///< e.g. UBX-NAV-SAT is 8 + 12 * numSvs bytes
+#endif
 
 struct GpsUbx {
   struct link_device *dev;

@@ -392,7 +392,7 @@ static void gps_ubx_parse_nav_sat(struct GpsUbx *gubx)
 
   // Go through all the different channels
   for (uint8_t i = 0; i < gubx->state.nb_channels; i++) {
-    uint32_t flags = UBX_NAV_SVINFO_flags(gubx->msg_buf, i);
+    uint32_t flags = UBX_NAV_SAT_flags(gubx->msg_buf, i);
     gubx->state.svinfos[i].svid = UBX_NAV_SAT_svId(gubx->msg_buf, i);
     gubx->state.svinfos[i].cno = UBX_NAV_SAT_cno(gubx->msg_buf, i);
     gubx->state.svinfos[i].elev = UBX_NAV_SAT_elev(gubx->msg_buf, i);
@@ -419,11 +419,12 @@ static void gps_ubx_parse_nav_relposned(struct GpsUbx *gubx)
 #if USE_GPS_UBX_RTCM
   uint8_t version = UBX_NAV_RELPOSNED_version(gubx->msg_buf);
   if (version <= NAV_RELPOSNED_VERSION) {
-    uint8_t flags       = UBX_NAV_RELPOSNED_flags(gubx->msg_buf);
-    uint8_t carrSoln    = RTCMgetbitu(&flags, 3, 2);
-    uint8_t relPosValid = RTCMgetbitu(&flags, 5, 1);
-    uint8_t diffSoln    = RTCMgetbitu(&flags, 6, 1);
-    uint8_t gnssFixOK   = RTCMgetbitu(&flags, 7, 1);
+    uint32_t flags             = UBX_NAV_RELPOSNED_flags(gubx->msg_buf);
+    uint8_t gnssFixOK          = (flags >> 0) & 0x1;
+    uint8_t diffSoln           = (flags >> 1) & 0x1;
+    uint8_t relPosValid        = (flags >> 2) & 0x1;
+    uint8_t carrSoln           = (flags >> 3) & 0x3;
+    uint8_t relPosHeadingValid = (flags >> 8) & 0x1;
 
     /* Only save the latest valid relative position */
     if (relPosValid) {
@@ -445,12 +446,19 @@ static void gps_ubx_parse_nav_relposned(struct GpsUbx *gubx)
       relpos.pos.y = UBX_NAV_RELPOSNED_relPosE(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPE(gubx->msg_buf) * 1e-4;
       relpos.pos.z = UBX_NAV_RELPOSNED_relPosD(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPD(gubx->msg_buf) * 1e-4;
       relpos.distance = UBX_NAV_RELPOSNED_relPosLength(gubx->msg_buf) * 1e-2;
-      relpos.heading = RadOfDeg(UBX_NAV_RELPOSNED_relPosHeading(gubx->msg_buf) * 1e-5);
       relpos.pos_acc.x = UBX_NAV_RELPOSNED_accN(gubx->msg_buf) * 1e-4;
       relpos.pos_acc.y = UBX_NAV_RELPOSNED_accE(gubx->msg_buf) * 1e-4;
       relpos.pos_acc.z = UBX_NAV_RELPOSNED_accD(gubx->msg_buf) * 1e-4;
       relpos.distance_acc = UBX_NAV_RELPOSNED_accLength(gubx->msg_buf) * 1e-4;
-      relpos.heading_acc = RadOfDeg(UBX_NAV_RELPOSNED_accHeading(gubx->msg_buf) * 1e-5);
+
+      // The heading is only valid when relPosHeadingValid is set (NAN is ignored by the INS)
+      if (relPosHeadingValid) {
+        relpos.heading = RadOfDeg(UBX_NAV_RELPOSNED_relPosHeading(gubx->msg_buf) * 1e-5);
+        relpos.heading_acc = RadOfDeg(UBX_NAV_RELPOSNED_accHeading(gubx->msg_buf) * 1e-5);
+      } else {
+        relpos.heading = NAN;
+        relpos.heading_acc = NAN;
+      }
 
       AbiSendMsgRELPOS(gubx->state.comp_id, now_ts, &relpos);
     }
