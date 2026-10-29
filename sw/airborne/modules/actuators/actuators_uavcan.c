@@ -29,6 +29,7 @@
 #include "math/pprz_random.h"
 #include "modules/core/abi.h"
 #include "modules/actuators/actuators.h"
+#include <math.h>
 
 
 #include "uavcan.equipment.esc.Status.h"
@@ -348,8 +349,17 @@ static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, Ca
   // Feedback ABI position messages
   struct act_feedback_t feedback = {0};
   feedback.idx = get_actuator_idx(iface, msg.actuator_id);
+  // Unknown fields are NAN, unknown power rating is 127
   feedback.position = telem->position;
-  feedback.set.position = true;
+  feedback.set.position = !isnan(msg.position);
+  feedback.force = msg.force;
+  feedback.set.force = !isnan(msg.force);
+  feedback.speed = msg.speed;
+  feedback.set.speed = !isnan(msg.speed);
+  if (msg.power_rating_pct <= 100) {
+    feedback.power_pct = msg.power_rating_pct;
+    feedback.set.power = true;
+  }
 
   // Send ABI message
   AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
