@@ -8,7 +8,7 @@
       <message name="INFO_MSG"               period="1.0"/>
       <message name="ALIVE"                  period="2.7"/> 
       <message name="ATTITUDE"               period="0.5"/>
-      <message name="AUTOPILOT_VERSION"      period="11.1"/>
+      <message name="AUTOPILOT_VERSION"      period="22.2"/>
       <message name="DATALINK_REPORT"        period="5.1"/>
       <message name="ENERGY"                 period="8.5"/> 
       <message name="GPS_INT"                period="0.35"/>
@@ -30,7 +30,7 @@
     </mode>
 
     <mode name="low" key_press="l">
-      <message name="AUTOPILOT_VERSION"      period="11.1"/>
+      <message name="AUTOPILOT_VERSION"      period="22.2"/>
       <message name="ROVER_STATUS"           period="1.2"/>
       <message name="ROTORCRAFT_FP"          period="1.0"/>
       <message name="ALIVE"                  period="2.1"/>
