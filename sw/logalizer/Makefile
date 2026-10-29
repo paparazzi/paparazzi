@@ -62,9 +62,9 @@ logplotter : log_file.cmo gtk_export.cmo export.cmo logplotter.cmo $(LIBPPRZCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(XLINKPKG) gtkInit.cmo $^
 
-sd2log : sd2log.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
-	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
+sd2log: sd2log.c
+	@echo CC $@
+	$(Q)$(CC) $(CFLAGS) -o $@ $^ -lz
 
 sdlogger_download: sdlogger_download.c
 	@echo CC $@
