@@ -21,6 +21,7 @@
   <header>
     <file name="logger_control_effectiveness.h" />
   </header>
+  <init fun="logger_control_effectiveness_init()"/>
   <periodic fun="logger_control_effectiveness_periodic()" start="logger_control_effectiveness_start()" stop="logger_control_effectiveness_stop()" autorun="FALSE" />
   <makefile target="ap">
     <file name="logger_control_effectiveness.c"/>
