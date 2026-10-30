@@ -6,7 +6,7 @@
   <process name="Main">
 
     <mode name="default" key_press="d">
-      <message name="AUTOPILOT_VERSION"        period="11.1"/>
+      <message name="AUTOPILOT_VERSION"        period="22.2"/>
       <message name="DL_VALUE"                 period="0.7"/>
       <message name="ROTORCRAFT_STATUS"        period="0.4"/>
       <message name="ROTORCRAFT_FP"            period="0.20"/>
@@ -70,7 +70,7 @@
     </mode>
 
     <mode name="sim" key_press="d">
-      <message name="AUTOPILOT_VERSION"        period="11.1"/>
+      <message name="AUTOPILOT_VERSION"        period="22.2"/>
       <message name="DL_VALUE"                 period="0.7"/>
       <message name="ROTORCRAFT_STATUS"        period="0.4"/>
       <message name="ROTORCRAFT_FP"            period="0.20"/>
@@ -338,7 +338,7 @@
   <process name="FlightRecorder">
     <mode name="default">
       <message name="ALIVE"                    period="15.1"/>
-      <message name="AUTOPILOT_VERSION"        period="11.1"/>
+      <message name="AUTOPILOT_VERSION"        period="22.2"/>
       <message name="GPS"                      period="11.1"/>
       <message name="DL_VALUE"                 period="2.5"/>
       <message name="ROTORCRAFT_STATUS"        period="1.2"/>
@@ -395,7 +395,7 @@
   <process name="Mavlink" type="mavlink">
     <mode name="default">
       <message name="HEARTBEAT"           period="0.5"/> <!-- For the camera 10Hz -->
-      <message name="AUTOPILOT_VERSION"   period="11.1"/>
+      <message name="AUTOPILOT_VERSION"   period="22.2"/>
       <message name="SYS_STATUS"          period="1.2"/>
       <message name="SYSTEM_TIME"         period="2.0"/>
       <message name="ATTITUDE"            period="0.1"/> <!-- For the camera 10Hz -->
