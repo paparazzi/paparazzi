@@ -74,7 +74,7 @@ class LogWidget(QWidget, Ui_LogWidget):
             output = os.path.expandvars(self.output_edit.text())
             if not os.path.exists(TMP_DIR):
                 os.makedirs(TMP_DIR)
-            self.process.start(program, [input, TMP_DIR])
+            self.process.start(program, [input, TMP_DIR, "--tlm"])
             self.status_label.setText("processing...")
 
     def handle_finished(self, exit_code: int, exit_status: QProcess.ExitStatus):
@@ -117,7 +117,8 @@ class LogWidget(QWidget, Ui_LogWidget):
         err = self.process.readAllStandardError()
         err = err.data().decode()
         for line in err.splitlines():
-            m = re.match(r'(.*)\.data', line)
+            # sd2log reports the produced files as "Generated <basename>.[data,log,tlm] | ..."
+            m = re.match(r'Generated (\S+)\.\[data', line)
             if m is not None:
                 self.basename = m.group(1)
                 m = re.match(r'(\d{2})_(\d{2})_(\d{2})__(\d{2})_(\d{2})_(\d{2})', self.basename)
