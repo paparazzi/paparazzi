@@ -718,13 +718,13 @@ void ins_ekf2_init(void)
   ekf_params->ekf2_hgt_ref = INS_EKF2_VDIST_SENSOR_TYPE;
   ekf_params->ekf2_baro_ctrl = 1;
   ekf_params->ekf2_mag_type = mag_type_of_fusion_type(INS_EKF2_MAG_FUSION_TYPE);
-  ekf_params->ekf2_of_ctrl = (INS_EKF2_FUSION_MODE & MASK_USE_OF) ? 1 : 0;
-  ekf_params->ekf2_drag_ctrl = (INS_EKF2_FUSION_MODE & MASK_USE_DRAG) ? 1 : 0;
-  ekf_params->ekf2_ev_ctrl = ((INS_EKF2_FUSION_MODE & MASK_USE_EVPOS) ? static_cast<int32_t>(EvCtrl::HPOS) : 0)
+  ekf_params->ekf2_of_ctrl = ((INS_EKF2_FUSION_MODE) & MASK_USE_OF) ? 1 : 0;
+  ekf_params->ekf2_drag_ctrl = ((INS_EKF2_FUSION_MODE) & MASK_USE_DRAG) ? 1 : 0;
+  ekf_params->ekf2_ev_ctrl = (((INS_EKF2_FUSION_MODE) & MASK_USE_EVPOS) ? static_cast<int32_t>(EvCtrl::HPOS) : 0)
                              | ((INS_EKF2_VDIST_SENSOR_TYPE == VDIST_SENSOR_EV) ? static_cast<int32_t>(EvCtrl::VPOS) : 0)
-                             | ((INS_EKF2_FUSION_MODE & MASK_USE_EVVEL) ? static_cast<int32_t>(EvCtrl::VEL) : 0)
-                             | ((INS_EKF2_FUSION_MODE & MASK_USE_EVYAW) ? static_cast<int32_t>(EvCtrl::YAW) : 0);
-  if (INS_EKF2_FUSION_MODE & MASK_INHIBIT_ACC_BIAS) {
+                             | (((INS_EKF2_FUSION_MODE) & MASK_USE_EVVEL) ? static_cast<int32_t>(EvCtrl::VEL) : 0)
+                             | (((INS_EKF2_FUSION_MODE) & MASK_USE_EVYAW) ? static_cast<int32_t>(EvCtrl::YAW) : 0);
+  if ((INS_EKF2_FUSION_MODE) & MASK_INHIBIT_ACC_BIAS) {
     ekf_params->ekf2_imu_ctrl &= ~static_cast<int32_t>(ImuCtrl::AccelBias);
   }
 
@@ -1048,7 +1048,7 @@ void ins_ekf2_remove_gps(int32_t mode)
     ekf_params->ekf2_of_ctrl = 1;
   } else {
     ins_ekf2_set_gps_ctrl(INS_EKF2_FUSION_MODE);
-    ekf_params->ekf2_of_ctrl = (INS_EKF2_FUSION_MODE & MASK_USE_OF) ? 1 : 0;
+    ekf_params->ekf2_of_ctrl = ((INS_EKF2_FUSION_MODE) & MASK_USE_OF) ? 1 : 0;
   }
 }
 
