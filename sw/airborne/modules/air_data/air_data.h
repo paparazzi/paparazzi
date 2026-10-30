@@ -54,6 +54,13 @@ struct AirData {
 
   float aoa;          ///< angle of attack (rad)
   float sideslip;     ///< sideslip angle (rad)
+  uint8_t wind_flags; ///< last received wind-info flags
+  float wind_north;   ///< north component of the wind (m/s)
+  float wind_east;    ///< east component of the wind (m/s)
+  float wind_up;      ///< vertical component of the wind (m/s)
+  float wind_airspeed; ///< airspeed reported by wind-info (m/s)
+  float wind_temp;    ///< temperature reported by wind-info (deg C)
+  uint64_t wind_last_stamp; ///< timestamp of last wind-info message (usec)
   float wind_speed;   ///< wind speed (m/s)
   float wind_dir;     ///< wind direction (rad, 0 north, >0 clockwise)
 };

@@ -86,6 +86,7 @@
 static void send_wind_estimator(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t flags = 7; // send all data
+  float temp = -1000.f; // unknown
   float upwind = -wind_estimator.wind.z;
   float airspeed = float_vect3_norm(&wind_estimator.airspeed);
   pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID,
@@ -93,7 +94,8 @@ static void send_wind_estimator(struct transport_tx *trans, struct link_device *
       &wind_estimator.wind.y, // east
       &wind_estimator.wind.x, // north
       &upwind,
-      &airspeed);
+      &airspeed,
+      &temp);
 }
 
 #if PERIODIC_TELEMETRY
