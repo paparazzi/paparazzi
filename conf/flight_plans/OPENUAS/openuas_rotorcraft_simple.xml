@@ -45,7 +45,7 @@ Your safe aircraft operation is *your* responsibility
   <exception cond="(((((WaypointX(WP__CLIMB)) - GetPosX())*((WaypointX(WP__CLIMB)) - GetPosX()))) + ((((WaypointY(WP__CLIMB)) - GetPosY())*((WaypointY(WP__CLIMB)) - GetPosY())))) @GT (MAX_DIST_FROM_HOME*MAX_DIST_FROM_HOME) @AND !(nav_block == IndexOfBlock('Setting home location')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Land')) @AND !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>
   </exceptions>
   <blocks>
-    <block name="Setting home location"><!-- TODO: make sure there is an indicator in "ardrone2_simple.xml" GCS layout config screen displaying "Waiting for GPS position..."-->
+    <block name="Setting home location"><!-- TODO: make sure there is an indicator in the GCS layout config screen displaying "Waiting for GPS position..."-->
       <call_once fun="NavKillThrottle()"/>
 <!-- if no valid fix or GPS accuracy @GT 11m or no AHRS , it's' a no-go, just wait TODO: timeout and message?-->
     <!-- <while cond="!GpsFixValid() || gps.pacc @GT 1100 || stateIsAttitudeValid()"/>-->
@@ -131,10 +131,10 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
    <!-- If landing would takes to long take drastic measures, kill everything -->
      <!-- <exception cond="Block_time @GT 50" value="1" var="autopilot.kill_throttle"/>-->
       <call_once fun="NavSetWaypointHere(WP__TDEMERGENCY)"/>
-  <!--TODO: better test detect landing different surfaces and agles with sonar baro combi of AR-Drone 2 -->
+  <!--TODO: better test detect landing different surfaces and agles with sonar baro combi -->
       <call_once fun="NavStartDetectGround()"/>
-      <!--TODO: this is a throttle level for ARDrone2, should be nominaltrhrootle devided by 2 or so-->
-      <stay wp="_TDEMERGENCY" throttle="0.40" vmode="throttle"/> <!-- 0.40 is for AR.Drone 2.0 Bebop could be a lower value -->
+      <!--TODO: this is a fixed throttle level, should be nominaltrhrootle devided by 2 or so-->
+      <stay wp="_TDEMERGENCY" throttle="0.40" vmode="throttle"/> <!-- 0.40 may be lowered for the Bebop -->
     </block>
     <block name="landed">
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>

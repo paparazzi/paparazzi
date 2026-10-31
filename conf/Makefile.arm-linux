@@ -20,7 +20,7 @@
 #
 
 #
-# Makefile for ARM linux targets (e.g. OMAP, BBB, ARDrone)
+# Makefile for ARM linux targets (e.g. OMAP, BBB, Bebop)
 #
 
 #

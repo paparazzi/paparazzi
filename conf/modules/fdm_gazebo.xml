@@ -9,7 +9,7 @@
       Usage:
       1. Make sure gazebo 9 is installed. (sudo apt-get install gazebo9 libgazebo9-dev)
       2. Prepare the Gazebo world and model:
-        1. Prepare the UAV model (see conf/simulator/gazebo/models/ardrone/):
+        1. Prepare the UAV model (see conf/simulator/gazebo/models/bebop/):
           - Place the aircraft model in the conf/simulator/gazebo/models/
             folder, this folder is added to Gazebo&apos;s search path when NPS is
             launched.
@@ -20,7 +20,7 @@
           - Camera links should have the name specified in .dev_name in the
             corresponding video_config_t struct, see sw/airborne/boards/pc_sim.h
             and sw/airborne/modules/computer_vision/video_thread_nps.c.
-        2. Prepare the world (see conf/simulator/gazebo/worlds/ardrone.world).
+        2. Prepare the world (see conf/simulator/gazebo/world/).
           Pay attention to the following:
           - The real-time update rate should be set to zero, as this is
             already handled by Paparazzi:
@@ -43,7 +43,7 @@
                 &lt;heading_deg&gt;180&lt;/heading_deg&gt;&lt;!-- Temporary fix for issue https://bitbucket.org/osrf/gazebo/issues/2022/default-sphericalcoordinates-frame-should --&gt;
               &lt;/spherical_coordinates&gt;
             @endcode
-      3. Prepare the airframe file (see examples/ardrone2_gazebo.xml):
+      3. Prepare the airframe file (see examples/bebop.xml):
         1. Select Gazebo as the FDM (Flight Dynamics Model)
           @code{.xml}
             &lt;target name=&quot;nps&quot; board=&quot;pc&quot;&gt;
@@ -55,7 +55,7 @@
             &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
               ...
             &lt;/section&gt;
-            &lt;include href=&quot;conf/simulator/gazebo/airframes/ardrone2.xml&quot;/&gt;
+            &lt;include href=&quot;conf/simulator/gazebo/airframes/bebop.xml&quot;/&gt;
           @endcode
           - If conf/simulator/gazebo/airframes does not contain an xml for the
           vehicle model, it should be created with the following contents:
