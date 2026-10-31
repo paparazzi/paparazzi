@@ -166,6 +166,90 @@ let log = fun ?timestamp logging ac_name msg_name values ->
 let udp_fd = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0
 let udp_sockaddr = Unix.ADDR_INET (Unix.inet_addr_of_string !udp_json_stream_addr, !udp_json_stream_port)
 
+(** Reboot detection: an A/C rebooted with the same build, or started a new
+ * log file. GCSs are told with AIRCRAFT_REBOOT, to reset e.g. the checklist. *)
+type reboot_state = {
+  mutable cpu_time : int option;      (* last cpu_time (ROTORCRAFT_STATUS, ROVER_STATUS) *)
+  mutable cpu_time_rx : float;        (* when it was received *)
+  mutable up_msgs : int option;       (* last DATALINK_REPORT counters, reset at boot *)
+  mutable down_msgs : int option;
+  mutable down_msgs_rate : float option; (* downlink messages per second *)
+  mutable report_time : float;        (* time of the last DATALINK_REPORT *)
+  mutable log_files : string option;  (* last LOGGER_STATUS filenames *)
+  mutable last_reboot : float         (* time of the last AIRCRAFT_REBOOT sent *)
+}
+
+let reboot_states = Hashtbl.create 5
+
+(* Ignore other signs of the same reboot (e.g. its new log file) during this time *)
+let reboot_holdoff = 60.
+
+let send_aircraft_reboot = fun ac_name st reason ->
+  let now = Unix.gettimeofday () in
+  if now -. st.last_reboot > reboot_holdoff then begin
+    st.last_reboot <- now;
+    fprintf stderr "A/C %s rebooted or started a new log file (%s)\n%!" ac_name reason;
+    try
+      Ground_Pprz.message_send my_id "AIRCRAFT_REBOOT"
+        [ "ac_id", PprzLink.String ac_name; "reason", PprzLink.String reason ]
+    with _ -> () (* message not known by this pprzlink version *)
+  end
+
+let check_reboot = fun ac_name msg_name values ->
+  let st =
+    try Hashtbl.find reboot_states ac_name
+    with Not_found ->
+      let st = { cpu_time = None; cpu_time_rx = 0.; up_msgs = None; down_msgs = None; down_msgs_rate = None;
+                 report_time = 0.; log_files = None; last_reboot = 0. } in
+      Hashtbl.add reboot_states ac_name st;
+      st in
+  match msg_name with
+  | "ROTORCRAFT_STATUS" | "ROVER_STATUS" ->
+    (* cpu_time is an uint16 in seconds: it wraps after 18.2 hours. It can only
+     * have wrapped when enough time passed since the last one (also after a
+     * long link loss), otherwise a decrease is a reboot. *)
+    let t = PprzLink.int_assoc "cpu_time" values
+    and now = Unix.gettimeofday () in
+    begin match st.cpu_time with
+      | Some prev when t < prev &&
+                       float prev +. (now -. st.cpu_time_rx) < 65536. -. 60. ->
+        send_aircraft_reboot ac_name st "CPU_TIME"
+      | _ -> ()
+    end;
+    st.cpu_time <- Some t;
+    st.cpu_time_rx <- now
+  | "DATALINK_REPORT" when st.cpu_time = None ->
+    (* no cpu_time (e.g. fixedwing): the message counters restart at boot, but
+     * also wrap (uint16), so only trust a decrease when no wrap is expected *)
+    let up = PprzLink.int_assoc "uplink_nb_msgs" values
+    and down = PprzLink.int_assoc "downlink_nb_msgs" values
+    and now = Unix.gettimeofday () in
+    begin match st.up_msgs, st.down_msgs with
+      | Some prev_up, Some prev_down when down < prev_down ->
+        let expected = match st.down_msgs_rate with
+          | Some rate -> float prev_down +. rate *. (now -. st.report_time)
+          | None -> 65536. in
+        if expected < 60000. || (up < prev_up && prev_up < 60000) then
+          send_aircraft_reboot ac_name st "DATALINK_COUNTERS";
+        st.down_msgs_rate <- None
+      | _, Some prev_down when now > st.report_time ->
+        st.down_msgs_rate <- Some (float (down - prev_down) /. (now -. st.report_time))
+      | _ -> ()
+    end;
+    st.up_msgs <- Some up;
+    st.down_msgs <- Some down;
+    st.report_time <- now
+  | "LOGGER_STATUS" ->
+    let files = String.trim (PprzLink.string_of_value (List.assoc "filenames" values)) in
+    if files <> "" then begin
+      begin match st.log_files with
+        | Some prev when prev <> files -> send_aircraft_reboot ac_name st "NEW_LOG_FILE"
+        | _ -> ()
+      end;
+      st.log_files <- Some files
+    end
+  | _ -> ()
+
 (** Callback for a message from a registered A/C *)
 let ac_msg = fun messages_xml logging ac_name ac ->
   let module Tele_Pprz = PprzLink.MessagesOfXml(struct let xml = messages_xml let name="telemetry" end) in
@@ -188,7 +272,9 @@ let ac_msg = fun messages_xml logging ac_name ac ->
         let n = Unix.sendto udp_fd (Bytes.of_string json_msg) 0 len [] udp_sockaddr in
         assert(n = len)
       end;
-      Parse_messages_v1.log_and_parse ac_name ac msg values
+      Parse_messages_v1.log_and_parse ac_name ac msg values;
+      begin try check_reboot ac_name msg.PprzLink.name values
+      with x -> fprintf stderr "check_reboot: %s\n%!" (Printexc.to_string x) end
     with
         Telemetry_error (ac_name, msg) ->
           Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", PprzLink.String ac_name;"message", PprzLink.String msg];
@@ -731,6 +817,7 @@ let unregister_aircraft = fun name ->
   begin try Ivy.unbind (Hashtbl.find aircrafts_binding name) with Not_found -> () end;
   Hashtbl.remove aircrafts_binding name;
   Hashtbl.remove aircrafts_md5 name;
+  Hashtbl.remove reboot_states name;
   Hashtbl.remove aircrafts name
 
 (** Identifying message from an A/C *)
