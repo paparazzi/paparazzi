@@ -63,7 +63,6 @@
       <message name="IMU_MAG_RAW"                 period=".05"/>
       <message name="BARO_RAW"                    period=".1"/>
       <message name="IMU_MAG_CURRENT_CALIBRATION" period=".05"/>
-      <message name="ARDRONE_NAVDATA"             period=".05"/>
       <message name="AIRSPEED_RAW"                period="0.1"/>
     </mode>
 

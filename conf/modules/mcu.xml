@@ -19,7 +19,7 @@
     <define name="PERIPHERALS_AUTO_INIT"/>
     <file name="mcu.c" dir="."/>
     <file_arch name="mcu_arch.c" dir="."/>
-    <file_arch name="gpio_arch.c" dir="mcu_periph" cond="ifneq ($(BOARD), ardrone)"/>
+    <file_arch name="gpio_arch.c" dir="mcu_periph"/>
     <test>
       <define name="PERIPHERALS_AUTO_INIT"/>
     </test>

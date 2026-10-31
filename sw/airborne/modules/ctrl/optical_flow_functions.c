@@ -30,7 +30,7 @@
 
 // The low pass filter constant for updating the vision measurements in the algorithm
 #ifndef OF_LP_CONST
-#define OF_LP_CONST 0.5 // Average between 0.4 Bebop value and 0.6 ARDrone value
+#define OF_LP_CONST 0.5 // Between the 0.4 Bebop value and higher values for other drones
 #endif
 
 // In case the autocovariance is used, select half the window size as the delay

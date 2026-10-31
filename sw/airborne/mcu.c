@@ -106,8 +106,8 @@ void mcu_init(void)
   /* If we have a board specific init function, call it.
    * Otherwise it will simply call the empty weak function.
    *
-   * For example the ARDrone2 has this implemented to prevent stray data of IMU
-   * from OEM program still running and also accessing AC sensors
+   * For example a board can use it to stop the OEM program that is still
+   * running and accessing the sensors
    */
   board_init();
 
