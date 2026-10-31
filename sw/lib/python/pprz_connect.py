@@ -35,6 +35,12 @@ See http://wiki.paparazziuav.org/wiki/DevGuide/Server_GCS_com for more details
 
     connect = PprzConnect(notify=new_ac)
 
+    # optional: called when an aircraft is removed (e.g. it runs another build,
+    # its new configuration is then notified again), or when it rebooted with
+    # the same build or started a new log file
+    # connect = PprzConnect(notify=new_ac, notify_remove=lambda ac_id: ...,
+    #                       notify_reboot=lambda ac_id, reason: ...)
+
     # do some things here or wait for event
     try:
         while True:
@@ -114,7 +120,7 @@ class PprzConnect(object):
     and update for the new ones
     """
 
-    def __init__(self, notify=None, ivy=None, verbose=False):
+    def __init__(self, notify=None, ivy=None, verbose=False, notify_remove=None, notify_reboot=None):
         """
         Init function
         Create an ivy interface if not provided and request for all aircraft
@@ -122,9 +128,15 @@ class PprzConnect(object):
         :param notify: callback function called on new aircraft, takes a PprzConfig as parameter
         :param ivy: ivy interface to contact the server, if None a new one will be created
         :param verbose: display debug information
+        :param notify_remove: callback function called when an aircraft is removed (AIRCRAFT_DIE),
+            e.g. because it runs another build, takes the aircraft ID as parameter
+        :param notify_reboot: callback function called when an aircraft rebooted with the same build
+            or started a new log file (AIRCRAFT_REBOOT), takes the aircraft ID and the reason as parameters
         """
         self.verbose = verbose
         self._notify = notify
+        self._notify_remove = notify_remove
+        self._notify_reboot = notify_reboot
 
         self._conf_list_by_name = {}
         self._conf_list_by_id = {}
@@ -203,6 +215,28 @@ class PprzConnect(object):
             if self.verbose:
                 print("new aircraft: {}".format(ac_id))
         self._ivy.subscribe(new_ac_cb,PprzMessage('ground','NEW_AIRCRAFT'))
+
+        def remove_ac_cb(sender, msg):
+            ac_id = msg['ac_id']
+            conf = self._conf_list_by_id.pop(ac_id, None)
+            if conf is not None:
+                self._conf_list_by_name.pop(conf.name, None)
+            if self._notify_remove is not None:
+                self._notify_remove(ac_id)
+            if self.verbose:
+                print("removed aircraft: {}".format(ac_id))
+        self._ivy.subscribe(remove_ac_cb,PprzMessage('ground','AIRCRAFT_DIE'))
+
+        def reboot_ac_cb(sender, msg):
+            ac_id = msg['ac_id']
+            if self._notify_reboot is not None:
+                self._notify_reboot(ac_id, msg['reason'])
+            if self.verbose:
+                print("aircraft {} rebooted ({})".format(ac_id, msg['reason']))
+        try:
+            self._ivy.subscribe(reboot_ac_cb,PprzMessage('ground','AIRCRAFT_REBOOT'))
+        except Exception:
+            pass # older pprzlink without AIRCRAFT_REBOOT
 
     def get_config(self, ac_id):
         """
