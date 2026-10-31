@@ -12,17 +12,6 @@
    release="4446ea27fbf9191469fb70885257f345a57d4483"
   />
   <aircraft
-   name="ARDrone_2"
-   ac_id="238"
-   airframe="airframes/OPENUAS/openuas_parrot_ardrone_2.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_survey.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_float_cmpl_quat.xml modules/air_data.xml modules/cv_opticflow.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/opticflow_hover.xml modules/stabilization_indi_simple.xml modules/digital_cam_video.xml modules/video_capture.xml modules/video_rtp_stream.xml"
-   gui_color="#ffffb25313ae"
-  />
-  <aircraft
    name="Bebop"
    ac_id="205"
    airframe="airframes/OPENUAS/openuas_parrot_bebop.xml"
