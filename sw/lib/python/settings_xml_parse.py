@@ -25,6 +25,9 @@ class PaparazziACSettings:
 
     def __init__(self, ac_id):
         self.ac_id = ac_id
+        self.groups = []
+        self.lookup = []
+        self.name_lookup = {}
         paparazzi_home = PPRZ_HOME
         paparazzi_conf = os.path.join(paparazzi_home, 'conf')
         conf_xml_path = os.path.join(paparazzi_conf, 'conf.xml')
