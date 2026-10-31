@@ -130,4 +130,11 @@ dir CDATA #IMPLIED>
 
 <!ATTLIST item
 name CDATA #REQUIRED
-type CDATA #IMPLIED>
+type (checkbox|text|choice|number) "checkbox"
+optional (true|false) "false"
+help CDATA #IMPLIED
+remember (true|false) "false"
+values CDATA #IMPLIED
+unit CDATA #IMPLIED
+min CDATA #IMPLIED
+max CDATA #IMPLIED>
