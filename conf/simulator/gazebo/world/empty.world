@@ -1,5 +1,5 @@
 <?xml version='1.0'?>
-<sdf version="1.6">
+<sdf version="1.9">
   <world name="empty">
     <physics type="ode">
       <max_step_size>0.001</max_step_size>
@@ -8,11 +8,11 @@
     <scene>
       <ambient>1 1 1 1</ambient>
       <background>0.7 0.7 0.7 1</background>
-      <shadows>0</shadows>
+      <shadows>false</shadows>
     </scene>
     <light name='sun' type='directional'>
-      <cast_shadows>1</cast_shadows>
-      <pose frame=''>0 0 10 0 -0 0</pose>
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>
       <specular>0.1 0.1 0.1 1</specular>
       <attenuation>
@@ -28,11 +28,33 @@
       <latitude_deg>51.9906340</latitude_deg>
       <longitude_deg>4.3767889</longitude_deg>
       <elevation>45.110</elevation>
-      <heading_deg>180</heading_deg><!-- Temporary fix for issue https://bitbucket.org/osrf/gazebo/issues/2022/default-sphericalcoordinates-frame-should -->
+      <heading_deg>0</heading_deg><!-- GZ Harmonic fixed the WSU/ENU coordinate bug; no longer need heading=180 workaround -->
     </spherical_coordinates>
 
-    <include>
-      <uri>model://ground_plane</uri>
-    </include>
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
   </world>
 </sdf>
