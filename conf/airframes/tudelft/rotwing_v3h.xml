@@ -246,7 +246,7 @@
     </section>
 
     <section name="MISC">
-        <define name="INS_EKF2_FUSION_MODE"  value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
+        <define name="INS_EKF2_GPS_CTRL" value="(EKF2_GPS_CTRL_HPOS|EKF2_GPS_CTRL_VPOS|EKF2_GPS_CTRL_VEL|EKF2_GPS_CTRL_YAW)"/>
 
         <!-- AGL distance -->
         <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.18"/>

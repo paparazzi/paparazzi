@@ -38,7 +38,7 @@ MY_DRONECANTOOLS := $(shell $(MY_PYTHON) -c 'import em' 2>&1)
 BOOST_INSTALLED := $(shell dpkg -s libboost-program-options-dev >/dev/null 2>&1 && echo yes)
 CMAKE_INSTALLED := $(shell command -v cmake 2>/dev/null)
 
-all: chibios fatfs libsbp TRICAL hacl-c key_generator rustlink ecl matrix mavlink dronecan unifiedmocaprouter
+all: chibios fatfs libsbp TRICAL hacl-c key_generator rustlink mavlink dronecan unifiedmocaprouter
 
 # update (and init if needed) all submodules
 update_submodules:
@@ -69,10 +69,6 @@ chibios: chibios.sync chibios.update
 TRICAL: TRICAL.update
 
 fatfs: fatfs.sync fatfs.update
-
-ecl: ecl.update
-
-matrix: matrix.update
 
 mavlink: mavlink.update mavlink.build
 
