@@ -129,7 +129,8 @@
   <makefile target="ap|nps">
     <file name="ekf_aw.cpp"/>
     <file name="ekf_aw_wrapper.c"/>
-    <include name="$(PAPARAZZI_SRC)/sw/ext/matrix/"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/px4_ekf2/lib/matrix"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/px4_ekf2/stubs"/>
   </makefile>
 </module>
 
