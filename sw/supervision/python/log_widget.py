@@ -16,11 +16,15 @@ import datetime
 import hashlib
 import json
 import os
+import atexit
 import re
 import shutil
+import tempfile
 import time
 
-TMP_DIR = "/tmp/pprz"
+# Output of sd2log before it is moved to the output folder, private to this process
+TMP_DIR = tempfile.mkdtemp(prefix="pprz_sd2log_")
+atexit.register(shutil.rmtree, TMP_DIR, True)
 STATE_FILE = os.path.join(utils.PAPARAZZI_HOME, "var", "sd_log_state.json")
 DEFAULT_OUTPUT = "$PAPARAZZI_HOME/var/logs/$YY-$MM/$DD/$AIRCRAFT"
 
@@ -35,7 +39,9 @@ OTHER_TAGS = ["AIRCRAFT", "AC_ID"]
 
 # Mounted SD cards: removable media mounted by the desktop with a FAT file system
 MOUNT_DIRS = ("/media/", "/run/media/")
-CARD_FS = ("vfat", "msdos", "exfat", "fuseblk")
+CARD_FS = ("vfat", "msdos", "exfat")
+# FUSE file systems (exFAT on some systems, but also NTFS disks): only with SD logs on it
+FUSE_FS = ("fuseblk",)
 SCAN_INTERVAL_MS = 3000
 
 COL_FILE, COL_SIZE, COL_DATE, COL_AIRCRAFT, COL_STATUS = range(5)
@@ -71,7 +77,8 @@ def detect_cards():
                 if len(parts) < 3:
                     continue
                 mount = parts[1].replace("\\040", " ")
-                if mount.startswith(MOUNT_DIRS) and parts[2] in CARD_FS:
+                if mount.startswith(MOUNT_DIRS) and \
+                        (parts[2] in CARD_FS or (parts[2] in FUSE_FS and find_logs(mount))):
                     cards.append(mount)
     except OSError:
         pass
@@ -539,7 +546,6 @@ class LogWidget(QWidget, Ui_LogWidget):
         for path in [self.current] + self.queue:
             self.update_row(path)
         self.update_buttons()
-        os.makedirs(TMP_DIR, exist_ok=True)
         self.stderr = ""
         program = os.path.expandvars("$PAPARAZZI_SRC/sw/logalizer/sd2log")
         args = [self.current, TMP_DIR]
@@ -553,6 +559,7 @@ class LogWidget(QWidget, Ui_LogWidget):
     def handle_finished(self, exit_code: int, exit_status: QProcess.ExitStatus):
         path = self.current
         self.read_stderr()
+        self.errors.pop(path, None)  # result of a previous extraction
         try:
             if exit_status != QProcess.ExitStatus.NormalExit or exit_code != 0:
                 lines = [line for line in self.stderr.splitlines() if line.strip()]
@@ -564,11 +571,16 @@ class LogWidget(QWidget, Ui_LogWidget):
             if self.upload_check.isChecked():
                 self.extracted.emit(self.data_file(record))
             if self.delete_after_check.isChecked() and record.get("frames", 0) > 0:
-                try:
-                    os.remove(path)
-                    os.sync()
-                except OSError as e:
-                    self.errors[path] = f"extracted, but not deleted: {e.strerror}"
+                if record.get("conf") != "md5-conf" and not record.get("tlm"):
+                    # decoded without the build definitions and no raw copy: keep the original
+                    self.errors[path] = "extracted, but not deleted: build configuration not found " \
+                                        "and no .tlm copy kept"
+                else:
+                    try:
+                        os.remove(path)
+                        os.sync()
+                    except OSError as e:
+                        self.errors[path] = f"extracted, but not deleted: {e.strerror}"
             self.status_label.setText(f"Extracted {os.path.basename(path)} in {os.path.dirname(self.data_file(record))}")
             row = self.row_of(path)
             if row is not None:
@@ -621,6 +633,7 @@ class LogWidget(QWidget, Ui_LogWidget):
             "definitions": definitions,
             "duration": duration,
             "files": files,
+            "tlm": any(f.endswith(".tlm") for f in files),
             "warning": "no messages found" if int(result.group(5)) == 0 else ("no GPS date" if no_gps else ""),
         }
         self.state["logs"][self.key_of(path)] = record

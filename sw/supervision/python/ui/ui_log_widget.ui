@@ -246,7 +246,7 @@
         <item>
          <widget class="QCheckBox" name="delete_after_check">
           <property name="toolTip">
-           <string>Delete the log from the SD card once it is extracted without errors</string>
+           <string>Delete the log from the SD card once it is extracted without errors, when it was decoded with its build configuration or a .tlm copy is kept</string>
           </property>
           <property name="text">
            <string>Delete from SD card after extraction</string>

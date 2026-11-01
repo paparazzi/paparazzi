@@ -224,7 +224,7 @@ class Ui_LogWidget(object):
         self.tlm_check.setText(_translate("LogWidget", "Keep .tlm copy"))
         self.upload_check.setToolTip(_translate("LogWidget", "Give the extracted logs to the log uploader (Log upload tab)"))
         self.upload_check.setText(_translate("LogWidget", "Add to log upload queue"))
-        self.delete_after_check.setToolTip(_translate("LogWidget", "Delete the log from the SD card once it is extracted without errors"))
+        self.delete_after_check.setToolTip(_translate("LogWidget", "Delete the log from the SD card once it is extracted without errors, when it was decoded with its build configuration or a .tlm copy is kept"))
         self.delete_after_check.setText(_translate("LogWidget", "Delete from SD card after extraction"))
         self.details_box.setTitle(_translate("LogWidget", "Details"))
         self.frames_title.setText(_translate("LogWidget", "Frames"))
