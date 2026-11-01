@@ -15,6 +15,10 @@
       See sw/ext/px4_ekf2/generated/ekf2_params.h and https://docs.px4.io/main/en/advanced_config/parameter_reference.html
       Sensors are only used when their data arrives, so a sensor enabled in a *_CTRL parameter
       without that sensor does nothing.
+
+      Airspeed and sideslip are only fused in fixed wing flight: always for the fixedwing firmware,
+      and for hybrids flown with the rotorcraft firmware when they override ins_ekf2_fixed_wing_flight()
+      (rotwing_state does this for the forward flight).
     </description>
     <define name="INS_EKF2_GPS_CTRL" value="7" description="GNSS fusion bitmask: 1 horizontal position, 2 vertical position, 4 velocity, 8 dual antenna heading (EKF2_GPS_CTRL_*)"/>
     <define name="INS_EKF2_HGT_REF" value="1" description="Height reference: 0 baro, 1 GNSS, 2 range finder, 3 external vision (EKF2_HGT_REF_*)"/>
@@ -24,6 +28,9 @@
     <define name="INS_EKF2_RNG_CTRL" value="1" description="Range finder height: 0 off, 1 conditional (low and slow), 2 always"/>
     <define name="INS_EKF2_DRAG_CTRL" value="0" description="Multirotor drag fusion (wind estimation without airspeed sensor)"/>
     <define name="INS_EKF2_IMU_CTRL" value="7" description="IMU bitmask: 1 gyro bias, 2 accel bias, 4 gravity vector fusion"/>
+    <define name="INS_EKF2_ARSP_THR" value="0" description="Airspeed fusion above this true airspeed [m/s], 0 disables it (fixedwing default 8, set to 10 by rotwing_state)"/>
+    <define name="INS_EKF2_FUSE_BETA" value="0" description="Synthetic sideslip fusion in fixed wing flight (fixedwing default 1, set by rotwing_state)"/>
+    <define name="INS_EKF2_AIRSPEED_ID" value="ABI_BROADCAST" description="ABI sender ID of the airspeed (do not use an airspeed computed from the wind estimate)"/>
     <define name="INS_EKF2_GNSS_CHECK" value="(GNSS_CHECK_NSATS|GNSS_CHECK_EPH|GNSS_CHECK_SACC|GNSS_CHECK_FIX)" description="GNSS checks before the GNSS data is used (GNSS_CHECK_*), PX4 uses all except jamming (2047)"/>
     <define name="INS_EKF2_GNSS_REQ_EPH" value="3.0" description="Maximum horizontal position accuracy [m]"/>
     <define name="INS_EKF2_GNSS_REQ_EPV" value="5.0" description="Maximum vertical position accuracy [m]"/>
@@ -33,6 +40,8 @@
     <define name="INS_EKF2_GPS_DELAY" value="110" description="GNSS measurement delay [ms] (PX4 SENS_GNSS0_DELAY)"/>
     <define name="INS_EKF2_GPS_POS_X" value="0" description="GNSS antenna X offset from the CoG [m] (also _Y and _Z, PX4 SENS_GNSS0_OFF*)"/>
     <define name="INS_EKF2_GPS_YAW_OFFSET" value="0" description="Yaw of the dual antenna baseline in the body frame [deg], enables the GNSS heading from RELPOS"/>
+    <define name="INS_EKF2_GPS_ANTENNA_DISTANCE" value="1.0" description="Distance between the two antennas of the dual antenna heading [m], the heading is only used when the measured distance is within INS_EKF2_GPS_ANTENNA_DISTANCE_ERR (not checked when not set)"/>
+    <define name="INS_EKF2_GPS_ANTENNA_DISTANCE_ERR" value="0.2" description="Maximum difference between the measured and the configured antenna distance [m]"/>
     <define name="INS_EKF2_GPS_YAW_NOISE" value="0.1" description="GNSS heading noise when the receiver gives no accuracy [rad]"/>
     <define name="INS_EKF2_RNG_MIN_DIST" value="0.001" description="Minimum distance the range finder measures [m]"/>
     <define name="INS_EKF2_RNG_MAX_DIST" value="4" description="Maximum distance the range finder measures [m]"/>
@@ -92,6 +101,7 @@
     <define name="MODULE_NAME"/> <!-- route the EKF2 messages through the PX4 log macros (stubs/px4_platform_common/log.h) -->
     <define name="USE_ALT_LLA_WAYPOINTS" value="$(USE_ALT_LLA_WAYPOINTS)"/>
     <!-- Enabled EKF2 features (only the sensors given to the EKF by ins_ekf2.cpp) -->
+    <define name="CONFIG_EKF2_AIRSPEED"/>
     <define name="CONFIG_EKF2_BAROMETER"/>
     <define name="CONFIG_EKF2_DRAG_FUSION"/>
     <define name="CONFIG_EKF2_EXTERNAL_VISION"/>
@@ -100,11 +110,13 @@
     <define name="CONFIG_EKF2_MAGNETOMETER"/>
     <define name="CONFIG_EKF2_OPTICAL_FLOW"/>
     <define name="CONFIG_EKF2_RANGE_FINDER"/>
+    <define name="CONFIG_EKF2_SIDESLIP"/>
     <define name="CONFIG_EKF2_TERRAIN"/>
     <define name="CONFIG_EKF2_WIND"/>
     <!-- Compile the EKF2 and the needed libraries -->
     <file name="ZeroGyroUpdate.cpp" dir="px4_ekf2/EKF/aid_sources"/>
     <file name="ZeroVelocityUpdate.cpp" dir="px4_ekf2/EKF/aid_sources"/>
+    <file name="airspeed_fusion.cpp" dir="px4_ekf2/EKF/aid_sources/airspeed"/>
     <file name="baro_height_control.cpp" dir="px4_ekf2/EKF/aid_sources/barometer"/>
     <file name="drag_fusion.cpp" dir="px4_ekf2/EKF/aid_sources/drag"/>
     <file name="ev_control.cpp" dir="px4_ekf2/EKF/aid_sources/external_vision"/>
@@ -125,6 +137,7 @@
     <file name="range_height_control.cpp" dir="px4_ekf2/EKF/aid_sources/range_finder"/>
     <file name="range_height_fusion.cpp" dir="px4_ekf2/EKF/aid_sources/range_finder"/>
     <file name="sensor_range_finder.cpp" dir="px4_ekf2/EKF/aid_sources/range_finder"/>
+    <file name="sideslip_fusion.cpp" dir="px4_ekf2/EKF/aid_sources/sideslip"/>
     <file name="bias_estimator.cpp" dir="px4_ekf2/EKF/bias_estimator"/>
     <file name="control.cpp" dir="px4_ekf2/EKF"/>
     <file name="covariance.cpp" dir="px4_ekf2/EKF"/>

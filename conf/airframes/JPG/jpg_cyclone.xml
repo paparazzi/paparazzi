@@ -49,7 +49,6 @@
 
             <!-- EKF EKF2  configure inputs -->
             <define name="INS_EKF2_MAG_ID"          value="MAG_RM3100_SENDER_ID"/>
-            <define name="INS_EKF2_IMU_ID"          value="IMU_CUBE1_ID"/> 
             <define name="INS_EKF2_GYRO_ID"         value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_ACCEL_ID"        value="IMU_CUBE1_ID"/>
 

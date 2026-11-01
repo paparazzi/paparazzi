@@ -108,6 +108,26 @@ PRINT_CONFIG_VAR(INS_EKF2_GNSS_CHECK)
 #define EKF2_MAG_TYPE_NONE    5  ///< not used
 #define EKF2_MAG_TYPE_INIT    6  ///< only to initialize the heading
 
+/* Vehicle specific defaults, as PX4 (rc.fw_defaults and rc.mc_defaults) */
+#if defined(FIXEDWING_FIRMWARE)
+#ifndef INS_EKF2_ARSP_THR
+#define INS_EKF2_ARSP_THR 8.f     ///< airspeed fusion above 8 m/s
+#endif
+#ifndef INS_EKF2_FUSE_BETA
+#define INS_EKF2_FUSE_BETA 1      ///< sideslip fusion
+#endif
+#ifndef INS_EKF2_MAG_ACCLIM
+#define INS_EKF2_MAG_ACCLIM 0.f
+#endif
+#ifndef INS_EKF2_RNG_QLTY_T
+#define INS_EKF2_RNG_QLTY_T 3.f
+#endif
+#else
+#ifndef INS_EKF2_RNG_FOG
+#define INS_EKF2_RNG_FOG 1.f
+#endif
+#endif
+
 /* All parameters with the PX4 defaults, the values above can be used in the airframe */
 #include "generated/ekf2_params.h"
 
@@ -139,6 +159,12 @@ PRINT_CONFIG_VAR(INS_EKF2_RNG_MAX_DIST)
 #define INS_EKF2_OF_MAX_RATE 200.f
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_OF_MAX_RATE)
+
+/** default airspeed sensor to use in INS (equivalent airspeed, only fused above INS_EKF2_ARSP_THR) */
+#ifndef INS_EKF2_AIRSPEED_ID
+#define INS_EKF2_AIRSPEED_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_AIRSPEED_ID)
 
 /** default barometer to use in INS */
 #ifndef INS_EKF2_BARO_ID
@@ -220,9 +246,9 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_POS_Z)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_YAW_NOISE)
 
-/* Maximum allowed distance error for the RTK relative heading measurement (m) */
-#ifndef INS_EKF2_RELHEADING_ERR
-#define INS_EKF2_RELHEADING_ERR 0.2
+/* Maximum difference between the measured and the configured (INS_EKF2_GPS_ANTENNA_DISTANCE) dual antenna distance (m), the heading is not used otherwise */
+#ifndef INS_EKF2_GPS_ANTENNA_DISTANCE_ERR
+#define INS_EKF2_GPS_ANTENNA_DISTANCE_ERR 0.2
 #endif
 
 #ifdef INS_EXT_VISION_ROTATION
@@ -239,6 +265,7 @@ static abi_event mag_ev;
 static abi_event gps_ev;
 static abi_event relpos_ev;
 static abi_event optical_flow_ev;
+static abi_event airspeed_ev;
 static abi_event reset_ev;
 
 /* All ABI callbacks */
@@ -251,6 +278,7 @@ static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 static void relpos_cb(uint8_t sender_id, uint32_t stamp, struct RelPosNED *relpos);
 static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
+static void airspeed_cb(uint8_t sender_id, float eas);
 static void reset_cb(uint8_t sender_id, uint8_t flag);
 
 /* Static local functions */
@@ -567,6 +595,8 @@ void ins_ekf2_init(void)
   ekf2.qnh = 1013.25f; // Default atmosphere
   ekf2.in_air = false;
   ekf2.armed = false;
+  ekf2.fixed_wing = false;
+  ekf2.air_density = PPRZ_ISA_AIR_DENSITY;
   ekf2.system_flags_time = 0;
   FLOAT_VECT3_ZERO(ekf2.accel_ned);
 
@@ -624,6 +654,7 @@ void ins_ekf2_init(void)
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgRELPOS(INS_EKF2_RELPOS_ID, &relpos_ev, relpos_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
+  AbiBindMsgAIRSPEED(INS_EKF2_AIRSPEED_ID, &airspeed_ev, airspeed_cb);
   AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 }
 
@@ -681,8 +712,10 @@ static void ins_ekf2_update_system_flags(void)
 {
   bool in_air = autopilot_in_flight();
   bool armed = autopilot_get_motors_on();
+  bool fixed_wing = ins_ekf2_fixed_wing_flight();
   uint64_t now = ekf2_time_us(get_sys_time_usec());
-  if (in_air == ekf2.in_air && armed == ekf2.armed && now < ekf2.system_flags_time + 1000000) {
+  if (in_air == ekf2.in_air && armed == ekf2.armed && fixed_wing == ekf2.fixed_wing
+      && now < ekf2.system_flags_time + 1000000) {
     return;
   }
 
@@ -690,14 +723,38 @@ static void ins_ekf2_update_system_flags(void)
   flags.time_us = now;
   flags.armed = armed;
   flags.in_air = in_air;
-#if defined(FIXEDWING_FIRMWARE)
-  flags.is_fixed_wing = true;
-#endif
+  flags.is_fixed_wing = fixed_wing;
   ekf.setSystemFlagData(flags);
 
   ekf2.in_air = in_air;
   ekf2.armed = armed;
+  ekf2.fixed_wing = fixed_wing;
   ekf2.system_flags_time = now;
+}
+
+/** Flying as a fixed wing (airspeed and sideslip fusion, no ground effect, airspeed for the yaw estimator).
+ *  True for the fixedwing firmware. Hybrids flown with the rotorcraft firmware (e.g. rotwing_state)
+ *  override this weak function with their forward flight state. */
+bool __attribute__((weak)) ins_ekf2_fixed_wing_flight(void)
+{
+#if defined(FIXEDWING_FIRMWARE)
+  return true;
+#else
+  return false;
+#endif
+}
+
+/** Airspeed (equivalent airspeed) to the EKF as true airspeed */
+static void airspeed_cb(uint8_t __attribute__((unused)) sender_id, float eas)
+{
+  if (!PX4_ISFINITE(eas) || eas < 0.f || ekf2.air_density <= 0.f) {
+    return;
+  }
+  airspeedSample sample{};
+  sample.time_us = ekf2_time_us(get_sys_time_usec());
+  sample.eas2tas = sqrtf(PPRZ_ISA_AIR_DENSITY / ekf2.air_density);
+  sample.true_airspeed = eas * sample.eas2tas;
+  ekf.setAirspeedData(sample);
 }
 
 /* Update the INS state */
@@ -928,6 +985,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, f
   // Calculate the air density
   float rho = pprz_isa_density_of_pressure(pressure, ekf2.temp);
   ekf.set_air_density(rho);
+  ekf2.air_density = rho;
 
   // Calculate the height above mean sea level based on pressure
   baroSample sample{};
@@ -1061,8 +1119,8 @@ static void relpos_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp,
 #ifdef INS_EKF2_RELHEADING_REF_ID
     relpos->reference_id != INS_EKF2_RELHEADING_REF_ID ||
 #endif
-#ifdef INS_EKF2_RELHEADING_DISTANCE
-    fabs(relpos->distance - INS_EKF2_RELHEADING_DISTANCE) > INS_EKF2_RELHEADING_ERR ||
+#ifdef INS_EKF2_GPS_ANTENNA_DISTANCE
+    fabs(relpos->distance - INS_EKF2_GPS_ANTENNA_DISTANCE) > INS_EKF2_GPS_ANTENNA_DISTANCE_ERR ||
 #endif
     !PX4_ISFINITE(relpos->heading)
   ) {
