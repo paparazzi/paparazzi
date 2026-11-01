@@ -461,11 +461,40 @@ static void send_ins_ekf2_ext(struct transport_tx *trans, struct link_device *de
     gnss_checks.filtered_horizontal_velocity_m_s()
   };
   uint8_t gps_blocked = !PX4_ISFINITE(gps_drift[0]);
-  float f_zero = 0.f;
+
+  // Upper 32 bits of the control status (the lower ones are in INS_EKF2)
+  uint32_t control_mode_upper = (uint32_t)(ekf.control_status().value >> 32);
+
+  // Estimated accuracies
+  float pos_acc_h, pos_acc_v, vel_acc_h, vel_acc_v;
+  ekf.get_ekf_gpos_accuracy(&pos_acc_h, &pos_acc_v);
+  ekf.get_ekf_vel_accuracy(&vel_acc_h, &vel_acc_v);
+
+  // Height above ground and height sensor biases
+  float hagl = ekf.isTerrainEstimateValid() ? ekf.getHagl() : NAN;
+  float baro_bias = ekf.getBaroBiasEstimatorStatus().bias;
+  float gnss_hgt_bias = ekf.getGpsHgtBiasEstimatorStatus().bias;
+
+  // EKF-GSF emergency yaw estimate (independent of the magnetometer)
+  float yaw_gsf = NAN, yaw_gsf_var = NAN;
+  float gsf_yaw[N_MODELS_EKFGSF], gsf_innov_vn[N_MODELS_EKFGSF], gsf_innov_ve[N_MODELS_EKFGSF], gsf_weight[N_MODELS_EKFGSF];
+  if (!ekf.getDataEKFGSF(&yaw_gsf, &yaw_gsf_var, gsf_yaw, gsf_innov_vn, gsf_innov_ve, gsf_weight)) {
+    yaw_gsf = NAN;
+    yaw_gsf_var = NAN;
+  }
+  float yaw_gsf_std = (PX4_ISFINITE(yaw_gsf_var) && yaw_gsf_var >= 0.f) ? sqrtf(yaw_gsf_var) : NAN;
+
+  // Magnetometer checks against the world magnetic model
+  float mag_inc, mag_inc_ref, mag_strength, mag_strength_ref;
+  ekf.get_mag_checks(mag_inc, mag_inc_ref, mag_strength, mag_strength_ref);
 
   pprz_msg_send_INS_EKF2_EXT(trans, dev, AC_ID,
                              &gps_drift[0], &gps_drift[1], &gps_drift[2], &gps_blocked,
-                             &f_zero, &f_zero, &f_zero); // vibration metrics, not computed by the EKF anymore
+                             &control_mode_upper,
+                             &pos_acc_h, &pos_acc_v, &vel_acc_h, &vel_acc_v,
+                             &hagl, &baro_bias, &gnss_hgt_bias,
+                             &yaw_gsf, &yaw_gsf_std,
+                             &mag_inc, &mag_inc_ref, &mag_strength, &mag_strength_ref);
 }
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
