@@ -9,7 +9,7 @@
       Two versions are supported, selected with GAZEBO_VERSION:
       - classic: Gazebo Classic (gazebo11, up to Ubuntu 22.04)
       - gz: the new Gazebo, gz-sim (Harmonic or Jetty, Ubuntu 24.04 and newer).
-        Not supported yet with gz: cameras, laser range array and sonar.
+        Not supported yet with gz: laser range array and sonar.
       By default Gazebo Classic is used when it is installed, gz otherwise.
 
       Usage:
