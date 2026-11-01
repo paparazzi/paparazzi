@@ -39,7 +39,7 @@
 
 // Camera structs for use in modules.
 // See boards/pc_sim.h
-// Default values from ARDrone can be overwritten by simulator.
+// Default values can be overwritten by simulator.
 struct video_config_t front_camera = {
   .output_size = { .w = 1280, .h = 720 },
   .sensor_size = { .w = 1280, .h = 720 },
