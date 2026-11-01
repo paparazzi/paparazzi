@@ -6,7 +6,7 @@
 
     <modules>
       <module name="nav" type="rotorcraft"/>
-      <module name="guidance_pid" type="rotorcraft"/>
+      <module name="guidance" type="rotorcraft"/>
       <module name="stabilization" type="rotorcraft"/>
     </modules>
 
