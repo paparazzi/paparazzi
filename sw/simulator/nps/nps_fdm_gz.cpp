@@ -37,8 +37,12 @@
  * Gazebo Classic. The heading offset is applied here directly, so the result
  * does not depend on the (changing) frame conventions of gz-math.
  *
- * Not ported yet: cameras (NPS_SIMULATE_VIDEO), the laser range array
- * (NPS_SIMULATE_LASER_RANGE_ARRAY) and the sonar.
+ * Cameras (NPS_SIMULATE_VIDEO) are rendered by the gz Sensors system, which
+ * NPS adds to the world. Their images are received over gz-transport and passed
+ * to the video thread as with Gazebo Classic.
+ *
+ * Not ported yet: the laser range array (NPS_SIMULATE_LASER_RANGE_ARRAY) and
+ * the sonar.
  */
 
 #include <cmath>
@@ -48,6 +52,8 @@
 #include <memory>
 #include <csignal>
 #include <chrono>
+#include <functional>
+#include <mutex>
 
 #include <gz/sim/Server.hh>
 #include <gz/sim/ServerConfig.hh>
@@ -61,6 +67,8 @@
 #include <gz/math/Pose3.hh>
 #include <gz/math/Quaternion.hh>
 #include <gz/math/Vector3.hh>
+#include <gz/msgs/image.pb.h>
+#include <gz/transport/Node.hh>
 #include <sdf/sdf.hh>
 
 extern "C" {
@@ -78,6 +86,38 @@ extern "C" {
 #include "filters/high_pass_filter.h"
 #include "state.h"
 }
+
+#if NPS_SIMULATE_VIDEO
+extern "C" {
+#include "modules/computer_vision/cv.h"
+#include "modules/computer_vision/video_thread_nps.h"
+#include "modules/computer_vision/lib/vision/image.h"
+#include "boards/bebop/mt9f002.h"
+#include "boards/bebop/mt9v117.h"
+struct mt9f002_t mt9f002 __attribute__((weak)); // Prevent undefined reference errors when Bebop code is not linked.
+}
+
+// Reduce resolution of the simulated MT9F002 sensor (Bebop) to improve runtime
+// performance at the cost of image resolution.
+// Recommended values: 1 (realistic), 2, 4 (fast but slightly blurry)
+#ifndef NPS_MT9F002_SENSOR_RES_DIVIDER
+#define NPS_MT9F002_SENSOR_RES_DIVIDER 1
+#endif
+
+/// Camera of the video thread, images received from gz-transport
+struct gazebo_cam_t {
+  std::string sensor;           ///< name of the gz sensor, empty if not found
+  std::mutex mutex;             ///< protects msg and fresh (written in the gz-transport thread)
+  gz::msgs::Image msg;          ///< last image
+  bool fresh;                   ///< a new image is available
+};
+static struct gazebo_cam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS];
+static std::unique_ptr<gz::transport::Node> gz_node;
+
+static void gazebo_setup_cameras(sdf::ElementPtr model);
+static void gazebo_init_video(void);
+static void gazebo_read_video(void);
+#endif
 
 #ifndef NPS_GAZEBO_WORLD
 #define NPS_GAZEBO_WORLD "empty.world"
@@ -308,6 +348,9 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *act_commands,
   gazebo_write(act_commands, commands_nb);
   server->RunOnce(false);
   gazebo_read();
+#if NPS_SIMULATE_VIDEO
+  gazebo_read_video();
+#endif
 }
 
 // Atmosphere functions are not implemented (same as Gazebo Classic)
@@ -368,6 +411,30 @@ static void init_gazebo(void)
   printf("NPS gz: vehicle %s, world %s\n", vehicle_file.c_str(), world_file.c_str());
 
   sdf::ElementPtr world = world_sdf->Root()->GetElement("world");
+#if NPS_SIMULATE_VIDEO
+  gazebo_setup_cameras(vehicle_sdf->Root()->GetElement("model"));
+  // Cameras need the Sensors system. gz-sim only loads its default systems for
+  // a world without plugins, so add them as well.
+  if (!world->HasElement("plugin")) {
+    const char *plugins =
+      "<sdf version='1.6'><world name='plugins'>"
+      "<plugin filename='gz-sim-physics-system' name='gz::sim::systems::Physics'/>"
+      "<plugin filename='gz-sim-user-commands-system' name='gz::sim::systems::UserCommands'/>"
+      "<plugin filename='gz-sim-scene-broadcaster-system' name='gz::sim::systems::SceneBroadcaster'/>"
+      "<plugin filename='gz-sim-sensors-system' name='gz::sim::systems::Sensors'>"
+      "<render_engine>ogre2</render_engine></plugin>"
+      "</world></sdf>";
+    sdf::SDFPtr plugins_sdf(new sdf::SDF());
+    sdf::init(plugins_sdf);
+    sdf::readString(plugins, plugins_sdf);
+    for (sdf::ElementPtr plugin = plugins_sdf->Root()->GetElement("world")->GetElement("plugin"); plugin;
+         plugin = plugin->GetNextElement("plugin")) {
+      world->InsertElement(plugin->Clone());
+    }
+  } else {
+    fprintf(stderr, "NPS gz: the world has its own plugins, make sure it loads the Sensors system for the cameras\n");
+  }
+#endif
   world->InsertElement(vehicle_sdf->Root()->GetFirstElement());
   // One gz iteration per NPS step: use the NPS time step for the physics
   world->GetElement("physics")->GetElement("max_step_size")->Set(fdm.init_dt);
@@ -376,6 +443,8 @@ static void init_gazebo(void)
 
   gz::sim::ServerConfig config;
   config.SetSdfFile(merged_file);
+  // Render the cameras without a window when there is no display
+  config.SetHeadlessRendering(getenv("DISPLAY") == NULL);
   server = std::make_unique<gz::sim::Server>(config);
   pprz_system = std::make_shared<PaparazziSystem>();
   if (!server->AddSystem(pprz_system).value_or(false)) {
@@ -408,7 +477,7 @@ static void init_gazebo(void)
 #endif
 
 #if NPS_SIMULATE_VIDEO
-  fprintf(stderr, "NPS gz: camera simulation is not supported yet, no images\n");
+  gazebo_init_video();
 #endif
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
   fprintf(stderr, "NPS gz: laser range array simulation is not supported yet\n");
@@ -538,3 +607,196 @@ static void gazebo_write(double act_commands[], int commands_nb)
     gz_cmd.torques[i] = torque;
   }
 }
+
+#if NPS_SIMULATE_VIDEO
+/** gz-transport topic of a video thread camera */
+static std::string camera_topic(const char *dev_name)
+{
+  return std::string("/nps/camera/") + dev_name;
+}
+
+/**
+ * Set up the camera sensors in the vehicle SDF before it is loaded.
+ *
+ * The camera links have the name of the video device (.dev_name of the
+ * video_config_t, e.g. front_camera). Their images are published on a fixed
+ * topic. As with Gazebo Classic, the resolution of the Bebop front camera
+ * (mt9f002) is divided by NPS_MT9F002_SENSOR_RES_DIVIDER and the update rates
+ * are limited to MT9F002_TARGET_FPS / MT9V117_TARGET_FPS.
+ */
+static void gazebo_setup_cameras(sdf::ElementPtr model)
+{
+  for (sdf::ElementPtr link = model->GetElement("link"); link; link = link->GetNextElement("link")) {
+    for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS && cameras[i] != NULL; ++i) {
+      if (link->Get<std::string>("name") != cameras[i]->dev_name || !link->HasElement("sensor")) {
+        continue;
+      }
+      sdf::ElementPtr sensor = link->GetElement("sensor");
+      std::string name = sensor->Get<std::string>("name");
+      sensor->GetElement("topic")->Set(camera_topic(cameras[i]->dev_name));
+      sensor->GetElement("always_on")->Set(true);
+      sdf::ElementPtr camera = sensor->GetElement("camera");
+      if (name == "mt9f002") {
+        if (NPS_MT9F002_SENSOR_RES_DIVIDER != 1) {
+          sdf::ElementPtr image = camera->GetElement("image");
+          image->GetElement("width")->Set(image->Get<int>("width") / NPS_MT9F002_SENSOR_RES_DIVIDER);
+          image->GetElement("height")->Set(image->Get<int>("height") / NPS_MT9F002_SENSOR_RES_DIVIDER);
+          if (camera->HasElement("lens") && camera->GetElement("lens")->HasElement("env_texture_size")) {
+            sdf::ElementPtr env = camera->GetElement("lens")->GetElement("env_texture_size");
+            env->Set(env->Get<int>() / NPS_MT9F002_SENSOR_RES_DIVIDER);
+          }
+        }
+        if (MT9F002_TARGET_FPS) {
+          sensor->GetElement("update_rate")->Set(Min(MT9F002_TARGET_FPS, sensor->Get<double>("update_rate")));
+        }
+      } else if (name == "mt9v117") {
+        if (MT9V117_TARGET_FPS) {
+          sensor->GetElement("update_rate")->Set(Min(MT9V117_TARGET_FPS, sensor->Get<double>("update_rate")));
+        }
+      }
+      sdf::ElementPtr image = camera->GetElement("image");
+      int w = image->Get<int>("width");
+      int h = image->Get<int>("height");
+
+      // Video config, as with Gazebo Classic
+      struct video_config_t *cam = cameras[i];
+      cam->output_size.w = w;
+      cam->output_size.h = h;
+      cam->sensor_size.w = w;
+      cam->sensor_size.h = h;
+      cam->crop.w = w;
+      cam->crop.h = h;
+      cam->fps = 0;
+      cam->camera_intrinsics.focal_x = w / 2.0f;
+      cam->camera_intrinsics.center_x = w / 2.0f;
+      cam->camera_intrinsics.focal_y = h / 2.0f;
+      cam->camera_intrinsics.center_y = h / 2.0f;
+      if (name == "mt9f002") {
+        // See boards/bebop/mt9f002.c
+        cam->output_size.w = MT9F002_OUTPUT_WIDTH;
+        cam->output_size.h = MT9F002_OUTPUT_HEIGHT;
+        cam->sensor_size.w = MT9F002_OUTPUT_WIDTH;
+        cam->sensor_size.h = MT9F002_OUTPUT_HEIGHT;
+        cam->crop.w = MT9F002_OUTPUT_WIDTH;
+        cam->crop.h = MT9F002_OUTPUT_HEIGHT;
+        cam->fps = MT9F002_TARGET_FPS;
+        cam->camera_intrinsics = {
+          .focal_x = MT9F002_FOCAL_X,
+          .focal_y = MT9F002_FOCAL_Y,
+          .center_x = MT9F002_CENTER_X,
+          .center_y = MT9F002_CENTER_Y,
+          .Dhane_k = MT9F002_DHANE_K
+        };
+      } else if (name == "mt9v117") {
+        // See boards/bebop/mt9v117.h
+        cam->fps = MT9V117_TARGET_FPS;
+        cam->camera_intrinsics = {
+          .focal_x = MT9V117_FOCAL_X,
+          .focal_y = MT9V117_FOCAL_Y,
+          .center_x = MT9V117_CENTER_X,
+          .center_y = MT9V117_CENTER_Y,
+          .Dhane_k = MT9V117_DHANE_K
+        };
+      }
+      gazebo_cams[i].sensor = name;
+      printf("NPS gz: camera %s (%s) %dx%d on %s\n", cam->dev_name, name.c_str(), w, h,
+             camera_topic(cam->dev_name).c_str());
+    }
+  }
+  for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS && cameras[i] != NULL; ++i) {
+    if (gazebo_cams[i].sensor.empty()) {
+      fprintf(stderr, "NPS gz: no camera sensor in link '%s' of model '%s'\n", cameras[i]->dev_name, NPS_GAZEBO_AC_NAME);
+    }
+  }
+}
+
+/** Subscribe to the camera images */
+static void gazebo_init_video(void)
+{
+  gz_node = std::make_unique<gz::transport::Node>();
+  for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS && cameras[i] != NULL; ++i) {
+    if (gazebo_cams[i].sensor.empty()) {
+      continue;
+    }
+    struct gazebo_cam_t *gcam = &gazebo_cams[i];
+    std::function<void(const gz::msgs::Image &)> cb = [gcam](const gz::msgs::Image &msg) {
+      std::lock_guard<std::mutex> lock(gcam->mutex);
+      gcam->msg = msg;
+      gcam->fresh = true;
+    };
+    if (!gz_node->Subscribe(camera_topic(cameras[i]->dev_name), cb)) {
+      fprintf(stderr, "NPS gz: could not subscribe to %s\n", camera_topic(cameras[i]->dev_name).c_str());
+    }
+  }
+}
+
+/**
+ * Convert a gz RGB888 image to Paparazzi's YUV422 (UYVY).
+ * For the Bebop front camera (mt9f002), the zoomed and/or cropped part of the
+ * sensor is sampled (nearest neighbour), as with Gazebo Classic.
+ */
+static void read_image(struct image_t *img, const gz::msgs::Image &msg, bool is_mt9f002)
+{
+  const int w = msg.width();
+  const int h = msg.height();
+  const int step = msg.step() ? msg.step() : 3 * w;
+  if (is_mt9f002) {
+    image_create(img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
+  } else {
+    image_create(img, w, h, IMAGE_YUV422);
+  }
+  const uint8_t *data_rgb = (const uint8_t *)msg.data().data();
+  uint8_t *data_yuv = (uint8_t *)(img->buf);
+  for (int y_yuv = 0; y_yuv < img->h; ++y_yuv) {
+    for (int x_yuv = 0; x_yuv < img->w; ++x_yuv) {
+      int x_rgb = x_yuv;
+      int y_rgb = y_yuv;
+      if (is_mt9f002) {
+        x_rgb = (mt9f002.offset_x + ((float)x_yuv / img->w) * mt9f002.sensor_width)
+                / CFG_MT9F002_PIXEL_ARRAY_WIDTH * w;
+        y_rgb = (mt9f002.offset_y + ((float)y_yuv / img->h) * mt9f002.sensor_height)
+                / CFG_MT9F002_PIXEL_ARRAY_HEIGHT * h;
+      }
+      x_rgb = Clip(x_rgb, 0, w - 1);
+      y_rgb = Clip(y_rgb, 0, h - 1);
+      const uint8_t *rgb = data_rgb + step * y_rgb + 3 * x_rgb;
+      int idx_yuv = 2 * (img->w * y_yuv + x_yuv);
+      if (x_yuv % 2 == 0) {
+        data_yuv[idx_yuv] = - 0.148 * rgb[0] - 0.291 * rgb[1] + 0.439 * rgb[2] + 128; // U
+      } else {
+        data_yuv[idx_yuv] = 0.439 * rgb[0] - 0.368 * rgb[1] - 0.071 * rgb[2] + 128; // V
+      }
+      data_yuv[idx_yuv + 1] = 0.257 * rgb[0] + 0.504 * rgb[1] + 0.098 * rgb[2] + 16; // Y
+    }
+  }
+  img->ts.tv_sec = msg.header().stamp().sec();
+  img->ts.tv_usec = msg.header().stamp().nsec() / 1000;
+  img->pprz_ts = msg.header().stamp().sec() * 1000000 + msg.header().stamp().nsec() / 1000;
+  img->buf_idx = 0; // unused
+}
+
+/** Pass the new camera images to the video thread */
+static void gazebo_read_video(void)
+{
+  for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS && cameras[i] != NULL; ++i) {
+    struct gazebo_cam_t *gcam = &gazebo_cams[i];
+    gz::msgs::Image msg;
+    {
+      std::lock_guard<std::mutex> lock(gcam->mutex);
+      if (!gcam->fresh) {
+        continue;
+      }
+      msg.Swap(&gcam->msg);
+      gcam->fresh = false;
+    }
+    if (msg.pixel_format_type() != gz::msgs::PixelFormatType::RGB_INT8) {
+      fprintf(stderr, "NPS gz: camera %s: unsupported pixel format %d\n", cameras[i]->dev_name, msg.pixel_format_type());
+      continue;
+    }
+    struct image_t img;
+    read_image(&img, msg, gcam->sensor == "mt9f002");
+    cv_run_device(cameras[i], &img);
+    image_free(&img);
+  }
+}
+#endif
