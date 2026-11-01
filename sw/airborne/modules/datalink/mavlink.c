@@ -418,7 +418,7 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
 
           // Downlink the new waypoint
           uint8_t wp_id = WP_ML_global_target;
-          int32_t hmsl = lla.alt - stateGetNedOrigin_i()->alt + stateGetHmslOrigin_i();
+          int32_t hmsl = lla.alt - stateGetNedOrigin_i()->lla.alt + stateGetHmslOrigin_i();
           DOWNLINK_SEND_WP_MOVED_LLA(DefaultChannel, DefaultDevice, &wp_id,
                                     &lla.lat, &lla.lon, &hmsl);
 

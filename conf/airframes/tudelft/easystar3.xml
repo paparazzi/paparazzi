@@ -32,6 +32,7 @@
 
     <target name="nps" board="pc">
       <module name="radio_control" type="datalink"/>
+      <define name="RADIO_TH_HOLD" value="RADIO_AUX1"/> <!-- Throttle hold in command laws -->
       <module name="fdm" type="jsbsim"/>
     
       <module name="logger_file">
