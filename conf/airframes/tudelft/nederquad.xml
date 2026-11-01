@@ -108,6 +108,13 @@
     <define name="BAT_CHECKER_DELAY" value="80" />
     <define name="INS_EKF2_HGT_REF" value="EKF2_HGT_REF_RANGE"/>
     <define name="INS_EKF2_GNSS_CHECK" value="GNSS_CHECK_FIX"/>
+    <!-- optical flow and range finder tuning of the previous EKF2 version -->
+    <define name="INS_EKF2_OF_QMIN" value="100"/>
+    <define name="INS_EKF2_OF_N_MIN" value="0.03"/>
+    <define name="INS_EKF2_OF_N_MAX" value="0.05"/>
+    <define name="INS_EKF2_OF_GATE" value="4"/>
+    <define name="INS_EKF2_OF_DELAY" value="15"/>
+    <define name="INS_EKF2_RNG_DELAY" value="15"/>
   </section>
 
   <section name="IMU" prefix="IMU_">

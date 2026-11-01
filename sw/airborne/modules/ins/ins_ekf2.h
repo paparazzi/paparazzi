@@ -47,7 +47,6 @@ struct ekf2_t {
   uint32_t flow_stamp;            ///< Optic flow last abi message timestamp
 
   float temp;                     ///< Latest temperature measurement in degrees celcius
-  float qnh;                      ///< QNH value in hPa
   uint8_t quat_reset_counter;     ///< Amount of quaternion resets from the EKF2
   uint64_t ltp_stamp;             ///< Last LTP change timestamp from the EKF2
   struct LtpDef_i ltp_def;        ///< Latest LTP definition from the quat_reset_counter EKF2
@@ -59,13 +58,10 @@ struct ekf2_t {
   float air_density;              ///< Air density from the barometer (kg/m^3)
   uint64_t system_flags_time;     ///< Last time the system flags were given to the EKF (us)
   struct FloatVect3 accel_ned;    ///< Latest NED acceleration from the EKF (m/s^2)
-
-  int32_t fusion_mode;            ///< GNSS position and velocity removed from the fusion (setting)
 };
 
 extern void ins_ekf2_init(void);
 extern void ins_ekf2_update(void);
-extern void ins_ekf2_remove_gps(int32_t mode);
 extern bool ins_ekf2_fixed_wing_flight(void);
 extern void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf);
 extern void ins_ekf2_parse_EXTERNAL_POSE_SMALL(uint8_t *buf);

@@ -51,6 +51,7 @@
     <module name="ins" type="ekf2">
       <configure name="USE_ALT_LLA_WAYPOINTS" value="TRUE"/>
       <define name="INS_EKF2_FORCE_NAV_REF" value="TRUE"/>
+      <define name="INS_EKF2_HGT_REF" value="EKF2_HGT_REF_GNSS"/>
     </module>
 
     <module name="actuators" type="bebop"/>

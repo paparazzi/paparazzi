@@ -50,6 +50,20 @@ using namespace estimator;
 #include <stdio.h>
 #endif
 
+/* Options of the previous EKF2 version, replaced by the PX4 parameters (see conf/modules/ins_ekf2.xml) */
+#if defined(INS_EKF2_FUSION_MODE) || defined(INS_EKF2_VDIST_SENSOR_TYPE) || defined(INS_EKF2_MAG_FUSION_TYPE)
+#error "INS_EKF2_FUSION_MODE, VDIST_SENSOR_TYPE and MAG_FUSION_TYPE are replaced by INS_EKF2_GPS_CTRL, EV_CTRL, OF_CTRL, DRAG_CTRL, HGT_REF and MAG_TYPE"
+#endif
+#if defined(INS_EKF2_GPS_CHECK_MASK) || defined(INS_EKF2_GPS_REQ_EPH) || defined(INS_EKF2_GPS_REQ_EPV) || defined(INS_EKF2_GPS_REQ_SACC) || defined(INS_EKF2_GPS_REQ_NSATS) || defined(INS_EKF2_GPS_REQ_PDOP)
+#error "INS_EKF2_GPS_CHECK_MASK and GPS_REQ_* are replaced by INS_EKF2_GNSS_CHECK and GNSS_REQ_*"
+#endif
+#if defined(INS_EKF2_FLOW_SENSOR_DELAY) || defined(INS_EKF2_MIN_FLOW_QUALITY) || defined(INS_EKF2_MAX_FLOW_RATE) || defined(INS_EKF2_FLOW_NOISE) || defined(INS_EKF2_FLOW_NOISE_QMIN) || defined(INS_EKF2_FLOW_INNOV_GATE) || defined(INS_EKF2_FLOW_POS_X)
+#error "INS_EKF2_FLOW_* are replaced by INS_EKF2_OF_DELAY, OF_QMIN, OF_MAX_RATE, OF_N_MIN, OF_N_MAX, OF_GATE and OF_POS_*"
+#endif
+#if defined(INS_EKF2_SONAR_MIN_RANGE) || defined(INS_EKF2_SONAR_MAX_RANGE) || defined(INS_EKF2_RANGE_MAIN_AGL)
+#error "INS_EKF2_SONAR_* and RANGE_MAIN_AGL are replaced by INS_EKF2_RNG_MIN_DIST, RNG_MAX_DIST and RNG_CTRL"
+#endif
+
 /** INS reference from flight plan, true by default */
 #ifndef USE_INS_NAV_INIT
 #define USE_INS_NAV_INIT TRUE
@@ -138,6 +152,12 @@ PRINT_CONFIG_VAR(INS_EKF2_GNSS_CHECK)
 #endif
 #endif
 
+/** Barometer as height reference (PX4 uses GNSS), as the previous version: the
+ *  heights don't depend on the ground altitude of the flight plan */
+#ifndef INS_EKF2_HGT_REF
+#define INS_EKF2_HGT_REF EKF2_HGT_REF_BARO
+#endif
+
 /* Vehicle specific defaults, as PX4 (rc.fw_defaults and rc.mc_defaults) */
 #if defined(FIXEDWING_FIRMWARE)
 #ifndef INS_EKF2_ARSP_THR
@@ -190,7 +210,9 @@ PRINT_CONFIG_VAR(INS_EKF2_RNG_MAX_DIST)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_OF_MAX_RATE)
 
-/** default airspeed sensor to use in INS (equivalent airspeed, only fused above INS_EKF2_ARSP_THR) */
+/** default airspeed sensor to use in INS (equivalent airspeed, only fused above INS_EKF2_ARSP_THR):
+ *  any sensor, or the airspeed computed by air_data from a differential pressure sensor.
+ *  The airspeed estimated from the wind (wind_estimation_quadrotor) is never used. */
 #ifndef INS_EKF2_AIRSPEED_ID
 #define INS_EKF2_AIRSPEED_ID ABI_BROADCAST
 #endif
@@ -335,9 +357,9 @@ static uint64_t ekf2_time_us(uint32_t stamp)
   }
   last_now = now;
 
-  // A stamp later than now was taken before the last wrap
+  // A stamp more than half the range later than now was taken before the last wrap
   uint64_t time_us = wraps + stamp;
-  if (stamp > now && time_us >= (1ULL << 32)) {
+  if (stamp > now && (stamp - now) > (1UL << 31) && time_us >= (1ULL << 32)) {
     time_us -= (1ULL << 32);
   }
   return time_us;
@@ -616,7 +638,6 @@ void ins_ekf2_init(void)
   ekf.output_predictor().set_pos_correction_tc(INS_EKF2_TAU_POS);
   ekf.output_predictor().set_vel_correction_tc(INS_EKF2_TAU_VEL);
   ekf.set_gnss_yaw_reset_wait(INS_EKF2_GPS_YAW_RST * 1000000);
-  ekf2.fusion_mode = 0;
 
   /* Enable all sensors, which ones are used follows from the parameters above */
   FusionControl *fc = ekf.getFusionControlHandle();
@@ -651,7 +672,6 @@ void ins_ekf2_init(void)
   ekf2.got_imu_data = false;
   ekf2.quat_reset_counter = 0;
   ekf2.temp = 20.0f; // Default temperature of 20 degrees celcius
-  ekf2.qnh = 1013.25f; // Default atmosphere
   ekf2.in_air = false;
   ekf2.armed = false;
   ekf2.fixed_wing = false;
@@ -804,9 +824,9 @@ bool __attribute__((weak)) ins_ekf2_fixed_wing_flight(void)
 }
 
 /** Airspeed (equivalent airspeed) to the EKF as true airspeed */
-static void airspeed_cb(uint8_t __attribute__((unused)) sender_id, float eas)
+static void airspeed_cb(uint8_t sender_id, float eas)
 {
-  if (!PX4_ISFINITE(eas) || eas < 0.f || ekf2.air_density <= 0.f) {
+  if (sender_id == AIRSPEED_WE_QUAD_ID || !PX4_ISFINITE(eas) || eas < 0.f || ekf2.air_density <= 0.f) {
     return;
   }
   airspeedSample sample{};
@@ -911,19 +931,6 @@ void ins_ekf2_update(void)
 #endif
 
   ekf2.got_imu_data = false;
-}
-
-/** Remove the GNSS position and velocity from the fusion (the GNSS heading is kept) and use optical flow instead */
-void ins_ekf2_remove_gps(int32_t mode)
-{
-  ekf2.fusion_mode = mode;
-  if (mode) {
-    ekf_params->ekf2_gps_ctrl = (INS_EKF2_GPS_CTRL) & EKF2_GPS_CTRL_YAW;
-    ekf_params->ekf2_of_ctrl = 1;
-  } else {
-    ekf_params->ekf2_gps_ctrl = INS_EKF2_GPS_CTRL;
-    ekf_params->ekf2_of_ctrl = INS_EKF2_OF_CTRL;
-  }
 }
 
 void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf)
@@ -1049,7 +1056,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, f
   // Calculate the height above mean sea level based on pressure
   baroSample sample{};
   sample.time_us = ekf2_time_us(stamp);
-  sample.hgt = pprz_isa_height_of_pressure_full(pressure, ekf2.qnh * 100.0f);
+  sample.hgt = pprz_isa_height_of_pressure_full(pressure, PPRZ_ISA_SEA_LEVEL_PRESSURE); // the EKF estimates the baro offset
   ekf.setBaroData(sample);
 }
 
@@ -1107,11 +1114,15 @@ static void mag_cb(uint8_t __attribute__((unused)) sender_id,
 {
   struct FloatVect3 mag_gauss;
 
-  // Convert Magnetometer information to float and to radius 0.2f
+  // The calibrated magnetometer is normalized: scale it to the field strength of the world
+  // magnetic model at the current position (0.4 gauss until it is known)
+  float inc, inc_ref, strength, strength_ref;
+  ekf.get_mag_checks(inc, inc_ref, strength, strength_ref);
+  float scale = (PX4_ISFINITE(strength_ref) && strength_ref > 0.f) ? strength_ref : 0.4f;
   MAGS_FLOAT_OF_BFP(mag_gauss, *mag);
-  mag_gauss.x *= 0.4f;
-  mag_gauss.y *= 0.4f;
-  mag_gauss.z *= 0.4f;
+  mag_gauss.x *= scale;
+  mag_gauss.y *= scale;
+  mag_gauss.z *= scale;
 
   // Publish information to the EKF
   magSample sample{};
@@ -1127,9 +1138,13 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp,
                    struct GpsState *gps_s)
 {
-  // The EKF needs the NED velocity
-  if (!bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT)) {
-    return;
+  // The velocity is converted from ECEF when the receiver gives no NED velocity. Receivers
+  // without any velocity (e.g. Furuno, NMEA, MTK) are used for the position only, as before.
+  bool has_vel = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT) ||
+                 bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_ECEF_BIT);
+  int32_t gps_ctrl = has_vel ? (int32_t)(INS_EKF2_GPS_CTRL) : ((INS_EKF2_GPS_CTRL) & ~EKF2_GPS_CTRL_VEL);
+  if (ekf_params->ekf2_gps_ctrl != gps_ctrl) {
+    ekf_params->ekf2_gps_ctrl = gps_ctrl;
   }
 
   struct LlaCoor_i lla_pos = lla_int_from_gps(gps_s);

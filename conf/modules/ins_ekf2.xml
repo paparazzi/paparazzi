@@ -12,6 +12,9 @@
       INS_EKF2_name for the PX4 parameter EKF2_name (e.g. INS_EKF2_GPS_CTRL, INS_EKF2_HGT_REF,
       INS_EKF2_MAG_TYPE, INS_EKF2_EV_CTRL, INS_EKF2_OF_CTRL, INS_EKF2_EVP_NOISE, INS_EKF2_IMU_POS_X),
       and the GNSS checks as INS_EKF2_GNSS_name for GNSS_name (e.g. INS_EKF2_GNSS_REQ_EPH).
+      The GNSS thresholds are the ones of PX4 (EPH 3 m, EPV 5 m, speed accuracy 0.5 m/s, 10 s healthy
+      before use), stricter than the previous version (5 m, 8 m, 1.0 m/s): set them in the airframe
+      for a receiver that doesn't reach them (e.g. the Bebop internal GNSS).
       See sw/ext/px4_ekf2/generated/ekf2_params.h and https://docs.px4.io/main/en/advanced_config/parameter_reference.html
       Sensors are only used when their data arrives, so a sensor enabled in a *_CTRL parameter
       without that sensor does nothing.
@@ -22,16 +25,16 @@
     </description>
     <define name="INS_EKF2_OPTITRACK" value="FALSE|TRUE" description="Indoor configuration with only external vision (e.g. Optitrack): EV position, velocity, yaw and height, no GNSS, magnetometer and barometer, EV noise 0.02 m / 0.05 rad and delay 175 ms (each can be changed)"/>
     <define name="INS_EKF2_GPS_CTRL" value="7" description="GNSS fusion bitmask: 1 horizontal position, 2 vertical position, 4 velocity, 8 dual antenna heading (EKF2_GPS_CTRL_*)"/>
-    <define name="INS_EKF2_HGT_REF" value="1" description="Height reference: 0 baro, 1 GNSS, 2 range finder, 3 external vision (EKF2_HGT_REF_*)"/>
+    <define name="INS_EKF2_HGT_REF" value="0" description="Height reference: 0 baro (default, PX4 uses 1), 1 GNSS, 2 range finder, 3 external vision (EKF2_HGT_REF_*)"/>
     <define name="INS_EKF2_MAG_TYPE" value="0" description="Magnetometer: 0 automatic (heading on the ground, 3D in the air), 1 heading, 5 none, 6 only to initialize the heading (EKF2_MAG_TYPE_*)"/>
-    <define name="INS_EKF2_EV_CTRL" value="15" description="External vision fusion bitmask: 1 horizontal position, 2 vertical position, 4 velocity, 8 yaw (EKF2_EV_CTRL_*)"/>
+    <define name="INS_EKF2_EV_CTRL" value="0" description="External vision fusion bitmask: 1 horizontal position, 2 vertical position, 4 velocity, 8 yaw (EKF2_EV_CTRL_*), 15 with INS_EKF2_OPTITRACK"/>
     <define name="INS_EKF2_OF_CTRL" value="1" description="Optical flow fusion"/>
     <define name="INS_EKF2_RNG_CTRL" value="1" description="Range finder height: 0 off, 1 conditional (low and slow), 2 always"/>
     <define name="INS_EKF2_DRAG_CTRL" value="0" description="Multirotor drag fusion (wind estimation without airspeed sensor)"/>
     <define name="INS_EKF2_IMU_CTRL" value="7" description="IMU bitmask: 1 gyro bias, 2 accel bias, 4 gravity vector fusion"/>
     <define name="INS_EKF2_ARSP_THR" value="0" description="Airspeed fusion above this true airspeed [m/s], 0 disables it (fixedwing default 8, 10 for hybrids as PX4 for VTOL)"/>
     <define name="INS_EKF2_FUSE_BETA" value="0" description="Synthetic sideslip fusion in fixed wing flight (fixedwing default 1, also 1 for hybrids)"/>
-    <define name="INS_EKF2_AIRSPEED_ID" value="ABI_BROADCAST" description="ABI sender ID of the airspeed (do not use an airspeed computed from the wind estimate)"/>
+    <define name="INS_EKF2_AIRSPEED_ID" value="ABI_BROADCAST" description="ABI sender ID of the airspeed: any sensor, or AIRSPEED_AIR_DATA_ID computed by air_data from a differential pressure sensor (the airspeed estimated from the wind is never used). Choose one when a sensor gives both."/>
     <define name="INS_EKF2_GNSS_CHECK" value="(GNSS_CHECK_NSATS|GNSS_CHECK_EPH|GNSS_CHECK_SACC|GNSS_CHECK_FIX)" description="GNSS checks before the GNSS data is used (GNSS_CHECK_*), PX4 uses all except jamming (2047)"/>
     <define name="INS_EKF2_GNSS_REQ_EPH" value="3.0" description="Maximum horizontal position accuracy [m]"/>
     <define name="INS_EKF2_GNSS_REQ_EPV" value="5.0" description="Maximum vertical position accuracy [m]"/>
@@ -58,16 +61,6 @@
 
     <configure name="USE_ALT_LLA_WAYPOINTS" value="FALSE|TRUE" description="Use LLA altitude instead of LTP z for long distance flight (default=TRUE)"/>
   </doc>
-  <settings>
-	<dl_settings NAME="INS">
-      <!-- EKF2 Configuration parameters -->
-      <dl_settings name="ekf2">
-        <dl_setting var="ekf2.qnh" min="500" step="0.1" max="1500" shortname="QNH"/>
-        <dl_setting var="ekf2.temp" min="-50" step="0.1" max="80" shortname="temperature"/>
-        <dl_setting var="ekf2.fusion_mode" min="0" max="1" step="1" shortname="remove_gps_yaw" values="FALSE|TRUE" module="modules/ins/ins_ekf2" handler="remove_gps" type="bool"/>
-      </dl_settings>
-    </dl_settings>
-  </settings>
   <dep>
     <depends>@gps,@mag,@imu</depends>
     <provides>ins,ahrs</provides>
@@ -84,6 +77,7 @@
     <configure name="CXXSTANDARD" value="-std=c++17"/>
     <flag name="CXXFLAGS" value="Wno-unused-but-set-variable"/>
     <flag name="CXXFLAGS" value="Wno-unused-variable"/>
+    <flag name="CXXFLAGS" value="Wno-unused-parameter"/> <!-- in the PX4 EKF2 code -->
     <flag name="CXXFLAGS" value="fno-associative-math"/>
     <flag name="CXXFLAGS" value="fno-strict-aliasing"/> <!-- as PX4, the generated EKF2 state is accessed through a vector cast -->
     <!-- EKF2 files -->
