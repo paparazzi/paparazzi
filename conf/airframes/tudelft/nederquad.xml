@@ -106,10 +106,8 @@
 
   <section name="MISC">
     <define name="BAT_CHECKER_DELAY" value="80" />
-    <define name="INS_EKF2_FUSION_MODE" value="MASK_USE_GPS | MASK_USE_OF"/>
-    <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_RANGE"/>
-    <define name="INS_EKF2_GPS_CHECK_MASK" value="0"/>
-    <define name="INS_EKF2_GPS_COURSE_YAW" value="FALSE"/>
+    <define name="INS_EKF2_HGT_REF" value="EKF2_HGT_REF_RANGE"/>
+    <define name="INS_EKF2_GNSS_CHECK" value="GNSS_CHECK_FIX"/>
   </section>
 
   <section name="IMU" prefix="IMU_">

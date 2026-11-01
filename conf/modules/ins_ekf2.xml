@@ -7,49 +7,36 @@
 
       The EKF2 and the PX4 libraries it needs are copied in sw/ext/px4_ekf2, where
       sync_px4_ekf2.py updates them to another PX4 version (see PX4_VERSION there).
-      The GNSS quality checks (GPS_CHECK_MASK and GPS_REQ_*) are the ones of PX4.
+
+      All PX4 EKF2 parameters have their PX4 default and can be set in the airframe as
+      INS_EKF2_name for the PX4 parameter EKF2_name (e.g. INS_EKF2_GPS_CTRL, INS_EKF2_HGT_REF,
+      INS_EKF2_MAG_TYPE, INS_EKF2_EV_CTRL, INS_EKF2_OF_CTRL, INS_EKF2_EVP_NOISE, INS_EKF2_IMU_POS_X),
+      and the GNSS checks as INS_EKF2_GNSS_name for GNSS_name (e.g. INS_EKF2_GNSS_REQ_EPH).
+      See sw/ext/px4_ekf2/generated/ekf2_params.h and https://docs.px4.io/main/en/advanced_config/parameter_reference.html
+      Sensors are only used when their data arrives, so a sensor enabled in a *_CTRL parameter
+      without that sensor does nothing.
     </description>
-    <define name="INS_EKF2_OPTITRACK" value="false" description="Easy configuration of full optitrack (position- and yaw fusion, height, init origin)"/>
-    <define name="INS_EKF2_FUSION_MODE" value="(MASK_USE_GPS)" description="Sensors used for fusion: MASK_USE_GPS, MASK_USE_GPSYAW, MASK_USE_OF, MASK_USE_EVPOS, MASK_USE_EVVEL, MASK_USE_EVYAW, MASK_USE_DRAG, MASK_INHIBIT_ACC_BIAS"/>
-    <define name="INS_EKF2_MAG_FUSION_TYPE" value="MAG_FUSE_TYPE_AUTO|MAG_FUSE_TYPE_HEADING|MAG_FUSE_TYPE_NONE|MAG_FUSE_TYPE_INIT" description="Magnetometer fusion type (MAG_FUSE_TYPE_INDOOR and _3D of the previous version map to NONE and AUTO)"/>
-    <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_BARO|VDIST_SENSOR_GPS|VDIST_SENSOR_RANGE|VDIST_SENSOR_EV" description="Primary sensor used for vertical distance"/>
-    <define name="INS_EKF2_GPS_CHECK_MASK" value="(MASK_GPS_NSATS | MASK_GPS_HACC | MASK_GPS_SACC)" description="GNSS checks before the GNSS data is used (a 3D fix is always required)"/>
-    <define name="INS_EKF2_GPS_REQ_NSATS" value="6" description="Required number of satellites for the GNSS checks"/>
-    <define name="INS_EKF2_GPS_REQ_EPH" value="5.0" description="Maximum horizontal position accuracy for the GNSS checks [m]"/>
-    <define name="INS_EKF2_GPS_REQ_EPV" value="8.0" description="Maximum vertical position accuracy for the GNSS checks [m]"/>
-    <define name="INS_EKF2_GPS_REQ_SACC" value="1.0" description="Maximum speed accuracy for the GNSS checks [m/s]"/>
-    <define name="INS_EKF2_GPS_REQ_PDOP" value="2.0" description="Maximum PDOP for the GNSS checks"/>
-    <define name="INS_EKF2_GPS_DELAY" value="110" description="GNSS measurement delay [ms]"/>
+    <define name="INS_EKF2_GPS_CTRL" value="7" description="GNSS fusion bitmask: 1 horizontal position, 2 vertical position, 4 velocity, 8 dual antenna heading (EKF2_GPS_CTRL_*)"/>
+    <define name="INS_EKF2_HGT_REF" value="1" description="Height reference: 0 baro, 1 GNSS, 2 range finder, 3 external vision (EKF2_HGT_REF_*)"/>
+    <define name="INS_EKF2_MAG_TYPE" value="0" description="Magnetometer: 0 automatic (heading on the ground, 3D in the air), 1 heading, 5 none, 6 only to initialize the heading (EKF2_MAG_TYPE_*)"/>
+    <define name="INS_EKF2_EV_CTRL" value="15" description="External vision fusion bitmask: 1 horizontal position, 2 vertical position, 4 velocity, 8 yaw (EKF2_EV_CTRL_*)"/>
+    <define name="INS_EKF2_OF_CTRL" value="1" description="Optical flow fusion"/>
+    <define name="INS_EKF2_RNG_CTRL" value="1" description="Range finder height: 0 off, 1 conditional (low and slow), 2 always"/>
+    <define name="INS_EKF2_DRAG_CTRL" value="0" description="Multirotor drag fusion (wind estimation without airspeed sensor)"/>
+    <define name="INS_EKF2_IMU_CTRL" value="7" description="IMU bitmask: 1 gyro bias, 2 accel bias, 4 gravity vector fusion"/>
+    <define name="INS_EKF2_GNSS_CHECK" value="(GNSS_CHECK_NSATS|GNSS_CHECK_EPH|GNSS_CHECK_SACC|GNSS_CHECK_FIX)" description="GNSS checks before the GNSS data is used (GNSS_CHECK_*), PX4 uses all except jamming (2047)"/>
+    <define name="INS_EKF2_GNSS_REQ_EPH" value="3.0" description="Maximum horizontal position accuracy [m]"/>
+    <define name="INS_EKF2_GNSS_REQ_EPV" value="5.0" description="Maximum vertical position accuracy [m]"/>
+    <define name="INS_EKF2_GNSS_REQ_SACC" value="0.5" description="Maximum speed accuracy [m/s]"/>
+    <define name="INS_EKF2_GNSS_REQ_NSATS" value="6" description="Required number of satellites"/>
+    <define name="INS_EKF2_GNSS_REQ_PDOP" value="2.5" description="Maximum PDOP"/>
+    <define name="INS_EKF2_GPS_DELAY" value="110" description="GNSS measurement delay [ms] (PX4 SENS_GNSS0_DELAY)"/>
+    <define name="INS_EKF2_GPS_POS_X" value="0" description="GNSS antenna X offset from the CoG [m] (also _Y and _Z, PX4 SENS_GNSS0_OFF*)"/>
     <define name="INS_EKF2_GPS_YAW_OFFSET" value="0" description="Yaw of the dual antenna baseline in the body frame [deg], enables the GNSS heading from RELPOS"/>
     <define name="INS_EKF2_GPS_YAW_NOISE" value="0.1" description="GNSS heading noise when the receiver gives no accuracy [rad]"/>
-    <define name="INS_EKF2_GPS_COURSE_YAW" value="FALSE" description="Use the GNSS course over ground as heading"/>
-    <define name="INS_EKF2_EV_DELAY" value="175" description="External vision measurement delay [ms]"/>
-    <define name="INS_EKF2_EVP_NOISE" value="0.1" description="External vision position noise [m]"/>
-    <define name="INS_EKF2_EVV_NOISE" value="1.0" description="External vision velocity noise [m/s]"/>
-    <define name="INS_EKF2_EVA_NOISE" value="0.05" description="External vision angle noise [rad]"/>
-    <define name="INS_EKF2_GPS_V_NOISE" value="0.3" description="GPS measurement noise for horizontal velocity [m/s]"/>
-    <define name="INS_EKF2_GPS_P_NOISE" value="0.5" description="GPS measurement position noise [m]"/>
-    <define name="INS_EKF2_BARO_NOISE" value="3.5" description="Barometric measurement noise for altitude [m]"/>
-
-    <define name="INS_EKF2_IMU_POS_X" value="0" description="IMU X offset from CoG position [m]"/>
-    <define name="INS_EKF2_IMU_POS_Y" value="0" description="IMU Y offset from CoG position [m]"/>
-    <define name="INS_EKF2_IMU_POS_Z" value="0" description="IMU Z offset from CoG position [m]"/>
-    <define name="INS_EKF2_GPS_POS_X" value="0" description="GPS X offset from CoG position [m]"/>
-    <define name="INS_EKF2_GPS_POS_Y" value="0" description="GPS Y offset from CoG position [m]"/>
-    <define name="INS_EKF2_GPS_POS_Z" value="0" description="GPS Z offset from CoG position [m]"/>
-    <define name="INS_EKF2_FLOW_POS_X" value="0" description="Flow sensor X offset from CoG position [m]"/>
-    <define name="INS_EKF2_FLOW_POS_Y" value="0" description="Flow sensor Y offset from CoG position [m]"/>
-    <define name="INS_EKF2_FLOW_POS_Z" value="0" description="Flow sensor Z offset from CoG position [m]"/>
-
-    <define name="INS_EKF2_SONAR_MIN_RANGE" value="0.05" description="AGL sensor minimum range [m]"/>
-    <define name="INS_EKF2_SONAR_MAX_RANGE" value="3" description="AGL sensor maximum range [m]"/>
-    <define name="INS_EKF2_RANGE_MAIN_AGL" value="1" description="If enabled uses radar sensor as primary AGL source, if possible"/>
-    <define name="INS_EKF2_FLOW_SENSOR_DELAY" value="15" description="flow/radar message delay [ms]"/>
-    <define name="INS_EKF2_MIN_FLOW_QUALITY" value="100" description="Minimum quality of the optical flow message accepted [0-255]"/>
-    <define name="INS_EKF2_MAX_FLOW_RATE" value="20" description="Maximum flow rate the sensor can perceive [rad/sec]]"/>
-    <define name="INS_EKF2_FLOW_NOISE" value="0.01" description="Flow sensor noise [rad/sec]"/>
-    <define name="INS_EKF2_FLOW_NOISE_QMIN" value="0.03" description="Flow sensor noise when quality is minimum [rad/sec]"/>
-    <define name="INS_EKF2_FLOW_INNOV_GATE" value="3" description="Flow sensor innovation gate [STD]"/>
+    <define name="INS_EKF2_RNG_MIN_DIST" value="0.001" description="Minimum distance the range finder measures [m]"/>
+    <define name="INS_EKF2_RNG_MAX_DIST" value="4" description="Maximum distance the range finder measures [m]"/>
+    <define name="INS_EKF2_OF_MAX_RATE" value="200" description="Maximum flow rate the optical flow sensor measures [rad/s]"/>
     <define name="INS_EKF2_AGL_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for AGL measurements"/>
     <define name="INS_EKF2_BARO_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for Barometric measurements"/>
     <define name="INS_EKF2_GYRO_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for gyro measurements"/>

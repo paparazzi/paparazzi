@@ -57,9 +57,6 @@ struct ekf2_t {
   bool armed;                     ///< Armed state last given to the EKF
   uint64_t system_flags_time;     ///< Last time the system flags were given to the EKF (us)
   struct FloatVect3 accel_ned;    ///< Latest NED acceleration from the EKF (m/s^2)
-  struct FloatRates prev_delta_gyro;  ///< Previous gyroscope delta angle (for the vibration metrics)
-  struct FloatVect3 prev_delta_accel; ///< Previous accelerometer delta velocity (for the vibration metrics)
-  float vibe[3];                  ///< IMU vibration metrics: coning, gyro and accelerometer vibration
 
   int32_t fusion_mode;            ///< GNSS position and velocity removed from the fusion (setting)
 };

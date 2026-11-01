@@ -20,7 +20,6 @@
       <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
 
       <configure name="BARO_PERIODIC_FREQUENCY" value="50"/>
-      <define name="INS_EKF2_OPTITRACK" value="FALSE"/>
     </target>
 
     <target name="nps" board="pc">

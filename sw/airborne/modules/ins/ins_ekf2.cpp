@@ -50,143 +50,95 @@ using namespace estimator;
 #include <stdio.h>
 #endif
 
-/*
- * Options of the previous EKF2 version, still used to configure the EKF.
- * They are converted to the new EKF2 parameters in ins_ekf2_init().
- */
-/** Sensors used for fusion (INS_EKF2_FUSION_MODE) */
-#define MASK_USE_GPS          (1<<0)  ///< use GNSS position and velocity
-#define MASK_USE_OF           (1<<1)  ///< use optical flow
-#define MASK_INHIBIT_ACC_BIAS (1<<2)  ///< do not estimate the accelerometer bias
-#define MASK_USE_EVPOS        (1<<3)  ///< use external vision position
-#define MASK_USE_EVYAW        (1<<4)  ///< use external vision yaw
-#define MASK_USE_DRAG         (1<<5)  ///< use the multi-rotor drag model to estimate wind
-#define MASK_USE_GPSYAW       (1<<7)  ///< use GNSS yaw (dual antenna)
-#define MASK_USE_EVVEL        (1<<8)  ///< use external vision velocity
-
-/** Primary height sensor (INS_EKF2_VDIST_SENSOR_TYPE), same values as the EKF2 height reference */
-#define VDIST_SENSOR_BARO  0
-#define VDIST_SENSOR_GPS   1
-#define VDIST_SENSOR_RANGE 2
-#define VDIST_SENSOR_EV    3
-
-/** Magnetometer fusion type (INS_EKF2_MAG_FUSION_TYPE) */
-#define MAG_FUSE_TYPE_AUTO    0  ///< automatic heading or 3D fusion
-#define MAG_FUSE_TYPE_HEADING 1  ///< always heading fusion
-#define MAG_FUSE_TYPE_3D      2  ///< 3D fusion, now part of the automatic selection
-#define MAG_FUSE_TYPE_INDOOR  4  ///< magnetometer not used (e.g. indoor with external vision yaw)
-#define MAG_FUSE_TYPE_NONE    5  ///< magnetometer not used
-#define MAG_FUSE_TYPE_INIT    6  ///< magnetometer only used to initialize the heading
-
-/** GNSS checks (INS_EKF2_GPS_CHECK_MASK), same bits as the PX4 GNSS checks */
-#define MASK_GPS_NSATS  (1<<0)  ///< number of satellites
-#define MASK_GPS_PDOP   (1<<1)  ///< position dilution of precision
-#define MASK_GPS_HACC   (1<<2)  ///< horizontal position accuracy
-#define MASK_GPS_VACC   (1<<3)  ///< vertical position accuracy
-#define MASK_GPS_SACC   (1<<4)  ///< speed accuracy
-#define MASK_GPS_HDRIFT (1<<5)  ///< horizontal drift on the ground
-#define MASK_GPS_VDRIFT (1<<6)  ///< vertical drift on the ground
-#define MASK_GPS_HSPD   (1<<7)  ///< horizontal speed on the ground
-#define MASK_GPS_VSPD   (1<<8)  ///< vertical speed on the ground
-#define MASK_GPS_FIX    (1<<10) ///< fix type
-
 /** INS reference from flight plan, true by default */
 #ifndef USE_INS_NAV_INIT
 #define USE_INS_NAV_INIT TRUE
 #endif
 
-/** Special configuration for Optitrack */
-#if INS_EKF2_OPTITRACK
-#ifndef INS_EKF2_FUSION_MODE
-#define INS_EKF2_FUSION_MODE (MASK_USE_EVPOS | MASK_USE_EVVEL | MASK_USE_EVYAW)
-#endif
-#ifndef INS_EKF2_MAG_FUSION_TYPE
-#define INS_EKF2_MAG_FUSION_TYPE MAG_FUSE_TYPE_INDOOR
-#endif
-#ifndef INS_EKF2_VDIST_SENSOR_TYPE
-#define INS_EKF2_VDIST_SENSOR_TYPE VDIST_SENSOR_EV
-#endif
-#endif
+/*
+ * EKF2 parameters
+ *
+ * All PX4 EKF2 parameters have the PX4 default and can be changed in the airframe as
+ * INS_EKF2_<name> for EKF2_<name>, e.g. INS_EKF2_GPS_CTRL, INS_EKF2_HGT_REF, INS_EKF2_MAG_TYPE
+ * (see generated/ekf2_params.h in sw/ext/px4_ekf2 and the PX4 parameter reference).
+ * The GNSS checks are INS_EKF2_GNSS_<name> for GNSS_<name>.
+ */
 
-/** The EKF2 fusion mode setting */
-#ifndef INS_EKF2_FUSION_MODE
-#define INS_EKF2_FUSION_MODE (MASK_USE_GPS)
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FUSION_MODE)
+/** GNSS checks (INS_EKF2_GNSS_CHECK), bits of the PX4 GNSS_CHECK parameter */
+#define GNSS_CHECK_NSATS   (1<<0)  ///< number of satellites (INS_EKF2_GNSS_REQ_NSATS)
+#define GNSS_CHECK_PDOP    (1<<1)  ///< position dilution of precision (INS_EKF2_GNSS_REQ_PDOP)
+#define GNSS_CHECK_EPH     (1<<2)  ///< horizontal position accuracy (INS_EKF2_GNSS_REQ_EPH)
+#define GNSS_CHECK_EPV     (1<<3)  ///< vertical position accuracy (INS_EKF2_GNSS_REQ_EPV)
+#define GNSS_CHECK_SACC    (1<<4)  ///< speed accuracy (INS_EKF2_GNSS_REQ_SACC)
+#define GNSS_CHECK_HDRIFT  (1<<5)  ///< horizontal position drift at rest on the ground (INS_EKF2_GNSS_REQ_HDRIFT)
+#define GNSS_CHECK_VDRIFT  (1<<6)  ///< vertical position drift at rest on the ground (INS_EKF2_GNSS_REQ_VDRIFT)
+#define GNSS_CHECK_HSPEED  (1<<7)  ///< horizontal speed at rest on the ground (INS_EKF2_GNSS_REQ_HDRIFT)
+#define GNSS_CHECK_VSPEED  (1<<8)  ///< vertical speed at rest on the ground (INS_EKF2_GNSS_REQ_VDRIFT)
+#define GNSS_CHECK_SPOOFED (1<<9)  ///< receiver reports spoofing
+#define GNSS_CHECK_FIX     (1<<10) ///< fix type (INS_EKF2_GNSS_REQ_FIX)
+#define GNSS_CHECK_JAMMED  (1<<11) ///< receiver reports jamming
 
-/** The EKF2 magnetometer fusion type */
-#ifndef INS_EKF2_MAG_FUSION_TYPE
-#define INS_EKF2_MAG_FUSION_TYPE MAG_FUSE_TYPE_AUTO
+/** GNSS checks used, PX4 enables all except jamming (2047) */
+#ifndef INS_EKF2_GNSS_CHECK
+#define INS_EKF2_GNSS_CHECK (GNSS_CHECK_NSATS | GNSS_CHECK_EPH | GNSS_CHECK_SACC | GNSS_CHECK_FIX)
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_MAG_FUSION_TYPE)
+PRINT_CONFIG_VAR(INS_EKF2_GNSS_CHECK)
 
-/** The EKF2 primary vertical distance sensor type */
-#ifndef INS_EKF2_VDIST_SENSOR_TYPE
-#define INS_EKF2_VDIST_SENSOR_TYPE VDIST_SENSOR_BARO
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_VDIST_SENSOR_TYPE)
+/** Values of INS_EKF2_GPS_CTRL (bitmask) */
+#define EKF2_GPS_CTRL_HPOS 1  ///< horizontal position
+#define EKF2_GPS_CTRL_VPOS 2  ///< vertical position
+#define EKF2_GPS_CTRL_VEL  4  ///< 3D velocity
+#define EKF2_GPS_CTRL_YAW  8  ///< dual antenna heading
 
-/** The GNSS checks before the GNSS data is used, a 3D fix is always required
- *  (the default thresholds below are the ones of the previous EKF2 version) */
-#ifndef INS_EKF2_GPS_CHECK_MASK
-#define INS_EKF2_GPS_CHECK_MASK (MASK_GPS_NSATS | MASK_GPS_HACC | MASK_GPS_SACC)
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_GPS_CHECK_MASK)
+/** Values of INS_EKF2_EV_CTRL (bitmask) */
+#define EKF2_EV_CTRL_HPOS 1  ///< horizontal position
+#define EKF2_EV_CTRL_VPOS 2  ///< vertical position
+#define EKF2_EV_CTRL_VEL  4  ///< 3D velocity
+#define EKF2_EV_CTRL_YAW  8  ///< yaw
 
-/** Required number of satellites for the GNSS checks */
-#ifndef INS_EKF2_GPS_REQ_NSATS
-#define INS_EKF2_GPS_REQ_NSATS 6
-#endif
+/** Values of INS_EKF2_HGT_REF */
+#define EKF2_HGT_REF_BARO  0
+#define EKF2_HGT_REF_GNSS  1
+#define EKF2_HGT_REF_RANGE 2
+#define EKF2_HGT_REF_EV    3
 
-/** Maximum horizontal position accuracy for the GNSS checks (m) */
-#ifndef INS_EKF2_GPS_REQ_EPH
-#define INS_EKF2_GPS_REQ_EPH 5.0f
-#endif
+/** Values of INS_EKF2_MAG_TYPE */
+#define EKF2_MAG_TYPE_AUTO    0  ///< heading on the ground, 3D in the air
+#define EKF2_MAG_TYPE_HEADING 1  ///< heading only
+#define EKF2_MAG_TYPE_NONE    5  ///< not used
+#define EKF2_MAG_TYPE_INIT    6  ///< only to initialize the heading
 
-/** Maximum vertical position accuracy for the GNSS checks (m) */
-#ifndef INS_EKF2_GPS_REQ_EPV
-#define INS_EKF2_GPS_REQ_EPV 8.0f
-#endif
+/* All parameters with the PX4 defaults, the values above can be used in the airframe */
+#include "generated/ekf2_params.h"
 
-/** Maximum speed accuracy for the GNSS checks (m/s) */
-#ifndef INS_EKF2_GPS_REQ_SACC
-#define INS_EKF2_GPS_REQ_SACC 1.0f
-#endif
+PRINT_CONFIG_VAR(INS_EKF2_GPS_CTRL)
+PRINT_CONFIG_VAR(INS_EKF2_EV_CTRL)
+PRINT_CONFIG_VAR(INS_EKF2_HGT_REF)
+PRINT_CONFIG_VAR(INS_EKF2_MAG_TYPE)
 
-/** Maximum PDOP for the GNSS checks */
-#ifndef INS_EKF2_GPS_REQ_PDOP
-#define INS_EKF2_GPS_REQ_PDOP 2.0f
-#endif
-
-/** GNSS measurement delay (ms) */
+/** GNSS measurement delay (ms), as the PX4 SENS_GNSS0_DELAY parameter */
 #ifndef INS_EKF2_GPS_DELAY
 #define INS_EKF2_GPS_DELAY 110
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_DELAY)
 
-/** External vision measurement delay (ms) */
-#ifndef INS_EKF2_EV_DELAY
-#define INS_EKF2_EV_DELAY 175
+/** Minimum distance the range finder can measure (m) */
+#ifndef INS_EKF2_RNG_MIN_DIST
+#define INS_EKF2_RNG_MIN_DIST 0.001f
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_EV_DELAY)
+PRINT_CONFIG_VAR(INS_EKF2_RNG_MIN_DIST)
 
-/** Default AGL sensor minimum range */
-#ifndef INS_EKF2_SONAR_MIN_RANGE
-#define INS_EKF2_SONAR_MIN_RANGE 0.001
+/** Maximum distance the range finder can measure (m) */
+#ifndef INS_EKF2_RNG_MAX_DIST
+#define INS_EKF2_RNG_MAX_DIST 4.f
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_SONAR_MIN_RANGE)
+PRINT_CONFIG_VAR(INS_EKF2_RNG_MAX_DIST)
 
-/** Default AGL sensor maximum range */
-#ifndef INS_EKF2_SONAR_MAX_RANGE
-#define INS_EKF2_SONAR_MAX_RANGE 4
+/** Maximum flow rate the optical flow sensor can measure (rad/s) */
+#ifndef INS_EKF2_OF_MAX_RATE
+#define INS_EKF2_OF_MAX_RATE 200.f
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_SONAR_MAX_RANGE)
-
-/** If enabled uses radar sensor as primary AGL source, if possible */
-#ifndef INS_EKF2_RANGE_MAIN_AGL
-#define INS_EKF2_RANGE_MAIN_AGL 1
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_RANGE_MAIN_AGL)
+PRINT_CONFIG_VAR(INS_EKF2_OF_MAX_RATE)
 
 /** default barometer to use in INS */
 #ifndef INS_EKF2_BARO_ID
@@ -246,131 +198,21 @@ PRINT_CONFIG_VAR(INS_EKF2_RELPOS_ID)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_OF_ID)
 
-/* IMU X offset from CoG position in meters */
-#ifndef INS_EKF2_IMU_POS_X
-#define INS_EKF2_IMU_POS_X 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_IMU_POS_X)
-
-/* IMU Y offset from CoG position in meters */
-#ifndef INS_EKF2_IMU_POS_Y
-#define INS_EKF2_IMU_POS_Y 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_IMU_POS_Y)
-
-/* IMU Z offset from CoG position in meters */
-#ifndef INS_EKF2_IMU_POS_Z
-#define INS_EKF2_IMU_POS_Z 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_IMU_POS_Z)
-
-/* GPS X offset from CoG position in meters */
+/* GPS antenna position from the CoG in meters, as the PX4 SENS_GNSS0_OFF* parameters */
 #ifndef INS_EKF2_GPS_POS_X
 #define INS_EKF2_GPS_POS_X 0
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_POS_X)
 
-/* GPS Y offset from CoG position in meters */
 #ifndef INS_EKF2_GPS_POS_Y
 #define INS_EKF2_GPS_POS_Y 0
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_POS_Y)
 
-/* GPS Z offset from CoG position in meters */
 #ifndef INS_EKF2_GPS_POS_Z
 #define INS_EKF2_GPS_POS_Z 0
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_POS_Z)
-
-/* Default flow/radar message delay (in ms) */
-#ifndef INS_EKF2_FLOW_SENSOR_DELAY
-#define INS_EKF2_FLOW_SENSOR_DELAY 15
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_SENSOR_DELAY)
-
-/* Default minimum accepted quality (1 to 255) */
-#ifndef INS_EKF2_MIN_FLOW_QUALITY
-#define INS_EKF2_MIN_FLOW_QUALITY  100
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_MIN_FLOW_QUALITY)
-
-/* Max flow rate that the sensor can measure (rad/sec) */
-#ifndef INS_EKF2_MAX_FLOW_RATE
-#define INS_EKF2_MAX_FLOW_RATE 200
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_MAX_FLOW_RATE)
-
-/* Flow sensor X offset from CoG position in meters */
-#ifndef INS_EKF2_FLOW_POS_X
-#define INS_EKF2_FLOW_POS_X 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_POS_X)
-
-/* Flow sensor Y offset from CoG position in meters */
-#ifndef INS_EKF2_FLOW_POS_Y
-#define INS_EKF2_FLOW_POS_Y 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_POS_Y)
-
-/* Flow sensor Z offset from CoG position in meters */
-#ifndef INS_EKF2_FLOW_POS_Z
-#define INS_EKF2_FLOW_POS_Z 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_POS_Z)
-
-/* Flow sensor noise in rad/sec */
-#ifndef INS_EKF2_FLOW_NOISE
-#define INS_EKF2_FLOW_NOISE 0.03
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_NOISE)
-
-/* Flow sensor noise at qmin in rad/sec */
-#ifndef INS_EKF2_FLOW_NOISE_QMIN
-#define INS_EKF2_FLOW_NOISE_QMIN 0.05
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_NOISE_QMIN)
-
-/* Flow sensor innovation gate */
-#ifndef INS_EKF2_FLOW_INNOV_GATE
-#define INS_EKF2_FLOW_INNOV_GATE 4
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_INNOV_GATE)
-
-/* External vision position noise (m) */
-#ifndef INS_EKF2_EVP_NOISE
-#define INS_EKF2_EVP_NOISE 0.02f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_EVP_NOISE)
-
-/* External vision velocity noise (m/s) */
-#ifndef INS_EKF2_EVV_NOISE
-#define INS_EKF2_EVV_NOISE 0.1f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_EVV_NOISE)
-
-/* External vision angle noise (rad) */
-#ifndef INS_EKF2_EVA_NOISE
-#define INS_EKF2_EVA_NOISE 0.05f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_EVA_NOISE)
-
-/* GPS measurement noise for horizontal velocity (m/s) */
-#ifndef INS_EKF2_GPS_V_NOISE
-#define INS_EKF2_GPS_V_NOISE 0.3f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_GPS_V_NOISE)
-
-/* GPS measurement position noise (m) */
-#ifndef INS_EKF2_GPS_P_NOISE
-#define INS_EKF2_GPS_P_NOISE 0.5f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_GPS_P_NOISE)
-
-/* Barometric measurement noise for altitude (m) */
-#ifndef INS_EKF2_BARO_NOISE
-#define INS_EKF2_BARO_NOISE 3.5f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_BARO_NOISE)
 
 /* GNSS heading measurement noise when the receiver gives no accuracy (rad) */
 #ifndef INS_EKF2_GPS_YAW_NOISE
@@ -413,7 +255,6 @@ static void reset_cb(uint8_t sender_id, uint8_t flag);
 
 /* Static local functions */
 static void ins_ekf2_publish_attitude(uint64_t time_us);
-static void ins_ekf2_set_gps_ctrl(int32_t fusion_mode);
 
 /* Static local variables */
 static Ekf ekf;                                   ///< EKF class itself
@@ -562,10 +403,11 @@ static void send_ins_ekf2_ext(struct transport_tx *trans, struct link_device *de
     gnss_checks.filtered_horizontal_velocity_m_s()
   };
   uint8_t gps_blocked = !PX4_ISFINITE(gps_drift[0]);
+  float f_zero = 0.f;
 
   pprz_msg_send_INS_EKF2_EXT(trans, dev, AC_ID,
                              &gps_drift[0], &gps_drift[1], &gps_drift[2], &gps_blocked,
-                             &ekf2.vibe[0], &ekf2.vibe[1], &ekf2.vibe[2]);
+                             &f_zero, &f_zero, &f_zero); // vibration metrics, not computed by the EKF anymore
 }
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
@@ -672,109 +514,22 @@ static void send_external_pose_down(struct transport_tx *trans, struct link_devi
 }
 #endif
 
-/** Convert the magnetometer fusion type of the previous EKF2 version */
-static int32_t mag_type_of_fusion_type(int32_t fusion_type)
-{
-  switch (fusion_type) {
-    case MAG_FUSE_TYPE_HEADING:
-      return static_cast<int32_t>(MagFuseType::HEADING);
-    case MAG_FUSE_TYPE_INDOOR:
-    case MAG_FUSE_TYPE_NONE:
-      return static_cast<int32_t>(MagFuseType::NONE);
-    case MAG_FUSE_TYPE_INIT:
-      return static_cast<int32_t>(MagFuseType::INIT);
-    case MAG_FUSE_TYPE_3D:
-    case MAG_FUSE_TYPE_AUTO:
-    default:
-      return static_cast<int32_t>(MagFuseType::AUTO);
-  }
-}
-
-/** Set the GNSS fusion from the fusion mode (also used to remove GNSS in flight) */
-static void ins_ekf2_set_gps_ctrl(int32_t fusion_mode)
-{
-  int32_t gps_ctrl = 0;
-  if (fusion_mode & MASK_USE_GPS) {
-    gps_ctrl |= static_cast<int32_t>(GnssCtrl::HPOS) | static_cast<int32_t>(GnssCtrl::VEL);
-    if (INS_EKF2_VDIST_SENSOR_TYPE == VDIST_SENSOR_GPS) {
-      gps_ctrl |= static_cast<int32_t>(GnssCtrl::VPOS);
-    }
-  }
-  if (fusion_mode & MASK_USE_GPSYAW) {
-    gps_ctrl |= static_cast<int32_t>(GnssCtrl::YAW);
-  }
-  ekf_params->ekf2_gps_ctrl = gps_ctrl;
-}
-
 /* Initialize the EKF */
 void ins_ekf2_init(void)
 {
-  /* Get the ekf parameters */
+  /* Get the ekf parameters, all with the PX4 defaults or the airframe values */
   ekf_params = ekf.getParamHandle();
+  ins_ekf2_set_px4_params(ekf_params);
 
-  /* Sensors used for fusion */
-  ekf2.fusion_mode = 0;
-  ins_ekf2_set_gps_ctrl(INS_EKF2_FUSION_MODE);
-  ekf_params->ekf2_hgt_ref = INS_EKF2_VDIST_SENSOR_TYPE;
-  ekf_params->ekf2_baro_ctrl = 1;
-  ekf_params->ekf2_mag_type = mag_type_of_fusion_type(INS_EKF2_MAG_FUSION_TYPE);
-  ekf_params->ekf2_of_ctrl = ((INS_EKF2_FUSION_MODE) & MASK_USE_OF) ? 1 : 0;
-  ekf_params->ekf2_drag_ctrl = ((INS_EKF2_FUSION_MODE) & MASK_USE_DRAG) ? 1 : 0;
-  ekf_params->ekf2_ev_ctrl = (((INS_EKF2_FUSION_MODE) & MASK_USE_EVPOS) ? static_cast<int32_t>(EvCtrl::HPOS) : 0)
-                             | ((INS_EKF2_VDIST_SENSOR_TYPE == VDIST_SENSOR_EV) ? static_cast<int32_t>(EvCtrl::VPOS) : 0)
-                             | (((INS_EKF2_FUSION_MODE) & MASK_USE_EVVEL) ? static_cast<int32_t>(EvCtrl::VEL) : 0)
-                             | (((INS_EKF2_FUSION_MODE) & MASK_USE_EVYAW) ? static_cast<int32_t>(EvCtrl::YAW) : 0);
-  if ((INS_EKF2_FUSION_MODE) & MASK_INHIBIT_ACC_BIAS) {
-    ekf_params->ekf2_imu_ctrl &= ~static_cast<int32_t>(ImuCtrl::AccelBias);
-  }
+  /* The observation buffers must also hold the GNSS delay, which is not an EKF parameter */
+  ekf_params->ekf2_delay_max = math::max((float)INS_EKF2_DELAY_MAX, (float)INS_EKF2_GPS_DELAY);
 
-  /* Range finder as height source: always when it is the primary height sensor, else when suitable */
-  if (INS_EKF2_VDIST_SENSOR_TYPE == VDIST_SENSOR_RANGE) {
-    ekf_params->ekf2_rng_ctrl = static_cast<int32_t>(RngCtrl::ENABLED);
-  } else {
-    ekf_params->ekf2_rng_ctrl = static_cast<int32_t>(INS_EKF2_RANGE_MAIN_AGL ? RngCtrl::CONDITIONAL : RngCtrl::DISABLED);
-  }
-
-  /* Set specific noise levels */
-  ekf_params->ekf2_acc_b_noise = 3.0e-3f;
-  ekf_params->ekf2_gps_v_noise = INS_EKF2_GPS_V_NOISE;
-  ekf_params->ekf2_gps_p_noise = INS_EKF2_GPS_P_NOISE;
-  ekf_params->ekf2_baro_noise = INS_EKF2_BARO_NOISE;
-  ekf_params->gnss_heading_noise = INS_EKF2_GPS_YAW_NOISE;
-  ekf_params->ekf2_evp_noise = INS_EKF2_EVP_NOISE;
-  ekf_params->ekf2_evv_noise = INS_EKF2_EVV_NOISE;
-  ekf_params->ekf2_eva_noise = INS_EKF2_EVA_NOISE;
-  ekf_params->ekf2_ev_delay = INS_EKF2_EV_DELAY;
-
-  /* Set optical flow and range finder parameters */
-  ekf_params->ekf2_of_qmin = INS_EKF2_MIN_FLOW_QUALITY;
-  ekf_params->ekf2_of_delay = INS_EKF2_FLOW_SENSOR_DELAY;
-  ekf_params->ekf2_rng_delay = INS_EKF2_FLOW_SENSOR_DELAY;
-  ekf_params->ekf2_of_n_min = INS_EKF2_FLOW_NOISE;
-  ekf_params->ekf2_of_n_max = INS_EKF2_FLOW_NOISE_QMIN;
-  ekf_params->ekf2_of_gate = INS_EKF2_FLOW_INNOV_GATE;
-
-  /* The observation buffers must hold the longest delay of the used sensors */
-  float delay_max = math::max((float)INS_EKF2_FLOW_SENSOR_DELAY, (float)INS_EKF2_GPS_DELAY);
-  if (ekf_params->ekf2_ev_ctrl != 0) {
-    delay_max = math::max(delay_max, (float)INS_EKF2_EV_DELAY);
-  }
-  ekf_params->ekf2_delay_max = delay_max;
-
-  /* Set the IMU position relative from the CoG in xyz (m) */
-  ekf_params->imu_pos_body = {
-    INS_EKF2_IMU_POS_X,
-    INS_EKF2_IMU_POS_Y,
-    INS_EKF2_IMU_POS_Z
-  };
+  /* Output predictor, as in the PX4 EKF2 module */
   ekf.output_predictor().set_imu_offset(ekf_params->imu_pos_body);
-
-  /* Set flow sensor offset from CoG position in xyz (m) */
-  ekf_params->flow_pos_body = {
-    INS_EKF2_FLOW_POS_X,
-    INS_EKF2_FLOW_POS_Y,
-    INS_EKF2_FLOW_POS_Z
-  };
+  ekf.output_predictor().set_pos_correction_tc(INS_EKF2_TAU_POS);
+  ekf.output_predictor().set_vel_correction_tc(INS_EKF2_TAU_VEL);
+  ekf.set_gnss_yaw_reset_wait(INS_EKF2_GPS_YAW_RST * 1000000);
+  ekf2.fusion_mode = 0;
 
   /* Enable all sensors, which ones are used follows from the parameters above */
   FusionControl *fc = ekf.getFusionControlHandle();
@@ -787,15 +542,18 @@ void ins_ekf2_init(void)
   fc->aspd.enabled = true;
   ekf.updateParameters();
 
-  /* GNSS checks before the GNSS data is used (a 3D fix is always required) */
+  /* GNSS checks before the GNSS data is used, as the PX4 GNSS_* parameters */
   GnssChecks::Params checks_params{};
-  checks_params.check_mask = INS_EKF2_GPS_CHECK_MASK | MASK_GPS_FIX;
-  checks_params.req_nsats = INS_EKF2_GPS_REQ_NSATS;
-  checks_params.req_pdop = INS_EKF2_GPS_REQ_PDOP;
-  checks_params.req_eph = INS_EKF2_GPS_REQ_EPH;
-  checks_params.req_epv = INS_EKF2_GPS_REQ_EPV;
-  checks_params.req_sacc = INS_EKF2_GPS_REQ_SACC;
-  checks_params.req_fix = 3;
+  checks_params.check_mask = INS_EKF2_GNSS_CHECK;
+  checks_params.req_nsats = INS_EKF2_GNSS_REQ_NSATS;
+  checks_params.req_pdop = INS_EKF2_GNSS_REQ_PDOP;
+  checks_params.req_eph = INS_EKF2_GNSS_REQ_EPH;
+  checks_params.req_epv = INS_EKF2_GNSS_REQ_EPV;
+  checks_params.req_sacc = INS_EKF2_GNSS_REQ_SACC;
+  checks_params.req_hdrift = INS_EKF2_GNSS_REQ_HDRIFT;
+  checks_params.req_vdrift = INS_EKF2_GNSS_REQ_VDRIFT;
+  checks_params.req_fix = INS_EKF2_GNSS_REQ_FIX;
+  checks_params.min_health_time_us = INS_EKF2_GNSS_REQ_TIME * 1000000;
   gnss_checks.setParams(checks_params);
 
   /* Initialize struct */
@@ -813,10 +571,10 @@ void ins_ekf2_init(void)
   FLOAT_VECT3_ZERO(ekf2.accel_ned);
 
   /* Initialize the range sensor limits */
-  ekf.set_rangefinder_limits(INS_EKF2_SONAR_MIN_RANGE, INS_EKF2_SONAR_MAX_RANGE);
+  ekf.set_rangefinder_limits(INS_EKF2_RNG_MIN_DIST, INS_EKF2_RNG_MAX_DIST);
 
   /* Initialize the flow sensor limits */
-  ekf.set_optical_flow_limits(INS_EKF2_MAX_FLOW_RATE, INS_EKF2_SONAR_MIN_RANGE, INS_EKF2_SONAR_MAX_RANGE);
+  ekf.set_optical_flow_limits(INS_EKF2_OF_MAX_RATE, INS_EKF2_RNG_MIN_DIST, INS_EKF2_RNG_MAX_DIST);
 
   // Don't send external vision data by default
   sample_ev.time_us = 0;
@@ -1039,16 +797,16 @@ void ins_ekf2_update(void)
   ekf2.got_imu_data = false;
 }
 
-/** Remove the GNSS position and velocity from the fusion and use optical flow and GNSS heading instead */
+/** Remove the GNSS position and velocity from the fusion (the GNSS heading is kept) and use optical flow instead */
 void ins_ekf2_remove_gps(int32_t mode)
 {
   ekf2.fusion_mode = mode;
   if (mode) {
-    ins_ekf2_set_gps_ctrl(MASK_USE_OF | MASK_USE_GPSYAW);
+    ekf_params->ekf2_gps_ctrl = (INS_EKF2_GPS_CTRL) & EKF2_GPS_CTRL_YAW;
     ekf_params->ekf2_of_ctrl = 1;
   } else {
-    ins_ekf2_set_gps_ctrl(INS_EKF2_FUSION_MODE);
-    ekf_params->ekf2_of_ctrl = ((INS_EKF2_FUSION_MODE) & MASK_USE_OF) ? 1 : 0;
+    ekf_params->ekf2_gps_ctrl = INS_EKF2_GPS_CTRL;
+    ekf_params->ekf2_of_ctrl = INS_EKF2_OF_CTRL;
   }
 }
 
@@ -1095,19 +853,6 @@ void ins_ekf2_parse_EXTERNAL_POSE_SMALL(uint8_t __attribute__((unused)) *buf)
 
 }
 
-/** Update the IMU vibration metrics (coning, high frequency gyro and accelerometer vibration) */
-static void ins_ekf2_update_vibration(const Vector3f &delta_ang, const Vector3f &delta_vel)
-{
-  const Vector3f prev_ang(ekf2.prev_delta_gyro.p, ekf2.prev_delta_gyro.q, ekf2.prev_delta_gyro.r);
-  const Vector3f prev_vel(ekf2.prev_delta_accel.x, ekf2.prev_delta_accel.y, ekf2.prev_delta_accel.z);
-  const float alpha = 0.01f;
-  ekf2.vibe[0] = (1.f - alpha) * ekf2.vibe[0] + alpha * delta_ang.cross(prev_ang).norm();
-  ekf2.vibe[1] = (1.f - alpha) * ekf2.vibe[1] + alpha * (delta_ang - prev_ang).norm();
-  ekf2.vibe[2] = (1.f - alpha) * ekf2.vibe[2] + alpha * (delta_vel - prev_vel).norm();
-  RATES_ASSIGN(ekf2.prev_delta_gyro, delta_ang(0), delta_ang(1), delta_ang(2));
-  VECT3_ASSIGN(ekf2.prev_delta_accel, delta_vel(0), delta_vel(1), delta_vel(2));
-}
-
 /** Publish the attitude and get the new state
  *  Directly called after a succeslfull gyro+accel reading
  */
@@ -1120,7 +865,6 @@ static void ins_ekf2_publish_attitude(uint64_t time_us)
   imu_sample.delta_vel_dt = ekf2.accel_dt * 1.e-6f;
   imu_sample.delta_vel = Vector3f{ekf2.delta_accel.x, ekf2.delta_accel.y, ekf2.delta_accel.z};
   ekf.setIMUData(imu_sample);
-  ins_ekf2_update_vibration(imu_sample.delta_ang, imu_sample.delta_vel);
 
   if (ekf.attitude_valid()) {
     // Calculate the quaternion
@@ -1287,7 +1031,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   checks_sample.fix_type = gps_s->fix;
   checks_sample.nsats = gps_s->num_sv;
   checks_sample.pdop = gps_s->pdop / 100.0f;
-  gnss_checks.run(checks_sample, ekf2.armed, ekf2.in_air, false);
+  gnss_checks.run(checks_sample, ekf2.armed, ekf2.in_air, ekf.control_status_flags().vehicle_at_rest);
 
   // The measurement was taken INS_EKF2_GPS_DELAY before it arrived
   gnssSample sample{};
@@ -1307,16 +1051,6 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   sample.sacc_passes_strict = !(gnss_checks.getStrictFailFlags() & vehicle_gnss_s::CHECK_SACC);
   ekf.setGpsData(sample);
 
-#if INS_EKF2_GPS_COURSE_YAW
-  // Use the course over ground as heading
-  gnssYawSample yaw_sample{};
-  yaw_sample.time_us = sample.time_us;
-  yaw_sample.yaw = wrap_pi((float)gps_s->course / 1e7);
-  yaw_sample.yaw_acc = NAN;
-  yaw_sample.yaw_offset = 0;
-  yaw_sample.usable = true;
-  ekf.setGnssYawData(yaw_sample);
-#endif
 }
 
 /* Update the heading from the relative position (dual antenna RTK GNSS) */

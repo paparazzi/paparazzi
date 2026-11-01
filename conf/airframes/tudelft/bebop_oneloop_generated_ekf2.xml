@@ -28,7 +28,9 @@
     </module>  
 
     <module name="ins" type="ekf2">
-      <define name="INS_EKF2_OPTITRACK" value="true"/>
+      <define name="INS_EKF2_GPS_CTRL" value="0"/>
+      <define name="INS_EKF2_HGT_REF" value="EKF2_HGT_REF_EV"/>
+      <define name="INS_EKF2_MAG_TYPE" value="EKF2_MAG_TYPE_NONE"/>
     </module>
 
     <module name="guidance" type="oneloop"/>
