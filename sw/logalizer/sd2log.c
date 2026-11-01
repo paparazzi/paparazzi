@@ -31,6 +31,8 @@
  * after the GPS time of the flight.
  */
 
+#define _GNU_SOURCE // nftw, fmemopen, mkdtemp
+
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
@@ -42,8 +44,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <ftw.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 #include <zlib.h>
@@ -229,20 +234,110 @@ static const char *skip_ws(const char *s)
   return s;
 }
 
-static bool get_attr(const char *line, const char *key, char *out, size_t out_sz)
+/*
+ * Minimal XML reading: the tags of a document one by one, and their attributes.
+ * Comments, processing instructions and DOCTYPE are skipped, a '>' inside a quoted
+ * attribute value does not end the tag, attributes may use ' or " and spaces around '='.
+ */
+typedef struct {
+  const char *start;  /* first character after '<' */
+  size_t len;         /* up to (not including) '>' */
+} xml_tag_t;
+
+static bool next_tag(const char **pos, xml_tag_t *tag)
 {
-  char pat[96];
-  snprintf(pat, sizeof(pat), "%s=\"", key);
-  const char *p = strstr(line, pat);
-  if (!p) return false;
-  p += strlen(pat);
-  const char *q = strchr(p, '"');
-  if (!q) return false;
-  size_t n = (size_t)(q - p);
-  if (n >= out_sz) n = out_sz - 1;
-  memcpy(out, p, n);
-  out[n] = '\0';
-  return true;
+  const char *p = *pos;
+  while ((p = strchr(p, '<')) != NULL) {
+    if (!strncmp(p, "<!--", 4)) {
+      const char *e = strstr(p + 4, "-->");
+      if (!e) return false;
+      p = e + 3;
+      continue;
+    }
+    if (p[1] == '?' || p[1] == '!') {
+      const char *e = strchr(p, '>');
+      if (!e) return false;
+      p = e + 1;
+      continue;
+    }
+    const char *q = p + 1;
+    char quote = 0;
+    while (*q && (quote || *q != '>')) {
+      if (quote) {
+        if (*q == quote) quote = 0;
+      } else if (*q == '"' || *q == '\'') {
+        quote = *q;
+      }
+      q++;
+    }
+    if (!*q) return false;
+    tag->start = p + 1;
+    tag->len = (size_t)(q - p - 1);
+    *pos = q + 1;
+    return true;
+  }
+  return false;
+}
+
+/* True when the tag is an element with this name (e.g. "message" or "/message") */
+static bool tag_is(const xml_tag_t *tag, const char *name)
+{
+  size_t n = strlen(name);
+  return tag->len >= n && !strncmp(tag->start, name, n)
+         && (tag->len == n || isspace((unsigned char)tag->start[n]) || tag->start[n] == '/');
+}
+
+static bool get_attr(const xml_tag_t *tag, const char *key, char *out, size_t out_sz)
+{
+  const char *p = tag->start;
+  const char *end = tag->start + tag->len;
+  size_t key_len = strlen(key);
+  /* skip the element name */
+  while (p < end && !isspace((unsigned char)*p) && *p != '/') p++;
+  while (p < end) {
+    while (p < end && (isspace((unsigned char)*p) || *p == '/')) p++;
+    const char *name = p;
+    while (p < end && !isspace((unsigned char)*p) && *p != '=' && *p != '/') p++;
+    size_t name_len = (size_t)(p - name);
+    while (p < end && isspace((unsigned char)*p)) p++;
+    if (p >= end || *p != '=') {
+      if (name_len == 0) break;
+      continue; /* attribute without value */
+    }
+    p++;
+    while (p < end && isspace((unsigned char)*p)) p++;
+    if (p >= end || (*p != '"' && *p != '\'')) break;
+    char quote = *p++;
+    const char *v = p;
+    while (p < end && *p != quote) p++;
+    if (p >= end) break;
+    if (name_len == key_len && !strncmp(name, key, key_len)) {
+      size_t n = (size_t)(p - v);
+      if (n >= out_sz) n = out_sz - 1;
+      memcpy(out, v, n);
+      out[n] = '\0';
+      return true;
+    }
+    p++;
+  }
+  return false;
+}
+
+/* Keep a format attribute only when it is exactly one floating point conversion
+ * (e.g. "%.2f"), so it can be given to fprintf with a double and gives one value */
+static void check_float_format(char *format)
+{
+  const char *p = format;
+  if (*p++ != '%') { format[0] = '\0'; return; }
+  while (*p && strchr("-+ #0", *p)) p++;
+  while (isdigit((unsigned char)*p)) p++;
+  if (*p == '.') {
+    p++;
+    while (isdigit((unsigned char)*p)) p++;
+  }
+  if (!*p || !strchr("eEfFgGaA", *p) || p[1] != '\0') {
+    format[0] = '\0';
+  }
 }
 
 static field_type_t parse_base_type(const char *t)
@@ -311,35 +406,25 @@ static bool load_messages_xml(const char *xml_path, msg_db_t *db)
   msg_class_t *klass = NULL;
   msg_def_t *msg = NULL;
 
-  for (char *line = text; line && *line; ) {
-    char *eol = strchr(line, '\n');
-    if (eol) *eol = '\0';
-    const char *p = skip_ws(line);
-    line = eol ? eol + 1 : NULL;
-
-    if (strstr(p, "<msg_class")) {
+  const char *pos = text;
+  xml_tag_t tag;
+  while (next_tag(&pos, &tag)) {
+    if (tag_is(&tag, "msg_class")) {
       char cls[MAX_NAME] = {0};
-      if (get_attr(p, "name", cls, sizeof(cls))) {
+      klass = NULL;
+      if (get_attr(&tag, "name", cls, sizeof(cls))) {
         if (!strcmp(cls, "telemetry")) klass = &db->telemetry;
         else if (!strcmp(cls, "datalink")) klass = &db->datalink;
-        else klass = NULL;
-      } else {
-        klass = NULL;
       }
       msg = NULL;
-      continue;
-    }
-
-    if (strstr(p, "</msg_class")) {
+    } else if (tag_is(&tag, "/msg_class")) {
       klass = NULL;
       msg = NULL;
-      continue;
-    }
-
-    if (klass && strstr(p, "<message ")) {
+    } else if (klass && tag_is(&tag, "message")) {
       char name[MAX_NAME] = {0};
       char id_str[32] = {0};
-      if (get_attr(p, "name", name, sizeof(name)) && get_attr(p, "id", id_str, sizeof(id_str))) {
+      msg = NULL;
+      if (get_attr(&tag, "name", name, sizeof(name)) && get_attr(&tag, "id", id_str, sizeof(id_str))) {
         int id = atoi(id_str);
         msg = add_msg(klass, id, name);
         if (klass == &db->telemetry) {
@@ -347,26 +432,19 @@ static bool load_messages_xml(const char *xml_path, msg_db_t *db)
           else if (!strcmp(name, "GPS_INT")) db->gps_int_id = id;
           else if (!strcmp(name, "ALIVE")) db->alive_id = id;
         }
-      } else {
-        msg = NULL;
       }
-      continue;
-    }
-
-    if (msg && strstr(p, "</message")) {
+    } else if (tag_is(&tag, "/message")) {
       msg = NULL;
-      continue;
-    }
-
-    if (msg && strstr(p, "<field ")) {
+    } else if (msg && tag_is(&tag, "field")) {
       if (msg->num_fields >= MAX_FIELDS) continue;
       char fn[MAX_NAME] = {0};
       char ft[64] = {0};
-      if (get_attr(p, "name", fn, sizeof(fn)) && get_attr(p, "type", ft, sizeof(ft))) {
+      if (get_attr(&tag, "name", fn, sizeof(fn)) && get_attr(&tag, "type", ft, sizeof(ft))) {
         field_def_t *fd = &msg->fields[msg->num_fields++];
         snprintf(fd->name, sizeof(fd->name), "%s", fn);
         parse_field_type(ft, fd);
-        get_attr(p, "format", fd->format, sizeof(fd->format));
+        get_attr(&tag, "format", fd->format, sizeof(fd->format));
+        check_float_format(fd->format);
       }
     }
   }
@@ -544,13 +622,6 @@ static bool print_scalar(FILE *out, field_type_t t, const uint8_t *buf, size_t l
   }
 }
 
-static void print_hex_rest(FILE *out, const uint8_t *buf, size_t off, size_t len)
-{
-  for (size_t i = off; i < len; i++) {
-    fprintf(out, " %02x", buf[i]);
-  }
-}
-
 /* Empty value for a field that is missing from the payload */
 static void print_default(FILE *out, const field_def_t *fd)
 {
@@ -602,11 +673,15 @@ static bool decode_payload(FILE *out, const msg_def_t *msg, const uint8_t *paylo
 
     if (fd->is_array && fd->base_type == FT_CHAR) {
       fprintf(out, " \"");
+      /* raw characters as the OCaml sd2log, up to the first NUL (padding);
+       * quotes and control characters would break the line, they become '?' */
+      bool ended = false;
       for (int j = 0; j < n; j++) {
         if (off >= payload_len) return false;
         unsigned char c = payload[off++];
-        if (isprint(c) && c != '\\' && c != '"') fputc(c, out);
-        else fprintf(out, "\\x%02x", c);
+        if (c == '\0') ended = true;
+        if (ended) continue;
+        fputc((c >= 0x20 && c != 0x7f && c != '"') ? c : '?', out);
       }
       fprintf(out, "\"");
       continue;
@@ -978,39 +1053,41 @@ static bool lookup_aircraft_attr(const char *conf_xml_path, int ac_id, const cha
     return false;
   }
 
-  char needle[32];
-  snprintf(needle, sizeof(needle), "ac_id=\"%d\"", ac_id);
-  char attr_pat[64];
-  snprintf(attr_pat, sizeof(attr_pat), " %s=\"", attr);
-
   bool found = false;
-  char *p = xml;
-  while (!found && (p = strstr(p, "<aircraft")) != NULL) {
-    char *end = strstr(p, "/>");
-    if (!end) break;
-
-    char saved = end[2];
-    end[2] = '\0';
-    char *v = strstr(p, needle) ? strstr(p, attr_pat) : NULL;
-    if (v) {
-      v += strlen(attr_pat);
-      char *q = strchr(v, '"');
-      if (q) {
-        size_t n = (size_t)(q - v);
-        if (n >= out_sz) n = out_sz - 1;
-        memcpy(out, v, n);
-        out[n] = '\0';
-        found = true;
-      }
+  const char *pos = xml;
+  xml_tag_t tag;
+  while (!found && next_tag(&pos, &tag)) {
+    char id_str[32];
+    if (tag_is(&tag, "aircraft") && get_attr(&tag, "ac_id", id_str, sizeof(id_str)) && atoi(id_str) == ac_id) {
+      found = get_attr(&tag, attr, out, out_sz);
+      break;
     }
-    end[2] = saved;
-    p = end + 2;
   }
 
   free(xml);
   return found;
 }
 
+/* Temporary directory of the generated aircraft configuration, removed at exit */
+static char gen_tmp_dir[PATH_MAX - 64];
+
+static int remove_entry(const char *path, const struct stat *sb, int flag, struct FTW *ftw)
+{
+  (void)sb; (void)flag; (void)ftw;
+  remove(path);
+  return 0;
+}
+
+static void remove_gen_tmp_dir(void)
+{
+  if (gen_tmp_dir[0]) {
+    nftw(gen_tmp_dir, remove_entry, 16, FTW_DEPTH | FTW_PHYS);
+    gen_tmp_dir[0] = '\0';
+  }
+}
+
+/* Generate the configuration of an aircraft of the current conf.xml with the OCaml generator,
+ * in a temporary directory (the build configuration in var/aircrafts is not changed) */
 static bool generate_conf_aircraft_with_ocaml(const char *home, const char *conf_xml_path,
                                                const char *aircraft_name,
                                                char *out_conf_path, size_t out_sz)
@@ -1019,19 +1096,42 @@ static bool generate_conf_aircraft_with_ocaml(const char *home, const char *conf
     return false;
   }
 
-  char cmd[PATH_MAX * 3];
-  snprintf(cmd, sizeof(cmd),
-           "PAPARAZZI_HOME='%s' PAPARAZZI_SRC='%s' '%s/sw/tools/generators/gen_aircraft.out' "
-           "-ac_conf -all -name '%s' -target ap -conf '%s' >/dev/null 2>&1",
-           home, home, home, aircraft_name, conf_xml_path);
+  const char *tmp = getenv("TMPDIR");
+  snprintf(gen_tmp_dir, sizeof(gen_tmp_dir), "%s/sd2log_XXXXXX", tmp && tmp[0] ? tmp : "/tmp");
+  if (!mkdtemp(gen_tmp_dir)) {
+    gen_tmp_dir[0] = '\0';
+    return false;
+  }
+  atexit(remove_gen_tmp_dir);
 
-  int rc = system(cmd);
-  if (rc != 0) {
+  char generator[PATH_MAX];
+  snprintf(generator, sizeof(generator), "%s/sw/tools/generators/gen_aircraft.out", home);
+  char *args[] = { generator, "-ac_conf", "-all", "-name", (char *)aircraft_name, "-target", "ap",
+                   "-conf", (char *)conf_xml_path, "-conf_dir", gen_tmp_dir, "-ac_dir", gen_tmp_dir, NULL };
+
+  fflush(NULL);
+  pid_t pid = fork();
+  if (pid < 0) {
+    return false;
+  }
+  if (pid == 0) {
+    setenv("PAPARAZZI_HOME", home, 1);
+    setenv("PAPARAZZI_SRC", home, 1);
+    int devnull = open("/dev/null", O_WRONLY);
+    if (devnull >= 0) {
+      dup2(devnull, STDOUT_FILENO);
+      dup2(devnull, STDERR_FILENO);
+    }
+    execv(generator, args);
+    _exit(127);
+  }
+  int status = 0;
+  if (waitpid(pid, &status, 0) < 0 || !WIFEXITED(status) || WEXITSTATUS(status) != 0) {
     return false;
   }
 
   char gen_path[PATH_MAX];
-  snprintf(gen_path, sizeof(gen_path), "%s/var/aircrafts/%s/conf/conf_aircraft.xml", home, aircraft_name);
+  snprintf(gen_path, sizeof(gen_path), "%s/conf/conf_aircraft.xml", gen_tmp_dir);
   if (!file_exists(gen_path)) {
     return false;
   }
@@ -1250,17 +1350,12 @@ static void handle_message(FILE *out, msg_db_t *db, conv_state_t *st,
   int gps_mode = -1, gps_week = -1, gps_itow = -1, gps_fix = -1, gps_tow = -1;
   char md5_hex[33] = {0};
 
-  bool ok = false;
-  if (m) {
-    ok = decode_payload(line, m, msg_payload, msg_len,
-                        &gps_mode, &gps_week, &gps_itow,
-                        &gps_fix, &gps_tow,
-                        md5_hex);
-  } else {
-    /* Unknown message id: keep it as raw bytes */
-    print_hex_rest(line, msg_payload, 0, msg_len);
-    ok = true;
-  }
+  /* A message without definition can't be described in the .log, it is skipped
+   * (its raw bytes are still in the .tlm with --tlm) */
+  bool ok = m && decode_payload(line, m, msg_payload, msg_len,
+                                &gps_mode, &gps_week, &gps_itow,
+                                &gps_fix, &gps_tow,
+                                md5_hex);
   fflush(line);
   long line_len = ftell(line);
   if (!ok || line_len < 0 || (size_t)line_len >= sizeof(line_buf) - 1) {
