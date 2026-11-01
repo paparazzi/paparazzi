@@ -3,39 +3,50 @@
 <module name="ins_ekf2" dir="ins" task="estimation">
   <doc>
     <description>
-      simple INS and AHRS using EKF2 from PX4
+      INS and AHRS using the EKF2 of PX4.
+
+      The EKF2 and the PX4 libraries it needs are copied in sw/ext/px4_ekf2, where
+      sync_px4_ekf2.py updates them to another PX4 version (see PX4_VERSION there).
+
+      All PX4 EKF2 parameters have their PX4 default and can be set in the airframe as
+      INS_EKF2_name for the PX4 parameter EKF2_name (e.g. INS_EKF2_GPS_CTRL, INS_EKF2_HGT_REF,
+      INS_EKF2_MAG_TYPE, INS_EKF2_EV_CTRL, INS_EKF2_OF_CTRL, INS_EKF2_EVP_NOISE, INS_EKF2_IMU_POS_X),
+      and the GNSS checks as INS_EKF2_GNSS_name for GNSS_name (e.g. INS_EKF2_GNSS_REQ_EPH).
+      See sw/ext/px4_ekf2/generated/ekf2_params.h and https://docs.px4.io/main/en/advanced_config/parameter_reference.html
+      Sensors are only used when their data arrives, so a sensor enabled in a *_CTRL parameter
+      without that sensor does nothing.
+
+      Airspeed and sideslip are only fused in fixed wing flight: always for the fixedwing firmware,
+      and for hybrids flown with the rotorcraft firmware when they override ins_ekf2_fixed_wing_flight()
+      (rotwing_state does this for the forward flight).
     </description>
-    <define name="INS_EKF2_OPTITRACK" value="false" description="Easy configuration of full optitrack (position- and yaw fusion, height, init origin)"/>
-    <define name="INS_EKF2_FUSION_MODE" value="(MASK_USE_GPS)" description="The sensor that are used for position fusion"/>
-    <define name="INS_EKF2_MAG_FUSION_MODE" value="MAG_FUSE_TYPE_AUTO" description="Default magnetometer fusion type"/>
-    <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_BARO" description="Primary sensor used for vertical distance"/>
-    <define name="INS_EKF2_GPS_CHECK_MASK" value="(MASK_GPS_NSATS | MASK_GPS_HACC | MASK_GPS_SACC)" description="GPS checks enabled before initialization of the global positioning"/>
-    <define name="INS_EKF2_EVP_NOISE" value="0.1" description="External vision position noise [m]"/>
-    <define name="INS_EKF2_EVV_NOISE" value="1.0" description="External vision velocity noise [m/s]"/>
-    <define name="INS_EKF2_EVA_NOISE" value="0.05" description="External vision angle noise [rad]"/>
-    <define name="INS_EKF2_GPS_V_NOISE" value="0.3" description="GPS measurement noise for horizontal velocity [m/s]"/>
-    <define name="INS_EKF2_GPS_P_NOISE" value="0.5" description="GPS measurement position noise [m]"/>
-    <define name="INS_EKF2_BARO_NOISE" value="3.5" description="Barometric measurement noise for altitude [m]"/>
-
-    <define name="INS_EKF2_IMU_POS_X" value="0" description="IMU X offset from CoG position [m]"/>
-    <define name="INS_EKF2_IMU_POS_Y" value="0" description="IMU Y offset from CoG position [m]"/>
-    <define name="INS_EKF2_IMU_POS_Z" value="0" description="IMU Z offset from CoG position [m]"/>
-    <define name="INS_EKF2_GPS_POS_X" value="0" description="GPS X offset from CoG position [m]"/>
-    <define name="INS_EKF2_GPS_POS_Y" value="0" description="GPS Y offset from CoG position [m]"/>
-    <define name="INS_EKF2_GPS_POS_Z" value="0" description="GPS Z offset from CoG position [m]"/>
-    <define name="INS_EKF2_FLOW_POS_X" value="0" description="Flow sensor X offset from CoG position [m]"/>
-    <define name="INS_EKF2_FLOW_POS_Y" value="0" description="Flow sensor Y offset from CoG position [m]"/>
-    <define name="INS_EKF2_FLOW_POS_Z" value="0" description="Flow sensor Z offset from CoG position [m]"/>
-
-    <define name="INS_EKF2_SONAR_MIN_RANGE" value="0.05" description="AGL sensor minimum range [m]"/>
-    <define name="INS_EKF2_SONAR_MAX_RANGE" value="3" description="AGL sensor maximum range [m]"/>
-    <define name="INS_EKF2_RANGE_MAIN_AGL" value="1" description="If enabled uses radar sensor as primary AGL source, if possible"/>
-    <define name="INS_EKF2_FLOW_SENSOR_DELAY" value="15" description="flow/radar message delay [ms]"/>
-    <define name="INS_EKF2_MIN_FLOW_QUALITY" value="100" description="Minimum quality of the optical flow message accepted [0-255]"/>
-    <define name="INS_EKF2_MAX_FLOW_RATE" value="20" description="Maximum flow rate the sensor can perceive [rad/sec]]"/>
-    <define name="INS_EKF2_FLOW_NOISE" value="0.01" description="Flow sensor noise [rad/sec]"/>
-    <define name="INS_EKF2_FLOW_NOISE_QMIN" value="0.03" description="Flow sensor noise when quality is minimum [rad/sec]"/>
-    <define name="INS_EKF2_FLOW_INNOV_GATE" value="3" description="Flow sensor innovation gate [STD]"/>
+    <define name="INS_EKF2_OPTITRACK" value="FALSE|TRUE" description="Indoor configuration with only external vision (e.g. Optitrack): EV position, velocity, yaw and height, no GNSS, magnetometer and barometer, EV noise 0.02 m / 0.05 rad and delay 175 ms (each can be changed)"/>
+    <define name="INS_EKF2_GPS_CTRL" value="7" description="GNSS fusion bitmask: 1 horizontal position, 2 vertical position, 4 velocity, 8 dual antenna heading (EKF2_GPS_CTRL_*)"/>
+    <define name="INS_EKF2_HGT_REF" value="1" description="Height reference: 0 baro, 1 GNSS, 2 range finder, 3 external vision (EKF2_HGT_REF_*)"/>
+    <define name="INS_EKF2_MAG_TYPE" value="0" description="Magnetometer: 0 automatic (heading on the ground, 3D in the air), 1 heading, 5 none, 6 only to initialize the heading (EKF2_MAG_TYPE_*)"/>
+    <define name="INS_EKF2_EV_CTRL" value="15" description="External vision fusion bitmask: 1 horizontal position, 2 vertical position, 4 velocity, 8 yaw (EKF2_EV_CTRL_*)"/>
+    <define name="INS_EKF2_OF_CTRL" value="1" description="Optical flow fusion"/>
+    <define name="INS_EKF2_RNG_CTRL" value="1" description="Range finder height: 0 off, 1 conditional (low and slow), 2 always"/>
+    <define name="INS_EKF2_DRAG_CTRL" value="0" description="Multirotor drag fusion (wind estimation without airspeed sensor)"/>
+    <define name="INS_EKF2_IMU_CTRL" value="7" description="IMU bitmask: 1 gyro bias, 2 accel bias, 4 gravity vector fusion"/>
+    <define name="INS_EKF2_ARSP_THR" value="0" description="Airspeed fusion above this true airspeed [m/s], 0 disables it (fixedwing default 8, 10 for hybrids as PX4 for VTOL)"/>
+    <define name="INS_EKF2_FUSE_BETA" value="0" description="Synthetic sideslip fusion in fixed wing flight (fixedwing default 1, also 1 for hybrids)"/>
+    <define name="INS_EKF2_AIRSPEED_ID" value="ABI_BROADCAST" description="ABI sender ID of the airspeed (do not use an airspeed computed from the wind estimate)"/>
+    <define name="INS_EKF2_GNSS_CHECK" value="(GNSS_CHECK_NSATS|GNSS_CHECK_EPH|GNSS_CHECK_SACC|GNSS_CHECK_FIX)" description="GNSS checks before the GNSS data is used (GNSS_CHECK_*), PX4 uses all except jamming (2047)"/>
+    <define name="INS_EKF2_GNSS_REQ_EPH" value="3.0" description="Maximum horizontal position accuracy [m]"/>
+    <define name="INS_EKF2_GNSS_REQ_EPV" value="5.0" description="Maximum vertical position accuracy [m]"/>
+    <define name="INS_EKF2_GNSS_REQ_SACC" value="0.5" description="Maximum speed accuracy [m/s]"/>
+    <define name="INS_EKF2_GNSS_REQ_NSATS" value="6" description="Required number of satellites"/>
+    <define name="INS_EKF2_GNSS_REQ_PDOP" value="2.5" description="Maximum PDOP"/>
+    <define name="INS_EKF2_GPS_DELAY" value="110" description="GNSS measurement delay [ms] (PX4 SENS_GNSS0_DELAY)"/>
+    <define name="INS_EKF2_GPS_POS_X" value="0" description="GNSS antenna X offset from the CoG [m] (also _Y and _Z, PX4 SENS_GNSS0_OFF*)"/>
+    <define name="INS_EKF2_GPS_YAW_OFFSET" value="0" description="Yaw of the dual antenna baseline in the body frame [deg], enables the GNSS heading from RELPOS"/>
+    <define name="INS_EKF2_GPS_ANTENNA_DISTANCE" value="1.0" description="Distance between the two antennas of the dual antenna heading [m], the heading is only used when the measured distance is within INS_EKF2_GPS_ANTENNA_DISTANCE_ERR (not checked when not set)"/>
+    <define name="INS_EKF2_GPS_ANTENNA_DISTANCE_ERR" value="0.2" description="Maximum difference between the measured and the configured antenna distance [m]"/>
+    <define name="INS_EKF2_GPS_YAW_NOISE" value="0.1" description="GNSS heading noise when the receiver gives no accuracy [rad]"/>
+    <define name="INS_EKF2_RNG_MIN_DIST" value="0.001" description="Minimum distance the range finder measures [m]"/>
+    <define name="INS_EKF2_RNG_MAX_DIST" value="4" description="Maximum distance the range finder measures [m]"/>
+    <define name="INS_EKF2_OF_MAX_RATE" value="200" description="Maximum flow rate the optical flow sensor measures [rad/s]"/>
     <define name="INS_EKF2_AGL_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for AGL measurements"/>
     <define name="INS_EKF2_BARO_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for Barometric measurements"/>
     <define name="INS_EKF2_GYRO_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for gyro measurements"/>
@@ -70,44 +81,83 @@
   <datalink message="EXTERNAL_POSE_SMALL" fun="ins_ekf2_parse_EXTERNAL_POSE_SMALL(buf)"/>
   <makefile target="ap|nps">
     <configure name="USE_ALT_LLA_WAYPOINTS" default="TRUE"/>
-    <configure name="CXXSTANDARD" value="-std=c++14"/>
+    <configure name="CXXSTANDARD" value="-std=c++17"/>
     <flag name="CXXFLAGS" value="Wno-unused-but-set-variable"/>
     <flag name="CXXFLAGS" value="Wno-unused-variable"/>
-
+    <flag name="CXXFLAGS" value="fno-associative-math"/>
+    <flag name="CXXFLAGS" value="fno-strict-aliasing"/> <!-- as PX4, the generated EKF2 state is accessed through a vector cast -->
     <!-- EKF2 files -->
     <file name="ins.c"/>
     <file name="ins_ekf2.cpp"/>
-
-    <!-- Include the ecl and matrix libraries from ext -->
-    <include name="$(PAPARAZZI_SRC)/sw/ext/ecl/"/>
-    <include name="$(PAPARAZZI_SRC)/sw/ext/matrix/"/>
+    <!-- The EKF2 of PX4 and the PX4 libraries it needs, see sw/ext/px4_ekf2/sync_px4_ekf2.py -->
+    <include name="$(PAPARAZZI_SRC)/sw/ext/px4_ekf2"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/px4_ekf2/lib"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/px4_ekf2/lib/matrix"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/px4_ekf2/EKF"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/px4_ekf2/EKF/python"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/px4_ekf2/generated"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/px4_ekf2/stubs"/>
     <define name="__PAPARAZZI" value="TRUE"/>
-    <define name="ECL_STANDALONE" value="TRUE"/>
     <define name="IMU_INTEGRATION" value="TRUE"/> <!-- Needed to enable IMU integration -->
+    <define name="MODULE_NAME"/> <!-- route the EKF2 messages through the PX4 log macros (stubs/px4_platform_common/log.h) -->
     <define name="USE_ALT_LLA_WAYPOINTS" value="$(USE_ALT_LLA_WAYPOINTS)"/>
-
-    <!-- Compile needed ecl files -->
-    <file name="geo.cpp" dir="ecl/geo"/>
-    <file name="geo_mag_declination.cpp" dir="ecl/geo_lookup"/>
-    <file name="airspeed_fusion.cpp" dir="ecl/EKF"/>
-    <file name="control.cpp" dir="ecl/EKF"/>
-    <file name="mag_control.cpp" dir="ecl/EKF"/>
-    <file name="covariance.cpp" dir="ecl/EKF"/>
-    <file name="drag_fusion.cpp" dir="ecl/EKF"/>
-    <file name="ekf.cpp" dir="ecl/EKF"/>
-    <file name="ekf_helper.cpp" dir="ecl/EKF"/>
-    <file name="estimator_interface.cpp" dir="ecl/EKF"/>
-    <file name="gps_checks.cpp" dir="ecl/EKF"/>
-    <file name="mag_fusion.cpp" dir="ecl/EKF"/>
-    <file name="optflow_fusion.cpp" dir="ecl/EKF"/>
-    <file name="sideslip_fusion.cpp" dir="ecl/EKF"/>
-    <file name="terrain_estimator.cpp" dir="ecl/EKF"/>
-    <file name="vel_pos_fusion.cpp" dir="ecl/EKF"/>
-    <file name="gps_yaw_fusion.cpp" dir="ecl/EKF"/>
-    <file name="imu_down_sampler.cpp" dir="ecl/EKF"/>
-    <file name="EKFGSF_yaw.cpp" dir="ecl/EKF"/>
-    <file name="sensor_range_finder.cpp" dir="ecl/EKF"/>
-    <file name="utils.cpp" dir="ecl/EKF"/>
-
+    <!-- Enabled EKF2 features (only the sensors given to the EKF by ins_ekf2.cpp) -->
+    <define name="CONFIG_EKF2_AIRSPEED"/>
+    <define name="CONFIG_EKF2_BAROMETER"/>
+    <define name="CONFIG_EKF2_DRAG_FUSION"/>
+    <define name="CONFIG_EKF2_EXTERNAL_VISION"/>
+    <define name="CONFIG_EKF2_GNSS"/>
+    <define name="CONFIG_EKF2_GNSS_YAW"/>
+    <define name="CONFIG_EKF2_MAGNETOMETER"/>
+    <define name="CONFIG_EKF2_OPTICAL_FLOW"/>
+    <define name="CONFIG_EKF2_RANGE_FINDER"/>
+    <define name="CONFIG_EKF2_SIDESLIP"/>
+    <define name="CONFIG_EKF2_TERRAIN"/>
+    <define name="CONFIG_EKF2_WIND"/>
+    <!-- Compile the EKF2 and the needed libraries -->
+    <file name="ZeroGyroUpdate.cpp" dir="px4_ekf2/EKF/aid_sources"/>
+    <file name="ZeroVelocityUpdate.cpp" dir="px4_ekf2/EKF/aid_sources"/>
+    <file name="airspeed_fusion.cpp" dir="px4_ekf2/EKF/aid_sources/airspeed"/>
+    <file name="baro_height_control.cpp" dir="px4_ekf2/EKF/aid_sources/barometer"/>
+    <file name="drag_fusion.cpp" dir="px4_ekf2/EKF/aid_sources/drag"/>
+    <file name="ev_control.cpp" dir="px4_ekf2/EKF/aid_sources/external_vision"/>
+    <file name="ev_height_control.cpp" dir="px4_ekf2/EKF/aid_sources/external_vision"/>
+    <file name="ev_pos_control.cpp" dir="px4_ekf2/EKF/aid_sources/external_vision"/>
+    <file name="ev_vel_control.cpp" dir="px4_ekf2/EKF/aid_sources/external_vision"/>
+    <file name="ev_yaw_control.cpp" dir="px4_ekf2/EKF/aid_sources/external_vision"/>
+    <file name="fake_height_control.cpp" dir="px4_ekf2/EKF/aid_sources"/>
+    <file name="fake_pos_control.cpp" dir="px4_ekf2/EKF/aid_sources"/>
+    <file name="gnss_height_control.cpp" dir="px4_ekf2/EKF/aid_sources/gnss"/>
+    <file name="gnss_yaw_control.cpp" dir="px4_ekf2/EKF/aid_sources/gnss"/>
+    <file name="gps_control.cpp" dir="px4_ekf2/EKF/aid_sources/gnss"/>
+    <file name="mag_control.cpp" dir="px4_ekf2/EKF/aid_sources/magnetometer"/>
+    <file name="mag_fusion.cpp" dir="px4_ekf2/EKF/aid_sources/magnetometer"/>
+    <file name="optical_flow_control.cpp" dir="px4_ekf2/EKF/aid_sources/optical_flow"/>
+    <file name="optical_flow_fusion.cpp" dir="px4_ekf2/EKF/aid_sources/optical_flow"/>
+    <file name="range_finder_consistency_check.cpp" dir="px4_ekf2/EKF/aid_sources/range_finder"/>
+    <file name="range_height_control.cpp" dir="px4_ekf2/EKF/aid_sources/range_finder"/>
+    <file name="range_height_fusion.cpp" dir="px4_ekf2/EKF/aid_sources/range_finder"/>
+    <file name="sensor_range_finder.cpp" dir="px4_ekf2/EKF/aid_sources/range_finder"/>
+    <file name="sideslip_fusion.cpp" dir="px4_ekf2/EKF/aid_sources/sideslip"/>
+    <file name="bias_estimator.cpp" dir="px4_ekf2/EKF/bias_estimator"/>
+    <file name="control.cpp" dir="px4_ekf2/EKF"/>
+    <file name="covariance.cpp" dir="px4_ekf2/EKF"/>
+    <file name="ekf.cpp" dir="px4_ekf2/EKF"/>
+    <file name="ekf_helper.cpp" dir="px4_ekf2/EKF"/>
+    <file name="estimator_interface.cpp" dir="px4_ekf2/EKF"/>
+    <file name="height_control.cpp" dir="px4_ekf2/EKF"/>
+    <file name="imu_down_sampler.cpp" dir="px4_ekf2/EKF/imu_down_sampler"/>
+    <file name="output_predictor.cpp" dir="px4_ekf2/EKF/output_predictor"/>
+    <file name="position_fusion.cpp" dir="px4_ekf2/EKF"/>
+    <file name="terrain_control.cpp" dir="px4_ekf2/EKF"/>
+    <file name="velocity_fusion.cpp" dir="px4_ekf2/EKF"/>
+    <file name="wind.cpp" dir="px4_ekf2/EKF"/>
+    <file name="EKFGSF_yaw.cpp" dir="px4_ekf2/EKF/yaw_estimator"/>
+    <file name="yaw_fusion.cpp" dir="px4_ekf2/EKF"/>
+    <file name="atmosphere.cpp" dir="px4_ekf2/lib/atmosphere"/>
+    <file name="geo.cpp" dir="px4_ekf2/lib/geo"/>
+    <file name="gnss_checks.cpp" dir="px4_ekf2/lib/gnss"/>
+    <file name="lat_lon_alt.cpp" dir="px4_ekf2/lib/lat_lon_alt"/>
+    <file name="geo_mag_declination.cpp" dir="px4_ekf2/lib/world_magnetic_model"/>
   </makefile>
 </module>

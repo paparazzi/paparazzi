@@ -221,7 +221,6 @@
     </section>
 
     <section name="MISC">
-        <define name="INS_EKF2_FUSION_MODE"  value="MASK_USE_GPS"/>
     </section>
 
     <section name="CALIBRATION">

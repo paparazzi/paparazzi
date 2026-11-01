@@ -552,6 +552,16 @@ bool rotwing_state_pusher_motor_running(void) {
   }
 }
 
+/**
+ * Forward flight as a fixed wing for the EKF2 (ins_ekf2): the wing is skewed for forward flight
+ * and the pusher motor runs. Overrides the weak function of ins_ekf2, so the EKF2 uses the
+ * airspeed and sideslip fusion only in forward flight.
+ */
+bool ins_ekf2_fixed_wing_flight(void) {
+  return rotwing_state_skew_angle_valid() && rotwing_state.meas_skew_angle_deg >= ROTWING_FW_SKEW_ANGLE
+         && rotwing_state_pusher_motor_running();
+}
+
 bool rotwing_state_skew_angle_valid(void) {
   // Check if the measured skew angle is timed out and the reference model is matching
   bool skew_timeout = (get_sys_time_float() - rotwing_state.meas_skew_angle_time) > ROTWING_RPM_TIMEOUT;

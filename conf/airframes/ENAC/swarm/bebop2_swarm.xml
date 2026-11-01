@@ -51,7 +51,6 @@
     <module name="ins" type="ekf2">
       <configure name="USE_ALT_LLA_WAYPOINTS" value="TRUE"/>
       <define name="INS_EKF2_FORCE_NAV_REF" value="TRUE"/>
-      <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_GPS"/>
     </module>
 
     <module name="actuators" type="bebop"/>
