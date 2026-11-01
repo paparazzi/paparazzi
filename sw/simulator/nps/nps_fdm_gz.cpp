@@ -46,6 +46,7 @@
 #include <cstdlib>
 #include <string>
 #include <memory>
+#include <csignal>
 #include <chrono>
 
 #include <gz/sim/Server.hh>
@@ -366,7 +367,10 @@ static void init_gazebo(void)
   }
   printf("NPS gz: vehicle %s, world %s\n", vehicle_file.c_str(), world_file.c_str());
 
-  world_sdf->Root()->GetFirstElement()->InsertElement(vehicle_sdf->Root()->GetFirstElement());
+  sdf::ElementPtr world = world_sdf->Root()->GetElement("world");
+  world->InsertElement(vehicle_sdf->Root()->GetFirstElement());
+  // One gz iteration per NPS step: use the NPS time step for the physics
+  world->GetElement("physics")->GetElement("max_step_size")->Set(fdm.init_dt);
   std::string merged_file = pprz_home + "/var/gazebo.world";
   world_sdf->Write(merged_file);
 
@@ -385,6 +389,11 @@ static void init_gazebo(void)
     fprintf(stderr, "NPS gz: model '%s' not found in the world\n", NPS_GAZEBO_AC_NAME);
     exit(EXIT_FAILURE);
   }
+
+  // gz-sim catches SIGINT and SIGTERM to stop its own run loop, which NPS does not use:
+  // restore the default handlers so Ctrl-C and the Paparazzi Center can stop the simulator
+  signal(SIGINT, SIG_DFL);
+  signal(SIGTERM, SIG_DFL);
 
   // Motor directions as defined by the motor mixing
 #ifdef MOTOR_MIXING_YAW_COEF
