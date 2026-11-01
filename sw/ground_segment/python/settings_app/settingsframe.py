@@ -144,6 +144,12 @@ class SettingsFrame(wx.Frame):
             self.book.AddPage(page, setting_group.name)
 
         self.settings.RegisterCallback(self.onUpdate)
+        self.title = title
+        self.settings.RegisterStateCallback(self.onState)
+
+    # Called when sending settings gets blocked or allowed again
+    def onState(self, valid, message):
+        wx.CallAfter(self.SetTitle, self.title if valid else "%s - NOT SENDING: %s" % (self.title, message))
 
     # Copy slider value into associated edit box
     def updateEditFromSlider(self, index, value):
