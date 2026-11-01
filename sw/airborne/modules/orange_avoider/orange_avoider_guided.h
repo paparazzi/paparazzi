@@ -36,6 +36,7 @@ extern float oag_heading_rate;      // heading rate setpoint [rad/s]
 
 extern void orange_avoider_guided_init(void);
 extern void orange_avoider_guided_periodic(void);
+extern void orange_avoider_guided_retreat(void);
 
 #endif
 

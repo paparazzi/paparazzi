@@ -48,6 +48,7 @@
 #include "generated/settings.h"
 #include "generated/flight_plan.h"
 
+#include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "modules/energy/electrical.h"
 #include "state.h"
@@ -68,6 +69,7 @@
 
 // for UINT16_MAX
 #include <stdint.h>
+#include <string.h>
 
 mavlink_system_t mavlink_system;
 
@@ -717,21 +719,25 @@ static void mavlink_send_autopilot_version(struct transport_tx *trans, struct li
 {
   /// TODO: fill in versions correctly, how should they be encoded?
   static uint32_t ver = PPRZ_VERSION_INT;
-  static uint64_t sha;
-  get_pprz_git_version((uint8_t *)&sha);
+  uint8_t sha[8];
+  uint8_t uid[18] = {0};
+  uint64_t uid64 = 0;
+  get_pprz_git_version(sha);
+  mcu_get_uid(uid, sizeof(uid));
+  memcpy(&uid64, uid, sizeof(uid64));
   mavlink_msg_autopilot_version_send(MAVLINK_COMM_0,
                                      18446744073709551615U, //uint64_t capabilities,
                                      ver, //uint32_t flight_sw_version,
                                      0, //uint32_t middleware_sw_version,
                                      0, //uint32_t os_sw_version,
                                      0, //uint32_t board_version,
-                                     0, //const uint8_t *flight_custom_version,
+                                     sha, //const uint8_t *flight_custom_version,
                                      0, //const uint8_t *middleware_custom_version,
                                      0, //const uint8_t *os_custom_version,
                                      0, //uint16_t vendor_id,
                                      0, //uint16_t product_id,
-                                     sha, //uint64_t uid
-                                     0);
+                                     uid64, //uint64_t uid
+                                     uid); //const uint8_t *uid2
   MAVLinkSendMessage();
 }
 
