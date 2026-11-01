@@ -56,6 +56,7 @@ struct ekf2_t {
   bool armed;                     ///< Armed state last given to the EKF
   bool fixed_wing;                ///< Fixed wing flight state last given to the EKF
   float air_density;              ///< Air density from the barometer (kg/m^3)
+  float mag_scale;                ///< Field strength the normalized magnetometer is scaled to (gauss)
   uint64_t system_flags_time;     ///< Last time the system flags were given to the EKF (us)
   struct FloatVect3 accel_ned;    ///< Latest NED acceleration from the EKF (m/s^2)
 };

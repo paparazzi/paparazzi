@@ -37,6 +37,7 @@
 #include "generated/flight_plan.h"
 #include "EKF/ekf.h"
 #include "lib/gnss/gnss_checks.hpp"
+#include "lib/world_magnetic_model/geo_mag_declination.h"
 #include "math/pprz_isa.h"
 #include "math/pprz_geodetic_wgs84.h"
 #include "mcu_periph/sys_time.h"
@@ -676,6 +677,14 @@ void ins_ekf2_init(void)
   ekf2.armed = false;
   ekf2.fixed_wing = false;
   ekf2.air_density = PPRZ_ISA_AIR_DENSITY;
+  /* Field strength of the world magnetic model for the normalized magnetometer */
+  ekf2.mag_scale = 0.4f;
+#if USE_INS_NAV_INIT
+  float strength = get_mag_strength_gauss(NAV_LAT0 * 1e-7f, NAV_LON0 * 1e-7f);
+  if (PX4_ISFINITE(strength) && strength > 0.1f && strength < 1.f) {
+    ekf2.mag_scale = strength;
+  }
+#endif
   ekf2.system_flags_time = 0;
   FLOAT_VECT3_ZERO(ekf2.accel_ned);
 
@@ -1114,11 +1123,10 @@ static void mag_cb(uint8_t __attribute__((unused)) sender_id,
 {
   struct FloatVect3 mag_gauss;
 
-  // The calibrated magnetometer is normalized: scale it to a typical field strength. A
-  // fixed scale is kept, as scaling it to the world magnetic model when that becomes known
-  // gave a worse heading in NPS (the field strength check is not useful for a normalized
-  // magnetometer, the inclination check is).
-  const float scale = 0.4f;
+  // The calibrated magnetometer is normalized: scale it to the field strength of the world
+  // magnetic model at the flight plan origin, fixed from the start (a change of the scale
+  // while the EKF runs is learned as a magnetometer bias and gives a heading error)
+  const float scale = ekf2.mag_scale;
   MAGS_FLOAT_OF_BFP(mag_gauss, *mag);
   mag_gauss.x *= scale;
   mag_gauss.y *= scale;
