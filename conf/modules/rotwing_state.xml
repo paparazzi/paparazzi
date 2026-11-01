@@ -35,8 +35,5 @@
     <periodic fun="rotwing_state_periodic()"/>
   <makefile>
     <file name="rotwing_state.c"/>
-    <!-- EKF2 airspeed and sideslip fusion in forward flight (ins_ekf2_fixed_wing_flight), as PX4 for VTOL -->
-    <define name="INS_EKF2_ARSP_THR" value="10.f"/>
-    <define name="INS_EKF2_FUSE_BETA" value="1"/>
   </makefile>
 </module>

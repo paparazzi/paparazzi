@@ -29,8 +29,8 @@
     <define name="INS_EKF2_RNG_CTRL" value="1" description="Range finder height: 0 off, 1 conditional (low and slow), 2 always"/>
     <define name="INS_EKF2_DRAG_CTRL" value="0" description="Multirotor drag fusion (wind estimation without airspeed sensor)"/>
     <define name="INS_EKF2_IMU_CTRL" value="7" description="IMU bitmask: 1 gyro bias, 2 accel bias, 4 gravity vector fusion"/>
-    <define name="INS_EKF2_ARSP_THR" value="0" description="Airspeed fusion above this true airspeed [m/s], 0 disables it (fixedwing default 8, set to 10 by rotwing_state)"/>
-    <define name="INS_EKF2_FUSE_BETA" value="0" description="Synthetic sideslip fusion in fixed wing flight (fixedwing default 1, set by rotwing_state)"/>
+    <define name="INS_EKF2_ARSP_THR" value="0" description="Airspeed fusion above this true airspeed [m/s], 0 disables it (fixedwing default 8, 10 for hybrids as PX4 for VTOL)"/>
+    <define name="INS_EKF2_FUSE_BETA" value="0" description="Synthetic sideslip fusion in fixed wing flight (fixedwing default 1, also 1 for hybrids)"/>
     <define name="INS_EKF2_AIRSPEED_ID" value="ABI_BROADCAST" description="ABI sender ID of the airspeed (do not use an airspeed computed from the wind estimate)"/>
     <define name="INS_EKF2_GNSS_CHECK" value="(GNSS_CHECK_NSATS|GNSS_CHECK_EPH|GNSS_CHECK_SACC|GNSS_CHECK_FIX)" description="GNSS checks before the GNSS data is used (GNSS_CHECK_*), PX4 uses all except jamming (2047)"/>
     <define name="INS_EKF2_GNSS_REQ_EPH" value="3.0" description="Maximum horizontal position accuracy [m]"/>
