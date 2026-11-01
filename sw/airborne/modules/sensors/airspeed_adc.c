@@ -29,6 +29,7 @@
 #include "generated/airframe.h"
 #include "state.h"
 #include "modules/core/abi.h"
+#include "generated/modules.h"
 
 #ifndef USE_AIRSPEED_ADC
 #define USE_AIRSPEED_ADC TRUE

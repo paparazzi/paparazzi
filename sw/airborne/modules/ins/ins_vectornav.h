@@ -42,6 +42,7 @@
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_isa.h"
+#include "math/pprz_orientation_conversion.h"
 
 // Generated
 #include "generated/airframe.h"
