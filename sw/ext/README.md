@@ -32,7 +32,7 @@ To install and build all external modules at once:
 make -C sw/ext
 ```
 
-This runs the complete build chain for all modules that require compilation (chibios, fatfs, libsbp, TRICAL, hacl-c, key_generator, rustlink, ecl, matrix, mavlink, dronecan, and unifiedmocaprouter).
+This runs the complete build chain for all modules that require compilation (chibios, fatfs, libsbp, TRICAL, hacl-c, key_generator, rustlink, mavlink, dronecan, and unifiedmocaprouter).
 
 ---
 
@@ -66,6 +66,7 @@ See the main [Makefile in this directory](Makefile) for the complete list of mod
 - **TRICAL** — Magnetometer automatic calibration
 - **opencv_bebop** — Computer vision library (see detailed instructions below)
 - **dronecan** — DroneCAN protocol support
+- **px4_ekf2** — Copy of the EKF2 estimator of PX4 used by `ins_ekf2` (not a submodule, see [px4_ekf2/README.md](px4_ekf2/README.md))
 - **And many more...** — See [Makefile](Makefile) for details
 
 ---

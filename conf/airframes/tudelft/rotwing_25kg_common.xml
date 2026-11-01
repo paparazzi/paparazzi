@@ -46,8 +46,10 @@
         <define name="NAV_HYBRID_MAX_AIRSPEED"          value="30"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"      value="0.8"/>
         <define name="MULTI_GPS_MODE"                   value="GPS_MODE_PRIMARY"/>
-        <define name="INS_EKF2_FUSION_MODE"             value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
+        <define name="INS_EKF2_GPS_CTRL" value="(EKF2_GPS_CTRL_HPOS|EKF2_GPS_CTRL_VPOS|EKF2_GPS_CTRL_VEL|EKF2_GPS_CTRL_YAW)"/>
         <define name="INS_EKF2_GPS_YAW_OFFSET"          value="0"/>
+        <define name="INS_EKF2_ARSP_THR"                value="10.0"/> <!-- airspeed fusion in forward flight (ins_ekf2_fixed_wing_flight of rotwing_state), as PX4 for VTOL -->
+        <define name="INS_EKF2_FUSE_BETA"               value="1"/>
 
         <!-- Ground detect -->
         <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"      value="0.24"/>
