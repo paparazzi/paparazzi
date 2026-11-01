@@ -1114,11 +1114,11 @@ static void mag_cb(uint8_t __attribute__((unused)) sender_id,
 {
   struct FloatVect3 mag_gauss;
 
-  // The calibrated magnetometer is normalized: scale it to the field strength of the world
-  // magnetic model at the current position (0.4 gauss until it is known)
-  float inc, inc_ref, strength, strength_ref;
-  ekf.get_mag_checks(inc, inc_ref, strength, strength_ref);
-  float scale = (PX4_ISFINITE(strength_ref) && strength_ref > 0.f) ? strength_ref : 0.4f;
+  // The calibrated magnetometer is normalized: scale it to a typical field strength. A
+  // fixed scale is kept, as scaling it to the world magnetic model when that becomes known
+  // gave a worse heading in NPS (the field strength check is not useful for a normalized
+  // magnetometer, the inclination check is).
+  const float scale = 0.4f;
   MAGS_FLOAT_OF_BFP(mag_gauss, *mag);
   mag_gauss.x *= scale;
   mag_gauss.y *= scale;
