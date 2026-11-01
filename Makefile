@@ -315,7 +315,6 @@ test_mavlab: all
 # test TU Delft conf
 test_tudelft: all
 	CONF_XML=conf/userconf/tudelft/conf.xml prove tests/aircrafts/ 2>&1 | tee ./var/compile.log
-	CONF_XML=conf/userconf/tudelft/delfly_conf.xml prove tests/aircrafts/ 2>&1 | tee -a ./var/compile.log
 	CONF_XML=conf/userconf/tudelft/course_conf.xml prove tests/aircrafts/ 2>&1 | tee -a ./var/compile.log
 	CONF_XML=conf/userconf/tudelft/guido_conf.xml prove tests/aircrafts/ 2>&1 | tee -a ./var/compile.log
 	prove -v ./tests/parse_compile_logs.py

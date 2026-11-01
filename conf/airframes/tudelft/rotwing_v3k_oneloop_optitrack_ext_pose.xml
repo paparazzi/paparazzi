@@ -40,6 +40,7 @@
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
             <define name="IMU_INTEGRATION"      value="TRUE"/>
             <define name="I2C2_CLOCK_SPEED" value="100000"/>
+            <define name="INS_EXT_VISION_ROTATION"  value="TRUE"/><!--AP only-->
         </target>
 
         <target name="nps" board="pc">
@@ -274,7 +275,6 @@
         <define name="NO_GPS_LOST_WITH_RC_VALID"            value="TRUE"/>
         <define name="USE_AIRSPEED"                         value="TRUE"/>
         <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/> <!-- cyfoam 0.32-->
-        <define name="INS_EXT_VISION_ROTATION"              value="TRUE"/>
     </section>
     <section name="GROUND_DETECT">
         <define name="THRESHOLD_GROUND_DETECT"              value="40"/>
