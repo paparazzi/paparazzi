@@ -166,15 +166,12 @@ let log = fun ?timestamp logging ac_name msg_name values ->
 let udp_fd = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0
 let udp_sockaddr = Unix.ADDR_INET (Unix.inet_addr_of_string !udp_json_stream_addr, !udp_json_stream_port)
 
-(** Reboot detection: an A/C rebooted with the same build, or started a new
- * log file. GCSs are told with AIRCRAFT_REBOOT, to reset e.g. the checklist. *)
+(** Reboot detection: an A/C rebooted with the same build (cpu_time went back),
+ * or started a new log file. GCSs are told with AIRCRAFT_REBOOT, to reset e.g.
+ * the checklist. *)
 type reboot_state = {
   mutable cpu_time : int option;      (* last cpu_time (ROTORCRAFT_STATUS, ROVER_STATUS) *)
   mutable cpu_time_rx : float;        (* when it was received *)
-  mutable up_msgs : int option;       (* last DATALINK_REPORT counters, reset at boot *)
-  mutable down_msgs : int option;
-  mutable down_msgs_rate : float option; (* downlink messages per second *)
-  mutable report_time : float;        (* time of the last DATALINK_REPORT *)
   mutable log_files : string option;  (* last LOGGER_STATUS filenames *)
   mutable last_reboot : float         (* time of the last AIRCRAFT_REBOOT sent *)
 }
@@ -199,8 +196,7 @@ let check_reboot = fun ac_name msg_name values ->
   let st =
     try Hashtbl.find reboot_states ac_name
     with Not_found ->
-      let st = { cpu_time = None; cpu_time_rx = 0.; up_msgs = None; down_msgs = None; down_msgs_rate = None;
-                 report_time = 0.; log_files = None; last_reboot = 0. } in
+      let st = { cpu_time = None; cpu_time_rx = 0.; log_files = None; last_reboot = 0. } in
       Hashtbl.add reboot_states ac_name st;
       st in
   match msg_name with
@@ -218,30 +214,10 @@ let check_reboot = fun ac_name msg_name values ->
     end;
     st.cpu_time <- Some t;
     st.cpu_time_rx <- now
-  | "DATALINK_REPORT" when st.cpu_time = None ->
-    (* no cpu_time (e.g. fixedwing): the message counters restart at boot, but
-     * also wrap (uint16), so only trust a decrease when no wrap is expected *)
-    let up = PprzLink.int_assoc "uplink_nb_msgs" values
-    and down = PprzLink.int_assoc "downlink_nb_msgs" values
-    and now = Unix.gettimeofday () in
-    begin match st.up_msgs, st.down_msgs with
-      | Some prev_up, Some prev_down when down < prev_down ->
-        let expected = match st.down_msgs_rate with
-          | Some rate -> float prev_down +. rate *. (now -. st.report_time)
-          | None -> 65536. in
-        if expected < 60000. || (up < prev_up && prev_up < 60000) then
-          send_aircraft_reboot ac_name st "DATALINK_COUNTERS";
-        st.down_msgs_rate <- None
-      | _, Some prev_down when now > st.report_time ->
-        st.down_msgs_rate <- Some (float (down - prev_down) /. (now -. st.report_time))
-      | _ -> ()
-    end;
-    st.up_msgs <- Some up;
-    st.down_msgs <- Some down;
-    st.report_time <- now
   | "LOGGER_STATUS" ->
+    (* the logger sends "none" until the log file is opened *)
     let files = String.trim (PprzLink.string_of_value (List.assoc "filenames" values)) in
-    if files <> "" then begin
+    if files <> "" && files <> "none" then begin
       begin match st.log_files with
         | Some prev when prev <> files -> send_aircraft_reboot ac_name st "NEW_LOG_FILE"
         | _ -> ()
@@ -623,6 +599,12 @@ let unknown_aircrafts = Hashtbl.create 5
 
 (* MD5 of the build each registered A/C runs, and its telemetry binding *)
 let aircrafts_md5 = Hashtbl.create 5
+
+(* Another MD5 received once from a registered A/C, it is reloaded when it is received again *)
+let aircrafts_new_md5 = Hashtbl.create 5
+
+let is_replayed_name = fun ac_id ->
+  String.length ac_id > 6 && String.sub ac_id 0 6 = "replay"
 let aircrafts_binding = Hashtbl.create 5
 
 (* MD5 mismatches already reported, to report each one only once *)
@@ -763,45 +745,31 @@ let periodic = fun period cb ->
 let register_periodic = fun ac x ->
   ac.periodic_callbacks <- x :: ac.periodic_callbacks
 
-(** add the periodic airprox check for the aircraft (name) on all aircraft     *)
-(**    already known                                                           *)
-let periodic_airprox_check = fun name ->
-  let thisac = Hashtbl.find aircrafts name in
-  let aircrafts2list = fun () ->
-    let list = ref [] in
-    Hashtbl.iter (fun name _a -> list := name :: !list) aircrafts;
-    !list in
-  let ac_names = List.filter (fun a -> a <> name) (aircrafts2list ()) in
-
-  let check_airprox = fun other ->
-    try
-      let ac = Hashtbl.find aircrafts other in
-      match Airprox.check_airprox thisac ac with
-          None -> ()
-        | Some level ->
-          let vs =
-            ["ac_id", PprzLink.String (thisac.id ^ "," ^ ac.id) ; "level", PprzLink.String level] in
-          Alerts_Pprz.message_send my_id "AIR_PROX" vs
-    with
-        Not_found -> () (* other A/C removed *)
-      | x -> fprintf stderr "check_airprox: %s\n%!" (Printexc.to_string x)
-
-  in
-
-  List.iter
-    (fun other ->
-      register_periodic thisac (periodic aircraft_alerts_period (fun () -> check_airprox other))
-    ) ac_names
+(** periodic airprox check of each pair of aircraft *)
+let periodic_airprox_check = fun () ->
+  let acs = Hashtbl.fold (fun _ a l -> a :: l) aircrafts [] in
+  let rec check = function
+    | [] -> ()
+    | a :: others ->
+      List.iter (fun b ->
+        try
+          match Airprox.check_airprox a b with
+              None -> ()
+            | Some level ->
+              let vs = ["ac_id", PprzLink.String (a.id ^ "," ^ b.id) ; "level", PprzLink.String level] in
+              Alerts_Pprz.message_send my_id "AIR_PROX" vs
+        with x -> fprintf stderr "check_airprox: %s\n%!" (Printexc.to_string x)
+      ) others;
+      check others in
+  check acs
 
 
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
   register_periodic a (periodic aircraft_msg_period (fun () -> send_aircraft_msg name));
   register_periodic a (periodic aircraft_alerts_period (fun () -> check_alerts a));
-  periodic_airprox_check name;
   register_periodic a (periodic wind_msg_period (fun () -> send_wind a));
   Wind.new_ac name 36;
-  ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear);
 
   if !Kml.enabled then
     Kml.build_files a
@@ -817,6 +785,7 @@ let unregister_aircraft = fun name ->
   begin try Ivy.unbind (Hashtbl.find aircrafts_binding name) with Not_found -> () end;
   Hashtbl.remove aircrafts_binding name;
   Hashtbl.remove aircrafts_md5 name;
+  Hashtbl.remove aircrafts_new_md5 name;
   Hashtbl.remove reboot_states name;
   Hashtbl.remove aircrafts name
 
@@ -825,10 +794,14 @@ let ident_msg = fun log timestamp name vs ->
   try
     let alive_md5sum = try PprzLink.assoc "md5sum" vs with Not_found -> PprzLink.Array [||] in
     let live_md5 = hex_of_md5sum alive_md5sum in
-    let is_replayed, _, _, _ = replayed name in
+    let changed = not (is_replayed_name name) && live_md5 <> "" && Hashtbl.mem aircrafts name &&
+      (try Hashtbl.find aircrafts_md5 name <> live_md5 with Not_found -> false) in
+    (* only after the new MD5 is received twice, so a corrupted ALIVE does not remove the A/C *)
+    let confirmed = changed && (try Hashtbl.find aircrafts_new_md5 name = live_md5 with Not_found -> false) in
+    if changed && not confirmed then Hashtbl.replace aircrafts_new_md5 name live_md5
+    else Hashtbl.remove aircrafts_new_md5 name;
     (* A/C rebooted with another build: reload its configuration, GCSs reload it on NEW_AIRCRAFT *)
-    if not is_replayed && live_md5 <> "" && Hashtbl.mem aircrafts name &&
-      (try Hashtbl.find aircrafts_md5 name <> live_md5 with Not_found -> false) then begin
+    if confirmed then begin
       warn_operators (sprintf "A/C %s runs another build (MD5 changed), reloading its configuration" name);
       Hashtbl.replace aircrafts_md5 name live_md5; (* only once *)
       (* not from within this Ivy callback, the A/C binding also matches this message;
@@ -1139,6 +1112,7 @@ let () =
   listen_acs logging !timestamp;
 
   ignore(Ground_Pprz.message_bind "AIRCRAFT_DIE" remove_aircraft);
+  ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear);
 
   (* wait for new external vehicles/intruders *)
   listen_intruders logging;
@@ -1148,6 +1122,7 @@ let () =
 
   (* call periodic_handle_intruders every second *)
   ignore (Glib.Timeout.add ~ms:1000 ~callback:(fun () -> periodic_handle_intruders (); true));
+  ignore (periodic aircraft_alerts_period periodic_airprox_check);
 
   (* Waits for client configurations requests on the Ivy bus *)
   ivy_server !http;

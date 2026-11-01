@@ -20,10 +20,15 @@ class IvySettingsInterface(PaparazziACSettings):
         self.update_callback = None
         self.state_callback = None
         self.ac_ids = ac_ids
-        # False while the aircraft is removed by the server or runs a build
-        # with other settings: the setting indexes are then not valid
-        self.valid = True
+        # Aircraft to which no settings are sent: removed by the server or running
+        # a build with other settings, so the setting indexes are not valid
+        self.blocked = set()
         self.InitIvy()
+
+    @property
+    def valid(self):
+        """True when the settings are sent to all aircraft"""
+        return not self.blocked
 
     def ProcessMessage(self, message_values, fromRemote):
         # Extract aircraft id from message and ignore if not matching
@@ -38,7 +43,7 @@ class IvySettingsInterface(PaparazziACSettings):
         if _SHOW_IVY_MSGS_:
             print("Got setting with index: %s   value %s   " % (setting_index, setting_value))
 
-        if not self.valid or setting_index >= len(self.lookup):
+        if str(msg_ac_id) in self.blocked or setting_index >= len(self.lookup):
             return
 
         # Store value from message
@@ -69,37 +74,42 @@ class IvySettingsInterface(PaparazziACSettings):
     def RegisterStateCallback(self, callback_function):
         self.state_callback = callback_function
 
-    def _SetValid(self, valid, message):
-        self.valid = valid
+    def _SetBlocked(self, ac_id, blocked, message):
+        if blocked:
+            self.blocked.add(ac_id)
+        else:
+            self.blocked.discard(ac_id)
         print(message)
         if self.state_callback is not None:
-            self.state_callback(valid, message)
+            self.state_callback(self.valid, message)
 
     def _IsOurAircraft(self, ac_id):
         return ac_id in [str(a) for a in self.ac_ids]
 
     # Called for AIRCRAFT_DIE (from the server, e.g. the aircraft runs another build)
     def OnAircraftDie(self, agent, ac_id):
-        if self._IsOurAircraft(ac_id) and self.valid:
-            self._SetValid(False, "Aircraft %s removed by the server (other build?), "
-                           "settings are not sent until it is back" % ac_id)
+        if self._IsOurAircraft(ac_id) and ac_id not in self.blocked:
+            self._SetBlocked(ac_id, True, "Aircraft %s removed by the server (other build?), "
+                             "settings are not sent to it until it is back" % ac_id)
 
-    # Called for NEW_AIRCRAFT (from the server): check that the settings did not change
+    # Called for NEW_AIRCRAFT (from the server): check that its settings are the ones of this tool
     def OnNewAircraft(self, agent, ac_id):
-        if not self._IsOurAircraft(ac_id) or self.valid:
+        if ac_id not in self.blocked:
             return
         try:
-            new_settings = PaparazziACSettings(self.ac_ids[0])
-        except SystemExit:
+            new_settings = PaparazziACSettings(int(ac_id))
+        except (Exception, SystemExit) as e:
+            print("Aircraft %s: could not read its settings (%s), settings are not sent to it" % (ac_id, e))
             return
         old = [(s.shortname, s.var, s.min_value, s.max_value, s.step) for s in self.lookup]
         new = [(s.shortname, s.var, s.min_value, s.max_value, s.step) for s in new_settings.lookup]
         if old == new:
-            self._SetValid(True, "Aircraft %s is back with the same settings, sending them again" % ac_id)
+            self._SetBlocked(ac_id, False, "Aircraft %s is back with the same settings, sending them again" % ac_id)
         else:
-            print("Aircraft %s runs a build with other settings, restart this tool to use them" % ac_id)
+            msg = "Aircraft %s runs a build with other settings, restart this tool to use them" % ac_id
+            print(msg)
             if self.state_callback is not None:
-                self.state_callback(False, "Aircraft %s has other settings, restart this tool" % ac_id)
+                self.state_callback(False, msg)
 
     def InitIvy(self):
         # initialising the bus
@@ -119,11 +129,11 @@ class IvySettingsInterface(PaparazziACSettings):
         IvyBindMsg(self.OnNewAircraft, "^ground NEW_AIRCRAFT (\\S+)")
 
     def SendSetting(self, setting_index):
-        if not self.valid:
-            print("Setting %s not sent: the settings of the aircraft are not valid anymore" %
-                  self.lookup[setting_index].shortname)
-            return
         for ac_id in self.ac_ids:
+            if str(ac_id) in self.blocked:
+                print("Setting %s not sent to aircraft %s: its settings are not valid anymore" %
+                      (self.lookup[setting_index].shortname, ac_id))
+                continue
             IvySendMsg("dl DL_SETTING %s %s %s" % (ac_id, setting_index, self.lookup[setting_index].value))
 
     def OnClose(self):
