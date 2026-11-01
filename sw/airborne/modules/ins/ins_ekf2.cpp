@@ -108,6 +108,36 @@ PRINT_CONFIG_VAR(INS_EKF2_GNSS_CHECK)
 #define EKF2_MAG_TYPE_NONE    5  ///< not used
 #define EKF2_MAG_TYPE_INIT    6  ///< only to initialize the heading
 
+/** Indoor configuration with only external vision (e.g. Optitrack): position, velocity, yaw and height
+ *  from external vision, no GNSS, magnetometer and barometer, and the external vision noise and delay
+ *  of the previous EKF2 version. Each value can still be changed in the airframe. */
+#if INS_EKF2_OPTITRACK
+#ifndef INS_EKF2_GPS_CTRL
+#define INS_EKF2_GPS_CTRL 0
+#endif
+#ifndef INS_EKF2_EV_CTRL
+#define INS_EKF2_EV_CTRL (EKF2_EV_CTRL_HPOS | EKF2_EV_CTRL_VPOS | EKF2_EV_CTRL_VEL | EKF2_EV_CTRL_YAW)
+#endif
+#ifndef INS_EKF2_HGT_REF
+#define INS_EKF2_HGT_REF EKF2_HGT_REF_EV
+#endif
+#ifndef INS_EKF2_MAG_TYPE
+#define INS_EKF2_MAG_TYPE EKF2_MAG_TYPE_NONE
+#endif
+#ifndef INS_EKF2_BARO_CTRL
+#define INS_EKF2_BARO_CTRL 0
+#endif
+#ifndef INS_EKF2_EVP_NOISE
+#define INS_EKF2_EVP_NOISE 0.02f
+#endif
+#ifndef INS_EKF2_EVA_NOISE
+#define INS_EKF2_EVA_NOISE 0.05f
+#endif
+#ifndef INS_EKF2_EV_DELAY
+#define INS_EKF2_EV_DELAY 175.f
+#endif
+#endif
+
 /* Vehicle specific defaults, as PX4 (rc.fw_defaults and rc.mc_defaults) */
 #if defined(FIXEDWING_FIRMWARE)
 #ifndef INS_EKF2_ARSP_THR

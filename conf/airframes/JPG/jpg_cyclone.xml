@@ -52,9 +52,7 @@
             <define name="INS_EKF2_GYRO_ID"         value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_ACCEL_ID"        value="IMU_CUBE1_ID"/>
 
-            <define name="INS_EKF2_GPS_CTRL" value="0"/> <!-- Not sure if it is actually using Optitrack here. Flies just fine with Optitrack Z-up instead of Y-up-->
-            <define name="INS_EKF2_HGT_REF" value="EKF2_HGT_REF_EV"/>
-            <define name="INS_EKF2_MAG_TYPE" value="EKF2_MAG_TYPE_NONE"/>
+            <define name="INS_EKF2_OPTITRACK"       value="TRUE"/> <!-- Not sure if it is actually using Optitrack here. Flies just fine with Optitrack Z-up instead of Y-up-->
 
         </target>
 

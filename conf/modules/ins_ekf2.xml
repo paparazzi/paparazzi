@@ -20,6 +20,7 @@
       and for hybrids flown with the rotorcraft firmware when they override ins_ekf2_fixed_wing_flight()
       (rotwing_state does this for the forward flight).
     </description>
+    <define name="INS_EKF2_OPTITRACK" value="FALSE|TRUE" description="Indoor configuration with only external vision (e.g. Optitrack): EV position, velocity, yaw and height, no GNSS, magnetometer and barometer, EV noise 0.02 m / 0.05 rad and delay 175 ms (each can be changed)"/>
     <define name="INS_EKF2_GPS_CTRL" value="7" description="GNSS fusion bitmask: 1 horizontal position, 2 vertical position, 4 velocity, 8 dual antenna heading (EKF2_GPS_CTRL_*)"/>
     <define name="INS_EKF2_HGT_REF" value="1" description="Height reference: 0 baro, 1 GNSS, 2 range finder, 3 external vision (EKF2_HGT_REF_*)"/>
     <define name="INS_EKF2_MAG_TYPE" value="0" description="Magnetometer: 0 automatic (heading on the ground, 3D in the air), 1 heading, 5 none, 6 only to initialize the heading (EKF2_MAG_TYPE_*)"/>

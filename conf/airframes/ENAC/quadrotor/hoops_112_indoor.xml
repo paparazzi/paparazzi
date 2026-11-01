@@ -20,9 +20,7 @@
       <module name="radio_control" type="sbus"/>
       <configure name="BARO_PERIODIC_FREQUENCY" value="50"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
-      <define name="INS_EKF2_GPS_CTRL" value="0"/>
-      <define name="INS_EKF2_HGT_REF" value="EKF2_HGT_REF_EV"/>
-      <define name="INS_EKF2_MAG_TYPE" value="EKF2_MAG_TYPE_NONE"/>
+      <define name="INS_EKF2_OPTITRACK" value="TRUE"/>
     </target>
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
