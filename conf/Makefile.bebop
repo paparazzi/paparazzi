@@ -20,7 +20,7 @@
 #
 
 #
-# This Makefile uses the generic Makefile.arm-linux and adds upload rules for the ARDrone2
+# This Makefile uses the generic Makefile.arm-linux and adds upload rules for the Bebop
 #
 
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux

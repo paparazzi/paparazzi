@@ -28,7 +28,7 @@ function quit {
 # trap control+c to stop mplayer
 trap quit SIGINT
 
-# fetch sdp file on the ARDrone
+# fetch sdp file on the Bebop
 mkdir -p $SDP_DIR/$ADDR
 ../bebop.py --host=$ADDR download_file $SDP_DIR/$ADDR/stream.sdp internal_000/images
 
