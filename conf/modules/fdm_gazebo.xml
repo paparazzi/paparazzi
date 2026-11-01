@@ -6,8 +6,14 @@
       Gazebo backend for NPS simulator
       NPS doc: http://wiki.paparazziuav.org/wiki/NPS
 
+      Two versions are supported, selected with GAZEBO_VERSION:
+      - classic: Gazebo Classic (gazebo11, up to Ubuntu 22.04)
+      - gz: the new Gazebo, gz-sim (Harmonic or Jetty, Ubuntu 24.04 and newer).
+        Not supported yet with gz: laser range array and sonar.
+      By default Gazebo Classic is used when it is installed, gz otherwise.
+
       Usage:
-      1. Make sure gazebo 9 is installed. (sudo apt-get install gazebo9 libgazebo9-dev)
+      1. Make sure Gazebo is installed (sudo apt-get install gazebo libgazebo-dev, or gz-harmonic).
       2. Prepare the Gazebo world and model:
         1. Prepare the UAV model (see conf/simulator/gazebo/models/bebop/):
           - Place the aircraft model in the conf/simulator/gazebo/models/
@@ -130,10 +136,15 @@
           &lt;/flight_plan&gt;
         @endcode
     </description>
+    <configure name="GAZEBO_VERSION" value="classic|gz" description="Gazebo Classic or the new Gazebo (gz-sim), default: classic when installed"/>
+    <configure name="GZ_SIM_PKG" value="gz-sim|gz-sim8" description="pkg-config name of gz-sim, default: the first one installed of gz-sim (Jetty) and gz-sim8 (Harmonic)"/>
     <configure name="NPS_DEBUG_VIDEO" value="0|1" description="show window with video for debugging"/>
   </doc>
   <header/>
   <makefile target="nps">
+    <configure name="GAZEBO_VERSION" default="$(shell pkg-config --exists gazebo ${AND} echo classic || echo gz)"/>
+  </makefile>
+  <makefile target="nps" cond="ifeq ($(GAZEBO_VERSION), classic)">
     <raw>
       nps.CXXFLAGS += $(shell pkg-config gazebo --cflags)
       nps.LDFLAGS  += $(shell pkg-config gazebo --libs)
@@ -147,6 +158,15 @@
       endif
     </raw>
     <file name="nps_fdm_gazebo.cpp" dir="nps"/>
+  </makefile>
+  <makefile target="nps" cond="ifeq ($(GAZEBO_VERSION), gz)">
+    <configure name="GZ_SIM_PKG" default="$(firstword $(foreach pkg,gz-sim gz-sim8,$(shell pkg-config --exists $(pkg) ${AND} echo $(pkg))))"/>
+    <raw>
+      <!-- -isystem: no warnings from the gz headers -->
+      nps.CXXFLAGS += $(patsubst -I%,-isystem %,$(shell pkg-config --cflags $(GZ_SIM_PKG)))
+      nps.LDFLAGS  += $(shell pkg-config --libs $(GZ_SIM_PKG))
+    </raw>
+    <file name="nps_fdm_gz.cpp" dir="nps"/>
   </makefile>
 </module>
 
