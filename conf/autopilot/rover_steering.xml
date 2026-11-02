@@ -81,14 +81,7 @@
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
-        <call fun="rover_guidance_steering_speed_ctrl()"/>
-        <call fun="rover_guidance_steering_heading_ctrl(gvf_c_ctrl.omega)"/>
-
-        <call fun="commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.cmd.delta);"/>
-        <call fun="commands[COMMAND_THROTTLE] = GetCmdFromThrottle(guidance_control.throttle);"/>
-        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
-
-        <call fun="SetAPThrottleFromCommands()"/>
+        <call fun="rover_guidance_steering_periodic()"/>
       </control>
       <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="KILL"/>
     </mode>
@@ -117,6 +110,40 @@
         <call fun="rover_guidance_steering_kill()"/>
 
         <call fun="SetCommands(commands_failsafe)"/>
+        <call fun="SetAPThrottleFromCommands()"/>
+      </control>
+    </mode>
+
+  </state_machine>
+
+  <!-- guidance in NAV mode, run by rover_guidance_steering_periodic() -->
+  <state_machine name="guidance" freq="PERIODIC_FREQUENCY">
+
+    <includes>
+      <include name="navigation.h"/>
+      <include name="modules/guidance/gvf_common.h"/>
+    </includes>
+
+    <mode name="NAV_DIRECT">
+      <select cond="nav.mode == NAV_MODE_MANUAL"/>
+      <control>
+        <!-- copy manual nav controls to commands -->
+        <call fun="command_set(COMMAND_THROTTLE, TRIM_PPRZ(nav.speed * MAX_PPRZ))"/>
+        <call fun="command_set(COMMAND_STEERING, TRIM_PPRZ(nav.turn * MAX_PPRZ))"/>
+        <call fun="SetAPThrottleFromCommands()"/>
+      </control>
+    </mode>
+
+    <!-- GVF: speed ctrl + heading ctrl from the GVF omega -->
+    <mode name="NAV_GVF">
+      <select cond="nav.mode != NAV_MODE_MANUAL"/>
+      <control>
+        <call fun="rover_guidance_steering_speed_ctrl()"/>
+        <call fun="rover_guidance_steering_heading_ctrl(-gvf_c_ctrl.omega)"/> <!-- GVF omega > 0: turn left, steering > 0: turn right -->
+
+        <call fun="commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.cmd.delta);"/>
+        <call fun="commands[COMMAND_THROTTLE] = GetCmdFromThrottle(guidance_control.throttle);"/>
+
         <call fun="SetAPThrottleFromCommands()"/>
       </control>
     </mode>
