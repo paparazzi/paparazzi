@@ -255,7 +255,7 @@
     <define name="JSBSIM_MODEL" value="FAHEX" type="string"/>
     <define name="COMMANDS_NB" value="6"/>
     <define name="NO_MOTOR_MIXING" value="TRUE"/>
-    <!--<define name="ACTUATORS_ORDER" value="{0,1,2,3,4,5}"/>
+    <!--<define name="PYBULLET_ACTUATORS_ORDER" value="{0,1,2,3,4,5}"/>
     <define name="PYBULLET_MODULE" value="simple_Hexa_sim" type="string"/>
     <define name="PYBULLET_URDF" value="hexa_6DOF_simple.urdf" type="string"/> -->
   </section>
