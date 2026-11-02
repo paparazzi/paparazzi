@@ -88,11 +88,15 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
   pthread_mutex_lock(&opticflow_mutex);
   for (int idx_camera = 0; idx_camera < ACTIVE_CAMERAS; idx_camera++) {
     if (opticflow_result[idx_camera].noise_measurement < 0.8) {
+      // the message has int32 flow fields
+      int32_t flow_x = opticflow_result[idx_camera].flow_x;
+      int32_t flow_y = opticflow_result[idx_camera].flow_y;
+      int32_t flow_der_x = opticflow_result[idx_camera].flow_der_x;
+      int32_t flow_der_y = opticflow_result[idx_camera].flow_der_y;
       pprz_msg_send_OPTIC_FLOW_EST(trans, dev, AC_ID,
                                    &opticflow_result[idx_camera].fps, &opticflow_result[idx_camera].corner_cnt,
-                                   &opticflow_result[idx_camera].tracked_cnt, &opticflow_result[idx_camera].flow_x,
-                                   &opticflow_result[idx_camera].flow_y, &opticflow_result[idx_camera].flow_der_x,
-                                   &opticflow_result[idx_camera].flow_der_y, &opticflow_result[idx_camera].vel_body.x,
+                                   &opticflow_result[idx_camera].tracked_cnt, &flow_x, &flow_y,
+                                   &flow_der_x, &flow_der_y, &opticflow_result[idx_camera].vel_body.x,
                                    &opticflow_result[idx_camera].vel_body.y, &opticflow_result[idx_camera].vel_body.z,
                                    &opticflow_result[idx_camera].div_size,
                                    &opticflow_result[idx_camera].surface_roughness,
