@@ -3,6 +3,7 @@
 # bebop.makefile
 #
 # http://wiki.paparazziuav.org/wiki/Bebop
+# Cross-compilers: sw/airborne/boards/bebop/README.md
 #
 
 BOARD=bebop
