@@ -6,6 +6,6 @@ if command -v gzclient > /dev/null; then
   export GAZEBO_MODEL_PATH="$PAPARAZZI_HOME/sw/ext/tudelft_gazebo_models/models:$GAZEBO_MODEL_PATH"
   exec gzclient
 else
-  export GZ_SIM_RESOURCE_PATH="$PAPARAZZI_HOME/conf/simulator/gazebo/models:$PAPARAZZI_HOME/sw/ext/tudelft_gazebo_models/models:$GZ_SIM_RESOURCE_PATH"
+  export GZ_SIM_RESOURCE_PATH="$PAPARAZZI_HOME/conf/simulator/gazebo/models:$PAPARAZZI_HOME/sw/ext/tudelft_gazebo_models/models:$PAPARAZZI_HOME/conf/simulator/gazebo/models_gz:$GZ_SIM_RESOURCE_PATH"
   exec gz sim -g
 fi
