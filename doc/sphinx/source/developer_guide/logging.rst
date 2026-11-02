@@ -258,17 +258,20 @@ Once the environment variables are set you can run ``sd2log`` in your terminal:
 
   ~/paparazzi/sw/logalizer/sd2log fr_XXXX.LOG  # Output stored in var/logs
   ~/paparazzi/sw/logalizer/sd2log fr_XXXX.LOG <output_dir_path>  # Output stored in <output_dir_path>
+  ~/paparazzi/sw/logalizer/sd2log fr_XXXX.LOG --tlm  # Also keep a copy of the raw log as .tlm
 
-This will produce the Paparazzi .log, .data, and .tlm files that are stored in ``var/logs``. It creates a timestamp from the .tlm and changes the filename
-to the take-off time if a GPS mesage with correct time was available in the file, or the current local PC time if no
-GPS was available. The .log file will be recreated either from the current configuration or the MD5-labeled files that
-are stored in ``var/conf`` each time you build an aircraft.
+This will produce the Paparazzi .log and .data files that are stored in ``var/logs`` (and the .tlm file with ``--tlm``).
+It creates a timestamp from the log and changes the filename to the take-off time if a GPS message with correct time
+was available in the file, or the current local PC time if no GPS was available.
 
-.. note::
+The messages are decoded with the definitions the firmware was built with: the configuration with the MD5 of the
+ALIVE message in the log is looked up in ``var/conf``, where it is stored each time you build an aircraft. When it is
+not found (e.g. the aircraft was built on another computer), the current configuration of the aircraft and
+``var/messages.xml`` are used, and messages that don't match these definitions are skipped.
 
-  For the decoding process to work properly you must run ``sd2log`` from the same folder that contains the
-  ``messages.xml`` file used during compilation of the aircraft. This is often not an issue, but you may run into
-  problems if you work with multiple branches within your paparazzi repository.
+The last line of the output gives the result, e.g.
+``Generated 25_06_11__11_06_45_SD.[data,log] | time=... | conf=... | frames=291339 skipped=0 cksum=0 | proc=0.41s``,
+where ``conf`` tells which definitions were used and ``skipped`` how many messages could not be decoded.
 
 Pprzlog format
 -----------------
@@ -279,12 +282,13 @@ split into the following files:
 - A ``.log`` file, an XML file, which contains a copy of the whole configuration (airframes, flight plans, ...)
 - A ``.data`` file, an ascii file, which contains the list of the received messages. Each message is time-stamped in
   seconds since the creation of the file and marked with the ID of the sending aircraft
-- A ``.tlm`` file, a copy of the original ``.LOG`` file renamed with the same name as the ``.log`` and ``.data``
-  file to make it easier to associate the original log with the decoded files
+- A ``.tlm`` file (only with ``--tlm``), a copy of the original ``.LOG`` file renamed with the same name as the
+  ``.log`` and ``.data`` file to make it easier to associate the original log with the decoded files
 
 .. tip::
-  Because ``sd2log`` outputs a copy of the original ``.LOG`` file, the decoding process can be called directly
-  on the file still on the SD card while it's mounted on your computer.
+  ``sd2log`` does not change the original ``.LOG`` file, so the decoding process can be called directly
+  on the file still on the SD card while it's mounted on your computer. Use ``--tlm`` to keep a copy of the raw log
+  before the SD card is erased. The SD log extractor of the Paparazzi Center (Utilities tab) does this for you.
 
 The name of the files associated to a specific log is the same, and is generated from the date and time of creation.
 The lines of the ``data`` file are formatted according to the message description listed in the ``conf/messages.xml``
