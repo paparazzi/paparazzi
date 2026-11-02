@@ -38,7 +38,7 @@ MESSAGE("PyBullet using" VALUE(NPS_PYTHON_EXEC))
 #ifdef NPS_PYBULLET_ACTUATORS_ORDER
   int actuators_order[ACTUATORS_NB] = NPS_PYBULLET_ACTUATORS_ORDER;
 #else
-  #error "[PyBullet] missing NPS_ACTUATORS_ORDER define!"
+  #error "[PyBullet] missing NPS_PYBULLET_ACTUATORS_ORDER define!"
 #endif
 
 #ifndef NPS_PYBULLET_MODULE
