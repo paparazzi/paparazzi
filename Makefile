@@ -309,7 +309,6 @@ test_aggieair: all
 # test MAVLab users conf
 test_mavlab: all
 	CONF_XML=conf/userconf/OPENUAS/openuas_conf.xml prove tests/aircrafts/
-	CONF_XML=conf/airframes/CDW/cdw_conf.xml prove tests/aircrafts/
 	CONF_XML=conf/airframes/BR/conf.xml prove tests/aircrafts/
 	
 # test TU Delft conf

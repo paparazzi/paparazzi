@@ -9,10 +9,18 @@
     <target name="ap" board="tmotor_aiof7">
       <module name="radio_control" type="sbus"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
+      <module name="mag" type="hmc59xx">
+        <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
+        <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+        <define name="MODULE_HMC58XX_SYNC_SEND" value="FALSE"/> 
+        <define name="USE_I2C2"/>
+      </module>
     </target>
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="ppm"/>
+      <define name="TMOTOR_AIO_IMU_ROT" value=""/>
+      <define name="TMOTOR_AIO_MAG_ROT" value=""/>
     </target>
 
 
@@ -33,12 +41,6 @@
     <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
       <configure name="GPS_PORT" value="UART4"/>
-    </module>
-    <module name="mag" type="hmc59xx">
-      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
-      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
-      <define name="MODULE_HMC58XX_SYNC_SEND" value="FALSE"/> 
-      <define name="USE_I2C2"/>
     </module>
 
     <module name="stabilization" type="indi"/>
