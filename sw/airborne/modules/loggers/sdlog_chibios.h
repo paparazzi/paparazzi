@@ -23,13 +23,19 @@
  * @file modules/loggers/sdlog_chibios.c
  * @brief sdlog process with battery monitoring
  *
+ * The same interface is implemented for Linux and NPS in sdlog_linux.c
+ *
  */
 
 #ifndef SDLOG_CHIBIOS_H
 #define SDLOG_CHIBIOS_H
 
 #include "std.h"
+#if USE_CHIBIOS_RTOS
 #include "modules/loggers/sdlog_chibios/sdLog.h"
+#else
+#include "modules/loggers/sdlog_linux.h"
+#endif
 #include "pprzlink/pprzlink_device.h"
 
 /*
