@@ -209,6 +209,25 @@ def gen_params(px4, out_file):
             "static inline void ins_ekf2_set_px4_params(estimator::parameters *p)", "{"]
     out += [a.replace(PARAM_PREFIX + "EKF2_", PARAM_PREFIX) for a in assigns]
     out += ["}", ""]
+
+    # Table of the parameters by name, in a fixed order (to log and replay them, see sw/tools/ekf2_replay)
+    out += ["#ifdef INS_EKF2_PARAM_TABLE", "#include <type_traits>", "",
+            "/** EKF parameter with its name (without EKF2_), to get and set it as a float */",
+            "struct ins_ekf2_param_t {", "  const char *name;",
+            "  float (*get)(const estimator::parameters &p);",
+            "  void (*set)(estimator::parameters &p, float v);", "};", "",
+            "static const struct ins_ekf2_param_t ins_ekf2_params[] = {"]
+    for a in assigns:
+        m = re.match(r"  p->(.+) = %sEKF2_(\w+);" % PARAM_PREFIX, a)
+        if m:
+            field, name = m.group(1), m.group(2)
+            out.append('  {"%s", [](const estimator::parameters &p) { return (float)p.%s; },' % (name, field))
+            out.append('   [](estimator::parameters &p, float v) { p.%s = static_cast<std::remove_reference_t<decltype(p.%s)>>(v); }},'
+                       % (field, field))
+        elif a.startswith("#"):
+            out.append(a)
+    out += ["};", "", "static const int ins_ekf2_params_nb = sizeof(ins_ekf2_params) / sizeof(ins_ekf2_params[0]);",
+            "#endif /* INS_EKF2_PARAM_TABLE */", ""]
     with open(out_file, "w") as f:
         f.write("\n".join(out))
 

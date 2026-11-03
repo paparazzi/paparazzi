@@ -46,7 +46,15 @@
 
 // Delay before starting SD log
 #ifndef SDLOG_START_DELAY
+#if INS_EKF2_LOG_INPUTS
+/* the EKF2 only starts once the log is open to log all its inputs, don't wait long */
+#define SDLOG_START_DELAY 2
+#else
 #define SDLOG_START_DELAY 30
+#endif
+#endif
+#if INS_EKF2_LOG_INPUTS && SDLOG_START_DELAY > 5
+PRINT_CONFIG_MSG("INS_EKF2_LOG_INPUTS: the EKF2 only starts after the SD log is open (SDLOG_START_DELAY), set it low")
 #endif
 
 // Auto-flush period (in seconds)

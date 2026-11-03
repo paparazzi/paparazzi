@@ -60,6 +60,10 @@
     <define name="INS_EKF2_EVENT_MSGS" value="TRUE|FALSE" description="Send the EKF events and status changes (alignment, fusion started/stopped, resets, faults) as INFO_MSG to the GCS and the flight recorder (default: TRUE)"/>
     <define name="INS_EKF2_EVENT_HOLDOFF" value="5" unit="s" description="Minimum time between two messages about the same status (default: 5 s)"/>
     <define name="INS_EKF2_PREFLIGHT_POS" value="TRUE|FALSE" description="Preflight check: require the configured position source (GNSS or external vision) to be used (default: TRUE)"/>
+    <configure name="INS_EKF2_LOG_INPUTS" value="FALSE|TRUE" description="Log every EKF input on the SD card (EKF2_INPUT messages in the flight recorder log) to replay the EKF offline with sw/tools/ekf2_replay. The EKF starts once the log is open (SDLOG_START_DELAY is then 2 s by default). Needs the flight_recorder module, in NPS the log is in var/logs/sdlog/AIRCRAFT/FLIGHT_RECORDER"/>
+    <define name="INS_EKF2_LOG_DEVICE" value="flightrecorder_sdlog" description="SD log device for the EKF inputs (flightrecorder_sdlog or chibios_sdlog)"/>
+    <define name="INS_EKF2_LOG_WAIT" value="60" description="Maximum time to wait for the log before the EKF starts without logging the inputs [s]"/>
+    <define name="INS_EKF2_LOG_OUTPUT_DIV" value="10" description="Also log the EKF output every this number of updates, to check the replay (0 to disable)"/>
     <define name="INS_EKF2_FORCE_NAV_REF" value="FALSE|TRUE" description="force to use the reference defined in the flight plan and not the one computed by the filter after first good GPS position"/>
 
     <configure name="USE_ALT_LLA_WAYPOINTS" value="FALSE|TRUE" description="Use LLA altitude instead of LTP z for long distance flight (default=TRUE)"/>
@@ -77,6 +81,8 @@
   <datalink message="EXTERNAL_POSE_SMALL" fun="ins_ekf2_parse_EXTERNAL_POSE_SMALL(buf)"/>
   <makefile target="ap|nps">
     <configure name="USE_ALT_LLA_WAYPOINTS" default="TRUE"/>
+    <configure name="INS_EKF2_LOG_INPUTS" default="FALSE"/>
+    <define name="INS_EKF2_LOG_INPUTS" value="TRUE" cond="ifeq ($(INS_EKF2_LOG_INPUTS),TRUE)"/>
     <configure name="CXXSTANDARD" value="-std=c++17"/>
     <flag name="CXXFLAGS" value="Wno-unused-but-set-variable"/>
     <flag name="CXXFLAGS" value="Wno-unused-variable"/>
