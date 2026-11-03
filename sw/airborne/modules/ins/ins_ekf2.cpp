@@ -193,6 +193,9 @@ PRINT_CONFIG_VAR(INS_EKF2_GNSS_CHECK)
 #endif
 
 /* All parameters with the PX4 defaults, the values above can be used in the airframe */
+#if INS_EKF2_LOG_INPUTS
+#define INS_EKF2_PARAM_TABLE  // parameters by name, to log them
+#endif
 #include "generated/ekf2_params.h"
 
 PRINT_CONFIG_VAR(INS_EKF2_GPS_CTRL)
@@ -387,6 +390,153 @@ static uint64_t ekf2_delayed_time_us(uint32_t stamp, uint32_t delay_ms)
   uint64_t time_us = ekf2_time_us(stamp);
   return (time_us > delay_ms * 1000ULL) ? time_us - delay_ms * 1000ULL : 0;
 }
+
+/*
+ * Logging of the EKF inputs (INS_EKF2_LOG_INPUTS), to replay the EKF offline with
+ * sw/tools/ekf2_replay. Every sample given to the EKF, every update and the parameters
+ * are logged as EKF2_INPUT messages, in the order the EKF gets them. The EKF only starts
+ * once the log is open (or after INS_EKF2_LOG_WAIT without log), so the replay sees
+ * everything the EKF saw.
+ */
+enum ekf2_input_type {
+  EKF2_IN_IMU, EKF2_IN_UPDATE, EKF2_IN_MAG, EKF2_IN_BARO, EKF2_IN_GNSS, EKF2_IN_GNSS_YAW,
+  EKF2_IN_AIRSPEED, EKF2_IN_RANGE, EKF2_IN_FLOW, EKF2_IN_EV, EKF2_IN_FLAGS, EKF2_IN_ORIGIN,
+  EKF2_IN_PARAMS, EKF2_IN_CONFIG, EKF2_IN_OUTPUT
+};
+
+#if INS_EKF2_LOG_INPUTS
+#include "pprzlink/messages.h"
+
+/** Maximum time to wait for the log before the EKF starts without logging (s) */
+#ifndef INS_EKF2_LOG_WAIT
+#define INS_EKF2_LOG_WAIT 60
+#endif
+
+/** Log the EKF output every this number of updates (0 to disable) */
+#ifndef INS_EKF2_LOG_OUTPUT_DIV
+#define INS_EKF2_LOG_OUTPUT_DIV 10
+#endif
+
+/* SD log (also on Linux and in NPS): the flight recorder log by default (as IMU_LOG_HIGHSPEED) */
+#include "modules/loggers/pprzlog_tp.h"
+#include "modules/loggers/sdlog_chibios.h"
+#include "modules/loggers/flight_recorder.h"
+#ifndef INS_EKF2_LOG_DEVICE
+#define INS_EKF2_LOG_DEVICE flightrecorder_sdlog
+#if !FLIGHTRECORDER_SDLOG
+#error "INS_EKF2_LOG_INPUTS needs the flight_recorder module (also in the nps target) or INS_EKF2_LOG_DEVICE"
+#endif
+#endif
+#define EKF2_LOG_TP (&pprzlog_tp.trans_tx)
+#define EKF2_LOG_DEV (&(INS_EKF2_LOG_DEVICE).device)
+static bool ekf2_log_ready(void) { return (INS_EKF2_LOG_DEVICE).file != NULL && *(INS_EKF2_LOG_DEVICE).file != -1; }
+
+/** Logging state: waiting for the log (the EKF doesn't run yet), logging, or not logging */
+static enum { EKF2_LOG_WAITING, EKF2_LOG_ON, EKF2_LOG_OFF } ekf2_log_state = EKF2_LOG_WAITING;
+static struct { double lat, lon; float alt; bool set; } ekf2_log_origin;  ///< origin set before the log started
+
+static void ekf2_log(uint8_t type, uint64_t time_us, uint8_t nb_ints, int32_t *ints, uint8_t nb_values, float *values)
+{
+  if (ekf2_log_state != EKF2_LOG_ON) {
+    return;
+  }
+  uint32_t t = (uint32_t)time_us;
+  int32_t no_int = 0;
+  float no_value = 0;
+  pprz_msg_send_EKF2_INPUT(EKF2_LOG_TP, EKF2_LOG_DEV, AC_ID, &t, &type,
+                           nb_ints, nb_ints ? ints : &no_int, nb_values, nb_values ? values : &no_value);
+}
+
+/** Log all parameters (in messages of at most 32 values) */
+static void ekf2_log_params(uint64_t time_us)
+{
+  for (int i = 0; i < ins_ekf2_params_nb; i += 32) {
+    float values[32];
+    uint8_t n = 0;
+    for (int j = i; j < ins_ekf2_params_nb && n < 32; j++) {
+      values[n++] = ins_ekf2_params[j].get(*ekf_params);
+    }
+    int32_t first = i;
+    ekf2_log(EKF2_IN_PARAMS, time_us, 1, &first, n, values);
+  }
+}
+
+/** Log one parameter changed while running */
+static void ekf2_log_param_changed(uint64_t time_us, const char *name)
+{
+  for (int i = 0; i < ins_ekf2_params_nb; i++) {
+    if (!strcmp(ins_ekf2_params[i].name, name)) {
+      int32_t index = i;
+      float value = ins_ekf2_params[i].get(*ekf_params);
+      ekf2_log(EKF2_IN_PARAMS, time_us, 1, &index, 1, &value);
+      return;
+    }
+  }
+}
+
+static void ekf2_log_origin_set(uint64_t time_us, double lat, double lon, float alt)
+{
+  if (ekf2_log_state == EKF2_LOG_WAITING) {
+    ekf2_log_origin.lat = lat;
+    ekf2_log_origin.lon = lon;
+    ekf2_log_origin.alt = alt;
+    ekf2_log_origin.set = true;
+    return;
+  }
+  int32_t ints[2] = {(int32_t)lround(lat * 1e7), (int32_t)lround(lon * 1e7)};
+  ekf2_log(EKF2_IN_ORIGIN, time_us, 2, ints, 1, &alt);
+}
+
+/** Start logging when the log is open, or give up after INS_EKF2_LOG_WAIT */
+static void ekf2_log_check_start(void)
+{
+  if (ekf2_log_state != EKF2_LOG_WAITING) {
+    return;
+  }
+  if (ekf2_log_ready()) {
+    ekf2_log_state = EKF2_LOG_ON;
+    uint64_t now = ekf2_time_us(get_sys_time_usec());
+    ekf2_log_params(now);
+    float config[6] = {INS_EKF2_TAU_POS, INS_EKF2_TAU_VEL, INS_EKF2_GPS_YAW_RST,
+                       INS_EKF2_RNG_MIN_DIST, INS_EKF2_RNG_MAX_DIST, INS_EKF2_OF_MAX_RATE};
+    ekf2_log(EKF2_IN_CONFIG, now, 0, NULL, 6, config);
+    if (ekf2_log_origin.set) {
+      ekf2_log_origin_set(now, ekf2_log_origin.lat, ekf2_log_origin.lon, ekf2_log_origin.alt);
+    }
+  } else if (get_sys_time_float() > INS_EKF2_LOG_WAIT) {
+    ekf2_log_state = EKF2_LOG_OFF;
+  }
+}
+
+/** The EKF gets no input while waiting for the log */
+static inline bool ekf2_input_enabled(void) { return ekf2_log_state != EKF2_LOG_WAITING; }
+
+static void ekf2_log_output(uint64_t time_us)
+{
+#if INS_EKF2_LOG_OUTPUT_DIV
+  static uint16_t count = 0;
+  if (++count < INS_EKF2_LOG_OUTPUT_DIV) {
+    return;
+  }
+  count = 0;
+  const Vector3f pos{ekf.getPosition()};
+  const Vector3f vel{ekf.getVelocity()};
+  const Quatf q{ekf.getQuaternion()};
+  float values[10] = {pos(0), pos(1), pos(2), vel(0), vel(1), vel(2), q(0), q(1), q(2), q(3)};
+  ekf2_log(EKF2_IN_OUTPUT, time_us, 0, NULL, 10, values);
+#else
+  (void)time_us;
+#endif
+}
+
+#else /* INS_EKF2_LOG_INPUTS */
+#define ekf2_log(...) {}
+#define ekf2_log_param_changed(...) {}
+#define ekf2_log_origin_set(...) {}
+#define ekf2_log_check_start() {}
+#define ekf2_log_output(...) {}
+static inline bool ekf2_input_enabled(void) { return true; }
+#endif /* INS_EKF2_LOG_INPUTS */
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -1030,6 +1180,7 @@ void ins_ekf2_init(void)
 
   /* Initialize the origin from flight plan */
 #if USE_INS_NAV_INIT
+  ekf2_log_origin_set(ekf2_time_us(get_sys_time_usec()), NAV_LAT0 * 1e-7, NAV_LON0 * 1e-7, (NAV_ALT0) * 1e-3);
   if (ekf.setEkfGlobalOrigin(NAV_LAT0 * 1e-7, NAV_LON0 * 1e-7, (NAV_ALT0) * 1e-3)) { // EKF2 works HMSL
     struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
     llh_nav0.lat = NAV_LAT0;
@@ -1089,6 +1240,7 @@ static void reset_ref(void)
 #if USE_GPS
   if (GpsFixValid()) {
     struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
+    ekf2_log_origin_set(ekf2_time_us(get_sys_time_usec()), lla_pos.lat * 1e-7, lla_pos.lon * 1e-7, gps.hmsl * 1e-3);
     if (ekf.setEkfGlobalOrigin(lla_pos.lat * 1e-7, lla_pos.lon * 1e-7, gps.hmsl * 1e-3)) {
       ltp_def_from_lla_i(&ekf2.ltp_def, &lla_pos);
       ekf2.ltp_def.hmsl = gps.hmsl;
@@ -1108,6 +1260,7 @@ static void reset_vertical_ref(void)
       .lon = stateGetLlaOrigin_i().lon,
       .alt = lla_pos.alt
     };
+    ekf2_log_origin_set(ekf2_time_us(get_sys_time_usec()), lla.lat * 1e-7, lla.lon * 1e-7, gps.hmsl * 1e-3);
     if (ekf.setEkfGlobalOrigin(lla.lat * 1e-7, lla.lon * 1e-7, gps.hmsl * 1e-3)) {
       ltp_def_from_lla_i(&ekf2.ltp_def, &lla);
       ekf2.ltp_def.hmsl = gps.hmsl;
@@ -1152,6 +1305,11 @@ static void ins_ekf2_update_system_flags(void)
   flags.armed = armed;
   flags.in_air = in_air;
   flags.is_fixed_wing = fixed_wing;
+  {
+    int32_t bits = (flags.armed << 0) | (flags.at_rest << 1) | (flags.in_air << 2) | (flags.is_fixed_wing << 3)
+                   | (flags.gnd_effect << 4) | (flags.constant_pos << 5) | (flags.in_transition << 6);
+    ekf2_log(EKF2_IN_FLAGS, flags.time_us, 1, &bits, 0, NULL);
+  }
   ekf.setSystemFlagData(flags);
 
   ekf2.in_air = in_air;
@@ -1197,19 +1355,33 @@ static void ins_ekf2_airspeed_update(void)
   sample.time_us = ekf2_time_us(stamp);
   sample.eas2tas = sqrtf(PPRZ_ISA_AIR_DENSITY / ekf2.air_density);
   sample.true_airspeed = eas * sample.eas2tas;
+  if (!ekf2_input_enabled()) {
+    return;
+  }
+  {
+    float values[2] = {sample.true_airspeed, sample.eas2tas};
+    ekf2_log(EKF2_IN_AIRSPEED, sample.time_us, 0, NULL, 2, values);
+  }
   ekf.setAirspeedData(sample);
 }
 
 /* Update the INS state */
 void ins_ekf2_update(void)
 {
+  ekf2_log_check_start();
+  if (!ekf2_input_enabled()) {
+    return;
+  }
   ins_ekf2_update_system_flags();
   ins_ekf2_airspeed_update();
 
   /* Update the EKF */
   if (ekf2.got_imu_data) {
     // Update the EKF but ignore the response and also copy the faster intermediate filter
+    uint64_t update_time = ekf2_time_us(get_sys_time_usec());
+    ekf2_log(EKF2_IN_UPDATE, update_time, 0, NULL, 0, NULL);
     ekf.update();
+    ekf2_log_output(update_time);
     ins_ekf2_check_events();
     ins_ekf2_preflight_filter();
 
@@ -1265,6 +1437,7 @@ void ins_ekf2_update(void)
       }
       if (origin_time > ekf2.ltp_stamp) {
 #if INS_EKF2_FORCE_NAV_REF && USE_INS_NAV_INIT
+        ekf2_log_origin_set(ekf2_time_us(get_sys_time_usec()), NAV_LAT0 * 1e-7, NAV_LON0 * 1e-7, (NAV_ALT0) * 1e-3);
         if (ekf.setEkfGlobalOrigin(NAV_LAT0 * 1e-7, NAV_LON0 * 1e-7, (NAV_ALT0) * 1e-3)) {
           struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
           llh_nav0.lat = NAV_LAT0;
@@ -1335,6 +1508,18 @@ void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf)
   sample_ev.vel_frame = VelocityFrame::LOCAL_FRAME_NED;
   sample_ev.quality = 100;
 
+  if (!ekf2_input_enabled()) {
+    return;
+  }
+  {
+    int32_t ints[4] = {(int32_t)sample_ev.pos_frame, (int32_t)sample_ev.vel_frame, sample_ev.quality, sample_ev.reset_counter};
+    float values[19] = {sample_ev.pos(0), sample_ev.pos(1), sample_ev.pos(2), sample_ev.vel(0), sample_ev.vel(1), sample_ev.vel(2),
+                        sample_ev.quat(0), sample_ev.quat(1), sample_ev.quat(2), sample_ev.quat(3),
+                        sample_ev.position_var(0), sample_ev.position_var(1), sample_ev.position_var(2),
+                        sample_ev.velocity_var(0), sample_ev.velocity_var(1), sample_ev.velocity_var(2),
+                        sample_ev.orientation_var(0), sample_ev.orientation_var(1), sample_ev.orientation_var(2)};
+    ekf2_log(EKF2_IN_EV, sample_ev.time_us, 4, ints, 19, values);
+  }
   ekf.setExtVisionData(sample_ev);
 }
 
@@ -1354,6 +1539,15 @@ static void ins_ekf2_publish_attitude(uint64_t time_us)
   imu_sample.delta_ang = Vector3f{ekf2.delta_gyro.p, ekf2.delta_gyro.q, ekf2.delta_gyro.r};
   imu_sample.delta_vel_dt = ekf2.accel_dt * 1.e-6f;
   imu_sample.delta_vel = Vector3f{ekf2.delta_accel.x, ekf2.delta_accel.y, ekf2.delta_accel.z};
+  if (!ekf2_input_enabled()) {
+    return;
+  }
+  {
+    int32_t ints[2] = {(int32_t)ekf2.gyro_dt, (int32_t)ekf2.accel_dt};
+    float values[6] = {imu_sample.delta_ang(0), imu_sample.delta_ang(1), imu_sample.delta_ang(2),
+                       imu_sample.delta_vel(0), imu_sample.delta_vel(1), imu_sample.delta_vel(2)};
+    ekf2_log(EKF2_IN_IMU, imu_sample.time_us, 2, ints, 6, values);
+  }
   ekf.setIMUData(imu_sample);
 
   if (ekf.attitude_valid()) {
@@ -1415,6 +1609,9 @@ static void ins_ekf2_publish_attitude(uint64_t time_us)
 /* Update INS based on Baro information */
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, float pressure)
 {
+  if (!ekf2_input_enabled()) {
+    return;
+  }
   // Calculate the air density
   float rho = pprz_isa_density_of_pressure(pressure, ekf2.temp);
   ekf.set_air_density(rho);
@@ -1424,6 +1621,10 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, f
   baroSample sample{};
   sample.time_us = ekf2_time_us(stamp);
   sample.hgt = pprz_isa_height_of_pressure_full(pressure, PPRZ_ISA_SEA_LEVEL_PRESSURE); // the EKF estimates the baro offset
+  {
+    float values[2] = {sample.hgt, rho};
+    ekf2_log(EKF2_IN_BARO, sample.time_us, 0, NULL, 2, values);
+  }
   ekf.setBaroData(sample);
 }
 
@@ -1436,11 +1637,18 @@ static void temperature_cb(uint8_t __attribute__((unused)) sender_id, float temp
 /* Update INS based on AGL information */
 static void agl_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, float distance)
 {
+  if (!ekf2_input_enabled()) {
+    return;
+  }
   estimator::sensor::rangeSample sample{};
   sample.time_us = ekf2_time_us(stamp);
   sample.rng = distance;
   sample.quality = -1; // unknown signal quality
 
+  {
+    int32_t quality = sample.quality;
+    ekf2_log(EKF2_IN_RANGE, sample.time_us, 1, &quality, 1, &sample.rng);
+  }
   ekf.setRangeData(sample);
 }
 
@@ -1479,6 +1687,9 @@ static void mag_cb(uint8_t sender_id,
                    uint32_t stamp,
                    struct Int32Vect3 *mag)
 {
+  if (!ekf2_input_enabled()) {
+    return;
+  }
   struct FloatVect3 mag_gauss;
 
   // The calibrated magnetometer is 1 where it was calibrated: scale it to the field strength there
@@ -1496,6 +1707,10 @@ static void mag_cb(uint8_t sender_id,
   magSample sample{};
   sample.time_us = ekf2_time_us(stamp);
   sample.mag = Vector3f{mag_gauss.x, mag_gauss.y, mag_gauss.z};
+  {
+    float values[3] = {mag_gauss.x, mag_gauss.y, mag_gauss.z};
+    ekf2_log(EKF2_IN_MAG, sample.time_us, 0, NULL, 3, values);
+  }
 
   ekf.setMagData(sample);
   ekf2.got_imu_data = true;
@@ -1506,6 +1721,9 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp,
                    struct GpsState *gps_s)
 {
+  if (!ekf2_input_enabled()) {
+    return;
+  }
   // The velocity is converted from ECEF when the receiver gives no NED velocity. Receivers
   // without any velocity (e.g. Furuno, NMEA, MTK) are used for the position only, as before.
   bool has_vel = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT) ||
@@ -1513,6 +1731,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   int32_t gps_ctrl = has_vel ? (int32_t)(INS_EKF2_GPS_CTRL) : ((INS_EKF2_GPS_CTRL) & ~EKF2_GPS_CTRL_VEL);
   if (ekf_params->ekf2_gps_ctrl != gps_ctrl) {
     ekf_params->ekf2_gps_ctrl = gps_ctrl;
+    ekf2_log_param_changed(ekf2_time_us(stamp), "GPS_CTRL");
   }
 
   struct LlaCoor_i lla_pos = lla_int_from_gps(gps_s);
@@ -1531,7 +1750,8 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   checks_sample.fix_type = gps_s->fix;
   checks_sample.nsats = gps_s->num_sv;
   checks_sample.pdop = gps_s->pdop / 100.0f;
-  gnss_checks.run(checks_sample, ekf2.armed, ekf2.in_air, ekf.control_status_flags().vehicle_at_rest);
+  const bool at_rest = ekf.control_status_flags().vehicle_at_rest;
+  gnss_checks.run(checks_sample, ekf2.armed, ekf2.in_air, at_rest);
 
   // The measurement was taken INS_EKF2_GPS_DELAY before it arrived
   gnssSample sample{};
@@ -1549,6 +1769,18 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   sample.pos_body = Vector3f{INS_EKF2_GPS_POS_X, INS_EKF2_GPS_POS_Y, INS_EKF2_GPS_POS_Z};
   sample.usable = gnss_checks.passed();
   sample.sacc_passes_strict = !(gnss_checks.getStrictFailFlags() & vehicle_gnss_s::CHECK_SACC);
+  {
+    // Flags: the sample (bits 0-3), and to find why a sample isn't usable, the state of the GNSS checks (bits 4-5),
+    // their inputs (bits 6-8), and the checks the sample failed at the strict and relaxed thresholds (GNSS_CHECK_*)
+    int32_t flags = (sample.usable << 0) | (sample.sacc_passes_strict << 1) | (sample.spoofed << 2) | (sample.jammed << 3)
+                    | (gnss_checks.strict() << 4) | (gnss_checks.passedStrict() << 5)
+                    | (at_rest << 6) | (ekf2.armed << 7) | (ekf2.in_air << 8);
+    int32_t ints[7] = {lla_pos.lat, lla_pos.lon, sample.fix_type, sample.nsats, flags,
+                       gnss_checks.getStrictFailFlags(), gnss_checks.getRelaxedFailFlags()};
+    float values[11] = {sample.alt, sample.vel(0), sample.vel(1), sample.vel(2), sample.hacc, sample.vacc, sample.sacc,
+                        sample.pdop, sample.pos_body(0), sample.pos_body(1), sample.pos_body(2)};
+    ekf2_log(EKF2_IN_GNSS, sample.time_us, 7, ints, 11, values);
+  }
   ekf.setGpsData(sample);
 
 }
@@ -1556,6 +1788,9 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 /* Update the heading from the relative position (dual antenna RTK GNSS) */
 static void relpos_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, struct RelPosNED *relpos)
 {
+  if (!ekf2_input_enabled()) {
+    return;
+  }
   // Verify if we received a valid heading
   if (
 #ifdef INS_EKF2_RELHEADING_REF_ID
@@ -1577,6 +1812,11 @@ static void relpos_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp,
   yaw_sample.yaw_acc = (PX4_ISFINITE(relpos->heading_acc) && relpos->heading_acc > 0.f) ? relpos->heading_acc : NAN;
   yaw_sample.yaw_offset = RadOfDeg(INS_EKF2_GPS_YAW_OFFSET);
   yaw_sample.usable = true;
+  {
+    int32_t usable = yaw_sample.usable;
+    float values[3] = {yaw_sample.yaw, yaw_sample.yaw_acc, yaw_sample.yaw_offset};
+    ekf2_log(EKF2_IN_GNSS_YAW, yaw_sample.time_us, 1, &usable, 3, values);
+  }
   ekf.setGnssYawData(yaw_sample);
 #else
   (void)stamp;
@@ -1593,6 +1833,9 @@ static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
                             float quality,
                             float size_divergence __attribute__((unused)))
 {
+  if (!ekf2_input_enabled()) {
+    return;
+  }
   // Wait for two measurements in order to know the integration time
   if (ekf2.flow_stamp <= 0) {
     ekf2.flow_stamp = stamp;
@@ -1609,6 +1852,11 @@ static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
   sample.gyro_rate = Vector3f{NAN, NAN, NAN}; // the EKF uses its own gyro measurements
   sample.quality = quality;                   // quality indicator between 0 and 255
 
+  {
+    int32_t quality = sample.quality;
+    float values[5] = {sample.flow_rate(0), sample.flow_rate(1), sample.gyro_rate(0), sample.gyro_rate(1), sample.gyro_rate(2)};
+    ekf2_log(EKF2_IN_FLOW, sample.time_us, 1, &quality, 5, values);
+  }
   // Update the optical flow data based on the callback
   ekf.setOpticalFlowData(sample);
 }
