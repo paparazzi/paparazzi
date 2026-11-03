@@ -34,9 +34,6 @@
       <!-- Forward FuelCell data back to the GCS -->
       <!--module name="generic_uart_sensor"/-->
 
-      <!-- Logger -->
-      <module name="flight_recorder"/>
-
       <!--define name="ADC_CURRENT_DISABLE" value="TRUE"/-->
       <module name="adc_generic">
         <configure name="ADC_CHANNEL_GENERIC1" value="ADC_4"/>
@@ -72,6 +69,7 @@
     </target>
 
     <module name="preflight_checks"/>
+    <module name="flight_recorder"/>
     <module name="telemetry"     type="transparent">
       <configure name="MODEM_BAUD" value="B115200"/>
       <configure name="MODEM_PORT" value="usb_serial"/>
