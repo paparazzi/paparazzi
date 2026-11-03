@@ -624,6 +624,257 @@ static void send_external_pose_down(struct transport_tx *trans, struct link_devi
 }
 #endif
 
+/*
+ * EKF events and status changes as text (INFO_MSG) to the GCS and the flight recorder
+ */
+#ifndef INS_EKF2_EVENT_MSGS
+#define INS_EKF2_EVENT_MSGS TRUE
+#endif
+
+/** Minimum time between two messages about the same status, so a flickering status can't flood the link [s] */
+#ifndef INS_EKF2_EVENT_HOLDOFF
+#define INS_EKF2_EVENT_HOLDOFF 5.f
+#endif
+
+#if INS_EKF2_EVENT_MSGS
+#include "modules/datalink/downlink.h"
+#if FLIGHTRECORDER_SDLOG
+#include "modules/loggers/pprzlog_tp.h"
+#include "modules/loggers/flight_recorder.h"
+#endif
+
+/** Text of a status bit when it is set and cleared (NULL: not reported) */
+struct ekf2_status_text {
+  uint8_t bit;
+  const char *on;
+  const char *off;
+};
+
+/** Control status bits (filter_control_status_u) */
+static const struct ekf2_status_text ekf2_control_texts[] = {
+  {0,  "tilt aligned", NULL},
+  {1,  "yaw aligned", "yaw alignment lost"},
+  {2,  "GNSS pos fusion on", "GNSS pos fusion off"},
+  {44, "GNSS vel fusion on", "GNSS vel fusion off"},
+  {11, "GNSS hgt fusion on", "GNSS hgt fusion off"},
+  {22, "GNSS yaw fusion on", "GNSS yaw fusion off"},
+  {9,  "baro hgt fusion on", "baro hgt fusion off"},
+  {10, "range hgt fusion on", "range hgt fusion off"},
+  {3,  "flow fusion on", "flow fusion off"},
+  {12, "EV pos fusion on", "EV pos fusion off"},
+  {24, "EV vel fusion on", "EV vel fusion off"},
+  {13, "EV yaw fusion on", "EV yaw fusion off"},
+  {14, "EV hgt fusion on", "EV hgt fusion off"},
+  {4,  "mag hdg fusion on", "mag hdg fusion off"},
+  {5,  "mag 3D fusion on", "mag 3D fusion off"},
+  {19, "airspeed fusion on", "airspeed fusion off"},
+  {15, "sideslip fusion on", "sideslip fusion off"},
+  {16, "mag field disturbed", "mag field ok"},
+  {18, "mag fault", "mag fault cleared"},
+  {45, "GNSS fault", "GNSS fault cleared"},
+  {47, "GNSS hgt fault", "GNSS hgt fault cleared"},
+  {27, "GNSS yaw fault", "GNSS yaw fault cleared"},
+  {43, "baro fault", "baro fault cleared"},
+  {28, "range fault", "range fault cleared"},
+  {36, "EV yaw fault", "EV yaw fault cleared"},
+  {29, "dead reckoning", "dead reckoning ended"},
+  {30, "wind dead reckoning", "wind dead reckoning ended"},
+};
+
+/** Fault status bits (fault_status_u), numerical errors */
+static const struct ekf2_status_text ekf2_fault_texts[] = {
+  {0,  "mag X fusion error", NULL},
+  {1,  "mag Y fusion error", NULL},
+  {2,  "mag Z fusion error", NULL},
+  {3,  "heading fusion error", NULL},
+  {4,  "mag decl fusion error", NULL},
+  {5,  "airspeed fusion error", NULL},
+  {6,  "sideslip fusion error", NULL},
+  {7,  "flow X fusion error", NULL},
+  {8,  "flow Y fusion error", NULL},
+  {10, "bad vertical accel", NULL},
+  {11, "accel clipping", NULL},
+};
+
+/** Information events (information_event_status_u) */
+static const char *const ekf2_info_texts[] = {
+  "GNSS checks passed", "vel reset to GNSS", "vel reset to flow", "vel reset to EV", "vel reset to zero",
+  "pos reset to last known", "pos reset to GNSS", "pos reset to EV", "GNSS fusion started",
+  "EV pos fusion started", "EV vel fusion started", "EV yaw fusion started", "yaw aligned to IMU/GNSS",
+  "hgt reset to baro", "hgt reset to GNSS", "hgt reset to range", "hgt reset to EV",
+  "pos reset to ext obs", "wind reset to ext obs",
+};
+
+#define EKF2_CONTROL_TEXTS_NB (sizeof(ekf2_control_texts) / sizeof(ekf2_control_texts[0]))
+#define EKF2_FAULT_TEXTS_NB (sizeof(ekf2_fault_texts) / sizeof(ekf2_fault_texts[0]))
+#define EKF2_INFO_TEXTS_NB (sizeof(ekf2_info_texts) / sizeof(ekf2_info_texts[0]))
+
+static struct {
+  uint64_t control;                              ///< last reported control status bits
+  uint32_t fault;                                ///< last reported fault status bits
+  float control_time[EKF2_CONTROL_TEXTS_NB];     ///< time of the last message per control bit
+  float fault_time[EKF2_FAULT_TEXTS_NB];         ///< time of the last message per fault bit
+  float last_check;
+  char msg[120];
+  uint8_t len;
+} ekf2_events;
+
+static void ekf2_event_send(void)
+{
+  if (ekf2_events.len == 0) {
+    return;
+  }
+#if defined SITL
+  printf("%s\n", ekf2_events.msg);
+#endif
+#if DOWNLINK
+  DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, ekf2_events.len, ekf2_events.msg);
+#endif
+#if FLIGHTRECORDER_SDLOG
+  if (flightRecorderLogFile != -1) {
+    pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, ekf2_events.len, ekf2_events.msg);
+  }
+#endif
+  ekf2_events.len = 0;
+}
+
+/** Add a text to the message, sent when full or at the end of the check */
+static void ekf2_event_add(const char *text)
+{
+  size_t tlen = strlen(text);
+  if (ekf2_events.len > 0 && ekf2_events.len + 2 + tlen >= sizeof(ekf2_events.msg)) {
+    ekf2_event_send();
+  }
+  int n = snprintf(ekf2_events.msg + ekf2_events.len, sizeof(ekf2_events.msg) - ekf2_events.len,
+                   ekf2_events.len == 0 ? "EKF2: %s" : ", %s", text);
+  if (n > 0) {
+    ekf2_events.len = Min(ekf2_events.len + n, (int)sizeof(ekf2_events.msg) - 1);
+  }
+}
+
+/** Report the changed status bits, at most once per INS_EKF2_EVENT_HOLDOFF per bit */
+template<typename T>
+static void ekf2_event_bits(const struct ekf2_status_text *texts, uint8_t nb, float *times, T &reported, T current, float now)
+{
+  for (uint8_t i = 0; i < nb; i++) {
+    T mask = ((T)1) << texts[i].bit;
+    if ((current & mask) == (reported & mask) || (times[i] > 0.f && now - times[i] < INS_EKF2_EVENT_HOLDOFF)) {
+      continue;
+    }
+    const char *text = (current & mask) ? texts[i].on : texts[i].off;
+    if (text != NULL) {
+      ekf2_event_add(text);
+      times[i] = now;
+    }
+    reported = (reported & ~mask) | (current & mask);
+  }
+}
+
+/** Check the EKF events and status changes (twice per second) */
+static void ins_ekf2_check_events(void)
+{
+  float now = get_sys_time_float();
+  if (now - ekf2_events.last_check < 0.5f) {
+    return;
+  }
+  ekf2_events.last_check = now;
+
+  uint32_t info = ekf.information_event_status().value;
+  ekf.clear_information_events();
+  for (uint8_t i = 0; i < EKF2_INFO_TEXTS_NB; i++) {
+    if (info & (1UL << i)) {
+      ekf2_event_add(ekf2_info_texts[i]);
+    }
+  }
+  ekf2_event_bits<uint64_t>(ekf2_control_texts, EKF2_CONTROL_TEXTS_NB, ekf2_events.control_time,
+                            ekf2_events.control, ekf.control_status().value, now);
+  ekf2_event_bits<uint32_t>(ekf2_fault_texts, EKF2_FAULT_TEXTS_NB, ekf2_events.fault_time,
+                            ekf2_events.fault, ekf.fault_status().value, now);
+  ekf2_event_send();
+}
+#else
+#define ins_ekf2_check_events() {}
+#endif /* INS_EKF2_EVENT_MSGS */
+
+/*
+ * Preflight check: the EKF is aligned, without faults, and uses the configured position source
+ */
+#if PREFLIGHT_CHECKS
+#include "modules/checks/preflight_checks.h"
+
+/** Require the configured position source (GNSS or external vision) to be used before takeoff */
+#ifndef INS_EKF2_PREFLIGHT_POS
+#define INS_EKF2_PREFLIGHT_POS TRUE
+#endif
+
+static struct preflight_check_t ins_ekf2_pfc;
+
+static void ins_ekf2_preflight(struct preflight_result_t *result)
+{
+  const auto &flags = ekf.control_status_flags();
+  uint16_t fail_cnt = result->fail_cnt;
+
+  if (!flags.tilt_align) {
+    preflight_error(result, "EKF2 attitude not aligned");
+  }
+  if (!flags.yaw_align) {
+    preflight_error(result, "EKF2 heading not aligned");
+  }
+  if (ekf.fault_status().value != 0) {
+    preflight_error(result, "EKF2 numerical fault 0x%x", (unsigned int)ekf.fault_status().value);
+  }
+  if (flags.mag_fault || flags.gnss_fault || flags.baro_fault || flags.gnss_hgt_fault || flags.gnss_yaw_fault) {
+    preflight_error(result, "EKF2 sensor fault (mag %d, GNSS %d, baro %d, GNSS hgt %d, GNSS yaw %d)",
+                    flags.mag_fault, flags.gnss_fault, flags.baro_fault, flags.gnss_hgt_fault, flags.gnss_yaw_fault);
+  }
+  if (flags.inertial_dead_reckoning) {
+    preflight_error(result, "EKF2 dead reckoning");
+  }
+
+#if INS_EKF2_PREFLIGHT_POS
+  const int32_t gnss_pos = static_cast<int32_t>(GnssCtrl::HPOS) | static_cast<int32_t>(GnssCtrl::VEL);
+  if ((ekf_params->ekf2_gps_ctrl & gnss_pos) && !(flags.gnss_pos || flags.gnss_vel)) {
+    static const char *const names[] = {"nsats", "pdop", "hacc", "vacc", "sacc", "hdrift", "vdrift", "hspeed",
+                                        "vspeed", "spoofed", "fix", "jammed"
+                                       };
+    char failed[80] = "";
+    uint16_t flags_fail = gnss_checks.getStrictFailFlags();
+    for (uint8_t i = 0; i < sizeof(names) / sizeof(names[0]); i++) {
+      if (flags_fail & (1 << i)) {
+        size_t l = strlen(failed);
+        snprintf(failed + l, sizeof(failed) - l, "%s%s", l ? "," : "", names[i]);
+      }
+    }
+    preflight_error(result, "EKF2 not using GNSS (failed: %s)", failed[0] ? failed : "no data");
+  }
+  const int32_t ev_pos = static_cast<int32_t>(EvCtrl::HPOS) | static_cast<int32_t>(EvCtrl::VEL);
+  if ((ekf_params->ekf2_ev_ctrl & ev_pos) && !(flags.ev_pos || flags.ev_vel)) {
+    preflight_error(result, "EKF2 not using external vision");
+  }
+#endif
+
+  // Innovation test ratios above 1 mean the measurements are rejected
+  const struct { const char *name; float ratio; } innov[] = {
+    {"heading", ekf.getHeadingInnovationTestRatio()},
+    {"velocity", math::max(ekf.getHorizontalVelocityInnovationTestRatio(), ekf.getVerticalVelocityInnovationTestRatio())},
+    {"position", ekf.getHorizontalPositionInnovationTestRatio()},
+    {"height", ekf.getVerticalPositionInnovationTestRatio()},
+  };
+  for (uint8_t i = 0; i < sizeof(innov) / sizeof(innov[0]); i++) {
+    if (PX4_ISFINITE(innov[i].ratio) && innov[i].ratio > 1.f) {
+      preflight_error(result, "EKF2 %s innovation too high (%.1f)", innov[i].name, innov[i].ratio);
+    }
+  }
+
+  if (flags.mag_field_disturbed) {
+    preflight_warning(result, "EKF2 mag field disturbed");
+  }
+  if (result->fail_cnt == fail_cnt) {
+    preflight_success(result, "EKF2 ok");
+  }
+}
+#endif /* PREFLIGHT_CHECKS */
+
 /* Initialize the EKF */
 void ins_ekf2_init(void)
 {
@@ -744,6 +995,10 @@ void ins_ekf2_init(void)
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
   AbiBindMsgAIRSPEED(INS_EKF2_AIRSPEED_ID, &airspeed_ev, airspeed_cb);
   AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
+
+#if PREFLIGHT_CHECKS
+  preflight_check_register(&ins_ekf2_pfc, ins_ekf2_preflight);
+#endif
 }
 
 static void reset_ref(void)
@@ -854,6 +1109,7 @@ void ins_ekf2_update(void)
   if (ekf2.got_imu_data) {
     // Update the EKF but ignore the response and also copy the faster intermediate filter
     ekf.update();
+    ins_ekf2_check_events();
 
     /* Get the accelerations in NED frame (average since the last update) */
     const Vector3f vel_deriv_f{ekf.getVelocityDerivative()};

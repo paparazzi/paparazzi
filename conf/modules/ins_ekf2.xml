@@ -57,6 +57,9 @@
     <define name="INS_EKF2_MAG_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for magnetic measurements"/>
     <define name="INS_EKF2_GPS_ID" value="GPS_MULTI_ID" description="ABI sensor ID used ad input for GPS measurements"/>
     <define name="INS_EKF2_RELPOS_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for Relative Position heading measurements"/>
+    <define name="INS_EKF2_EVENT_MSGS" value="TRUE|FALSE" description="Send the EKF events and status changes (alignment, fusion started/stopped, resets, faults) as INFO_MSG to the GCS and the flight recorder (default: TRUE)"/>
+    <define name="INS_EKF2_EVENT_HOLDOFF" value="5" unit="s" description="Minimum time between two messages about the same status (default: 5 s)"/>
+    <define name="INS_EKF2_PREFLIGHT_POS" value="TRUE|FALSE" description="Preflight check: require the configured position source (GNSS or external vision) to be used (default: TRUE)"/>
     <define name="INS_EKF2_FORCE_NAV_REF" value="FALSE|TRUE" description="force to use the reference defined in the flight plan and not the one computed by the filter after first good GPS position"/>
 
     <configure name="USE_ALT_LLA_WAYPOINTS" value="FALSE|TRUE" description="Use LLA altitude instead of LTP z for long distance flight (default=TRUE)"/>
