@@ -1,6 +1,7 @@
 <control_panel name="paparazzi control panel">
   <section name="programs">
     <program name="UnifiedMoCap" command="sw/ext/unifiedmocaprouter/build/mocap-router"/>
+    <program name="GST" command="/usr/bin/gst-launch-1.0"/>
   </section>
   <section name="sessions">
 
