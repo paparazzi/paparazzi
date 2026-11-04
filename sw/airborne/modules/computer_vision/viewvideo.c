@@ -93,6 +93,23 @@ PRINT_CONFIG_VAR(VIEWVIDEO_USE_RTP)
 
 /* These are defined with configure */
 PRINT_CONFIG_VAR(VIEWVIDEO_HOST)
+
+// Host "auto" (set by video_rtp_stream.xml when VIEWVIDEO_HOST is auto, the default when MODEM_HOST is auto):
+// send to the GCS computers found by the telemetry link (see udp_arch.c)
+#ifndef VIEWVIDEO_AUTO_HOST
+#define VIEWVIDEO_AUTO_HOST 0
+#endif
+#if VIEWVIDEO_AUTO_HOST
+#include "mcu_periph/udp_arch.h"
+#ifndef VIEWVIDEO_AUTO_MAX_GCS
+#define VIEWVIDEO_AUTO_MAX_GCS 4
+#endif
+#define VIEWVIDEO_SOCKET_HOST "255.255.255.255"
+#define VIEWVIDEO_SOCKET_BROADCAST true
+#else
+#define VIEWVIDEO_SOCKET_HOST STRINGIFY(VIEWVIDEO_HOST)
+#define VIEWVIDEO_SOCKET_BROADCAST VIEWVIDEO_BROADCAST
+#endif
 PRINT_CONFIG_VAR(VIEWVIDEO_PORT_OUT)
 PRINT_CONFIG_VAR(VIEWVIDEO_PORT2_OUT)
 
@@ -171,6 +188,21 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
     }
 #else
     if (viewvideo.use_rtp) {
+#if VIEWVIDEO_AUTO_HOST
+      // Host "auto": to every GCS found by the telemetry link (unicast: Wi-Fi retries lost frames),
+      // broadcast when there is none; every GCS gets the same RTP sequence numbers and timestamps
+      struct in_addr gcs[VIEWVIDEO_AUTO_MAX_GCS];
+      int nb_gcs = udp_arch_auto_gcs(gcs, VIEWVIDEO_AUTO_MAX_GCS);
+      uint16_t packet_nr = *rtp_packet_nr;
+      uint32_t frame_time = *rtp_frame_time;
+      for (int i = 0; i < (nb_gcs > 0 ? nb_gcs : 1); i++) {
+        viewvideo_socket->addr_out.sin_addr.s_addr = nb_gcs > 0 ? gcs[i].s_addr : htonl(INADDR_BROADCAST);
+        *rtp_packet_nr = packet_nr;
+        *rtp_frame_time = frame_time;
+        rtp_frame_send(viewvideo_socket, img_jpeg, 0, VIEWVIDEO_QUALITY_FACTOR, 0, VIEWVIDEO_FPS,
+                       rtp_packet_nr, rtp_frame_time);
+      }
+#else
       // Send image with RTP
       rtp_frame_send(
         viewvideo_socket,         // UDP socket
@@ -183,6 +215,7 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
         rtp_packet_nr,
         rtp_frame_time
       );
+#endif
     }
 #endif
   }
@@ -245,16 +278,16 @@ void viewvideo_init(void)
     printf("[viewvideo] Failed to create netcat receiver file.\n");
   }
 #else
-  // Open udp socket
+  // Open udp socket (host "auto": broadcast socket, the destination is set per frame)
 #ifdef VIEWVIDEO_CAMERA
-  if (udp_socket_create(&video_sock1, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST)) {
+  if (udp_socket_create(&video_sock1, VIEWVIDEO_SOCKET_HOST, VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_SOCKET_BROADCAST)) {
     printf("[viewvideo]: failed to open view video socket, HOST=%s, port=%d\n", STRINGIFY(VIEWVIDEO_HOST),
            VIEWVIDEO_PORT_OUT);
   }
 #endif
 
 #ifdef VIEWVIDEO_CAMERA2
-  if (udp_socket_create(&video_sock2, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT2_OUT, -1, VIEWVIDEO_BROADCAST)) {
+  if (udp_socket_create(&video_sock2, VIEWVIDEO_SOCKET_HOST, VIEWVIDEO_PORT2_OUT, -1, VIEWVIDEO_SOCKET_BROADCAST)) {
     printf("[viewvideo]: failed to open view video socket, HOST=%s, port=%d\n", STRINGIFY(VIEWVIDEO_HOST),
            VIEWVIDEO_PORT2_OUT);
   }
