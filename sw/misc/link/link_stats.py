@@ -8,7 +8,8 @@ Combines, from the Ivy bus:
   LINK_REPORT         Paparazzi's link on this laptop
 and shows per leg (UART, Herelink radio, Wi-Fi) and direction the frames sent and received per second, the
 loss, the frames rejected (errors) or not sent, and the longest time without a frame. Without the routers
-(e.g. a Bebop on Wi-Fi) the autopilot and link are compared directly.
+(e.g. a Bebop on Wi-Fi) the autopilot and link are compared directly, and the signal of this laptop's Wi-Fi
+is shown when the uplink goes over it (Linux).
 
 Columns: sent/s and got/s at both ends of the leg, lost, reject (frames with a bad checksum or length at the
 receiving end), unsent (frames the sending end could not send) and the longest time without a frame.
@@ -17,6 +18,7 @@ Usage: link_stats.py [-b IVY_BUS] [-w WINDOW_S] [--duration S] [--ac AC_ID]
 """
 import argparse
 import os
+import subprocess
 import sys
 import threading
 import time
@@ -32,7 +34,7 @@ ROUTER_REPORT = ["node", "uptime", "down_rx_msgs", "down_rx_err", "down_tx_msgs"
                  "up_rx_err", "up_tx_msgs", "up_tx_err", "up_dropped", "down_max_gap", "up_max_gap", "nb_gcs",
                  "rssi", "snr"]
 LINK_REPORT = ["ac_id", "link_id", "run_time", "rx_lost_time", "rx_bytes", "rx_msgs", "rx_err", "rx_bytes_rate",
-               "rx_msgs_rate", "tx_msgs", "ping_time", "tx_err", "peer"]
+               "rx_msgs_rate", "tx_msgs", "ping_time", "tx_err", "peer", "rx_max_gap"]
 # counters that wrap (number of bits)
 WRAP = {"uplink_nb_msgs": 16, "downlink_nb_msgs": 16, "downlink_ovrn": 8, "uplink_err": 8, "uplink_ovrn": 8}
 UNKNOWN = 127
@@ -64,11 +66,24 @@ class Source:
         self.hist.append((now, values))
         self.last = values
         self.count += 1
-        while self.hist and now - self.hist[0][0] > self.window:
+        # keep one report older than the window: slow reports (DATALINK_REPORT every 5 s) still give a rate
+        while len(self.hist) > 2 and now - self.hist[1][0] > self.window:
             self.hist.popleft()
 
-    def fresh(self, max_age=3.0):
-        return self.hist and time.time() - self.hist[-1][0] < max_age
+    def period(self):
+        """Time between two reports (None if unknown)"""
+        if len(self.hist) < 2:
+            return None
+        return (self.hist[-1][0] - self.hist[0][0]) / (len(self.hist) - 1)
+
+    def age(self):
+        return time.time() - self.hist[-1][0] if self.hist else None
+
+    def fresh(self):
+        """A report came in the last 3 s, or in the last 2.5 report periods for the slow ones"""
+        if not self.hist:
+            return False
+        return self.age() < max(3.0, 2.5 * (self.period() or 5.0))  # one report only: period unknown
 
     def delta(self, key):
         """Increase of a counter over the window (None if unknown)"""
@@ -91,7 +106,9 @@ class Source:
         return (len(self.hist) - 1) / (self.hist[-1][0] - self.hist[0][0])
 
     def max(self, key):
-        vals = [v[key] for _, v in self.hist if key in v]
+        """Largest value over the window (the report kept from before the window not included)"""
+        now = time.time()
+        vals = [v[key] for t, v in self.hist if key in v and now - t <= self.window]
         return max(vals) if vals else None
 
 
@@ -135,7 +152,36 @@ def fmt_count(c):
 
 
 def fmt_gap(g):
-    return "      -" if g is None else ("  >65 s" if g >= 65535 else "%4d ms" % g)
+    if g is None:
+        return "      -"
+    if g >= 65535 and g < 65536:
+        return "  >65 s"  # the routers' counter is full
+    return "%4d ms" % g if g < 10000 else "%5.0f s" % (g / 1000.0)
+
+
+_wifi_cache = {}
+
+
+def wifi_signal(peer):
+    """Signal (dBm) of this laptop's Wi-Fi when the uplink to peer ("ip:port") goes over Wi-Fi (Linux), else None"""
+    ip = peer.rsplit(":", 1)[0]
+    now = time.time()
+    if ip in _wifi_cache and now - _wifi_cache[ip][0] < 1.0:
+        return _wifi_cache[ip][1]
+    level = None
+    try:
+        route = subprocess.run(["ip", "route", "get", ip], capture_output=True, text=True, timeout=1).stdout.split()
+        dev = route[route.index("dev") + 1] if "dev" in route else None
+        with open("/proc/net/wireless") as f:
+            for line in f.readlines()[2:]:
+                name, vals = line.split(":", 1)
+                if name.strip() == dev:
+                    level = int(float(vals.split()[2]))
+                    level = level - 256 if level > 0 else level  # old drivers: unsigned dBm
+    except (OSError, ValueError, IndexError, subprocess.SubprocessError):
+        pass
+    _wifi_cache[ip] = (now, level)
+    return level
 
 
 def legs(s):
@@ -144,7 +190,10 @@ def legs(s):
     has_air, has_ground = air.fresh(), ground.fresh()
     rows = []
     # Downlink
-    down_src = (ap.rate("downlink_nb_msgs"), ap.delta("downlink_ovrn"))
+    down_sent = ap.rate("downlink_nb_msgs") if ap.fresh() else None
+    if not down_sent:
+        down_sent = None  # 0: firmware that does not count its frames (pprzlink before link-stats)
+    down_src = (down_sent, ap.delta("downlink_ovrn") if ap.fresh() else None)
     if has_air:
         rows.append(("down", "UART", down_src[0], air.rate("down_rx_msgs"), air.delta("down_rx_err"), down_src[1],
                      air.max("down_max_gap")))
@@ -156,7 +205,7 @@ def legs(s):
         r, b = ground.rate("down_rx_msgs"), ground.report_rate()
         down_src = (None if r is None else r + (b or 0), ground.delta("down_tx_err"))
     rows.append(("down", "Wi-Fi" if has_ground else "to laptop", down_src[0], link.rate("rx_msgs"),
-                 link.delta("rx_err"), down_src[1], None))
+                 link.delta("rx_err"), down_src[1], link.max("rx_max_gap")))
     # Uplink (only this laptop's link is seen: with several laptops the Wi-Fi uplink loss is not known)
     nb_gcs = ground.last.get("nb_gcs") if has_ground else None
     up_sent = (link.rate("tx_msgs"), link.delta("tx_err"))
@@ -170,10 +219,9 @@ def legs(s):
         rows.append(("up", "radio" if has_ground else "to air unit", up_sent[0], air.rate("up_rx_msgs"),
                      air.delta("up_rx_err"), up_sent[1], air.max("up_max_gap")))
         up_sent = (air.rate("up_tx_msgs"), air.delta("up_tx_err"))
-    ap_err = None
-    if ap.delta("uplink_err") is not None:
-        ap_err = ap.delta("uplink_err")
-    rows.append(("up", "UART" if has_air else "to autopilot", up_sent[0], ap.rate("uplink_nb_msgs"), ap_err,
+    ap_err = ap.delta("uplink_err") if ap.fresh() else None
+    rows.append(("up", "UART" if has_air else "to autopilot", up_sent[0],
+                 ap.rate("uplink_nb_msgs") if ap.fresh() else None, ap_err,
                  up_sent[1], None))
     return rows
 
@@ -188,9 +236,14 @@ def render(stats, only_ac=None):
             link, ground, air = s["link"].last or {}, s["ground"].last or {}, s["air"].last or {}
             info = ["A/C %d" % ac_id]
             if link:
-                info.append("uplink to %s" % link.get("peer", "?"))
+                peer = str(link.get("peer", "?"))
+                info.append("uplink to %s" % peer)
                 ping = link.get("ping_time", -1)
                 info.append(("ping %.0f ms" % ping) if 0 <= ping < 60000 else "no ping reply yet")
+                if not s["air"].fresh() and not s["ground"].fresh() and ":" in peer:
+                    level = wifi_signal(peer)
+                    if level is not None:
+                        info.append("laptop Wi-Fi %d dBm" % level)
             if s["ground"].fresh():
                 info.append("laptops found by the handheld: %d" % ground.get("nb_gcs", 0))
                 if ground.get("rssi", UNKNOWN) != UNKNOWN:
@@ -206,8 +259,17 @@ def render(stats, only_ac=None):
                 out.append("%-4s %-12s %s %s %s  %s   %s  %s" % (d, leg, fmt_rate(sent), fmt_rate(got),
                                                                fmt_loss(sent, got), fmt_count(rej), fmt_count(nots),
                                                                fmt_gap(gap)))
-            if not s["ap"].fresh():
-                out.append("(no DATALINK_REPORT from the autopilot: add it to the telemetry for the UART leg)")
+            # always one note line per A/C, so the screen does not jump
+            note = ""
+            lost = link.get("rx_lost_time", 0) if link else 0
+            if isinstance(lost, (int, float)) and lost >= 3:
+                note = "(nothing heard from the A/C for %d s)" % lost
+            elif s["ap"].count == 0:
+                if s["link"].count >= 15:  # the link reports every second: DATALINK_REPORT is every 5 s or so
+                    note = "(no DATALINK_REPORT from the autopilot: add it to the telemetry)"
+            elif not s["ap"].fresh():
+                note = "(last DATALINK_REPORT %.0f s ago)" % s["ap"].age()
+            out.append(note)
     if len(out) == 1:
         out.append("no aircraft yet")
     return "\n".join(out)
@@ -232,11 +294,22 @@ def main():
         if args.duration is not None:
             time.sleep(args.duration)
             print(render(stats, args.ac))
-        else:
-            while True:
+        elif not sys.stdout.isatty():
+            while True:  # piped or logged: one block per second
                 time.sleep(1)
-                text = render(stats, args.ac)
-                sys.stdout.write("\033[2J\033[H" + text + "\n")
+                print(render(stats, args.ac) + "\n", flush=True)
+        else:
+            # alternate screen (like top): redrawn in place, nothing added to the terminal history
+            sys.stdout.write("\033[?1049h\033[?25l")
+            try:
+                while True:
+                    text = render(stats, args.ac)
+                    # home, each line cleared to its end, then the rest of the screen cleared
+                    sys.stdout.write("\033[H" + "\033[K\n".join(text.split("\n")) + "\033[K\n\033[J")
+                    sys.stdout.flush()
+                    time.sleep(1)
+            finally:
+                sys.stdout.write("\033[?25h\033[?1049l")
                 sys.stdout.flush()
     except KeyboardInterrupt:
         pass
