@@ -1,0 +1,205 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1040" viewBox="0 0 1200 1040" font-family="Helvetica, Arial, sans-serif" font-size="13">
+  <defs>
+    <marker id="aBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f6fd1"/></marker>
+    <marker id="aOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d9771f"/></marker>
+    <marker id="aPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8a3fc4"/></marker>
+    <style>
+      .box{fill:#f6f8fb;stroke:#4a5568;stroke-width:1.3}
+      .net{fill:#eef6ee;stroke:#3a8a3a;stroke-width:1.5;stroke-dasharray:6 4}
+      .t{fill:#1a202c}
+      .s{fill:#4a5568;font-size:11.5px}
+      .loss{fill:#b83232;font-size:11px}
+      .leg{fill:#1a202c;font-size:11.5px;font-weight:bold}
+      .h{font-weight:bold;font-size:16px;fill:#1a202c}
+      .down{stroke:#1f6fd1;stroke-width:2;fill:none}
+      .up{stroke:#d9771f;stroke-width:2;fill:none}
+      .bc{stroke:#8a3fc4;stroke-width:2;fill:none;stroke-dasharray:6 4}
+      .life{stroke:#a0aec0;stroke-width:1.2;stroke-dasharray:4 4}
+      .stat{fill:#2f855a}
+      .statt{fill:#fff;font-weight:bold;font-size:12px}
+      .th{font-weight:bold;font-size:12px;fill:#1a202c}
+      .td{font-size:12px;fill:#2d3748}
+    </style>
+  </defs>
+  <rect width="1200" height="1040" fill="#ffffff"/>
+  <text x="20" y="30" class="h" font-size="18">Herelink pprzlink: every leg of the link, unicast with discovery, several drones and GCS computers</text>
+
+  <!-- ===================== Panel 1 ===================== -->
+  <text x="20" y="60" class="h">1. The legs (same for the own hotspot and for an existing 5 GHz Wi-Fi network)</text>
+
+  <!-- Herelink drone 1 chain -->
+  <rect x="20" y="96" width="120" height="58" rx="6" class="box"/>
+  <text x="80" y="120" text-anchor="middle" class="t">Autopilot</text>
+  <text x="80" y="137" text-anchor="middle" class="s">ac_id 1</text>
+
+  <rect x="240" y="96" width="130" height="58" rx="6" class="box"/>
+  <text x="305" y="118" text-anchor="middle" class="t">Air unit</text>
+  <text x="305" y="135" text-anchor="middle" class="s">router -n -p</text>
+
+  <rect x="520" y="90" width="140" height="70" rx="6" class="box"/>
+  <text x="590" y="111" text-anchor="middle" class="t">Handheld 1</text>
+  <text x="590" y="128" text-anchor="middle" class="s">router app (-p, auto)</text>
+  <text x="590" y="144" text-anchor="middle" class="s">Wi-Fi client or hotspot</text>
+
+  <!-- UART leg -->
+  <text x="190" y="84" text-anchor="middle" class="leg">UART leg</text>
+  <line x1="140" y1="114" x2="240" y2="114" class="down" marker-end="url(#aBlue)"/>
+  <line x1="240" y1="136" x2="140" y2="136" class="up" marker-end="url(#aOrange)"/>
+  <text x="190" y="172" text-anchor="middle" class="s">460800 Bd, byte stream</text>
+  <text x="190" y="188" text-anchor="middle" class="loss">overruns (no flow control),</text>
+  <text x="190" y="202" text-anchor="middle" class="loss">autopilot TX buffer full</text>
+
+  <!-- radio leg -->
+  <text x="445" y="84" text-anchor="middle" class="leg">Herelink radio leg</text>
+  <line x1="370" y1="114" x2="520" y2="114" class="down" marker-end="url(#aBlue)"/>
+  <line x1="520" y1="136" x2="370" y2="136" class="up" marker-end="url(#aOrange)"/>
+  <path d="M400,125 l8,-6 l8,12 l8,-12 l8,12 l8,-12 l8,12 l8,-12 l8,12 l8,-12 l8,12 l8,-6" stroke="#718096" stroke-width="1.3" fill="none"/>
+  <text x="445" y="172" text-anchor="middle" class="s">UDP .0.10:5243 ↔ .0.11:5242</text>
+  <text x="445" y="188" text-anchor="middle" class="loss">range, interference, video first,</text>
+  <text x="445" y="202" text-anchor="middle" class="loss">queuing inside Herelink (unknown)</text>
+
+  <!-- Wi-Fi leg -->
+  <text x="710" y="84" text-anchor="middle" class="leg">Wi-Fi leg</text>
+  <line x1="660" y1="108" x2="760" y2="108" class="down" marker-end="url(#aBlue)"/>
+  <line x1="760" y1="124" x2="660" y2="124" class="up" marker-end="url(#aOrange)"/>
+  <line x1="660" y1="140" x2="760" y2="140" class="bc" marker-end="url(#aPurple)"/>
+  <text x="710" y="172" text-anchor="middle" class="s">UDP :4242 / :4243</text>
+  <text x="710" y="188" text-anchor="middle" class="loss">congestion,</text>
+  <text x="710" y="202" text-anchor="middle" class="loss">power save</text>
+
+  <!-- Herelink drone 2 (compact) -->
+  <rect x="20" y="236" width="640" height="44" rx="6" class="box"/>
+  <text x="340" y="256" text-anchor="middle" class="t">Herelink drone 2, 3, … : the same chain, one Herelink pair each</text>
+  <text x="340" y="272" text-anchor="middle" class="s">(each pair has its own radio, always 192.168.0.10/.11, so the pairs never see each other)</text>
+  <line x1="660" y1="250" x2="760" y2="250" class="down" marker-end="url(#aBlue)"/>
+  <line x1="760" y1="262" x2="660" y2="262" class="up" marker-end="url(#aOrange)"/>
+  <line x1="660" y1="274" x2="760" y2="274" class="bc" marker-end="url(#aPurple)"/>
+
+  <!-- Bebop -->
+  <rect x="20" y="300" width="640" height="44" rx="6" class="box"/>
+  <text x="340" y="320" text-anchor="middle" class="t">Bebop / other Linux autopilot: UDP straight on the Wi-Fi network</text>
+  <text x="340" y="336" text-anchor="middle" class="s">today MODEM_HOST = broadcast address; proposed MODEM_HOST=auto (same discovery as the handheld router)</text>
+  <line x1="660" y1="314" x2="760" y2="314" class="down" marker-end="url(#aBlue)"/>
+  <line x1="760" y1="326" x2="660" y2="326" class="up" marker-end="url(#aOrange)"/>
+  <line x1="660" y1="338" x2="760" y2="338" class="bc" marker-end="url(#aPurple)"/>
+
+  <!-- Wi-Fi network -->
+  <rect x="760" y="76" width="150" height="276" rx="16" class="net"/>
+  <text x="835" y="100" text-anchor="middle" class="t" font-weight="bold">Wi-Fi (5 GHz)</text>
+  <text x="835" y="120" text-anchor="middle" class="s">existing AP / router,</text>
+  <text x="835" y="135" text-anchor="middle" class="s">or the hotspot of</text>
+  <text x="835" y="150" text-anchor="middle" class="s">one handheld</text>
+  <text x="835" y="176" text-anchor="middle" class="s">no client isolation</text>
+  <text x="835" y="191" text-anchor="middle" class="s">(eduroam won't work)</text>
+
+  <!-- Laptops -->
+  <rect x="970" y="90" width="210" height="96" rx="6" class="box"/>
+  <text x="1075" y="110" text-anchor="middle" class="t">Laptop A</text>
+  <text x="1075" y="128" text-anchor="middle" class="s">link -udp (:4242)</text>
+  <text x="1075" y="144" text-anchor="middle" class="s">→ server → GCS</text>
+  <text x="1075" y="160" text-anchor="middle" class="s">sees every drone</text>
+  <text x="1075" y="176" text-anchor="middle" class="s">no IP configuration</text>
+  <rect x="970" y="240" width="210" height="80" rx="6" class="box"/>
+  <text x="1075" y="260" text-anchor="middle" class="t">Laptop B</text>
+  <text x="1075" y="278" text-anchor="middle" class="s">link -udp (:4242) → server → GCS</text>
+  <text x="1075" y="294" text-anchor="middle" class="s">started later:</text>
+  <text x="1075" y="310" text-anchor="middle" class="s">finds the drones by the beacon</text>
+  <line x1="910" y1="116" x2="970" y2="116" class="down" marker-end="url(#aBlue)"/>
+  <line x1="970" y1="132" x2="910" y2="132" class="up" marker-end="url(#aOrange)"/>
+  <line x1="910" y1="148" x2="970" y2="148" class="bc" marker-end="url(#aPurple)"/>
+  <line x1="910" y1="262" x2="970" y2="262" class="down" marker-end="url(#aBlue)"/>
+  <line x1="970" y1="278" x2="910" y2="278" class="up" marker-end="url(#aOrange)"/>
+  <line x1="910" y1="294" x2="970" y2="294" class="bc" marker-end="url(#aPurple)"/>
+
+  <!-- stats markers -->
+  <circle cx="80" cy="96" r="10" class="stat"/><text x="80" y="100" text-anchor="middle" class="statt">1</text>
+  <circle cx="305" cy="96" r="10" class="stat"/><text x="305" y="100" text-anchor="middle" class="statt">2</text>
+  <circle cx="590" cy="90" r="10" class="stat"/><text x="590" y="94" text-anchor="middle" class="statt">3</text>
+  <circle cx="1075" cy="90" r="10" class="stat"/><text x="1075" y="94" text-anchor="middle" class="statt">4</text>
+
+  <!-- Legend -->
+  <g transform="translate(20,362)">
+    <rect x="0" y="0" width="1160" height="76" rx="6" fill="#fafafa" stroke="#e2e8f0"/>
+    <line x1="14" y1="20" x2="54" y2="20" class="down" marker-end="url(#aBlue)"/>
+    <text x="62" y="24" class="t">telemetry. On Wi-Fi: plain UDP, unicast to every laptop heard from in the last ~15 s (no queue in the router, never resent later)</text>
+    <line x1="14" y1="44" x2="54" y2="44" class="up" marker-end="url(#aOrange)"/>
+    <text x="62" y="48" class="t">uplink. Plain UDP, unicast to the handheld/drone the frames came from; to the radio only if for this drone or for all drones</text>
+    <line x1="14" y1="66" x2="54" y2="66" class="bc" marker-end="url(#aPurple)"/>
+    <text x="62" y="70" class="t">beacon: 1 Hz statistics frame, broadcast (the only broadcast left), so a laptop started later finds the drone</text>
+  </g>
+
+  <!-- Loss table -->
+  <g transform="translate(20,452)">
+    <text x="0" y="14" class="th">Where frames get lost: counters at points 1–4, compared every second</text>
+    <rect x="0" y="22" width="1160" height="98" rx="6" fill="#fff" stroke="#e2e8f0"/>
+    <text x="12" y="42" class="th">Leg</text>
+    <text x="170" y="42" class="th">Downlink lost =</text>
+    <text x="640" y="42" class="th">Uplink lost =</text>
+    <text x="12" y="64" class="td">UART (1↔2)</text>
+    <text x="170" y="64" class="td">autopilot sent (DATALINK_REPORT) − air router got from UART</text>
+    <text x="640" y="64" class="td">air router wrote to UART − autopilot got (DATALINK_REPORT + errors)</text>
+    <text x="12" y="86" class="td">Herelink radio (2↔3)</text>
+    <text x="170" y="86" class="td">air router sent − handheld router got from radio</text>
+    <text x="640" y="86" class="td">handheld router sent to radio − air router got</text>
+    <text x="12" y="108" class="td">Wi-Fi (3↔4)</text>
+    <text x="170" y="108" class="td">handheld router sent to the laptop − link got (LINK_REPORT)</text>
+    <text x="640" y="108" class="td">link sent − handheld router got from that laptop</text>
+  </g>
+
+  <!-- ===================== Panel 2: sequence ===================== -->
+  <text x="20" y="612" class="h">2. How a laptop finds a drone and a command goes up (no IP addresses configured anywhere)</text>
+  <g text-anchor="middle">
+    <rect x="40" y="628" width="120" height="30" rx="5" class="box"/><text x="100" y="648" class="t">Autopilot</text>
+    <rect x="250" y="628" width="130" height="30" rx="5" class="box"/><text x="315" y="648" class="t">Air router</text>
+    <rect x="470" y="628" width="160" height="30" rx="5" class="box"/><text x="550" y="648" class="t">Handheld router</text>
+    <rect x="780" y="628" width="140" height="30" rx="5" class="box"/><text x="850" y="648" class="t">link (laptop A)</text>
+    <rect x="1030" y="628" width="140" height="30" rx="5" class="box"/><text x="1100" y="648" class="t">link (laptop B)</text>
+  </g>
+  <line x1="100" y1="658" x2="100" y2="1030" class="life"/>
+  <line x1="315" y1="658" x2="315" y2="1030" class="life"/>
+  <line x1="550" y1="658" x2="550" y2="1030" class="life"/>
+  <line x1="850" y1="658" x2="850" y2="1030" class="life"/>
+  <line x1="1100" y1="658" x2="1100" y2="1030" class="life"/>
+  <g text-anchor="middle" class="s">
+    <text x="207" y="672" class="s">UART</text>
+    <text x="432" y="672" class="s">radio</text>
+    <text x="700" y="672" class="s">Wi-Fi</text>
+  </g>
+
+  <!-- a -->
+  <line x1="100" y1="694" x2="312" y2="694" class="down" marker-end="url(#aBlue)"/>
+  <line x1="315" y1="694" x2="547" y2="694" class="down" marker-end="url(#aBlue)"/>
+  <text x="108" y="688" class="s">a. telemetry; both routers learn ac_id</text>
+  <text x="560" y="698" class="s">no laptop known yet: no telemetry on Wi-Fi</text>
+  <!-- b -->
+  <line x1="550" y1="728" x2="847" y2="728" class="bc" marker-end="url(#aPurple)"/>
+  <line x1="850" y1="728" x2="1097" y2="728" class="bc" marker-end="url(#aPurple)"/>
+  <text x="560" y="722" class="s">b. beacon to the subnet broadcast :4242, 1 Hz</text>
+  <!-- c -->
+  <line x1="850" y1="764" x2="553" y2="764" class="up" marker-end="url(#aOrange)"/>
+  <line x1="550" y1="764" x2="318" y2="764" class="up" marker-end="url(#aOrange)"/>
+  <line x1="315" y1="764" x2="103" y2="764" class="up" marker-end="url(#aOrange)"/>
+  <text x="560" y="758" class="s">c. new drone → link sends PING at once</text>
+  <text x="560" y="780" class="s">handheld router: laptop A added</text>
+  <!-- d -->
+  <line x1="100" y1="806" x2="312" y2="806" class="down" marker-end="url(#aBlue)"/>
+  <line x1="315" y1="806" x2="547" y2="806" class="down" marker-end="url(#aBlue)"/>
+  <line x1="550" y1="806" x2="847" y2="806" class="down" marker-end="url(#aBlue)"/>
+  <text x="108" y="800" class="s">d. PONG and all telemetry, unicast to laptop A</text>
+  <!-- e -->
+  <line x1="850" y1="846" x2="553" y2="846" class="up" marker-end="url(#aOrange)"/>
+  <line x1="550" y1="846" x2="318" y2="846" class="up" marker-end="url(#aOrange)"/>
+  <line x1="315" y1="846" x2="103" y2="846" class="up" marker-end="url(#aOrange)"/>
+  <text x="560" y="840" class="s">e. SETTING / BLOCK (sent once; GCS retries if no confirmation)</text>
+  <line x1="100" y1="870" x2="312" y2="870" class="down" marker-end="url(#aBlue)"/>
+  <line x1="315" y1="870" x2="547" y2="870" class="down" marker-end="url(#aBlue)"/>
+  <line x1="550" y1="870" x2="847" y2="870" class="down" marker-end="url(#aBlue)"/>
+  <text x="108" y="886" class="s">DL_VALUE / NAVIGATION confirmation</text>
+  <!-- f -->
+  <line x1="1100" y1="920" x2="553" y2="920" class="up" marker-end="url(#aOrange)"/>
+  <text x="560" y="914" class="s">f. laptop B got the beacon, sends PING → added</text>
+  <line x1="550" y1="946" x2="847" y2="946" class="down" marker-end="url(#aBlue)"/>
+  <line x1="850" y1="946" x2="1097" y2="946" class="down" marker-end="url(#aBlue)"/>
+  <text x="560" y="962" class="s">telemetry now unicast to A and B (one copy each)</text>
+  <text x="108" y="1004" class="s">g. laptop silent &gt; 15 s → removed. Handheld or Bebop changes IP → link takes the new address from the next frame.</text>
+</svg>
