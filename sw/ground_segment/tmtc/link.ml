@@ -388,16 +388,24 @@ let send = fun ac_id device payload _priority ->
 
 let broadcast = fun device payload _priority ->
   Hashtbl.iter (fun _ s -> s.tx_msg <- s.tx_msg + 1) statuss;
-  if !udp then
-    Hashtbl.iter (* Sending to all alive A/C *)
+  if !udp then begin
+    (* Sending to all alive A/C, once per address: several A/C can be behind one router (e.g. a mesh) *)
+    let sent = Hashtbl.create 5 in
+    Hashtbl.iter
       (fun ac_id status ->
         if live_aircraft ac_id then
           match status.udp_peername with
               Some (Unix.ADDR_INET (peername, _port)) ->
-                if not (udp_send device.fd payload peername) then
+                let ok =
+                  try Hashtbl.find sent peername with Not_found ->
+                    let ok = udp_send device.fd payload peername in
+                    Hashtbl.add sent peername ok;
+                    ok in
+                if not ok then
                   status.tx_err <- status.tx_err + 1
             | _ -> ())
       statuss
+  end
   else
     match device.transport with
       | Pprz ->
