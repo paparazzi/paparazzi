@@ -47,6 +47,8 @@ The first endpoint faces the aircraft: what it receives is downlink, what the ot
 #include <time.h>
 #include <sys/resource.h>
 #include <sys/syscall.h>
+#include <ifaddrs.h>
+#include <net/if.h>
 
 #define UDP_BUFFER_SIZE   1024
 #define UDP_SNDBUF        32768   ///< Small send buffer: on a slow link, drop frames instead of delaying them
@@ -56,6 +58,10 @@ The first endpoint faces the aircraft: what it receives is downlink, what the ot
 #define LINK_ROUTER_REPORT_ID 51  ///< LINK_ROUTER_REPORT in the telemetry class
 #define VALUE_UNKNOWN     127     ///< RSSI or SNR not available
 #define RSSI_TIMEOUT_MS   5000    ///< RSSI from stdin older than this is not reported
+#define MAX_GCS           16      ///< GCS computers per auto endpoint
+#define GCS_TIMEOUT_MS    15000   ///< A GCS is forgotten after this time without frames (link pings every 5 s)
+#define BEACON_PERIOD_MS  1000    ///< Period of the discovery beacon when the statistics are off
+#define MAX_BROADCASTS    8
 
 /* Parser for pprzlink v2 frames: STX, LEN (whole frame), payload, CK_A, CK_B */
 struct pprz_parser_t {
@@ -67,11 +73,20 @@ struct pprz_parser_t {
   uint8_t frame[256];
 };
 
+/* A GCS computer found by an auto endpoint */
+struct gcs_t {
+  struct sockaddr_in addr;
+  uint64_t last_seen_ms;  ///< 0 if the slot is free
+};
+
 struct endpoint_udp_t {
   char server_addr[128];
   uint16_t server_port;
-  char client_addr[128];
-  uint16_t client_port;
+  char client_addr[128];  ///< "auto": send to the GCS computers found, beacon to the broadcast addresses
+  uint16_t client_port;   ///< in auto mode: port of the beacon
+  bool auto_gcs;
+  struct sockaddr_in last_src;  ///< sender of the datagram being parsed
+  struct gcs_t gcs[MAX_GCS];    ///< protected by the send mutex
 };
 
 struct endpoint_uart_t {
@@ -132,6 +147,8 @@ static struct dir_stats_t stats[2];
 static int ac_id = -1;  ///< learned from the downlink frames
 static int8_t rssi = VALUE_UNKNOWN, snr = VALUE_UNKNOWN;
 static uint64_t rssi_time_ms = 0;
+static struct in_addr extra_broadcasts[MAX_BROADCASTS];  ///< -b: beacon addresses besides the interfaces
+static int nb_extra_broadcasts = 0;
 
 void packet_handler(struct endpoint_t *src, uint8_t *data, uint16_t len);
 void input_handler(struct endpoint_t *ep, uint8_t *data, uint16_t len);
@@ -208,29 +225,157 @@ void *udp_endpoint(void *arg) {
     if(verbose) printf("Got packet at endpoint [%s:%d] with length %d\r\n", ep->server_addr, ep->server_port, n);
 
     // Send the message to the handler
+    ep->last_src = client;
     input_handler(e, buffer, n);
   }
 }
 
+static void count_tx(struct dir_stats_t *s, bool sent) {
+  if(sent)
+    s->tx_msgs++;
+  else
+    s->tx_err++;
+}
+
+static bool udp_sendto(struct endpoint_t *e, uint8_t *buffer, uint16_t len, struct sockaddr_in *to) {
+  if(verbose) {
+    char a[INET_ADDRSTRLEN];
+    printf("Send packet at endpoint [%s:%d] with length %d\r\n", inet_ntop(AF_INET, &to->sin_addr, a, sizeof(a)), ntohs(to->sin_port), len);
+  }
+  return sendto(e->fd, buffer, len, MSG_DONTWAIT, (struct sockaddr *)to, sizeof(*to)) == len;
+}
+
+static bool gcs_alive(struct gcs_t *g, uint64_t now) {
+  return g->last_seen_ms != 0 && now - g->last_seen_ms < GCS_TIMEOUT_MS;
+}
+
 /**
- * Send a message out of an UDP endpoint
- * @return true when the whole message was sent
+ * Is this the address of one of the other (fixed) UDP endpoints, e.g. the Herelink radio interface?
  */
-bool udp_endpoint_send(struct endpoint_t *e, uint8_t *buffer, uint16_t len) {
+static bool is_fixed_endpoint_addr(struct in_addr a) {
+  for(int i = 0; i < MAX_ENDPOINTS; ++i) {
+    if(endpoints[i].type == ENDPOINT_TYPE_UDP && !endpoints[i].ep.udp.auto_gcs &&
+        inet_addr(endpoints[i].ep.udp.server_addr) == a.s_addr)
+      return true;
+  }
+  return false;
+}
+
+/**
+ * Broadcast addresses for the beacon of an auto endpoint: those of the interfaces that are up (not loopback,
+ * not the interface of another endpoint such as the radio, only the bound one if the endpoint is bound to
+ * an address), and the ones given with -b.
+ */
+static int beacon_addresses(struct endpoint_udp_t *ep, struct in_addr *out, int max) {
+  int n = 0;
+  in_addr_t bind_addr = inet_addr(ep->server_addr);
+  struct ifaddrs *ifas;
+  if(getifaddrs(&ifas) == 0) {
+    for(struct ifaddrs *i = ifas; i != NULL && n < max; i = i->ifa_next) {
+      if(i->ifa_addr == NULL || i->ifa_addr->sa_family != AF_INET || i->ifa_broadaddr == NULL)
+        continue;
+      if(!(i->ifa_flags & IFF_UP) || !(i->ifa_flags & IFF_BROADCAST) || (i->ifa_flags & IFF_LOOPBACK))
+        continue;
+      struct in_addr a = ((struct sockaddr_in *)i->ifa_addr)->sin_addr;
+      if(is_fixed_endpoint_addr(a) || (bind_addr != INADDR_ANY && a.s_addr != bind_addr))
+        continue;
+      out[n++] = ((struct sockaddr_in *)i->ifa_broadaddr)->sin_addr;
+    }
+    freeifaddrs(ifas);
+  }
+  for(int i = 0; i < nb_extra_broadcasts && n < max; ++i)
+    out[n++] = extra_broadcasts[i];
+  return n;
+}
+
+/**
+ * Send a message out of an UDP endpoint and count it in s.
+ * An auto endpoint sends to every GCS computer it knows, or a beacon to the broadcast addresses.
+ */
+void udp_endpoint_send(struct endpoint_t *e, uint8_t *buffer, uint16_t len, bool beacon, struct dir_stats_t *s) {
   struct endpoint_udp_t *ep = &e->ep.udp;
 
   // Check if file descriptor is valid
-  if(e->fd < 0)
-    return false;
+  if(e->fd < 0) {
+    count_tx(s, false);
+    return;
+  }
 
-  struct sockaddr_in client;
-  memset(&client, 0, sizeof(client));
-  client.sin_family = AF_INET;
-  client.sin_addr.s_addr = inet_addr(ep->client_addr);
-  client.sin_port = htons(ep->client_port);
+  struct sockaddr_in to;
+  memset(&to, 0, sizeof(to));
+  to.sin_family = AF_INET;
+  to.sin_port = htons(ep->client_port);
 
-  if(verbose) printf("Send packet at endpoint [%s:%d] with length %d\r\n", ep->client_addr, ep->client_port, len);
-  return sendto(e->fd, buffer, len, MSG_DONTWAIT, (struct sockaddr *)&client, sizeof(client)) == len;
+  if(!ep->auto_gcs) {
+    to.sin_addr.s_addr = inet_addr(ep->client_addr);
+    count_tx(s, udp_sendto(e, buffer, len, &to));
+  }
+  else if(beacon) {
+    struct in_addr bcast[MAX_BROADCASTS + 8];
+    int n = beacon_addresses(ep, bcast, MAX_BROADCASTS + 8);
+    for(int i = 0; i < n; ++i) {
+      to.sin_addr = bcast[i];
+      count_tx(s, udp_sendto(e, buffer, len, &to));
+    }
+  }
+  else {
+    uint64_t now = time_ms();
+    for(int i = 0; i < MAX_GCS; ++i) {
+      if(gcs_alive(&ep->gcs[i], now))
+        count_tx(s, udp_sendto(e, buffer, len, &ep->gcs[i].addr));
+    }
+  }
+}
+
+/**
+ * Remember the GCS computer that sent a valid frame to an auto endpoint
+ */
+static void gcs_seen(struct endpoint_udp_t *ep, struct sockaddr_in *addr) {
+  uint64_t now = time_ms();
+  struct gcs_t *slot = NULL;
+
+  pthread_mutex_lock(&send_mutex);
+  for(int i = 0; i < MAX_GCS; ++i) {
+    struct gcs_t *g = &ep->gcs[i];
+    if(g->last_seen_ms != 0 && g->addr.sin_addr.s_addr == addr->sin_addr.s_addr && g->addr.sin_port == addr->sin_port) {
+      slot = g;
+      break;
+    }
+  }
+  bool known = (slot != NULL && gcs_alive(slot, now));
+  if(slot == NULL) {
+    // a free or expired slot, else the oldest one
+    for(int i = 0; i < MAX_GCS; ++i) {
+      struct gcs_t *g = &ep->gcs[i];
+      if(slot == NULL || !gcs_alive(g, now) || (gcs_alive(slot, now) && g->last_seen_ms < slot->last_seen_ms))
+        slot = g;
+      if(!gcs_alive(slot, now))
+        break;
+    }
+    slot->addr = *addr;
+  }
+  slot->last_seen_ms = now;
+  pthread_mutex_unlock(&send_mutex);
+
+  if(!known) {
+    char a[INET_ADDRSTRLEN];
+    printf("GCS %s:%d found\r\n", inet_ntop(AF_INET, &addr->sin_addr, a, sizeof(a)), ntohs(addr->sin_port));
+    fflush(stdout);
+  }
+}
+
+static int nb_gcs_alive(void) {
+  int n = 0;
+  uint64_t now = time_ms();
+  pthread_mutex_lock(&send_mutex);
+  for(int i = 0; i < MAX_ENDPOINTS; ++i) {
+    if(endpoints[i].type != ENDPOINT_TYPE_UDP || !endpoints[i].ep.udp.auto_gcs)
+      continue;
+    for(int j = 0; j < MAX_GCS; ++j)
+      n += gcs_alive(&endpoints[i].ep.udp.gcs[j], now);
+  }
+  pthread_mutex_unlock(&send_mutex);
+  return n;
 }
 
 /**
@@ -266,6 +411,7 @@ void udp_create(char *server_addr, uint16_t server_port, char *client_addr, uint
   ep->server_port = server_port;
   strncpy(ep->client_addr, client_addr, sizeof(ep->client_addr) - 1);
   ep->client_port = client_port;
+  ep->auto_gcs = !strcmp(client_addr, "auto");
 
   /* Start the endpoint thread */
   if(verbose) printf("Created UDP endpoint with server [%s:%d] and client [%s:%d]\r\n", ep->server_addr, ep->server_port, ep->client_addr, ep->client_port);
@@ -408,16 +554,17 @@ void *uart_endpoint(void *arg) {
 }
 
 /**
- * Send a message out of an UART endpoint
- * @return true when the whole message was written
+ * Send a message out of an UART endpoint and count it in s
  */
-bool uart_endpoint_send(struct endpoint_t *e, uint8_t *buffer, uint16_t len) {
+void uart_endpoint_send(struct endpoint_t *e, uint8_t *buffer, uint16_t len, struct dir_stats_t *s) {
   // Check if file descriptor is valid
-  if(e->fd < 0)
-    return false;
+  if(e->fd < 0) {
+    count_tx(s, false);
+    return;
+  }
 
   if(verbose) printf("Send packet at endpoint [%s:%d] with length %d\r\n", e->ep.uart.devname, e->ep.uart.baudrate, len);
-  return write(e->fd, buffer, len) == len;
+  count_tx(s, write(e->fd, buffer, len) == len);
 }
 
 /**
@@ -506,7 +653,16 @@ static void frame_received(struct endpoint_t *ep, uint8_t *frame, uint8_t len) {
     if(verbose || ac_id >= 0) printf("Aircraft id %d (was %d)\r\n", frame[2], ac_id);
     ac_id = frame[2];
   }
+  // Uplink for another aircraft (not for this one, nor for all): do not send it over the radio
+  bool other_ac = (dir == DIR_UP && pprz_frames && ac_id >= 0 && len >= 8 &&
+                   frame[3] != ac_id && frame[3] != 0xFF && frame[3] != 0);
+  if(other_ac)
+    s->dropped++;
   pthread_mutex_unlock(&stats_mutex);
+
+  // A GCS computer that sends to an auto endpoint gets the telemetry from now on
+  if(ep->type == ENDPOINT_TYPE_UDP && ep->ep.udp.auto_gcs)
+    gcs_seen(&ep->ep.udp, &ep->ep.udp.last_src);
 
   if(verbose && len >= 8) {
     char name[160];
@@ -516,7 +672,7 @@ static void frame_received(struct endpoint_t *ep, uint8_t *frame, uint8_t len) {
   }
 
   // In frame mode, forward each frame on its own
-  if(pprz_frames)
+  if(pprz_frames && !other_ac)
     packet_handler(ep, frame, len);
 }
 
@@ -600,9 +756,10 @@ void input_handler(struct endpoint_t *ep, uint8_t *data, uint16_t len) {
 /**
  * Send a packet out of all endpoints except the one it came from
  */
-void packet_handler(struct endpoint_t *src, uint8_t *data, uint16_t len) {
+static void send_all(struct endpoint_t *src, uint8_t *data, uint16_t len, bool report, bool beacon_only) {
   struct dir_stats_t *s = &stats[direction_of(src)];
 
+  // Every copy sent is counted (the tx counters are only changed with the send mutex)
   pthread_mutex_lock(&send_mutex);
   for(uint16_t i = 0; i < MAX_ENDPOINTS; ++i) {
     struct endpoint_t *dst = &endpoints[i];
@@ -610,19 +767,21 @@ void packet_handler(struct endpoint_t *src, uint8_t *data, uint16_t len) {
     if(dst == src || dst->type == ENDPOINT_TYPE_NONE)
       continue;
 
-    bool sent = false;
-    if(dst->type == ENDPOINT_TYPE_UDP)
-      sent = udp_endpoint_send(dst, data, len);
-    else if(dst->type == ENDPOINT_TYPE_UART)
-      sent = uart_endpoint_send(dst, data, len);
+    // The report is the beacon of an auto endpoint: broadcast only, so a GCS gets it once
+    bool beacon = report && dst->type == ENDPOINT_TYPE_UDP && dst->ep.udp.auto_gcs;
+    if(beacon_only && !beacon)
+      continue;
 
-    // Count every copy sent (tx counters are only changed with the send mutex)
-    if(sent)
-      s->tx_msgs++;
-    else
-      s->tx_err++;
+    if(dst->type == ENDPOINT_TYPE_UDP)
+      udp_endpoint_send(dst, data, len, beacon, s);
+    else if(dst->type == ENDPOINT_TYPE_UART)
+      uart_endpoint_send(dst, data, len, s);
   }
   pthread_mutex_unlock(&send_mutex);
+}
+
+void packet_handler(struct endpoint_t *src, uint8_t *data, uint16_t len) {
+  send_all(src, data, len, false, false);
 }
 
 static uint8_t *put_u32(uint8_t *b, uint32_t v) {
@@ -649,7 +808,7 @@ static uint16_t take_max_gap(struct dir_stats_t *s, uint64_t now) {
 /**
  * Send LINK_ROUTER_REPORT towards the ground (out of all endpoints except the aircraft side)
  */
-static void send_report(uint64_t start_ms) {
+static void send_report(uint64_t start_ms, bool beacon_only) {
   uint8_t frame[64];
   uint8_t *b = frame;
   uint64_t now = time_ms();
@@ -660,10 +819,15 @@ static void send_report(uint64_t start_ms) {
     return;
   }
   bool quality = (rssi_time_ms != 0 && now - rssi_time_ms < RSSI_TIMEOUT_MS);
+  int8_t q_rssi = quality ? rssi : VALUE_UNKNOWN, q_snr = quality ? snr : VALUE_UNKNOWN;
+  int id = ac_id;
+  pthread_mutex_unlock(&stats_mutex);
+  int nb_gcs = nb_gcs_alive();
+  pthread_mutex_lock(&stats_mutex);
 
   *b++ = PPRZ_STX;
   *b++ = 0; // length, set below
-  *b++ = ac_id;
+  *b++ = id;
   *b++ = 0; // receiver (ground)
   *b++ = PPRZ_CLASS_TELEMETRY;
   *b++ = LINK_ROUTER_REPORT_ID;
@@ -680,9 +844,9 @@ static void send_report(uint64_t start_ms) {
   b = put_u32(b, stats[DIR_UP].dropped);
   b = put_u16(b, take_max_gap(&stats[DIR_DOWN], now));
   b = put_u16(b, take_max_gap(&stats[DIR_UP], now));
-  *b++ = 0; // nb_gcs (no GCS discovery yet)
-  *b++ = quality ? (uint8_t)rssi : VALUE_UNKNOWN;
-  *b++ = quality ? (uint8_t)snr : VALUE_UNKNOWN;
+  *b++ = (nb_gcs > 255) ? 255 : nb_gcs;
+  *b++ = (uint8_t)q_rssi;
+  *b++ = (uint8_t)q_snr;
   pthread_mutex_unlock(&stats_mutex);
 
   uint8_t len = (b - frame) + 2;
@@ -695,7 +859,7 @@ static void send_report(uint64_t start_ms) {
   *b++ = ck_a;
   *b++ = ck_b;
 
-  packet_handler(&endpoints[0], frame, len);
+  send_all(&endpoints[0], frame, len, true, beacon_only);
 }
 
 int main(int argc, char** argv) {
@@ -714,6 +878,7 @@ int main(int argc, char** argv) {
     {"pprz", no_argument, NULL, 'p'},
     {"stats", required_argument, NULL, 's'},
     {"node", required_argument, NULL, 'N'},
+    {"broadcast", required_argument, NULL, 'b'},
     {0, 0, 0, 0}
   };
   static const char* usage =
@@ -721,17 +886,20 @@ int main(int argc, char** argv) {
     " Options :\n"
     "   -e --endpoint [endpoint_str]           Endpoint address to route to/from, the first one faces the aircraft\n"
     "                                          uart://DEVICE:BAUD | udp://BIND_ADDR:BIND_PORT:SEND_ADDR:SEND_PORT\n"
+    "                                          udp://BIND_ADDR:BIND_PORT:auto:BEACON_PORT sends to the GCS computers\n"
+    "                                          that send to it, and a 1 Hz beacon to the broadcast addresses\n"
     "   -h --help                              Display this help\n"
     "   -v --verbose                           Print verbose information (also the header of every frame)\n"
     "   -n --no-keep-awake                     Do not keep the CPU awake (see keep_awake_thread)\n"
     "   -p --pprz                              Only forward complete pprzlink v2 frames, one at a time\n"
     "   -s --stats PERIOD_MS                   Period of LINK_ROUTER_REPORT (default 1000, 0 = off)\n"
     "   -N --node air|ground                   Node in LINK_ROUTER_REPORT (default: air if the first endpoint is an UART)\n"
+    "   -b --broadcast ADDR                    Also send the beacon of auto endpoints to ADDR (repeatable)\n"
     " Link quality for LINK_ROUTER_REPORT can be given on stdin, one line per value: 'rssi <dBm>' or 'snr <dB>'\n";
 
   int c;
   int option_index = 0;
-  while((c = getopt_long(argc, argv, "e:hvnps:N:", long_options, &option_index)) != -1) {
+  while((c = getopt_long(argc, argv, "e:hvnps:N:b:", long_options, &option_index)) != -1) {
     switch (c) {
       case 'e':
         // Parse the endpoint argument UDP
@@ -787,6 +955,14 @@ int main(int argc, char** argv) {
         }
         break;
 
+      case 'b':
+        if(nb_extra_broadcasts >= MAX_BROADCASTS || inet_aton(optarg, &extra_broadcasts[nb_extra_broadcasts]) == 0) {
+          fprintf(stderr, "Broadcast address %s is invalid or there are too many\r\n", optarg);
+          return 2;
+        }
+        nb_extra_broadcasts++;
+        break;
+
       case 'h':
         fprintf(stderr, usage, argv[0]);
         return 0;
@@ -816,16 +992,23 @@ int main(int argc, char** argv) {
   pthread_t stdin_th;
   pthread_create(&stdin_th, NULL, stdin_thread, NULL);
 
+  /* An auto endpoint always needs the beacon, also with the statistics off */
+  bool has_auto = false;
+  for(int i = 0; i < MAX_ENDPOINTS; ++i)
+    has_auto |= (endpoints[i].type == ENDPOINT_TYPE_UDP && endpoints[i].ep.udp.auto_gcs);
+  bool beacon_only = (stats_period_ms <= 0);
+  int period_ms = beacon_only ? (has_auto ? BEACON_PERIOD_MS : 0) : stats_period_ms;
+
   uint64_t start_ms = time_ms();
-  uint64_t next_report_ms = start_ms + stats_period_ms;
+  uint64_t next_report_ms = start_ms + period_ms;
   while(true) {
     usleep(50000);
     uint64_t now = time_ms();
-    if(stats_period_ms > 0 && now >= next_report_ms) {
-      send_report(start_ms);
-      next_report_ms += stats_period_ms;
+    if(period_ms > 0 && now >= next_report_ms) {
+      send_report(start_ms, beacon_only);
+      next_report_ms += period_ms;
       if(next_report_ms < now)
-        next_report_ms = now + stats_period_ms;
+        next_report_ms = now + period_ms;
     }
   }
 
