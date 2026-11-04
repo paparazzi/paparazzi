@@ -52,6 +52,11 @@ int pprz_bsem_wait_timeout(pprz_bsem_t* bsem, float timeout) {
   long timeout_nsecs = (timeout - timeout_secs) * 1e9;
   ts.tv_sec += timeout_secs;
   ts.tv_nsec += timeout_nsecs;
+  // tv_nsec must stay below 1 s, else sem_timedwait fails at once with EINVAL
+  if (ts.tv_nsec >= 1000000000L) {
+    ts.tv_sec += 1;
+    ts.tv_nsec -= 1000000000L;
+  }
   return sem_timedwait(&bsem->sem, &ts);
 }
 
