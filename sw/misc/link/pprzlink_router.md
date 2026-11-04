@@ -10,10 +10,13 @@ pprzlink_router -e ENDPOINT -e ENDPOINT [...] [options]
   -e --endpoint uart://DEVICE:BAUD | udp://BIND_ADDR:BIND_PORT:SEND_ADDR:SEND_PORT
   -n --no-keep-awake   do not keep the CPU awake
   -p --pprz            only forward complete pprzlink v2 frames, one at a time
-  -v --verbose
+  -s --stats MS        period of LINK_ROUTER_REPORT (default 1000, 0 = off)
+  -N --node air|ground node in LINK_ROUTER_REPORT (default: air if the first endpoint is an UART)
+  -v --verbose         also prints the header of every frame (sender, receiver, class, message id)
 ```
 
-Everything received on one endpoint is sent out of all the others.
+Everything received on one endpoint is sent out of all the others. The first endpoint faces the aircraft:
+what it receives is counted as downlink, what the other endpoints receive as uplink.
 
 ## Options
 
@@ -32,6 +35,17 @@ CK_A, CK_B). Only complete frames with a valid checksum are forwarded, one per s
 - partial UART reads are never sent as fragments;
 - frames from different endpoints (for example several drones) are never mixed;
 - corrupted bytes are dropped at the router.
+
+**Statistics.** Every second (`-s`) the router sends a `LINK_ROUTER_REPORT` towards the ground, with the
+aircraft id learned from the downlink as sender, as soon as it has seen a downlink frame. It counts per
+direction the frames received, rejected (bad checksum or length), sent (one per destination) and not sent
+(socket full or error), and the longest time without a frame. Compared with `DATALINK_REPORT` (autopilot) and
+`LINK_REPORT` (link) this tells on which leg frames get lost. Frames are counted exactly with `-p`; without it
+the sent counters count the forwarded pieces. The air router's report goes over the radio (~56 bytes/s),
+never over the UART. RSSI and SNR can be given on stdin, one line per value: `rssi <dBm>` or `snr <dB>`.
+
+The UDP send buffer is kept small (32 kB): on a slow link frames are dropped (and counted) instead of
+being delayed.
 
 ## Build
 
