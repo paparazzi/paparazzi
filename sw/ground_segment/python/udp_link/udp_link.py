@@ -37,6 +37,7 @@ class DownLinkStatus():
         self.last_msg_time = 0
         self.last_ping_time = 0
         self.last_pong_time = 0
+        self.max_gap = 0  # longest time without a frame since the previous status (s)
 
 class UDPLink:
     def __init__(self,opts):
@@ -58,7 +59,11 @@ class UDPLink:
             self.ac_downlink_status[ac_id] = DownLinkStatus(ac_id, address)
         self.ac_downlink_status[ac_id].rx_msgs += 1
         self.ac_downlink_status[ac_id].rx_bytes += length
-        self.ac_downlink_status[ac_id].last_msg_time = time.time()
+        now = time.time()
+        status = self.ac_downlink_status[ac_id]
+        if status.last_msg_time > 0:
+            status.max_gap = max(status.max_gap, now - status.last_msg_time)
+        status.last_msg_time = now
         if isPong:
             self.ac_downlink_status[ac_id].last_pong_time = time.time() - self.ac_downlink_status[ac_id].last_ping_time
 
@@ -131,7 +136,7 @@ class UDPLink:
 
     def sendStatus(self):
         for (key, value) in self.ac_downlink_status.items():
-            self.ivy.send("link LINK_REPORT %i %i %i %i %i %i %i %i %i %i %i %i %s" % (
+            self.ivy.send("link LINK_REPORT %i %i %i %i %i %i %i %i %i %i %i %i %s %i" % (
                 value.ac_id,
                 -1,
                 value.run_time,
@@ -144,7 +149,9 @@ class UDPLink:
                 value.tx_msgs,
                 1000 * value.last_pong_time,
                 0,
-                "%s:%d" % (value.address[0], self.uplink_port)))
+                "%s:%d" % (value.address[0], self.uplink_port),
+                1000 * max(value.max_gap, time.time() - value.last_msg_time)))
+            value.max_gap = 0
             value.last_rx_bytes = value.rx_bytes
             value.last_rx_msgs = value.rx_msgs
             value.run_time = value.run_time + 1
