@@ -104,10 +104,11 @@ type status = {
   mutable rx_msg : int;
   mutable rx_err : int;
   mutable tx_msg : int;
+  mutable tx_err : int;
   mutable ms_since_last_msg : int;
   mutable last_ping : float; (* s *)
   mutable last_pong : float; (* s *)
-  udp_peername : Unix.sockaddr option
+  mutable udp_peername : Unix.sockaddr option (* where the frames of this A/C come from (UDP only) *)
 }
 
 let statuss = Hashtbl.create 3
@@ -115,32 +116,53 @@ let statuss = Hashtbl.create 3
 let initial_status = {
   last_rx_byte = 0; last_rx_msg = 0;
   rx_byte = 0; rx_msg = 0; rx_err = 0;
-  tx_msg = 0;
+  tx_msg = 0; tx_err = 0;
   ms_since_last_msg = !dead_aircraft_time_ms;
   last_ping = 0.; last_pong = 0.;
   udp_peername = None
 }
 
+let string_of_sockaddr = function
+  | Some (Unix.ADDR_INET (addr, port)) -> sprintf "%s:%d" (Unix.string_of_inet_addr addr) port
+  | _ -> "none"
+
+(* Called when a new A/C is heard (used to ping it at once) *)
+let new_aircraft_hook = ref (fun (_ac_id:int) -> ())
+
 let update_status = fun ?udp_peername ac_id buf_size is_pong ->
   if !gen_stat_trafic then
     Printf.printf "%.3f %d\n%!" (Unix.gettimeofday ()) buf_size;
+  let is_new = not (Hashtbl.mem statuss ac_id) in
   let status =
     try Hashtbl.find statuss ac_id with Not_found ->
       let s = { initial_status with udp_peername = udp_peername } in
-      begin
-        match s.udp_peername with
-        | Some (Unix.ADDR_INET (peername, port)) ->
-            Debug.call 'b' (fun f -> fprintf f "Adding AC %i with udp_peername %s port %i\n" ac_id (Unix.string_of_inet_addr peername) port)
-        | _ -> Debug.call 'b' (fun f -> fprintf f "Adding AC %i\n" ac_id)
-      end;
+      Debug.call 'b' (fun f -> fprintf f "Adding AC %i (%s)\n" ac_id (string_of_sockaddr udp_peername));
       Hashtbl.add statuss ac_id s;
       s in
+  (* The A/C can be reached at a new address (e.g. the Herelink handheld changed network):
+     always answer to where its last frame came from *)
+  begin match udp_peername with
+    | Some _ when udp_peername <> status.udp_peername ->
+        eprintf "link: A/C %d now at %s (was %s)\n%!" ac_id (string_of_sockaddr udp_peername) (string_of_sockaddr status.udp_peername);
+        status.udp_peername <- udp_peername
+    | _ -> ()
+  end;
   status.rx_byte <- status.rx_byte + buf_size;
   status.rx_msg <- status.rx_msg + 1;
-  status.rx_err <- !PprzTransport.nb_err;
+  (* over UDP the errors are counted per sender (see udp_reader) *)
+  if not !udp then
+    status.rx_err <- !PprzTransport.nb_err;
   status.ms_since_last_msg <- 0;
   if is_pong then
-    status.last_pong <- Unix.gettimeofday ();;
+    status.last_pong <- Unix.gettimeofday ();
+  if is_new then
+    !new_aircraft_hook ac_id;;
+
+(* Add parse errors to the A/C that send from this address *)
+let add_udp_errors = fun sockaddr nb ->
+  Hashtbl.iter (fun _ s ->
+    if s.udp_peername = Some sockaddr then s.rx_err <- s.rx_err + nb)
+    statuss
 
 let status_ping_diff = 500 (* ms *)
 
@@ -157,11 +179,13 @@ let udp_peername = fun ac_id ->
   with
       Not_found -> invalid_arg "udp_peername"
 
-let last_udp_peername = ref (Unix.ADDR_UNIX "not initialized")
-let udp_read = fun fd buf pos len ->
-  let (n, sockaddr) = Unix.recvfrom fd buf pos len [] in
-  last_udp_peername := sockaddr;
-  n
+(* Where the uplink to an A/C is sent to *)
+let uplink_destination = fun peername ->
+  match peername with
+  | Some (Unix.ADDR_INET (addr, _port)) ->
+      let addr = if !udp_broadcast then !udp_broadcast_addr else Unix.string_of_inet_addr addr in
+      sprintf "%s:%d" addr !udp_uplink_port
+  | _ -> "none"
 
 let send_status_msg =
   let start = Unix.gettimeofday () in
@@ -183,7 +207,9 @@ let send_status_msg =
                 "rx_bytes_rate", PprzLink.Float byte_rate;
                 "rx_msgs_rate", PprzLink.Float msg_rate;
                 "tx_msgs", PprzLink.Int64 (Int64.of_int status.tx_msg);
-                "ping_time", PprzLink.Float (1000. *. (status.last_pong -. status.last_ping))
+                "ping_time", PprzLink.Float (1000. *. (status.last_pong -. status.last_ping));
+                "tx_err", PprzLink.Int64 (Int64.of_int status.tx_err);
+                "peer", PprzLink.String (uplink_destination status.udp_peername)
                ] in
       send_ground_over_ivy "link" "LINK_REPORT" vs)
       statuss
@@ -326,12 +352,21 @@ let udp_send = fun fd payload peername ->
   let addr = if !udp_broadcast then (Unix.inet_addr_of_string !udp_broadcast_addr) else peername in
   Debug.call 'u' (fun f -> fprintf f "udp_send to %s port %i\n" (Unix.string_of_inet_addr addr) !udp_uplink_port);
   let sockaddr = Unix.ADDR_INET (addr, !udp_uplink_port) in
-  let n = Unix.sendto fd (Bytes.of_string buf) 0 len [] sockaddr in
-  assert (n = len)
+  try
+    Unix.sendto fd (Bytes.of_string buf) 0 len [] sockaddr = len
+  with Unix.Unix_error (e, _, _) ->
+    Debug.call 'u' (fun f -> fprintf f "udp_send to %s failed: %s\n" (Unix.string_of_inet_addr addr) (Unix.error_message e));
+    false
+
+let count_tx_err = fun ac_id ->
+  try let s = Hashtbl.find statuss ac_id in s.tx_err <- s.tx_err + 1 with Not_found -> ()
 
 let send = fun ac_id device payload _priority ->
   Debug.call 's' (fun f -> fprintf f "%d\n" ac_id);
-  if live_aircraft ac_id then
+  if not (live_aircraft ac_id) then
+    (* not heard from for too long: the message is dropped *)
+    count_tx_err ac_id
+  else
     let _ = try
       let s = Hashtbl.find statuss ac_id in
       s.tx_msg <- s.tx_msg + 1;
@@ -339,7 +374,7 @@ let send = fun ac_id device payload _priority ->
     with Not_found -> () in
     match udp_peername ac_id with
       | Some (Unix.ADDR_INET (peername, _port)) ->
-          udp_send device.fd payload peername
+          if not (udp_send device.fd payload peername) then count_tx_err ac_id
       | _ ->
         match device.transport with
           | Pprz ->
@@ -353,15 +388,24 @@ let send = fun ac_id device payload _priority ->
 
 let broadcast = fun device payload _priority ->
   Hashtbl.iter (fun _ s -> s.tx_msg <- s.tx_msg + 1) statuss;
-  if !udp then
-    Hashtbl.iter (* Sending to all alive A/C *)
+  if !udp then begin
+    (* Sending to all alive A/C, once per address: several A/C can be behind one router (e.g. a mesh) *)
+    let sent = Hashtbl.create 5 in
+    Hashtbl.iter
       (fun ac_id status ->
         if live_aircraft ac_id then
           match status.udp_peername with
               Some (Unix.ADDR_INET (peername, _port)) ->
-                udp_send device.fd payload peername
+                let ok =
+                  try Hashtbl.find sent peername with Not_found ->
+                    let ok = udp_send device.fd payload peername in
+                    Hashtbl.add sent peername ok;
+                    ok in
+                if not ok then
+                  status.tx_err <- status.tx_err + 1
             | _ -> ())
       statuss
+  end
   else
     match device.transport with
       | Pprz ->
@@ -373,22 +417,34 @@ let broadcast = fun device payload _priority ->
         XB.send device payload
 
 
-let parser_of_device = fun device ->
+let parser_of_device = fun ?udp_peername device ->
   match device.transport with
     | Pprz ->
         let use = fun s ->
           let raw_data_size = String.length (Protocol.string_of_payload s) + 4 (*stx,len,ck_a, ck_b*) in
-          let udp_peername =
-            if !udp then
-              Some !last_udp_peername
-            else
-              None in
           use_tele_message ?udp_peername ~raw_data_size s in
         PprzTransport.parse use
     | XBee ->
       let module XbeeTransport = Protocol.Transport (Xbee_transport.Transport) in
       XbeeTransport.parse (XB.use_message device)
 
+
+(* UDP: keep the bytes of an unfinished frame per sender, so frames from different
+   senders (several aircraft, or a frame split over two datagrams) are never mixed *)
+let udp_reader = fun device ->
+  let buf = Bytes.create 65536
+  and pending = Hashtbl.create 5
+  and max_pending = 4096 in
+  fun fd ->
+    let (n, sockaddr) = Unix.recvfrom fd buf 0 (Bytes.length buf) [] in
+    let data = (try Hashtbl.find pending sockaddr with Not_found -> "") ^ Bytes.sub_string buf 0 n in
+    let nb_err = !PprzTransport.nb_err in
+    let used = parser_of_device ~udp_peername:sockaddr device data in
+    let rest = String.length data - used in
+    Hashtbl.replace pending sockaddr (if rest > max_pending then "" else String.sub data used rest);
+    let new_err = !PprzTransport.nb_err - nb_err in
+    if new_err > 0 then
+      add_udp_errors sockaddr new_err
 
 let hangup = fun _ ->
   prerr_endline "Modem hangup. Exiting";
@@ -424,15 +480,14 @@ let message_uplink = fun device ->
         | _ -> ())
     Dl_Pprz.messages
 
+let send_ping = fun device ac_id status ->
+  let msg_id, _ = Dl_Pprz.message_of_name "PING" in
+  let s = Dl_Pprz.payload_of_values msg_id my_id ac_id [] in
+  send ac_id device s High;
+  status.last_ping <- Unix.gettimeofday ()
+
 let send_ping_msg = fun device ->
-  Hashtbl.iter
-    (fun ac_id status ->
-      let msg_id, _ = Dl_Pprz.message_of_name "PING" in
-      let s = Dl_Pprz.payload_of_values msg_id my_id ac_id [] in
-      send ac_id device s High;
-      status.last_ping <- Unix.gettimeofday ()
-    )
-    statuss
+  Hashtbl.iter (send_ping device) statuss
 
 
 (** Main *********************************************************************)
@@ -511,11 +566,12 @@ let () =
     (* The function to be called when data is available *)
     let read_fd =
       let buffered_parser =
-        (* Get the specific parser for the given transport protocol *)
-        let parser = fun b -> parser_of_device device (Bytes.to_string b) in
-        let read = if !udp then udp_read else Unix.read in
-        (* Wrap the parser into the buffered bytes reader *)
-        match Serial.input ~read parser with Serial.Closure f -> f in
+        if !udp then udp_reader device
+        else
+          (* Get the specific parser for the given transport protocol *)
+          let parser = fun b -> parser_of_device device (Bytes.to_string b) in
+          (* Wrap the parser into the buffered bytes reader *)
+          match Serial.input parser with Serial.Closure f -> f in
       fun _io_event ->
         begin
           try buffered_parser fd with
@@ -527,7 +583,10 @@ let () =
     ignore (Glib.Io.add_watch ~cond:[`IN] ~callback:read_fd (GMain.Io.channel_of_descr fd));
 
     if !uplink then begin
-      message_uplink device
+      message_uplink device;
+      (* Ping a new A/C at once: a router that discovers the GCS computers learns this one now *)
+      new_aircraft_hook := (fun ac_id ->
+        try send_ping device ac_id (Hashtbl.find statuss ac_id) with Not_found -> ())
     end;
 
     (** Init and Periodic tasks *)

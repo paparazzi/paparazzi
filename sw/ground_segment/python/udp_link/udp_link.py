@@ -131,7 +131,7 @@ class UDPLink:
 
     def sendStatus(self):
         for (key, value) in self.ac_downlink_status.items():
-            self.ivy.send("link LINK_REPORT %i %i %i %i %i %i %i %i %i %i %i" % (
+            self.ivy.send("link LINK_REPORT %i %i %i %i %i %i %i %i %i %i %i %i %s" % (
                 value.ac_id,
                 -1,
                 value.run_time,
@@ -142,7 +142,9 @@ class UDPLink:
                 value.rx_bytes - value.last_rx_bytes,
                 value.rx_msgs - value.last_rx_msgs,
                 value.tx_msgs,
-                1000 * value.last_pong_time))
+                1000 * value.last_pong_time,
+                0,
+                "%s:%d" % (value.address[0], self.uplink_port)))
             value.last_rx_bytes = value.rx_bytes
             value.last_rx_msgs = value.rx_msgs
             value.run_time = value.run_time + 1
