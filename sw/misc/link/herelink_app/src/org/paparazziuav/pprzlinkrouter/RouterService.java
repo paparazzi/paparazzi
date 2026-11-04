@@ -2,31 +2,36 @@ package org.paparazziuav.pprzlinkrouter;
 
 import android.app.Notification;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Collections;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 
 /**
- * Runs pprzlink_router between the Herelink radio and the laptop, and restarts it when it stops
- * or when the laptop connection changes (USB tethering 192.168.42.x or Wi-Fi hotspot 192.168.43.x).
+ * Runs pprzlink_router between the Herelink radio and the laptops, and restarts it when it stops.
+ *
+ * The router finds the laptops itself (auto endpoint): it sends the telemetry to every laptop running
+ * Paparazzi's link that it heard from, on any network the handheld is on (USB tethering, its Wi-Fi hotspot,
+ * or a Wi-Fi network it joined), and a 1 Hz beacon to the broadcast addresses so new laptops find it.
  */
 public class RouterService extends Service {
   private static final String TAG = "pprzlink_router";
   private static final String RADIO = "udp://192.168.0.11:5242:192.168.0.10:5243";
-  private static final String USB_BCAST = "192.168.42.255";
-  private static final String WIFI_BCAST = "192.168.43.255";
+  private static final String GCS = "udp://0.0.0.0:4243:auto:4242";
 
   private volatile boolean running = false;
   private Process router = null;
-  private String routerBcast = null;
+  private OutputStream routerIn = null;
+  private WifiManager.WifiLock wifiLock = null;
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
@@ -36,6 +41,14 @@ public class RouterService extends Service {
         .setSmallIcon(android.R.drawable.stat_sys_upload)
         .build();
     startForeground(1, n);
+
+    // Keep the Wi-Fi out of power save: as a Wi-Fi client it would otherwise add 100-300 ms of latency
+    if (wifiLock == null) {
+      WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+      wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, TAG);
+      wifiLock.setReferenceCounted(false);
+      wifiLock.acquire();
+    }
 
     if (!running) {
       running = true;
@@ -50,6 +63,10 @@ public class RouterService extends Service {
   public void onDestroy() {
     running = false;
     stopRouter();
+    if (wifiLock != null) {
+      wifiLock.release();
+      wifiLock = null;
+    }
   }
 
   @Override
@@ -57,56 +74,76 @@ public class RouterService extends Service {
     return null;
   }
 
-  /** Check every 2 s that the router runs with the broadcast address of the active laptop link */
+  /** Every second: restart the router if it stopped, and give it the Wi-Fi RSSI */
   private void watch() {
     while (running) {
-      String bcast = laptopBroadcast();
-      if (router == null || !isAlive(router) || !bcast.equals(routerBcast)) {
+      if (router == null || !isAlive(router)) {
         stopRouter();
-        startRouter(bcast);
+        startRouter();
       }
+      sendWifiQuality();
       try {
-        Thread.sleep(2000);
+        Thread.sleep(1000);
       } catch (InterruptedException e) {
         return;
       }
     }
   }
 
-  /** USB tethering if active, else the Wi-Fi hotspot */
-  private String laptopBroadcast() {
+  /** RSSI of the Wi-Fi network the handheld joined (not available as a hotspot) */
+  private void sendWifiQuality() {
+    if (routerIn == null) {
+      return;
+    }
     try {
-      for (NetworkInterface ni : Collections.list(NetworkInterface.getNetworkInterfaces())) {
-        for (InetAddress a : Collections.list(ni.getInetAddresses())) {
-          if (a instanceof Inet4Address && a.getHostAddress().startsWith("192.168.42.")) {
-            return USB_BCAST;
-          }
-        }
+      WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+      WifiInfo info = wm.getConnectionInfo();
+      if (info != null && info.getNetworkId() != -1) {
+        routerIn.write(("rssi " + info.getRssi() + "\n").getBytes());
+        routerIn.flush();
       }
     } catch (Exception e) {
-      Log.w(TAG, "Could not list the network interfaces", e);
+      Log.w(TAG, "Could not send the Wi-Fi RSSI to the router", e);
     }
-    return WIFI_BCAST;
   }
 
-  private void startRouter(String bcast) {
+  private void startRouter() {
     try {
       File bin = extractRouter();
-      router = new ProcessBuilder(bin.getAbsolutePath(), "-e", RADIO,
-                                  "-e", "udp://0.0.0.0:4243:" + bcast + ":4242")
+      router = new ProcessBuilder(bin.getAbsolutePath(), "-p", "-e", RADIO, "-e", GCS)
           .redirectErrorStream(true).start();
-      routerBcast = bcast;
-      Log.i(TAG, "Started the router to " + bcast);
+      routerIn = router.getOutputStream();
+      logOutput(router.getInputStream());
+      Log.i(TAG, "Started the router to auto");
     } catch (Exception e) {
       Log.e(TAG, "Could not start the router", e);
       router = null;
+      routerIn = null;
     }
+  }
+
+  /** Copy the router output to logcat (also so it never blocks on a full pipe) */
+  private static void logOutput(final InputStream out) {
+    new Thread(new Runnable() {
+      public void run() {
+        try {
+          BufferedReader r = new BufferedReader(new InputStreamReader(out));
+          String line;
+          while ((line = r.readLine()) != null) {
+            Log.i(TAG, line.trim());
+          }
+        } catch (Exception e) {
+          // the router stopped
+        }
+      }
+    }).start();
   }
 
   private void stopRouter() {
     if (router != null) {
       router.destroy();
       router = null;
+      routerIn = null;
     }
   }
 
