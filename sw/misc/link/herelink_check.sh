@@ -119,8 +119,8 @@ IvyInit("herelink_check", "herelink_check READY")
 IvyStart("127.255.255.255:2010")
 # ac_id link_id run_time rx_lost_time rx_bytes rx_msgs rx_err rx_bytes_rate rx_msgs_rate tx_msgs ping_time [tx_err peer]
 IvyBindMsg(lambda a, *g: rep.append(g), r"^link LINK_REPORT (\S+) (\S+) (\S+) (\S+) (\S+) (\S+) (\S+) (\S+) (\S+) (\S+) (\S+)(?: (\S+) (\S+))?$")
-# node uptime down_rx_msgs ... nb_gcs (handheld router)
-IvyBindMsg(lambda a, *g: ground.append((time.time(), g)), r"^\d+ LINK_ROUTER_REPORT (1|GROUND) \S+ (\S+) \S+ \S+ \S+ \S+ \S+ \S+ \S+ \S+ \S+ \S+ (\S+)")
+# LINK_STATS of the handheld router (hop 2): down_rx ... nb_peers
+IvyBindMsg(lambda a, *g: ground.append((time.time(), g)), r"^\d+ LINK_STATS (2) \S+ (\S+)(?: \S+){9} (\S+)")
 t0 = time.time()
 while time.time() - t0 < max(float(sys.argv[1]), 4.) and len(rep) < 4:
     time.sleep(0.2)
@@ -130,7 +130,7 @@ if len(rep) >= 2:
     dt = max(float(b[2]) - float(a[2]), 1.)
     peer = b[12] if b[12] else "?"
     # telemetry the handheld got per second, to find laptops that get every frame twice
-    grx = ((int(ground[-1][1][1]) - int(ground[0][1][1])) / (ground[-1][0] - ground[0][0])) if len(ground) >= 2 else -1
+    grx = (((int(ground[-1][1][1]) - int(ground[0][1][1])) % 65536) / (ground[-1][0] - ground[0][0])) if len(ground) >= 2 else -1
     gcs = ground[-1][1][2] if ground else "-1"
     print(b[0], float(b[8]), int(b[6]) - int(a[6]), (int(b[9]) - int(a[9])) / dt, float(b[10]), int(b[3]), peer, grx, gcs)
 EOF

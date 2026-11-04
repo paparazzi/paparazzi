@@ -62,8 +62,8 @@ Ground computer between the mesh and the GCS network (several aircraft):
 #define PPRZ_STX          0x99
 #define PPRZ_CLASS_TELEMETRY  1
 #define PPRZ_BROADCAST_ID 0xFF    ///< receiver id of uplink for all aircraft
-#define LINK_ROUTER_REPORT_ID 51  ///< LINK_ROUTER_REPORT in the telemetry class
-#define VALUE_UNKNOWN     127     ///< RSSI or SNR not available
+#define LINK_STATS_ID 51  ///< LINK_STATS in the telemetry class
+#define VALUE_UNKNOWN     127     ///< RSSI not available
 #define RSSI_TIMEOUT_MS   5000    ///< RSSI from stdin older than this is not reported
 #define MAX_PEERS         16      ///< GCS computers or aircraft per auto endpoint
 #define PEER_TIMEOUT_MS   15000   ///< A peer is forgotten after this time without frames (link pings every 5 s)
@@ -129,7 +129,7 @@ struct endpoint_t {
   } ep;
 };
 
-/* Statistics of one aircraft and direction, sent in LINK_ROUTER_REPORT */
+/* Statistics of one aircraft and direction, sent in LINK_STATS */
 struct dir_stats_t {
   uint32_t rx_msgs;
   uint32_t tx_msgs;
@@ -143,24 +143,18 @@ struct ac_stats_t {
   struct dir_stats_t dir[2];
 };
 
-enum node_t {
-  NODE_AIR = 0,
-  NODE_GROUND = 1,
-  NODE_AUTO
-};
-
 static bool verbose = false;
 static bool keep_awake = true;
 static bool pprz_frames = false;
 static int stats_period_ms = 1000;
-static enum node_t node = NODE_AUTO;
+static int hop = -1;  ///< place on the path from the autopilot in LINK_STATS, -1: from the first endpoint
 static struct endpoint_t endpoints[MAX_ENDPOINTS];
 static pthread_mutex_t send_mutex = PTHREAD_MUTEX_INITIALIZER;   ///< sending and the peer tables
 static pthread_mutex_t stats_mutex = PTHREAD_MUTEX_INITIALIZER;  ///< everything below (lock after send_mutex)
 static struct ac_stats_t ac_stats[MAX_AC];
 static uint32_t rx_err[2];    ///< rejected frames (the aircraft is not known)
 static uint32_t up_dropped;   ///< uplink not forwarded: for an unknown aircraft
-static int8_t rssi = VALUE_UNKNOWN, snr = VALUE_UNKNOWN;
+static int8_t rssi = VALUE_UNKNOWN;
 static uint64_t rssi_time_ms = 0;
 static struct in_addr extra_broadcasts[MAX_BROADCASTS];  ///< -b: beacon addresses besides the interfaces
 static int nb_extra_broadcasts = 0;
@@ -743,7 +737,7 @@ void *keep_awake_thread(void *arg __attribute__((unused))) {
 }
 
 /**
- * Read the link quality from stdin, one value per line: "rssi <dBm>" or "snr <dB>"
+ * Read the link quality from stdin, one value per line: "rssi <dBm>"
  * (e.g. written by the Herelink app). Without input (stdin closed) the values stay unknown.
  */
 void *stdin_thread(void *arg __attribute__((unused))) {
@@ -753,10 +747,6 @@ void *stdin_thread(void *arg __attribute__((unused))) {
     pthread_mutex_lock(&stats_mutex);
     if(sscanf(line, "rssi %d", &v) == 1) {
       rssi = (v < -127) ? -127 : (v > 126) ? 126 : v;
-      rssi_time_ms = time_ms();
-    }
-    else if(sscanf(line, "snr %d", &v) == 1) {
-      snr = (v < -127) ? -127 : (v > 126) ? 126 : v;
       rssi_time_ms = time_ms();
     }
     pthread_mutex_unlock(&stats_mutex);
@@ -942,13 +932,8 @@ void input_handler(struct endpoint_t *ep, uint8_t *data, uint16_t len) {
  * Report
  */
 
-static uint8_t *put_u32(uint8_t *b, uint32_t v) {
-  memcpy(b, &v, 4); // pprzlink is little endian, as ARM and x86
-  return b + 4;
-}
-
 static uint8_t *put_u16(uint8_t *b, uint16_t v) {
-  memcpy(b, &v, 2);
+  memcpy(b, &v, 2); // pprzlink is little endian, as ARM and x86
   return b + 2;
 }
 
@@ -964,7 +949,7 @@ static uint16_t take_max_gap(struct dir_stats_t *s, uint64_t now) {
 }
 
 /**
- * Send LINK_ROUTER_REPORT of every aircraft towards the ground; it is the beacon of the auto endpoints
+ * Send LINK_STATS of every aircraft towards the ground; it is the beacon of the auto endpoints
  */
 static void send_reports(uint64_t start_ms, bool beacon_only) {
   pthread_mutex_lock(&send_mutex);
@@ -989,23 +974,23 @@ static void send_reports(uint64_t start_ms, bool beacon_only) {
     *b++ = ac;
     *b++ = 0; // receiver (ground)
     *b++ = PPRZ_CLASS_TELEMETRY;
-    *b++ = LINK_ROUTER_REPORT_ID;
-    *b++ = node;
-    b = put_u32(b, (now - start_ms) / 1000);
-    b = put_u32(b, s->dir[DIR_DOWN].rx_msgs);
-    b = put_u32(b, rx_err[DIR_DOWN]);
-    b = put_u32(b, s->dir[DIR_DOWN].tx_msgs);
-    b = put_u32(b, s->dir[DIR_DOWN].tx_err);
-    b = put_u32(b, s->dir[DIR_UP].rx_msgs);
-    b = put_u32(b, rx_err[DIR_UP]);
-    b = put_u32(b, s->dir[DIR_UP].tx_msgs);
-    b = put_u32(b, s->dir[DIR_UP].tx_err);
-    b = put_u32(b, up_dropped);
+    *b++ = LINK_STATS_ID;
+    *b++ = hop;
+    // counters wrap at 65536: the receiver only uses their increase
+    b = put_u16(b, (uint16_t)((now - start_ms) / 1000));
+    b = put_u16(b, (uint16_t)s->dir[DIR_DOWN].rx_msgs);
+    b = put_u16(b, (uint16_t)rx_err[DIR_DOWN]);
+    b = put_u16(b, (uint16_t)s->dir[DIR_DOWN].tx_msgs);
+    b = put_u16(b, (uint16_t)s->dir[DIR_DOWN].tx_err);
+    b = put_u16(b, (uint16_t)s->dir[DIR_UP].rx_msgs);
+    b = put_u16(b, (uint16_t)rx_err[DIR_UP]);
+    b = put_u16(b, (uint16_t)s->dir[DIR_UP].tx_msgs);
+    b = put_u16(b, (uint16_t)s->dir[DIR_UP].tx_err);
     b = put_u16(b, take_max_gap(&s->dir[DIR_DOWN], now));
     b = put_u16(b, take_max_gap(&s->dir[DIR_UP], now));
     *b++ = (nb_gcs > 255) ? 255 : nb_gcs;
+    b = put_u16(b, (uint16_t)up_dropped);
     *b++ = quality ? (uint8_t)rssi : VALUE_UNKNOWN;
-    *b++ = quality ? (uint8_t)snr : VALUE_UNKNOWN;
     pthread_mutex_unlock(&stats_mutex);
 
     uint8_t len = (b - frame) + 2;
@@ -1043,7 +1028,7 @@ int main(int argc, char** argv) {
     {"no-keep-awake", no_argument, NULL, 'n'},
     {"pprz", no_argument, NULL, 'p'},
     {"stats", required_argument, NULL, 's'},
-    {"node", required_argument, NULL, 'N'},
+    {"hop", required_argument, NULL, 'H'},
     {"broadcast", required_argument, NULL, 'b'},
     {0, 0, 0, 0}
   };
@@ -1060,14 +1045,15 @@ int main(int argc, char** argv) {
     "   -v --verbose                           Print verbose information (also the header of every frame)\n"
     "   -n --no-keep-awake                     Do not keep the CPU awake (see keep_awake_thread)\n"
     "   -p --pprz                              Only forward complete pprzlink v2 frames, one at a time (always with auto)\n"
-    "   -s --stats PERIOD_MS                   Period of LINK_ROUTER_REPORT (default 1000, 0 = off)\n"
-    "   -N --node air|ground                   Node in LINK_ROUTER_REPORT (default: air if the first endpoint is an UART)\n"
+    "   -s --stats PERIOD_MS                   Period of LINK_STATS (default 1000, 0 = off)\n"
+    "   -H --hop N                             Place on the path from the autopilot in LINK_STATS (default: 1 if the\n"
+    "                                          first endpoint is an UART, else 2)\n"
     "   -b --broadcast ADDR                    Also send the beacon of auto endpoints to ADDR (repeatable)\n"
-    " Link quality for LINK_ROUTER_REPORT can be given on stdin, one line per value: 'rssi <dBm>' or 'snr <dB>'\n";
+    " The signal of the link towards the ground can be given on stdin, one line per value: 'rssi <dBm>'\n";
 
   int c;
   int option_index = 0;
-  while((c = getopt_long(argc, argv, "e:hvnps:N:b:", long_options, &option_index)) != -1) {
+  while((c = getopt_long(argc, argv, "e:hvnps:H:b:", long_options, &option_index)) != -1) {
     switch (c) {
       case 'e':
         // Parse the endpoint argument UDP
@@ -1112,13 +1098,10 @@ int main(int argc, char** argv) {
         stats_period_ms = atoi(optarg);
         break;
 
-      case 'N':
-        if(!strcmp(optarg, "air"))
-          node = NODE_AIR;
-        else if(!strcmp(optarg, "ground"))
-          node = NODE_GROUND;
-        else {
-          fprintf(stderr, "Node %s is not air or ground\r\n", optarg);
+      case 'H':
+        hop = atoi(optarg);
+        if(hop < 1 || hop > 255) {
+          fprintf(stderr, "Hop %s is not between 1 and 255\r\n", optarg);
           return 2;
         }
         break;
@@ -1146,8 +1129,8 @@ int main(int argc, char** argv) {
     fprintf(stderr, usage, argv[0]);
     return 1;
   }
-  if(node == NODE_AUTO)
-    node = (endpoints[0].type == ENDPOINT_TYPE_UART) ? NODE_AIR : NODE_GROUND;
+  if(hop < 0)
+    hop = (endpoints[0].type == ENDPOINT_TYPE_UART) ? 1 : 2;  // next to the autopilot, or after a radio
 
   /* An auto endpoint routes frames, so it needs the frame mode, and always sends the beacon */
   bool has_auto = false;

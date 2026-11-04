@@ -24,8 +24,8 @@ pprzlink_router -e ENDPOINT -e ENDPOINT [...] [options]
   -b --broadcast ADDR  also send the beacon to ADDR (e.g. when the broadcast address is not the subnet's)
   -n --no-keep-awake   do not keep the CPU awake
   -p --pprz            only forward complete pprzlink v2 frames, one at a time (always with auto)
-  -s --stats MS        period of LINK_ROUTER_REPORT (default 1000, 0 = off)
-  -N --node air|ground node in LINK_ROUTER_REPORT (default: air if the first endpoint is an UART)
+  -s --stats MS        period of LINK_STATS (default 1000, 0 = off)
+  -H --hop N           place on the path from the autopilot in LINK_STATS (default: 1 if the first endpoint is an UART, else 2)
   -v --verbose         also prints the header of every frame (sender, receiver, class, message id)
 ```
 
@@ -36,7 +36,7 @@ pprzlink_router -e ENDPOINT -e ENDPOINT [...] [options]
 - **`auto` endpoints find their peers**, nothing has to be configured. Every address that sends a valid frame
   to it is a peer for 15 s (`link` pings every 5 s, and at once for a new aircraft):
   - on the ground side the peers are GCS computers: they get all downlink, unicast (Wi-Fi acknowledges and
-    retries unicast frames, not broadcast ones). The router's `LINK_ROUTER_REPORT` of every aircraft is also a
+    retries unicast frames, not broadcast ones). The router's `LINK_STATS` of every aircraft is also a
     1 Hz beacon, broadcast on `PORT` to every network interface (not loopback, not the address of another
     endpoint) and the `-b` addresses, so a GCS started later finds the aircraft;
   - as first endpoint the peers are aircraft (e.g. companion computers on a mesh): they are found by their
@@ -68,28 +68,29 @@ CK_A, CK_B). Only complete frames with a valid checksum are forwarded, one per s
 - frames from different endpoints (for example several drones) are never mixed;
 - corrupted bytes are dropped at the router.
 
-**Statistics.** Every second (`-s`) the router sends a `LINK_ROUTER_REPORT` per aircraft towards the ground,
-with the aircraft id as sender. It counts per
-direction the frames received, rejected (bad checksum or length), sent (one per destination) and not sent
-(socket full or error), and the longest time without a frame. Compared with `DATALINK_REPORT` (autopilot) and
-`LINK_REPORT` (link) this tells on which leg frames get lost: run `link_stats.py` on the laptop (add
-`DATALINK_REPORT` to the telemetry of the airframe for the UART leg):
+**Statistics.** Every second (`-s`) the router sends a `LINK_STATS` per aircraft towards the ground, with the
+aircraft id as sender and its `hop` (place on the path from the autopilot: the Herelink air unit is 1, the
+handheld 2). It counts per direction the frames received, rejected (bad checksum or length), sent (one per
+destination) and not sent (socket full or error), and the longest time without a frame. Any other node can
+send `LINK_STATS` too. Compared with `DATALINK_REPORT` (autopilot) and `LINK_REPORT` (link) this tells on which
+leg frames get lost: run `link_stats.py` on the laptop (add `DATALINK_REPORT` to the telemetry of the airframe
+for the first leg):
 
 ```
-A/C 7, uplink to 192.168.1.23:4243, ping 31 ms, laptops found by the handheld: 2, handheld Wi-Fi -55 dBm
+A/C 7, uplink to 192.168.1.23:4243, ping 31 ms, hop 1: -60 dBm, hop 2: -55 dBm, 2 laptops
                    sent/s   got/s   lost  reject   unsent  max gap
-down UART            97.3    97.2   0.1%       0        0    16 ms
-down radio           98.2    87.1  11.3%       0        0    32 ms
-down Wi-Fi           88.1    88.2   0.0%       0        0        -
-up   Wi-Fi            9.8    10.1   0.0%       0        0   106 ms
-up   radio           10.1     9.2   8.8%       0        0   204 ms
-up   UART             9.2     9.3   0.0%       0        0        -
+down AP-1            97.3    97.2   0.1%       0        0    16 ms
+down 1-2             98.2    87.1  11.3%       0        0    32 ms
+down 2-laptop        88.1    88.2   0.0%       0        0    40 ms
+up   laptop-2           -    10.1      -       0        0   106 ms
+up   2-1             10.1     9.2   8.8%       0        0   204 ms
+up   1-AP             9.2     9.3   0.0%       0        0        -
 ```
 
 With several laptops only this laptop's uplink is known, so the Wi-Fi uplink loss is not shown. The handheld
 also drops uplink for other aircraft (not over the radio) and counts it. Frames are counted exactly with `-p`; without it
-the sent counters count the forwarded pieces. The air router's report goes over the radio (~56 bytes/s),
-never over the UART. RSSI and SNR can be given on stdin, one line per value: `rssi <dBm>` or `snr <dB>`.
+the sent counters count the forwarded pieces. The air router's report goes over the radio (~35 bytes/s),
+never over the UART. The RSSI of the link towards the ground can be given on stdin: `rssi <dBm>` per line.
 
 The UDP send buffer is kept small (32 kB): on a slow link frames are dropped (and counted) instead of
 being delayed.
@@ -208,7 +209,7 @@ Paparazzi side: `link -udp` (it receives on port 4242 and answers to port 4243).
 - **Air unit:** the new router and `-p` in `init.sh`: build a new OEM image (below) or, as a test,
   `adb root`, `adb remount` or `mount -o remount,rw /oem`, and push `pprzlink_router_cc` and `init.sh`.
 - **Laptop:** update Paparazzi (`link`) and run `link -udp` as before. The old `link` keeps working with a router
-  that has a fixed address endpoint, but not with the auto endpoint (it does not know `LINK_ROUTER_REPORT`).
+  that has a fixed address endpoint, but not with the auto endpoint (it does not know `LINK_STATS`).
 
 ## Herelink OEM images
 
