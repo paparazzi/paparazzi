@@ -1,38 +1,54 @@
 # pprzlink_router
 
-Forwards Paparazzi telemetry between endpoints (UART and UDP). It is used on both Herelink units:
+Routes Paparazzi (pprzlink v2) frames between endpoints: UARTs and UDP sockets. It runs on any Linux
+computer (a static ARM build for the Herelink), between the autopilot and the GCS computers, for example:
 
-- **Air unit:** UART to the autopilot ↔ Herelink radio.
-- **Ground unit:** Herelink radio ↔ the laptops, over USB tethering, the Herelink Wi-Fi hotspot or a Wi-Fi
-  network the handheld joined.
+| Setup | Aircraft side (first endpoint) | Ground side |
+|---|---|---|
+| Herelink air unit | UART to the autopilot | Herelink radio (fixed UDP addresses) |
+| Herelink handheld | Herelink radio | the laptops (`auto`) |
+| Companion computer on a mesh radio (e.g. Doodle Labs) | UART to the autopilot | the mesh (`auto`) |
+| Ground computer between a mesh and the GCS network | the aircraft on the mesh (`auto`) | the laptops (`auto`) |
+
+A Linux autopilot (Bebop, ...) needs no router: `MODEM_HOST=auto` of `telemetry_transparent_udp` does the same
+discovery (see below).
 
 ![Herelink link](herelink_link.svg)
 
-Several drones (one Herelink pair each) and several laptops can share one network. The handheld finds the
-laptops itself, nothing has to be configured:
-
-1. The handheld router sends a 1 Hz beacon (its `LINK_ROUTER_REPORT`) to the broadcast address of its networks.
-2. `link -udp` on a laptop sees a new drone and sends it a `PING` at once.
-3. The router adds the laptop and sends all telemetry to it, unicast (Wi-Fi acknowledges and retries unicast
-   frames, not broadcast ones). A laptop silent for 15 s is removed (`link` pings every 5 s).
-4. `link` sends the uplink to the address the drone's frames come from, also after it changed.
-
-Everything stays plain UDP: no frame is queued or resent later, a lost frame is lost.
+## Routing
 
 ```
 pprzlink_router -e ENDPOINT -e ENDPOINT [...] [options]
   -e --endpoint uart://DEVICE:BAUD | udp://BIND_ADDR:BIND_PORT:SEND_ADDR:SEND_PORT
-                       udp://BIND_ADDR:BIND_PORT:auto:BEACON_PORT  (finds the GCS computers, see above)
+                       udp://BIND_ADDR:BIND_PORT:auto:PORT  (finds its peers, see below)
   -b --broadcast ADDR  also send the beacon to ADDR (e.g. when the broadcast address is not the subnet's)
   -n --no-keep-awake   do not keep the CPU awake
-  -p --pprz            only forward complete pprzlink v2 frames, one at a time
+  -p --pprz            only forward complete pprzlink v2 frames, one at a time (always with auto)
   -s --stats MS        period of LINK_ROUTER_REPORT (default 1000, 0 = off)
   -N --node air|ground node in LINK_ROUTER_REPORT (default: air if the first endpoint is an UART)
   -v --verbose         also prints the header of every frame (sender, receiver, class, message id)
 ```
 
-Everything received on one endpoint is sent out of all the others. The first endpoint faces the aircraft:
-what it receives is counted as downlink, what the other endpoints receive as uplink.
+- **The first endpoint faces the aircraft.** What it receives (downlink) goes out of all other endpoints,
+  what they receive (uplink) goes out of the first endpoint only.
+- **Several aircraft.** The router learns the aircraft from their telemetry (sender id). Uplink for an aircraft
+  it does not serve (receiver id) is dropped and counted; uplink for all aircraft (0xFF) goes to all.
+- **`auto` endpoints find their peers**, nothing has to be configured. Every address that sends a valid frame
+  to it is a peer for 15 s (`link` pings every 5 s, and at once for a new aircraft):
+  - on the ground side the peers are GCS computers: they get all downlink, unicast (Wi-Fi acknowledges and
+    retries unicast frames, not broadcast ones). The router's `LINK_ROUTER_REPORT` of every aircraft is also a
+    1 Hz beacon, broadcast on `PORT` to every network interface (not loopback, not the address of another
+    endpoint) and the `-b` addresses, so a GCS started later finds the aircraft;
+  - as first endpoint the peers are aircraft (e.g. companion computers on a mesh): they are found by their
+    beacon, and each gets only the uplink for its aircraft (and for all).
+- Everything stays plain UDP: no frame is queued or resent later, a lost frame is lost.
+
+How a laptop finds an aircraft:
+
+1. A router (or a Linux autopilot with `MODEM_HOST=auto`) broadcasts its beacon once per second.
+2. `link -udp` on the laptop sees a new aircraft and sends it a `PING` at once.
+3. The router adds the laptop and sends it all telemetry, unicast. A laptop silent for 15 s is removed.
+4. `link` sends the uplink to the address the aircraft's frames come from, also after it changed.
 
 ## Options
 
@@ -52,8 +68,8 @@ CK_A, CK_B). Only complete frames with a valid checksum are forwarded, one per s
 - frames from different endpoints (for example several drones) are never mixed;
 - corrupted bytes are dropped at the router.
 
-**Statistics.** Every second (`-s`) the router sends a `LINK_ROUTER_REPORT` towards the ground, with the
-aircraft id learned from the downlink as sender, as soon as it has seen a downlink frame. It counts per
+**Statistics.** Every second (`-s`) the router sends a `LINK_ROUTER_REPORT` per aircraft towards the ground,
+with the aircraft id as sender. It counts per
 direction the frames received, rejected (bad checksum or length), sent (one per destination) and not sent
 (socket full or error), and the longest time without a frame. Compared with `DATALINK_REPORT` (autopilot) and
 `LINK_REPORT` (link) this tells on which leg frames get lost: run `link_stats.py` on the laptop (add
@@ -86,6 +102,44 @@ herelink_app/build.sh   # Android app for the ground unit (see below)
 ```
 
 `herelink_app/build.sh` needs `default-jdk-headless aapt dalvik-exchange apksigner android-sdk-platform-23`.
+
+## Mesh radios (e.g. Doodle Labs)
+
+A mesh radio carries IP, so on the aircraft a companion computer (e.g. a Raspberry Pi) runs the router between
+the autopilot's UART and the mesh:
+
+```
+pprzlink_router -n -p -e uart:///dev/ttyAMA0:460800 -e udp://0.0.0.0:4245:auto:4244
+```
+
+- **Mesh bridged to the GCS network** (same subnet): use `udp://0.0.0.0:4243:auto:4242` on the aircraft.
+  The laptops find the aircraft directly, no ground computer is needed.
+- **Ground computer between the mesh and the GCS network** (e.g. a Raspberry Pi on the mesh radio and the
+  router/Wi-Fi of the laptops): it serves all aircraft on the mesh and all laptops:
+
+  ```
+  pprzlink_router -n -p -e udp://0.0.0.0:4244:auto:4245 -e udp://0.0.0.0:4243:auto:4242
+  ```
+
+  Use other ports on the mesh (4244/4245) than on the GCS network (4242/4243): a router listening on 4242
+  would also get the beacons of other routers on the GCS network (e.g. Herelink handhelds).
+
+Do not use both at the same time (bridged and a ground computer): the laptops would get every frame twice.
+
+## Linux autopilot (Bebop, ...)
+
+With `telemetry_transparent_udp` and `MODEM_HOST=auto` the autopilot finds the GCS computers like an `auto`
+endpoint: unicast to every address that sent to it in the last 15 s, broadcast when there is none, and one send
+per second broadcast (instead of unicast) so a laptop started later finds it. A laptop with an older `link`
+also finds it.
+
+```
+<module name="telemetry" type="transparent_udp">
+  <configure name="MODEM_HOST" value="auto"/>
+</module>
+```
+
+Several simulations on one computer all listen on port 4243: keep `link -udp -udp_broadcast` for them.
 
 ## Herelink air unit
 
