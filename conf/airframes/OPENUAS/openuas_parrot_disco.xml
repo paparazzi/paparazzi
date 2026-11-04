@@ -371,9 +371,16 @@
      <define name="BLOB_LOCATOR_CAMERA" value="bottom_camera"/>
     </module>-->
 
-    <!-- Stream MJPG live to the video panel of PprzGCS with the "Video to GCS" tool
-      (sw/tools/video/video_to_gcs.sh -i 5000 -o 5600), or view it with GStreamer:
-      gst-launch-1.0 udpsrc port=5000 caps=application/x-rtp,payload=26 ! rtpjpegdepay ! jpegdec ! autovideosink
+    <!-- Steam MJPG life to a videoviewer e.g. VLC via:
+      vlc ./sw/tools/rtp_viewer/rtp_5000.sdp
+
+      where the sdp file contains this:
+
+       v=0
+       m=video 5000 RTP/AVP 26
+       c=IN IP4 0.0.0.0
+
+      One can also stream life in GCS via Video Papget, see PPRZ Wiki on howto
     -->
 
     <!--
