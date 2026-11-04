@@ -159,15 +159,14 @@ class InstallWindow(QWidget):
             self.execute('sudo -E apt-get -f -y install cmake libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-dev')
         self.done('Bebop OpenCV installed successfully', 'Bebop OpenCV installation failed')
 
-    def cmd_vlc(self):
-        self.step('Step 9 — Installing VLC, Joystick & NatNet tools')
-        self.execute('sudo -E apt-get -f -y install ffmpeg vlc jstest-gtk default-jre')
+    def cmd_video(self):
+        self.step('Step 9 — Installing video (GStreamer), Joystick & NatNet tools')
+        self.execute('sudo -E apt-get -f -y install gstreamer1.0-tools gstreamer1.0-plugins-good jstest-gtk default-jre')
         self.execute('sudo -E apt-get install -y python3-pip')
         self.execute('python3 -m pip install future') # Required for MAVLink
         self.execute('python3 -m pip install pyquaternion ivy-python') # Required for NatNat
         self.execute('python3 -m pip install pymap3d') # Required for Moving-Base
-        self.execute('python3 -m pip install opencv-python') # Required for RTP-viewer
-        self.done('VLC / Joystick / NatNet installed successfully', 'Some packages failed to install')
+        self.done('Video / Joystick / NatNet installed successfully', 'Some packages failed to install')
         
 
     def cmd_doc(self):
@@ -253,8 +252,8 @@ class InstallWindow(QWidget):
         button8.clicked.connect(self.cmd_bebopcv)
         btn_layout.addWidget(button8)
 
-        button9 = QPushButton('9) VLC + Joystick + Natnet')
-        button9.clicked.connect(self.cmd_vlc)
+        button9 = QPushButton('9) Video + Joystick + Natnet')
+        button9.clicked.connect(self.cmd_video)
         btn_layout.addWidget(button9)
 
         button10 = QPushButton('10) View Documentation')

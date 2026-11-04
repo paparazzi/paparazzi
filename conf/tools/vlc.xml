@@ -1,3 +1,0 @@
-<program name="VLC" command="$vlc">
-  <arg flag="./sw/tools/rtp_viewer/rtp_5000.sdp"/>
-</program>
