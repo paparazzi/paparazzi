@@ -108,6 +108,8 @@ type status = {
   mutable ms_since_last_msg : int;
   mutable last_ping : float; (* s *)
   mutable last_pong : float; (* s *)
+  mutable last_rx_time : float; (* s, 0 before the first frame *)
+  mutable rx_max_gap : float; (* s, longest time without a frame since the previous LINK_REPORT *)
   mutable udp_peername : Unix.sockaddr option (* where the frames of this A/C come from (UDP only) *)
 }
 
@@ -119,6 +121,7 @@ let initial_status = {
   tx_msg = 0; tx_err = 0;
   ms_since_last_msg = !dead_aircraft_time_ms;
   last_ping = 0.; last_pong = 0.;
+  last_rx_time = 0.; rx_max_gap = 0.;
   udp_peername = None
 }
 
@@ -153,6 +156,10 @@ let update_status = fun ?udp_peername ac_id buf_size is_pong ->
   if not !udp then
     status.rx_err <- !PprzTransport.nb_err;
   status.ms_since_last_msg <- 0;
+  let now = Unix.gettimeofday () in
+  if status.last_rx_time > 0. then
+    status.rx_max_gap <- max status.rx_max_gap (now -. status.last_rx_time);
+  status.last_rx_time <- now;
   if is_pong then
     status.last_pong <- Unix.gettimeofday ();
   if is_new then
@@ -197,6 +204,11 @@ let send_status_msg =
       and msg_rate = float (status.rx_msg - status.last_rx_msg) /. dt in
       status.last_rx_msg <- status.rx_msg;
       status.last_rx_byte <- status.rx_byte;
+      (* the current silence counts too: a link that stopped shows a growing gap *)
+      let max_gap =
+        if status.last_rx_time > 0. then max status.rx_max_gap (Unix.gettimeofday () -. status.last_rx_time)
+        else 0. in
+      status.rx_max_gap <- 0.;
       let vs = ["ac_id", PprzLink.String (string_of_int ac_id);
                 "link_id", PprzLink.String (string_of_int !link_id);
                 "run_time", PprzLink.Int64 (Int64.of_int t);
@@ -209,7 +221,8 @@ let send_status_msg =
                 "tx_msgs", PprzLink.Int64 (Int64.of_int status.tx_msg);
                 "ping_time", PprzLink.Float (1000. *. (status.last_pong -. status.last_ping));
                 "tx_err", PprzLink.Int64 (Int64.of_int status.tx_err);
-                "peer", PprzLink.String (uplink_destination status.udp_peername)
+                "peer", PprzLink.String (uplink_destination status.udp_peername);
+                "rx_max_gap", PprzLink.Int64 (Int64.of_float (1000. *. max_gap))
                ] in
       send_ground_over_ivy "link" "LINK_REPORT" vs)
       statuss
