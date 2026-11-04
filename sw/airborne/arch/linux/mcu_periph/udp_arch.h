@@ -31,4 +31,12 @@
 
 extern void udp_arch_init(void);
 
+/**
+ * GCS computers found by the UDP links with host "auto" (see udp_arch.c), e.g. to send video to them too.
+ * @param[out] addr  IP addresses of the GCS computers (each address once)
+ * @param[in]  max   size of addr
+ * @return number of addresses (0: no GCS found, or no link with host "auto")
+ */
+extern int udp_arch_auto_gcs(struct in_addr *addr, int max);
+
 #endif /* UDP_ARCH_H */
