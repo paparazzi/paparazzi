@@ -170,6 +170,46 @@ static void udp_auto_send(struct UdpArch *ua, uint8_t *buffer, uint16_t size)
   }
 }
 
+/** GCS computers found by the links with host "auto", each IP address once */
+int udp_arch_auto_gcs(struct in_addr *addr, int max)
+{
+  struct udp_periph *periphs[] = {
+#ifdef USE_UDP0
+    &udp0,
+#endif
+#ifdef USE_UDP1
+    &udp1,
+#endif
+#ifdef USE_UDP2
+    &udp2,
+#endif
+    NULL
+  };
+  uint32_t now = udp_time_ms();
+  int nb = 0;
+  pthread_mutex_lock(&udp_mutex);
+  for (int p = 0; periphs[p] != NULL; p++) {
+    struct UdpArch *ua = (struct UdpArch *) periphs[p]->network;
+    if (ua == NULL || !ua->au.enabled) {
+      continue;
+    }
+    for (int i = 0; i < UDP_AUTO_MAX_GCS; i++) {
+      if (ua->au.gcs_seen_ms[i] == 0 || now - ua->au.gcs_seen_ms[i] > UDP_AUTO_GCS_TIMEOUT_MS) {
+        continue;
+      }
+      bool known = false;
+      for (int k = 0; k < nb; k++) {
+        known |= (addr[k].s_addr == ua->au.gcs[i].sin_addr.s_addr);
+      }
+      if (!known && nb < max) {
+        addr[nb++] = ua->au.gcs[i].sin_addr;
+      }
+    }
+  }
+  pthread_mutex_unlock(&udp_mutex);
+  return nb;
+}
+
 void udp_arch_init(void)
 {
   pthread_mutex_init(&udp_mutex, NULL);
