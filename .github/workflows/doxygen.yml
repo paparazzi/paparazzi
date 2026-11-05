@@ -6,6 +6,11 @@ on:
 
   workflow_dispatch:
 
+# All branches push to the same site repo: run one at a time
+concurrency:
+  group: doxygen-site
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -56,7 +61,13 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add -A
           git commit -m "Generated doxygen docs for $BRANCH_NAME."
-          git push https://$USERNAME:$REPO_KEY@github.com/paparazzi/paparazzi.github.com.git
+          # each branch only writes its own folder, so a rebase on newer docs never conflicts
+          for i in 1 2 3; do
+            git pull --rebase https://$USERNAME:$REPO_KEY@github.com/paparazzi/paparazzi.github.com.git master &&
+              git push https://$USERNAME:$REPO_KEY@github.com/paparazzi/paparazzi.github.com.git HEAD:master && exit 0
+            sleep 10
+          done
+          exit 1
         env:
           REPO_KEY: ${{secrets.PUSH_TOKEN}}
           USERNAME: github-actions[bot]

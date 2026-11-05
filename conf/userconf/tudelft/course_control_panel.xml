@@ -2,6 +2,25 @@
   <section name="programs">
     <program name="UnifiedMoCap" command="sw/ext/unifiedmocaprouter/build/mocap-router"/>
     <program name="GST" command="/usr/bin/gst-launch-1.0"/>
+    <program name="RtpViewer" command="sw/tools/rtp_viewer/rtp_viewer.py">
+      <arg flag="-s" constant="1"/>
+      <arg flag="-r" constant="3"/>
+    </program>
+    <program name="VLC" command="$vlc">
+      <arg flag="./sw/tools/rtp_viewer/rtp_5000.sdp"/>
+    </program>
+    <program name="VLC bottom camera" command="$vlc">
+      <arg flag="./sw/tools/rtp_viewer/rtp_6000.sdp"/>
+    </program>
+    <program name="Video to window" command="sw/tools/video/video_to_gcs.sh">
+      <arg flag="-i" constant="5000"/>
+      <arg flag="-r" constant="counterclockwise"/>
+      <arg flag="-w"/>
+    </program>
+    <program name="Bebop telnet at boot" command="sw/tools/parrot/bebop.py">
+      <arg flag="install_autostart"/>
+      <arg flag="native"/>
+    </program>
   </section>
   <section name="sessions">
 
@@ -26,21 +45,10 @@
         <arg flag="-d" constant="0"/>
       </program>
       <program name="Gazebo"/>
-      <program name="RtpViewer">
-        <arg flag="-s" constant="1"/>
-        <arg flag="-r" constant="3"/>
-      </program>
-      <program name="GST" command="/usr/bin/gst-launch-1.0">
-        <arg flag="udpsrc"/>
-        <arg flag="port=5000"/>
-        <arg flag="caps=application/x-rtp,payload=26"/>
-        <arg flag="! rtpjpegdepay ! jpegdec ! videoflip method=counterclockwise ! autovideosink"/>
-      </program>
-      <program name="VLC">
-        <arg flag="./sw/tools/rtp_viewer/rtp_5000.sdp"/>
-      </program>
-      <program name="VLC">
-        <arg flag="./sw/tools/rtp_viewer/rtp_6000.sdp"/>
+      <program name="Video to GCS">
+        <arg flag="-i" constant="5000"/>
+        <arg flag="-o" constant="5600"/>
+        <arg flag="-r" constant="counterclockwise"/>
       </program>
     </session>
 
@@ -73,21 +81,24 @@
         <arg flag="-an" constant="far"/>
         <arg flag="-le" constant="far"/>
       </program-->
-      <program name="RtpViewer">
-        <arg flag="-s" constant="1"/>
-        <arg flag="-r" constant="3"/>
+      <program name="Video to GCS">
+        <arg flag="-i" constant="5000"/>
+        <arg flag="-o" constant="5600"/>
+        <arg flag="-r" constant="counterclockwise"/>
       </program>
-      <program name="VLC">
-        <arg flag="./sw/tools/rtp_viewer/rtp_5000.sdp"/>
+    </session>
+    <session name="Video to window">
+      <program name="Video to window">
+        <arg flag="-i" constant="5000"/>
+        <arg flag="-r" constant="counterclockwise"/>
+        <arg flag="-w"/>
       </program>
-      <program name="VLC">
-        <arg flag="./sw/tools/rtp_viewer/rtp_6000.sdp"/>
-      </program>
-      <program name="GST" command="/usr/bin/gst-launch-1.0">
-        <arg flag="udpsrc"/>
-        <arg flag="port=5000"/>
-        <arg flag="caps=application/x-rtp,payload=26"/>
-        <arg flag="! rtpjpegdepay ! jpegdec ! videoflip method=counterclockwise ! autovideosink"/>
+    </session>
+    <!-- once per Bebop: telnet opens at every boot, no need to press the power button 4 times -->
+    <session name="Bebop telnet at boot (once)">
+      <program name="Bebop telnet at boot">
+        <arg flag="install_autostart"/>
+        <arg flag="native"/>
       </program>
     </session>
     <session name="Distance Counter">
