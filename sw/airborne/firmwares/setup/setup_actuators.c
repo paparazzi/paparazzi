@@ -88,8 +88,7 @@ static inline void main_init(void)
 
 static inline void main_periodic(void)
 {  
-  // generated macro from airframe file
-  AllActuatorsCommit();
+  actuators_commit();
 
   // Downlink the actuators raw driver values
   int16_t v[ACTUATORS_NB] = {0};

@@ -28,6 +28,7 @@
 extern int16_t actuators_uavcan1_values[SERVOS_UAVCAN1_NB];
 
 extern void actuators_uavcan1_set(uint8_t idx, int16_t value);
+extern void actuators_uavcan1_commit(void);
 
 #if USE_NPS
 #define ActuatorUavcan1Set NULL
@@ -36,7 +37,7 @@ extern void actuators_uavcan1_set(uint8_t idx, int16_t value);
 #else
 #define ActuatorUavcan1Set actuators_uavcan1_set
 #define ActuatorsUavcan1Init() actuators_uavcan_init(&uavcan1)
-#define ActuatorsUavcan1Commit()  RunOnceEvery(ACTUATORS_UAVCAN_RAW_DIV,actuators_uavcan_commit(&uavcan1, actuators_uavcan1_values, SERVOS_UAVCAN1_NB))
+#define ActuatorsUavcan1Commit actuators_uavcan1_commit
 #endif
 
 #endif /* ACTUATORS_UAVCAN1_H */

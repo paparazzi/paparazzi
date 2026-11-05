@@ -54,7 +54,7 @@ extern void actuators_md25_set(uint8_t idx, int16_t value);
 /* Actuator macros */
 #define ActuatorMD25Set actuators_md25_set
 #define ActuatorsMD25Init() actuators_md25_init()
-#define ActuatorsMD25Commit() actuators_md25_set()
+#define ActuatorsMD25Commit actuators_md25_commit
 
 #endif
 
