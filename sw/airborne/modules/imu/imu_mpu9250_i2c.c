@@ -33,7 +33,7 @@
 #include "generated/modules.h"
 
 #if !defined IMU_MPU9250_GYRO_LOWPASS_FILTER && !defined IMU_MPU9250_ACCEL_LOWPASS_FILTER && !defined IMU_MPU9250_SMPLRT_DIV
-#if PERIODIC_FREQUENCY < 500
+#if PERIODIC_FREQUENCY <= 120
 /* Accelerometer: Bandwidth 41Hz, Delay 5.9ms
  * Gyroscope: Bandwidth 41Hz, Delay 5.9ms sampling 1kHz
  * Output rate: 100Hz
@@ -42,6 +42,16 @@
 #define IMU_MPU9250_ACCEL_LOWPASS_FILTER MPU9250_DLPF_ACCEL_41HZ
 #define IMU_MPU9250_SMPLRT_DIV 9
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
+
+#elif PERIODIC_FREQUENCY < 500
+/* Accelerometer: Bandwidth 92Hz
+ * Gyroscope: Bandwidth 92Hz, Delay 3.9ms sampling 1kHz
+ * Output rate: 500Hz
+ */
+#define IMU_MPU9250_GYRO_LOWPASS_FILTER MPU9250_DLPF_GYRO_92HZ
+#define IMU_MPU9250_ACCEL_LOWPASS_FILTER MPU9250_DLPF_ACCEL_92HZ
+#define IMU_MPU9250_SMPLRT_DIV 1
+PRINT_CONFIG_MSG("Gyro/Accel output rate is 500Hz at 1kHz internal sampling")
 
 #else // PERIODIC_FREQUENCY >= 500
 /* Accelerometer: Bandwidth 184Hz, Delay 5.8ms

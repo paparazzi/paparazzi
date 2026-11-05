@@ -40,7 +40,7 @@ PRINT_CONFIG_VAR(IMU_MPU_SPI_DEV)
 
 /* MPU60x0 gyro/accel internal lowpass frequency */
 #if !defined IMU_MPU_LOWPASS_FILTER && !defined IMU_MPU_SMPLRT_DIV
-#if PERIODIC_FREQUENCY < 500
+#if PERIODIC_FREQUENCY <= 120
 /* Accelerometer: Bandwidth 44Hz, Delay 4.9ms
  * Gyroscope: Bandwidth 42Hz, Delay 4.8ms sampling 1kHz
  */
@@ -50,6 +50,18 @@ PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
 
 #ifndef IMU_MPU_ACCEL_LOWPASS_FILTER
 #define IMU_MPU_ACCEL_LOWPASS_FILTER MPU60X0_DLPF_ACC_44HZ // for ICM sensors
+#endif
+
+#elif PERIODIC_FREQUENCY < 500
+/* Accelerometer: Bandwidth 94Hz, Delay 3ms
+ * Gyroscope: Bandwidth 98Hz, Delay 2.8ms sampling 1kHz
+ */
+#define IMU_MPU_LOWPASS_FILTER MPU60X0_DLPF_98HZ
+#define IMU_MPU_SMPLRT_DIV 1
+PRINT_CONFIG_MSG("Gyro/Accel output rate is 500Hz at 1kHz internal sampling")
+
+#ifndef IMU_MPU_ACCEL_LOWPASS_FILTER
+#define IMU_MPU_ACCEL_LOWPASS_FILTER MPU60X0_DLPF_ACC_99HZ // for ICM sensors
 #endif
 
 #else // PERIODIC_FREQUENCY >= 500
