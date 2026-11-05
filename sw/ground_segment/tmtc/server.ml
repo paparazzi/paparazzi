@@ -186,6 +186,15 @@ let send_aircraft_reboot = fun ac_name st reason ->
   if now -. st.last_reboot > reboot_holdoff then begin
     st.last_reboot <- now;
     fprintf stderr "A/C %s rebooted or started a new log file (%s)\n%!" ac_name reason;
+    (* Forget the moved waypoints and setting values of before the reboot, the
+     * A/C is back at its flight plan and default settings: GCSs reloading it
+     * would otherwise get the old ones back (settings are sent as unknown
+     * until the A/C reports them again) *)
+    begin try
+      let a = Hashtbl.find aircrafts ac_name in
+      Hashtbl.reset a.waypoints;
+      Array.fill a.dl_setting_values 0 (Array.length a.dl_setting_values) None
+    with Not_found -> () end;
     try
       Ground_Pprz.message_send my_id "AIRCRAFT_REBOOT"
         [ "ac_id", PprzLink.String ac_name; "reason", PprzLink.String reason ]
