@@ -108,10 +108,10 @@
 
     <!-- PWM actuators -->   
     <servos driver="Pwm">
-        <servo no="0" name="MOTOR_FRONT"    min="1000"     neutral="1100"   max="2000"/>
-        <servo no="1" name="MOTOR_RIGHT"    min="1000"     neutral="1100"   max="2000"/>
-        <servo no="2" name="MOTOR_BACK"     min="1000"     neutral="1100"   max="2000"/>
-        <servo no="3" name="MOTOR_LEFT"     min="1000"     neutral="1100"   max="2000"/>
+        <servo no="1" name="MOTOR_FRONT"    min="1000"     neutral="1100"   max="2000"/>
+        <servo no="2" name="MOTOR_RIGHT"    min="1000"     neutral="1100"   max="2000"/>
+        <servo no="3" name="MOTOR_BACK"     min="1000"     neutral="1100"   max="2000"/>
+        <servo no="4" name="MOTOR_LEFT"     min="1000"     neutral="1100"   max="2000"/>
     </servos>
 
     <commands>
