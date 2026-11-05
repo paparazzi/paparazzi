@@ -32,6 +32,7 @@
 #include "modules/core/abi.h"
 #include "math/pprz_isa.h"
 #include "state.h"
+#include "mcu_periph/sys_time.h"
 #include "generated/airframe.h"
 #include "generated/modules.h"
 #include "pprzlink/dl_protocol.h"
@@ -110,6 +111,9 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_AIR_DATA automatically set to TRUE")
 /** counter to check baro health */
 static uint8_t baro_health_counter;
 
+/** Time of the last airspeed of a sensor (s), the computed airspeed is then not published again */
+static float sensor_airspeed_time = -10.f;
+
 
 static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, uint32_t __attribute__((unused)) stamp, float pressure)
 {
@@ -147,8 +151,11 @@ static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, float pr
 #if USE_AIRSPEED_AIR_DATA
     stateSetAirspeed_f(MODULE_AIR_DATA_ID, air_data.airspeed);
 #endif
-    /* for other modules, e.g. the airspeed fusion of ins_ekf2 */
-    AbiSendMsgAIRSPEED(AIRSPEED_AIR_DATA_ID, air_data.airspeed);
+    /* for other modules (e.g. the airspeed fusion of ins_ekf2) when the sensor only gives
+     * the differential pressure (e.g. ms45xx, uavcan), not when it also sends its airspeed (e.g. sdp3x) */
+    if (get_sys_time_float() - sensor_airspeed_time > 1.f) {
+      AbiSendMsgAIRSPEED(AIRSPEED_AIR_DATA_ID, air_data.airspeed);
+    }
   }
 }
 
@@ -166,6 +173,9 @@ static void airspeed_cb(uint8_t sender_id, float eas)
 {
   if (sender_id == AIRSPEED_AIR_DATA_ID) {
     return; // computed here from the differential pressure
+  }
+  if (sender_id != AIRSPEED_WE_QUAD_ID) {
+    sensor_airspeed_time = get_sys_time_float(); // an estimate isn't a sensor
   }
   air_data.airspeed = eas;
   if (air_data.calc_airspeed) {

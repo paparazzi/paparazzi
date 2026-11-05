@@ -12,15 +12,15 @@
       INS_EKF2_name for the PX4 parameter EKF2_name (e.g. INS_EKF2_GPS_CTRL, INS_EKF2_HGT_REF,
       INS_EKF2_MAG_TYPE, INS_EKF2_EV_CTRL, INS_EKF2_OF_CTRL, INS_EKF2_EVP_NOISE, INS_EKF2_IMU_POS_X),
       and the GNSS checks as INS_EKF2_GNSS_name for GNSS_name (e.g. INS_EKF2_GNSS_REQ_EPH).
-      The GNSS thresholds are the ones of PX4 (EPH 3 m, EPV 5 m, speed accuracy 0.5 m/s, 10 s healthy
-      before use), stricter than the previous version (5 m, 8 m, 1.0 m/s): set them in the airframe
-      for a receiver that doesn't reach them (e.g. the Bebop internal GNSS).
+      The GNSS thresholds are the ones of the previous version for the horizontal and speed accuracy
+      (EPH 5 m, speed accuracy 1.0 m/s, PX4 uses 3 m and 0.5 m/s) and of PX4 for the rest (EPV 5 m,
+      10 s healthy before use).
       See sw/ext/px4_ekf2/generated/ekf2_params.h and https://docs.px4.io/main/en/advanced_config/parameter_reference.html
       Sensors are only used when their data arrives, so a sensor enabled in a *_CTRL parameter
       without that sensor does nothing.
 
       Airspeed and sideslip are only fused in fixed wing flight: always for the fixedwing firmware,
-      and for hybrids flown with the rotorcraft firmware when they override ins_ekf2_fixed_wing_flight()
+      and for hybrids flown with the rotorcraft firmware when they set stateSetFixedWingFlight()
       (rotwing_state does this for the forward flight).
     </description>
     <define name="INS_EKF2_OPTITRACK" value="FALSE|TRUE" description="Indoor configuration with only external vision (e.g. Optitrack): EV position, velocity, yaw and height, no GNSS, magnetometer and barometer, EV noise 0.02 m / 0.05 rad and delay 175 ms (each can be changed)"/>
@@ -36,9 +36,9 @@
     <define name="INS_EKF2_FUSE_BETA" value="0" description="Synthetic sideslip fusion in fixed wing flight (fixedwing default 1, also 1 for hybrids)"/>
     <define name="INS_EKF2_AIRSPEED_ID" value="ABI_BROADCAST" description="ABI sender ID of the airspeed: any sensor, or AIRSPEED_AIR_DATA_ID computed by air_data from a differential pressure sensor (the airspeed estimated from the wind is never used). Choose one when a sensor gives both."/>
     <define name="INS_EKF2_GNSS_CHECK" value="(GNSS_CHECK_NSATS|GNSS_CHECK_EPH|GNSS_CHECK_SACC|GNSS_CHECK_FIX)" description="GNSS checks before the GNSS data is used (GNSS_CHECK_*), PX4 uses all except jamming (2047)"/>
-    <define name="INS_EKF2_GNSS_REQ_EPH" value="3.0" description="Maximum horizontal position accuracy [m]"/>
+    <define name="INS_EKF2_GNSS_REQ_EPH" value="5.0" description="Maximum horizontal position accuracy [m] (PX4 3.0)"/>
     <define name="INS_EKF2_GNSS_REQ_EPV" value="5.0" description="Maximum vertical position accuracy [m]"/>
-    <define name="INS_EKF2_GNSS_REQ_SACC" value="0.5" description="Maximum speed accuracy [m/s]"/>
+    <define name="INS_EKF2_GNSS_REQ_SACC" value="1.0" description="Maximum speed accuracy [m/s] (PX4 0.5)"/>
     <define name="INS_EKF2_GNSS_REQ_NSATS" value="6" description="Required number of satellites"/>
     <define name="INS_EKF2_GNSS_REQ_PDOP" value="2.5" description="Maximum PDOP"/>
     <define name="INS_EKF2_GPS_DELAY" value="110" description="GNSS measurement delay [ms] (PX4 SENS_GNSS0_DELAY)"/>
@@ -60,6 +60,7 @@
     <define name="INS_EKF2_EVENT_MSGS" value="TRUE|FALSE" description="Send the EKF events and status changes (alignment, fusion started/stopped, resets, faults) as INFO_MSG to the GCS and the flight recorder (default: TRUE)"/>
     <define name="INS_EKF2_EVENT_HOLDOFF" value="5" unit="s" description="Minimum time between two messages about the same status (default: 5 s)"/>
     <define name="INS_EKF2_PREFLIGHT_POS" value="TRUE|FALSE" description="Preflight check: require the configured position source (GNSS or external vision) to be used (default: TRUE)"/>
+    <define name="INS_EKF2_PREFLIGHT_INNOV_TAU" value="1.0" description="Preflight check: time constant of the low-pass filter of the innovation test ratios [s], a filtered ratio above 1 blocks arming"/>
     <define name="INS_EKF2_FORCE_NAV_REF" value="FALSE|TRUE" description="force to use the reference defined in the flight plan and not the one computed by the filter after first good GPS position"/>
 
     <configure name="USE_ALT_LLA_WAYPOINTS" value="FALSE|TRUE" description="Use LLA altitude instead of LTP z for long distance flight (default=TRUE)"/>
