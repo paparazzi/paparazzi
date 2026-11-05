@@ -32,6 +32,7 @@
 #include "modules/ins/ins_ekf2.h"
 #include "modules/nav/waypoints.h"
 #include "modules/core/abi.h"
+#include "modules/imu/imu.h"
 #include "stabilization/stabilization_attitude.h"
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
@@ -1124,7 +1125,8 @@ void ins_ekf2_init(void)
   ekf2.armed = false;
   ekf2.fixed_wing = false;
   ekf2.air_density = PPRZ_ISA_AIR_DENSITY;
-  /* Field strength of the world magnetic model for the normalized magnetometer */
+  /* Field strength of the world magnetic model at the flight plan origin, for a magnetometer without
+   * the strength where it was calibrated (strength in IMU_MAG_CALIB) */
   ekf2.mag_scale = 0.4f;
 #if USE_INS_NAV_INIT
   float strength = get_mag_strength_gauss(NAV_LAT0 * 1e-7f, NAV_LON0 * 1e-7f);
@@ -1621,7 +1623,7 @@ static void accel_int_cb(uint8_t sender_id __attribute__((unused)),
 }
 
 /* Update INS based on Magnetometer information */
-static void mag_cb(uint8_t __attribute__((unused)) sender_id,
+static void mag_cb(uint8_t sender_id,
                    uint32_t stamp,
                    struct Int32Vect3 *mag)
 {
@@ -1630,10 +1632,12 @@ static void mag_cb(uint8_t __attribute__((unused)) sender_id,
   }
   struct FloatVect3 mag_gauss;
 
-  // The calibrated magnetometer is normalized: scale it to the field strength of the world
-  // magnetic model at the flight plan origin, fixed from the start (a change of the scale
-  // while the EKF runs is learned as a magnetometer bias and gives a heading error)
-  const float scale = ekf2.mag_scale;
+  // The calibrated magnetometer is 1 where it was calibrated: scale it to the field strength there
+  // (IMU_MAG_CALIB strength, written by the calibration tool), else to the field strength of the
+  // world magnetic model at the flight plan origin. The scale is fixed (a change while the EKF runs
+  // is learned as a magnetometer bias and gives a heading error)
+  struct imu_mag_t *imu_mag = imu_get_mag(sender_id, false);
+  const float scale = (imu_mag != NULL && imu_mag->strength > 0.1f && imu_mag->strength < 1.f) ? imu_mag->strength : ekf2.mag_scale;
   MAGS_FLOAT_OF_BFP(mag_gauss, *mag);
   mag_gauss.x *= scale;
   mag_gauss.y *= scale;
