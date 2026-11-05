@@ -24,8 +24,9 @@ try:
         def __init__(self, parent=None):
             super().__init__(parent)
 
-            self.mag_data = np.empty((0,3))
-            self.mag_id = None
+            self.all_data = {}    # raw samples of every magnetometer, per (ac_id, mag_id)
+            self.mag_data = np.empty((0,3))   # samples of the magnetometer shown
+            self.positions = {}   # GNSS fixes (lat, lon) per aircraft, for the field strength
 
             self.vlay = QtWidgets.QVBoxLayout(self)
 
@@ -72,6 +73,7 @@ try:
             self.mag_sig.connect(self.update_mag)
 
             self.raw_bind_id = None
+            self.gps_bind_id = None
             self.ivy_sub_button.setEnabled(False)
             self.refresh_filter()
 
@@ -94,14 +96,16 @@ try:
             self.cmds_lay.addWidget(mag_lbl)
 
             self.mag_combo = QtWidgets.QComboBox(self)
+            self.mag_combo.setToolTip("Magnetometer shown. The data of all of them is collected")
             self.cmds_lay.addWidget(self.mag_combo)
-            self.mag_combo.addItem("--- Select sensor in list ---")
+            self.mag_combo.addItem("--- Select sensor in list ---", None)
+            self.mag_combo.currentIndexChanged.connect(self.show_selected)
 
             self.ivy_sub_button = QtWidgets.QPushButton("Start listening data", self)
             self.cmds_lay.addWidget(self.ivy_sub_button)
             self.ivy_sub_button.clicked.connect(self.sub_unsub)
 
-            clear_button = QtWidgets.QPushButton("Clear data")
+            clear_button = QtWidgets.QPushButton("Clear all data")
             clear_button.setSizePolicy(QSP.Policy.Fixed, QSP.Policy.Fixed)
             self.cmds_lay.addWidget(clear_button)
             clear_button.clicked.connect(self.reset_data)
@@ -111,7 +115,8 @@ try:
             self.cmds_lay.addWidget(self.distance_auto_chk)
             self.distance_auto_chk.setChecked(True)
 
-            calibrate_button = QtWidgets.QPushButton("calibrate", self)
+            calibrate_button = QtWidgets.QPushButton("Calibrate all", self)
+            calibrate_button.setToolTip("Calibrate all magnetometers of the aircraft shown")
             calibrate_button.setSizePolicy(QSP.Policy.Fixed, QSP.Policy.Fixed)
             self.cmds_lay.addWidget(calibrate_button)
             calibrate_button.clicked.connect(self.calibrate)
@@ -146,47 +151,49 @@ try:
             if self.raw_bind_id is not None:
                 self.connect.ivy.unsubscribe(self.raw_bind_id)
                 self.raw_bind_id = None
+            if self.gps_bind_id is not None:
+                self.connect.ivy.unsubscribe(self.gps_bind_id)
+                self.gps_bind_id = None
             self.ivy_sub_button.setText("Start listening data")
         
         def sub_unsub(self):
             if self.raw_bind_id is None:
                 self.raw_bind_id = self.connect.ivy.subscribe(self.mag_raw_cb, PprzMessage("telemetry", "IMU_MAG_RAW"))
+                self.gps_bind_id = self.connect.ivy.subscribe(self.gps_cb, PprzMessage("telemetry", "GPS_INT"))
                 self.ivy_sub_button.setText("Stop listening data")
             else:
-                self.connect.ivy.unsubscribe(self.raw_bind_id)
-                self.ivy_sub_button.setText("Start listening data")
-                self.raw_bind_id = None
+                self.stop()
+
+        def gps_cb(self, sender, msg):
+            # 3D fixes, for the field strength where the magnetometer is calibrated
+            if int(msg['fix']) >= 3:
+                self.positions.setdefault(str(sender), []).append((float(msg['lat']) * 1e-7, float(msg['lon']) * 1e-7))
 
         def reset_data(self):
+            self.all_data = {}
             self.mag_data = np.empty((0,3))
             self.refresh_filter()
             self.mean_norm = 1
-            self.mag_id = None
-        
+
         def mag_raw_cb(self, sender, msg):
-            ac_id = str(sender)
-            conf = self.connect.conf_by_id().get(ac_id)
-            if conf is None:
-                return
-            ac_name = conf.name
-            mag_id = int(msg['id'])
-            mag_label = f"{ac_name}: {mag_id}"
+            # Ivy thread: handled in the GUI thread
+            self.mag_sig.emit((str(sender), int(msg['id']),
+                               np.array([float(msg['mx']), float(msg['my']), float(msg['mz'])])))
 
-            mag_idx = self.mag_combo.findText(mag_label)
-            cur_idx = self.mag_combo.currentIndex()
-
-            if cur_idx == mag_idx:
-                mx = msg['mx']
-                my = msg['my']
-                mz = msg['mz']
-                mag = np.array([mx, my, mz])
-                self.mag_sig.emit((mag_id, mag))
-            elif mag_idx == -1:
-                self.mag_combo.addItem(mag_label)
-        
         def update_mag(self, mag_data):
-            self.mag_id, mag = mag_data
-            self.mag_data = np.vstack([self.mag_data, mag])
+            ac_id, mag_id, mag = mag_data
+            key = (ac_id, mag_id)
+            if key not in self.all_data:
+                self.all_data[key] = np.empty((0,3))
+                conf = self.connect.conf_by_id().get(ac_id) if self.connect is not None else None
+                ac_name = conf.name if conf is not None else "Aircraft " + ac_id
+                self.mag_combo.addItem(f"{ac_name}: {mag_id}", key)
+                if self.mag_combo.currentData() is None:
+                    self.mag_combo.setCurrentIndex(self.mag_combo.count() - 1)
+            self.all_data[key] = np.vstack([self.all_data[key], mag])
+            if self.mag_combo.currentData() != key:
+                return
+            self.mag_data = self.all_data[key]
             mag_unit = mag / np.linalg.norm(mag)
             self.refresh_filter()
             shaft = np.array([[0,0,0], mag_unit*self.mean_norm])
@@ -194,7 +201,14 @@ try:
 
             if self.mag_data.shape[0] % 10 == 0:
                 self.resize_grid()
-        
+
+        def show_selected(self):
+            key = self.mag_combo.currentData()
+            self.mag_data = self.all_data.get(key, np.empty((0,3)))
+            self.refresh_filter()
+            if len(self.mag_data):
+                self.resize_grid()
+
         def resize_grid(self):
             norms = np.linalg.norm(self.mag_data, axis=1)
             self.mean_norm = np.mean(norms)
@@ -211,46 +225,68 @@ try:
                 self.gl_widget.setCameraPosition(distance=self.mean_norm*5)
         
         def calibrate(self):
-            calib_text = ""
-            try:
-                import calibration_utils
-                points = self.mag_data[self.accepted_indices()]
-                if len(points) < 6 or np.any(np.ptp(points, axis=0) == 0):
-                    raise ValueError("Collect more accepted samples covering different orientations.")
-                p0 = calibration_utils.get_min_max_guess(points, 1.)
-                p1, msg, success = calibration_utils.optimize_calibration(points, 1., p0)
-                if success in [1, 2, 3, 4]:
-                    calib_text = calibration_utils.format_xml(p1, "MAG", self.mag_id, 11)
-                else:
-                    calib_text = "calibration failed\n"+msg
-            except Exception as e:
-                calib_text = "calibration error\n"+str(e)
-            finally:
-                dia = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Icon.Information,"Calibration", calib_text, QtWidgets.QMessageBox.StandardButton.Ok, self)
-                dia.open()
+            """Calibrate all magnetometers of the aircraft shown, as one IMU_MAG_CALIB define"""
+            import calibration_utils
+            from calib_result_dialog import CalibResultDialog
+            key = self.mag_combo.currentData()
+            if key is None:
+                summary, xml = "No magnetometer data yet: start listening and turn the aircraft in all directions.", ""
+            else:
+                ac_id = key[0]
+                structs, comments, done = [], [], []
+                # field strength where it is calibrated, from the GNSS fixes of the aircraft
+                strength, location = None, ""
+                pos = self.positions.get(ac_id, [])
+                if pos:
+                    lat, lon = np.median(np.array(pos), axis=0)
+                    strength = calibration_utils.get_mag_strength_gauss(lat, lon)
+                    location = f"{lat:.4f} {lon:.4f} (GNSS)"
+                for (ac, mag_id) in sorted(k for k in self.all_data if k[0] == ac_id):
+                    data = self.all_data[(ac, mag_id)]
+                    points = data[self.accepted_indices(data)]
+                    try:
+                        if len(points) < 6 or np.any(np.ptp(points, axis=0) == 0):
+                            raise ValueError("not enough accepted samples in different orientations")
+                        p0 = calibration_utils.get_min_max_guess(points, 1.)
+                        p1, msg, success = calibration_utils.optimize_calibration(points, 1., p0)
+                        if success not in [1, 2, 3, 4] or not np.isfinite(p1).all():
+                            raise ValueError(msg)
+                        structs.append(calibration_utils.format_xml_struct(p1, mag_id, 11, strength, location))
+                        _, norms = calibration_utils.scale_measurements(points, p1)
+                        done.append(f"mag {mag_id}: {len(points)} samples, norm {norms.mean():.3f} \u00b1 {norms.std():.3f}")
+                    except Exception as e:
+                        comments.append(f"mag {mag_id} not calibrated: {e}")
+                xml = calibration_utils.format_xml_define("MAG", structs, comments) if structs else ""
+                summary = "\n".join(done + comments)
+                if strength is None:
+                    summary += "\nNo GNSS fix received: no field strength (calibrate.py --lat --lon can add it)"
+            self.result_dialog = CalibResultDialog("Magnetometer calibration", summary, xml, self)
+            self.result_dialog.open()
 
-        def noise_threshold(self):
+        def noise_threshold(self, data=None):
+            data = self.mag_data if data is None else data
             if self.auto_noise_threshold:
-                if not len(self.mag_data):
+                if not len(data):
                     return 0
-                neutral = np.mean(self.mag_data)
+                neutral = np.mean(data)
                 return 0.6 * np.median(np.linalg.norm(
-                    self.mag_data - neutral, axis=1))
+                    data - neutral, axis=1))
             return self.noise_slider.value()
 
         def threshold_changed(self, value):
             self.auto_noise_threshold = value == 0
             self.refresh_filter()
 
-        def accepted_indices(self):
+        def accepted_indices(self, data=None):
             # Match calibration_utils.filter_meas with MAG's window_size=10.
+            data = self.mag_data if data is None else data
             window = 10
-            if len(self.mag_data) <= 2 * window:
+            if len(data) <= 2 * window:
                 return np.empty(0, dtype=int)
             windows = np.lib.stride_tricks.sliding_window_view(
-                self.mag_data, 2 * window, axis=0)[:-1]
+                data, 2 * window, axis=0)[:-1]
             noise = np.linalg.norm(windows.std(axis=2), axis=1)
-            return np.flatnonzero(noise < self.noise_threshold()) + window
+            return np.flatnonzero(noise < self.noise_threshold(data)) + window
 
         def refresh_filter(self):
             threshold = self.noise_threshold()
