@@ -28,6 +28,10 @@
 
 #include "mcu_periph/i2c.h"
 
+/* Declare commit before airframe.h uses it in actuators_commit(). */
+extern void actuators_asctec_v2_commit(void);
+#define ActuatorsAsctec_v2Commit actuators_asctec_v2_commit
+
 #include "generated/airframe.h"
 
 enum actuators_asctec_v2_cmd { NONE,
@@ -67,12 +71,10 @@ extern struct ActuatorsAsctecV2 actuators_asctec_v2;
   }
 
 extern void actuators_asctec_v2_init(void);
-extern void actuators_asctec_v2_commit(void);
 extern void actuators_asctec_v2_set(uint8_t idx, int16_t value);
 
 #define ActuatorAsctec_v2Set actuators_asctec_v2_set
 #define ActuatorsAsctec_v2Init() actuators_asctec_v2_init()
-#define ActuatorsAsctec_v2Commit() actuators_asctec_v2_commit()
 
 
 #endif /* ACTUATORS_ASCTEC_H */

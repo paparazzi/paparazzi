@@ -24,7 +24,7 @@
 #define ROVER_GUIDANCE_STEERING_H
 
 /** Generated airframe.h from airframe.xml
- * - fun: SetActuatorsFromCommands
+ * - fun: SetActuatorsFromCommandsNoCommit, followed by actuators_commit
  * - var: commands
  * - var: hardware and construction parameters
  **/

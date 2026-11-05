@@ -22,7 +22,16 @@
 #ifndef ACTUATORS_DUMMY_H
 #define ACTUATORS_DUMMY_H
 
-#define ActuatorDummySet(_i, _v) {}
+#include "std.h"
+
+/* No-op setter for the generated actuator table. */
+static inline void actuators_dummy_set(uint8_t idx, int16_t value)
+{
+  (void)idx;
+  (void)value;
+}
+
+#define ActuatorDummySet actuators_dummy_set
 #define ActuatorsDummyInit() {}
 #define ActuatorsDummyCommit() {}
 
