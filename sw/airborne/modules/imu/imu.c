@@ -564,6 +564,7 @@ void imu_init(void)
       imu.mags[i].calibrated.rotation = false;
       imu.mags[i].calibrated.rot_euler = false;
       imu.mags[i].calibrated.current = false;
+      imu.mags[i].strength = 0;
     } else {
       imu.mags[i] = mag_calib[i];
     }
