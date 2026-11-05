@@ -150,7 +150,7 @@
 
     <!-- PWM actuators -->   
     <servos driver="Pwm">
-        <servo no="0" name="ROTATION_MECH"   min="1360" neutral="1586" max="1812"/>
+        <servo no="1" name="ROTATION_MECH"   min="1360" neutral="1586" max="1812"/>
     </servos>
 
     <!-- Can bus 1 actuators -->

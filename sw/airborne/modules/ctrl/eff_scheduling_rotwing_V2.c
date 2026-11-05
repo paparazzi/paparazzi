@@ -535,12 +535,9 @@ void calc_all_thrust_curve(void){
       RW.mL.dFdu = temp_mQ_k/RW_G_SCALE;
       break;
   }
-  // T = k1*u^2 + k2*u + k3-----|k1                      | k2                     | k3                     | u
-  float T_mF = calc_thrust_curve(ROTWING_EFF_SCHED_MF_k1, ROTWING_EFF_SCHED_MF_k2, ROTWING_EFF_SCHED_MF_k3, actuator_state_1l[COMMAND_MOTOR_FRONT]);
-  float T_mR = calc_thrust_curve(ROTWING_EFF_SCHED_MR_k1, ROTWING_EFF_SCHED_MR_k2, ROTWING_EFF_SCHED_MR_k3, actuator_state_1l[COMMAND_MOTOR_RIGHT]);
-  float T_mB = calc_thrust_curve(ROTWING_EFF_SCHED_MB_k1, ROTWING_EFF_SCHED_MB_k2, ROTWING_EFF_SCHED_MB_k3, actuator_state_1l[COMMAND_MOTOR_BACK]);
-  float T_mL = calc_thrust_curve(ROTWING_EFF_SCHED_ML_k1, ROTWING_EFF_SCHED_ML_k2, ROTWING_EFF_SCHED_ML_k3, actuator_state_1l[COMMAND_MOTOR_LEFT]);
-  RW.T = RW.m*9.81;//T_mF + T_mR + T_mB + T_mL;
+  // Total hover thrust is taken as the weight. Alternative: the sum of the thrust curves
+  // T = k1*u^2 + k2*u + k3 with u = actuator_state_1l[COMMAND_MOTOR_*] (see calc_thrust_curve)
+  RW.T = RW.m*9.81;
   Bound(RW.T, 30.0, 180.0);
 }
 
