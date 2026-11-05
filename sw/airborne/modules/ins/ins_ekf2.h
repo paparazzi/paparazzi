@@ -63,7 +63,6 @@ struct ekf2_t {
 
 extern void ins_ekf2_init(void);
 extern void ins_ekf2_update(void);
-extern bool ins_ekf2_fixed_wing_flight(void);
 extern void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf);
 extern void ins_ekf2_parse_EXTERNAL_POSE_SMALL(uint8_t *buf);
 extern struct ekf2_t ekf2;

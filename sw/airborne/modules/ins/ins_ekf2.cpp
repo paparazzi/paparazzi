@@ -58,11 +58,14 @@ using namespace estimator;
 #if defined(INS_EKF2_GPS_CHECK_MASK) || defined(INS_EKF2_GPS_REQ_EPH) || defined(INS_EKF2_GPS_REQ_EPV) || defined(INS_EKF2_GPS_REQ_SACC) || defined(INS_EKF2_GPS_REQ_NSATS) || defined(INS_EKF2_GPS_REQ_PDOP)
 #error "INS_EKF2_GPS_CHECK_MASK and GPS_REQ_* are replaced by INS_EKF2_GNSS_CHECK and GNSS_REQ_*"
 #endif
-#if defined(INS_EKF2_FLOW_SENSOR_DELAY) || defined(INS_EKF2_MIN_FLOW_QUALITY) || defined(INS_EKF2_MAX_FLOW_RATE) || defined(INS_EKF2_FLOW_NOISE) || defined(INS_EKF2_FLOW_NOISE_QMIN) || defined(INS_EKF2_FLOW_INNOV_GATE) || defined(INS_EKF2_FLOW_POS_X)
+#if defined(INS_EKF2_FLOW_SENSOR_DELAY) || defined(INS_EKF2_MIN_FLOW_QUALITY) || defined(INS_EKF2_MAX_FLOW_RATE) || defined(INS_EKF2_FLOW_NOISE) || defined(INS_EKF2_FLOW_NOISE_QMIN) || defined(INS_EKF2_FLOW_INNOV_GATE) || defined(INS_EKF2_FLOW_POS_X) || defined(INS_EKF2_FLOW_POS_Y) || defined(INS_EKF2_FLOW_POS_Z)
 #error "INS_EKF2_FLOW_* are replaced by INS_EKF2_OF_DELAY, OF_QMIN, OF_MAX_RATE, OF_N_MIN, OF_N_MAX, OF_GATE and OF_POS_*"
 #endif
 #if defined(INS_EKF2_SONAR_MIN_RANGE) || defined(INS_EKF2_SONAR_MAX_RANGE) || defined(INS_EKF2_RANGE_MAIN_AGL)
 #error "INS_EKF2_SONAR_* and RANGE_MAIN_AGL are replaced by INS_EKF2_RNG_MIN_DIST, RNG_MAX_DIST and RNG_CTRL"
+#endif
+#if defined(INS_EKF2_RELHEADING_DISTANCE) || defined(INS_EKF2_RELHEADING_ERR) || defined(INS_EKF2_GPS_COURSE_YAW)
+#error "INS_EKF2_RELHEADING_DISTANCE/_ERR and GPS_COURSE_YAW are replaced by INS_EKF2_GPS_ANTENNA_DISTANCE/_ERR and the EKF-GSF yaw estimator (yaw from the GNSS velocity)"
 #endif
 
 /** INS reference from flight plan, true by default */
@@ -151,6 +154,15 @@ PRINT_CONFIG_VAR(INS_EKF2_GNSS_CHECK)
 #ifndef INS_EKF2_EV_DELAY
 #define INS_EKF2_EV_DELAY 175.f
 #endif
+#endif
+
+/** GNSS accuracy thresholds of the previous version (PX4: EPH 3 m, speed accuracy 0.5 m/s),
+ *  reached by the internal receivers of e.g. the Bebop2 */
+#ifndef INS_EKF2_GNSS_REQ_EPH
+#define INS_EKF2_GNSS_REQ_EPH 5.0f
+#endif
+#ifndef INS_EKF2_GNSS_REQ_SACC
+#define INS_EKF2_GNSS_REQ_SACC 1.0f
 #endif
 
 /** Barometer as height reference (PX4 uses GNSS), as the previous version: the
@@ -839,7 +851,45 @@ static void ins_ekf2_check_events(void)
 #define INS_EKF2_PREFLIGHT_POS TRUE
 #endif
 
+/** Time constant of the low-pass filter of the innovation test ratios for the preflight check (s),
+ *  so a single outlier doesn't block arming (as PX4) */
+#ifndef INS_EKF2_PREFLIGHT_INNOV_TAU
+#define INS_EKF2_PREFLIGHT_INNOV_TAU 1.f
+#endif
+
 static struct preflight_check_t ins_ekf2_pfc;
+
+/** Innovation test ratios checked before takeoff */
+#define EKF2_PREFLIGHT_INNOV_NB 4
+static const char *const ekf2_preflight_innov_names[EKF2_PREFLIGHT_INNOV_NB] = {"heading", "velocity", "position", "height"};
+static struct {
+  float ratio[EKF2_PREFLIGHT_INNOV_NB];   ///< Filtered innovation test ratios, NAN when not available
+  float last_time;                        ///< Last filter update (s)
+} ekf2_preflight;
+
+/** Low-pass filter the innovation test ratios, after each EKF update */
+static void ins_ekf2_preflight_filter(void)
+{
+  float now = get_sys_time_float();
+  float dt = now - ekf2_preflight.last_time;
+  ekf2_preflight.last_time = now;
+  const float ratio[EKF2_PREFLIGHT_INNOV_NB] = {
+    ekf.getHeadingInnovationTestRatio(),
+    math::max(ekf.getHorizontalVelocityInnovationTestRatio(), ekf.getVerticalVelocityInnovationTestRatio()),
+    ekf.getHorizontalPositionInnovationTestRatio(),
+    ekf.getVerticalPositionInnovationTestRatio()
+  };
+  float alpha = math::constrain(dt / (INS_EKF2_PREFLIGHT_INNOV_TAU + dt), 0.f, 1.f);
+  for (uint8_t i = 0; i < EKF2_PREFLIGHT_INNOV_NB; i++) {
+    if (!PX4_ISFINITE(ratio[i])) {
+      ekf2_preflight.ratio[i] = NAN;
+    } else if (!PX4_ISFINITE(ekf2_preflight.ratio[i])) {
+      ekf2_preflight.ratio[i] = ratio[i];
+    } else {
+      ekf2_preflight.ratio[i] += alpha * (ratio[i] - ekf2_preflight.ratio[i]);
+    }
+  }
+}
 
 static void ins_ekf2_preflight(struct preflight_result_t *result)
 {
@@ -885,16 +935,10 @@ static void ins_ekf2_preflight(struct preflight_result_t *result)
   }
 #endif
 
-  // Innovation test ratios above 1 mean the measurements are rejected
-  const struct { const char *name; float ratio; } innov[] = {
-    {"heading", ekf.getHeadingInnovationTestRatio()},
-    {"velocity", math::max(ekf.getHorizontalVelocityInnovationTestRatio(), ekf.getVerticalVelocityInnovationTestRatio())},
-    {"position", ekf.getHorizontalPositionInnovationTestRatio()},
-    {"height", ekf.getVerticalPositionInnovationTestRatio()},
-  };
-  for (uint8_t i = 0; i < sizeof(innov) / sizeof(innov[0]); i++) {
-    if (PX4_ISFINITE(innov[i].ratio) && innov[i].ratio > 1.f) {
-      preflight_error(result, "EKF2 %s innovation too high (%.1f)", innov[i].name, innov[i].ratio);
+  // Filtered innovation test ratios above 1 mean the measurements are rejected
+  for (uint8_t i = 0; i < EKF2_PREFLIGHT_INNOV_NB; i++) {
+    if (PX4_ISFINITE(ekf2_preflight.ratio[i]) && ekf2_preflight.ratio[i] > 1.f) {
+      preflight_error(result, "EKF2 %s innovation too high (%.1f)", ekf2_preflight_innov_names[i], ekf2_preflight.ratio[i]);
     }
   }
 
@@ -905,6 +949,8 @@ static void ins_ekf2_preflight(struct preflight_result_t *result)
     preflight_success(result, "EKF2 ok");
   }
 }
+#else
+#define ins_ekf2_preflight_filter() {}
 #endif /* PREFLIGHT_CHECKS */
 
 /* Initialize the EKF */
@@ -1029,6 +1075,9 @@ void ins_ekf2_init(void)
   AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 
 #if PREFLIGHT_CHECKS
+  for (uint8_t i = 0; i < EKF2_PREFLIGHT_INNOV_NB; i++) {
+    ekf2_preflight.ratio[i] = NAN;
+  }
   preflight_check_register(&ins_ekf2_pfc, ins_ekf2_preflight);
 #endif
 }
@@ -1087,7 +1136,9 @@ static void ins_ekf2_update_system_flags(void)
 {
   bool in_air = autopilot_in_flight();
   bool armed = autopilot_get_motors_on();
-  bool fixed_wing = ins_ekf2_fixed_wing_flight();
+  // airspeed and sideslip fusion, no ground effect, airspeed for the yaw estimator: always for the fixedwing
+  // firmware, in forward flight for hybrids flown with the rotorcraft firmware (e.g. rotwing_state)
+  bool fixed_wing = stateIsFixedWingFlight();
   uint64_t now = ekf2_time_us(get_sys_time_usec());
   if (in_air == ekf2.in_air && armed == ekf2.armed && fixed_wing == ekf2.fixed_wing
       && now < ekf2.system_flags_time + 1000000) {
@@ -1105,18 +1156,6 @@ static void ins_ekf2_update_system_flags(void)
   ekf2.armed = armed;
   ekf2.fixed_wing = fixed_wing;
   ekf2.system_flags_time = now;
-}
-
-/** Flying as a fixed wing (airspeed and sideslip fusion, no ground effect, airspeed for the yaw estimator).
- *  True for the fixedwing firmware. Hybrids flown with the rotorcraft firmware (e.g. rotwing_state)
- *  override this weak function with their forward flight state. */
-bool __attribute__((weak)) ins_ekf2_fixed_wing_flight(void)
-{
-#if defined(FIXEDWING_FIRMWARE)
-  return true;
-#else
-  return false;
-#endif
 }
 
 /** Airspeed (equivalent airspeed) to the EKF as true airspeed */
@@ -1170,6 +1209,7 @@ void ins_ekf2_update(void)
     // Update the EKF but ignore the response and also copy the faster intermediate filter
     ekf.update();
     ins_ekf2_check_events();
+    ins_ekf2_preflight_filter();
 
     /* Get the accelerations in NED frame (average since the last update) */
     const Vector3f vel_deriv_f{ekf.getVelocityDerivative()};
