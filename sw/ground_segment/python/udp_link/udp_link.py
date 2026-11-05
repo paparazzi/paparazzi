@@ -31,12 +31,14 @@ class DownLinkStatus():
         self.rx_bytes = 0
         self.rx_msgs = 0
         self.tx_msgs = 0
+        self.tx_bytes = 0
         self.run_time = 0
         self.last_rx_bytes = 0
         self.last_rx_msgs = 0
         self.last_msg_time = 0
         self.last_ping_time = 0
         self.last_pong_time = 0
+        self.max_gap = 0  # longest time without a frame since the previous status (s)
 
 class UDPLink:
     def __init__(self,opts):
@@ -58,7 +60,11 @@ class UDPLink:
             self.ac_downlink_status[ac_id] = DownLinkStatus(ac_id, address)
         self.ac_downlink_status[ac_id].rx_msgs += 1
         self.ac_downlink_status[ac_id].rx_bytes += length
-        self.ac_downlink_status[ac_id].last_msg_time = time.time()
+        now = time.time()
+        status = self.ac_downlink_status[ac_id]
+        if status.last_msg_time > 0:
+            status.max_gap = max(status.max_gap, now - status.last_msg_time)
+        status.last_msg_time = now
         if isPong:
             self.ac_downlink_status[ac_id].last_pong_time = time.time() - self.ac_downlink_status[ac_id].last_ping_time
 
@@ -77,6 +83,7 @@ class UDPLink:
                 for dest in self.ac_downlink_status.keys():
                     self.udp.send(msg, 0, (self.ac_downlink_status[dest].address[0], self.uplink_port))
                     self.ac_downlink_status[dest].tx_msgs += 1
+                    self.ac_downlink_status[dest].tx_bytes += len(self.udp.trans.pack_pprz_msg(0, msg))
         else:
             if isinstance(ac_id,str):
                 ac_id = int(ac_id)
@@ -84,6 +91,7 @@ class UDPLink:
             if self.ac_downlink_status.has_key(ac_id):
                 self.udp.send(msg,0,(self.ac_downlink_status[ac_id].address[0],self.uplink_port),ac_id)
                 self.ac_downlink_status[ac_id].tx_msgs+=1
+                self.ac_downlink_status[ac_id].tx_bytes += len(self.udp.trans.pack_pprz_msg(0, msg, ac_id))
             else:
                 print ('Message for unknown ac %d' % ac_id)
 
@@ -131,7 +139,7 @@ class UDPLink:
 
     def sendStatus(self):
         for (key, value) in self.ac_downlink_status.items():
-            self.ivy.send("link LINK_REPORT %i %i %i %i %i %i %i %i %i %i %i" % (
+            self.ivy.send("link LINK_REPORT %i %i %i %i %i %i %i %i %i %i %i %i %s %i %i" % (
                 value.ac_id,
                 -1,
                 value.run_time,
@@ -142,7 +150,12 @@ class UDPLink:
                 value.rx_bytes - value.last_rx_bytes,
                 value.rx_msgs - value.last_rx_msgs,
                 value.tx_msgs,
-                1000 * value.last_pong_time))
+                1000 * value.last_pong_time,
+                0,
+                "%s:%d" % (value.address[0], self.uplink_port),
+                1000 * max(value.max_gap, time.time() - value.last_msg_time),
+                value.tx_bytes))
+            value.max_gap = 0
             value.last_rx_bytes = value.rx_bytes
             value.last_rx_msgs = value.rx_msgs
             value.run_time = value.run_time + 1
