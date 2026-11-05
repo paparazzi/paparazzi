@@ -391,6 +391,12 @@
 #endif
 #endif
 
+/* PWM_SERVO_<n> is the index in actuators_pwm_values,
+ * so the array needs one more element than the highest output */
+#if defined(PWM_SERVO_8) && !defined(ACTUATORS_PWM_NB)
+#define ACTUATORS_PWM_NB 9
+#endif
+
 /*
  * ALARM defines
  */
