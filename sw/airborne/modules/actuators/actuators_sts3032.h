@@ -29,6 +29,10 @@
 #include <stdint.h>
 #include "mcu_periph/uart.h"
 #include "utils/framed_ring_buffer.h"
+
+/* Define commit before airframe.h uses it in actuators_commit(). */
+#define ActuatorsSTS3032Commit() {}
+
 #include "generated/airframe.h"
 
 
@@ -75,7 +79,6 @@ extern void sts3032_write_pos(struct sts3032 *sts, uint8_t id, int16_t position)
 /* Actuator macros */
 #define ActuatorSTS3032Set actuators_sts3032_set
 #define ActuatorsSTS3032Init() actuators_sts3032_init()
-#define ActuatorsSTS3032Commit() {}
 
 extern int sts3032_enabled;
 extern int sts3032_current_id;

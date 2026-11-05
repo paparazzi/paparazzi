@@ -44,7 +44,7 @@ extern void actuators_pwm_arch_commit(void);
  */
 extern void actuators_pwm_set(uint8_t idx, int16_t value);
 
-/** Compatibility macros
+/** Driver interface
  */
 #define ActuatorPwmSet actuators_pwm_set
 #define ActuatorsPwmInit actuators_pwm_arch_init
