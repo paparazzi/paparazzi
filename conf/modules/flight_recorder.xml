@@ -5,7 +5,7 @@
     <description>
       Record flight data according to your telemetry file.
       Data are stored on a SD card with the pprzlog format.
-      Currently only supported on Apogee/Fixedwing using chibios implementation.
+      Supported on ChibiOS boards, Linux based autopilots (Bebop, ...) and in NPS simulation.
       The selected telemetry file should include a FlightRecorder process.
     </description>
     <configure name="FLIGHTRECORDER_SDLOG" value="TRUE|FALSE" description="Enable/disable logging on internal SD card (default=TRUE)"/>
@@ -21,7 +21,7 @@
   <init fun="flight_recorder_init()"/>
   <periodic fun="flight_recorder_periodic()" autorun="TRUE"/>
   <datalink message="INFO_MSG_UP" fun="flight_recorder_log_msg_up(buf)"/>
-  <makefile target="ap">
+  <makefile target="ap|nps">
     <file name="flight_recorder.c"/>
     <define name="FLIGHTRECORDER_SDLOG" cond="ifneq (FALSE,$(findstring $(FLIGHTRECORDER_SDLOG),FALSE))"/>
     <configure name="TELEMETRY_FREQUENCY" default="$(PERIODIC_FREQUENCY)"/>
