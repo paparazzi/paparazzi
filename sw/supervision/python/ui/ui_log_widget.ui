@@ -6,85 +6,100 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>359</width>
-    <height>128</height>
+    <width>900</width>
+    <height>560</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>SD log extractor</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
+    <layout class="QHBoxLayout" name="source_layout">
+     <item>
+      <widget class="QLabel" name="count_label">
        <property name="text">
-        <string>SD log file</string>
+        <string>No logs</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QToolButton" name="input_button">
+     <item>
+      <spacer name="source_spacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>10</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="source_label">
+       <property name="text">
+        <string>Source</string>
+       </property>
+       <property name="buddy">
+        <cstring>source_combo</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="source_combo">
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="toolTip">
-        <string>Select SD LOG file</string>
+        <string>SD cards are detected when they are mounted. Use Browse to read the logs from another folder.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="browse_button">
+       <property name="toolTip">
+        <string>Read the logs from a folder</string>
        </property>
        <property name="text">
-        <string>...</string>
+        <string>Browse…</string>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
          <normaloff>:/icons/icons/open.png</normaloff>:/icons/icons/open.png</iconset>
        </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
+       </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QToolButton" name="output_button">
+     <item>
+      <widget class="QToolButton" name="delete_button">
        <property name="toolTip">
-        <string>Select output directory</string>
+        <string>Delete logs from the SD card (all of them, or all except the last ones)</string>
        </property>
        <property name="text">
-        <string>...</string>
+        <string>Delete logs…</string>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/open.png</normaloff>:/icons/icons/open.png</iconset>
+         <normaloff>:/icons/icons/delete.png</normaloff>:/icons/icons/delete.png</iconset>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Output dir</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="output_edit"/>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="input_edit"/>
-     </item>
-     <item row="1" column="3">
-      <widget class="QToolButton" name="reset_output_button">
-       <property name="toolTip">
-        <string>reset to default</string>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resources.qrc">
-         <normaloff>:/icons/icons/undo.png</normaloff>:/icons/icons/undo.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="4">
+     <item>
       <widget class="QToolButton" name="help_button">
        <property name="toolTip">
-        <string>help</string>
+        <string>Help</string>
        </property>
        <property name="text">
-        <string>...</string>
+        <string>?</string>
        </property>
        <property name="icon">
         <iconset resource="resources.qrc">
@@ -92,17 +107,334 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+    </layout>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="log_table">
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="verticalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <column>
+      <property name="text">
+       <string>File</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Size</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Flight date (GPS)</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Aircraft</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Status</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="panels_layout">
+     <item>
+      <widget class="QGroupBox" name="output_box">
+       <property name="title">
+        <string>Output</string>
+       </property>
+       <layout class="QVBoxLayout" name="output_layout">
+        <item>
+         <layout class="QHBoxLayout" name="folder_layout">
+          <item>
+           <widget class="QLabel" name="output_label">
+            <property name="text">
+             <string>Folder</string>
+            </property>
+            <property name="buddy">
+             <cstring>output_edit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="output_edit">
+            <property name="toolTip">
+             <string>Output folder, with $YY $MM $DD $hh $mm $ss (flight date), $AIRCRAFT and $AC_ID</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="output_button">
+            <property name="toolTip">
+             <string>Select the output folder</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/icons/icons/open.png</normaloff>:/icons/icons/open.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="reset_output_button">
+            <property name="toolTip">
+             <string>Reset to the default folder</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/icons/icons/undo.png</normaloff>:/icons/icons/undo.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="preview_label">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="tlm_check">
+          <property name="toolTip">
+           <string>Also keep a copy of the raw SD log (.tlm) next to the .data and .log files</string>
+          </property>
+          <property name="text">
+           <string>Keep .tlm copy</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="upload_check">
+          <property name="toolTip">
+           <string>Give the extracted logs to the log uploader (Log upload tab)</string>
+          </property>
+          <property name="text">
+           <string>Add to log upload queue</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="delete_after_check">
+          <property name="toolTip">
+           <string>Delete the log from the SD card once it is extracted without errors, when it was decoded with its build configuration or a .tlm copy is kept</string>
+          </property>
+          <property name="text">
+           <string>Delete from SD card after extraction</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="details_box">
+       <property name="title">
+        <string>Details</string>
+       </property>
+       <layout class="QVBoxLayout" name="details_layout">
+        <item>
+         <layout class="QFormLayout" name="details_form">
+          <item row="0" column="0">
+           <widget class="QLabel" name="frames_title">
+            <property name="text">
+             <string>Frames</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="frames_label">
+            <property name="text">
+             <string>-</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="duration_title">
+            <property name="text">
+             <string>Duration</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="duration_label">
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="definitions_title">
+            <property name="text">
+             <string>Message definitions</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="definitions_label">
+            <property name="text">
+             <string>-</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="files_title">
+            <property name="text">
+             <string>Files</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="files_label">
+            <property name="text">
+             <string>-</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="open_layout">
+          <item>
+           <widget class="QPushButton" name="plotter_button">
+            <property name="text">
+             <string>Open in log plotter</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="folder_button">
+            <property name="text">
+             <string>Open folder</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="open_spacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="run_layout">
+     <item>
       <widget class="QLabel" name="status_label">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QPushButton" name="process_button">
+     <item>
+      <widget class="QProgressBar" name="progress_bar">
+       <property name="maximumSize">
+        <size>
+         <width>260</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="textVisible">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="run_spacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>10</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancel_button">
+       <property name="toolTip">
+        <string>Stop after the log being extracted now</string>
+       </property>
        <property name="text">
-        <string>Process</string>
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="extract_selected_button">
+       <property name="toolTip">
+        <string>Extract the ticked logs</string>
+       </property>
+       <property name="text">
+        <string>Extract selected</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="extract_new_button">
+       <property name="toolTip">
+        <string>Extract all logs which were not extracted before</string>
+       </property>
+       <property name="text">
+        <string>Extract new</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

@@ -40,6 +40,7 @@
 
 
 #include "firmwares/rotorcraft/stabilization/stabilization_andi.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "math/pprz_algebra_float.h"
 #include "state.h"

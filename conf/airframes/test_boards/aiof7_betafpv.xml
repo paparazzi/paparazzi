@@ -16,6 +16,8 @@
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="ppm"/>
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <define name="AHRS_USE_GPS_HEADING" value="TRUE" />
     </target>
 
     <module name="telemetry" type="xbee_api">
@@ -66,7 +68,7 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="IMU_ACCEL_CALIB" type="array">
+    <define name="ACCEL_CALIB" type="array">
       <field type="struct">
         <field name="abi_id" value="24"/>
         <field name="calibrated" type="struct">

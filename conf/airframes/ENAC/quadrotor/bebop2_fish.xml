@@ -10,7 +10,7 @@
     <define name="FAILSAFE_MODE_DISTANCE" value="MAX_DIST_FROM_HOME"/>
 
     <target name="ap" board="bebop2">
-      <configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi"/>
+      <configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi-"/>
       <configure name="HOST" value="192.168.1.$(AC_ID)"/>
       <configure name="MODEM_HOST" value="192.168.1.255"/>
       <define name="CLIMB_VSPEED" value="0.2"/>
