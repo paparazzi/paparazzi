@@ -436,6 +436,37 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
 static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data);
 static void imu_set_body_to_imu_eulers(struct FloatEulers *body_to_imu_eulers);
 
+/*
+ * Preflight check: warn for accelerometers and magnetometers that send data without a calibration
+ * in the airframe (IMU_ACCEL_CALIB, IMU_MAG_CALIB), the estimators (e.g. ins_ekf2) need it.
+ * Not for the simulated sensors of NPS and HITL (IMU_NPS_ID), which are ideal.
+ */
+#if PREFLIGHT_CHECKS
+#include "modules/checks/preflight_checks.h"
+
+static struct preflight_check_t imu_pfc;
+
+static void imu_preflight(struct preflight_result_t *result)
+{
+  uint16_t fail_cnt = result->fail_cnt;
+  uint16_t warning_cnt = result->warning_cnt;
+  for (uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
+    // only the real sensors that sent data (their ABI id is then set)
+    if (imu.accels[i].abi_id != ABI_DISABLE && imu.accels[i].abi_id != ABI_BROADCAST && imu.accels[i].abi_id != IMU_NPS_ID
+        && !(imu.accels[i].calibrated.neutral && imu.accels[i].calibrated.scale_f)) {
+      preflight_warning(result, "IMU accel %d not calibrated", imu.accels[i].abi_id);
+    }
+    if (imu.mags[i].abi_id != ABI_DISABLE && imu.mags[i].abi_id != ABI_BROADCAST && imu.mags[i].abi_id != IMU_NPS_ID
+        && !(imu.mags[i].calibrated.neutral && imu.mags[i].calibrated.scale_f)) {
+      preflight_warning(result, "IMU mag %d not calibrated", imu.mags[i].abi_id);
+    }
+  }
+  if (result->fail_cnt == fail_cnt && result->warning_cnt == warning_cnt) {
+    preflight_success(result, "IMU calibrated");
+  }
+}
+#endif
+
 void imu_init(void)
 {
   // Set the Body to IMU rotation
@@ -564,6 +595,7 @@ void imu_init(void)
       imu.mags[i].calibrated.rotation = false;
       imu.mags[i].calibrated.rot_euler = false;
       imu.mags[i].calibrated.current = false;
+      imu.mags[i].strength = 0;
     } else {
       imu.mags[i] = mag_calib[i];
     }
@@ -627,6 +659,10 @@ void imu_init(void)
   imu.accel_abi_send_id = IMU_ACCEL_ABI_SEND_ID;
   imu.mag_abi_send_id = IMU_MAG_ABI_SEND_ID;
   imu.initialized = true;
+
+#if PREFLIGHT_CHECKS
+  preflight_check_register(&imu_pfc, imu_preflight);
+#endif
 }
 
 /**
