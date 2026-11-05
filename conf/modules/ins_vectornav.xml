@@ -13,7 +13,7 @@
     <provides>imu,ins,ahrs,gps</provides>
   </dep>
   <header>
-    <file name="ins.h"/>
+    <file name="ins_vectornav.h"/>
   </header>
   <init fun="ins_vectornav_init()"/>
   <periodic fun="ins_vectornav_monitor()" freq="1.0" autorun="TRUE"/>

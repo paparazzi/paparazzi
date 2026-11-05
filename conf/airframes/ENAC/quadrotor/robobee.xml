@@ -27,7 +27,7 @@
     <target name="nps" board="pc">
       <!--module name="fdm" type="jsbsim"/-->
       <module name="fdm" type="pybullet">
-        <define name="PYBULLET_GUI" value="TRUE"/>
+        <define name="NPS_PYBULLET_GUI" value="TRUE"/>
         <define name="NPS_BYPASS_AHRS" value="TRUE"/>
         <define name="NPS_BYPASS_INS" value="TRUE"/>
       </module>
@@ -238,7 +238,7 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATORS_ORDER" value="{3, 2, 1, 0}"/>
+    <define name="PYBULLET_ACTUATORS_ORDER" value="{3, 2, 1, 0}"/>
     <define name="PYBULLET_MODULE" value="simple_quad_sim" type="string"/>
     <define name="PYBULLET_URDF" value="robobee.urdf" type="string"/>
     <!--define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>

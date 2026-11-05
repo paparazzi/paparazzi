@@ -46,8 +46,6 @@ class Ui_SupervisionWindow(object):
         self.log_widget = LogWidget(self.tab_log)
         self.log_widget.setObjectName("log_widget")
         self.verticalLayout_5.addWidget(self.log_widget)
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_5.addItem(spacerItem)
         self.tabWidget.addTab(self.tab_log, "")
         self.magviewer_widget = MagViewer()
         self.magviewer_widget.setObjectName("magviewer_widget")

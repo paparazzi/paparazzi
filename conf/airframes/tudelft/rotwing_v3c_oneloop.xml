@@ -149,7 +149,7 @@
 
     <!-- PWM actuators -->   
     <servos driver="Pwm">
-        <servo no="0" name="ROTATION_MECH"   min="1360" neutral="1586" max="1812"/>
+        <servo no="1" name="ROTATION_MECH"   min="1360" neutral="1586" max="1812"/>
     </servos>
 
     <!-- Can bus 1 actuators -->
@@ -306,11 +306,12 @@
         <define name="MAG_Z_SENS" value="0.5925392191738064" integer="16"/> -->
     </section>
     <checklist>
-        <item name="pic" type="text">Enter the PIC</item>
-        <item name="pac" type="text">Enter the PAC</item>
-        <item name="gcs" type="text">Enter the GCS op</item>
+        <item name="pic" type="text" remember="true">Enter the PIC</item>
+        <item name="pac" type="text" remember="true">Enter the PAC</item>
+        <item name="gcs" type="text" remember="true">Enter the GCS op</item>
         <item name="goal" type="text">Goal of the flight</item>
         <item name="basic law">Location, airspace and weather</item>
+        <item name="special" type="text" optional="true" help="Anything special about the location, airspace or weather (NOTAM, other traffic, wind limits, ...). Leave empty if nothing is special.">Special conditions</item>
         <item name="RC Battery">Check the RC battery</item>
         <item name="tail connection">Check tail connection</item>
         <item name="wing tape">Check wings taped and secured</item>

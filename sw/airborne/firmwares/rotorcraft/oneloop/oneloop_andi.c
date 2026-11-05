@@ -601,7 +601,6 @@ static void send_wls_u_oneloop(struct transport_tx *trans, struct link_device *d
 }
 static void send_eff_mat_stab_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
-  float zero = 0.0;
   pprz_msg_send_EFF_MAT_STAB(trans, dev, AC_ID, 
                 ANDI_NUM_ACT, EFF_MAT_RW[3],
                 ANDI_NUM_ACT, EFF_MAT_RW[4],
@@ -776,6 +775,7 @@ static void Pos_PID(float x_des[3], float x[3],float x_dot[3], float k_P, float 
         if (integral[i] >  I_MAX) integral[i] =  I_MAX;
         if (integral[i] < -I_MAX) integral[i] = -I_MAX;
 #ifdef USE_PID_NUMDIFF_DERIVATIVE
+        (void) x_dot; // only used by the state derivative below
         // Numerical derivative  
         //static float prev_err[3]  = {0.0f, 0.0f, 0.0f};
         //float derivative = (err - prev_err[i]) / dt_1l; 

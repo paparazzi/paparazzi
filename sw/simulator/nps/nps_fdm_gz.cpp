@@ -384,6 +384,9 @@ static void init_gazebo(void)
     sdf::addURIPath("world://", dir + "world/");
     resource_path += dir + "models/:";
   }
+  // models that only gz-sim needs (e.g. model://ground_plane, from the Classic model database)
+  sdf::addURIPath("model://", pprz_home + "/conf/simulator/gazebo/models_gz/");
+  resource_path += pprz_home + "/conf/simulator/gazebo/models_gz/:";
   // model:// URIs in the merged world are resolved by gz-sim through this path
   const char *env_path = getenv("GZ_SIM_RESOURCE_PATH");
   if (env_path != NULL) {

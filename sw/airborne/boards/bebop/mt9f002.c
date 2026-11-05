@@ -33,6 +33,41 @@
 
 #include <stdio.h>
 #include <unistd.h>
+
+#ifndef MT9F002_I2C_TRIES
+#define MT9F002_I2C_TRIES 3
+#endif
+
+/**
+ * Blocking I2C transaction with result check and retry.
+ * Never resubmits while the previous transaction is still queued, and sets the register
+ * address again before each read (a failed read can overwrite it).
+ * @return true when the transaction succeeded
+ */
+static bool i2c_checked(struct i2c_periph *p, struct i2c_transaction *t, uint8_t slave, uint16_t reg,
+                        uint8_t len_w, uint16_t len_r, float timeout, const char *tag)
+{
+  for (int tries = 1; tries <= MT9F002_I2C_TRIES; tries++) {
+    for (int w = 0; w < 500 && (t->status == I2CTransPending || t->status == I2CTransRunning); w++) {
+      usleep(1000);
+    }
+    enum I2CTransactionStatus s;
+    if (len_r > 0) {
+      t->buf[0] = reg >> 8;
+      t->buf[1] = reg & 0xFF;
+      s = i2c_blocking_transceive(p, t, slave, len_w, len_r, timeout);
+    } else {
+      s = i2c_blocking_transmit(p, t, slave, len_w, timeout);
+    }
+    if (s == I2CTransSuccess) {
+      return true;
+    }
+    fprintf(stderr, "[%s] I2C %s of 0x%04x failed (status %d, try %d of %d)\n", tag,
+            len_r > 0 ? "read" : "write", reg, s, tries, MT9F002_I2C_TRIES);
+    usleep(10000);
+  }
+  return false;
+}
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
@@ -194,7 +229,7 @@ static void write_reg(struct mt9f002_t *mt, uint16_t addr, uint32_t val, uint8_t
   }
 
   // Transmit the buffer
-  i2c_blocking_transmit(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, len + 2, 0.5);
+  i2c_checked(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, addr, len + 2, 0, 0.5, "MT9F002");
 }
 
 /**
@@ -207,7 +242,7 @@ static uint32_t read_reg(struct mt9f002_t *mt, uint16_t addr, uint8_t len)
   mt->i2c_trans.buf[1] = addr & 0xFF;
 
   // Transmit the buffer and receive back
-  i2c_blocking_transceive(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, 2, len, 0.5);
+  i2c_checked(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, addr, 2, len, 0.5, "MT9F002");
 
   /* Fix signdness */
   for (uint8_t i = 0; i < len; i++) {

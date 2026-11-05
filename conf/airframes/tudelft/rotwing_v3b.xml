@@ -149,7 +149,7 @@
     <!-- PWM actuators -->
     <servos driver="Pwm">
     <!--1018 = quad 2086 = fw-->
-        <servo NO="0" NAME="ROTATION_MECH"  MIN="1018" NEUTRAL="1552" MAX="2086"/>
+        <servo NO="1" NAME="ROTATION_MECH"  MIN="1018" NEUTRAL="1552" MAX="2086"/>
     </servos>
 
     <!-- Can bus 1 actuators -->
@@ -387,11 +387,12 @@
     </section>
 
     <checklist>
-        <item name="pic" type="text">Enter the PIC</item>
-        <item name="pac" type="text">Enter the PAC</item>
-        <item name="gcs" type="text">Enter the GCS op</item>
+        <item name="pic" type="text" remember="true">Enter the PIC</item>
+        <item name="pac" type="text" remember="true">Enter the PAC</item>
+        <item name="gcs" type="text" remember="true">Enter the GCS op</item>
         <item name="goal" type="text">Goal of the flight</item>
         <item name="basic law">Location, airspace and weather</item>
+        <item name="special" type="text" optional="true" help="Anything special about the location, airspace or weather (NOTAM, other traffic, wind limits, ...). Leave empty if nothing is special.">Special conditions</item>
         <item name="RC Battery">Check the RC battery</item>
         <item name="tail connection">Check tail connection</item>
         <item name="wing assembly">Check all four wing bolts present and tightened</item>
