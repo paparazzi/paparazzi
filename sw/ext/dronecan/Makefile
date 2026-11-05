@@ -65,4 +65,6 @@ dronecan_dsdlc.build:
 clean:
 	$(Q)rm -r $(PAPARAZZI_SRC)/var/include/DSDLcode
 
+# git submodule sync/update lock .git/config: never run them in parallel (as in sw/ext/Makefile)
+.NOTPARALLEL:
 .PHONY: all clean pydronecan dronecan dronecan_dsdlc.build DSDL libcanard
