@@ -1,0 +1,4 @@
+<program command="sw/tools/video/video_to_gcs.sh" name="Video to GCS">
+  <arg flag="-i" constant="5000"/>
+  <arg flag="-o" constant="5600"/>
+</program>

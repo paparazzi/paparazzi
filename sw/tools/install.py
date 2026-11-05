@@ -161,7 +161,7 @@ class InstallWindow(QWidget):
 
     def cmd_vlc(self):
         self.step('Step 9 — Installing VLC, Joystick & NatNet tools')
-        self.execute('sudo -E apt-get -f -y install ffmpeg vlc jstest-gtk default-jre')
+        self.execute('sudo -E apt-get -f -y install ffmpeg vlc gstreamer1.0-tools gstreamer1.0-plugins-good jstest-gtk default-jre')
         self.execute('sudo -E apt-get install -y python3-pip')
         self.execute('python3 -m pip install future') # Required for MAVLink
         self.execute('python3 -m pip install pyquaternion ivy-python') # Required for NatNat
