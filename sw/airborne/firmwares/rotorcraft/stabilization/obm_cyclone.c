@@ -198,9 +198,9 @@ static void cyclone_f_stb_u(const float body_vel[3],
 }
 
 /* Function Definitions */
-void cyclone_f_stb_x(const float rates[3], const float ang_accel[3],
-                     const float vel_body[3], const float accel_body[3], const float u[4],
-                     const float coeff[22], float F_stb_x[4])
+static void cyclone_f_stb_x(const float rates[3], const float ang_accel[3],
+                            const float vel_body[3], const float accel_body[3], const float u[4],
+                            const float coeff[22], float F_stb_x[4])
 {
   float F_stb_x_tmp;
   float b_F_stb_x_tmp;
