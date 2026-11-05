@@ -300,8 +300,8 @@ static FileDes sdlog_open(const char *base, const char *dir, const char *prefix,
   }
 
   char path[256];
-  snprintf(path, sizeof(path), "%s/%s", base, dir);
-  if (sdlog_mkdir(path) != 0) {
+  // a truncated path would silently log into another folder
+  if (snprintf(path, sizeof(path), "%s/%s", base, dir) >= (int)sizeof(path) || sdlog_mkdir(path) != 0) {
     sdlog_error = SDLOG_NOCARD;
     return -1;
   }
