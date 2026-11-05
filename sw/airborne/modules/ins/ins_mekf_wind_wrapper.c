@@ -95,8 +95,9 @@ static void send_wind(struct transport_tx *trans, struct link_device *dev)
   ENU_OF_TO_NED(wind_enu, wind_ned);
   float va = ins_mekf_wind_get_airspeed_norm();
   uint8_t flags = 7; // 3D wind + airspeed
+  float temp = -1000.f; // unknown
   pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags,
-      &wind_enu.x, &wind_enu.y, &wind_enu.z, &va);
+      &wind_enu.x, &wind_enu.y, &wind_enu.z, &va, &temp);
 }
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)

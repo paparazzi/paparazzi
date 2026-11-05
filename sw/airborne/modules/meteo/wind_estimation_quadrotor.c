@@ -213,6 +213,7 @@ void wind_estimation_quadrotor_report(void)
 static void send_wind(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t flags = 5; // send horizontal wind and airspeed
+  float temp = -1000.f; // unknown
   float upwind = 0.f;
   struct FloatVect2 as = { we_quad.filter.X[WE_QUAD_VA_X], we_quad.filter.X[WE_QUAD_VA_Y] };
   float airspeed = float_vect2_norm(&as);
@@ -221,6 +222,7 @@ static void send_wind(struct transport_tx *trans, struct link_device *dev)
       &we_quad.filter.X[WE_QUAD_W_Y], // east
       &we_quad.filter.X[WE_QUAD_W_X], // north
       &upwind,
-      &airspeed);
+      &airspeed,
+      &temp);
 }
 
