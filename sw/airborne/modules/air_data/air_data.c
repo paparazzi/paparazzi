@@ -147,6 +147,8 @@ static void pressure_diff_cb(uint8_t __attribute__((unused)) sender_id, float pr
 #if USE_AIRSPEED_AIR_DATA
     stateSetAirspeed_f(MODULE_AIR_DATA_ID, air_data.airspeed);
 #endif
+    /* for other modules, e.g. the airspeed fusion of ins_ekf2 */
+    AbiSendMsgAIRSPEED(AIRSPEED_AIR_DATA_ID, air_data.airspeed);
   }
 }
 
@@ -160,8 +162,11 @@ static void temperature_cb(uint8_t __attribute__((unused)) sender_id, float temp
   }
 }
 
-static void airspeed_cb(uint8_t __attribute__((unused)) sender_id, float eas)
+static void airspeed_cb(uint8_t sender_id, float eas)
 {
+  if (sender_id == AIRSPEED_AIR_DATA_ID) {
+    return; // computed here from the differential pressure
+  }
   air_data.airspeed = eas;
   if (air_data.calc_airspeed) {
     air_data.tas = tas_from_eas(air_data.airspeed);

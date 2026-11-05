@@ -127,6 +127,10 @@
 #define AIRSPEED_WE_QUAD_ID 5
 #endif
 
+#ifndef AIRSPEED_AIR_DATA_ID
+#define AIRSPEED_AIR_DATA_ID 6 ///< airspeed computed by air_data from the differential pressure
+#endif
+
 /*
  * IDs of Incidence angles (message 25)
  */
