@@ -260,7 +260,7 @@
 #ifndef USE_PWM0
 #define USE_PWM0 1
 #endif
-#if USE_PWM1
+#if USE_PWM0
 #define PWM_SERVO_0 0
 #define PWM_SERVO_0_GPIO    PAL_PORT(LINE_SERVO0)
 #define PWM_SERVO_0_PIN     PAL_PAD(LINE_SERVO0)
