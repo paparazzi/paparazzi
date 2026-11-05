@@ -215,7 +215,8 @@ static void pmw3901_thd(void* arg) {
     
     pprz_bsem_wait(&pmw->bsem);  // wait to be woken up by the AP thread
 
-    uint8_t tp = readRegister_blocking(pmw, PMW3901_REG_MOTION);
+    // reading Motion latches the Delta_X/Y registers (value not used since #3682)
+    (void) readRegister_blocking(pmw, PMW3901_REG_MOTION);
     uint8_t xh = readRegister_blocking(pmw, PMW3901_REG_DELTA_X_H);
     uint8_t xl = readRegister_blocking(pmw, PMW3901_REG_DELTA_X_L);
     uint8_t yh = readRegister_blocking(pmw, PMW3901_REG_DELTA_Y_H);
