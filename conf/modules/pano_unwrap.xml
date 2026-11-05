@@ -5,7 +5,7 @@
     <description>
     Unwrap images taken through a panoramic lens
     
-    @image html images/airborne/modules/pano_unwrap/pano_unwrap.jpg "Left: AR.Drone 2.0 with Kogeto Dot 360 panoramic lens on bottom camera. Middle: raw image and region of interest (blue). Right: unwrapped image."
+    @image html images/airborne/modules/pano_unwrap/pano_unwrap.jpg "Left: quadrotor with Kogeto Dot 360 panoramic lens on bottom camera. Middle: raw image and region of interest (blue). Right: unwrapped image."
     
     This module unwraps images taken through a panoramic lens. The unwrapped
     image is returned to the video thread or available as

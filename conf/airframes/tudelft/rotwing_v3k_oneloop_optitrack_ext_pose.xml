@@ -40,6 +40,7 @@
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
             <define name="IMU_INTEGRATION"      value="TRUE"/>
             <define name="I2C2_CLOCK_SPEED" value="100000"/>
+            <define name="INS_EXT_VISION_ROTATION"  value="TRUE"/><!--AP only-->
         </target>
 
         <target name="nps" board="pc">
@@ -274,7 +275,6 @@
         <define name="NO_GPS_LOST_WITH_RC_VALID"            value="TRUE"/>
         <define name="USE_AIRSPEED"                         value="TRUE"/>
         <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/> <!-- cyfoam 0.32-->
-        <define name="INS_EXT_VISION_ROTATION"              value="TRUE"/>
     </section>
     <section name="GROUND_DETECT">
         <define name="THRESHOLD_GROUND_DETECT"              value="40"/>
@@ -353,11 +353,12 @@
         <define name="BODY_TO_IMU_PSI"   value="180." unit="deg"/>
     </section>
     <checklist>
-        <item name="pic" type="text">Enter the PIC</item>
-        <item name="pac" type="text">Enter the PAC</item>
-        <item name="gcs" type="text">Enter the GCS op</item>
+        <item name="pic" type="text" remember="true">Enter the PIC</item>
+        <item name="pac" type="text" remember="true">Enter the PAC</item>
+        <item name="gcs" type="text" remember="true">Enter the GCS op</item>
         <item name="goal" type="text">Goal of the flight</item>
         <item name="basic law">Location, airspace and weather</item>
+        <item name="special" type="text" optional="true" help="Anything special about the location, airspace or weather (NOTAM, other traffic, wind limits, ...). Leave empty if nothing is special.">Special conditions</item>
         <item name="RC Battery">Check the RC battery</item>
         <item name="tail connection">Check tail connection</item>
         <item name="wing tape">Check wings taped and secured</item>

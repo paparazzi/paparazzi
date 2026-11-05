@@ -1,0 +1,5 @@
+<!DOCTYPE airframe SYSTEM "../../../airframe.dtd">
+
+<!-- No calibration for this aircraft yet: the default Bebop2 IMU values are used -->
+<airframe>
+</airframe>

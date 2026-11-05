@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="190" ground_alt="185" lat0="43.462976" lon0="1.2733345" max_dist_from_home="50" name="Demo fish nav Muret outdoor" security_height="0.3">
+<flight_plan alt="190" ground_alt="185" lat0="43.462976" lon0="1.2733345" max_dist_from_home="103" name="Demo fish nav Muret outdoor" security_height="0.3">
   <header>
 #include "autopilot.h"
 #include "modules/datalink/datalink.h"
@@ -99,8 +99,8 @@
       <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="Ramp down">
-      <exception cond="guidance_v.delta_t @LT 0.1*9600." deroute="Landed"/>
-      <set value="guidance_v.delta_t/9600." var="fp_throttle"/>
+      <exception cond="guidance_v.th_sp @LT 0.1*9600." deroute="Landed"/>
+      <set value="guidance_v.th_sp/9600." var="fp_throttle"/>
       <stay throttle="fp_throttle-0.1*stage_time" vmode="throttle" wp="TD"/>
     </block>
     <block name="Landed">

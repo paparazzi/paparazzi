@@ -260,7 +260,7 @@
 #ifndef USE_PWM0
 #define USE_PWM0 1
 #endif
-#if USE_PWM1
+#if USE_PWM0
 #define PWM_SERVO_0 0
 #define PWM_SERVO_0_GPIO    PAL_PORT(LINE_SERVO0)
 #define PWM_SERVO_0_PIN     PAL_PAD(LINE_SERVO0)
@@ -389,6 +389,12 @@
 #define PWM_SERVO_8_CHANNEL (SERVO8_TIM_CH-1)
 #define PWM_SERVO_8_CONF    CONCAT_BOARD_PARAM(pwmcfg, SERVO8_TIM)
 #endif
+#endif
+
+/* PWM_SERVO_<n> is the index in actuators_pwm_values,
+ * so the array needs one more element than the highest output */
+#if defined(PWM_SERVO_8) && !defined(ACTUATORS_PWM_NB)
+#define ACTUATORS_PWM_NB 9
 #endif
 
 /*

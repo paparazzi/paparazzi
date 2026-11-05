@@ -33,7 +33,7 @@ This section shows what and how to configure to run a simulation in Gazebo throu
 Vehicle Model
 ^^^^^^^^^^^^^^^
 
-Prepare your Gazebo aircraft model (example see ``conf/simulator/gazebo/models/ardrone/``):
+Prepare your Gazebo aircraft model (example see ``conf/simulator/gazebo/models/bebop/``):
 
 Place the aircraft model in the ``conf/simulator/gazebo/models/`` folder, this folder is added to the search path of Gazebo when NPS is launched. 
 Gazebo uses a **Front, Left, Up** coordinate system for aircraft, so make sure the **+x** axis points forwards. 
@@ -50,7 +50,7 @@ Additional models can be found in the ``sw/ext/tudelft_gazebo_models``. You will
 World
 ^^^^^^^^^^^^^^^^
 
-Prepare the world (see conf/simulator/gazebo/worlds/ardrone.world or any other world file you might find there).
+Prepare the world (see the world files in conf/simulator/gazebo/world/).
 
 .. note::
 
@@ -82,7 +82,7 @@ Additional world models can be found in the ``sw/ext/tudelft_gazebo_models``. Yo
 Airframe
 ^^^^^^^^^^^
 
-Enhance your Paparzazzi airframe file to be able to use Gazebo (see ``examples/ardrone2_gazebo.xml``):
+Enhance your Paparzazzi airframe file to be able to use Gazebo (see ``examples/bebop.xml``):
 
 Select Gazebo as the FDM (Flight Dynamics Model) by adding it to the aircraft file
 

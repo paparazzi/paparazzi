@@ -453,7 +453,7 @@ void rotwing_state_periodic(void)
   actuators_pprz[INDI_NUM_ACT] = (rotwing_state.skew_cmd + MAX_PPRZ) / 2.f; // Scale to simulation command
 #endif
   // SEND ABI Message to ctr_eff_sched, ourself and other modules that want Actuator position feedback
-  struct act_feedback_t feedback;
+  struct act_feedback_t feedback = {0};
   feedback.idx =  SERVO_ROTATION_MECH_IDX;
   feedback.position = 0.5f * M_PI - RadOfDeg((float) rotwing_state.skew_cmd / MAX_PPRZ * 45.f + 45.f);
   feedback.set.position = true;

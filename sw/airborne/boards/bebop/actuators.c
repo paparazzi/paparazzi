@@ -158,7 +158,7 @@ void actuators_bebop_commit(void)
   }
 
   // Send ABI message
-  struct act_feedback_t feedback[4];
+  struct act_feedback_t feedback[4] = {0};
   for (int i=0;i<4;i++) {
     feedback[i].idx = get_servo_idx(i);
     feedback[i].rpm = actuators_bebop.rpm_obs[i];

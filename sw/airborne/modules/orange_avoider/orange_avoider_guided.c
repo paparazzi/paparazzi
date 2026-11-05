@@ -49,7 +49,8 @@ enum navigation_state_t {
   OBSTACLE_FOUND,
   SEARCH_FOR_SAFE_HEADING,
   OUT_OF_BOUNDS,
-  REENTER_ARENA
+  REENTER_ARENA,
+  RETREAT
 };
 
 // define settings
@@ -108,6 +109,14 @@ void orange_avoider_guided_init(void)
   // bind our colorfilter callbacks to receive the color filter outputs
   AbiBindMsgVISUAL_DETECTION(ORANGE_AVOIDER_VISUAL_DETECTION_ID, &color_detection_ev, color_detection_cb);
   AbiBindMsgVISUAL_DETECTION(FLOOR_VISUAL_DETECTION_ID, &floor_detection_ev, floor_detection_cb);
+}
+
+/*
+ * Fly backwards until the flight plan leaves guided mode (e.g. after a timeout)
+ */
+void orange_avoider_guided_retreat(void)
+{
+  navigation_state = RETREAT;
 }
 
 /*
@@ -195,6 +204,9 @@ void orange_avoider_guided_periodic(void)
         // ensure direction is safe before continuing
         navigation_state = SAFE;
       }
+      break;
+    case RETREAT:
+      guidance_h_set_body_vel(-oag_max_speed, 0);
       break;
     default:
       break;

@@ -12,7 +12,8 @@ do
   $PAPARAZZI_HOME/sw/logalizer/openlog2tlm $i $i.tlm
   if [ $? -eq 0 ]
   then
-    $PAPARAZZI_HOME/sw/logalizer/sd2log $i.tlm
+    # --tlm: keep a copy of the raw log, $i.tlm is removed below
+    $PAPARAZZI_HOME/sw/logalizer/sd2log $i.tlm --tlm
   else
     echo "openlog2tlm was not succesful. Please check for errors"
   fi

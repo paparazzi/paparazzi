@@ -1,4 +1,4 @@
-<!-- ARDrone calibration file -->
+<!-- Bebop calibration file -->
 
 <airframe>
   <section name="IMU" prefix="IMU_">

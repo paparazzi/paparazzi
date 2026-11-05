@@ -9,7 +9,7 @@
       </velocity_decay>
       
     
-      <inertial><!-- Converted to SI from Paparazzi's ARDrone model for JSBsim -->
+      <inertial><!-- Converted to SI from a Paparazzi quadrotor model for JSBsim -->
         <mass>0.4</mass>
         <inertia>
           <ixx> 0.00678 </ixx>

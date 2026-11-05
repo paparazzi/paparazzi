@@ -244,7 +244,7 @@ bool nav_takeoff_from_here(float height)
 
 static bool nav_land_run(void)
 {
-  static float baseleg_out_qdr = 0.f;
+  static float land_baseleg_out_qdr = 0.f;
   float qdr = 0.f;
 
   // test if glide is needed or not
@@ -267,16 +267,16 @@ static bool nav_land_run(void)
         waypoints[0].x = landing.af_pos.x + y_unit * landing.radius;
         waypoints[0].y = landing.af_pos.y - x_unit * landing.radius;
         waypoints[0].a = landing.af_pos.z + GetAltRef();
-        baseleg_out_qdr = M_PI - atan2f(-y_unit, -x_unit);
+        land_baseleg_out_qdr = M_PI - atan2f(-y_unit, -x_unit);
         if (landing.radius < 0.f) {
-          baseleg_out_qdr += M_PI;
+          land_baseleg_out_qdr += M_PI;
         }
       } else {
         // turn around AF point
         waypoints[0].x = landing.af_pos.x;
         waypoints[0].y = landing.af_pos.y;
         waypoints[0].a = landing.af_pos.z + GetAltRef();
-        baseleg_out_qdr = 0.f;
+        land_baseleg_out_qdr = 0.f;
       }
       landing.status = NAV_LANDING_REACH_AF;
       break;
@@ -289,7 +289,7 @@ static bool nav_land_run(void)
           // if final glide, direction should be correct
           qdr = M_PI_2 - nav_circle_trigo_qdr;
           NormCourseRad(qdr);
-          if (CloseRadAngles(baseleg_out_qdr, qdr)) {
+          if (CloseRadAngles(land_baseleg_out_qdr, qdr)) {
             landing.status = NAV_LANDING_DESCENT;
           }
         } else {

@@ -153,10 +153,6 @@
 #define AGL_SONAR_ADC_ID 1
 #endif
 
-#ifndef AGL_SONAR_ARDRONE2_ID
-#define AGL_SONAR_ARDRONE2_ID 2
-#endif
-
 #ifndef AGL_SONAR_NPS_ID
 #define AGL_SONAR_NPS_ID 3
 #endif
@@ -290,10 +286,6 @@
 
 #ifndef GPS_UDP_ID
 #define GPS_UDP_ID 9
-#endif
-
-#ifndef GPS_ARDRONE2_ID
-#define GPS_ARDRONE2_ID 10
 #endif
 
 #ifndef GPS_SIM_ID

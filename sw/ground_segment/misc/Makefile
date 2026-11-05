@@ -35,24 +35,12 @@ else
   LIBRARYS =
 endif
 
-GTK2_INC = $(shell pkg-config gtk+-2.0 --cflags 2> /dev/null)
-GTK2_LDFLAGS = $(shell pkg-config gtk+-2.0 --libs 2> /dev/null)
-
 PCRE_CHECK = $(shell ldd /usr/lib/libivy.so | grep libpcre2-8)
 ifneq ($(PCRE_CHECK),)
 PCRE_LDFLAGS= $(shell pcre2-config --libs8)
 else
 PCRE_LDFLAGS= $(shell pcre-config --libs)
 endif
-
-ifneq ($(GTK2_INC),)
-CFLAGS += -Wall -fPIC -g
-GTK_CFLAGS  = $(GTK2_INC) -DGTK_DISABLE_DEPRECATED
-GTK_LDFLAGS = $(GTK2_LDFLAGS) $(shell pkg-config --libs ivy-glib) $(PCRE_LDFLAGS) -fPIC
-endif
-
-GLIBIVY_CFLAGS = $(shell pkg-config --cflags ivy-glib)
-GLIBIVY_LDFLAGS = $(shell pkg-config --libs ivy-glib) $(PCRE_LDFLAGS)
 
 # fallback to ivy-glib pkg-config info if there is no ivy-c.pc
 IVY_INC = $(shell pkg-config --cflags-only-I ivy-c 2> /dev/null)
@@ -67,28 +55,16 @@ GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(PCRE_LDFLAGS)
 
 # Paparazzi includes
 INCLUDES += $(shell pkg-config glib-2.0 --cflags) -I$(PAPARAZZI_SRC)/sw/airborne/ -I$(PAPARAZZI_SRC)/sw/include/ $(IVY_INC)
-INCLUDES += -I$(PAPARAZZI_SRC)/sw/ext/libsbp/c/include/ -I$(PAPARAZZI_SRC)/sw/airborne/modules/gps/librtcm3/ -I$(PAPARAZZI_SRC)/sw/airborne/arch/linux/
+INCLUDES += -I$(PAPARAZZI_SRC)/sw/airborne/modules/gps/librtcm3/ -I$(PAPARAZZI_SRC)/sw/airborne/arch/linux/
 
-ifeq ($(GTK2_INC),)
-all: davis2ivy kestrel2ivy sbp2ivy rtcm2ivy ublox2ivy
-else
-all: davis2ivy kestrel2ivy sbp2ivy video_synchronizer sbs2ivy rtcm2ivy ublox2ivy
-endif
+all: davis2ivy rtcm2ivy ublox2ivy
 
 clean:
-	$(Q)rm -f *.o davis2ivy kestrel2ivy sbp2ivy video_synchronizer sbs2ivy rtcm2ivy ublox2ivy
+	$(Q)rm -f *.o davis2ivy rtcm2ivy ublox2ivy
 
 davis2ivy: davis2ivy.o
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(LIBRARYS) $(IVY_LDFLAGS)
-
-kestrel2ivy: kestrel2ivy.o
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(LIBRARYS) $(IVY_LDFLAGS)
-
-sbp2ivy: sbp2ivy.o serial_port.o sbp.o edc.o
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(INCLUDES) $(LIBRARYS) $(GLIB_LDFLAGS) $(IVY_LDFLAGS)
 
 rtcm2ivy: rtcm2ivy.o serial_port.o pprz_geodetic_float.o
 	@echo CC $@
@@ -98,34 +74,11 @@ ublox2ivy: ublox2ivy.o
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(INCLUDES) $(LIBRARYS) -lpthread $(GLIB_LDFLAGS) $(IVY_LDFLAGS)
 
-video_synchronizer: video_synchronizer.c
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) $(GTK_CFLAGS) $(LIBRARYS) $(INCLUDES) -o $@ $< $(GTK_LDFLAGS)
-
-sbs2ivy: sbs2ivy.o pprz_geodetic_double.o pprz_geodetic_float.o sbs_parser.o
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) $(GTK_CFLAGS) -o $@ $^ $(LIBRARYS) $(GLIBIVY_LDFLAGS) $(GTK_LDFLAGS) -lm
-
-pprz_geodetic_double.o : $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_double.c
-	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
-
 pprz_geodetic_float.o : $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_float.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
 
 serial_port.o : $(PAPARAZZI_SRC)/sw/airborne/arch/linux/serial_port.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
-
-sbp.o : $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/sbp.c
-	$(Q)$(CC) $(CFLAGS) -c -std=c99 -O2 -Wall $(INCLUDES) $<
-
-edc.o : $(PAPARAZZI_SRC)/sw/ext/libsbp/c/src/edc.c
-	$(Q)$(CC) $(CFLAGS) -c -std=c99 -O2 -Wall $(INCLUDES) $<
-
-sbs2ivy.o : sbs2ivy.c
-	$(Q)$(CC) $(CFLAGS) $(GTK_CFLAGS) -c -std=gnu99 -O2 -Wall $(INCLUDES) $<
-
-sbs_parser.o : sbs_parser.c
-	$(Q)$(CC) $(CFLAGS) -c -std=gnu99 -O2 -Wall $(INCLUDES) $<
 
 %.o : %.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<

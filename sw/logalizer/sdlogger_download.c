@@ -614,7 +614,8 @@ int main ( int argc, char** argv)
   char *pprz_home;
   pprz_home = getenv( "PAPARAZZI_HOME" );
 
-  char *sd2log_home = "/sw/logalizer/sd2log temp.tlm";
+  /* --tlm: keep a copy of the raw log, temp.tlm is removed after the conversion */
+  char *sd2log_home = "/sw/logalizer/sd2log temp.tlm --tlm";
 
   // check if the pprz_home path fits into the sd2log buffer
   if (strlen(pprz_home) < (sizeof(sd2log) - strlen(sd2log_home))) {

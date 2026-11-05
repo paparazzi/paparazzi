@@ -195,7 +195,7 @@ let create_wind_ac max_nb_sample =
   {speeds = Array.make max_nb_sample None ; wind_init = null_vector; index = 0; length = 0}
 
 let new_ac = fun id max_nb_sample ->
-  Hashtbl.add h id (create_wind_ac max_nb_sample)
+  Hashtbl.replace h id (create_wind_ac max_nb_sample)
 
 let clear id =
   let wind_ac = Hashtbl.find h id in

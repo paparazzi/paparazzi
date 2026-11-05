@@ -76,7 +76,7 @@ using namespace std;
 #define NPS_GAZEBO_WORLD "empty.world"
 #endif
 #ifndef NPS_GAZEBO_AC_NAME
-#define NPS_GAZEBO_AC_NAME "ardrone"
+#define NPS_GAZEBO_AC_NAME "bebop"
 #endif
 
 // Add video handling functions if req'd.
@@ -644,10 +644,10 @@ static void gazebo_read(void)
  * thrusts (NPS_ACTUATOR_THRUSTS) and torques (NPS_ACTUATOR_TORQUES) need to
  * be specified in the airframe file. Their values need to be specified in the
  * same order as the NPS_ACTUATOR_NAMES and should be provided in SI units.
- * See conf/airframes/examples/ardrone2_gazebo.xml for an example.
+ * See conf/simulator/gazebo/airframes/bebop.xml for an example.
  *
  * The forces and torques are applied to (the origin of) the links named in
- * NPS_ACTUATOR_NAMES. See conf/simulator/gazebo/models/ardrone/ardrone.sdf
+ * NPS_ACTUATOR_NAMES. See conf/simulator/gazebo/models/bebop/bebop.sdf
  * for an example.
  *
  * @param act_commands
@@ -883,10 +883,10 @@ static void read_image(struct image_t *img, gazebo::sensors::CameraSensorPtr cam
  * Simulate range sensors:
  *
  * In the airframe file, set NPS_SIMULATE_LASER_RANGE_ARRAY if you want to make use of the integrated Ray sensors.
- * These are defined in their own model which is added to the ardrone.sdf (called range_sensors). Here you can add
+ * These are defined in their own model which is added to the aircraft sdf (called range_sensors). Here you can add
  * single ray point sensors with a specified position and orientation. It is also possible add noise.
  *
- * Within the airframe file (see e.g ardrone2_rangesensors_gazebo.xml), the amount of sensors
+ * Within the airframe file, the amount of sensors
  * (LASER_RANGE_ARRAY_NUM_SENSORS) and their orientations
  * (LASER_RANGE_ARRAY_ORIENTATIONS={phi_1,theta_1,psi_1...phi_n,theta_n,psi_n}  n = number of sensors) need to be
  * specified as well. This is to keep it generic since this need to be done on the real platform with an external
