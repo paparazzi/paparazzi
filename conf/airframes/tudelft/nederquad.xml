@@ -153,11 +153,11 @@
   </rc_commands>
 
   <servos driver="Default">
-    <servo name="TOP_LEFT" no="2" min="1000" neutral="1100" max="2000" />
-    <servo name="TOP_RIGHT" no="3" min="1000" neutral="1100" max="2000" />
-    <servo name="BOTTOM_RIGHT" no="1" min="1000" neutral="1100" max="2000" />
-    <servo name="BOTTOM_LEFT" no="0" min="1000" neutral="1100" max="2000" />
-    <servo name="RELEASE_SERVO" no="4" min="1100" neutral="1400" max="2000"/>
+    <servo name="TOP_LEFT" no="3" min="1000" neutral="1100" max="2000" />
+    <servo name="TOP_RIGHT" no="4" min="1000" neutral="1100" max="2000" />
+    <servo name="BOTTOM_RIGHT" no="2" min="1000" neutral="1100" max="2000" />
+    <servo name="BOTTOM_LEFT" no="1" min="1000" neutral="1100" max="2000" />
+    <servo name="RELEASE_SERVO" no="5" min="1100" neutral="1400" max="2000"/>
   </servos>
   
   <section name="MIXING" prefix="MOTOR_MIXING_">

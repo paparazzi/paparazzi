@@ -160,13 +160,13 @@ NOTES:
   </firmware>
 
   <servos driver="Pwm">
-    <servo name="S_THROTTLE"          no="0" min="1098" neutral="1104" max="1900"/>
-    <servo name="S_AILERON"           no="1" min="1100" neutral="1500" max="1900"/>
-    <servo name="S_RUDDERVATOR_LEFT"  no="2" min="1100" neutral="1500" max="1900"/>
-    <servo name="S_RUDDERVATOR_RIGHT" no="3" min="1900" neutral="1500" max="1100"/>
-    <servo name="S_HATCH"             no="4" min="1100" neutral="1110" max="1900"/>
-    <servo name="S_ACL"               no="5" min="1100" neutral="1500" max="1900"/>
-    <servo name="S_TAIL_POS_LIGHT"    no="6" min="1100" neutral="1500" max="1900"/>
+    <servo name="S_THROTTLE"          no="1" min="1098" neutral="1104" max="1900"/>
+    <servo name="S_AILERON"           no="2" min="1100" neutral="1500" max="1900"/>
+    <servo name="S_RUDDERVATOR_LEFT"  no="3" min="1100" neutral="1500" max="1900"/>
+    <servo name="S_RUDDERVATOR_RIGHT" no="4" min="1900" neutral="1500" max="1100"/>
+    <servo name="S_HATCH"             no="5" min="1100" neutral="1110" max="1900"/>
+    <servo name="S_ACL"               no="6" min="1100" neutral="1500" max="1900"/>
+    <servo name="S_TAIL_POS_LIGHT"    no="7" min="1100" neutral="1500" max="1900"/>
   </servos>
 
   <section name="ServoPositions">

@@ -149,7 +149,7 @@
     <!-- PWM actuators -->
     <servos driver="Pwm">
     <!--1018 = quad 2086 = fw-->
-        <servo NO="0" NAME="ROTATION_MECH"  MIN="1018" NEUTRAL="1552" MAX="2086"/>
+        <servo NO="1" NAME="ROTATION_MECH"  MIN="1018" NEUTRAL="1552" MAX="2086"/>
     </servos>
 
     <!-- Can bus 1 actuators -->
