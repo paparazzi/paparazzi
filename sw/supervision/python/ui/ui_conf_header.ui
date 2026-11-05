@@ -62,6 +62,33 @@
     </widget>
    </item>
    <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Set</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="set_combo">
+     <property name="sizeAdjustPolicy">
+      <enum>QComboBox::AdjustToContents</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QToolButton" name="refresh_button">
      <property name="toolTip">
       <string>refresh Aircraft</string>
@@ -92,33 +119,6 @@
      </property>
      <property name="shortcut">
       <string>Ctrl+S</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>40</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Set</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QComboBox" name="set_combo">
-     <property name="sizeAdjustPolicy">
-      <enum>QComboBox::AdjustToContents</enum>
      </property>
     </widget>
    </item>

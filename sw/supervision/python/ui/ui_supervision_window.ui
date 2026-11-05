@@ -56,24 +56,21 @@
             <item>
              <widget class="LogWidget" name="log_widget" native="true"/>
             </item>
-            <item>
-             <spacer name="verticalSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
            </layout>
           </widget>
           <widget class="MagViewer" name="magviewer_widget">
            <attribute name="title">
-            <string>Mag Viewer</string>
+            <string>Mag Calib</string>
+           </attribute>
+          </widget>
+          <widget class="AccelCalib" name="accel_calib_widget">
+           <attribute name="title">
+            <string>Accel calib</string>
+           </attribute>
+          </widget>
+          <widget class="LogUploadWidget" name="log_upload_widget">
+           <attribute name="title">
+            <string>Log upload</string>
            </attribute>
           </widget>
          </widget>
@@ -122,6 +119,12 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>AccelCalib</class>
+   <extends>QWidget</extends>
+   <header>accel_calib.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>HeaderWidget</class>
    <extends>QWidget</extends>
    <header>header_widget.h</header>
@@ -149,6 +152,12 @@
    <class>LogWidget</class>
    <extends>QWidget</extends>
    <header>log_widget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LogUploadWidget</class>
+   <extends>QWidget</extends>
+   <header>log_upload.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

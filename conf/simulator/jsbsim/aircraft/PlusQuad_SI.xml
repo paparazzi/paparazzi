@@ -1,0 +1,544 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sourceforge.net/JSBSim.xsl"?>
+<fdm_config name="QUAD COMPLETE EXT" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
+
+  <fileheader>
+    <author>Tomaso De Ponti</author>
+    <filecreationdate>07-03-2017</filecreationdate>
+    <version>Version 0.9 - beta</version>
+    <description>PlusQuad with actuator dynamics</description>
+  </fileheader>
+
+  <metrics>
+    <wingarea   unit="M2">   0 </wingarea>
+    <wingspan   unit="M">    0 </wingspan>
+    <chord      unit="M">    0 </chord>
+    <htailarea  unit="M2">   0 </htailarea>
+    <htailarm   unit="M">    0 </htailarm>
+    <vtailarea  unit="M2">   0 </vtailarea>
+    <vtailarm   unit="M">    0 </vtailarm>
+    <location   name="AERORP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="EYEPOINT" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="VRP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </metrics>
+
+  <mass_balance>
+    <ixx unit="KG*M2">  1.0</ixx>
+    <iyy unit="KG*M2">  1.0</iyy>
+    <izz unit="KG*M2">  1.0</izz>
+    <ixy unit="KG*M2">  0.0 </ixy>
+    <ixz unit="KG*M2">  0.0 </ixz>
+    <iyz unit="KG*M2">  0.0 </iyz>
+    <emptywt unit="KG"> 1.0 </emptywt>
+    <location name="CG" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </mass_balance>
+
+  <ground_reactions>
+    <contact type="STRUCTURE" name="CONTACT_FRONT">
+      <location unit="M">
+        <x>-0.15 </x>
+        <y> 0 </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_BACK">
+      <location unit="M">
+        <x> 0.15</x>
+        <y> 0   </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_RIGHT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y> 0.15</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_LEFT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y>-0.15</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+  </ground_reactions>
+
+  <flight_control name="actuator_dynamics">
+    <channel name="filtering">
+
+      <!--First order filter represents actuator dynamics-->
+      <lag_filter name="MOTOR_FRONT_lag">
+        <input> fcs/MOTOR_FRONT </input>
+        <c1> 29.0 </c1>
+        <output> fcs/MOTOR_FRONT_lag</output>
+      </lag_filter>
+      <lag_filter name="MOTOR_RIGHT_lag">
+        <input> fcs/MOTOR_RIGHT </input>
+        <c1> 29.0 </c1>
+        <output> fcs/MOTOR_RIGHT_lag</output>
+      </lag_filter>
+      <lag_filter name="MOTOR_BACK_lag">
+        <input> fcs/MOTOR_BACK </input>
+        <c1> 29.0 </c1>
+        <output> fcs/MOTOR_BACK_lag</output>
+      </lag_filter>
+      <lag_filter name="MOTOR_LEFT_lag">
+        <input> fcs/MOTOR_LEFT </input>
+        <c1> 29.0 </c1>
+        <output> fcs/MOTOR_LEFT_lag</output>
+      </lag_filter>
+      <!--Derivative of actuator dynamics for spinup torque-->
+      <washout_filter name="MOTOR_FRONT_d">
+        <input> fcs/MOTOR_FRONT </input>
+        <c1> 29.0 </c1>
+        <output> fcs/MOTOR_FRONT_d</output>
+      </washout_filter>
+      <washout_filter name="MOTOR_RIGHT_d">
+        <input> fcs/MOTOR_RIGHT </input>
+        <c1> 29.0 </c1>
+        <output> fcs/MOTOR_RIGHT_d</output>
+      </washout_filter>
+      <washout_filter name="MOTOR_BACK_d">
+        <input> fcs/MOTOR_BACK </input>
+        <c1> 29.0 </c1>
+        <output> fcs/MOTOR_BACK_d</output>
+      </washout_filter>
+      <washout_filter name="MOTOR_LEFT_d">
+        <input> fcs/MOTOR_LEFT </input>
+        <c1> 29.0 </c1>
+        <output> fcs/MOTOR_LEFT_d</output>
+      </washout_filter>
+    </channel>
+    <channel name="Effectiveness_Matrix">
+      <!-- Scaling functions -->
+      <fcs_function name="pprz2jsbsim">
+          <function>
+              <value>9600.0</value> 
+          </function>
+          <output>fcs/pprz2jsbsim</output>
+      </fcs_function>
+      <fcs_function name="eff_scaler">
+          <function>
+              <value>0.001</value> 
+          </function>
+          <output>fcs/eff_scaler</output>
+      </fcs_function>      
+      <!-- Quad Motors-->
+      <!-- Front Motor-->
+      <fcs_function name="mF_T">
+          <function>
+            <product>
+              <value>0.0009645</value>
+              <property>fcs/MOTOR_FRONT_lag</property>
+              <property>fcs/pprz2jsbsim</property>
+            </product>
+          </function>
+          <output>fcs/mF_T</output>
+      </fcs_function>
+      <!-- Right Motor-->
+      <fcs_function name="mR_T">
+          <function>
+            <product>
+              <value>0.0009645</value>
+              <property>fcs/MOTOR_RIGHT_lag</property>
+              <property>fcs/pprz2jsbsim</property>
+            </product>
+          </function>
+          <output>fcs/mR_T</output>
+      </fcs_function>   
+      <!-- Back Motor-->
+      <fcs_function name="mB_T">
+          <function>
+            <product>
+              <value>0.0009645</value>
+              <property>fcs/MOTOR_BACK_lag</property>
+              <property>fcs/pprz2jsbsim</property>
+            </product>
+          </function>
+          <output>fcs/mB_T</output>
+      </fcs_function>
+      <!-- Left Motor-->
+      <fcs_function name="mL_T">
+          <function>
+            <product>
+              <value>0.0009645</value>
+              <property>fcs/MOTOR_LEFT_lag</property>
+              <property>fcs/pprz2jsbsim</property>
+            </product>
+          </function>
+          <output>fcs/mL_T</output>
+      </fcs_function>
+      <!-- Misc -->       
+      <fcs_function name="MQ_dMdu">
+          <function>
+              <value>0.0025</value> 
+          </function>
+          <output>fcs/MQ_dMdu</output>
+      </fcs_function> 
+      <fcs_function name="airspeed2_ms">
+        <function>
+          <product>
+            <property>aero/qbar-psf</property>
+            <value>47.880259</value>  <!--Pound Per Square Foot to N/m² (Pascal)-->
+            <value>1.6327</value>     <!-- 2/rho-->
+          </product>
+        </function>
+        <output>fcs/airspeed2_ms</output>
+      </fcs_function>
+
+      <fcs_function name="airspeed_ms">
+        <function>
+          <sqrt>
+            <property>fcs/airspeed2_ms</property>
+          </sqrt>
+        </function>
+        <output>fcs/airspeed_ms</output>
+      </fcs_function>     
+      <!-- <fcs_function name="MQ_dMdud">
+          <function>
+              <value>0.02</value>
+          </function>
+          <output>fcs/MQ_dMdud</output>
+      </fcs_function> -->
+    </channel> 
+   </flight_control>
+
+  <external_reactions>
+
+    <property>fcs/MOTOR_FRONT</property>
+    <property>fcs/MOTOR_FRONT_lag</property>
+    <property>fcs/MOTOR_FRONT_d</property>
+    <property>fcs/MOTOR_RIGHT</property>
+    <property>fcs/MOTOR_RIGHT_lag</property>
+    <property>fcs/MOTOR_RIGHT_d</property>
+    <property>fcs/MOTOR_BACK</property>
+    <property>fcs/MOTOR_BACK_lag</property>
+    <property>fcs/MOTOR_BACK_d</property>
+    <property>fcs/MOTOR_LEFT</property>
+    <property>fcs/MOTOR_LEFT_lag</property>
+    <property>fcs/MOTOR_LEFT_d</property>
+   <property>fcs/ROLL</property>
+    <property>fcs/PITCH</property>
+    <property>fcs/YAW</property>
+    <property>fcs/THRUST</property>
+    
+    <!-- Split Forces and moments so that Inertia can be scheduled -->
+    
+    <!-- Forces (work in progress) -->
+    <force name="MOTOR_FRONT" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/mF_T</property>
+          <value> 0.2248</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="MOTOR_RIGHT" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/mR_T</property>
+          <value> 0.2248</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="MOTOR_BACK" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/mB_T</property>  
+          <value> 0.2248</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="MOTOR_LEFT" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/mL_T</property>
+          <value> 0.2248</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>    
+
+    <!-- Control Moments-->
+    <moment name="MOTOR_FRONT_PITCH" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_FRONT_lag</property>
+          <value> 0.0274249</value>
+          <property>fcs/pprz2jsbsim</property>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>1</y>
+        <z>0</z>
+      </direction>
+    </moment>   
+
+    <moment name="MOTOR_BACK_PITCH" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_BACK_lag</property>
+          <value> 0.0274249</value>
+          <property>fcs/pprz2jsbsim</property>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>-1</y>
+        <z>0</z>
+      </direction>
+    </moment>       
+
+    <moment name="MOTOR_RIGHT_ROLL" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_RIGHT_lag</property>
+          <value> 0.0317895</value> 
+          <property>fcs/pprz2jsbsim</property>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_LEFT_ROLL" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_LEFT_lag</property>
+          <value> 0.0317895</value>
+          <property>fcs/pprz2jsbsim</property> 
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </moment>
+
+    <!-- Reaction Torques -->
+    <moment name="MOTOR_FRONT_reaction_torque" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_FRONT_lag</property>
+          <property>fcs/MQ_dMdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.440</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_RIGHT_reaction_torque" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_RIGHT_lag</property>
+          <property>fcs/MQ_dMdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0.380</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_BACK_reaction_torque" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_BACK_lag</property>
+          <property>fcs/MQ_dMdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.440</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_LEFT_reaction_torque" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_LEFT_lag</property>
+          <property>fcs/MQ_dMdu</property>
+          <property>fcs/pprz2jsbsim</property>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>-0.380</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+  </external_reactions>
+
+  <propulsion/>
+
+  <flight_control name="FGFCS"/>
+
+  <aerodynamics>
+    <axis name="DRAG">
+      <function name="aero/coefficient/CD">
+        <description>Drag</description>
+        <product>
+          <property>fcs/airspeed2_ms</property>
+          <value>0.0576</value> <!-- CD x Area (m^2) -->
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+    </axis>
+  </aerodynamics>
+
+</fdm_config>

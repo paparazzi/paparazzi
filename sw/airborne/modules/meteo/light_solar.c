@@ -61,8 +61,8 @@ void light_solar_init(void)
 
 void light_solar_periodic(void)
 {
-  up[light_cnt] = buf_light_sol_up.sum / buf_light_sol_up.av_nb_sample;
-  dn[light_cnt] = buf_light_sol_dn.sum / buf_light_sol_dn.av_nb_sample;
+  up[light_cnt] = adc_buf_get(&buf_light_sol_up);
+  dn[light_cnt] = adc_buf_get(&buf_light_sol_dn);
 
   /* 10k/10k voltage divider, 10 bits adc, 3.3V max */
 

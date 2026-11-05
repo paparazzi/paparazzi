@@ -1,0 +1,418 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sourceforge.net/JSBSim.xsl"?>
+<fdm_config name="Bebop2 Dronisos" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
+
+  <fileheader>
+    <author>Gautier Hattenberger</author>
+    <filecreationdate>11-25-2025</filecreationdate>
+    <version>Version 1.0</version>
+    <description>
+      Model for Parrot Bebop2 (Dronisos version)
+      Simple Quadrotor in X configuration
+      Include rotor dynamic
+      NE/SW turning CCW, NW/SE CW
+    </description>
+  </fileheader>
+
+  <metrics>
+    <wingarea unit="M2"> 1 </wingarea>
+    <wingspan unit="M"> 1 </wingspan>
+    <chord unit="M"> 1 </chord>
+    <htailarea unit="M2"> 0 </htailarea>
+    <htailarm unit="M"> 0 </htailarm>
+    <vtailarea unit="M2"> 0 </vtailarea>
+    <vtailarm unit="M"> 0 </vtailarm>
+    <location name="AERORP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="EYEPOINT" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="VRP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </metrics>
+
+  <mass_balance>
+    <ixx unit="KG*M2"> 0.002525 </ixx>
+    <iyy unit="KG*M2"> 0.002613 </iyy>
+    <izz unit="KG*M2"> 0.003736 </izz>
+    <ixy unit="KG*M2"> 0. </ixy>
+    <ixz unit="KG*M2"> 0. </ixz>
+    <iyz unit="KG*M2"> 0. </iyz>
+    <emptywt unit="KG"> 0.555 </emptywt>
+    <location name="CG" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </mass_balance>
+
+  <ground_reactions>
+    <!-- This is a fake point, JSBSim struggles with a 4-point ground trim -->
+    <contact name="Front_Center" type="BOGEY">
+      <location unit="M">
+        <x> -0.2 </x>
+        <y> 0.0 </y>
+        <z> -0.1 </z>
+      </location>
+      <static_friction>0.8</static_friction>
+      <dynamic_friction>0.5</dynamic_friction>
+      <rolling_friction>0.02</rolling_friction>
+      <spring_coeff unit="N/M"> 3000 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+    </contact>
+
+    <contact name="Aft_Left" type="BOGEY">
+      <location unit="M">
+        <x> 0.2 </x>
+        <y> -0.2 </y>
+        <z> -0.1 </z>
+      </location>
+      <static_friction>0.8</static_friction>
+      <dynamic_friction>0.5</dynamic_friction>
+      <rolling_friction>0.02</rolling_friction>
+      <spring_coeff unit="N/M"> 3000 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+    </contact>
+
+    <contact name="Aft_Right" type="BOGEY">
+      <location unit="M">
+        <x> 0.2 </x>
+        <y> 0.2 </y>
+        <z> -0.1 </z>
+      </location>
+      <static_friction>0.8</static_friction>
+      <dynamic_friction>0.5</dynamic_friction>
+      <rolling_friction>0.02</rolling_friction>
+      <spring_coeff unit="N/M"> 3000 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+    </contact>
+  </ground_reactions>
+
+  <flight_control name="actuator_dynamics">
+
+    <property value="68.4">fcs/motor_lag</property>
+    <property value="50.">fcs/motor_d_filter</property>
+    <property value="1.">fcs/g1_gain</property>
+    <property value="10.">fcs/g2_gain</property>
+    <!--property value="0.0425">fcs/g1_gain</property>
+    <property value="0.295">fcs/g2_gain</property-->
+
+    <channel name="filtering">
+
+      <!--First order filter represents actuator dynamics-->
+      <lag_filter name="fl_motor_lag">
+        <input> fcs/fl_motor </input>
+        <c1> fcs/motor_lag </c1>
+        <output> fcs/fl_motor_lag</output>
+      </lag_filter>
+      <lag_filter name="fr_motor_lag">
+        <input> fcs/fr_motor </input>
+        <c1> fcs/motor_lag </c1>
+        <output> fcs/fr_motor_lag</output>
+      </lag_filter>
+      <lag_filter name="br_motor_lag">
+        <input> fcs/br_motor </input>
+        <c1> fcs/motor_lag </c1>
+        <output> fcs/br_motor_lag</output>
+      </lag_filter>
+      <lag_filter name="bl_motor_lag">
+        <input> fcs/bl_motor </input>
+        <c1> fcs/motor_lag </c1>
+        <output> fcs/bl_motor_lag</output>
+      </lag_filter>
+
+      <!--Derivative of actuator dynamics for spinup torque-->
+      <washout_filter name="fl_motor_d">
+        <input> fcs/fl_motor </input>
+        <c1> fcs/motor_d_filter </c1>
+        <output> fcs/fl_motor_d</output>
+      </washout_filter>
+      <washout_filter name="fr_motor_d">
+        <input> fcs/fr_motor </input>
+        <c1> fcs/motor_d_filter </c1>
+        <output> fcs/fr_motor_d</output>
+      </washout_filter>
+      <washout_filter name="br_motor_d">
+        <input> fcs/br_motor </input>
+        <c1> fcs/motor_d_filter </c1>
+        <output> fcs/br_motor_d</output>
+      </washout_filter>
+      <washout_filter name="bl_motor_d">
+        <input> fcs/bl_motor </input>
+        <c1> fcs/motor_d_filter </c1>
+        <output> fcs/bl_motor_d</output>
+      </washout_filter>
+
+      <pure_gain name="fl_g2timesactd">
+        <input>fcs/fl_motor_d</input>
+        <gain>fcs/g2_gain</gain>
+        <output>fcs/fl_g2timesactd</output>
+      </pure_gain>
+      <pure_gain name="fl_g1timesact">
+        <input>fcs/fl_motor_lag</input>
+        <gain>fcs/g1_gain</gain>
+        <output>fcs/fl_g1timesact</output>
+      </pure_gain>
+      <summer name="fl_summer">
+        <input>fcs/fl_g2timesactd</input>
+        <input>fcs/fl_g1timesact</input>
+        <output>fcs/fl_yawcontrol</output>
+      </summer>
+
+      <pure_gain name="fr_g2timesactd">
+        <input>fcs/fr_motor_d</input>
+        <gain>fcs/g2_gain</gain>
+        <output>fcs/fr_g2timesactd</output>
+      </pure_gain>
+      <pure_gain name="fr_g1timesact">
+        <input>fcs/fr_motor_lag</input>
+        <gain>fcs/g1_gain</gain>
+        <output>fcs/fr_g1timesact</output>
+      </pure_gain>
+      <summer name="fr_summer">
+        <input>fcs/fr_g2timesactd</input>
+        <input>fcs/fr_g1timesact</input>
+        <output>fcs/fr_yawcontrol</output>
+      </summer>
+
+      <pure_gain name="br_g2timesactd">
+        <input>fcs/br_motor_d</input>
+        <gain>fcs/g2_gain</gain>
+        <output>fcs/br_g2timesactd</output>
+      </pure_gain>
+      <pure_gain name="br_g1timesact">
+        <input>fcs/br_motor_lag</input>
+        <gain>fcs/g1_gain</gain>
+        <output>fcs/br_g1timesact</output>
+      </pure_gain>
+      <summer name="br_summer">
+        <input>fcs/br_g2timesactd</input>
+        <input>fcs/br_g1timesact</input>
+        <output>fcs/br_yawcontrol</output>
+      </summer>
+
+      <pure_gain name="bl_g2timesactd">
+        <input>fcs/bl_motor_d</input>
+        <gain>fcs/g2_gain</gain>
+        <output>fcs/bl_g2timesactd</output>
+      </pure_gain>
+      <pure_gain name="bl_g1timesact">
+        <input>fcs/bl_motor_lag</input>
+        <gain>fcs/g1_gain</gain>
+        <output>fcs/bl_g1timesact</output>
+      </pure_gain>
+      <summer name="bl_summer">
+        <input>fcs/bl_g2timesactd</input>
+        <input>fcs/bl_g1timesact</input>
+        <output>fcs/bl_yawcontrol</output>
+      </summer>
+
+    </channel>
+  </flight_control>
+
+  <external_reactions>
+
+    <property>fcs/fl_motor</property>
+    <property>fcs/fr_motor</property>
+    <property>fcs/br_motor</property>
+    <property>fcs/bl_motor</property>
+    <property>fcs/fl_motor_lag</property>
+    <property>fcs/fr_motor_lag</property>
+    <property>fcs/br_motor_lag</property>
+    <property>fcs/bl_motor_lag</property>
+
+    <property value="2.">fcs/motor_max_thrust</property>
+    <!--property value="0.33875">fcs/motor_max_torque</property-->
+    <property value="0.1">fcs/motor_max_torque</property>
+
+    <force name="fl_motor" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/fl_motor_lag</property>
+          <property>fcs/motor_max_thrust</property>
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.15</x>
+        <y>-0.15</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="fr_motor" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/fr_motor_lag</property>
+          <property>fcs/motor_max_thrust</property>
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.15</x>
+        <y>0.15</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="br_motor" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/br_motor_lag</property>
+          <property>fcs/motor_max_thrust</property>
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.15</x>
+        <y>0.15</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="bl_motor" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/bl_motor_lag</property>
+          <property>fcs/motor_max_thrust</property>
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.15</x>
+        <y>-0.15</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <!-- Then the Moment Couples -->
+
+    <moment name="fl_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/fl_yawcontrol</property>
+          <property>fcs/motor_max_torque</property>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.15</x>
+        <y>-0.15</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+
+    <moment name="fr_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/fr_yawcontrol</property>
+          <property>fcs/motor_max_torque</property>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.15</x>
+        <y>0.15</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+    <moment name="br_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/br_yawcontrol</property>
+          <property>fcs/motor_max_torque</property>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.15</x>
+        <y>0.15</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+
+    <moment name="bl_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/bl_yawcontrol</property>
+          <property>fcs/motor_max_torque</property>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.15</x>
+        <y>-0.15</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+  </external_reactions>
+
+  <propulsion/>
+
+  <flight_control name="FGFCS"/>
+
+  <aerodynamics>
+    <axis name="DRAG">
+      <function name="aero/coefficient/CD">
+        <description>Drag</description>
+        <product>
+          <property>velocities/vtrue-fps</property>
+          <value>0.3048</value> <!-- conversion in m/s -->
+          <value>0.230292</value> <!-- drag coef -->
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+    </axis>
+  </aerodynamics>
+
+</fdm_config>

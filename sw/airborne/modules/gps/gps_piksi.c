@@ -56,7 +56,7 @@
 /*
  * implementation specific gps state
  */
-struct GpsState gps_piksi;
+struct GpsState gps_piksi = {0};
 struct GpsTimeSync gps_piksi_time_sync;
 
 static uint32_t time_since_last_heartbeat;

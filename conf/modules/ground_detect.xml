@@ -1,15 +1,31 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 <module name="ground_detect" dir="nav">
   <doc>
-    <description>Ground detection module to detect ground</description>
-    <define name="USE_GROUND_DETECT_INDI_THRUST" value="1" description="Use INDI thrust less than 50 percent as detection"/>
+    <description>
+      Ground detection module to detect ground.
+    </description>
+    <define name="GROUND_DETECT_USE_INDI_THRUST" value="1" description="Use INDI thrust less than 50 percent as detection"/>
     <define name="GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD" value="-5.0" description="[m/s2] positive down"/>
 
-    <define name="USE_GROUND_DETECT_AGL_DIST" value="0" description="Use agl_dist_filtered"/>
+    <define name="GROUND_DETECT_USE_AGL_DIST" value="0" description="Use agl_dist_filtered"/>
     <define name="GROUND_DETECT_AGL_MIN_VALUE" value="0.1" description="AGL value low enough to be used as ground detection [m]"/>
+
+    <define name="GROUND_DETECT_USE_FORCE_SENSOR" value="0" description="Use FORCE_SENSOR ABI for ground detection"/>
+    <define name="GROUND_DETECT_FORCE_SENSOR_THRESHOLD" value="100000" description="Threshold on filtered force sensor value to detect ground"/>
+    <define name="GROUND_DETECT_FORCE_SENSOR_MEDIAN_FILT_SIZE" value="3" description="Median filter size for force sensor processing"/>
 
     <define name="GROUND_DETECT_COUNTER_TRIGGER" value="10" description="Number of times a trigger must be valid to accept ground detection."/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="Ground Detect">
+        <dl_setting var="reverse_th_level" min="-9600" max="0" step="1" shortname="Reverse thrust level"/>
+        <dl_setting var="set_offset_sensors" min="0" max="1" step="1" values="FALSE|TRUE" type="fun" handler="set_offset_sensors" module="modules/nav/ground_detect"/>
+        <dl_setting var="force_sensor_ground_threshold" min="-1000000" max="1000000" step="1000" shortname="ground_threshold"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
   <header>
     <file name="ground_detect.h"/>
   </header>
@@ -20,7 +36,7 @@
     <file name="ground_detect.c"/>
     <test firmware="rotorcraft">
       <define name="PERIODIC_FREQUENCY" value="512"/>
-      <define name="USE_GROUND_DETECT_INDI_THRUST" value="1"/>
+      <define name="GROUND_DETECT_USE_INDI_THRUST" value="1"/>
       <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
       <define name="DOWNLINK_DEVICE" value="uart0"/>
       <define name="USE_UART0"/>

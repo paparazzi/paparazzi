@@ -442,6 +442,11 @@ static inline uint32_t acInfoGetItow(uint8_t ac_id)
   return ti_acs[ti_acs_id[ac_id]].itow;
 }
 
+// Logging functions
+#define traffic_info_log() {}
+extern void traffic_info_log_start(void);
+extern void traffic_info_log_stop(void);
+
 /** @}*/
 
 #endif

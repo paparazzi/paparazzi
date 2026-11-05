@@ -1,0 +1,36 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="scout_detector" dir="search_and_rescue">
+  <doc>
+    <description>
+      Scout detector driver.
+
+      Receive data from the home-made scoutector module, specially made for IMAV 2026.
+      It detects sound and light emitted by a rescue device hold by people in danger
+      (https://www.espaceprotech.com/product/Detecteur-dimmobilite-MOTION-SCOUT-KTR-MSA).
+
+      Based on UAVcan protocol.
+    </description>
+  </doc>
+  <dep>
+    <depends>uavcan,search_map</depends>
+  </dep>
+  <header>
+    <file name="scout_detector.h"/>
+  </header>
+  <init fun="scout_detector_init()"/>
+  <periodic fun="scout_detector_report()" freq="2.0" autorun="TRUE"/>
+  <periodic fun="scout_detector_sim()" freq="3.0" autorun="TRUE"/>
+  <makefile>
+    <file name="scout_detector.c"/>
+
+    <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="uavcan.protocol.debug.KeyValue.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <test firmware="rotorcraft">
+      <include name="$(PAPARAZZI_HOME)/sw/ext/dronecan/libcanard"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
+  </makefile>
+</module>

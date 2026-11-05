@@ -49,6 +49,57 @@
 #define INS_EXT_POSE_R_NOISE {8.372e-6, 3.832e-6, 4.761e-6, 2.830e-4, 8.684e-6, 7.013e-6}
 #endif
 
+/** Maximum age of an external pose [ms], 0 to disable the check.
+ * The age is the receive delay above the lowest delay seen recently, computed from the
+ * capture time in the timestamp field of EXTERNAL_POSE (ms, sender clock).
+ * Not used when the sender leaves the timestamp at 0.
+ */
+#ifndef INS_EXT_POSE_MAX_AGE
+#define INS_EXT_POSE_MAX_AGE 30.f
+#endif
+
+/** Rate at which the lowest delay may rise [ms per received pose], to follow clock drift */
+#ifndef INS_EXT_POSE_AGE_DRIFT
+#define INS_EXT_POSE_AGE_DRIFT 0.01f
+#endif
+
+/** Delay jump above which the sender clock is considered restarted [ms] */
+#ifndef INS_EXT_POSE_AGE_RESYNC
+#define INS_EXT_POSE_AGE_RESYNC 1000
+#endif
+
+/** Time with all poses too old after which the lowest delay is reset [ms].
+ * Follows a lasting increase of the link delay; the innovation gates still apply.
+ */
+#ifndef INS_EXT_POSE_AGE_RESET_TIME
+#define INS_EXT_POSE_AGE_RESET_TIME 300
+#endif
+
+/** Innovation gates [rad], 0 to disable.
+ * A pose whose heading or roll/pitch differs more than this from the prediction is not fused.
+ */
+#ifndef INS_EXT_POSE_GATE_PSI
+#define INS_EXT_POSE_GATE_PSI RadOfDeg(40.f)
+#endif
+
+#ifndef INS_EXT_POSE_GATE_TILT
+#define INS_EXT_POSE_GATE_TILT RadOfDeg(15.f)
+#endif
+
+/** Number of consecutive gated poses after which the filter is reset on the pose */
+#ifndef INS_EXT_POSE_GATE_RESET_NB
+#define INS_EXT_POSE_GATE_RESET_NB 10
+#endif
+
+/** Time without fused pose after which the filter status is reported as lost [s] */
+#ifndef INS_EXT_POSE_TIMEOUT
+#define INS_EXT_POSE_TIMEOUT 0.5f
+#endif
+
+float ins_ext_pose_max_age = INS_EXT_POSE_MAX_AGE;
+float ins_ext_pose_gate_psi = INS_EXT_POSE_GATE_PSI;
+float ins_ext_pose_gate_tilt = INS_EXT_POSE_GATE_TILT;
+
 #if INS_EXT_POSE_DEBUG_PRINT
 #include <stdio.h>
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
@@ -75,6 +126,19 @@ struct InsExtPose {
   struct FloatQuat ev_quat;
   bool   has_new_ext_pose;
   float  ev_time;
+
+  /* External pose age and gating */
+  bool     ts_valid;      ///< capture time reference initialized
+  uint32_t ts_last;       ///< last accepted capture time [ms]
+  uint32_t age_ok_time;   ///< receive time of the last pose with a valid age [ms]
+  uint32_t delay_ref;     ///< receive delay reference (includes clock offset) [ms]
+  float    delay_min;     ///< lowest recent receive delay, relative to delay_ref [ms]
+  float    ev_age;        ///< age of the last pose [ms]
+  uint16_t nb_stale;      ///< poses dropped for age or order
+  uint16_t nb_gated;      ///< poses dropped by the innovation gates
+  uint16_t nb_reset;      ///< filter resets after repeated gating
+  uint8_t  gate_cnt;      ///< consecutive gated poses
+  float    last_fused;    ///< time of the last fused pose [s]
 
   /* Origin */
   struct LtpDef_i  ltp_def;
@@ -145,10 +209,14 @@ static void send_filter_status(struct transport_tx *trans, struct link_device *d
 {
   uint8_t ahrs_id = AHRS_COMP_ID_GENERIC;
   uint8_t state_filter_mode = 0;
-  uint16_t value = 0;
+  uint16_t value = ins_ext_pose.nb_stale + ins_ext_pose.nb_gated; // rejected poses
 
   if (ins_ext_pose.started) {
-    state_filter_mode = 3; // OK
+    if (get_sys_time_float() - ins_ext_pose.last_fused < INS_EXT_POSE_TIMEOUT) {
+      state_filter_mode = 3; // OK
+    } else {
+      state_filter_mode = 4; // GPS_LOST, no recent external pose fused
+    }
   }
   pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_id, &state_filter_mode, &value);
 }
@@ -223,9 +291,63 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
  * Import External Pose Message
  */
 
+/** Check the age of a pose from its capture time.
+ * The receive delay (receive time - capture time) includes an unknown clock offset,
+ * so the age is taken as the delay above the lowest delay seen recently.
+ * @param ts capture time [ms], 0 if not provided
+ * @return true if the pose is recent enough and newer than the previous one
+ */
+static bool ins_ext_pose_check_age(uint32_t ts)
+{
+  if (ts == 0 || ins_ext_pose_max_age <= 0.f) {
+    ins_ext_pose.ev_age = 0.f;
+    return true;
+  }
+
+  uint32_t now = get_sys_time_msec();
+  uint32_t delay = now - ts;
+  float rel_delay = (float)((int32_t)(delay - ins_ext_pose.delay_ref));
+
+  // first pose, or sender clock restarted
+  if (!ins_ext_pose.ts_valid || rel_delay - ins_ext_pose.delay_min > INS_EXT_POSE_AGE_RESYNC) {
+    ins_ext_pose.ts_valid = true;
+    ins_ext_pose.ts_last = ts;
+    ins_ext_pose.age_ok_time = now;
+    ins_ext_pose.delay_ref = delay;
+    ins_ext_pose.delay_min = 0.f;
+    ins_ext_pose.ev_age = 0.f;
+    return true;
+  }
+
+  // duplicate or out of order
+  if ((int32_t)(ts - ins_ext_pose.ts_last) <= 0) {
+    return false;
+  }
+  ins_ext_pose.ts_last = ts;
+
+  // lowest delay, allowed to rise slowly to follow clock drift
+  ins_ext_pose.delay_min = Min(ins_ext_pose.delay_min + INS_EXT_POSE_AGE_DRIFT, rel_delay);
+  ins_ext_pose.ev_age = rel_delay - ins_ext_pose.delay_min;
+
+  if (ins_ext_pose.ev_age > ins_ext_pose_max_age) {
+    if (now - ins_ext_pose.age_ok_time < INS_EXT_POSE_AGE_RESET_TIME) {
+      return false;
+    }
+    // lasting delay increase: take it as the new lowest delay
+    ins_ext_pose.delay_min = rel_delay;
+  }
+  ins_ext_pose.age_ok_time = now;
+  return true;
+}
+
 void ins_ext_pose_msg_update(uint8_t *buf)
 {
   if (DL_EXTERNAL_POSE_ac_id(buf) != AC_ID) { return; } // not for this aircraft
+
+  if (!ins_ext_pose_check_age(DL_EXTERNAL_POSE_timestamp(buf))) {
+    ins_ext_pose.nb_stale++;
+    return;
+  }
 
   struct EnuCoor_f enu_pos, enu_vel;
   enu_pos.x  = DL_EXTERNAL_POSE_enu_x(buf);
@@ -288,6 +410,13 @@ void ins_ext_pose_init(void)
   ins_ext_pose.has_new_gyro = false;
   ins_ext_pose.has_new_ext_pose = false;
   ins_ext_pose.started = false;
+  ins_ext_pose.ts_valid = false;
+  ins_ext_pose.ev_age = 0.f;
+  ins_ext_pose.nb_stale = 0;
+  ins_ext_pose.nb_gated = 0;
+  ins_ext_pose.nb_reset = 0;
+  ins_ext_pose.gate_cnt = 0;
+  ins_ext_pose.last_fused = 0.f;
 
   // Get External Pose Origin From Flightplan
   ins_ext_pose_init_from_flightplan();
@@ -813,6 +942,29 @@ static void ekf_measurement_step(const float Z[EKF_NUM_OUTPUTS])
 }
 
 
+/** Heading measurement close to the (unwrapped) heading state */
+static float ekf_psi_meas(void)
+{
+  float dpsi = ins_ext_pose.ev_att.psi - ekf_X[EKF_X_PSI];
+  FLOAT_ANGLE_NORMALIZE(dpsi);
+  return ekf_X[EKF_X_PSI] + dpsi;
+}
+
+/** Set position and attitude to the external pose and restore the initial covariance */
+static void ekf_reset_on_pose(void)
+{
+  ekf_X[EKF_X_PSI] = ekf_psi_meas();
+  ekf_X[EKF_X_POS_X] = ins_ext_pose.ev_pos.x;
+  ekf_X[EKF_X_POS_Y] = ins_ext_pose.ev_pos.y;
+  ekf_X[EKF_X_POS_Z] = ins_ext_pose.ev_pos.z;
+  ekf_X[EKF_X_PHI] = ins_ext_pose.ev_att.phi;
+  ekf_X[EKF_X_THETA] = ins_ext_pose.ev_att.theta;
+
+  float Pdiag[EKF_NUM_STATES] = INS_EXT_POSE_P0;
+  MAKE_MATRIX_PTR(ekf_P_, ekf_P, EKF_NUM_STATES);
+  ekf_set_diag(ekf_P_, Pdiag, EKF_NUM_STATES);
+}
+
 static void ekf_run(void)
 {
   // Time
@@ -827,12 +979,7 @@ static void ekf_run(void)
       ins_ext_pose.started = true;
 
       // initial guess
-      ekf_X[EKF_X_POS_X] = ins_ext_pose.ev_pos.x;
-      ekf_X[EKF_X_POS_Y] = ins_ext_pose.ev_pos.y;
-      ekf_X[EKF_X_POS_Z] = ins_ext_pose.ev_pos.z;
-      ekf_X[EKF_X_PHI] = ins_ext_pose.ev_att.phi;
-      ekf_X[EKF_X_THETA] = ins_ext_pose.ev_att.theta;
-      ekf_X[EKF_X_PSI] = ins_ext_pose.ev_att.psi;
+      ekf_reset_on_pose();
     }
   }
 
@@ -864,32 +1011,52 @@ static void ekf_run(void)
 
     // measurement step
     if (ins_ext_pose.has_new_ext_pose) {
-
-      //fix psi
-      static float last_psi = 0;
-      float delta_psi = ins_ext_pose.ev_att.psi - last_psi;
-      last_psi = ins_ext_pose.ev_att.psi;
-
-      if (delta_psi > M_PI) {
-        delta_psi -= 2.f * M_PI;
-      } else if (delta_psi < -M_PI) {
-        delta_psi += 2.f * M_PI;
-      }
-
-      ekf_Z[EKF_Z_POS_X] = ins_ext_pose.ev_pos.x;
-      ekf_Z[EKF_Z_POS_Y] = ins_ext_pose.ev_pos.y;
-      ekf_Z[EKF_Z_POS_Z] = ins_ext_pose.ev_pos.z;
-      ekf_Z[EKF_Z_PHI] = ins_ext_pose.ev_att.phi;
-      ekf_Z[EKF_Z_THETA] = ins_ext_pose.ev_att.theta;
-      ekf_Z[EKF_Z_PSI] += delta_psi;
       ins_ext_pose.has_new_ext_pose = false;
 
-      ekf_measurement_step(ekf_Z);
+      // heading measurement unwrapped around the predicted heading
+      float psi_meas = ekf_psi_meas();
 
-      DEBUG_PRINT("ekf measurement step Z = %f, %f, %f, %f \n",
-          ekf_Z[0], ekf_Z[1], ekf_Z[2], ekf_Z[3]);
+      // innovation gates: a large attitude innovation (e.g. a delayed pose during fast
+      // rotation) also corrupts the other states through the cross-covariances
+      float dphi = ins_ext_pose.ev_att.phi - ekf_X[EKF_X_PHI];
+      float dtheta = ins_ext_pose.ev_att.theta - ekf_X[EKF_X_THETA];
+      FLOAT_ANGLE_NORMALIZE(dphi);
+      FLOAT_ANGLE_NORMALIZE(dtheta);
+      bool gated = (ins_ext_pose_gate_psi > 0.f && fabsf(psi_meas - ekf_X[EKF_X_PSI]) > ins_ext_pose_gate_psi) ||
+                   (ins_ext_pose_gate_tilt > 0.f && (fabsf(dphi) > ins_ext_pose_gate_tilt || fabsf(dtheta) > ins_ext_pose_gate_tilt));
+
+      if (gated) {
+        ins_ext_pose.nb_gated++;
+        ins_ext_pose.gate_cnt++;
+        // estimate considered diverged if consistently rejected
+        if (ins_ext_pose.gate_cnt >= INS_EXT_POSE_GATE_RESET_NB) {
+          ekf_reset_on_pose();
+          ins_ext_pose.gate_cnt = 0;
+          ins_ext_pose.nb_reset++;
+          ins_ext_pose.last_fused = t1;
+        }
+      } else {
+        ins_ext_pose.gate_cnt = 0;
+        ins_ext_pose.last_fused = t1;
+
+        ekf_Z[EKF_Z_POS_X] = ins_ext_pose.ev_pos.x;
+        ekf_Z[EKF_Z_POS_Y] = ins_ext_pose.ev_pos.y;
+        ekf_Z[EKF_Z_POS_Z] = ins_ext_pose.ev_pos.z;
+        ekf_Z[EKF_Z_PHI] = ekf_X[EKF_X_PHI] + dphi;
+        ekf_Z[EKF_Z_THETA] = ins_ext_pose.ev_att.theta;
+        ekf_Z[EKF_Z_PSI] = psi_meas;
+
+        ekf_measurement_step(ekf_Z);
+
+        DEBUG_PRINT("ekf measurement step Z = %f, %f, %f, %f \n",
+            ekf_Z[0], ekf_Z[1], ekf_Z[2], ekf_Z[3]);
+      }
     }
   }
+
+  // Keep the heading state in [-pi, pi] (it only enters the model through sin/cos):
+  // an ever growing float heading loses resolution after many turns
+  FLOAT_ANGLE_NORMALIZE(ekf_X[EKF_X_PSI]);
 
   // Export Results
   struct NedCoor_f ned_pos;

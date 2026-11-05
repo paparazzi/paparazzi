@@ -29,6 +29,7 @@
 #include "generated/airframe.h"
 #include "state.h"
 #include "modules/core/abi.h"
+#include "generated/modules.h"
 
 #ifndef USE_AIRSPEED_ADC
 #define USE_AIRSPEED_ADC TRUE
@@ -73,7 +74,7 @@ void airspeed_adc_init(void)
 void airspeed_adc_update(void)
 {
 #ifndef SITL
-  airspeed_adc.val = buf_airspeed.sum / buf_airspeed.av_nb_sample;
+  airspeed_adc.val = adc_buf_get(&buf_airspeed);
   float airspeed_unscaled = Max(airspeed_adc.val - airspeed_adc.offset, 0);
 #ifdef AIRSPEED_ADC_QUADRATIC_SCALE
   airspeed_adc.airspeed = airspeed_adc.scale * sqrtf(airspeed_unscaled);

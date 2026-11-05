@@ -60,7 +60,7 @@
 #define STM32_PPRE1                         STM32_PPRE1_DIV4
 #define STM32_PPRE2                         STM32_PPRE2_DIV2
 #if HAL_USE_RTC
-#define STM32_RTCSEL                        STM32_RTCSEL_LSI
+#define STM32_RTCSEL                        STM32_RTCSEL_HSEDIV
 #else
 #define STM32_RTCSEL                        STM32_RTCSEL_NOCLOCK
 #endif
@@ -339,8 +339,8 @@
 /*
  * RTC driver system settings.
  */
-#define STM32_RTC_PRESA_VALUE               32
-#define STM32_RTC_PRESS_VALUE               1024
+#define STM32_RTC_PRESA_VALUE               128
+#define STM32_RTC_PRESS_VALUE               5000
 #define STM32_RTC_CR_INIT                   0
 #define STM32_RTC_TAMPCR_INIT               0
 

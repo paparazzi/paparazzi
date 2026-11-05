@@ -106,6 +106,13 @@ static void cmd_sys_time(shell_stream_t *sh, int argc, const char * const argv[]
   chprintf(sh, "  nb_sec: %lu\r\n", sys_time.nb_sec);
   chprintf(sh, "  nb_sec_rem: %lu\r\n", sys_time.nb_sec_rem);
   chprintf(sh, "  nb_tick: %lu\r\n", sys_time.nb_tick);
+
+  uint32_t rtc_ms = sys_time_rtc_millisecond();
+  uint32_t rtc_h = rtc_ms / 3600000;
+  uint32_t rtc_m = (rtc_ms % 3600000) / 60000;
+  float rtc_s = (rtc_ms % 60000) / 1000.0;
+  chprintf(sh, "  rtc_time: %02u:%02u:%02.03f\r\n", rtc_h, rtc_m, rtc_s);
+
   chprintf(sh, "Registered timers\r\n");
   for (tid_t i = 0; i < SYS_TIME_NB_TIMER; i++) {
     if (sys_time.timer[i].in_use) {

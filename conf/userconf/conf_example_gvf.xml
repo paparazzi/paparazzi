@@ -11,17 +11,6 @@
    gui_color="#6200a000ea00"
   />
   <aircraft
-   name="st_rover"
-   ac_id="2"
-   airframe="airframes/UGR/steering_rover_n2.xml"
-   radio="radios/UGR/T16SZ_SBUS_rover.xml"
-   telemetry="telemetry/GVF/gvf_rover.xml"
-   flight_plan="flight_plans/UGR/steering_rover_clubalhambra.xml"
-   settings=""
-   settings_modules="modules/ahrs_float_dcm.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/guidance_rover_steering.xml~SR Guidance~ modules/gvf_classic.xml~GVF~ modules/gvf_ik.xml~GVF_IK~ modules/gvf_parametric.xml~GVF_PARAMETRIC~ modules/imu_common.xml modules/nav_rover_base.xml"
-   gui_color="#35008400e400"
-  />
-  <aircraft
    name="bebop_rotorcraft"
    ac_id="3"
    airframe="airframes/examples/bebop2_gvf.xml"

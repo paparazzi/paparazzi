@@ -39,7 +39,7 @@ void pprz_dl_init(void)
 
 void pprz_dl_event(void)
 {
-  pprz_check_and_parse(&DOWNLINK_DEVICE.device, &pprz_tp, dl_buffer, &dl_msg_available);
-  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_tp.trans_tx, dl_buffer, &dl_msg_available, PPRZ_UPDATE_DL);
+  pprz_check_and_parse(&DOWNLINK_DEVICE.device, &pprz_tp, datalink_get_buffer(), &dl_msg_available);
+  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_tp.trans_tx, datalink_get_buffer(), &dl_msg_available, PPRZ_UPDATE_DL);
 }
 

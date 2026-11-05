@@ -126,9 +126,13 @@ void int32_rmat_transp_vmult(struct Int32Vect3 *vb, struct Int32RMat *m_b2a, str
  */
 void int32_rmat_ratemult(struct Int32Rates *rb, struct Int32RMat *m_a2b, struct Int32Rates *ra)
 {
-  rb->p = (m_a2b->m[0] * ra->p + m_a2b->m[1] * ra->q + m_a2b->m[2] * ra->r) >> INT32_TRIG_FRAC;
-  rb->q = (m_a2b->m[3] * ra->p + m_a2b->m[4] * ra->q + m_a2b->m[5] * ra->r) >> INT32_TRIG_FRAC;
-  rb->r = (m_a2b->m[6] * ra->p + m_a2b->m[7] * ra->q + m_a2b->m[8] * ra->r) >> INT32_TRIG_FRAC;
+  int64_t tmp_p = (int64_t)m_a2b->m[0] * ra->p + (int64_t)m_a2b->m[1] * ra->q + (int64_t)m_a2b->m[2] * ra->r;
+  int64_t tmp_q = (int64_t)m_a2b->m[3] * ra->p + (int64_t)m_a2b->m[4] * ra->q + (int64_t)m_a2b->m[5] * ra->r;
+  int64_t tmp_r = (int64_t)m_a2b->m[6] * ra->p + (int64_t)m_a2b->m[7] * ra->q + (int64_t)m_a2b->m[8] * ra->r;
+
+  rb->p = (int32_t)(tmp_p >> INT32_TRIG_FRAC);
+  rb->q = (int32_t)(tmp_q >> INT32_TRIG_FRAC);
+  rb->r = (int32_t)(tmp_r >> INT32_TRIG_FRAC);
 }
 
 /** rotate anglular rates by transposed rotation matrix.
@@ -136,9 +140,13 @@ void int32_rmat_ratemult(struct Int32Rates *rb, struct Int32RMat *m_a2b, struct 
  */
 void int32_rmat_transp_ratemult(struct Int32Rates *rb, struct Int32RMat *m_b2a, struct Int32Rates *ra)
 {
-  rb->p = (m_b2a->m[0] * ra->p + m_b2a->m[3] * ra->q + m_b2a->m[6] * ra->r) >> INT32_TRIG_FRAC;
-  rb->q = (m_b2a->m[1] * ra->p + m_b2a->m[4] * ra->q + m_b2a->m[7] * ra->r) >> INT32_TRIG_FRAC;
-  rb->r = (m_b2a->m[2] * ra->p + m_b2a->m[5] * ra->q + m_b2a->m[8] * ra->r) >> INT32_TRIG_FRAC;
+  int64_t tmp_p = (int64_t)m_b2a->m[0] * ra->p + (int64_t)m_b2a->m[3] * ra->q + (int64_t)m_b2a->m[6] * ra->r;
+  int64_t tmp_q = (int64_t)m_b2a->m[1] * ra->p + (int64_t)m_b2a->m[4] * ra->q + (int64_t)m_b2a->m[7] * ra->r;
+  int64_t tmp_r = (int64_t)m_b2a->m[2] * ra->p + (int64_t)m_b2a->m[5] * ra->q + (int64_t)m_b2a->m[8] * ra->r;
+
+  rb->p = (int32_t)(tmp_p >> INT32_TRIG_FRAC);
+  rb->q = (int32_t)(tmp_q >> INT32_TRIG_FRAC);
+  rb->r = (int32_t)(tmp_r >> INT32_TRIG_FRAC);
 }
 
 

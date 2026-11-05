@@ -5,6 +5,9 @@
     <section name="ROTWING_STATE" prefix="ROTWING_STATE_">
     
     </section>
+    <define name="ROTWING_SKEW_SWEEP_MIN" value="0." unit="deg" description="Lowest skew angle of the skew sweep (forced skew with skew_sweep on, e.g. for demonstrations)"/>
+    <define name="ROTWING_SKEW_SWEEP_MAX" value="60." unit="deg" description="Highest skew angle of the skew sweep"/>
+    <define name="ROTWING_SKEW_SWEEP_FREQ" value="0.1" unit="Hz" description="Frequency of the skew sweep"/>
   </doc>
   <settings>
     <dl_settings>
@@ -15,6 +18,10 @@
         <dl_setting var="nav.radius" min="50" step="1" max="1000" unit="m" shortname="circle_radius"></dl_setting>
         <dl_setting var="rotwing_state.force_skew" min="0" max="1" step="1" values="FALSE|TRUE" shortname="force_skew"/>
         <dl_setting var="rotwing_state.sp_skew_angle_deg" min="0" max="90" step="1" shortname="sp_skew_angle"/>
+        <dl_setting var="rotwing_state.skew_sweep.active" min="0" max="1" step="1" values="OFF|ON" shortname="skew_sweep"/>
+        <dl_setting var="rotwing_state.skew_sweep.min_deg" min="0" max="90" step="1" unit="deg" shortname="sweep_min_skew"/>
+        <dl_setting var="rotwing_state.skew_sweep.max_deg" min="0" max="90" step="1" unit="deg" shortname="sweep_max_skew"/>
+        <dl_setting var="rotwing_state.skew_sweep.freq" min="0.01" max="1" step="0.01" unit="Hz" shortname="sweep_freq"/>
         <dl_setting var="rotwing_state.fail_skew_angle" min="0" max="1" step="1" values="OFF|ON" shortname="fail_skew"/>
         <dl_setting var="rotwing_state.fail_hover_motor" min="0" max="1" step="1" values="OFF|ON" shortname="fail_hover"/>
         <dl_setting var="rotwing_state.fail_pusher_motor" min="0" max="1" step="1" values="OFF|ON" shortname="fail_pusher"/>

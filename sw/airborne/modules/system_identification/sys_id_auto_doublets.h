@@ -29,6 +29,7 @@
 #include "std.h"
 
 extern bool sys_id_auto_doublets_activated;
+extern float sys_id_auto_doublets_time;
 
 extern void init_sys_id_auto_doublets(void);
 extern void periodic_sys_id_auto_doublets(void);

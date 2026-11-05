@@ -110,7 +110,8 @@ let () =
   and gen_ap = ref false
   and gen_all = ref false
   and gen_ac_dir = ref None
-  and gen_conf_dir = ref None in
+  and gen_conf_dir = ref None
+  and use_egm96 = ref false in
 
   let options =
     [ "-name", Arg.String (fun x -> ac_name := Some x), " Aircraft name (mandatory)";
@@ -126,6 +127,7 @@ let () =
       "-all", Arg.Set gen_all, " Generate all files";
       "-ac_dir", Arg.String (fun x -> gen_ac_dir := Some x), "Directory for aircraft generated headers";
       "-conf_dir", Arg.String (fun x -> gen_conf_dir := Some x), "Directory for aircraft generated config";
+      "-use_egm96", Arg.Set use_egm96, "Use EGM96 model for estimating the geoid/ellipsoid separation instead of WGS84 model";
       ] in
 
   Arg.parse
@@ -231,12 +233,12 @@ let () =
         generate_config_element flight_plan
           (fun e ->
              Gen_flight_plan.generate
-               e flight_plan.Flight_plan.filename abs_flight_plan_h)
+               e ~use_egm96:!use_egm96 flight_plan.Flight_plan.filename abs_flight_plan_h)
           [ (abs_flight_plan_h, [flight_plan.Flight_plan.filename]) ];
         generate_config_element ~verbose:false flight_plan
           (fun e ->
              Gen_flight_plan.generate
-               e ~dump:true flight_plan.Flight_plan.filename abs_flight_plan_dump)
+               e ~use_egm96:!use_egm96 ~dump:true flight_plan.Flight_plan.filename abs_flight_plan_dump)
           [ (abs_flight_plan_dump, [flight_plan.Flight_plan.filename]) ];
           (* save conf file in aircraft conf dir *)
         begin match Aircraft.get_element_relative_path (!gen_fp || !gen_all) aircraft_xml "flight_plan" with

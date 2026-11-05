@@ -66,8 +66,8 @@ void temp_tcouple_adc_init(void)
 
 void temp_tcouple_adc_periodic(void)
 {
-  val[temp_cnt] = buf_temp_tcouple_val.sum / buf_temp_tcouple_val.av_nb_sample;
-  ref[temp_cnt] = buf_temp_tcouple_ref.sum / buf_temp_tcouple_ref.av_nb_sample;
+  val[temp_cnt] = adc_buf_get(&buf_temp_tcouple_val);
+  ref[temp_cnt] = adc_buf_get(&buf_temp_tcouple_ref);
 
   /* no voltage divider, 10 bits adc, 3.3V max */
   /* T = U * 52.288899706 - 7.977784737996595 */

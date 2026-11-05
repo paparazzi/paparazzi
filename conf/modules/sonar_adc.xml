@@ -38,8 +38,8 @@
     <configure name="SONAR_ADC_USE_FILTER" value="TRUE|FALSE" description="Enable or disable a filter on the sonar output values, defaults to TRUE"/>
     <configure name="SONAR_ADC_PERIODIC_FREQUENCY" value="30" description="Sensor readings in HZ"/>
     <configure name="SONAR_ADC_LOWPASS_TAU" value="0.11" description="If filtering is enabled, then one optionally can set this value to filter the output more(or less). Defaults to 0.16"/>
-    <configure name="SONAR_ADC_SCALE" value="0.001789" description="Sensor scale factor [m/adc], defaults to 0.001855"/>
     <define name="USE_SONAR" value="TRUE|FALSE" description="Activate use of sonar in INS extended filter (only rotorcraft), defaults to FALSE"/>
+    <define name="SONAR_ADC_SCALE" value="0.001789" description="Sensor scale factor [m/adc], defaults to 0.001855"/>
     <define name="SONAR_ADC_OFFSET" value="0.56"  description="Sensor offset in meters, as in where one wants zero to be, default is 0.0"/>
     <define name="SONAR_ADC_MIN_RANGE" value="0.31" unit="m" description="If defined, set limit to minimum value the sensor can reliably measure, default 0.15m"/>
     <define name="SONAR_ADC_MAX_RANGE" value="3.1" unit="m" description="If defined, set limit to maximum value the sensor can reliably measure, default 4.0m"/>
@@ -71,7 +71,6 @@
     <configure name="SONAR_ADC_USE_FILTER" default="1"/>
     <configure name="SONAR_ADC_PERIODIC_FREQUENCY" default="30"/>
     <configure name="SONAR_ADC_LOWPASS_TAU" default="0.16"/>
-    <configure name="SONAR_ADC_SCALE" default="0.001855"/>
     <define name="USE_$(SONAR_ADC_PORT_UPPER)"/>
     <define name="SONAR_ADC_PORT" value="$(SONAR_ADC_PORT_UPPER)"/>
     <define name="USE_SONAR_ADC_AGL" value="$(USE_SONAR_ADC_AGL)"/>

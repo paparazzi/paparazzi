@@ -34,7 +34,7 @@ struct ThrustSetpoint thrust_sp;
 
 void guidance_h_run_enter(void)
 {
-  oneloop_andi_enter(false, CTRL_ANDI);
+  //oneloop_andi_enter(false, CTRL_ANDI);
 }
 
 void guidance_v_run_enter(void)

@@ -220,6 +220,26 @@
       <field name="flags" format="U4"/>
     </message>
 
+    <message name="DAHEADING" ID="0x45" length="60">
+      <field name="version" format="U1"/>
+      <field name="reserved0" format="U1"/>
+      <field name="reserved1" format="U2"/>
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="relPosN" format="I4" unit="mm"/>
+      <field name="relPosE" format="I4" unit="mm"/>
+      <field name="relPosD" format="I4" unit="mm"/>
+      <field name="relPosLength" format="I4" unit="mm"/>
+      <field name="relPosHeading" format="I4" scaling="1e-5" unit="deg"/>
+      <field name="reserved2" format="U4"/>
+      <field name="accN" format="U4" unit="mm"/>
+      <field name="accE" format="U4" unit="mm"/>
+      <field name="accD" format="U4" unit="mm"/>
+      <field name="accLength" format="U4" unit="mm"/>
+      <field name="accHeading" format="U4" scaling="1e-5" unit="deg"/>
+      <field name="reserved3" format="U4"/>
+      <field name="flags" format="U4"/>
+    </message>
+
     <message name="SVIN" ID="0x3B" length="40">
       <field name="VERSION" format="U1" />
       <field name="RES1" format="U1" />

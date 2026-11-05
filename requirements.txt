@@ -3,6 +3,7 @@ numpy
 scipy
 ivy-python
 pyserial
+pyubx2
 PyQt5
 PyQtWebEngine
 pyqtgraph
@@ -10,7 +11,8 @@ PyOpenGL
 unidecode
 matplotlib
 distro
-empy
+empy<=3.3.4
 pexpect
 setuptools
+dronecan
 

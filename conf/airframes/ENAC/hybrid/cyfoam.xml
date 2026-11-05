@@ -68,9 +68,7 @@
 
     <!--<module name="servo_tester"/>-->
 
-    <module name="air_data">
-      <define name="USE_AIRSPEED_AIR_DATA" value="FALSE"/>
-    </module>
+    <module name="air_data"/>
     <module name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
@@ -225,7 +223,6 @@
   </section>
 
   <section name="GUIDANCE_INDI">
-    <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
     <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
     <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>
     <define name="GUIDANCE_INDI_POS_GAINZ" value="0.5"/>

@@ -80,7 +80,7 @@ class SessionWidget(QWidget, Ui_Session):
     def update_control_panels(self):
         cpfs = paparazzi.get_list_of_controlpanel_files()
         self.control_panel_combo.addItems(cpfs)
-        last_cp = utils.get_settings().value("ui/last_control_panel", None, str)
+        last_cp = utils.get_settings().value("ui/last_control_panel", "control_panel.xml", str)
         if last_cp is not None and last_cp in cpfs:
             self.control_panel_combo.setCurrentText(last_cp)
 
@@ -155,6 +155,7 @@ class SessionWidget(QWidget, Ui_Session):
             cmd = [os.path.join(utils.PAPARAZZI_SRC, tool.command)] + flat_args
 
         pw = ProgramWidget(tool.name, cmd, tool.icon, self.programs_widget)
+        pw.aircraft = self.ac
         self.program_widgets.append(pw)
         lay: QVBoxLayout = self.programs_widget.layout()
         lay.insertWidget(lay.count()-1, pw)

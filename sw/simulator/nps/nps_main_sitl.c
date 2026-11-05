@@ -97,6 +97,10 @@ void *nps_main_loop(void *data __attribute__((unused)))
   struct timeval tv_now;
   double  host_time_now;
 
+  pthread_mutex_lock(&fdm_mutex);
+  nps_fdm_run_init_step();
+  pthread_mutex_unlock(&fdm_mutex);
+
   while (TRUE) {
     if (pauseSignal) {
       char line[128];

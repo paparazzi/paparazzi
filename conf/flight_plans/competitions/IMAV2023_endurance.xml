@@ -120,7 +120,7 @@
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
       <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_NONE" deroute="Standby"/>
       <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_ENDURANCE_SQUARE" deroute="Run Endurance Square"/>
-      <call_once fun="ins_reset_vertical_pos()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0.1" until="stage_time @GT 2" vmode="throttle"/>
       <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>

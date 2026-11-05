@@ -531,7 +531,7 @@ void cloud_sensor_callback(uint8_t *buf)
 
 void LWC_callback(uint8_t *buf)
 {
-  if (DL_PAYLOAD_COMMAND_ac_id(dl_buffer) == AC_ID) {
+  if (DL_PAYLOAD_COMMAND_ac_id(buf) == AC_ID) {
     uint32_t stamp = get_sys_time_usec();
 
     // get LWC from ground or external computer and apply filters

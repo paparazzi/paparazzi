@@ -30,7 +30,7 @@ size_t ring_buffer_free_space(ring_buffer_t *ring_buffer) {
     return ring_buffer->size - ring_buffer_available(ring_buffer);
 }
 
-size_t ring_buffer_write(ring_buffer_t *rb, uint8_t *data, size_t len) {
+size_t ring_buffer_write(ring_buffer_t *rb, const uint8_t *data, size_t len) {
   size_t free_space = ring_buffer_free_space(rb);
   if (len > free_space) {
     len = free_space;

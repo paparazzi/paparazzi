@@ -38,11 +38,17 @@ $(TARGET).LDFLAGS += $(shell pkg-config glib-2.0 --libs)
 VPATH += $(PAPARAZZI_SRC)/sw/simulator
 VPATH += $(PAPARAZZI_HOME)/var/share
 
+PCRE_CHECK = $(shell ldd /usr/lib/libivy.so | grep libpcre2-8)
+ifneq ($(PCRE_CHECK),)
+PCRE_LDFLAGS= $(shell pcre2-config --libs8)
+else
+PCRE_LDFLAGS= $(shell pcre-config --libs)
+endif
     </raw>
     <define name="BARO_PERIODIC_FREQUENCY" value="$(BARO_PERIODIC_FREQUENCY)"/>
     <define name="USE_BARO_BOARD" value="FALSE"/>
     <define name="USE_NPS"/>
-    <flag name="LDFLAGS" value="lm -livy $(shell pcre-config --libs) -lgsl -lgslcblas"/>
+    <flag name="LDFLAGS" value="lm -livy $(PCRE_LDFLAGS) -lgsl -lgslcblas"/>
     <include name="$(PAPARAZZI_SRC)/sw/simulator"/>
     <include name="$(PAPARAZZI_SRC)/sw/simulator/nps"/>
     <include name="$(PAPARAZZI_HOME)/conf/simulator/nps"/>
@@ -66,4 +72,3 @@ VPATH += $(PAPARAZZI_HOME)/var/share
     <file name="nps_main_common.c" dir="$(NPS_DIR)"/>
   </makefile>
 </module>
-

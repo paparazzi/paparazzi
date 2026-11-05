@@ -43,6 +43,10 @@ class HeaderWidget(QWidget, Ui_ConfHeader):
         self.menu_button.addAction(self.new_ac_action)
         self.new_ac_action.triggered.connect(self.ac_new)
 
+    def set_multi_mode(self, enabled: bool):
+        for widget in (self.color_button, self.id_spinBox, self.ac_combo, self.menu_button):
+            widget.setVisible(not enabled)
+
     def handle_id_changed(self, new_id):
         self.currentAc.ac_id = new_id
         self.ac_edited.emit(self.currentAc)

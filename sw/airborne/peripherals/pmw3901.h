@@ -40,6 +40,7 @@
 #define PMW3901_H_
 
 #include "mcu_periph/spi.h"
+#include "modules/core/threads.h"
 
 #include <stdbool.h>
 #include <math.h>
@@ -51,14 +52,16 @@
 enum pmw3901_state {
   PMW3901_IDLE,
   PMW3901_READ_MOTION,
-  PMW3901_READ_DELTAXLOW,
   PMW3901_READ_DELTAXHIGH,
-  PMW3901_READ_DELTAYLOW,
+  PMW3901_READ_DELTAXLOW,
   PMW3901_READ_DELTAYHIGH,
+  PMW3901_READ_DELTAYLOW,
 };
 
 struct pmw3901_t {
   struct spi_periph *periph;
+  pprz_thread_t thd_handle;
+  pprz_bsem_t bsem;
   struct spi_transaction trans;
   volatile uint8_t spi_input_buf[SPI_BUFFER_SIZE];
   volatile uint8_t spi_output_buf[SPI_BUFFER_SIZE];
@@ -72,12 +75,6 @@ struct pmw3901_t {
 };
 
 void pmw3901_init(struct pmw3901_t *pmw, struct spi_periph *periph, uint8_t slave_idx);
-
-void pmw3901_event(struct pmw3901_t *pmw);
-
-bool pmw3901_is_idle(struct pmw3901_t *pmw);
-void pmw3901_start_read(struct pmw3901_t *pmw);
-bool pmw3901_data_available(struct pmw3901_t *pmw);
 bool pmw3901_get_data(struct pmw3901_t *pmw, int16_t *delta_x, int16_t *delta_y);
 
 

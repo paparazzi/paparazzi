@@ -106,7 +106,7 @@ float xsens_gps_arm_z = 0;
 
 volatile int xsens_configured = 0;
 
-struct Xsens xsens;
+struct Xsens xsens = {0};
 
 void parse_xsens_buffer(uint8_t c);
 

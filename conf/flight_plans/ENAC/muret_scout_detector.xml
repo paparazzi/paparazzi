@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<flight_plan alt="200" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="600" name="Muret test IMAV2026" security_height="10" home_mode_height="10" wp_frame="ltp">
+
+  <header>
+    #define FP_NONE       0
+    #define FP_SEARCH     1
+
+    #ifndef SwitchServoOn
+    #define SwitchServoOn(_x) {}
+    #endif
+    #ifndef SwitchServoOff
+    #define SwitchServoOff(_x) {}
+    #endif
+    #define DropOpen SwitchServoOn
+    #define DropClose SwitchServoOff
+
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="-20.316" y="40.632"/>
+    <waypoint name="STDBY" x="-18.312" y="30.449"/>
+    <waypoint name="LANDPAD" x="-20.528" y="25.442"/>
+    <waypoint name="_HERE" x="41.14" y="7.752"/>
+    <waypoint name="SEARCH" x="12.955" y="81.688"/>
+    <waypoint name="RESCUE" x="-16.844" y="67.943"/>
+    <waypoint name="SCOUT" x="-13.188" y="96.167" height="0."/>
+  </waypoints>
+  <variables>
+    <variable init="0" type="int" var="mission_nb"/>
+    <variable init="10." var="goto_height" min="5." max="80." step="0.1"/>
+    <variable init="7." var="goto_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="5." var="takeoff_height" min="0.5" max="15." step="0.1"/>
+    <variable init="3." var="land_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="6." var="search_height" min="5." max="80." step="0.1"/>
+    <variable init="3." var="search_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="20." var="search_radius" min="-1." max="100." step="1.0"/>
+    <variable init="4." var="search_sweep" min="5." max="20." step="0.1"/>
+    <variable init="1.5" var="search_speed_2" min="0.5" max="6." step="0.1"/>
+    <variable init="2." var="search_radius_2" min="-1." max="30." step="1.0"/>
+    <variable init="3." var="search_height_2" min="1." max="20." step="0.1"/>
+    <variable init="1.5" var="drop_height" min="1." max="3." step="0.1"/>
+    <variable init="6." var="fp_search_height"/>
+  </variables>
+  <modules>
+    <module name="nav" type="takeoff_and_landing"/>
+    <module name="agl_dist"/>
+    <module name="scout_detector"/>
+  </modules>
+  <exceptions>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <call_once fun="DropOpen()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <!--<call_once fun="NavSetAltitudeReferenceHere()"/>-->
+    </block>
+    <block name="Holding point" strip_button="H. Point" group="home">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_NONE" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_SEARCH" deroute="Goto Search"/>
+      <!--call_once fun="NavSetAltitudeReferenceHere()"/-->
+      <call_once fun="DropClose()"/>
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0.1" until="stage_time @GT 2" vmode="throttle"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="_HERE"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <stay wp="STDBY"/>
+    </block>
+
+    <block group="mission" name="Start Search" strip_button="Search">
+      <set var="mission_nb" value="FP_SEARCH"/>
+      <deroute block="Takeoff"/>
+    </block>
+    <block name="Goto Search">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <stay wp="_HERE" until="stage_time @GT 3" height="goto_height"/>
+      <go wp="STDBY" from="_HERE" hmode="route" height="goto_height"/>
+      <go wp="SEARCH" from="STDBY" hmode="route" height="goto_height" approaching_time="3"/>
+      <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
+      <stay wp="SEARCH" vmode="climb" climb="-1.0" until="(GetPosHeight() @LT 8) @OR (!nav_is_in_flight())"/>
+      <stay wp="SEARCH" vmode="climb" climb="-0.5" until="(agl_dist_valid @AND (agl_dist_value_filtered @LT 3.)) @OR (GetPosHeight() @LT 1.) @OR (!nav_is_in_flight())"/>
+      <set var="fp_search_height" value="GetPosHeight()+search_height-agl_dist_value_filtered"/>
+      <deroute block="Run Search"/>
+    </block>
+    <block name="Run Search">
+      <call_once fun="search_map_init_from_wp(Ptr(scout_map), WP_SEARCH, 1.f)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
+      <for var="i" from="1" to="search_radius/search_sweep">
+        <circle wp="SEARCH" radius="search_sweep*$i" height="fp_search_height" until="NavCircleCount() @GT 0.9"/>
+      </for>
+      <call_once fun="search_map_update_wp(Ptr(scout_map), 0.8f, WP_SEARCH)"/>
+      <deroute block="Run Search step 2"/>
+    </block>
+    <block name="Run Search step 2">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <go wp="SEARCH" from="_HERE" hmode="route" height="fp_search_height"/>
+      <stay wp="SEARCH" vmode="climb" climb="-0.5" until="(agl_dist_valid @AND (agl_dist_value_filtered @LT 3.)) @OR (GetPosHeight() @LT 1.) @OR (!nav_is_in_flight())"/>
+      <set var="fp_search_height" value="GetPosHeight()+search_height_2-agl_dist_value_filtered"/>
+      <call_once fun="guidance_h_SetMaxSpeed(search_speed_2)"/>
+      <call_once fun="search_map_init(Ptr(scout_map), *stateGetPositionNed_f(), 0.2f)"/>
+      <circle wp="SEARCH" radius="search_radius_2" height="fp_search_height" until="NavCircleCount() @GT 1.2"/>
+      <call_once fun="search_map_update_wp(Ptr(scout_map), 0.8f, WP_RESCUE)"/>
+      <deroute block="Goto Drop"/>
+    </block>
+
+    <block name="Goto Drop">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
+      <go wp="RESCUE" from="_HERE" hmode="route" height="fp_search_height"/>
+      <deroute block="Drop Medikit"/>
+    </block>
+    <block name="Drop Medikit">
+      <stay wp="RESCUE" until="stage_time @GT 3" height="fp_search_height"/>
+      <stay wp="RESCUE" vmode="climb" climb="-0.5" until="(agl_dist_valid @AND (agl_dist_value_filtered @LT drop_height)) @OR (GetPosHeight() @LT 1.) @OR (!nav_is_in_flight())"/>
+      <call_once fun="DropOpen()"/>
+      <stay wp="RESCUE" until="stage_time @GT 3" height="goto_height"/>
+      <deroute block="Landing"/>
+    </block>
+
+    <block name="Land here" strip_button="Land here" strip_icon="land-right.png" group="land">
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Landing" strip_button="Land on pad" group="land">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <go wp="STDBY" from="_HERE" hmode="route" height="goto_height"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <go wp="LANDPAD" from="STDBY" hmode="route" height="goto_height"/>
+    </block>
+    <block name="Flare"> <!-- on_enter="jevois_stream(true)" on_exit="jevois_stream(false)"> -->
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <stay climb="2*nav.descend_vspeed" vmode="climb" wp="LANDPAD" until="GetPosHeight() @LT 10"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block>
+    <block name="Kill landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+
+  </blocks>
+
+</flight_plan>

@@ -61,7 +61,6 @@ STATICINCLUDE=$(PAPARAZZI_HOME)/var/include
 CONF=$(PAPARAZZI_SRC)/conf
 AIRBORNE=sw/airborne
 SIMULATOR=sw/simulator
-COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 GENERATORS=$(PAPARAZZI_SRC)/sw/tools/generators
 JOYSTICK=sw/ground_segment/joystick
@@ -72,11 +71,10 @@ TOOLS=sw/tools
 # build some stuff in subdirs
 # nothing should depend on these...
 #
-PPRZCENTER=sw/supervision
 MISC=sw/ground_segment/misc
 LOGALIZER=sw/logalizer
 
-SUBDIRS = $(PPRZCENTER) $(LOGALIZER) sw/tools
+SUBDIRS = $(LOGALIZER) sw/tools
 SUBDIRS_EXTRA = $(MISC)
 
 #
@@ -134,13 +132,16 @@ conf: conf/conf.xml conf/control_panel.xml conf/tools/blacklisted
 conf/%.xml :conf/%_example.xml
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
 
+conf/conf.xml: conf/conf_example.xml
+	[ -L $@ ] || [ -f $@ ] || ln -s $(<F) $@
+
 conf/tools/blacklisted: conf/tools/blacklisted_example
 	cp conf/tools/blacklisted_example conf/tools/blacklisted
 
 ground_segment: _print_building conf libpprz subdirs static
-ground_segment.opt: ground_segment cockpit.opt tmtc.opt
+ground_segment.opt: ground_segment tmtc.opt
 
-static: cockpit tmtc generators sim_static joystick static_h
+static: tmtc generators sim_static joystick static_h
 
 libpprzlink.update:
 	$(MAKE) -C $(EXT) pprzlink.update
@@ -150,12 +151,6 @@ libpprzlink.install:
 
 libpprz: libpprzlink.update libpprzlink.install _save_build_version
 	$(MAKE) -C $(LIB)/ocaml
-
-cockpit: libpprz
-	$(MAKE) -C $(COCKPIT)
-
-cockpit.opt: libpprz
-	$(MAKE) -C $(COCKPIT) opt
 
 tmtc: libpprz
 	$(MAKE) -C $(TMTC)
@@ -174,10 +169,12 @@ sim_static: libpprz
 
 ext:
 	$(MAKE) -C $(EXT)
-	$(MAKE) -C $(TOOLS)/bluegiga_usb_dongle
 
 opencv_bebop:
 	$(MAKE) -C $(EXT) opencv_bebop
+
+mocap:
+	$(MAKE) -C $(EXT) unifiedmocaprouter
 
 #
 # make misc subdirs
@@ -192,8 +189,6 @@ $(SUBDIRS): libpprz
 
 $(SUBDIRS_EXTRA): libpprz
 	$(MAKE) -C $@
-
-$(PPRZCENTER): libpprz
 
 $(LOGALIZER): libpprz
 
@@ -314,13 +309,11 @@ test_aggieair: all
 # test MAVLab users conf
 test_mavlab: all
 	CONF_XML=conf/userconf/OPENUAS/openuas_conf.xml prove tests/aircrafts/
-	CONF_XML=conf/airframes/CDW/cdw_conf.xml prove tests/aircrafts/
 	CONF_XML=conf/airframes/BR/conf.xml prove tests/aircrafts/
 	
 # test TU Delft conf
 test_tudelft: all
 	CONF_XML=conf/userconf/tudelft/conf.xml prove tests/aircrafts/ 2>&1 | tee ./var/compile.log
-	CONF_XML=conf/userconf/tudelft/delfly_conf.xml prove tests/aircrafts/ 2>&1 | tee -a ./var/compile.log
 	CONF_XML=conf/userconf/tudelft/course_conf.xml prove tests/aircrafts/ 2>&1 | tee -a ./var/compile.log
 	CONF_XML=conf/userconf/tudelft/guido_conf.xml prove tests/aircrafts/ 2>&1 | tee -a ./var/compile.log
 	prove -v ./tests/parse_compile_logs.py
@@ -355,7 +348,7 @@ test_full:
 
 
 .PHONY: all print_build_version _print_building _save_build_version init dox ground_segment ground_segment.opt \
-subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install cockpit cockpit.opt tmtc tmtc.opt generators\
-static sim_static opencv_bebop\
+subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install tmtc tmtc.opt generators\
+static sim_static opencv_bebop mocap \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test test_examples test_math test_all_confs

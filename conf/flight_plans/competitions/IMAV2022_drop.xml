@@ -209,7 +209,7 @@
       <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == SEARCH_TRUCK" deroute="Run Search Truck" />
       <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == RUN_TRACK" deroute="Run Track" />
       <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == DROP_ROPE" deroute="Goto Rope" />
-      <call_once fun="ins_reset_vertical_pos()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
       <call_once fun="DropClose()"/>
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0.1" until="stage_time @GT 2" vmode="throttle"/>

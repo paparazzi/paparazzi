@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<flight_plan alt="142" ground_alt="141" lat0="48.582193" lon0="7.765108" wp_frame="ltp" max_dist_from_home="20" name="IMAV2026 indoor" security_height="0.3">
+  <header>
+    #ifdef NAV_C
+
+    #ifndef TAG_TRACKING_COORD_TO_M
+    #define TAG_TRACKING_COORD_TO_M (1.f / 1000.f)
+    #endif
+
+    #define Neq(a,b) (a!=b)
+    #define HeightClose(_h, _p) (LessThan(fabsf(GetPosHeight()-_h), _p))
+
+    #endif
+  </header>
+  <waypoints>
+    <waypoint name="HOME" y="1.0" x="0.0"/>
+    <waypoint name="STDBY" y="0.0" x="0.0"/>
+    <waypoint name="START" y="0.0" x="2.2"/>
+    <waypoint name="W11" y="0.5" x="1.9"/>
+    <waypoint name="W12" y="0.5" x="2.55"/>
+    <waypoint name="P1" y="1.0" x="2.2"/>
+    <waypoint name="P2" y="2.0" x="2.2"/>
+    <waypoint name="P3" y="3.0" x="2.2"/>
+    <waypoint name="P4" y="4.0" x="2.2"/>
+    <waypoint name="W210" x="1.9" y="6"/>
+    <waypoint name="W220" x="2.55" y="6"/>
+    <waypoint name="W21" y="6.5" x="1.9"/>
+    <waypoint name="W22" y="6.5" x="2.55"/>
+    <waypoint name="P5" y="7.5" x="2.3"/>
+    <waypoint name="R1" y="7.5" x="4.4"/>
+    <waypoint name="LAND" y="0.0" x="4.4"/>
+    <waypoint name="TAG" y="12.0" x="2.2"/>
+    <waypoint name="_TD" y="0.0" x="4.4"/>
+    <waypoint name="_N1" y="-1.0" x="-1.3"/>
+    <waypoint name="_N2" y="10.0" x="-1.3"/>
+    <waypoint name="_N3" y="10.0" x="5.7"/>
+    <waypoint name="_N4" y="-1" x="5.7"/>
+  </waypoints>
+  <sectors>
+    <sector name="Net" color="red">
+      <corner name="_N1"/>
+      <corner name="_N2"/>
+      <corner name="_N3"/>
+      <corner name="_N4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable init="1.2" var="window_height" min="0.1" max="3." step="0.1"/>
+    <variable init="0.5" var="easy_low_height" min="0.1" max="3." step="0.1"/>
+    <variable init="1.5" var="easy_high_height" min="0.1" max="3." step="0.1"/>
+    <variable init="0.6" var="tubes_height" min="0.1" max="3." step="0.1"/>
+    <variable init="0.2" var="hard_low_height" min="0.1" max="3." step="0.1"/>
+    <variable init="2.5" var="hard_high_height" min="0.1" max="3." step="0.1"/>
+    <variable init="0.1" var="precision_height" min="0.01" max="1." step="0.01"/>
+  </variables>
+  <modules>
+    <module name="tag_tracking"/>
+  </modules>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Holding point" group="home">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
+      <exception cond="GetPosHeight() @GT 0.4" deroute="Standby"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0.1" vmode="throttle" until="stage_time @GT 2"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <stay vmode="climb" climb="nav.climb_vspeed" wp="STDBY"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <stay wp="STDBY"/>
+    </block>
+
+    <block name="Start Easy" strip_button="Easy" group="mission">
+      <go wp="START" from="STDBY" hmode="route" height="window_height"/>
+      <stay wp="START" height="window_height" until="stage_time @GT 2"/>
+    </block>
+    <block name="Window 1 Easy">
+      <go wp="W11" from="START" hmode="route" height="window_height"/>
+      <go wp="P1" from="W11" hmode="route" height="window_height"/>
+    </block>
+    <block name="Bars Easy">
+      <stay wp="P1" height="easy_high_height" until="HeightClose(easy_high_height, precision_height)"/>
+      <go wp="P2" from="P1" hmode="route" height="easy_high_height"/>
+      <stay wp="P2" height="easy_low_height" until="HeightClose(easy_low_height, precision_height)"/>
+      <go wp="P3" from="P2" hmode="route" height="easy_low_height"/>
+      <stay wp="P3" height="easy_low_height" until="HeightClose(easy_low_height, precision_height)"/>
+      <go wp="P4" from="P3" hmode="route" height="easy_low_height"/>
+      <stay wp="P4" height="tubes_height" until="HeightClose(tubes_height, precision_height)"/>
+      <go wp="W210" from="P4" hmode="route" height="tubes_height"/>
+
+    </block>
+    <block name="Window 2 Easy">
+      <stay wp="W210" height="window_height" until="HeightClose(window_height, precision_height)"/>
+      <go wp="W21" from="W210" hmode="route" height="window_height"/>
+      <go wp="P5" from="W21" hmode="route" height="window_height"/>
+      <deroute block="Return to land"/>
+    </block>
+
+    <block name="Start Hard" strip_button="Hard" group="mission">
+      <go wp="START" from="STDBY" hmode="route" height="window_height"/>
+      <stay wp="START" height="window_height" until="stage_time @GT 2"/>
+    </block>
+    <block name="Window 1 Hard">
+      <go wp="W12" from="START" hmode="route" height="window_height"/>
+      <go wp="P1" from="W12" hmode="route" height="window_height"/>
+    </block>
+    <block name="Bars Hard">
+      <stay wp="P1" height="hard_high_height" until="HeightClose(hard_high_height, precision_height)"/>
+      <go wp="P2" from="P1" hmode="route" height="hard_high_height"/>
+      <stay wp="P2" height="hard_low_height" until="HeightClose(hard_low_height, precision_height)"/>
+      <go wp="P3" from="P2" hmode="route" height="hard_low_height"/>
+      <stay wp="P3" height="hard_low_height" until="HeightClose(hard_low_height, precision_height)"/>
+      <go wp="P4" from="P3" hmode="route" height="hard_low_height"/>
+      <stay wp="P4" height="tubes_height" until="HeightClose(tubes_height, precision_height)"/>
+      <go wp="W220" from="P4" hmode="route" height="tubes_height"/>
+    </block>
+    <block name="Window 2 Hard">
+      <stay wp="W220" height="window_height" until="HeightClose(window_height, precision_height)"/>
+      <go wp="W22" from="W220" hmode="route" height="window_height"/>
+      <go wp="P5" from="W22" hmode="route" height="window_height"/>
+      <deroute block="Return to land"/>
+    </block>
+    <block name="Direct to Land" strip_button="Direct Land" group="mission">
+      <go wp="LAND" from="STDBY" hmode="route" height="window_height"/>
+      <stay wp="LAND" height="window_height" until="stage_time @GT 2"/>
+      <deroute block="Land" />
+    </block>
+
+    <block name="Return to land">
+      <go wp="R1" from="P5" hmode="route" height="window_height"/>
+      <go wp="LAND" from="R1" hmode="route" height="window_height"/>
+      <stay wp="LAND" height="window_height" until="stage_time @GT 2"/>
+    </block>
+    <block name="Land">
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="LAND"/>
+    </block>
+    <block name="Land Here" strip_button="Land Here" group="home">
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <call_once fun="NavSetWaypointHere(WP__TD)"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="_TD"/>
+    </block>
+    <block name="Kill landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>

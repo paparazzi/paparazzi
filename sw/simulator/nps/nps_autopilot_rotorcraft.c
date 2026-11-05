@@ -27,6 +27,7 @@
 #include "nps_electrical.h"
 #include "nps_fdm.h"
 
+#include "generated/modules.h"
 #include "modules/radio_control/radio_control.h"
 #include "modules/imu/imu.h"
 #include "mcu_periph/sys_time.h"
@@ -71,6 +72,8 @@ bool nps_bypass_ins;
 #if INDI_RPM_FEEDBACK
 #error "INDI_RPM_FEEDBACK can not be used in simulation!"
 #endif
+
+void sys_tick_handler(void);
 
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char *rc_dev)
 {
@@ -177,7 +180,7 @@ void nps_autopilot_run_step(double time)
     nps_autopilot.commands[i] = (double)commands[i] / MAX_PPRZ;
     #else
     actuators_pprz[i] = autopilot_get_motors_on() ? actuators_pprz[i] : 0;
-    nps_autopilot.commands[i] = (double)actuators_pprz[i] / MAX_PPRZ;    
+    nps_autopilot.commands[i] = (double)actuators_pprz[i] / MAX_PPRZ;
     #endif
 #else
     nps_autopilot.commands[i] = (double)motor_mixing.commands[i] / MAX_PPRZ;
@@ -188,6 +191,8 @@ void nps_autopilot_run_step(double time)
 
 void sim_overwrite_ahrs(void)
 {
+  stateSetInputFilter(STATE_INPUT_ATTITUDE, MODULE_NPS_ID);
+  stateSetInputFilter(STATE_INPUT_RATES, MODULE_NPS_ID);
 
   struct FloatQuat quat_f;
   QUAT_COPY(quat_f, fdm.ltp_to_body_quat);

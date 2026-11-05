@@ -70,6 +70,12 @@ struct rotwing_state_t {
   float meas_skew_angle_deg;      // Measured skew angle in degrees
   float meas_skew_angle_time;     // Time of the last skew angle measurement
   bool force_skew;                // Force skew angle to a certain value by the GCS
+  struct {
+    bool active;                  // Sweep the forced skew angle setpoint (e.g. for demonstrations)
+    float min_deg;                // Lowest skew angle of the sweep in degrees
+    float max_deg;                // Highest skew angle of the sweep in degrees
+    float freq;                   // Sweep frequency in Hz
+  } skew_sweep;
   int16_t skew_cmd;               // Skewing command in pprz values
 
   /* Airspeeds */

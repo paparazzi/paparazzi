@@ -73,7 +73,7 @@ static void logger_file_write_header(FILE *file) {
   fprintf(file, "rpm_ref_1,rpm_ref_2,rpm_ref_3,rpm_ref_4,");
 #endif
 #ifdef INS_EXT_POSE_H
-  ins_ext_pos_log_header(file);
+  ins_ext_pose_log_header(file);
 #endif
 #ifdef COMMAND_THRUST
   fprintf(file, "cmd_thrust,cmd_roll,cmd_pitch,cmd_yaw\n");
@@ -104,7 +104,7 @@ static void logger_file_write_row(FILE *file) {
   fprintf(file, "%d,%d,%d,%d,",actuators_bebop.rpm_ref[0],actuators_bebop.rpm_ref[1],actuators_bebop.rpm_ref[2],actuators_bebop.rpm_ref[3]);
 #endif
 #ifdef INS_EXT_POSE_H
-  ins_ext_pos_log_data(file);
+  ins_ext_pose_log_data(file);
 #endif
 #ifdef COMMAND_THRUST
   fprintf(file, "%d,%d,%d,%d\n",
@@ -121,7 +121,7 @@ void logger_file_start(void)
 {
   // Ensure that the module is running when started with this function
   logger_file_logger_file_periodic_status = MODULES_RUN;
-  
+
   // Create output folder if necessary
   if (access(STRINGIFY(LOGGER_FILE_PATH), F_OK)) {
     char save_dir_cmd[256];

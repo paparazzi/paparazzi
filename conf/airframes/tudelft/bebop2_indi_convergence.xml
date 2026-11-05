@@ -194,7 +194,7 @@
     <define name="ZERO_AIRSPEED" value="TRUE"/>
     <define name="PITCH_LIFT_EFF" value="0.0"/>
     <define name="SPECIFIC_FORCE_GAIN" value="-400."/>
-    <define name="THRUST_DYNAMICS" value="0.06"/>
+    <define name="THRUST_DYNAMICS_FREQ" value="31.7"/>
     <define name="MIN_THROTTLE" value="0."/>
     <define name="MIN_PITCH" value="-35."/>
     <define name="MAX_PITCH" value="35."/>

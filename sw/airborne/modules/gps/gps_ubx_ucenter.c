@@ -352,7 +352,9 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
 #define GPS_UBX_NAV5_DYNAMICS NAV5_DYN_AIRBORNE_2G
 #endif
 
-#ifndef GPS_UBX_ENABLE_NMEA_DATA_MASK
+#if GPS_UBX_UCENTER_ENABLE_NMEA
+#define GPS_UBX_ENABLE_NMEA_DATA_MASK 0xff
+#else
 #define GPS_UBX_ENABLE_NMEA_DATA_MASK 0x00
 #endif
 
@@ -419,6 +421,10 @@ static inline void gps_ubx_ucenter_config_nav(void)
 #define GPS_UBX_UCENTER_RATE 0x00FA // In milliseconds. 0x00FA = 250ms = 4Hz
 #endif
 
+#ifndef GPS_UBX_UCENTER_SAVE
+#define GPS_UBX_UCENTER_SAVE TRUE // try to save conf by default
+#endif
+
 static inline void gps_ubx_ucenter_config_port(void)
 {
   switch (gps_ubx_ucenter.port_id) {
@@ -443,7 +449,7 @@ static inline void gps_ubx_ucenter_config_port(void)
     case GPS_PORT_USB:
       UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
                       gps_ubx_ucenter.port_id, 0x0, 0x0, 0x0, 0x0,
-                      UBX_PROTO_MASK | NMEA_PROTO_MASK, UBX_PROTO_MASK | (NMEA_PROTO_MASK & GPS_UBX_ENABLE_NMEA_DATA_MASK), 0x0, 0x0);
+                      UBX_PROTO_MASK | NMEA_PROTO_MASK | RTCM3_PROTO_MASK, UBX_PROTO_MASK | (NMEA_PROTO_MASK & GPS_UBX_ENABLE_NMEA_DATA_MASK), 0x0, 0x0);
       break;
     case GPS_PORT_SPI:
       DEBUG_PRINT("WARNING: ublox SPI port is currently not supported.\n");
@@ -458,7 +464,7 @@ static inline void gps_ubx_ucenter_config_port(void)
 
 #define GPS_SBAS_RANGING       0x01
 #define GPS_SBAS_CORRECTIONS   0x02
-#define GPS_SBAS_INTEGRITY     0x04
+#define GPS_SBAS_INTEGRITY     0x04 // If enabled, the receiver will only use GPS satellites for which integrity information is available (not recommended)
 
 #define GPS_SBAS_MAX_SBAS    3 // Default ublox setting uses 3 SBAS channels(?)
 
@@ -467,7 +473,7 @@ static inline void gps_ubx_ucenter_config_port(void)
 static inline void gps_ubx_ucenter_config_sbas(void)
 {
   // Since March 2nd 2011 EGNOS is released for aviation purposes
-  UbxSend_CFG_SBAS(gps_ubx_ucenter.dev, GPS_SBAS_ENABLED, GPS_SBAS_RANGING | GPS_SBAS_CORRECTIONS | GPS_SBAS_INTEGRITY,
+  UbxSend_CFG_SBAS(gps_ubx_ucenter.dev, GPS_SBAS_ENABLED, GPS_SBAS_RANGING | GPS_SBAS_CORRECTIONS,
                    GPS_SBAS_MAX_SBAS,
                    GPS_SBAS_AUTOSCAN, GPS_SBAS_AUTOSCAN);
 }
@@ -515,6 +521,31 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       // Configure CFG-NAV(5) message
       gps_ubx_ucenter_config_nav();
       break;
+#if GPS_UBX_UCENTER_PVT_ONLY // disable other messages, except SAT
+    case 7:
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_POSLLH_ID, 0);
+      break;
+    case 8:
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0);
+      break;
+    case 9:
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_STATUS_ID, 0);
+      break;
+    case 10:
+      // Satelite information
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SAT_ID, 10);
+      break;
+    case 11:
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SOL_ID, 0);
+      break;
+    case 12:
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 0);
+      break;
+    case 13:
+      // Enable Position Velocity time solution
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_PVT_ID, 1);
+      break;
+#else
     case 7:
       // Geodetic Position Solution
       gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_POSLLH_ID, 1);
@@ -547,6 +578,7 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       // Enable Position Velocity time solution
       gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_PVT_ID, 1);
       break;
+#endif // !PVT_ONLY
     case 14:
       // SBAS Configuration
       gps_ubx_ucenter_config_sbas();
@@ -586,8 +618,10 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       break;
 #endif
     case 22:
+#if GPS_UBX_UCENTER_SAVE
       // Try to save on non-ROM devices...
       UbxSend_CFG_CFG(gps_ubx_ucenter.dev, 0x00000000, 0xffffffff, 0x00000000);
+#endif
       break;
     case 23:
       UbxSend_MON_GET_GNSS(gps_ubx_ucenter.dev);

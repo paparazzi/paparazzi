@@ -7,7 +7,7 @@
 #include <Ivy/ivy.h>
 
 #include <Ivy/ivyloop.h>
-#include <pthread.h>
+#include <Ivy/timer.h>
 
 #include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"
@@ -27,11 +27,9 @@
 #endif
 
 bool nps_ivy_send_world_env = false;
-pthread_t th_ivy_main; // runs main Ivy loop
 static MsgRcvPtr ivyPtr = NULL;
 static int seq = 1;
 static int ap_launch_index;
-static pthread_mutex_t ivy_mutex; // mutex for ivy send
 
 /* Gaia Ivy functions */
 static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
@@ -43,19 +41,36 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           void *user_data __attribute__((unused)),
                           int argc, char *argv[]);
 
-void* ivy_main_loop(void* data __attribute__((unused)));
+/* Telemetry display period in milliseconds (10 Hz). */
+#define NPS_IVY_DISPLAY_PERIOD_MS ((long)(3 * DISPLAY_DT * 1000))
+
+/* Repeating Ivy timer that drives the periodic telemetry. */
+static TimerId nps_ivy_display_timer = NULL;
 
 int find_launch_index(void);
 
-
-void* ivy_main_loop(void* data __attribute__((unused)))
+/*
+ * Periodic telemetry callback.
+ *
+ * Driven by an Ivy timer instead of a before-select hook: IvyMainLoop bounds
+ * its select() timeout with TimerGetSmallestTimeout(), so this fires on
+ * schedule even when the Ivy bus is completely idle (no telemetry lag). It
+ * runs in the IvyMainLoop thread, so IvySendMsg stays single-threaded.
+ */
+static void nps_ivy_display_cb(TimerId id __attribute__((unused)),
+                               void *user_data __attribute__((unused)),
+                               unsigned long delta __attribute__((unused)))
 {
-  IvyMainLoop();
-
-  return NULL;
+#ifdef PRINT_TIME
+  if ((long)delta > NPS_IVY_DISPLAY_PERIOD_MS) {
+    printf("IVY DISPLAY: timer late, %lu [ms] elapsed for a %ld [ms] period\n",
+           delta, NPS_IVY_DISPLAY_PERIOD_MS);
+  }
+#endif
+  nps_ivy_display(&fdm, &sensors);
 }
 
-void nps_ivy_init(char *ivy_bus)
+void nps_ivy_init(char *ivy_bus, bool nodisplay)
 {
   const char *agent_name = AIRFRAME_NAME"_NPS";
   const char *ready_msg = AIRFRAME_NAME"_NPS Ready";
@@ -66,6 +81,15 @@ void nps_ivy_init(char *ivy_bus)
 
   // to be able to change datalink_enabled setting back on
   IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
+
+  // Drive periodic telemetry from a repeating Ivy timer (only if display is on).
+  // The timer bounds IvyMainLoop's select() timeout via TimerGetSmallestTimeout(),
+  // guaranteeing the telemetry cadence regardless of bus activity (no lag on a
+  // completely idle bus).
+  if (!nodisplay) {
+    nps_ivy_display_timer = TimerRepeatAfter(TIMER_LOOP, NPS_IVY_DISPLAY_PERIOD_MS,
+                                             nps_ivy_display_cb, NULL);
+  }
 
 #ifdef __APPLE__
   const char *default_ivy_bus = "224.255.255.255";
@@ -81,10 +105,6 @@ void nps_ivy_init(char *ivy_bus)
   nps_ivy_send_world_env = false;
 
   ap_launch_index = find_launch_index();
-
-  // Launch separate thread with IvyMainLoop()
-  pthread_create(&th_ivy_main, NULL, ivy_main_loop, NULL);
-
 }
 
 /*
@@ -126,8 +146,6 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
 
 void nps_ivy_send_WORLD_ENV_REQ(void)
 {
-  pthread_mutex_lock(&ivy_mutex);
-
   // First unbind from previous request if needed
   if (ivyPtr != NULL) {
     IvyUnbindMsg(ivyPtr);
@@ -141,7 +159,9 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
 
   // Send actual request
   struct NpsFdm fdm_ivy;
+  pthread_mutex_lock(&fdm_mutex);
   memcpy(&fdm_ivy, &fdm, sizeof(struct NpsFdm));
+  pthread_mutex_unlock(&fdm_mutex);
 
   IvySendMsg("nps %d_%d WORLD_ENV_REQ %f %f %f %f %f %f",
       pid, seq,
@@ -152,10 +172,6 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
       (fdm_ivy.ltpprz_pos.y),
       (fdm_ivy.ltpprz_pos.z));
   seq++;
-
-  nps_ivy_send_world_env = false;
-
-  pthread_mutex_unlock(&ivy_mutex);
 }
 
 int find_launch_index(void)
@@ -224,13 +240,13 @@ void nps_ivy_display(struct NpsFdm* fdm_data, struct NpsSensors* sensors_data)
   struct NpsSensors sensors_ivy;
 
   // make a local copy with mutex
+  bool do_world_env_req;
   pthread_mutex_lock(&fdm_mutex);
   memcpy(&fdm_ivy, fdm_data, sizeof(fdm));
   memcpy(&sensors_ivy, sensors_data, sizeof(sensors));
+  do_world_env_req = nps_ivy_send_world_env;
+  nps_ivy_send_world_env = false;
   pthread_mutex_unlock(&fdm_mutex);
-
-  // protect Ivy thread
-  pthread_mutex_lock(&ivy_mutex);
 
   IvySendMsg("%d NPS_RATE_ATTITUDE %f %f %f %f %f %f",
              AC_ID,
@@ -287,9 +303,12 @@ void nps_ivy_display(struct NpsFdm* fdm_data, struct NpsSensors* sensors_data)
              fdm_ivy.wind.y,
              fdm_ivy.wind.z);
 
-  pthread_mutex_unlock(&ivy_mutex);
-
-  if (nps_ivy_send_world_env) {
+  if (do_world_env_req) {
     nps_ivy_send_WORLD_ENV_REQ();
   }
+}
+
+void nps_ivy_run(void)
+{
+  IvyMainLoop();
 }

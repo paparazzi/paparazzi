@@ -6,7 +6,9 @@ from PyQt5.QtWidgets import *
 from typing import NamedTuple
 from PyQt5.QtCore import QSettings
 import subprocess
+from shutil import which
 
+EDITORS = ["gnome-text-editor", "kate"]
 
 class GConfEntry(NamedTuple):
     name: str
@@ -36,9 +38,10 @@ def remove_suffix(s: str, suffix: str, /) -> str:
 # TODO: make it work with shell program such as vim.
 def edit_file(file_path, prefix=CONF_DIR):
     path = prefix + file_path
-    editor = get_settings().value("text_editor", "", str)
-    if editor == "":
-        editor = "gedit"
+    editor = ""
+    for editor in [get_settings().value("text_editor", "", str), *EDITORS]:
+        if which(editor) is not None:
+            break
     try:
         subprocess.Popen([editor, path])
     except Exception as e:

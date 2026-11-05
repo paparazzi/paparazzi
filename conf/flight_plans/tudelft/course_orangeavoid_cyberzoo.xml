@@ -1,20 +1,25 @@
 <?xml version="1.0"?>
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 <flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="60" name="Bebop avoid orange TU Delft Cyberzoo" security_height="0.4">
+  
+  <!--=== Header: module and Gazebo simulation world includes ===-->
   <header>
     #include "modules/datalink/datalink.h"
     #include "modules/energy/electrical.h"
     #include "modules/radio_control/radio_control.h"
     #include "modules/ahrs/ahrs.h"
     #define NPS_GAZEBO_WORLD "cyberzoo_orange_poles.world"
-</header>
+  </header>
+
+  <!--=== Waypoints: define all waypoints and geofence corners ===-->
   <waypoints>
     <waypoint lat="51.990631" lon="4.376796" name="HOME"/>
     <waypoint name="CLIMB" x="1.9" y="1.0"/>
     <waypoint name="STDBY" x="1.9" y="1.0"/>
-    <waypoint name="TD" x="0.8" y="-1.7"/>
+    <waypoint name="TD" x="0.8" y="-1.7" height="0.5"/>
     <waypoint name="GOAL" x="1.9" y="1.0"/>
     <waypoint name="TRAJECTORY" x="1.9" y="1.0"/>
+    <waypoint name="RETREAT" x="1.9" y="1.0"/>
     <waypoint lat="51.9905834" lon="4.3767710" name="_CZ1"/>
     <waypoint lat="51.9906440" lon="4.3767060" name="_CZ2"/>
     <waypoint lat="51.9906860" lon="4.3768080" name="_CZ3"/>
@@ -24,13 +29,18 @@
     <waypoint lat="51.9906687" lon="4.3768025" name="_OZ3"/>
     <waypoint lat="51.9906273" lon="4.3768438" name="_OZ4"/>
   </waypoints>
+
+  <!--=== Sectors: define geofence regions ===-->
   <sectors>
+    <!-- Outer geofence (hard stop, Cyberzoo walls) -->
     <sector color="red" name="CyberZoo">
       <corner name="_CZ1"/>
       <corner name="_CZ2"/>
       <corner name="_CZ3"/>
       <corner name="_CZ4"/>
     </sector>
+
+    <!-- Inner geofence (soft stop, obstacle zone) -->
     <sector color="#FF9922" name="ObstacleZone">
       <corner name="_OZ1"/>
       <corner name="_OZ2"/>
@@ -38,6 +48,8 @@
       <corner name="_OZ4"/>
     </sector>
   </sectors>
+
+  <!--=== Exceptions: handle emergencies and geofencing ===-->
   <exceptions>
     <!-- RC lost -->
     <!--exception cond="((radio_control.status == RC_REALLY_LOST) @AND
@@ -74,50 +86,78 @@
       !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="land here"/>
   </exceptions>
+
+  <!--=== Blocks: define mission workflow ===-->
   <blocks>
     <block name="Wait GPS">
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
+
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 2)"/>
       <call_once fun="NavSetAltitudeReferenceHere()"/>
     </block>
+
     <block name="Holding point">
       <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
+
     <block key="r" name="Start Engine">
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
       <call_once fun="NavResurrect()"/>
     </block>
+
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
       <exception cond="GetPosAlt() @GT 0.8" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
+
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay wp="STDBY"/>
     </block>
+
     <block key="g" name="START" strip_button="Go" strip_icon="lookfore.png">
       <call_once fun="NavSetWaypointHere(WP_GOAL)"/>
       <stay wp="GOAL"/>
     </block>
+
     <block name="STOP">
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay wp="STDBY"/>
     </block>
+
+    <block name="RETREAT">
+      <exception cond="block_time @GT 2.0" deroute="STOP"/>
+      <call_once fun="NavSetWaypointHere(WP_RETREAT)"/>
+      <stay wp="RETREAT"/>
+    </block>
+
+    <block key="e" name="Emergency Landing">
+      <exception cond="!nav_is_in_flight()" deroute="KILL"/>
+      <exception cond="0.10 @GT GetPosAlt()" deroute="KILL"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+      <call_once fun="NavStartDetectGround()"/>
+      <stay climb="-1.25" vmode="climb" wp="TD"/>
+    </block>
+
     <block key="l" name="land here" strip_button="land here" strip_icon="land-right.png">
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
       <go wp="TD"/>
       <deroute block="Flare"/>
     </block>
     <block name="Land">
+      <exception cond="0.55 @GEQ GetPosAlt()" deroute="Flare"/>
+      <exception cond="block_time @GT 5" deroute="Flare"/>
       <go wp="TD"/>
       <deroute block="Flare"/>
     </block>
+
     <block name="Flare">
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="Landed"/>
@@ -125,7 +165,14 @@
       <call_once fun="NavStartDetectGround()"/>
       <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
+
     <block name="Landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    
+    <block name="KILL">
+      <call_once fun="autopilot_set_mode(AP_MODE_KILL)"/>
       <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>

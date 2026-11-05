@@ -67,9 +67,6 @@
 #if USE_SPI
 #include "mcu_periph/spi.h"
 #endif
-#ifdef USE_DAC
-#include "mcu_periph/dac.h"
-#endif
 #ifdef USE_RNG
 #include "mcu_periph/rng.h"
 #endif
@@ -98,13 +95,19 @@ void WEAK mcu_energy_save(void)
   /* default power saving function does nothing... */
 }
 
+uint8_t WEAK mcu_get_uid(uint8_t *uid __attribute__((unused)), uint8_t max_len __attribute__((unused)))
+{
+  /* default has no unique ID */
+  return 0;
+}
+
 void mcu_init(void)
 {
   /* If we have a board specific init function, call it.
    * Otherwise it will simply call the empty weak function.
    *
-   * For example the ARDrone2 has this implemented to prevent stray data of IMU
-   * from OEM program still running and also accessing AC sensors
+   * For example a board can use it to stop the OEM program that is still
+   * running and accessing the sensors
    */
   board_init();
 
@@ -251,10 +254,6 @@ void mcu_init(void)
   spi_slave_hs_init();
 #endif
 #endif // USE_SPI
-
-#ifdef USE_DAC
-  dac_init();
-#endif
 
 #if USE_UDP0 || USE_UDP1 || USE_UDP2
   udp_arch_init();

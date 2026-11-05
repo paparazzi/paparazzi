@@ -491,7 +491,7 @@ void guidance_h_run_enter(void)
 {
   /*Obtain eulers with zxy rotation order*/
   struct FloatEulers eulers_zxy;
-  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+  eulers_zxy = *stateGetNedToBodyEulersZxy_f();
   nav.heading = eulers_zxy.psi;
 }
 

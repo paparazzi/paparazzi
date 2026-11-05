@@ -42,6 +42,8 @@
 #include "modules/gps/gps.h"
 #endif
 
+#define GPS_LEAP_SECONDS 18
+
 // Delay before starting SD log
 #ifndef SDLOG_START_DELAY
 #define SDLOG_START_DELAY 30
@@ -361,11 +363,11 @@ static void thd_startlog(void *arg)
     // we sync gps time to rtc every 5 seconds
     if (chVTGetSystemTime() - timestamp > TIME_S2I(5)) {
       timestamp = chVTGetSystemTime();
-      if (gps.tow != 0) {
+      if (gps.tow != 0 && (sys_time.nb_sec - gps.last_msg_time) < 5) {
         // Unix timestamp of the GPS epoch 1980-01-06 00:00:00 UTC
         const uint32_t unixToGpsEpoch = 315964800;
         struct tm time_tm;
-        time_t univTime = ((gps.week * 7 * 24 * 3600) + (gps.tow / 1000)) + unixToGpsEpoch;
+        time_t univTime = ((gps.week * 7 * 24 * 3600) + (gps.tow / 1000)) + unixToGpsEpoch - GPS_LEAP_SECONDS;
         gmtime_r(&univTime, &time_tm);
         // Chibios date struct
         RTCDateTime date;

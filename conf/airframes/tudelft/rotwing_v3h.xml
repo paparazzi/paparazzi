@@ -42,6 +42,17 @@
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
 
             <define name="I2C2_CLOCK_SPEED" value="100000"/>
+
+            <!-- Strain gauges connected to hx711 load cell -->
+            <module name="hx711">
+                <define name="HX711_DEVICES_NB" value="4"/>
+                <define name="HX711_DEVICES" value="{PWM_SERVO_2_GPIO,PWM_SERVO_2_PIN,0},{PWM_SERVO_3_GPIO,PWM_SERVO_3_PIN,0},{PWM_SERVO_4_GPIO,PWM_SERVO_4_PIN,0},{PWM_SERVO_5_GPIO,PWM_SERVO_5_PIN,0}"/>
+                <define name="HX711_DEBUG" value="true"/>
+            </module>
+
+            <define name="GROUND_DETECT_USE_FORCE_SENSOR" value="TRUE"/>
+            <define name="GROUND_DETECT_FORCE_SENSOR_THRESHOLD" value="100000"/>
+            <define name="GROUND_DETECT_FORCE_SENSOR_MEDIAN_FILT_SIZE" value="3"/>
         </target>
 
         <target name="nps" board="pc">
@@ -381,11 +392,12 @@
     </section>
 
     <checklist>
-        <item name="pic" type="text">Enter the PIC</item>
-        <item name="pac" type="text">Enter the PAC</item>
-        <item name="gcs" type="text">Enter the GCS op</item>
+        <item name="pic" type="text" remember="true">Enter the PIC</item>
+        <item name="pac" type="text" remember="true">Enter the PAC</item>
+        <item name="gcs" type="text" remember="true">Enter the GCS op</item>
         <item name="goal" type="text">Goal of the flight</item>
         <item name="basic law">Location, airspace and weather</item>
+        <item name="special" type="text" optional="true" help="Anything special about the location, airspace or weather (NOTAM, other traffic, wind limits, ...). Leave empty if nothing is special.">Special conditions</item>
         <item name="RC Battery">Check the RC battery</item>
         <item name="tail connection">Check tail connection</item>
         <item name="wing tape">Check wings taped and secured</item>

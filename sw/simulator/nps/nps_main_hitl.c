@@ -93,6 +93,10 @@ void *nps_main_loop(void *data __attribute__((unused)))
   double real_time = 0;
   static int guard;
 
+  pthread_mutex_lock(&fdm_mutex);
+  nps_fdm_run_init_step();
+  pthread_mutex_unlock(&fdm_mutex);
+
   while (TRUE) {
     clock_get_current_time(&requestStart);
 

@@ -34,7 +34,7 @@
 int main()
 {
   note("running algebra math tests");
-  plan(3);
+   plan(6); // number of tests in this file to run
 
   /* test int32_vect2_normalize */
   struct Int32Vect2 v = {2300, -4200};
@@ -57,6 +57,24 @@ int main()
   ok((fabs(quat_zxy.qi - 0.9266) < 0.01 && fabs(quat_zxy.qx - -0.2317) < 0.01 && fabs(quat_zxy.qy - 0.1165) < 0.01) && fabs(quat_zxy.qz - 0.2722),
      "float_quat_of_eulers_zxy(float_eulers_of_quat_zxy(0.9266,   -0.2317,    0.1165,    0.2722)) returned [%f, %f, %f, %f]", quat_zxy.qi, quat_zxy.qx, quat_zxy.qy, quat_zxy.qz);
 
+  /* test int32_quat_normalize */
+  struct Int32Quat q = {32768, 0, 0, 0}; // 1.0 in Q15 format
+  q.qx = 16384; // 0.5 in Q15
+  q.qy = 0;
+  q.qz = 0;
+  int32_quat_normalize(&q);
+  // After normalization, the quaternion should be unit length (|q| = 1.0 in Q15)
+  // For [1, 0.5, 0, 0], norm = sqrt(1^2 + 0.5^2) = sqrt(1.25) ≈ 1.118
+  // Normalized: [1/1.118, 0.5/1.118, 0, 0] ≈ [0.894, 0.447, 0, 0]
+  // In Q15: 0.894*32768 ≈ 29300, 0.447*32768 ≈ 14650
+  ok((q.qi >= 29295 && q.qi <= 29315) && (q.qx >= 14645 && q.qx <= 14655), // allowing a small margin of error due to integer rounding
+     "int32_quat_normalize([32768,16384,0,0]) returned [%d, %d, %d, %d] (expected approx [29300,14650,0,0] +/- 15)", q.qi, q.qx, q.qy, q.qz);
+
+  uint32_t sqrt_100 = int32_sqrt(100);
+  ok(sqrt_100 == 10, "int32_sqrt(100) == %d (expected 10)", sqrt_100);
+
+  uint32_t sqrt_12345 = int32_sqrt(12345);
+  ok(sqrt_12345 >= 111 && sqrt_12345 <= 112, "int32_sqrt(12345) == %d (expected approx 111)", sqrt_12345);
 
   done_testing();
 }

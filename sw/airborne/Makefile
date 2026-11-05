@@ -58,6 +58,9 @@ ifneq ($(MAKECMDGOALS),clean)
 
   $(TARGET).CFLAGS += -DGIT_SHA1=$(GIT_SHA1)
   $(TARGET).CFLAGS += -DGIT_DESC=$(GIT_DESC)
+  ifneq ($(BUILD_TIME),)
+    $(TARGET).CFLAGS += -DBUILD_TIME=$(BUILD_TIME)
+  endif
   $(TARGET).CFLAGS += -DPPRZ_VER=$(PPRZ_VER)
   $(TARGET).CFLAGS += -DPPRZ_VER_MAJOR=$(PPRZ_VER_MAJOR)
   $(TARGET).CFLAGS += -DPPRZ_VER_MINOR=$(PPRZ_VER_MINOR)
@@ -69,9 +72,7 @@ ifneq ($(MAKECMDGOALS),clean)
     $(TARGET).CFLAGS += -DAP_LAUNCH=$(AP_LAUNCH)
   endif
 
-  # sort cflags and sources to throw out duplicates
-  #
-  $(TARGET).CFLAGS := $(sort $($(TARGET).CFLAGS))
+  # sort sources to throw out duplicates
   $(TARGET).srcs := $(sort $($(TARGET).srcs))
 endif
 

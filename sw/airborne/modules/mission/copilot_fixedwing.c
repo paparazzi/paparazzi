@@ -87,13 +87,13 @@ void copilot_parse_move_wp_dl(uint8_t *buf)
     utm.east = waypoints[wp_id].x + nav_utm_east0;
     utm.north = waypoints[wp_id].y + nav_utm_north0;
 
-    if (buf == extra_dl_buffer) {
+    if (buf == extra_dl_get_buffer()) {
        // MOVE_WP came from extra_dl, respond over telemetry
       DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice,
                              &wp_id, &utm.east, &utm.north, &utm.alt, &nav_utm_zone0);
     }
 
-    if (buf == dl_buffer) {
+    if (buf == datalink_get_buffer()) {
       // MOVE_WP came over telemetry, respond over extra_dl
       DOWNLINK_SEND_WP_MOVED(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
                              &wp_id, &utm.east, &utm.north, &utm.alt, &nav_utm_zone0);

@@ -30,6 +30,10 @@
 #include "mcu_periph/uart.h"
 #include "generated/airframe.h"
 
+#if USE_TUNNEL_UAVCAN
+#include "modules/datalink/tunnel_uavcan.h"
+#endif
+
 #define STR_(s) #s
 #define STR(s) STR_(s)
 
@@ -68,7 +72,7 @@ void xbee_dl_init(void)
 
 void xbee_dl_event(void)
 {
-  xbee_check_and_parse(&(XBEE_UART).device, &xbee_tp, dl_buffer, &dl_msg_available);
-  DlCheckAndParse(&(XBEE_UART).device, &xbee_tp.trans_tx, dl_buffer, &dl_msg_available, XBEE_UPDATE_DL);
+  xbee_check_and_parse(&(XBEE_UART).device, &xbee_tp, datalink_get_buffer(), &dl_msg_available);
+  DlCheckAndParse(&(XBEE_UART).device, &xbee_tp.trans_tx, datalink_get_buffer(), &dl_msg_available, XBEE_UPDATE_DL);
 }
 

@@ -26,7 +26,7 @@
 #include "nps_fdm.h"
 #include "modules/datalink/datalink.h"
 
-struct GpsState gps_nps;
+struct GpsState gps_nps = {0};
 bool gps_has_fix;
 
 void gps_feed_value(void)

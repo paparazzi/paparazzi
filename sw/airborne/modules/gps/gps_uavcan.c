@@ -49,7 +49,7 @@ static void gps_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), 
     return;   // decode error
   }
 
-  struct GpsState state;
+  struct GpsState state = {0};
 
   // id of current gps
 #if GPS_UAVCAN_USE_NODE_ID
@@ -130,9 +130,9 @@ static void gps_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), 
   SetBit(state.valid_fields, GPS_VALID_VEL_NED_BIT);
 
   // norm of 2d ground speed in cm/s
-  state.gspeed = VECT2_NORM2(state.ned_vel);
+  state.gspeed = sqrtf(VECT2_NORM2(state.ned_vel));
   // norm of 3d speed in cm/s
-  state.speed_3d = VECT3_NORM2(state.ned_vel);
+  state.speed_3d = sqrtf(VECT3_NORM2(state.ned_vel));
   // GPS course over ground in rad*1e7, [0, 2*Pi]*1e7 (CW/north)
   float course = atan2f(state.ned_vel.y, state.ned_vel.x);
   NormCourseRad(course);

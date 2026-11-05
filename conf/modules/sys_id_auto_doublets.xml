@@ -6,12 +6,15 @@
       <define name="AUTO_DOUBLETS_N_ACTUATORS" value="1" description="Number of doublets in the sequence"/>
       <define name="AUTO_DOUBLETS_ACTUATORS" value="{0}" description="List with SYS_ID_AUTO_DOUBLETS_N_ACTUATORS actuators"/>
       <define name="AUTO_DOUBLETS_AMPLITUDE" value="{5000}" description="List with SYS_ID_AUTO_DOUBLETS_N_ACTUATORS doublet amplitudes"/>
+      <define name="AUTO_DOUBLETS_TIME" value="0.5" description="Time of one doublet [s]"/>
+      <define name="AUTO_DOUBLETS_MOD" value="3" description="Optional: doublet mode forced for the automatic doublets (see sys_id_doublet, e.g. 3 = highspeed). Default: mode selected in the GCS"/>
     </section>
   </doc>
   <settings>
   <dl_settings NAME="AutoDoublet">
     <dl_settings name="auto_doublet">
         <dl_setting min="0"    max="1"    step="1" values="Inactive|Active" shortname="activated" var="sys_id_auto_doublets_activated" type="uint8_t" module="system_identification/sys_id_auto_doublets" handler="on_activation"/>
+        <dl_setting min="0.01" max="2.0"  step="0.01" shortname="doublet_time" var="sys_id_auto_doublets_time" type="float" module="system_identification/sys_id_auto_doublets"/>
     </dl_settings>
   </dl_settings>
   </settings>

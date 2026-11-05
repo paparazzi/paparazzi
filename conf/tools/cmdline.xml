@@ -1,0 +1,3 @@
+<program command="$echo" name="Command line (CMD)" icon="terminal-svgrepo-com.svg">
+    <arg constant="&quot;Hello world&quot;"/>
+</program>

@@ -330,7 +330,7 @@ PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_GRADIENT_METHOD_CAMERA2)
 PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_MIN_GRADIENT)
 PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_MIN_GRADIENT_CAMERA2)
 
-// Defaults for ARdrone
+// Defaults for a bottom camera aligned with the body frame
 #ifndef OPTICFLOW_BODY_TO_CAM_PHI
 #define OPTICFLOW_BODY_TO_CAM_PHI 0
 #endif
@@ -1202,7 +1202,7 @@ bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
   }
   /* Rotate velocities from camera frame coordinates to body coordinates for control
   * IMPORTANT!!! This frame to body orientation should be the case for the Parrot
-  * ARdrone and Bebop, however this can be different for other quadcopters
+  * Bebop, however this can be different for other quadcopters
   * ALWAYS double check!
   */
   float_rmat_transp_vmult(&result->vel_body, &body_to_cam[opticflow->id], &result->vel_cam);

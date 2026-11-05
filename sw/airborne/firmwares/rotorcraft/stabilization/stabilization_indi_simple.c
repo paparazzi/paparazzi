@@ -169,13 +169,11 @@ static void send_eff_mat_g_indi_simple(struct transport_tx *trans, struct link_d
   struct FloatRates g1_disp;
   RATES_SMUL(g1_disp, indi.est.g1, INDI_EST_SCALE);
   float g2_disp = indi.est.g2 * INDI_EST_SCALE;
-  float zero = 0.0;
   pprz_msg_send_EFF_MAT_STAB(trans, dev, AC_ID,
                                     1, &g1_disp.p,
                                     1, &g1_disp.q,
                                     1, &g1_disp.r,
-                                    1, &g2_disp,
-                                    1, &zero);
+                                    1, &g2_disp);
 }
 
 static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *dev)

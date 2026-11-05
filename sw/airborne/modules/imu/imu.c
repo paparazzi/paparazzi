@@ -345,7 +345,7 @@ static void send_mag_current(struct transport_tx *trans, struct link_device *dev
 
 static void show_calibrated(shell_stream_t *sh, struct imu_calib_t *calibrated) {
   chprintf(sh, "  calibrated: neutral %d, scale %d, rotation %d, current %d, filter %d\r\n",
-      calibrated->neutral, calibrated->scale, calibrated->rotation, calibrated->current, calibrated->filter);
+      calibrated->neutral, calibrated->scale_f, calibrated->rotation, calibrated->current, calibrated->filter);
 }
 
 static void show_vect3(shell_stream_t *sh, char* name, struct Int32Vect3 *v) {
@@ -415,7 +415,7 @@ static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
     if (imu.mags[i].abi_id != 0) {
       chprintf(sh, " Mag id: %u\r\n", imu.mags[i].abi_id);
       show_calibrated(sh, &imu.mags[i].calibrated);
-      show_vect3(sh, "neutral", &imu.mags[i].neutral);                  
+      show_vect3(sh, "neutral", &imu.mags[i].neutral);
       show_vect3f(sh, "scale", &imu.mags[i].scale_f);
       show_matrix(sh, "body_to_sensor", &imu.mags[i].body_to_sensor);
       show_vect3(sh, "unscaled", &imu.mags[i].unscaled);
@@ -462,6 +462,7 @@ void imu_init(void)
       imu.gyros[i].calibrated.scale = false;
       imu.gyros[i].calibrated.scale_f = false;
       imu.gyros[i].calibrated.rotation = false;
+      imu.gyros[i].calibrated.rot_euler = false;
       imu.gyros[i].calibrated.filter = false;
     } else {
       imu.gyros[i] = gyro_calib[i];
@@ -484,7 +485,14 @@ void imu_init(void)
     }
 
     if(!imu.gyros[i].calibrated.rotation) {
-      int32_rmat_identity(&imu.gyros[i].body_to_sensor);
+      if (imu.gyros[i].calibrated.rot_euler) {
+        struct Int32Eulers eulers_i;
+        EULERS_BFP_OF_REAL(eulers_i, imu.gyros[i].body_to_sensor_f);
+        int32_rmat_of_eulers(&imu.gyros[i].body_to_sensor, &eulers_i);
+        imu.gyros[i].calibrated.rotation = true;
+      } else {
+        int32_rmat_identity(&imu.gyros[i].body_to_sensor);
+      }
     }
     imu.gyros[i].last_stamp = 0;
     int32_rmat_comp(&body_to_sensor, body_to_imu_rmat, &imu.gyros[i].body_to_sensor);
@@ -504,6 +512,7 @@ void imu_init(void)
       imu.accels[i].calibrated.scale = false;
       imu.accels[i].calibrated.scale_f = false;
       imu.accels[i].calibrated.rotation = false;
+      imu.accels[i].calibrated.rot_euler = false;
       imu.accels[i].calibrated.filter = false;
     } else {
       imu.accels[i] = accel_calib[i];
@@ -526,7 +535,14 @@ void imu_init(void)
     }
 
     if(!imu.accels[i].calibrated.rotation) {
-      int32_rmat_identity(&imu.accels[i].body_to_sensor);
+      if (imu.accels[i].calibrated.rot_euler) {
+        struct Int32Eulers eulers_i;
+        EULERS_BFP_OF_REAL(eulers_i, imu.accels[i].body_to_sensor_f);
+        int32_rmat_of_eulers(&imu.accels[i].body_to_sensor, &eulers_i);
+        imu.accels[i].calibrated.rotation = true;
+      } else {
+        int32_rmat_identity(&imu.accels[i].body_to_sensor);
+      }
     }
     imu.accels[i].last_stamp = 0;
     int32_rmat_comp(&body_to_sensor, body_to_imu_rmat, &imu.accels[i].body_to_sensor);
@@ -546,6 +562,7 @@ void imu_init(void)
       imu.mags[i].calibrated.scale = false;
       imu.mags[i].calibrated.scale_f = false;
       imu.mags[i].calibrated.rotation = false;
+      imu.mags[i].calibrated.rot_euler = false;
       imu.mags[i].calibrated.current = false;
     } else {
       imu.mags[i] = mag_calib[i];
@@ -567,7 +584,14 @@ void imu_init(void)
       }
     }
     if(!imu.mags[i].calibrated.rotation) {
-      int32_rmat_identity(&imu.mags[i].body_to_sensor);
+      if (imu.mags[i].calibrated.rot_euler) {
+        struct Int32Eulers eulers_i;
+        EULERS_BFP_OF_REAL(eulers_i, imu.mags[i].body_to_sensor_f);
+        int32_rmat_of_eulers(&imu.mags[i].body_to_sensor, &eulers_i);
+        imu.mags[i].calibrated.rotation = true;
+      } else {
+        int32_rmat_identity(&imu.mags[i].body_to_sensor);
+      }
     }
     if(!imu.mags[i].calibrated.current) {
       INT_VECT3_ZERO(imu.mags[i].current_scale);

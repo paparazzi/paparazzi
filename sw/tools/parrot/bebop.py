@@ -52,7 +52,7 @@ class Bebop(ParrotUtils):
         if self.read_from_config(name) == 'Unknown':
             self.execute_command('echo "' + name + '=' + value + '\" >> ' + self.config_file)
         else:
-            self.execute_command('sed -i "s/\(' + name + ' *= *\).*/\\1' + value + '/g" ' + self.config_file)
+            self.execute_command('sed -i "s/\\(' + name + ' *= *\\).*/\\1' + value + '/g" ' + self.config_file)
 
     def uav_status(self):
         print('Parrot version:\t\t' + str(self.check_version()))
@@ -71,12 +71,15 @@ class Bebop(ParrotUtils):
         self.upload_file('bebop/config_network.script', self.scripts_path, kill_prog=False)
         self.upload_file('bebop/button_switch', self.scripts_path, kill_prog=False)
         self.upload_file('bebop/pprzstarter', self.scripts_path, kill_prog=False)
+        self.upload_file('wpa_supplicant/wpa_supplicant', self.scripts_path, kill_prog=False)
+        self.upload_file('wpa_supplicant/wpa_passphrase', self.scripts_path, kill_prog=False)
+        self.upload_file('wpa_supplicant/wpa_cli', self.scripts_path, kill_prog=False)
         self.execute_command("mount -o remount,rw /")
         if self.check_connect2hub():
             self.execute_command("sed -i 's|connect2hub|pprzstarter|' /etc/init.d/rcS")
             self.execute_command("rm /data/ftp/internal_000/scripts/connect2hub")
         else:
-            self.execute_command("sed -i 's|^exit 0|/data/ftp/internal_000/scripts/pprzstarter \& exit 0|' /etc/init.d/rcS")
+            self.execute_command("sed -i 's|^exit 0|/data/ftp/internal_000/scripts/pprzstarter \\& exit 0|' /etc/init.d/rcS")
         self.execute_command("chmod a+x /etc/init.d/rcS")
         self.execute_command("chmod a+x /data/ftp/internal_000/scripts/pprzstarter")
         self.execute_command("chmod a+x /data/ftp/internal_000/scripts/button_switch")
@@ -88,11 +91,17 @@ class Bebop(ParrotUtils):
         self.execute_command("echo '#!/bin/sh' > /bin/onoffbutton/shortpress_3.sh")
         self.execute_command("echo '' >> /bin/onoffbutton/shortpress_3.sh")
         self.execute_command("echo '/data/ftp/internal_000/scripts/button_switch' >> /bin/onoffbutton/shortpress_3.sh")
+        self.execute_command("chmod a+x /data/ftp/internal_000/scripts/wpa_supplicant")
+        self.execute_command("chmod a+x /data/ftp/internal_000/scripts/wpa_passphrase")
+        self.execute_command("chmod a+x /data/ftp/internal_000/scripts/wpa_cli")
+        self.execute_command("mv /data/ftp/internal_000/scripts/wpa_supplicant /bin/wpa_supplicant")
+        self.execute_command("mv /data/ftp/internal_000/scripts/wpa_passphrase /bin/wpa_passphrase")
+        self.execute_command("mv /data/ftp/internal_000/scripts/wpa_cli /bin/wpa_cli")
 
     def bebop_uninstall_scripts(self):
         print('Uninstalling Paparazzi scripts')
         self.execute_command("mount -o remount,rw /")
-        self.execute_command("sed -i 's|^/data/ftp/internal_000/scripts/pprzstarter \& exit 0|exit 0|' /etc/init.d/rcS")
+        self.execute_command("sed -i 's|^/data/ftp/internal_000/scripts/pprzstarter \\& exit 0|exit 0|' /etc/init.d/rcS")
         self.execute_command("chmod a+x /etc/init.d/rcS")
         self.execute_command("mv /bin/onoffbutton/shortpress_3.sh.backup /bin/onoffbutton/shortpress_3.sh")
         self.execute_command("rm -rf /data/ftp/internal_000/scripts/*")
@@ -191,6 +200,12 @@ class Bebop(ParrotUtils):
 
         ss = self.subparsers.add_parser('uninstall_autostart', help='Remove custom autostart scripts')
 
+        ss = self.subparsers.add_parser('sound', help='Make a bip with the motors')
+        ss.add_argument('type', choices=['stop', 'startup', 'short', 'continous'], help='Make a sound, start or stop continuous bipping')
+
+        ss = self.subparsers.add_parser('cdc_acm', help='Activate or disable cdc_acm driver')
+        ss.add_argument('active', choices=['disable', 'activate'])
+
     def parse_extra_args(self, args):
 
         # Change the network ID
@@ -278,6 +293,26 @@ class Bebop(ParrotUtils):
                 self.bebop_uninstall_scripts()
             else:
                 print("Autostart script not found")
+
+        # Sound
+        elif args.command == 'sound':
+            sound_type = {'stop': '0', 'startup': '1', 'short': '2', 'continous': '-2'}
+            self.execute_command('BLDC_Test_Bench -n -M ' + sound_type[args.type])
+
+        # Activate cdc_acm driver
+        elif args.command == 'cdc_acm':
+            if self.check_autoboot():
+                print('Custom autostart script already installed')
+                if input("Shall I reinstall the autostart script (y/N) ").lower() == 'y':
+                    self.bebop_install_scripts()
+            else:
+                self.bebop_install_scripts()
+            active = {'disable': '0', 'activate': '1'}
+            self.write_to_config('START_CDC_ACM', active[args.active])
+            print('The cdc_acm driver on boot is changed to ' + args.active)
+
+            if input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+                self.reboot()
 
 if __name__ == "__main__":
     bebop = Bebop()

@@ -24,7 +24,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import bytes
 import socket
-import telnetlib
+try:
+    import telnetlib3 as telnetlib
+except ImportError:
+    import telnetlib
 import os
 import sys
 from ftplib import FTP

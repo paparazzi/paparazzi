@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<flight_plan alt="148" ground_alt="142.2" lat0="48.806623" lon0="7.852214" max_dist_from_home="1000" name="IMAV2026 Water drop" security_height="5" home_mode_height="10">
+
+  <header>
+    #define FP_NONE    0
+    #define FP_WATER   1
+
+    #ifdef NAV_C
+    
+    static inline bool delay_test_rc(bool test, int delay) {
+      static int nb = 0;
+        if (test) {
+        nb++;
+        if (nb == delay) {
+          nb = 0;
+          return true;
+        }
+        return false;
+      } else {
+        nb = 0;
+        return false;
+      }
+    }
+
+    #endif
+  </header>
+  <waypoints>
+    <waypoint name="HOME" lat="48.8068" lon="7.8521"/>
+    <waypoint name="STDBY" lat="48.8066" lon="7.85196"/>
+    <waypoint name="LANDPAD" lat="48.806623" lon="7.852214"/>
+    <waypoint name="_HERE" lat="48.8065608" lon="7.8530971"/>
+    <waypoint name="WATER" lat="48.8070268" lon="7.8519140" alt="144.2"/>
+    <waypoint name="DROP" lat="48.806737" lon="7.851935"/>
+  </waypoints>
+  <variables>
+    <variable init="0" type="int" var="mission_nb"/>
+    <variable init="5." var="goto_height" min="3." max="20." step="0.1"/>
+    <variable init="3." var="goto_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="3." var="takeoff_height" min="0.5" max="15." step="0.1"/>
+    <variable init="2." var="land_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="1.7" var="water_height" min="0." max="80." step="0.1"/>
+    <variable init="1." var="water_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="-0.6" var="water_descent" min="-1.5" max="-0.1" step="0.01"/>
+    <variable init="30." var="water_duration" min="1." max="60." step="1."/>
+    <variable init="50." var="water_timeout" min="10." max="120." step="1."/>
+    <variable init="30." var="water_purge" min="1." max="60." step="1."/>
+    <variable init="3" type="int" var="lap_nb" min="1" max="5" step="1"/>
+    <variable init="0" type="int" var="lap_count"/>
+    <variable init="2." var="fp_height"/>
+  </variables>
+  <modules>
+    <module name="agl_dist"/>
+    <module name="pump_control"/>
+  </modules>
+  <includes>
+    <include name="Data" procedure="IMAV2026_data.xml"/>
+  </includes>
+  <exceptions>
+    <exception cond="(!InsideFlight_Area(GetPosX(), GetPosY()) @OR (GetPosHeight() @GT 30)) @AND (nav_block @GT IndexOfBlock('Holding point')) @AND (nav_block @LT IndexOfBlock('Kill landed'))" deroute="Standby"/>
+    <exception cond="(!InsideKill(GetPosX(), GetPosY()) @OR (GetPosHeight() @GT 50)) @AND (nav_block @GT IndexOfBlock('Holding point')) @AND (nav_block @LT IndexOfBlock('Kill landed'))" deroute="Kill landed"/>
+    <exception cond="(nav_block @GT IndexOfBlock('Holding point') @AND nav_block @LT IndexOfBlock('Kill landed')) @AND (GpsIsLost() @AND delay_test_rc(RadioControlIsLost(),20) @AND (datalink_time @GT 5))" deroute="Kill landed"/>
+    <exception cond="(nav_block @GT IndexOfBlock('Holding point') @AND nav_block @LT IndexOfBlock('Kill landed')) @AND (delay_test_rc(RadioControlIsLost(),20) @AND (datalink_time @GT 15))" deroute="Standby"/>
+    <exception cond="(nav_block @GEQ IndexOfBlock('Goto Water') @AND nav_block @LEQ IndexOfBlock('Drop Water')) @AND (electrical.vsupply @LT CRITIC_BAT_LEVEL)" deroute="Landing"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 2)"/>
+    </block>
+    <block name="Holding point" strip_button="H. Point" group="home">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_NONE" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_WATER" deroute="Goto Water"/>
+      <!--call_once fun="NavSetAltitudeReferenceHere()"/-->
+      <!--call_once fun="NavSetWaypointHere(WP_LANDPAD)"/-->
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="stage_time @GT 1" vmode="throttle"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="_HERE"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <stay wp="STDBY"/>
+    </block>
+
+    <block group="mission" name="Start Water" strip_button="Water">
+      <set var="mission_nb" value="FP_WATER"/>
+      <set var="lap_count" value="0"/>
+      <deroute block="Takeoff"/>
+    </block>
+    <block name="Goto Water">
+      <exception cond="lap_count @GEQ lap_nb" deroute="Landing"/>
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <stay wp="_HERE" until="stage_time @GT 3" height="goto_height"/>
+      <go wp="WATER" from="_HERE" hmode="route" height="goto_height" approaching_time="2"/>
+      <deroute block="Fill Tank"/>
+    </block>
+    <block name="Fill Tank" on_exit="pump_stop()">
+      <call_once fun="guidance_h_SetMaxSpeed(water_speed)"/>
+      <stay wp="WATER" height="goto_height" until="stage_time @GT 2"/>
+      <stay wp="WATER" vmode="climb" climb="water_descent" until="GetPosHeight() @LT water_height + 0.2"/>
+      <stay wp="WATER" height="water_height" until="stage_time @GT 1"/>
+      <call_once fun="pump_activate()"/>
+      <stay wp="WATER" height="water_height" until="pump_done(water_duration, water_timeout)"/>
+      <deroute block="Goto Water Drop"/>
+    </block>
+    <block name="Goto Water Drop">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <stay wp="_HERE" until="stage_time @GT 3" height="goto_height"/>
+      <go wp="DROP" from="_HERE" hmode="route" height="goto_height" approaching_time="2"/>
+      <deroute block="Drop Water"/>
+    </block>
+    <block name="Drop Water" on_exit="pump_stop()">
+      <call_once fun="guidance_h_SetMaxSpeed(water_speed)"/>
+      <stay wp="DROP" height="goto_height" until="stage_time @GT 2"/>
+      <stay wp="DROP" vmode="climb" climb="water_descent" until="GetPosHeight() @LT water_height + 0.2"/>
+      <call_once fun="pump_purge()"/>
+      <stay wp="DROP" height="water_height" until="stage_time @GT water_purge"/>
+      <set var="lap_count" value="lap_count+1"/>
+      <deroute block="Goto Water"/>
+    </block>
+
+    <block name="Land here" strip_button="Land here" strip_icon="land-right.png" group="land">
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Landing" strip_button="Land on pad" group="land">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <go wp="STDBY" from="_HERE" hmode="route" height="goto_height"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <go wp="LANDPAD" from="STDBY" hmode="route" height="goto_height"/>
+    </block>
+    <block name="Flare">
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block>
+    <block name="Kill landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+
+  </blocks>
+
+</flight_plan>

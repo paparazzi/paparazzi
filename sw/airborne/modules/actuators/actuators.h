@@ -46,10 +46,16 @@ struct act_feedback_t {
   struct act_feedback_set_t {
     bool rpm: 1;                    ///< RPM is set
     bool position: 1;               ///< Position is set
+    bool force: 1;                  ///< Force is set
+    bool speed: 1;                  ///< Speed is set
+    bool power: 1;                  ///< Power rating is set
   } set;                            ///< Bitset registering what is set as feedback
 
   int32_t rpm;                      ///< RPM
   float position;                   ///< In radians
+  float force;                      ///< In Newton or Newton metre
+  float speed;                      ///< In meter per second or radian per second
+  uint8_t power_pct;                ///< Power rating in percent
 };
 
 // Actuator configuration
@@ -86,12 +92,6 @@ struct actuator_t {
 /** Actuators array.
  * */
 extern struct actuator_t actuators[ACTUATORS_NB];
-
-/** PPRZ command to each actuator
- * Can be used to directly control actuators from the control algorithm
- * if the command_laws are set up appropriately in the airframe file
- */
-extern int16_t actuators_pprz[ACTUATORS_NB];
 
 /** Set actuators.
  * @param pprz_idx general actuators index

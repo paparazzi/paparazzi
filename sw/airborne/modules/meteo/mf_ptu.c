@@ -95,8 +95,8 @@ void mf_ptu_init(void)
 void mf_ptu_periodic(void)
 {
   // Read ADC
-  pressure_adc = pressure_buf.sum / pressure_buf.av_nb_sample;
-  temp_adc = temp_buf.sum / temp_buf.av_nb_sample;
+  pressure_adc = adc_buf_get(&pressure_buf);
+  temp_adc = adc_buf_get(&temp_buf);
   // Read PWM
   humid_period = get_pwm_input_period_in_usec(PWM_INPUT_CHANNEL_HUMIDITY);
 

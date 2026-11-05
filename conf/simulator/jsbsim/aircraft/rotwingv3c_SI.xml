@@ -35,13 +35,13 @@
   </metrics>
 
   <mass_balance>
-    <ixx unit="KG*M2">  0.129</ixx>
-    <iyy unit="KG*M2">  0.950</iyy>
-    <izz unit="KG*M2">  0.975</izz>
+    <ixx unit="KG*M2">  0.1156</ixx>
+    <iyy unit="KG*M2">  1.2639</iyy>
+    <izz unit="KG*M2">  1.2842</izz> <!-- 1.2842 FIXME-->
     <ixy unit="KG*M2">  0.0 </ixy>
     <ixz unit="KG*M2">  0.0 </ixz>
     <iyz unit="KG*M2">  0.0 </iyz>
-    <emptywt unit="KG"> 6.670 </emptywt>
+    <emptywt unit="KG"> 7.200 </emptywt>
     <location name="CG" unit="M">
       <x> 0 </x>
       <y> 0 </y>
@@ -282,6 +282,91 @@
           <output>fcs/eff_scaler</output>
       </fcs_function>      
       <!-- Quad Motors-->
+      <!-- Front Motor-->
+      <fcs_function name="mF_T">
+          <function>
+              <sum>
+            <product>
+                  <value>5.00e-7</value>
+              <property>fcs/MOTOR_FRONT_lag</property>
+                  <property>fcs/MOTOR_FRONT_lag</property>
+              <property>fcs/pprz2jsbsim</property>
+                  <property>fcs/pprz2jsbsim</property>
+            </product>
+                <product>
+                  <value>2.05e-4</value>
+                  <property>fcs/MOTOR_FRONT_lag</property>
+                  <property>fcs/pprz2jsbsim</property>
+                </product>
+                <value>1.43</value>
+              </sum>
+          </function>
+          <output>fcs/mF_T</output>
+      </fcs_function>
+      <!-- Right Motor-->
+      <fcs_function name="mR_T">
+          <function>
+              <sum>
+            <product>
+                  <value>5.37e-7</value>
+              <property>fcs/MOTOR_RIGHT_lag</property>
+                  <property>fcs/MOTOR_RIGHT_lag</property>
+              <property>fcs/pprz2jsbsim</property>
+                  <property>fcs/pprz2jsbsim</property>
+            </product>
+                <product>
+                  <value>2.20e-4</value>
+                  <property>fcs/MOTOR_RIGHT_lag</property>
+                  <property>fcs/pprz2jsbsim</property>
+                </product>
+                <value>1.53</value>
+              </sum>
+          </function>
+          <output>fcs/mR_T</output>
+      </fcs_function>   
+      <!-- Back Motor-->
+      <fcs_function name="mB_T">
+          <function>
+              <sum>
+            <product>
+                  <value>5.00e-7</value>
+              <property>fcs/MOTOR_BACK_lag</property>
+                  <property>fcs/MOTOR_BACK_lag</property>
+              <property>fcs/pprz2jsbsim</property>
+                  <property>fcs/pprz2jsbsim</property>
+            </product>
+                <product>
+                  <value>2.05e-4</value>
+                  <property>fcs/MOTOR_BACK_lag</property>
+                  <property>fcs/pprz2jsbsim</property>
+                </product>
+                <value>1.43</value>
+              </sum>
+          </function>
+          <output>fcs/mB_T</output>
+      </fcs_function>
+      <!-- Left Motor-->
+      <fcs_function name="mL_T">
+          <function>
+              <sum>
+            <product>
+                  <value>5.37e-7</value>
+              <property>fcs/MOTOR_LEFT_lag</property>
+                  <property>fcs/MOTOR_LEFT_lag</property>
+              <property>fcs/pprz2jsbsim</property>
+                  <property>fcs/pprz2jsbsim</property>
+            </product>
+                <product>
+                  <value>2.20e-4</value>
+                  <property>fcs/MOTOR_LEFT_lag</property>
+                  <property>fcs/pprz2jsbsim</property>
+                </product>
+                <value>1.53</value>
+              </sum>
+          </function>
+          <output>fcs/mL_T</output>
+      </fcs_function>
+      <!-- Misc -->   
       <fcs_function name="MQ_dFdu">
           <function>
               <value>3.835</value> 
@@ -317,7 +402,7 @@
       <!-- Rudder -->   
       <fcs_function name="RUD_dFdu">
           <function>
-              <value>1.207</value> 
+              <value>1.2015</value> 
           </function>
           <output>fcs/RUD_dFdu</output>
       </fcs_function>
@@ -375,46 +460,53 @@
         </function>
         <output>fcs/de_lag</output>
       </fcs_function>
-      <fcs_function name="Ixx_quad">
-          <function>
-              <value>0.1288</value> 
-          </function>
-          <output>fcs/Ixx_quad</output>
-      </fcs_function>
-
-      <fcs_function name="Iyy_quad">
-          <function>
-              <value>0.9495</value> 
-          </function>
-          <output>fcs/Iyy_quad</output>
-      </fcs_function>
 
       <fcs_function name="Ixx_body">
         <function>
-          <value>0.1288</value>
+          <value>0.0535</value>
         </function>
         <output>fcs/Ixx_body</output>
       </fcs_function>
 
       <fcs_function name="Iyy_body">
         <function>
-          <value>0.9495</value>
+          <value>0.9851</value>
         </function>
         <output>fcs/Iyy_body</output>
       </fcs_function>
 
       <fcs_function name="Ixx_wing">
         <function>
-          <value>0.0</value>
+          <value>0.0621</value>
         </function>
         <output>fcs/Ixx_wing</output>
       </fcs_function>
 
       <fcs_function name="Iyy_wing">
         <function>
-          <value>0.0</value>
+          <value>0.2788</value>
         </function>
         <output>fcs/Iyy_wing</output>
+      </fcs_function>
+
+      <fcs_function name="Ixx_quad">
+          <function>
+            <sum>
+              <property>fcs/Ixx_body</property>
+              <property>fcs/Ixx_wing</property>
+            </sum>
+          </function>
+          <output>fcs/Ixx_quad</output>
+      </fcs_function>
+
+      <fcs_function name="Iyy_quad">
+          <function>
+            <sum>
+              <property>fcs/Iyy_body</property>
+              <property>fcs/Iyy_wing</property>
+            </sum>
+          </function>
+          <output>fcs/Iyy_quad</output>
       </fcs_function>
 
       <fcs_function name="Ixx_sched">
@@ -512,10 +604,7 @@
     <force name="MOTOR_FRONT" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/MOTOR_FRONT_lag</property>
-          <property>fcs/MQ_dFdu</property>
-          <property>fcs/pprz2jsbsim</property>
-          <property>fcs/eff_scaler</property>
+          <property>fcs/mF_T</property>
           <value> 0.2248</value> <!-- N to LBS -->
         </product>
       </function>
@@ -534,10 +623,7 @@
     <force name="MOTOR_RIGHT" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/MOTOR_RIGHT_lag</property>
-          <property>fcs/MQ_dFdu</property>
-          <property>fcs/pprz2jsbsim</property>
-          <property>fcs/eff_scaler</property>
+          <property>fcs/mR_T</property>
           <value> 0.2248</value> <!-- N to LBS -->
         </product>
       </function>
@@ -556,10 +642,7 @@
     <force name="MOTOR_BACK" frame="BODY" unit="FT*LBS">
       <function>
         <product>
-          <property>fcs/MOTOR_BACK_lag</property>
-          <property>fcs/MQ_dFdu</property>
-          <property>fcs/pprz2jsbsim</property>
-          <property>fcs/eff_scaler</property>
+          <property>fcs/mB_T</property>  
           <value> 0.2248</value> <!-- N to LBS -->
         </product>
       </function>
@@ -578,10 +661,7 @@
     <force name="MOTOR_LEFT" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/MOTOR_LEFT_lag</property>
-          <property>fcs/MQ_dFdu</property>
-          <property>fcs/pprz2jsbsim</property>
-          <property>fcs/eff_scaler</property>
+          <property>fcs/mL_T</property>
           <value> 0.2248</value> <!-- N to LBS -->
         </product>
       </function>
@@ -623,11 +703,8 @@
     <moment name="MOTOR_FRONT_PITCH" frame="BODY" unit="FT*LBS">
       <function>
         <product>
-          <property>fcs/MOTOR_FRONT_lag</property>
-          <property>fcs/MQ_dFdu</property>
-          <property>fcs/pprz2jsbsim</property>
-          <property>fcs/eff_scaler</property>
-          <value> 0.423</value> <!-- Moment arm [m]-->
+          <property>fcs/mF_T</property>
+          <value> 0.440</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Iyy_ratio_quad_sched</property>
         </product>
@@ -647,11 +724,8 @@
     <moment name="MOTOR_BACK_PITCH" frame="BODY" unit="FT*LBS">
       <function>
         <product>
-          <property>fcs/MOTOR_BACK_lag</property>
-          <property>fcs/MQ_dFdu</property>
-          <property>fcs/pprz2jsbsim</property>
-          <property>fcs/eff_scaler</property>
-          <value> 0.423</value> <!-- Moment arm [m]-->
+          <property>fcs/mB_T</property>
+          <value> 0.440</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Iyy_ratio_quad_sched</property>
         </product>
@@ -671,12 +745,9 @@
     <moment name="MOTOR_RIGHT_ROLL" frame="BODY" unit="FT*LBS">
       <function>
         <product>
-          <property>fcs/MOTOR_RIGHT_lag</property>
+          <property>fcs/mR_T</property>
           <property>fcs/cosskew</property>
-          <property>fcs/MQ_dFdu</property>
-          <property>fcs/pprz2jsbsim</property>
-          <property>fcs/eff_scaler</property>
-          <value> 0.408</value> <!-- Moment arm [m]-->
+          <value> 0.380</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Ixx_ratio_quad_sched</property>
         </product>
@@ -696,12 +767,9 @@
     <moment name="MOTOR_RIGHT_PITCH" frame="BODY" unit="FT*LBS">
       <function>
         <product>
-          <property>fcs/MOTOR_RIGHT_lag</property>
+          <property>fcs/mR_T</property>
           <property>fcs/sinskew</property>
-          <property>fcs/MQ_dFdu</property>
-          <property>fcs/pprz2jsbsim</property>
-          <property>fcs/eff_scaler</property>
-          <value> 0.408</value> <!-- Moment arm [m]-->
+          <value> 0.380</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Iyy_ratio_quad_sched</property>
         </product>
@@ -721,12 +789,9 @@
     <moment name="MOTOR_LEFT_ROLL" frame="BODY" unit="FT*LBS">
       <function>
         <product>
-          <property>fcs/MOTOR_LEFT_lag</property>
+          <property>fcs/mL_T</property>
           <property>fcs/cosskew</property>
-          <property>fcs/MQ_dFdu</property>
-          <property>fcs/pprz2jsbsim</property>
-          <property>fcs/eff_scaler</property>
-          <value> 0.408</value> <!-- Moment arm [m]-->
+          <value> 0.380</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Ixx_ratio_quad_sched</property>
         </product>
@@ -746,12 +811,9 @@
     <moment name="MOTOR_LEFT_PITCH" frame="BODY" unit="FT*LBS">
       <function>
         <product>
-          <property>fcs/MOTOR_LEFT_lag</property>
+          <property>fcs/mL_T</property>
           <property>fcs/sinskew</property>
-          <property>fcs/MQ_dFdu</property>
-          <property>fcs/pprz2jsbsim</property>
-          <property>fcs/eff_scaler</property>
-          <value> 0.408</value> <!-- Moment arm [m]-->
+          <value> 0.380</value> <!-- Moment arm [m]-->
           <value> 0.738</value> <!-- Nm to ft-lbs -->
           <property>fcs/Iyy_ratio_quad_sched</property>
         </product>
@@ -947,7 +1009,7 @@
         </product>
       </function>
       <location unit="M">
-        <x>-0.423</x>
+        <x>-0.440</x>
         <y>0</y>
         <z>0</z>
       </location>
@@ -970,7 +1032,7 @@
       </function>
       <location unit="M">
         <x>0</x>
-        <y>0.408</y>
+        <y>0.380</y>
         <z>0</z>
       </location>
       <direction>
@@ -991,7 +1053,7 @@
         </product>
       </function>
       <location unit="M">
-        <x>0.423</x>
+        <x>0.440</x>
         <y>0</y>
         <z>0</z>
       </location>
@@ -1014,7 +1076,7 @@
       </function>
       <location unit="M">
         <x>0</x>
-        <y>-0.408</y>
+        <y>-0.380</y>
         <z>0</z>
       </location>
       <direction>
@@ -1036,7 +1098,7 @@
         </product>
       </function>
       <location unit="M">
-        <x>-0.423</x>
+        <x>-0.440</x>
         <y>0</y>
         <z>0</z>
       </location>
@@ -1059,7 +1121,7 @@
       </function>
       <location unit="M">
         <x>0</x>
-        <y>0.408</y>
+        <y>0.380</y>
         <z>0</z>
       </location>
       <direction>
@@ -1080,7 +1142,7 @@
         </product>
       </function>
       <location unit="M">
-        <x>0.423</x>
+        <x>0.440</x>
         <y>0</y>
         <z>0</z>
       </location>
@@ -1103,7 +1165,7 @@
       </function>
       <location unit="M">
         <x>0</x>
-        <y>-0.408</y>
+        <y>-0.380</y>
         <z>0</z>
       </location>
       <direction>
@@ -1130,6 +1192,7 @@
       </function>
     </axis>
 
+
    <axis name="LIFT">
     <function name="aero/force/Lift_alpha"> 
      <product>      
@@ -1155,8 +1218,6 @@
       </product>
     </function>
    </axis>
-
-
   </aerodynamics>
 
 </fdm_config>

@@ -14,7 +14,7 @@ else
   ADDR=$ADDR_BASE
 fi
 
-# download images folder from ARDrone
+# download images folder from Bebop
 mkdir -p $IMAGES_DIR/$ADDR
-../ardrone2.py --host=$ADDR download_dir $IMAGES_DIR/$ADDR images
+../bebop.py --host=$ADDR download_dir $IMAGES_DIR/$ADDR internal_000/images
 

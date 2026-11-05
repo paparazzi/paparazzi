@@ -69,8 +69,8 @@
       
       Example results
       ---------------
-      The following results were obtained from a flight test performed on an
-      AR.Drone 2.0 inside the TU Delft Cyberzoo. The ground-truth velocities
+      The following results were obtained from a flight test performed on a
+      quadrotor inside the TU Delft Cyberzoo. The ground-truth velocities
       are obtained through the Optitrack system.
       
       @image html images/airborne/modules/dragspeed/example_result.png

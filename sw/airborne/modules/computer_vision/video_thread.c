@@ -40,7 +40,7 @@
 
 #include "mcu_periph/sys_time.h"
 
-// include board for bottom_camera and front_camera on ARDrone2, Bebop and Disco
+// include board for bottom_camera and front_camera on Bebop and Disco
 #include BOARD_CONFIG
 
 // Bebop and Disco can use the ISP (Image Signal Processors) to speed up things

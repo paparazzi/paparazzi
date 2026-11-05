@@ -96,7 +96,7 @@ static void eff_scheduling_periodic_b(void)
   float airspeed = stateGetAirspeed_f();
   struct FloatEulers eulers_zxy;
   if(airspeed < 6.0) {
-    float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+    eulers_zxy = *stateGetNedToBodyEulersZxy_f();
     float pitch_interp = DegOfRad(eulers_zxy.theta);
     Bound(pitch_interp, -60.0, -30.0);
     float ratio = (pitch_interp + 30.0)/(-30.);

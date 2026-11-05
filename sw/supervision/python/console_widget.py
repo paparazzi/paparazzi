@@ -8,8 +8,9 @@ import utils
 from program_widget import ProgramWidget
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, List, Optional
 import re
+from conf import Aircraft
 
 
 class Level(Enum):
@@ -31,9 +32,13 @@ class Record:
     data: str
     emitter: ProgramWidget
     channel: Channel
+    new_line: bool = True
+    replace_next: bool = False
 
 
 class ConsoleWidget(QWidget, Ui_Console):
+
+    VT100_ESCAPE_RE = re.compile(r"\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
     LEVELS_REG = {
         Level.ERROR: ["error:", "error ", "no such file", "undefined reference", "failure", "multiple definition"],
@@ -46,10 +51,15 @@ class ConsoleWidget(QWidget, Ui_Console):
         self.setupUi(self)
         self.records: List[Record] = []
         self.p_checkboxes: Dict[ProgramWidget, QCheckBox] = {}
+        self.current_aircraft: Optional[Aircraft] = None
         self.programs_checkbox.stateChanged.connect(self.handle_check_all)
         self.log_level_slider.valueChanged.connect(self.log_level_changed)
         self.clear_button.clicked.connect(self.clear)
         self.splitter.setSizes([500, 100])
+
+    def set_aircraft(self, ac: Aircraft):
+        self.current_aircraft = ac
+        self.update_content()
 
     def display_record(self, record):
         if record.level == Level.ERROR:
@@ -81,27 +91,61 @@ class ConsoleWidget(QWidget, Ui_Console):
     def handle_data(self, pw: ProgramWidget, data: QByteArray, channel: Channel):
         if pw not in self.p_checkboxes:
             self.new_program(pw)
-        if data.endsWith(b'\n'):
-            data = data[:-1]
-        lines = data.split(b'\n')
-        for line in lines:
-            line = line.data().decode()
-            # remove VT100 escape codes
-            while True:
-                m = re.match(r".*(\x1b\[((?:\d+;)*\d+)([mhK])).*", line)
-                if m is not None:
-                    seq = m.group(1)
-                    line = line.replace(seq, "")
-                else:
-                    break
-            #remove empty lines
-            if line == "":
+
+        text = bytes(data).decode(errors="replace")
+        parts = re.split(r"(\r\n|\r|\n)", text)
+        refresh = False
+        added_records = []
+
+        for index in range(0, len(parts), 2):
+            line = self.VT100_ESCAPE_RE.sub("", parts[index])
+            terminator = parts[index + 1] if index + 1 < len(parts) else ""
+            previous = self.records[-1] if self.records else None
+            continues_previous = (
+                previous is not None
+                and previous.emitter == pw
+                and previous.channel == channel
+                and not previous.new_line
+            )
+
+            if continues_previous and previous.replace_next and line:
+                self.records.pop()
+                refresh = True
+                previous = None
+                continues_previous = False
+
+            if continues_previous:
+                if line:
+                    previous.data += line
+                    previous.level = self.classify(previous.data)
+                    refresh = True
+                if terminator:
+                    previous.new_line = terminator != "\r"
+                    previous.replace_next = terminator == "\r"
                 continue
 
-            level = self.classify(line)
-            r = Record(level, line, pw, channel)
-            self.records.append(r)
-            self.display_record(r)
+            # Empty output lines are intentionally not stored or displayed.
+            if not line:
+                continue
+
+            record = Record(
+                self.classify(line),
+                line,
+                pw,
+                channel,
+                new_line=terminator != "" and terminator != "\r",
+                replace_next=terminator == "\r",
+            )
+            record.aircraft = getattr(pw, "aircraft", None)
+            self.records.append(record)
+            added_records.append(record)
+
+        if refresh:
+            self.update_content()
+        else:
+            for record in added_records:
+                if self.filter(record):
+                    self.display_record(record)
 
     def handle_stdout(self, pw: ProgramWidget):
         data = pw.process.readAllStandardOutput()
@@ -119,8 +163,10 @@ class ConsoleWidget(QWidget, Ui_Console):
 
     def post_message(self, pw: ProgramWidget, msg):
         r = Record(Level.ALL, msg, pw, Channel.MANAGEMENT)
+        r.aircraft = getattr(pw, "aircraft", None)
         self.records.append(r)
-        self.display_record(r)
+        if self.filter(r):
+            self.display_record(r)
 
     def new_program(self, pw: ProgramWidget):
         chk = QCheckBox(pw.shortname, self.programs_widget)
@@ -186,8 +232,12 @@ class ConsoleWidget(QWidget, Ui_Console):
         if self.programs_checkbox.checkState() != Qt.Unchecked:
             if r.emitter is None:
                 return False
+            if r.emitter not in self.p_checkboxes:
+                return False
             if self.p_checkboxes[r.emitter].checkState() != Qt.Checked:
                 return False
+        if self.current_aircraft is not None:
+            return getattr(r, "aircraft", getattr(r.emitter, "aircraft", None)) == self.current_aircraft
         return True
 
     def update_content(self):

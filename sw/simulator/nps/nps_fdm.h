@@ -132,6 +132,7 @@ struct NpsFdm {
 extern struct NpsFdm fdm;
 
 extern void nps_fdm_init(double dt);
+extern void nps_fdm_run_init_step(void); // called at init in same thread than run_step
 extern void nps_fdm_run_step(bool launch, double *commands, int commands_nb);
 extern void nps_fdm_set_wind(double speed, double dir);
 extern void nps_fdm_set_wind_ned(double wind_north, double wind_east, double wind_down);

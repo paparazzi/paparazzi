@@ -14,10 +14,6 @@ ifeq ($(BOARD), lisa_l)
   BARO_BOARD_CFLAGS += -DUSE_I2C2
   BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
 
-# Ardrone baro
-else ifeq ($(BOARD), ardrone)
-  BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
-
 # Bebop baro
 else ifeq ($(BOARD), bebop)
   BARO_BOARD_CFLAGS += -DBARO_BOARD=BARO_MS5611_I2C
@@ -122,29 +118,6 @@ LISA_MXS_BARO ?= BARO_MS5611_SPI
     BARO_BOARD_SRCS += peripherals/bmp085.c
     BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
   endif
-
-# Lisa/S baro
-else ifeq ($(BOARD), lisa_s)
-# defaults to SPI baro MS5611 on the board
-  include $(CFG_SHARED)/spi_master.makefile
-  BARO_BOARD_CFLAGS += -DUSE_SPI1 -DUSE_SPI_SLAVE1
-  BARO_BOARD_CFLAGS += -DBB_MS5611_SPI_DEV=spi1
-  BARO_BOARD_CFLAGS += -DBB_MS5611_SLAVE_IDX=SPI_SLAVE1
-  BARO_BOARD_SRCS += peripherals/ms5611.c
-  BARO_BOARD_SRCS += peripherals/ms5611_spi.c
-  BARO_BOARD_SRCS += boards/baro_board_ms5611_spi.c
-
-# ELLE0 baro
-else ifeq ($(BOARD), elle0)
-
-# defaults to SPI baro MS5611 on the board
-  include $(CFG_SHARED)/spi_master.makefile
-  BARO_BOARD_CFLAGS += -DUSE_SPI1 -DUSE_SPI_SLAVE1
-  BARO_BOARD_CFLAGS += -DBB_MS5611_SPI_DEV=spi1
-  BARO_BOARD_CFLAGS += -DBB_MS5611_SLAVE_IDX=SPI_SLAVE1
-  BARO_BOARD_SRCS += peripherals/ms5611.c
-  BARO_BOARD_SRCS += peripherals/ms5611_spi.c
-  BARO_BOARD_SRCS += boards/baro_board_ms5611_spi.c
 
 # Lia baro (no bmp onboard)
 else ifeq ($(BOARD), lia)

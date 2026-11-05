@@ -36,13 +36,25 @@
 #include "modules/datalink/telemetry.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
+#ifdef STABILIZATION_INDI_COMMANDS
+static uint8_t act_to_commands[INDI_NUM_ACT] = STABILIZATION_INDI_COMMANDS;
+#endif
+
 static void send_bebop_actuators(struct transport_tx *trans, struct link_device *dev)
 {
+#ifdef STABILIZATION_INDI_COMMANDS
+  int32_t cmd0 = commands[act_to_commands[0]];
+  int32_t cmd1 = commands[act_to_commands[1]];
+  int32_t cmd2 = commands[act_to_commands[2]];
+  int32_t cmd3 = commands[act_to_commands[3]];
+#else
+  int32_t cmd0 = stabilization.cmd[COMMAND_THRUST];
+  int32_t cmd1 = stabilization.cmd[COMMAND_ROLL];
+  int32_t cmd2 = stabilization.cmd[COMMAND_PITCH];
+  int32_t cmd3 = stabilization.cmd[COMMAND_YAW];
+#endif
   pprz_msg_send_BEBOP_ACTUATORS(trans, dev, AC_ID,
-                                &stabilization.cmd[COMMAND_THRUST],
-                                &stabilization.cmd[COMMAND_ROLL],
-                                &stabilization.cmd[COMMAND_PITCH],
-                                &stabilization.cmd[COMMAND_YAW],
+                                &cmd0, &cmd1, &cmd2, &cmd3,
                                 &actuators_bebop.rpm_ref[0],
                                 &actuators_bebop.rpm_ref[1],
                                 &actuators_bebop.rpm_ref[2],
@@ -53,6 +65,8 @@ static void send_bebop_actuators(struct transport_tx *trans, struct link_device 
                                 &actuators_bebop.rpm_obs[3]);
 }
 #endif
+
+#define ACTUATORS_BEBOP_I2C_TIMEOUT 1.f
 
 uint32_t led_hw_values;
 struct ActuatorsBebop actuators_bebop;
@@ -79,7 +93,7 @@ void actuators_bebop_commit(void)
 {
   // Receive the status
   actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_GET_OBS_DATA;
-  i2c_blocking_transceive(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1, 13, 0.5);
+  i2c_blocking_transceive(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1, 13, ACTUATORS_BEBOP_I2C_TIMEOUT);
 
   // Update status
   electrical.vsupply = (float)(actuators_bebop.i2c_trans.buf[9] + (actuators_bebop.i2c_trans.buf[8] << 8)) / 1000.f;
@@ -99,7 +113,7 @@ void actuators_bebop_commit(void)
   if (actuators_bebop.i2c_trans.buf[10] != 4 && actuators_bebop.i2c_trans.buf[10] != 2 && autopilot_get_motors_on()) {
     // Reset the error
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_CLEAR_ERROR;
-    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1, 0.5);
+    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1, ACTUATORS_BEBOP_I2C_TIMEOUT);
 
     // Start the motors
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_START_PROP;
@@ -109,12 +123,12 @@ void actuators_bebop_commit(void)
 #else
     actuators_bebop.i2c_trans.buf[1] = 0b00000101;
 #endif
-    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2, 0.5);
+    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2, ACTUATORS_BEBOP_I2C_TIMEOUT);
   }
   // Stop the motors
   else if (actuators_bebop.i2c_trans.buf[10] == 4 && !autopilot_get_motors_on()) {
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_STOP_PROP;
-    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1, 0.5);
+    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1, ACTUATORS_BEBOP_I2C_TIMEOUT);
   } else if (actuators_bebop.i2c_trans.buf[10] == 4 && autopilot_get_motors_on()) {
     // Send the commands
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_SET_REF_SPEED;
@@ -131,20 +145,20 @@ void actuators_bebop_commit(void)
 #pragma GCC diagnostic ignored "-Wcast-qual"
     actuators_bebop.i2c_trans.buf[10] = actuators_bebop_checksum((uint8_t *)actuators_bebop.i2c_trans.buf, 9);
 #pragma GCC diagnostic pop
-    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 11, 0.5);
+    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 11, ACTUATORS_BEBOP_I2C_TIMEOUT);
   }
 
   // Update the LEDs
   if (actuators_bebop.led != (led_hw_values & 0x3)) {
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_TOGGLE_GPIO;
     actuators_bebop.i2c_trans.buf[1] = (led_hw_values & 0x3);
-    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2, 0.5);
+    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2, ACTUATORS_BEBOP_I2C_TIMEOUT);
 
     actuators_bebop.led = led_hw_values & 0x3;
   }
-  
+
   // Send ABI message
-  struct act_feedback_t feedback[4];
+  struct act_feedback_t feedback[4] = {0};
   for (int i=0;i<4;i++) {
     feedback[i].idx = get_servo_idx(i);
     feedback[i].rpm = actuators_bebop.rpm_obs[i];

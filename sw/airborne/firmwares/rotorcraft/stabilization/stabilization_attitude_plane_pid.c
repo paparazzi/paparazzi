@@ -112,7 +112,9 @@ void stabilization_attitude_plane_pid_run(bool in_flight, struct StabilizationSe
 
   /* update integrator       */
   if (in_flight) {
-    EULERS_ADD(stab_plane_att_sum_err, att_err);
+    struct FloatEulers err_dt;
+    EULERS_SDIV(err_dt, att_err, PERIODIC_FREQUENCY);
+    EULERS_ADD(stab_plane_att_sum_err, err_dt);
     EULERS_BOUND_CUBE(stab_plane_att_sum_err, -MAX_SUM_ERR, MAX_SUM_ERR);
   } else {
     FLOAT_EULERS_ZERO(stab_plane_att_sum_err);

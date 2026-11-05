@@ -4,10 +4,11 @@
   <doc>
     <description>
       IMU driver for the sensors inside the Pixhawk 6X autopilots
-      - IMU1: ICM42670
-      - IMU2: ???
-      - IMU3: ???
+      - IMU1: ICM42670 (version 4) / ICM45686 (version 8)
+      - IMU2: ICM42688 (version 4) / ICM45686 (version 8)
+      - IMU3: BMI088 or ICM20649 (version 4) / ICM45686 (version 8)
     </description>
+    <configure name="IMU_PIXHAWK6X_REV" value="4" description="The IMU revision, only 8 and 4 are supported"/>
   </doc>
   <dep>
     <depends>spi_master,i2c,imu_common,imu_heater</depends>
@@ -20,12 +21,18 @@
   <periodic fun="imu_pixhawk6x_periodic()"/>
   <event fun="imu_pixhawk6x_event()"/>
   <makefile target="!sim|nps|fbw">
+    <!-- IMU revision -->
+    <configure name="IMU_PIXHAWK6X_REV" default="4"/>
+    <define name="IMU_PIXHAWK6X_REV" value="$(IMU_PIXHAWK6X_REV)"/>
+
     <!-- Files -->
-    <file name="invensense2.c" dir="peripherals"/>
-    <file name="invensense3.c" dir="peripherals"/>
+    <file name="invensense2.c" dir="peripherals" cond="ifneq ($(IMU_PIXHAWK6X_REV), 8)"/>
+    <file name="invensense3.c" dir="peripherals" cond="ifneq ($(IMU_PIXHAWK6X_REV), 8)"/>
+    <file name="invensense3_456.c" dir="peripherals" cond="ifeq ($(IMU_PIXHAWK6X_REV), 8)"/>
     <file name="imu_pixhawk6x.c"/>
     
-    <!-- IMU1: ICM42670 -->
+
+    <!-- IMU1: ICM42670 (version 4) / ICM45686 (version 8) -->
     <configure name="PIXHAWK6X_IMU1_SPI_DEV" default="spi1" case="lower|upper"/>
     <configure name="PIXHAWK6X_IMU1_SPI_SLAVE_IDX" default="SPI_SLAVE1"/>
     <define name="PIXHAWK6X_IMU1_SPI_DEV" value="$(PIXHAWK6X_IMU1_SPI_DEV_LOWER)"/>
@@ -33,7 +40,7 @@
     <define name="PIXHAWK6X_IMU1_SPI_SLAVE_IDX" value="$(PIXHAWK6X_IMU1_SPI_SLAVE_IDX)"/>
     <define name="USE_$(PIXHAWK6X_IMU1_SPI_SLAVE_IDX)"/>
 
-    <!-- IMU2: ICM42688-->
+    <!-- IMU2: ICM42688 (version 4) / ICM45686 (version 8) -->
     <configure name="PIXHAWK6X_IMU2_SPI_DEV" default="spi2" case="lower|upper"/>
     <configure name="PIXHAWK6X_IMU2_SPI_SLAVE_IDX" default="SPI_SLAVE2"/>
     <define name="PIXHAWK6X_IMU2_SPI_DEV" value="$(PIXHAWK6X_IMU2_SPI_DEV_LOWER)"/>
@@ -41,7 +48,7 @@
     <define name="PIXHAWK6X_IMU2_SPI_SLAVE_IDX" value="$(PIXHAWK6X_IMU2_SPI_SLAVE_IDX)"/>
     <define name="USE_$(PIXHAWK6X_IMU2_SPI_SLAVE_IDX)"/>
 
-    <!-- IMU3: BMI088 / ICM20649 -->
+    <!-- IMU3: BMI088 or ICM20649 (version 4) / ICM45686 (version 8) -->
     <configure name="PIXHAWK6X_IMU3_SPI_DEV" default="spi3" case="lower|upper"/>
     <configure name="PIXHAWK6X_IMU3_SPI_SLAVE_IDX" default="SPI_SLAVE3"/>
     <define name="PIXHAWK6X_IMU3_SPI_DEV" value="$(PIXHAWK6X_IMU3_SPI_DEV_LOWER)"/>
@@ -49,7 +56,7 @@
     <define name="PIXHAWK6X_IMU3_SPI_SLAVE_IDX" value="$(PIXHAWK6X_IMU3_SPI_SLAVE_IDX)"/>
     <define name="USE_$(PIXHAWK6X_IMU3_SPI_SLAVE_IDX)"/>
 
-    <!-- Configure the heater (ICM42688) -->
+    <!-- Configure the heater IMU2 -->
     <define name="IMU_HEATER_GYRO_ID" value="IMU_PIXHAWK2_ID"/>
     <define name="IMU_HEATER_TARGET_TEMP" value="45.0"/>
     <define name="IMU_HEATER_P_GAIN" value="50.0"/>

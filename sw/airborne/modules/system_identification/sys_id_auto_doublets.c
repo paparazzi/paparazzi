@@ -124,6 +124,10 @@ void perform_sys_id_auto_doublets(uint8_t actuator_index)
     return;
   }
   // Set correct settings
+#ifdef SYS_ID_AUTO_DOUBLETS_MOD
+  // Optional: force the doublet mode of the automatic doublets (e.g. 3 = highspeed)
+  sys_id_doublet_mod_handler(SYS_ID_AUTO_DOUBLETS_MOD);
+#endif
   sys_id_doublet_axis_handler(sys_id_auto_doublets_actuators[actuator_index]);
   doublet_length_s = sys_id_auto_doublets_time;
   doublet_amplitude = sys_id_auto_doublets_amplitude[actuator_index];

@@ -32,10 +32,16 @@
  * Mostly empty functions for Paparazzi compatibility,
  * since ChibiOS uses different system time functions.
  */
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/sys_time_arch.h"
 #include BOARD_CONFIG
 #include <ch.h>
 #include "led.h"
+
+#if HAL_USE_RTC
+#include <hal_rtc.h>
+#include <time.h>
+#endif
 
 static MUTEX_DECL(sys_time_mtx);
 
@@ -44,7 +50,8 @@ static MUTEX_DECL(sys_time_mtx);
  */
 static void thd_sys_tick(void *arg);
 static THD_WORKING_AREA(wa_thd_sys_tick, 1024);
-static void sys_tick_handler(void);
+
+void sys_tick_handler(void);
 
 static uint32_t cpu_ticks = 0;
 static uint32_t cpu_counter = 0;
@@ -118,23 +125,17 @@ void sys_time_usleep(uint32_t us)
   if (us < 1000) {
     // for small time, use the polled version instead of thread sleep
     chSysDisable();
-    chSysPolledDelayX(US2RTC(STM32_HCLK, us));
+    chSysPolledDelayX(US2RTC(STM32_SYSCLK, us));
     chSysEnable();
   } else {
     chThdSleepMicroseconds(us);
   }
 }
 
-void sys_time_msleep(uint16_t ms)
+void sys_time_msleep(uint32_t ms)
 {
   chThdSleepMilliseconds(ms);
 }
-
-void sys_time_ssleep(uint8_t s)
-{
-  chThdSleepSeconds(s);
-}
-
 
 /*
  * Sys_tick thread
@@ -151,7 +152,7 @@ static __attribute__((noreturn)) void thd_sys_tick(void *arg)
   }
 }
 
-static void sys_tick_handler(void)
+void sys_tick_handler(void)
 {
   chMtxLock(&sys_time_mtx);
   /* current time in sys_ticks */
@@ -185,3 +186,13 @@ static void sys_tick_handler(void)
   chMtxUnlock(&sys_time_mtx);
 }
 
+
+uint32_t sys_time_rtc_millisecond() {
+#if HAL_USE_RTC
+  RTCDateTime timespec;
+  rtcGetTime (&RTCD1, &timespec);
+  return timespec.millisecond;
+#else
+  return 0;
+#endif
+}

@@ -11,7 +11,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV PULSE_SERVER /run/pulse/native
+ENV PULSE_SERVER=/run/pulse/native
 
 # add basic user
 ENV USERNAME=pprz USER_ID=1000 USERGROUPS=sudo,dialout,plugdev

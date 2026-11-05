@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<procedure>
+  <waypoints>
+    <waypoint name="_FLY1" lat="48.8062741" lon="7.8516257"/>
+    <waypoint name="_FLY2" lat="48.8109861" lon="7.8510199"/>
+    <waypoint name="_FLY3" lat="48.8126712" lon="7.8599193"/>
+    <waypoint name="_FLY4" lat="48.8084725" lon="7.8594378"/>
+    <waypoint name="_FLY5" lat="48.8065693" lon="7.8528800"/>
+    <waypoint lat="48.811254" lon="7.849834" name="_KILL1"/>
+    <waypoint lat="48.813519" lon="7.861106" name="_KILL2"/>
+    <waypoint lat="48.808367" lon="7.860520" name="_KILL3"/>
+    <waypoint lat="48.806034" lon="7.850607" name="_KILL4"/>
+  </waypoints>
+  <sectors>
+    <sector color="orange" name="Flight_Area">
+      <corner name="_FLY1"/>
+      <corner name="_FLY2"/>
+      <corner name="_FLY3"/>
+      <corner name="_FLY4"/>
+      <corner name="_FLY5"/>
+    </sector>
+    <sector color="red" name="Kill">
+      <corner name="_KILL1"/>
+      <corner name="_KILL2"/>
+      <corner name="_KILL3"/>
+      <corner name="_KILL4"/>
+    </sector>
+  </sectors>
+</procedure>
+

@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<flight_plan alt="162" ground_alt="142.2" lat0="48.806623" lon0="7.852214" max_dist_from_home="1000" name="IMAV2026 Hotspot" security_height="10" home_mode_height="30">
+
+  <header>
+    #define FP_NONE       0
+    #define FP_HOTSPOT    1
+    #define THERMAL_PWR_OFF  1
+    #define THERMAL_REC      2
+    #define THERMAL_STOP_REC 3
+
+    #ifdef NAV_C
+
+    #ifdef SITL
+    #define thermal_ctl_thermal_ctl_handler(_x) {}
+    #endif
+
+    static inline bool delay_test_rc(bool test, int delay) {
+      static int nb = 0;
+        if (test) {
+        nb++;
+        if (nb == delay) {
+          nb = 0;
+          return true;
+        }
+        return false;
+      } else {
+        nb = 0;
+        return false;
+      }
+    }
+
+    #endif
+  </header>
+  <waypoints>
+    <waypoint name="HOME" lat="48.8068" lon="7.8521"/>
+    <waypoint name="STDBY" lat="48.8068" lon="7.85219"/>
+    <waypoint name="LANDPAD" lat="48.806623" lon="7.852214"/>
+    <waypoint name="_HERE" lat="48.8065608" lon="7.8530971"/>
+    <waypoint name="H1" lat="48.8087026" lon="7.8516235"/>
+    <waypoint name="H2" lat="48.8093909" lon="7.8516981"/>
+    <waypoint name="H2bis" lat="48.8095282" lon="7.8521323"/>
+    <waypoint name="H1bis" lat="48.8085071" lon="7.8520577"/>
+    <waypoint name="H3" lat="48.809540" lon="7.852558"/>
+    <waypoint name="H4" lat="48.808518" lon="7.852497"/>
+    <waypoint name="H3bis" lat="48.8095375" lon="7.8524136"/>
+    <waypoint name="H4bis" lat="48.8085163" lon="7.8523539"/>
+  </waypoints>
+  <sectors>
+    <sector color="orange" name="Survey">
+      <corner name="H1"/>
+      <corner name="H2"/>
+      <corner name="H3"/>
+      <corner name="H4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable init="0" type="int" var="mission_nb"/>
+    <variable init="20." var="goto_height" min="5." max="80." step="0.1"/>
+    <variable init="7." var="goto_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="5." var="takeoff_height" min="0.5" max="15." step="0.1"/>
+    <variable init="2." var="land_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="8." var="mapping_height_low" min="5." max="80." step="0.1"/>
+    <variable init="25." var="mapping_height_high" min="5." max="80." step="0.1"/>
+    <variable init="8." var="mapping_sweep" min="5." max="20." step="0.1"/>
+    <variable init="3." var="mapping_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="-1." var="mapping_radius" min="-1." max="100." step="1.0"/>
+  </variables>
+  <modules>
+    <module name="nav" type="takeoff_and_landing"/>
+    <module name="nav" type="survey_hybrid">
+      <define name="SURVEY_HYBRID_MAX_SWEEP_BACK" value="1"/>
+      <define name="SURVEY_HYBRID_APPROACHING_TIME" value="0"/>
+      <define name="SURVEY_HYBRID_ENTRY_DISTANCE" value="2"/>
+      <define name="SURVEY_HYBRID_ENTRY_CIRCLE" value="FALSE"/>
+    </module>
+  </modules>
+  <includes>
+    <include name="Data" procedure="IMAV2026_data.xml"/>
+  </includes>
+  <exceptions>
+    <exception cond="(!InsideFlight_Area(GetPosX(), GetPosY()) @OR (GetPosHeight() @GT 70)) @AND (nav_block @GT IndexOfBlock('Holding point')) @AND (nav_block @LT IndexOfBlock('Kill landed'))" deroute="Standby"/>
+    <exception cond="(!InsideKill(GetPosX(), GetPosY()) @OR (GetPosHeight() @GT 80)) @AND (nav_block @GT IndexOfBlock('Holding point')) @AND (nav_block @LT IndexOfBlock('Kill landed'))" deroute="Kill landed"/>
+    <exception cond="(nav_block @GT IndexOfBlock('Holding point') @AND nav_block @LT IndexOfBlock('Kill landed')) @AND (GpsIsLost() @AND delay_test_rc(RadioControlIsLost(),20) @AND (datalink_time @GT 5))" deroute="Kill landed"/>
+    <exception cond="(nav_block @GT IndexOfBlock('Holding point') @AND nav_block @LT IndexOfBlock('Kill landed')) @AND (delay_test_rc(RadioControlIsLost(),20) @AND (datalink_time @GT 15))" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 4)"/>
+    </block>
+    <block name="Holding point" strip_button="H. Point" group="home">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_NONE" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_HOTSPOT" deroute="Goto Hotspot"/>
+      <!--call_once fun="NavSetAltitudeReferenceHere()"/-->
+      <!--call_once fun="NavSetWaypointHere(WP_LANDPAD)"/-->
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0.1" until="stage_time @GT 2" vmode="throttle"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="_HERE"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <stay wp="STDBY"/>
+    </block>
+
+    <block group="mission" name="Start Hotspot" strip_button="Hotspot">
+      <set var="mission_nb" value="FP_HOTSPOT"/>
+      <deroute block="Takeoff"/>
+    </block>
+    <block name="Goto Hotspot">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <stay wp="_HERE" until="stage_time @GT 3" height="goto_height"/>
+      <go wp="H1" from="_HERE" hmode="route" height="goto_height"/>
+      <call_once fun="nav_survey_hybrid_setup_towards(WP_H1, WP_H2, 4, mapping_sweep, mapping_radius, mapping_height_low)"/>
+      <deroute block="Run Mapping Low"/>
+    </block>
+    <block name="Run Mapping Low">
+      <call_once fun="thermal_ctl_thermal_ctl_handler(THERMAL_REC)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(mapping_speed)"/>
+      <call fun="nav_survey_hybrid_run()"/>
+      <deroute block="Landing"/>
+    </block>
+    <block name="Land here" strip_button="Land here" strip_icon="land-right.png" group="land">
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Landing" strip_button="Land on pad" group="land">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <call_once fun="thermal_ctl_thermal_ctl_handler(THERMAL_STOP_REC)"/>
+      <go wp="STDBY" from="_HERE" hmode="route" height="goto_height"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <go wp="LANDPAD" from="STDBY" hmode="route" height="goto_height"/>
+    </block>
+    <block name="Flare">
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <stay climb="2*nav.descend_vspeed" vmode="climb" wp="LANDPAD" until="GetPosHeight() @LT takeoff_height"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block>
+    <block name="Kill landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+
+  </blocks>
+
+</flight_plan>

@@ -1,0 +1,106 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="oneloop_nB" dir="oneloop" task="control">
+  <doc>
+    <description>One loop (Guidance + Stabilization) ANDI controller for the rotating wing drone RW3C</description>
+  </doc>
+  <settings>
+   <dl_settings>
+     <dl_settings NAME="oneloop">
+     <dl_setting var="auto_fault_cmd"           min="0"       step="1"     max="1"     values="OFF|ON" shortname="auto_fault_cmd"/>
+      <dl_setting var="delta_fault"       min="0.0"     step="0.1"   max="5000"    shortname="delta_fault"/>
+      <dl_setting var="oneloop_nB_filt_cutoff"  min="0.5"     step="0.1"   max="20"    shortname="oneloop_nB_filt_cutoff"/>
+      <dl_setting var="vel_ctrl_in_manual"           min="0"       step="1"     max="1"     values="OFF|ON" shortname="vel_ctrl_in_manual"/>
+      <dl_setting var="use_push_PID"           min="0"       step="1"     max="1"     values="OFF|ON" shortname="use_push_PID"/>
+      <dl_setting var="use_push_Position"      min="0"       step="1"     max="1"     values="OFF|ON" shortname="use_push_Position"/>
+      <dl_setting var="max_pusher_cmd"      min="0.0"     step="100.0"  max="9600.0"     shortname="max_pusher_cmd"/>
+      <dl_setting var="max_bank"           min="2.0"     step="0.1"   max="30.0"  shortname="max_bank"   unit="rad" alt_unit="deg"/>
+      <dl_setting var="max_phi"            min="2.0"     step="0.1"   max="30.0"  shortname="max_phi"    unit="rad" alt_unit="deg"/>
+      <dl_setting var="max_theta"          min="2.0"     step="0.1"   max="30.0"  shortname="max_theta"  unit="rad" alt_unit="deg"/>
+      <dl_setting var="TestMotorIDX"       min="0"       step="1"     max="10"    shortname="TestMotorIDX"/>
+      <dl_setting var="SpinQuad"           min="0"       step="1"     max="1"     values="OFF|ON" shortname="SpinQuad"/>
+      <dl_setting var="max_fault_mot"      min="0.0"     step="100.0"  max="9600.0"     shortname="max_fault_mot"/>
+      <dl_setting var="spin_prot_max_rate"   min="0.0"   step="0.1"    max="60.0"       shortname="spin_prot_max_rate"   unit="rad/s"/>
+      <dl_setting var="spin_prot_start_rate" min="0.0"   step="0.1"    max="60.0"       shortname="spin_prot_start_rate" unit="rad/s"/>
+      <dl_setting var="spin_prot_max_cmd"    min="0.0"   step="100.0"  max="9600.0"     shortname="spin_prot_max_cmd"/>
+      <dl_setting var="spin_prot_min_gap"      min="0.1" step="0.1"    max="10.0"       shortname="spin_prot_min_gap" unit="rad/s"/>
+      <dl_setting var="spin_trim_on"          min="0"   step="1"      max="1"          values="OFF|ON" shortname="spin_trim_on"/>
+      <dl_setting var="spin_trim_rate"         min="0.0" step="1.0"    max="1000.0"     shortname="spin_trim_rate"/>
+      <dl_setting var="spin_trim_bleed_rate"   min="0.0" step="1.0"    max="1000.0"     shortname="spin_trim_bleed_rate"/>
+      <dl_setting var="spin_trim_release_rate" min="0.0" step="0.1"    max="60.0"       shortname="spin_trim_release_rate" unit="rad/s"/>
+      <dl_setting var="spin_trim"              min="0.0" step="10.0"   max="9600.0"     shortname="spin_trim"/>
+      <dl_setting var="spin_man_up"            min="0"   step="1"      max="1"          values="OFF|ON" shortname="spin_man_up"/>
+      <dl_setting var="spin_man_down"          min="0"   step="1"      max="1"          values="OFF|ON" shortname="spin_man_down"/>
+      <dl_setting var="spin_man_pair"          min="0"   step="1"      max="1"          values="PITCH|ROLL" shortname="spin_man_pair"/>
+      <dl_setting var="spin_man_pitch_dir"     min="-1"  step="2"      max="1"          values="NEG|POS" shortname="spin_man_pitch_dir"/>
+      <dl_setting var="spin_man_ramp_rate"     min="0.1" step="0.1"    max="10.0"       shortname="spin_man_ramp_rate"/>
+      <dl_setting var="spin_man_blend_time"    min="0.1" step="0.1"    max="5.0"        shortname="spin_man_blend_time" unit="s"/>
+      <dl_setting var="spin_man_trim_rate"     min="0.0" step="10.0"   max="1000.0"     shortname="spin_man_trim_rate"/>
+      <dl_setting var="spin_man_done_rate"     min="0.1" step="0.1"    max="5.0"        shortname="spin_man_done_rate" unit="rad/s"/>
+      <dl_setting var="SpinQuadRate"       min="-10.0"   step="0.01"  max="10.0"     shortname="SpinQuadRate"/>
+      <dl_setting var="fault_pitch_motors" min="0"       step="1"     max="1"     values="OFF|ON" shortname="fault_pitch_motors"/>
+      <dl_setting var="fault_roll_motors"  min="0"       step="1"     max="1"     values="OFF|ON" shortname="fault_roll_motors"/>
+      <dl_setting var="fault_ailerons"     min="0"       step="1"     max="1"     values="OFF|ON" shortname="fault_ailerons"/>
+      <dl_setting var="k_K"                min="0.1"     step="0.01"  max="5"     shortname="K Gain Pos"/>
+      <dl_setting var="k_P"                min="0.1"     step="0.01"  max="5"     shortname="P Gain Pos"/>
+      <dl_setting var="k_I"                min="0.0"     step="0.0001"  max="1.0" shortname="I Gain Pos"/>
+      <dl_setting var="k_D"                min="0.1"     step="0.01"  max="5"     shortname="D Gain Pos"/>
+      <dl_setting var="pid_a_max"              min="0.05" step="0.01"  max="1.0"        shortname="pid_a_max" unit="g"/>
+      <dl_setting var="pid_v_max_manual"       min="0.1" step="0.1"    max="10.0"       shortname="pid_v_max_manual" unit="m/s"/>
+      <dl_setting var="pid_v_max_nav"          min="0.1" step="0.1"    max="10.0"       shortname="pid_v_max_nav" unit="m/s"/>
+      <dl_setting var="ec_k3"                  min="1.0" step="0.1"    max="100.0"      shortname="ec_k3" unit="rad/s"/>
+      <dl_setting var="state_compensation_on"           min="0"       step="1"     max="1"     values="OFF|ON" shortname="state_compensation_on"/>
+      <dl_setting var="drop_yaw"           min="0"       step="1"     max="1"     values="OFF|ON" shortname="drop_yaw"/> 
+      <dl_setting var="LP.p.freq_set"      min="0.5"     step="0.1"   max="20"    shortname="p_LP_freq"/>
+      <dl_setting var="LP.q.freq_set"      min="0.5"     step="0.1"   max="20"    shortname="q_LP_freq"/>
+      <dl_setting var="LP.r.freq_set"      min="0.5"     step="0.1"   max="20"    shortname="r_LP_freq"/>
+      <dl_setting var="LP.p_dot.freq_set"  min="0.5"     step="0.1"   max="20"    shortname="pdot_LP_freq"/>
+      <dl_setting var="LP.q_dot.freq_set"  min="0.5"     step="0.1"   max="20"    shortname="qdot_LP_freq"/>
+      <dl_setting var="LP.r_dot.freq_set"  min="0.5"     step="0.1"   max="20"    shortname="rdot_LP_freq"/>
+      <dl_setting var="LP.ax.freq_set"     min="0.5"     step="0.1"   max="20"    shortname="ax_LP_freq"/>
+      <dl_setting var="LP.ay.freq_set"     min="0.5"     step="0.1"   max="20"    shortname="ay_LP_freq"/>
+      <dl_setting var="LP.az.freq_set"     min="0.5"     step="0.1"   max="20"    shortname="az_LP_freq"/>
+      <dl_setting var="max_as"             min="7"       step="1"     max="19"    shortname="max_airspeed"/>
+      <dl_setting var="ctrl_off"           min="0"       step="1"     max="1"     values="OFF|ON" shortname="ctrl_off"/> 
+      <dl_setting var="heading_manual"     min="0"       step="1"     max="1"     values="OFF|ON" shortname="take_heading"/>
+      <dl_setting var="yaw_stick_in_auto"  min="0"       step="1"     max="1"     values="OFF|ON" shortname="yaw_stick_on"/>
+      <dl_setting var="oneloop_nB_Z_hold"  min="0"       step="1"     max="1"     values="OFF|ON" shortname="oneloop_nB_Z_hold"/>
+      <dl_setting var="fwd_sideslip_gain"  min="0.01"    step="0.001" max="20.0"  shortname="fwd_sideslip_gain"/>
+      <dl_setting var="psi_des_deg"        min="-180.0"  step="0.1"   max="180.0" shortname="psi_des"/>     
+      <dl_setting var="p_att_e.omega_n"    min="0.1"     step="0.001" max="20.0"  shortname="p_att_e_omega_n"/>
+      <dl_setting var="p_att_e.zeta"       min="0.1"     step="0.001" max="1.0"   shortname="p_att_e_zeta"/>
+      <dl_setting var="p_att_rm.omega_n"   min="0.1"     step="0.001" max="70.0"  shortname="p_att_rm_omega_n"/>
+      <dl_setting var="p_att_rm.zeta"      min="0.1"     step="0.001" max="1.0"   shortname="p_att_rm_zeta"/>
+      <dl_setting var="p_att_rm.p3"        min="0.1"     step="0.001" max="70.0"  shortname="p_att_rm_p3"/>
+      <dl_setting var="p_head_e.omega_n"   min="0.1"     step="0.001" max="20.0"  shortname="p_head_e_omega_n"/>
+      <dl_setting var="p_head_e.zeta"      min="0.1"     step="0.001" max="1.0"   shortname="p_head_e_zeta"/>
+      <dl_setting var="p_head_rm.omega_n"  min="0.1"     step="0.001" max="20.0"  shortname="p_head_rm_omega_n"/>
+      <dl_setting var="p_head_rm.zeta"     min="0.1"     step="0.001" max="1.0"   shortname="p_head_rm_zeta"/>
+      <dl_setting var="p_pos_e.omega_n"    min="0.1"     step="0.001" max="70.0"  shortname="p_pos_e_omega_n"/>
+      <dl_setting var="p_pos_e.zeta"       min="0.1"     step="0.001" max="1.0"   shortname="p_pos_e_zeta"/>
+      <dl_setting var="p_pos_e.p3"         min="0.1"     step="0.001" max="70.0"  shortname="p_pos_e_p3"/>
+      <dl_setting var="p_pos_rm.omega_n"   min="0.1"     step="0.001" max="20.0"  shortname="p_pos_rm_omega_n"/>
+      <dl_setting var="p_pos_rm.zeta"      min="0.1"     step="0.001" max="1.0"   shortname="p_pos_rm_zeta"/>       
+      <dl_setting var="p_alt_e.omega_n"    min="0.1"     step="0.001" max="20.0"  shortname="p_alt_e_omega_n"/>
+      <dl_setting var="p_alt_e.zeta"       min="0.1"     step="0.001" max="1.0"   shortname="p_alt_e_zeta"/>
+      <dl_setting var="p_alt_rm.omega_n"   min="0.1"     step="0.001" max="20.0"  shortname="p_alt_rm_omega_n"/>
+      <dl_setting var="p_alt_rm.zeta"      min="0.1"     step="0.001" max="1.0"   shortname="p_alt_rm_zeta"/>
+      <dl_setting var="use_safety_killer"  min="0"       step="1"     max="1"     values="OFF|ON" shortname="use_safety_killer"/>
+      <dl_setting var="safety_killer_trigger"  min="0"       step="1"     max="1"     values="OFF|ON" shortname="safety_killer_trigger"/>
+      <dl_setting var="safety_killer_cutoff"   min="1000.0"     step="100.0" max="9600.0"   shortname="safety_killer_cutoff"/>      
+     </dl_settings>
+   </dl_settings>
+  </settings>
+  <dep>
+    <depends>stabilization_rotorcraft,@attitude_command,wls</depends>
+    <provides>commands</provides>
+  </dep>
+  <header>
+    <file name="oneloop_nB.h"/>
+  </header>
+  <init fun="oneloop_nB_init()"/>
+   <makefile target="ap|nps" firmware="rotorcraft">
+    <file       name="oneloop_nB.c" dir="$(SRC_FIRMWARE)/oneloop"/>
+    <configure  name="ANDI_OUTPUTS" default="6"/>
+    <define     name="ANDI_OUTPUTS" value="$(ANDI_OUTPUTS)"/>
+  </makefile> 
+</module>

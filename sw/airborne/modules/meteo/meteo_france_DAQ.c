@@ -120,7 +120,7 @@ void parse_mf_daq_msg(uint8_t *buf)
   mf_daq.nb = pprzlink_get_PAYLOAD_FLOAT_values_length(buf);
   if (mf_daq.nb > 0) {
     if (mf_daq.nb > MF_DAQ_SIZE) { mf_daq.nb = MF_DAQ_SIZE; }
-    // Store data struct directly from dl_buffer
+    // Store data struct directly from buf
     float *b = pprzlink_get_DL_PAYLOAD_FLOAT_values(buf);
     memcpy(mf_daq.values, b, mf_daq.nb * sizeof(float));
     // Log on SD card

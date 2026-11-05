@@ -189,13 +189,13 @@ MESSAGE("Forwarding PAYLOAD_COMMAND messages.")
   if (DL_PAYLOAD_COMMAND_ac_id(buf) == AC_ID) {
     uint8_t len = DL_PAYLOAD_COMMAND_command_length(buf);
 
-    if (buf == extra_dl_buffer) {
+    if (buf == extra_dl_get_buffer()) {
        // Message came from extra_dl, forward to GCS via telemetry
       DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice,
             len, DL_PAYLOAD_COMMAND_command(buf));
     }
 
-    if (buf == dl_buffer) {
+    if (buf == datalink_get_buffer()) {
       // Message came from GCS/Telemetry, forward to extra_dl
       DOWNLINK_SEND_PAYLOAD(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
             len, DL_PAYLOAD_COMMAND_command(buf));

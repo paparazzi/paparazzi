@@ -43,6 +43,9 @@
     <define name="INS_EKF2_MAG_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for magnetic measurements"/>
     <define name="INS_EKF2_GPS_ID" value="GPS_MULTI_ID" description="ABI sensor ID used ad input for GPS measurements"/>
     <define name="INS_EKF2_RELPOS_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for Relative Position heading measurements"/>
+    <define name="INS_EKF2_FORCE_NAV_REF" value="FALSE|TRUE" description="force to use the reference defined in the flight plan and not the one computed by the filter after first good GPS position"/>
+
+    <configure name="USE_ALT_LLA_WAYPOINTS" value="FALSE|TRUE" description="Use LLA altitude instead of LTP z for long distance flight (default=TRUE)"/>
   </doc>
   <settings>
 	<dl_settings NAME="INS">
@@ -66,6 +69,7 @@
   <datalink message="EXTERNAL_POSE" fun="ins_ekf2_parse_EXTERNAL_POSE(buf)"/>
   <datalink message="EXTERNAL_POSE_SMALL" fun="ins_ekf2_parse_EXTERNAL_POSE_SMALL(buf)"/>
   <makefile target="ap|nps">
+    <configure name="USE_ALT_LLA_WAYPOINTS" default="TRUE"/>
     <configure name="CXXSTANDARD" value="-std=c++14"/>
     <flag name="CXXFLAGS" value="Wno-unused-but-set-variable"/>
     <flag name="CXXFLAGS" value="Wno-unused-variable"/>
@@ -80,7 +84,7 @@
     <define name="__PAPARAZZI" value="TRUE"/>
     <define name="ECL_STANDALONE" value="TRUE"/>
     <define name="IMU_INTEGRATION" value="TRUE"/> <!-- Needed to enable IMU integration -->
-    <define name="USE_ALT_LLA_WAYPOINTS" value="TRUE"/>
+    <define name="USE_ALT_LLA_WAYPOINTS" value="$(USE_ALT_LLA_WAYPOINTS)"/>
 
     <!-- Compile needed ecl files -->
     <file name="geo.cpp" dir="ecl/geo"/>

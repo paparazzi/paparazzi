@@ -127,9 +127,10 @@ let flight_plan = fun ac_name fp ->
   let utm0 = utm_of WGS84 geo0 in
   let xml_waypoints = Xml.children (ExtXml.child fp "waypoints") in
   let array_waypoints = Array.of_list xml_waypoints in
-  (* Index the waypoints for further access *)
+  (* Index the waypoints for further access (replacing the ones of a previous flight plan) *)
+  Hashtbl.filter_map_inplace (fun (name, _) wp -> if name = ac_name then None else Some wp) waypoints;
   for i = 0 to Array.length array_waypoints - 1 do
-    Hashtbl.add waypoints (ac_name, i+1) (ExtXml.attrib array_waypoints.(i) "name")
+    Hashtbl.replace waypoints (ac_name, i+1) (ExtXml.attrib array_waypoints.(i) "name")
   done;
   let waypoints = List.map (waypoint utm0 alt0) xml_waypoints in
   let home = List.find (fun x -> Xml.attrib x "id" = "HOME") waypoints in

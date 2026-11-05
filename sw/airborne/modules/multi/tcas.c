@@ -95,7 +95,7 @@ void parseTcasResolve(uint8_t *buf)
 void parseTcasRA(uint8_t *buf)
 {
   if (DL_TCAS_RA_ac_id(buf) == AC_ID && SenderIdOfPprzMsg(buf) != AC_ID) {
-    uint8_t ac_id_conflict = SenderIdOfPprzMsg(dl_buffer);
+    uint8_t ac_id_conflict = SenderIdOfPprzMsg(buf);
     tcas_acs_status[ti_acs_id[ac_id_conflict]].resolve = DL_TCAS_RA_resolve(buf);
   }
 }

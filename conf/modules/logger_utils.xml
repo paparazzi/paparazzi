@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="logger_utils" dir="loggers" task="core">
+  <doc>
+    <description>
+      Definitions and tools for logging with ChibiOS and Linux
+    </description>
+  </doc>
+  <header>
+    <file name="logger_utils.h" />
+  </header>
+  <makefile>
+    <file name="logger_utils.c"/>
+    <test/>
+  </makefile>
+</module>

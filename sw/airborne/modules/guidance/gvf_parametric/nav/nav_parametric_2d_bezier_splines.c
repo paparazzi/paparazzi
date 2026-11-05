@@ -22,11 +22,11 @@
 #include "modules/guidance/gvf_parametric/gvf_parametric.h"
 
 #ifndef GVF_PARAMETRIC_2D_BEZIER_SPLINES_KX
-#define GVF_PARAMETRIC_2D_BEZIER_SPLINES_KX 2.0
+  #define GVF_PARAMETRIC_2D_BEZIER_SPLINES_KX 2.0
 #endif
 
 #ifndef GVF_PARAMETRIC_2D_BEZIER_SPLINES_KY
-#define GVF_PARAMETRIC_2D_BEZIER_SPLINES_KY 2.0
+  #define GVF_PARAMETRIC_2D_BEZIER_SPLINES_KY 2.0
 #endif
 
 gvf_par_2d_bezier_par gvf_parametric_2d_bezier_par = {

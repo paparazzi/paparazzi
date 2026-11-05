@@ -17,7 +17,7 @@
 
    <session name="Flight UDP/WiFi">
       <program name="Server"/>
-      <program name="PprgGCS"/>
+      <program name="PprzGCS"/>
       <program name="Data Link">
         <arg flag="-udp"/>
       </program>

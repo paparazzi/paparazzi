@@ -56,7 +56,7 @@
 #define GOT_CHECKSUM  2
 #define GOT_END       3
 
-struct GpsNmea gps_nmea;
+struct GpsNmea gps_nmea = {0};
 
 static bool nmea_parse_GSA(void);
 static bool nmea_parse_RMC(void);

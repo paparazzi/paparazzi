@@ -21,6 +21,12 @@
     <settings>
    <dl_settings>
      <dl_settings NAME="eff_sched">
+       <dl_setting var="manual_roll"        min="0"       step="1"   max="1"  shortname="manual_roll"/>
+        <dl_setting var="manual_pitch"      min="0"       step="1"   max="1"  shortname="manual_pitch"/>
+        <dl_setting var="manual_yaw"        min="0"       step="1"   max="1"  shortname="manual_yaw"/>
+       <dl_setting var="G2_on"              min="0"       step="1"   max="1"  shortname="G2_on"/>
+       <dl_setting var="thrust_curve"       min="0"       step="1"   max="2"  shortname="thrust_curve"/>
+       <dl_setting var="temp_mQ_k"          min="0.1"       step="0.1"   max="20"  shortname="temp_mQ_k"/>
        <dl_setting var="ele_min"            min="0"       step="100"   max="6400"  shortname="ele_min"/> 
        <dl_setting var="roll_eff"           min="1"       step="0.05"   max="10"    shortname="roll_eff"/>
        <dl_setting var="yaw_eff"            min="0.1"     step="0.01"   max="1"    shortname="yaw_eff"/>
@@ -44,6 +50,38 @@
       <define name="ROTWING_EFF_SCHED_IXX_WING" value="1"/>
       <define name="ROTWING_EFF_SCHED_IYY_WING" value="1"/>
       <define name="ROTWING_EFF_SCHED_M"        value="1"/>
+      <define name="ROTWING_EFF_SCHED_MF_dFdu" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MF_dMdu" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MF_dMdud" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MF_l" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MF_k1" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MF_k2" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MF_k3" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MR_dFdu" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MR_dMdu" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MR_dMdud" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MR_l" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MR_k1" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MR_k2" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MR_k3" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MB_dFdu" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MB_dMdu" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MB_dMdud" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MB_l" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MB_k1" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MB_k2" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MB_k3" value="1"/>
+      <define name="ROTWING_EFF_SCHED_ML_dFdu" value="1"/>
+      <define name="ROTWING_EFF_SCHED_ML_dMdu" value="1"/>
+      <define name="ROTWING_EFF_SCHED_ML_dMdud" value="1"/>
+      <define name="ROTWING_EFF_SCHED_ML_l" value="1"/>
+      <define name="ROTWING_EFF_SCHED_ML_k1" value="1"/>
+      <define name="ROTWING_EFF_SCHED_ML_k2" value="1"/>
+      <define name="ROTWING_EFF_SCHED_ML_k3" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MP_dFdu" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MP_dMdu" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MP_dMdud" value="1"/>
+      <define name="ROTWING_EFF_SCHED_MP_l" value="1"/>
       <define name="M_PI"                        value="3.14"/>
       <define name="PERIODIC_FREQUENCY"          value="500.0"/>
       <define name="ACTUATORS_NB"                value="10"/>

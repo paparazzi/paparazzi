@@ -46,7 +46,7 @@ float xsens_gps_arm_x = 0;
 float xsens_gps_arm_y = 0;
 float xsens_gps_arm_z = 0;
 
-struct Xsens xsens700;
+struct Xsens xsens700 = {0};
 
 volatile int xsens_configured = 0;
 

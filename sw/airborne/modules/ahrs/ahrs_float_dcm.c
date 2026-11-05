@@ -444,7 +444,7 @@ void Drift_correction()
 #else // Use GPS Ground course to correct yaw gyro drift
 
   if (ahrs_dcm.gps_course_valid) {
-    float course = ahrs_dcm.gps_course - M_PI; //This is the runaway direction of you "plane" in rad
+    float course = ahrs_dcm.gps_course; //This is the runaway direction of you "plane" in rad
     float COGX = cosf(course); //Course overground X axis
     float COGY = sinf(course); //Course overground Y axis
 
@@ -464,9 +464,9 @@ void Drift_correction()
     float COGX = mag->x; // Non-Tilt-Compensated (for filter stability reasons)
     float COGY = mag->y; // Non-Tilt-Compensated (for filter stability reasons)
 
-    errorCourse = (DCM_Matrix[0][0] * COGY) - (DCM_Matrix[1][0] * COGX); //Calculating YAW error
+    errorCourse = (DCM_Matrix[0][0] * COGY) + (DCM_Matrix[1][0] * COGX); //Calculating YAW error
     //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
-    Vector_Scale(errorYaw, &DCM_Matrix[2][0], errorCourse);
+    Vector_Scale(errorYaw, &DCM_Matrix[2][0], -errorCourse);
 
     // P only
     Vector_Scale(&Scaled_Omega_P[0], &errorYaw[0], Kp_YAW / 10.0);

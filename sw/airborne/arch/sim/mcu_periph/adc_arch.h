@@ -27,8 +27,6 @@
 #ifndef ADC_ARCH_H
 #define ADC_ARCH_H
 
-/* Dummy definitions */
-#define AdcBank1(x) x
-#define AdcBank0(x) x
+#include BOARD_CONFIG
 
 #endif /* ADC_ARCH_H */

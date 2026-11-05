@@ -1,132 +1,103 @@
-####### GCS #########
+# pprzlink_router
 
-adb root
-adb push pprzlink_router_cc /data
+Forwards Paparazzi telemetry between endpoints (UART and UDP). It is used on both Herelink units:
 
-adb shell
-> su
-> mount -o rw,remount /system
-> echo "#!/system/bin/sh
-/data/pprzlink_router_cc -e udp://192.168.0.11:5242:192.168.0.10:5243 -e udp://0.0.0.0:4243:192.168.43.255:4242 &" > /data/init.sh
-> echo "#!/system/bin/sh
-/data/init.sh &
-/system/bin/ndc resolver setnetdns eth0 \"\" 8.8.8.8" > /system/bin/eth0_dns.sh
-> chmod +x /data/init.sh
-> chmod +x /data/pprzlink_router_cc
-> chmod +x /system/bin/eth0_dns.sh
-#####################
+- **Air unit:** UART to the autopilot ↔ Herelink radio.
+- **Ground unit:** Herelink radio ↔ the laptop, over USB tethering or the Herelink Wi-Fi hotspot.
 
-####### AIR #########
-adb root
-adb push pprzlink_router_cc /data
-adb push mass_storage.sh /system/bin/mass_storage.sh
+```
+pprzlink_router -e ENDPOINT -e ENDPOINT [...] [options]
+  -e --endpoint uart://DEVICE:BAUD | udp://BIND_ADDR:BIND_PORT:SEND_ADDR:SEND_PORT
+  -n --no-keep-awake   do not keep the CPU awake
+  -p --pprz            only forward complete pprzlink v2 frames, one at a time
+  -v --verbose
+```
 
-adb shell
-> su
-> mount -o rw,remount /system
-> echo "#!/system/bin/sh
-/data/pprzlink_router_cc -e uart:///dev/ttyS2:115200 -e udp://192.168.0.10:5243:192.168.0.11:5242 &" > /data/init.sh
-> echo "[General]
-#Mavlink-router serves on this TCP port
-# TcpServerPort=5790
-Log=/sdcard/flight_log/
-ReportStats=false
-MavlinkDialect=ardupilotmega
+Everything received on one endpoint is sent out of all the others.
 
-[LocalEndpoint boardendpoint:1]
-SockName = boardendpoint
-Binding = true
+## Options
 
-[LocalEndpoint cameraendpoint:1]
-SockName = cameraendpoint
-Binding = true
+**Keep awake (on by default).** On the Herelink ground unit, when the CPU is idle the forwarding stalls for
+~35 ms once per second. Several uplink messages then arrive late together. For external poses (OptiTrack)
+on a fast-spinning drone this corrupted the attitude estimate.
 
-[UdpEndpoint gcs:2]
-Mode = normal
-Address = 192.168.0.11
-Port = 14550" > /etc/mavlink-router.telepathy-air.conf
-> chmod +x /data/init.sh
-> chmod +x /data/pprzlink_router_cc
-> chmod +x /system/bin/mass_storage.sh
+- A thread at the lowest priority keeps one low-power core (CPU 0) busy, which removes the stalls.
+- Measured at the air unit: 6.7–9.5 holds/min without it, 0 with it.
+- Letting the thread sleep part of the time does not help.
+- Use `-n` where it is not needed. The air unit's UART polling already keeps its CPU awake.
 
+**Frame mode (`-p`).** Every endpoint parses its input as pprzlink v2 frames (STX 0x99, LEN, payload,
+CK_A, CK_B). Only complete frames with a valid checksum are forwarded, one per send. This means:
 
-#####################
+- partial UART reads are never sent as fragments;
+- frames from different endpoints (for example several drones) are never mixed;
+- corrupted bytes are dropped at the router.
 
-echo "[General]
-#Mavlink-router serves on this TCP port
-# TcpServerPort=5790
-Log=/sdcard/flight_log/
-ReportStats=false
-MavlinkDialect=ardupilotmega
+## Build
 
-[LocalEndpoint boardendpoint:1]
-SockName = boardendpoint
-Binding = true
+```
+make                    # pprzlink_router (host) and pprzlink_router_cc (static ARM, for the Herelink)
+herelink_app/build.sh   # Android app for the ground unit (see below)
+```
 
-[LocalEndpoint cameraendpoint:1]
-SockName = cameraendpoint
-Binding = true
+`herelink_app/build.sh` needs `default-jdk-headless aapt dalvik-exchange apksigner android-sdk-platform-23`.
 
-[UdpEndpoint gcs:2]
-Mode = normal
-Address = 192.168.0.11
-Port = 14550" > /etc/mavlink-router.telepathy-air.conf
+## Herelink air unit
 
-[UartEndpoint flightcontrol:1]
-Device = /dev/ttyS2
-Baud = 57600,115200,921600,500000,1500000
+The air unit runs a `userdebug` build, so `adb root` / `su` work. The router lives in `/oem/bin` and is
+started at boot by `/system/bin/mass_storage.sh`, which calls `/oem/bin/init.sh`. Example `init.sh`
+(use the baud rate of your airframe's telemetry):
 
+```
+#!/system/bin/sh
+/oem/bin/pprzlink_router_cc -n -e uart:///dev/ttyS2:460800 -e udp://192.168.0.10:5243:192.168.0.11:5242 &
+```
 
+Disable the UART that Herelink uses for MAVLink: `setprop persist.uart.1.disable 1`.
 
-mount -o rw,remount /system
+## Herelink ground unit
 
-echo "#!/system/bin/sh
-/data/pprzlink_router_cc -e uart:///dev/ttyS2:115200 -e udp://192.168.0.10:5243:192.168.0.11:5242 &" > init.sh
+The ground unit runs a `user` build (no root). Its boot scripts cannot be changed, so the router is started
+by a small app (`herelink_app/`):
 
-echo "#!/system/bin/sh
-/data/pprzlink_router_cc -e udp://192.168.0.11:5242:192.168.0.10:5243 -e udp://0.0.0.0:4243:192.168.43.255:4242 &" > init.sh
+- At boot it starts the router.
+- It restarts the router if the router stops.
+- It sends to the laptop on USB tethering (192.168.42.255) when that is active, otherwise on the Wi-Fi
+  hotspot (192.168.43.255).
 
+Install it with:
 
+```
+adb install -r herelink_app/pprzlink_router.apk
+adb shell am broadcast -n org.paparazziuav.pprzlinkrouter/.BootReceiver -f 32   # once, after installing
+```
 
-echo "#!/system/bin/sh
-/data/init.sh &
-/system/bin/ndc resolver setnetdns eth0 \"\" 8.8.8.8" > /system/bin/eth0_dns.sh
+The laptop link itself (USB tethering or the hotspot) is enabled in the Herelink settings. Android switches
+USB tethering off at every boot, so it has to be switched on again each session. These scripts do it over adb,
+then check the whole link. They never start a router (the app does that):
 
-echo "#!/system/bin/sh
-/data/init.sh &
-# Copyright (c) 2009-2018, The Linux Foundation. All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#     * Neither the name of The Linux Foundation nor
-#       the names of its contributors may be used to endorse or promote
-#       products derived from this software without specific prior written
-#       permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-FILE=/data/.format_vfat.userdata
-STORAGE=/dev/block/platform/soc/by-name/storage
-TARGET=/sdcard
-ATTR= \"-o iocharset=utf8,rw,sync,umask=0000,dmask=0000,fmask=0000\"
-TYPE=\"-t vfat\"
-if [ -f \"$FILE\" ]; then
-	/bin/busybox mkfs.vfat $STORAGE
-	rm $FILE
-fi
-/bin/busybox mount $TYPE $ATTR $STORAGE $TARGET" > /system/bin/mass_storage.sh
+| Script | What it does |
+|---|---|
+| `herelink_usb.sh` | Switches USB tethering on if needed, waits for the laptop's address, then runs the check |
+| `herelink_wifi.sh` | Same for the Wi-Fi hotspot (switching it on needs the USB cable for adb) |
+| `herelink_check.sh [usb\|wifi]` | Only checks: laptop address, ping, router and keep-awake on the handheld, link agent, telemetry |
+
+They end with `HEALTHY (usb)` or with `[FAIL]` lines that say what to do. Use `--wait SECONDS` when they
+start together with a Paparazzi session (default 20/15 s for the link agent and telemetry). They can be added
+as tools to a Paparazzi Center control panel, for example:
+
+```
+<program name="Herelink USB" command="sw/misc/link/herelink_usb.sh"/>
+```
+
+Paparazzi side: `link -udp` (it receives on port 4242 and answers to port 4243).
+
+## Herelink OEM images
+
+To ship the router with the Herelink firmware, build an OEM image as described in the
+[CubePilot OEM image guide](https://docs.cubepilot.org/herelink/herelink-user-guides/oem-image-setup):
+
+- Start from the base image of the right unit (`oem_ru_base.img` for the ground unit, `oem_au_base.img`
+  for the air unit).
+- Add `bin/pprzlink_router_cc`. For the ground unit, also add the app in `app/`.
+- Flash it with `fastboot flash oem <image>`.

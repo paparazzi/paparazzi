@@ -44,7 +44,7 @@
 #define EXTERNAL_POSE_SMALL_SPEED_RES 1.0
 #endif
 
-struct GpsState gps_datalink;
+struct GpsState gps_datalink = {0};
 static struct LtpDef_i ltp_def;
 
 /** GPS initialization */

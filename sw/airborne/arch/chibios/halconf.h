@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2023 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -29,9 +29,16 @@
 #define HALCONF_H
 
 #define _CHIBIOS_HAL_CONF_
-#define _CHIBIOS_HAL_CONF_VER_8_4_
+#define _CHIBIOS_HAL_CONF_VER_9_1_
 
 #include "mcuconf.h"
+
+/**
+ * @brief   Enables the HAL safety subsystem.
+ */
+#if !defined(HAL_USE_SAFETY) || defined(__DOXYGEN__)
+#define HAL_USE_SAFETY                      FALSE
+#endif
 
 /**
  * @brief   Enables the PAL subsystem.
@@ -73,11 +80,7 @@
  * @brief   Enables the DAC subsystem.
  */
 #if !defined(HAL_USE_DAC) || defined(__DOXYGEN__)
-#if USE_DAC1 || USE_DAC2
-#define HAL_USE_DAC                         TRUE
-#else
 #define HAL_USE_DAC                         FALSE
-#endif
 #endif
 
 /**
@@ -345,6 +348,14 @@
 /*===========================================================================*/
 /* I2C driver related settings.                                              */
 /*===========================================================================*/
+
+/**
+ * @brief   Slave mode API enable switch.
+ * @note    The low level driver must support this capability.
+ */
+#if !defined(I2C_ENABLE_SLAVE_MODE)
+#define I2C_ENABLE_SLAVE_MODE               FALSE
+#endif
 
 /**
  * @brief   Enables the mutual exclusion APIs on the I2C bus.

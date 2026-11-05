@@ -6,7 +6,7 @@
   <process name="Main">
 
     <mode name="default" key_press="d">
-      <message name="AUTOPILOT_VERSION"        period="11.1"/>
+      <message name="AUTOPILOT_VERSION"        period="22.2"/>
       <message name="DL_VALUE"                 period="1.1"/>
       <message name="ROTORCRAFT_STATUS"        period="1.2"/>
       <message name="ROTORCRAFT_FP"            period="0.25"/>
@@ -38,7 +38,6 @@
       <message name="WIND_INFO_RET"            period="1."/>
       <message name="AHRS_REF_QUAT"            period="0.5"/>
       <message name="STAB_ATTITUDE"            period=".25"/>
-      <message name="EFF_MAT_STAB"             period="2.0"/>
     </mode>
 
     <mode name="ppm">
@@ -61,7 +60,6 @@
       <message name="IMU_MAG_RAW"                 period=".05"/>
       <message name="BARO_RAW"                    period=".1"/>
       <message name="IMU_MAG_CURRENT_CALIBRATION" period=".05"/>
-      <message name="ARDRONE_NAVDATA"             period=".05"/>
       <message name="AIRSPEED_RAW"                period="0.1"/>
     </mode>
 
@@ -185,7 +183,7 @@
 
   <process name="FlightRecorder">
     <mode name="default">
-      <message name="AUTOPILOT_VERSION"        period="11.1"/>
+      <message name="AUTOPILOT_VERSION"        period="22.2"/>
       <message name="DL_VALUE"                 period="1.1"/>
       <message name="ROTORCRAFT_STATUS"        period="1.2"/>
       <message name="ROTORCRAFT_FP"            period="0.25"/>

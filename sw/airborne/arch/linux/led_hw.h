@@ -31,20 +31,11 @@
 #include <stdint.h>
 #include BOARD_CONFIG
 
-#if defined BOARD_ARDRONE2
-extern uint32_t led_hw_values;
-#define LED_INIT(i) { led_hw_values &= ~(1<<i); }
-#define LED_ON(i) { led_hw_values |= (1<<i); }
-#define LED_OFF(i) { led_hw_values &= ~(1<<i); }
-#define LED_TOGGLE(i) { led_hw_values ^= (1<<i); }
-#define LED_DISABLE(i) LED_OFF(i)
-#else
 #define LED_INIT(i)   {}
 #define LED_ON(i)     {}
 #define LED_OFF(i)    {}
 #define LED_TOGGLE(i) {}
 #define LED_DISABLE(i) LED_OFF(i)
-#endif
 
 #define LED_PERIODIC() {}
 

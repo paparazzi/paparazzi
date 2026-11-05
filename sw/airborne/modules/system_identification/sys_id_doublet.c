@@ -70,13 +70,39 @@ float doublet_extra_waiting_time_s = 0.0f;
 static const int8_t SYS_ID_ACTIVE_DOUBLET_AXES[] = SYS_ID_DOUBLET_AXES;
 #define SYS_ID_DOUBLET_NB_AXES sizeof SYS_ID_ACTIVE_DOUBLET_AXES / sizeof SYS_ID_ACTIVE_DOUBLET_AXES[0] // Number of items in ACTIVE_DOUBLET_AXES
 
+#ifndef SYS_ID_MULTI_DOUBLET
+#define SYS_ID_MULTI_DOUBLET FALSE
+#endif
+
+#if SYS_ID_MULTI_DOUBLET
+#ifndef SYS_ID_MULTI_DOUBLET_NUM_COMBINATIONS
+#error "SYS_ID_MULTI_DOUBLET_NUM_COMBINATIONS not defined"
+#endif
+#ifndef SYS_ID_MULTI_DOUBLET_COMBINATIONS
+#error "SYS_ID_MULTI_DOUBLET_COMBINATIONS not defined"
+#endif
+static const int8_t multi_doublet_combinations[SYS_ID_MULTI_DOUBLET_NUM_COMBINATIONS][SYS_ID_DOUBLET_NB_AXES] = SYS_ID_MULTI_DOUBLET_COMBINATIONS;
+#define SYS_ID_MAX_AXIS SYS_ID_MULTI_DOUBLET_NUM_COMBINATIONS
+#else
+#define SYS_ID_MAX_AXIS SYS_ID_DOUBLET_NB_AXES
+#endif
+
 static pprz_t current_doublet_values[SYS_ID_DOUBLET_NB_AXES];
 
 static void set_current_doublet_values(void)
 {
     if (doublet_active) {
+#if SYS_ID_MULTI_DOUBLET
+        for (uint8_t i = 0; i < SYS_ID_DOUBLET_NB_AXES; i++) {
+            if (multi_doublet_combinations[doublet_axis][i] == 1) {
+                current_doublet_values[i] = (int32_t)(doublet_amplitude * doublet.current_value);
+            } else {
+                current_doublet_values[i] = 0;
+            }
+        }
+#else
         current_doublet_values[doublet_axis] = (int32_t)(doublet_amplitude * doublet.current_value);
-        
+#endif
     } else {
         for (uint8_t i = 0; i < SYS_ID_DOUBLET_NB_AXES; i++) {
             current_doublet_values[i] = 0;
@@ -128,7 +154,7 @@ void sys_id_doublet_activate_handler(uint8_t activate)
 
 void sys_id_doublet_axis_handler(uint8_t axis)
 {
-    if (axis < SYS_ID_DOUBLET_NB_AXES) {
+    if (axis < SYS_ID_MAX_AXIS) {
         doublet_axis = axis;
     }
 }

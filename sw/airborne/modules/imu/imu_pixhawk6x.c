@@ -20,8 +20,8 @@
  */
 
 /**
- * @file modules/imu/imu_cube.c
- * Driver for the IMU's in the Cube autopilots.
+ * @file modules/imu/imu_pixhawk6x.c
+ * Driver for the IMU's in the Pixhawk6x autopilots.
  */
 
 #include "generated/modules.h"
@@ -30,11 +30,18 @@
 #include "mcu_periph/spi.h"
 #include "peripherals/invensense2.h"
 #include "peripherals/invensense3.h"
+#include "peripherals/invensense3_456.h"
 
-
+/* Different IMU's for different revisions */
+#if IMU_PIXHAWK6X_REV == 8
+static struct invensense3_456_t imu1;
+static struct invensense3_456_t imu2;
+static struct invensense3_456_t imu3;
+#else
 static struct invensense3_t imu1;
 static struct invensense3_t imu2;
 static struct invensense2_t imu3;
+#endif
 
 void imu_pixhawk6x_init(void)
 {
@@ -42,6 +49,23 @@ void imu_pixhawk6x_init(void)
   struct Int32Eulers eulers;
 
   /* IMU 1 */
+#if IMU_PIXHAWK6X_REV == 8
+  // ICM45686
+  imu1.abi_id = IMU_PIXHAWK1_ID;
+  imu1.spi.p = &PIXHAWK6X_IMU1_SPI_DEV;
+  imu1.spi.slave_idx = PIXHAWK6X_IMU1_SPI_SLAVE_IDX;
+  imu1.imu_odr = INVENSENSE3_456_ODR_6_4KHZ;
+  invensense3_456_init(&imu1);
+
+  // Rotation 90 yaw
+  eulers.phi = ANGLE_BFP_OF_REAL(0);
+  eulers.theta = ANGLE_BFP_OF_REAL(0);
+  eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(90));
+  int32_rmat_of_eulers(&rmat, &eulers);
+  imu_set_defaults_gyro(IMU_PIXHAWK1_ID, &rmat, NULL, NULL);
+  imu_set_defaults_accel(IMU_PIXHAWK1_ID, &rmat, NULL, NULL);
+#else
+  // ICM42670
   imu1.abi_id = IMU_PIXHAWK1_ID;
   imu1.parser = INVENSENSE3_PARSER_FIFO;
   imu1.bus = INVENSENSE3_SPI;
@@ -54,18 +78,35 @@ void imu_pixhawk6x_init(void)
   imu1.accel_range = INVENSENSE3_ACCEL_RANGE_32G;
   imu1.gyro_aaf = 977; // ~ODR/4
   imu1.accel_aaf = 213; // Fixed
-  
   invensense3_init(&imu1);
 
-  // Rotation
+  // Rotation 90 yaw
   eulers.phi = ANGLE_BFP_OF_REAL(0);
   eulers.theta = ANGLE_BFP_OF_REAL(0);
   eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(90));
   int32_rmat_of_eulers(&rmat, &eulers);
   imu_set_defaults_gyro(IMU_PIXHAWK1_ID, &rmat, NULL, NULL);
   imu_set_defaults_accel(IMU_PIXHAWK1_ID, &rmat, NULL, NULL);
+#endif
 
   /* IMU 2 */
+#if IMU_PIXHAWK6X_REV == 8
+  // ICM45686
+  imu2.abi_id = IMU_PIXHAWK2_ID;
+  imu2.spi.p = &PIXHAWK6X_IMU2_SPI_DEV;
+  imu2.spi.slave_idx = PIXHAWK6X_IMU2_SPI_SLAVE_IDX;
+  imu2.imu_odr = INVENSENSE3_456_ODR_6_4KHZ;
+  invensense3_456_init(&imu2);
+
+  // Rotation 180 roll
+  eulers.phi = ANGLE_BFP_OF_REAL(RadOfDeg(180));
+  eulers.theta = ANGLE_BFP_OF_REAL(0);
+  eulers.psi = ANGLE_BFP_OF_REAL(0);
+  int32_rmat_of_eulers(&rmat, &eulers);
+  imu_set_defaults_gyro(IMU_PIXHAWK2_ID, &rmat, NULL, NULL);
+  imu_set_defaults_accel(IMU_PIXHAWK2_ID, &rmat, NULL, NULL);
+#else
+  // ICM42670
   imu2.abi_id = IMU_PIXHAWK2_ID;
   imu2.parser = INVENSENSE3_PARSER_FIFO;
   imu2.bus = INVENSENSE3_SPI;
@@ -78,18 +119,35 @@ void imu_pixhawk6x_init(void)
   imu2.accel_range = INVENSENSE3_ACCEL_RANGE_32G;
   imu2.gyro_aaf = 977; // ~ODR/4
   imu2.accel_aaf = 213; // Fixed
-  
   invensense3_init(&imu2);
 
-  // Rotation
+  // Rotation 180 pitch and 90 yaw
   eulers.phi = ANGLE_BFP_OF_REAL(0);
   eulers.theta = ANGLE_BFP_OF_REAL(RadOfDeg(180));
   eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(90));
   int32_rmat_of_eulers(&rmat, &eulers);
   imu_set_defaults_gyro(IMU_PIXHAWK2_ID, &rmat, NULL, NULL);
   imu_set_defaults_accel(IMU_PIXHAWK2_ID, &rmat, NULL, NULL);
+#endif
 
   /* IMU 3 */
+#if IMU_PIXHAWK6X_REV == 8
+  // ICM45686
+  imu3.abi_id = IMU_PIXHAWK3_ID;
+  imu3.spi.p = &PIXHAWK6X_IMU3_SPI_DEV;
+  imu3.spi.slave_idx = PIXHAWK6X_IMU3_SPI_SLAVE_IDX;
+  imu3.imu_odr = INVENSENSE3_456_ODR_6_4KHZ;
+  invensense3_456_init(&imu3);
+
+  // Rotation 180 roll
+  eulers.phi = ANGLE_BFP_OF_REAL(RadOfDeg(180));
+  eulers.theta = ANGLE_BFP_OF_REAL(0);
+  eulers.psi = ANGLE_BFP_OF_REAL(0);
+  int32_rmat_of_eulers(&rmat, &eulers);
+  imu_set_defaults_gyro(IMU_PIXHAWK3_ID, &rmat, NULL, NULL);
+  imu_set_defaults_accel(IMU_PIXHAWK3_ID, &rmat, NULL, NULL);
+#else
+  // ICM42670
   imu3.abi_id = IMU_PIXHAWK3_ID;
   imu3.bus = INVENSENSE2_SPI;
   imu3.spi.p = &PIXHAWK6X_IMU3_SPI_DEV;
@@ -99,26 +157,39 @@ void imu_pixhawk6x_init(void)
   imu3.accel_dlpf = INVENSENSE2_ACCEL_DLPF_265HZ;
   imu3.accel_range = INVENSENSE2_ACCEL_RANGE_30G;
   invensense2_init(&imu3);
-  
-  // Rotation
-  eulers.phi = ANGLE_BFP_OF_REAL(0),
+
+  //Rotation 180 yaw
+  eulers.phi = ANGLE_BFP_OF_REAL(0);
   eulers.theta = ANGLE_BFP_OF_REAL(0);
   eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(180));
   int32_rmat_of_eulers(&rmat, &eulers);
   imu_set_defaults_gyro(IMU_PIXHAWK3_ID, &rmat, NULL, NULL);
   imu_set_defaults_accel(IMU_PIXHAWK3_ID, &rmat, NULL, NULL);
+#endif
 }
 
 void imu_pixhawk6x_periodic(void)
 {
+#if IMU_PIXHAWK6X_REV == 8
+  invensense3_456_periodic(&imu1);
+  invensense3_456_periodic(&imu2);
+  invensense3_456_periodic(&imu3);
+#else
   invensense3_periodic(&imu1);
   invensense3_periodic(&imu2);
   invensense2_periodic(&imu3);
+#endif
 }
 
 void imu_pixhawk6x_event(void)
 {
+#if IMU_PIXHAWK6X_REV == 8
+  invensense3_456_event(&imu1);
+  invensense3_456_event(&imu2);
+  invensense3_456_event(&imu3);
+#else
   invensense3_event(&imu1);
   invensense3_event(&imu2);
   invensense2_event(&imu3);
+#endif
 }

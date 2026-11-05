@@ -51,7 +51,7 @@
 
         <!-- Ground detect -->
         <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"      value="0.24"/>
-        <define name="USE_GROUND_DETECT_AGL_DIST"       value="TRUE"/>
+        <define name="GROUND_DETECT_USE_AGL_DIST"       value="TRUE"/>
 
         <!-- AGL distance -->
         <define name="AGL_DIST_FILTER"                  value="0.07"/>
@@ -61,6 +61,13 @@
 
         <!-- SD logger -->
         <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
+
+        <!-- Flight plan defines -->
+        <define name="FLARE_HEIGHT"                         value="12"/>
+        <define name="HYBRID_HEIGHT"                        value="20"/>
+        <define name="TRANSITION_HEIGHT"                    value="40"/>
+        <define name="LIFTOFF_PITCH_LIMIT_DEG"              value="5"/>
+        <define name="LIFTOFF_ROLL_LIMIT_DEG"               value="5"/>
     </section>
 
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">

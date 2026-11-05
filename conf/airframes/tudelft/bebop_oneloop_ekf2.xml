@@ -34,8 +34,6 @@
     <module name="nav_hybrid"/>
 
     <module name="oneloop" type="andi">
-      <configure name="ANDI_NUM_ACT"          value="4"/>
-      <configure name="ANDI_NUM_VIRTUAL_ACT"  value="2"/>
       <configure name="ANDI_OUTPUTS"          value="6"/>
     </module>
 
@@ -53,10 +51,17 @@
   </firmware>
 
   <commands>
-    <axis name="PITCH"  failsafe_value="0"/>
-    <axis name="ROLL"   failsafe_value="0"/>
-    <axis name="YAW"    failsafe_value="0"/>
-    <axis name="THRUST" failsafe_value="4000"/>
+    <!-- Real actuators, same order as the servos (the controller uses the FRONT/RIGHT/BACK/LEFT names) -->
+    <axis name="MOTOR_FRONT"  group="REAL"    failsafe_value="0"/> <!-- top left -->
+    <axis name="MOTOR_RIGHT"  group="REAL"    failsafe_value="0"/> <!-- top right -->
+    <axis name="MOTOR_BACK"   group="REAL"    failsafe_value="0"/> <!-- bottom right -->
+    <axis name="MOTOR_LEFT"   group="REAL"    failsafe_value="0"/> <!-- bottom left -->
+    <!-- Virtual actuators -->
+    <axis name="ROLL"         group="VIRTUAL" failsafe_value="0"/>
+    <axis name="PITCH"        group="VIRTUAL" failsafe_value="0"/>
+    <!-- Legacy commands -->
+    <axis name="YAW"          group="OTHER"   failsafe_value="0"/>
+    <axis name="THRUST"       group="OTHER"   failsafe_value="4000"/>
   </commands>
 
   <servos driver="Default">
@@ -68,10 +73,10 @@
 
   <command_laws>
     <let VAR="th_hold" value="!autopilot_get_motors_on()"/>
-    <set value="($th_hold? -9600 : actuators_pprz[0])" SERVO="TOP_LEFT"/>
-    <set value="($th_hold? -9600 : actuators_pprz[1])" SERVO="TOP_RIGHT"/>
-    <set value="($th_hold? -9600 : actuators_pprz[2])" SERVO="BOTTOM_RIGHT"/>
-    <set value="($th_hold? -9600 : actuators_pprz[3])" SERVO="BOTTOM_LEFT"/>
+    <set value="($th_hold? -9600 : commands[COMMAND_MOTOR_FRONT])" SERVO="TOP_LEFT"/>
+    <set value="($th_hold? -9600 : commands[COMMAND_MOTOR_RIGHT])" SERVO="TOP_RIGHT"/>
+    <set value="($th_hold? -9600 : commands[COMMAND_MOTOR_BACK])"  SERVO="BOTTOM_RIGHT"/>
+    <set value="($th_hold? -9600 : commands[COMMAND_MOTOR_LEFT])"  SERVO="BOTTOM_LEFT"/>
   </command_laws>
 
   <section name="MISC">
@@ -105,6 +110,11 @@
   </section>
 
   <section PREFIX="ONELOOP_ANDI_" name="ONELOOP_ANDI">
+    <!-- Plain quadrotor: no rotating wing modules, constant effectiveness from the G1 rows below -->
+    <define name  = "SIMPLE_QUAD"             value = "TRUE"/>
+    <define name  = "CONSTANT_EFFECTIVENESS"  value = "TRUE"/>
+    <!-- Heading from the psi_des setting (no coordinated turns, the bebop has no airspeed) -->
+    <define name  = "HEADING_MANUAL"          value = "TRUE"/>
     <define name  = "G1_ROLL"                 value = "{20.0f , -20.0f, -20.0f, 20.0f , 0.0f, 0.0f  }"/>
     <define name  = "G1_PITCH"                value = "{10.0f , 10.0f , -10.0f, -10.0f, 0.0f, 0.0f  }"/>  
     <define name  = "G1_YAW"                  value = "{-1.0f , 1.0f  , -1.0f , 1.0f  , 0.0f, 0.0f  }"/>
@@ -142,10 +152,10 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"   value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
-    <define name="JSBSIM_MODEL"     value="bebop" type="string"/>
+    <define name="JSBSIM_MODEL"     value="bebop_oneloop" type="string"/>
     <define name="COMMANDS_NB"      value="4"/>
     <define name="NO_MOTOR_MIXING"  value="TRUE"/>
+    <define name="USE_COMMANDS"     value="TRUE"/>
   </section>
 
   <section name="AUTOPILOT">

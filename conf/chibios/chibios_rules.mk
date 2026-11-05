@@ -24,7 +24,7 @@ endif
 
 # Link time optimizations
 ifeq ($(USE_LTO),yes)
-  OPT += -flto
+  OPT += -flto=auto
 endif
 
 # FPU options default (Cortex-M4 and Cortex-M7 single precision).

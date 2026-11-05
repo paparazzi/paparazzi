@@ -77,7 +77,7 @@ void aoa_adc_update(void)
 {
   static float prev_aoa = 0.0;
 
-  aoa_adc.raw = aoa_adc.buf.sum / aoa_adc.buf.av_nb_sample;
+  aoa_adc.raw = adc_buf_get(&aoa_adc.buf);
 
   // PT1 filter and convert to rad
   aoa_adc.angle = aoa_adc.filter * prev_aoa +

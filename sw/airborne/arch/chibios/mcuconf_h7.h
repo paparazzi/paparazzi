@@ -282,7 +282,9 @@
 #define STM32_ADC_USE_ADC12                 TRUE
 #define STM32_ADC_USE_ADC3                  TRUE
 #define STM32_ADC_ADC12_DMA_STREAM          STM32_DMA_STREAM_ID_ANY
-#define STM32_ADC_ADC3_BDMA_STREAM          7
+#define STM32_ADC_ADC3_DMA_STREAM           STM32_DMA_STREAM_ID_ANY
+#define STM32_ADC_ADC3_USE_BDMA             TRUE
+#define STM32_ADC_ADC3_BDMA_STREAM          STM32_BDMA_STREAM_ID_ANY
 #define STM32_ADC_ADC12_DMA_PRIORITY        2
 #define STM32_ADC_ADC3_DMA_PRIORITY         2
 #define STM32_ADC_ADC12_IRQ_PRIORITY        5
@@ -408,40 +410,54 @@
 /*
  * PWM driver system settings.
  */
+#ifndef STM32_PWM_USE_TIM1
 #if USE_PWM_TIM1 || USE_DSHOT_TIM1
 #define STM32_PWM_USE_TIM1                  TRUE
 #else
 #define STM32_PWM_USE_TIM1                  FALSE
 #endif
+#endif
+#ifndef STM32_PWM_USE_TIM2
 #if USE_PWM_TIM2 || USE_DSHOT_TIM2
 #define STM32_PWM_USE_TIM2                  TRUE
 #else
 #define STM32_PWM_USE_TIM2                  FALSE
 #endif
+#endif
+#ifndef STM32_PWM_USE_TIM3
 #if USE_PWM_TIM3 || USE_DSHOT_TIM3
 #define STM32_PWM_USE_TIM3                  TRUE
 #else
 #define STM32_PWM_USE_TIM3                  FALSE
 #endif
+#endif
+#ifndef STM32_PWM_USE_TIM4
 #if USE_PWM_TIM4 || USE_DSHOT_TIM4
 #define STM32_PWM_USE_TIM4                  TRUE
 #else
 #define STM32_PWM_USE_TIM4                  FALSE
 #endif
+#endif
+#ifndef STM32_PWM_USE_TIM5
 #if USE_PWM_TIM5 || USE_DSHOT_TIM5
 #define STM32_PWM_USE_TIM5                  TRUE
 #else
 #define STM32_PWM_USE_TIM5                  FALSE
 #endif
+#endif
+#ifndef STM32_PWM_USE_TIM8
 #if USE_PWM_TIM8 || USE_DSHOT_TIM8
 #define STM32_PWM_USE_TIM8                  TRUE
 #else
 #define STM32_PWM_USE_TIM8                  FALSE
 #endif
+#endif
+#ifndef STM32_PWM_USE_TIM12
 #if USE_PWM_TIM12 || USE_DSHOT_TIM12
 #define STM32_PWM_USE_TIM12                 TRUE
 #else
 #define STM32_PWM_USE_TIM12                 FALSE
+#endif
 #endif
 #define STM32_PWM_USE_TIM13                 FALSE
 #define STM32_PWM_USE_TIM14                 FALSE

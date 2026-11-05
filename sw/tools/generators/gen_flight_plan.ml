@@ -168,21 +168,21 @@ let print_waypoint_enu = fun out ref0 default_alt waypoint ->
 
 let convert_angle = fun rad -> Int64.of_float (1e7 *. (Rad>>Deg)rad)
 
-let print_waypoint_lla = fun out ref0 default_alt waypoint ->
+let print_waypoint_lla = fun out ?(use_egm96=false) ref0 default_alt waypoint ->
   let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
   and alt = try sof (float_attrib waypoint "height" +. !ground_alt) with _ -> default_alt in
   let alt = try Xml.attrib waypoint "alt" with _ -> alt in
   let wgs84 = wgs84_of_x_y ref0 x y alt in
-  fprintf out " {.lat=%Ld, .lon=%Ld, .alt=%.0f}, /* 1e7deg, 1e7deg, mm (above NAV_MSL0, local msl=%.2fm) */ \\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (1000. *. float_of_string alt) (Egm96.of_wgs84 wgs84)
+  fprintf out " {.lat=%Ld, .lon=%Ld, .alt=%.0f}, /* 1e7deg, 1e7deg, mm (above NAV_MSL0, local msl=%.2fm) */ \\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (1000. *. float_of_string alt) (if use_egm96 then Egm96.of_wgs84 wgs84 else Latlong.wgs84_hmsl wgs84)
 
-let print_waypoint_lla_wgs84 = fun out ref0 default_alt waypoint ->
+let print_waypoint_lla_wgs84 = fun out ?(use_egm96=false) ref0 default_alt waypoint ->
   let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
   and alt = try sof (float_attrib waypoint "height" +. !ground_alt) with _ -> default_alt in
   let alt = try Xml.attrib waypoint "alt" with _ -> alt in
   let wgs84 = wgs84_of_x_y ref0 x y alt in
   if Srtm.available wgs84 then
     check_altitude_srtm (float_of_string alt) waypoint wgs84;
-  let alt = float_of_string alt +. Egm96.of_wgs84 wgs84 in
+  let alt = float_of_string alt +. (if use_egm96 then Egm96.of_wgs84 wgs84 else Latlong.wgs84_hmsl wgs84) in
   fprintf out " {.lat=%Ld, .lon=%Ld, .alt=%.0f}, /* 1e7deg, 1e7deg, mm (above WGS84 ref ellipsoid) */ \\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (1000. *. alt)
 
 let print_waypoint_global = fun out waypoint ->
@@ -961,7 +961,7 @@ let print_enter_exit_functions = fun out blocks ->
 (**
  * Print flight plan header
  *)
-let print_flight_plan_h = fun xml ref0 xml_file out_file ->
+let print_flight_plan_h = fun xml ?(use_egm96=false) ref0 xml_file out_file ->
   let out = open_out out_file in
 
   let waypoints = Xml.children (ExtXml.child xml "waypoints")
@@ -1032,7 +1032,7 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
   Xml2h.define_out out "NAV_LAT0" (sprintf "%Ld /* 1e7deg */" (convert_angle !fp_wgs84.posn_lat));
   Xml2h.define_out out "NAV_LON0" (sprintf "%Ld /* 1e7deg */" (convert_angle !fp_wgs84.posn_long));
   Xml2h.define_out out "NAV_ALT0" (sprintf "%.0f /* mm above msl */" (1000. *. !ground_alt));
-  Xml2h.define_out out "NAV_MSL0" (sprintf "%.0f /* mm, EGM96 geoid-height (msl) over ellipsoid */" (1000. *. Egm96.of_wgs84 !fp_wgs84));
+  Xml2h.define_out out "NAV_MSL0" (sprintf "%.0f /* mm, EGM96 geoid-height (msl) over ellipsoid */" (1000. *. (if use_egm96 then Egm96.of_wgs84 !fp_wgs84 else Latlong.wgs84_hmsl !fp_wgs84)));
 
   Xml2h.define_out out "QFU" (sprintf "%.1f" qfu);
 
@@ -1199,7 +1199,7 @@ let reinit = fun () ->
   margin := 0;
   stage := 0
 
-let generate = fun flight_plan ?(check=false) ?(dump=false) xml_file out_fp ->
+let generate = fun flight_plan ?(check=false) ?(dump=false) ?(use_egm96=false) xml_file out_fp ->
 
   reinit ();
   let xml = flight_plan.Flight_plan.xml in
@@ -1244,5 +1244,5 @@ let generate = fun flight_plan ?(check=false) ?(dump=false) xml_file out_fp ->
   let xml = ExtXml.subst_child "waypoints" (element "waypoints" [] waypoints) xml in
 
   if dump then dump_fligh_plan xml out_fp
-  else print_flight_plan_h xml ref0 xml_file out_fp
+  else print_flight_plan_h ~use_egm96 xml ref0 xml_file out_fp
 

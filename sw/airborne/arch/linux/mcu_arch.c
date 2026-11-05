@@ -28,6 +28,97 @@
  */
 
 #include "mcu_arch.h"
+#include "mcu.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <dirent.h>
+
+/** Optional file with a unique board serial number (read as text) */
+#ifndef LINUX_UID_FILE
+#define LINUX_UID_FILE ""
+#endif
+
+/**
+ * Read the first line of a text file as unique ID
+ */
+static uint8_t uid_from_file(const char *path, uint8_t *uid, uint8_t max_len)
+{
+  char line[64];
+  if (path[0] == '\0') {
+    return 0;
+  }
+  FILE *f = fopen(path, "r");
+  if (f == NULL) {
+    return 0;
+  }
+  uint8_t len = 0;
+  if (fgets(line, sizeof(line), f) != NULL) {
+    line[strcspn(line, "\r\n")] = '\0';
+    len = Min(strlen(line), max_len);
+    memcpy(uid, line, len);
+  }
+  fclose(f);
+  return len;
+}
+
+/**
+ * Get the MAC address of the first network interface (by name), skipping loopback
+ */
+static uint8_t uid_from_mac(uint8_t *uid, uint8_t max_len)
+{
+  DIR *dir = opendir("/sys/class/net");
+  if (dir == NULL) {
+    return 0;
+  }
+  char best_name[64] = "";
+  uint8_t best_mac[6];
+  struct dirent *ent;
+  while ((ent = readdir(dir)) != NULL) {
+    char path[300];
+    unsigned int m[6];
+    if (ent->d_name[0] == '.' || strcmp(ent->d_name, "lo") == 0 ||
+        strlen(ent->d_name) >= sizeof(best_name) ||
+        (best_name[0] != '\0' && strcmp(ent->d_name, best_name) >= 0)) {
+      continue;
+    }
+    snprintf(path, sizeof(path), "/sys/class/net/%s/address", ent->d_name);
+    FILE *f = fopen(path, "r");
+    if (f == NULL) {
+      continue;
+    }
+    int n = fscanf(f, "%x:%x:%x:%x:%x:%x", &m[0], &m[1], &m[2], &m[3], &m[4], &m[5]);
+    fclose(f);
+    if (n != 6 || (m[0] | m[1] | m[2] | m[3] | m[4] | m[5]) == 0) {
+      continue;
+    }
+    strcpy(best_name, ent->d_name);
+    for (int i = 0; i < 6; i++) {
+      best_mac[i] = m[i];
+    }
+  }
+  closedir(dir);
+  if (best_name[0] == '\0') {
+    return 0;
+  }
+  uint8_t len = Min(6, max_len);
+  memcpy(uid, best_mac, len);
+  return len;
+}
+
+/**
+ * Get a unique hardware ID of the board.
+ * Uses the serial number from LINUX_UID_FILE if set and readable,
+ * otherwise the MAC address of the first network interface.
+ */
+uint8_t mcu_get_uid(uint8_t *uid, uint8_t max_len)
+{
+  uint8_t len = uid_from_file(LINUX_UID_FILE, uid, max_len);
+  if (len == 0) {
+    len = uid_from_mac(uid, max_len);
+  }
+  return len;
+}
 
 #if USE_LINUX_SIGNAL
 #include "message_pragmas.h"

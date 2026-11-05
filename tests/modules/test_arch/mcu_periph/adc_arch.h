@@ -31,4 +31,11 @@
 #define AdcBank1(x) x
 #define AdcBank0(x) x
 
+#define ADC_1 1
+#define ADC_2 2
+#define ADC_3 3
+#define ADC_4 4
+#define ADC_5 5
+#define ADC_6 6
+
 #endif /* ADC_ARCH_H */

@@ -36,8 +36,7 @@
 
 static void cmd_mem(BaseSequentialStream *lchp, int argc, const char *const argv[])
 {
-  size_t n, total, largest;
-  memory_area_t area;
+  size_t n, total, largest, core_free;
 
   (void)argv;
   if (argc > 0) {
@@ -45,8 +44,8 @@ static void cmd_mem(BaseSequentialStream *lchp, int argc, const char *const argv
     return;
   }
   n = chHeapStatus(NULL, &total, &largest);
-  chCoreGetStatusX(&area);
-  chprintf(lchp, "core free memory : %u bytes\r\n", area.size);
+  core_free = chCoreGetStatusX();
+  chprintf(lchp, "core free memory : %u bytes\r\n", core_free);
   chprintf(lchp, "heap fragments   : %u\r\n", n);
   chprintf(lchp, "heap free total  : %u bytes\r\n", total);
   chprintf(lchp, "heap free largest: %u bytes\r\n", largest);
@@ -108,4 +107,3 @@ void shell_init_arch(void)
     chSysHalt("fail starting shell");
   }
 }
-

@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from PyQt5.QtCore import QProcess
 from PyQt5.QtGui import QIcon
-import utils
+import utils,shlex
 from typing import List
 from enum import Enum
 
@@ -41,6 +41,8 @@ class ProgramWidget(QWidget, Ui_Program):
         self.process.finished.connect(self.handle_finished)
         self.process.started.connect(self.handle_started)
         self.process.errorOccurred.connect(self.handle_error)
+        if icon is None:
+            icon = "default_tool_icon.svg"
         i = QIcon(os.path.join(utils.PAPARAZZI_HOME, "data", "pictures", "tools_icons", icon))
         self.icon_label.setPixmap(i.pixmap(20, 20))
         self.icon_label.setToolTip(shortname)
@@ -53,14 +55,14 @@ class ProgramWidget(QWidget, Ui_Program):
 
     def handle_cmd_return(self):
         if self.process.state() == QProcess.NotRunning:
-            self.cmd = self.program_lineedit.text().split(" ")
+            self.cmd = shlex.split(self.program_lineedit.text())
             self.start_program()
         elif self.process.state() == QProcess.Running:
             self.terminate()
 
     def handle_run(self):
         if self.process.state() == QProcess.NotRunning:
-            self.cmd = self.program_lineedit.text().split(" ")
+            self.cmd = shlex.split(self.program_lineedit.text())
             self.start_program()
         elif self.process.state() == QProcess.Running:
             self.process.terminate()
