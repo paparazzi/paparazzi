@@ -259,7 +259,6 @@
         <define name="STABILIZATION_ATTITUDE_SP_MAX_PHI"    value="45." unit="deg"  /> 
         <define name="STABILIZATION_ATTITUDE_SP_MAX_THETA"  value="45." unit="deg"  />
         <define name="STABILIZATION_ATTITUDE_SP_MAX_R"      value="90." unit="deg/s"/>
-        <define name="STABILIZATION_ATTITUDE_DEADBAND_R"    value="200"             />
         <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/> <!-- cyfoam 0.32-->
         <!-- <define name="THRESHOLD_GROUND_DETECT"              value="40"/> -->
         <define name="ROTWING_STATE_USE_ROTATION_REF_MODEL" value="TRUE"/>
