@@ -51,7 +51,7 @@ static inline void main_init(void)
 {
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
-  ActuatorsPwmInit();
+  actuators_pwm_arch_init();
 }
 
 static inline void main_periodic(void)
@@ -60,9 +60,9 @@ static inline void main_periodic(void)
   foo += 0.0025;
   int32_t bar = 1500 + 500. * sin(foo);
   for (int i = 0; i < ACTUATORS_PWM_NB; i++) {
-    ActuatorPwmSet(i, bar);
+    actuators_pwm_set(i, bar);
   }
-  ActuatorsPwmCommit();
+  actuators_pwm_arch_commit();
 
   LED_PERIODIC();
 }

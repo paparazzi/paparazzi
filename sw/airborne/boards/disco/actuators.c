@@ -86,6 +86,7 @@ static uint8_t disco_channels[] = { 4, 5, 6, 1, 2, 3 };
 #define DISCO_BLDC_START_MOTOR_THRESHOLD 1100
 
 struct ActuatorsDisco actuators_disco;
+static uint16_t pwm_values[ACTUATORS_DISCO_PWM_NB];
 static uint8_t actuators_disco_checksum(uint8_t *bytes, uint8_t size);
 
 void actuators_disco_init(void)
@@ -96,6 +97,7 @@ void actuators_disco_init(void)
   actuators_disco.motor_rpm = 0;
   int i = 0;
   for (i = 0; i < ACTUATORS_DISCO_PWM_NB; i++) {
+    pwm_values[i] = 0;
     pwm_sysfs_init(&actuators_disco.pwm[i], "/sys/class/pwm", "export", "run", "duty_ns", "period_ns", disco_channels[i]);
   }
 }
@@ -107,15 +109,16 @@ void actuators_disco_set(uint8_t idx, int16_t val)
   } else if (idx > ACTUATORS_DISCO_PWM_NB) {
     // wrong index, do nothing
   } else {
-    // val is a PWM value in ms, convert to ns
-    pwm_sysfs_set_duty(&actuators_disco.pwm[idx-1], (uint16_t)val * 1000);
+    pwm_values[idx - 1] = (uint16_t)val;
   }
 }
 
 void actuators_disco_commit(void)
 {
-  // Handle PWM outputs
-  // already done in set function (FIXME ?)
+  for (uint8_t i = 0; i < ACTUATORS_DISCO_PWM_NB; i++) {
+    // PWM values are in microseconds; sysfs expects nanoseconds.
+    pwm_sysfs_set_duty(&actuators_disco.pwm[i], (uint32_t)pwm_values[i] * 1000);
+  }
 
   // Handle motor speed controller
 
