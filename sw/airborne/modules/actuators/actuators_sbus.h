@@ -27,6 +27,8 @@
 #ifndef ACTUATORS_SBUS_H
 #define ACTUATORS_SBUS_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "std.h"
 
 /* Maximum amount of sbus actuator channels */
@@ -45,9 +47,15 @@ extern void actuators_sbus_commit(void);
 extern void actuators_sbus_set(uint8_t idx, int16_t value);
 
 /* Actuator macros */
-#define ActuatorSbusSet actuators_sbus_set
-#define ActuatorsSbusInit() actuators_sbus_init()
-#define ActuatorsSbusCommit() actuators_sbus_commit()
+static inline void actuators_sbus_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_sbus_set,
+    .commit = actuators_sbus_commit,
+  });
+  actuators_sbus_init();
+}
 
+#define ActuatorsSbusInit actuators_sbus_driver_init
 
 #endif /* ACTUATORS_SBUS_H */

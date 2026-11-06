@@ -26,6 +26,8 @@
 #ifndef ACTUATORS_ASCTEC_V2_H
 #define ACTUATORS_ASCTEC_V2_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "mcu_periph/i2c.h"
 
 #include "generated/airframe.h"
@@ -51,7 +53,6 @@ struct ActuatorsAsctecV2 {
   volatile uint32_t nb_err;
 };
 
-
 extern struct ActuatorsAsctecV2 actuators_asctec_v2;
 
 #define actuators_asctec_v2_SetCommand(_v) {       \
@@ -70,9 +71,15 @@ extern void actuators_asctec_v2_init(void);
 extern void actuators_asctec_v2_commit(void);
 extern void actuators_asctec_v2_set(uint8_t idx, int16_t value);
 
-#define ActuatorAsctec_v2Set actuators_asctec_v2_set
-#define ActuatorsAsctec_v2Init() actuators_asctec_v2_init()
-#define ActuatorsAsctec_v2Commit() actuators_asctec_v2_commit()
+static inline void actuators_asctec_v2_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_asctec_v2_set,
+    .commit = actuators_asctec_v2_commit,
+  });
+  actuators_asctec_v2_init();
+}
 
+#define ActuatorsAsctec_v2Init actuators_asctec_v2_driver_init
 
 #endif /* ACTUATORS_ASCTEC_H */
