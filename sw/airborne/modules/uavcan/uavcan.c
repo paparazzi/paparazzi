@@ -78,20 +78,38 @@ struct uavcan_iface_t uavcan2 = {
 #endif
 
 
+/**
+ * Called in the CAN receive thread: only queue the frame. The transfers and the callbacks of the
+ * modules (which send ABI messages) are handled in the main thread by uavcan_rx_event().
+ */
 static void can_frame_cb(struct pprzcan_frame* rx_msg, UNUSED struct pprzaddr_can* src_addr, void* user_data) {
   struct uavcan_iface_t *iface = (struct uavcan_iface_t *)user_data;
 
-  CanardCANFrame rx_frame = {0};
-  memcpy(rx_frame.data, rx_msg->data, 8);
-  rx_frame.data_len = rx_msg->len;
+  struct uavcan_rx_frame rx = {0};
+  memcpy(rx.frame.data, rx_msg->data, 8);
+  rx.frame.data_len = rx_msg->len;
   if (rx_msg->can_id & CAN_FRAME_EFF) {
-    rx_frame.id = CANARD_CAN_FRAME_EFF | (rx_msg->can_id & CAN_EID_MASK);
+    rx.frame.id = CANARD_CAN_FRAME_EFF | (rx_msg->can_id & CAN_EID_MASK);
   } else {
-    rx_frame.id = rx_msg->can_id & CAN_SID_MASK;
+    rx.frame.id = rx_msg->can_id & CAN_SID_MASK;
   }
+  rx.timestamp = rx_msg->timestamp;
 
-  // Let canard handle the frame
-  canardHandleRxFrame(&iface->canard, &rx_frame, rx_msg->timestamp);
+  if (framed_ring_buffer_put(&iface->rx_queue, (const uint8_t *)&rx, sizeof(rx)) < 0) {
+    iface->rx_overflows++;
+  }
+}
+
+/** Let canard handle the queued frames of an interface, in the main thread */
+static void uavcan_handle_rx(struct uavcan_iface_t *iface)
+{
+  if (!iface->initialized) {
+    return;
+  }
+  struct uavcan_rx_frame rx;
+  while (framed_ring_buffer_get(&iface->rx_queue, (uint8_t *)&rx, sizeof(rx)) == sizeof(rx)) {
+    canardHandleRxFrame(&iface->canard, &rx.frame, rx.timestamp);
+  }
 }
 
 /*
@@ -212,11 +230,25 @@ static void uavcanInitIface(struct uavcan_iface_t *iface)
   canardSetLocalNodeID(&iface->canard, iface->node_id);
 
   // Start the receiver and transmitter thread
+  framed_ring_buffer_init(&iface->rx_queue, iface->rx_queue_buf, sizeof(iface->rx_queue_buf));
   can_register_callback(can_frame_cb, &iface->can_net, (void *)iface);
 
   if(!pprz_thread_create(&iface->thread_tx, 2048, "uavcan_tx", PPRZ_NORMAL_PRIO +7, uavcan_tx, (void *)iface)) {
     iface->initialized = true;
   }
+}
+
+/**
+ * Handle the received frames of all interfaces (main thread)
+ */
+void uavcan_rx_event(void)
+{
+#if UAVCAN_USE_CAN1
+  uavcan_handle_rx(&uavcan1);
+#endif
+#if UAVCAN_USE_CAN2
+  uavcan_handle_rx(&uavcan2);
+#endif
 }
 
 /**

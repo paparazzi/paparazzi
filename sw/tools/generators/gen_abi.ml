@@ -138,6 +138,7 @@ module Gen_onboard = struct
     print_args h msg.fields;
     Printf.fprintf h " {\n";
     Printf.fprintf h "  abi_event* e;\n";
+    Printf.fprintf h "  abi_check_thread(ABI_%s_ID);\n" name;
     Printf.fprintf h "  ABI_FOREACH(abi_queues[ABI_%s_ID],e) {\n" name;
     Printf.fprintf h "    if (e->id == ABI_BROADCAST || e->id == sender_id) {\n";
     Printf.fprintf h "      abi_callback%s cb = (abi_callback%s)(e->cb);\n" name name;
