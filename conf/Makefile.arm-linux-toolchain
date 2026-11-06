@@ -8,6 +8,12 @@
 #
 # If HARD_FLOAT is defined try to find armhf cross compiler, otherwise default to softfloat
 
+# A PREFIX set by the airframe (<configure name="PREFIX" .../>) is that exact compiler: it is never
+# replaced by another one. Only the default PREFIX may fall back to another installed compiler.
+ifeq ($(origin PREFIX),undefined)
+PREFIX_IS_DEFAULT = 1
+endif
+
 ifdef HARD_FLOAT
 PREFIX ?= arm-linux-gnueabihf-
 else
@@ -15,9 +21,10 @@ PREFIX ?= arm-linux-gnueabi-
 endif
 
 #
-# if gcc can't be found in path, try the codesourcery toolchain in /usr/local/codesourcery
+# if the default gcc can't be found in path, try the codesourcery toolchain in /usr/local/codesourcery
 #
 ifeq ($(shell which $(PREFIX)gcc),)
+ifdef PREFIX_IS_DEFAULT
 ifndef HARD_FLOAT
   TOOLCHAIN=$(shell find -L /usr/local/codesourcery -maxdepth 2 -type d -name arm-none-linux-gnueabi 2>/dev/null | head -n 1)
   ifneq ($(TOOLCHAIN),)
@@ -25,11 +32,14 @@ ifndef HARD_FLOAT
   endif
 endif
 endif
+endif
 
 # if toolchain could not be found, print some useful info
 ifeq ($(shell which $(PREFIX)gcc),)
   # no suitable toolchain found...
-  ifdef HARD_FLOAT
+  ifndef PREFIX_IS_DEFAULT
+    $(error Error: $(PREFIX)gcc cross-compiler not found! The airframe asks for this compiler with PREFIX, see sw/airborne/boards/bebop/README.md for the Bebop compilers)
+  else ifdef HARD_FLOAT
     $(error Error: arm-linux-gnueabihf-gcc cross-compiler not found! Please install the gcc-arm-linux-gnueabihf package.)
   else
     $(error Error: arm-linux-gnueabi-gcc cross-compiler not found! Please install the gcc-arm-linux-gnueabi package.)
