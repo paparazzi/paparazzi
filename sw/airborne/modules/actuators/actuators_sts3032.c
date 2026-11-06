@@ -24,6 +24,7 @@
  */
 
 #include "modules/actuators/actuators_sts3032.h"
+#include "modules/actuators/actuators.h"
 #include "modules/datalink/telemetry.h"
 #include "string.h"
 #include "mcu_periph/uart.h"
@@ -86,7 +87,7 @@ void sts3032_set_response_level(struct sts3032 *sts, uint8_t id, uint8_t level);
 void sts3032_set_id(struct sts3032 *sts, uint8_t id, uint8_t new_id);
 
 
-void actuators_sts3032_init(void)
+void actuators_sts3032_init(uint8_t driver_id __attribute__((unused)))
 {
   sts.periph = &(STS3032_DEV);
   sts.rx_state = STS3032_RX_IDLE;
@@ -97,6 +98,14 @@ void actuators_sts3032_init(void)
   static const uint8_t tmp_ids[SERVOS_STS3032_NB] = STS3032_IDS;
   memcpy(sts.ids, tmp_ids, sizeof(tmp_ids));
   memset(position_commands, 0, sizeof(position_commands));
+#if ACTUATORS_NB
+  // PPRZ zero maps to each configured servo's neutral position.
+  for (unsigned int i = 0; i < ACTUATORS_NB; i++) {
+    if (actuators[i].config.driver_no == driver_id) {
+      actuator_set(i, 0);
+    }
+  }
+#endif
 }
 
 void actuators_sts3032_event(void)
