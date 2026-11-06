@@ -13,6 +13,6 @@ matplotlib
 distro
 empy<=3.3.4
 pexpect
-setuptools
+setuptools==81.0.0
 dronecan
 
