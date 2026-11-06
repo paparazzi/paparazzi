@@ -709,11 +709,12 @@ static const struct ekf2_status_text ekf2_fault_texts[] = {
   {11, "accel clipping", NULL},
 };
 
-/** Information events (information_event_status_u) */
+/** Information events (information_event_status_u), NULL when the control status already reports it
+ *  (the fusion started events, reported as "... fusion on") */
 static const char *const ekf2_info_texts[] = {
   "GNSS checks passed", "vel reset to GNSS", "vel reset to flow", "vel reset to EV", "vel reset to zero",
-  "pos reset to last known", "pos reset to GNSS", "pos reset to EV", "GNSS fusion started",
-  "EV pos fusion started", "EV vel fusion started", "EV yaw fusion started", "yaw aligned to IMU/GNSS",
+  "pos reset to last known", "pos reset to GNSS", "pos reset to EV", NULL,
+  NULL, NULL, NULL, "yaw aligned to IMU/GNSS",
   "hgt reset to baro", "hgt reset to GNSS", "hgt reset to range", "hgt reset to EV",
   "pos reset to ext obs", "wind reset to ext obs",
 };
@@ -798,7 +799,7 @@ static void ins_ekf2_check_events(void)
   ekf.clear_information_events();
   for (uint8_t i = 0; i < EKF2_INFO_TEXTS_NB; i++) {
     float *time = &ekf2_events.info_time[i];
-    if ((info & (1UL << i)) && (*time <= 0.f || now - *time >= INS_EKF2_EVENT_HOLDOFF)) {
+    if ((info & (1UL << i)) && ekf2_info_texts[i] != NULL && (*time <= 0.f || now - *time >= INS_EKF2_EVENT_HOLDOFF)) {
       ekf2_event_add(ekf2_info_texts[i]);
       *time = now;
     }
