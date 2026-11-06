@@ -40,7 +40,7 @@ struct ActuatorsOstrich {
 extern struct ActuatorsOstrich actuators_ostrich;
 
 extern void actuators_ostrich_init(void);
-extern void actuators_ostrich_periodic(void);
+extern void actuators_ostrich_commit(void);
 extern void actuators_ostrich_set(uint8_t idx, int16_t value);
 
 /* Actuator macros */
@@ -48,7 +48,7 @@ static inline void actuators_ostrich_driver_init(uint8_t driver_id)
 {
   actuators_register_driver(driver_id, (struct actuator_driver) {
     .set = actuators_ostrich_set,
-    .commit = actuators_noop_commit,
+    .commit = actuators_ostrich_commit,
   });
   actuators_ostrich_init();
 }
