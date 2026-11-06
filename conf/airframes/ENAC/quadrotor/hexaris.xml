@@ -55,7 +55,7 @@
       <define name="HFF_R_GPS_SPEED" value="4.0"/>
       <define name="HFF_UPDATE_GPS_SPEED" value="FALSE"/>
     </module>
-    <!--define name="INS_EKF2_MAG_FUSION_MODE" value="MAG_FUSE_TYPE_NONE"/-->
+    <!--define name="INS_EKF2_MAG_TYPE" value="EKF2_MAG_TYPE_NONE"/-->
 
     <module name="stabilization" type="indi">
       <configure name="INDI_NUM_ACT" value="6" />
