@@ -8,6 +8,12 @@
 #
 # If HARD_FLOAT is defined try to find armhf cross compiler, otherwise default to softfloat
 
+# A PREFIX set by the airframe (<configure name="PREFIX" .../>) is that exact compiler: it is never
+# replaced by another one. Only the default PREFIX may fall back to another installed compiler.
+ifeq ($(origin PREFIX),undefined)
+PREFIX_IS_DEFAULT = 1
+endif
+
 ifdef HARD_FLOAT
 PREFIX ?= arm-linux-gnueabihf-
 else
@@ -15,9 +21,10 @@ PREFIX ?= arm-linux-gnueabi-
 endif
 
 #
-# if gcc can't be found in path, try the codesourcery toolchain in /usr/local/codesourcery
+# if the default gcc can't be found in path, try the codesourcery toolchain in /usr/local/codesourcery
 #
 ifeq ($(shell which $(PREFIX)gcc),)
+ifdef PREFIX_IS_DEFAULT
 ifndef HARD_FLOAT
   TOOLCHAIN=$(shell find -L /usr/local/codesourcery -maxdepth 2 -type d -name arm-none-linux-gnueabi 2>/dev/null | head -n 1)
   ifneq ($(TOOLCHAIN),)
@@ -25,26 +32,44 @@ ifndef HARD_FLOAT
   endif
 endif
 endif
+endif
+
+#
+# if the compiler is not installed, run the compiler commands in a docker image that has it
+# (docker/toolchains.txt), unless USE_DOCKER_TOOLCHAIN=0
+#
+USE_DOCKER_TOOLCHAIN ?= 1
+ifeq ($(shell which $(PREFIX)gcc),)
+ifneq ($(USE_DOCKER_TOOLCHAIN),0)
+  TOOLCHAIN_IMAGE := $(shell $(PAPARAZZI_SRC)/docker/toolchain_image.sh $(PREFIX))
+  ifneq ($(TOOLCHAIN_IMAGE),)
+    $(info Cross-compiler $(PREFIX)gcc not installed: compiling in the docker image $(TOOLCHAIN_IMAGE))
+    TOOLCHAIN_RUN = $(PAPARAZZI_SRC)/docker/toolchain_run.sh $(TOOLCHAIN_IMAGE)
+  endif
+endif
+endif
 
 # if toolchain could not be found, print some useful info
-ifeq ($(shell which $(PREFIX)gcc),)
+ifeq ($(TOOLCHAIN_RUN)$(shell which $(PREFIX)gcc),)
   # no suitable toolchain found...
-  ifdef HARD_FLOAT
+  ifndef PREFIX_IS_DEFAULT
+    $(error Error: $(PREFIX)gcc cross-compiler not found! The airframe asks for this compiler with PREFIX, see sw/airborne/boards/bebop/README.md for the Bebop compilers; with docker installed it is used from docker/toolchains.txt)
+  else ifdef HARD_FLOAT
     $(error Error: arm-linux-gnueabihf-gcc cross-compiler not found! Please install the gcc-arm-linux-gnueabihf package.)
   else
     $(error Error: arm-linux-gnueabi-gcc cross-compiler not found! Please install the gcc-arm-linux-gnueabi package.)
   endif
 endif
 
-CC    = $(PREFIX)gcc
-CXX   = $(PREFIX)g++
-LD    = $(PREFIX)g++
-AR    = $(PREFIX)ar
-CP    = $(PREFIX)objcopy
-DMP   = $(PREFIX)objdump
-NM    = $(PREFIX)nm
-SIZE  = $(PREFIX)size
-STRIP = $(PREFIX)strip
+CC    = $(TOOLCHAIN_RUN) $(PREFIX)gcc
+CXX   = $(TOOLCHAIN_RUN) $(PREFIX)g++
+LD    = $(TOOLCHAIN_RUN) $(PREFIX)g++
+AR    = $(TOOLCHAIN_RUN) $(PREFIX)ar
+CP    = $(TOOLCHAIN_RUN) $(PREFIX)objcopy
+DMP   = $(TOOLCHAIN_RUN) $(PREFIX)objdump
+NM    = $(TOOLCHAIN_RUN) $(PREFIX)nm
+SIZE  = $(TOOLCHAIN_RUN) $(PREFIX)size
+STRIP = $(TOOLCHAIN_RUN) $(PREFIX)strip
 
 GDB = $(shell which $(PREFIX)gdb)
 ifeq ($(GDB),)
