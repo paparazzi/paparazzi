@@ -64,7 +64,7 @@ struct sts3032 {
 
 extern struct sts3032 sts;
 
-extern void actuators_sts3032_init(void);
+extern void actuators_sts3032_init(uint8_t driver_id);
 extern void actuators_sts3032_periodic(void);
 extern void actuators_sts3032_event(void);
 extern void actuators_sts3032_set(uint8_t idx, int16_t value);
@@ -91,7 +91,7 @@ static inline void actuators_sts3032_driver_init(uint8_t driver_id)
     .set = actuators_sts3032_set,
     .commit = actuators_sts3032_commit,
   });
-  actuators_sts3032_init();
+  actuators_sts3032_init(driver_id);
 }
 
 #define ActuatorsSTS3032Init actuators_sts3032_driver_init
