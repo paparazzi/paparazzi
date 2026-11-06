@@ -254,6 +254,77 @@ def format_xml_define(sensor, structs, comments=()):
     return s
 
 
+def airframe_calib_structs(airframe, sensor, indent="  "):
+    """The structs of the IMU_<sensor>_CALIB define in an airframe file (path or file:// URL),
+    as a list of (abi_id, struct XML), in the order of the file. Empty when there is none."""
+    import xml.etree.ElementTree as ET
+    if not airframe:
+        return []
+    path = airframe[len("file://"):] if airframe.startswith("file://") else airframe
+    try:
+        root = ET.parse(path, ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))).getroot()
+    except (OSError, ET.ParseError):
+        return []
+    define = None
+    for d in root.iter("define"):
+        name = d.get("name", "")
+        if name == f"IMU_{sensor}_CALIB" or name == f"{sensor}_CALIB" and any(
+                sec.get("prefix") == "IMU_" and d in list(sec) for sec in root.iter("section")):
+            define = d
+    if define is None:
+        return []
+    structs = []
+    for struct in define.findall("field"):
+        abi_id = next((f.get("value") for f in struct.findall("field") if f.get("name") == "abi_id"), None)
+        if abi_id is None:
+            continue
+        struct.tail = None
+        ET.indent(struct, space="  ")
+        text = ET.tostring(struct, encoding="unicode")
+        structs.append((abi_id.strip(), "".join(indent + line + "\n" for line in text.splitlines())))
+    return structs
+
+
+def _keep_other_fields(old_xml, new_xml, indent="  "):
+    """New calibration struct with the fields of the old one it doesn't set (e.g. the filter or the rotation)."""
+    import xml.etree.ElementTree as ET
+
+    def parse(text):
+        return ET.fromstring(text, ET.XMLParser(target=ET.TreeBuilder(insert_comments=True)))
+
+    def calibrated(struct):
+        return next((f for f in struct.findall("field") if f.get("name") == "calibrated"), None)
+
+    old, new = parse(old_xml), parse(new_xml)
+    set_fields = {f.get("name") for f in new.findall("field")} | {"scale", "scale_f"}
+    extra = [f for f in old.findall("field") if f.get("name") not in set_fields]
+    old_cal, new_cal = calibrated(old), calibrated(new)
+    if not extra and (old_cal is None or all(f.get("name") in set_fields | {"neutral"} for f in old_cal)):
+        return new_xml
+    if old_cal is not None and new_cal is not None:
+        for f in old_cal.findall("field"):
+            if f.get("name") not in ("neutral", "scale", "scale_f"):
+                new_cal.append(f)
+    for f in extra:
+        new.append(f)
+    ET.indent(new, space="  ")
+    return "".join(indent + line + "\n" for line in ET.tostring(new, encoding="unicode").splitlines())
+
+
+def merge_calib_structs(old, new):
+    """Replace the old structs ((abi_id, XML) list) by the new ones ({abi_id: XML}), keeping the order
+    of the old ones and the sensors not calibrated now. Returns the structs and the abi_ids kept."""
+    new = dict(new)
+    structs, kept = [], []
+    for abi_id, xml in old:
+        if abi_id in new:
+            structs.append(_keep_other_fields(xml, new.pop(abi_id)))
+        else:
+            structs.append(xml)
+            kept.append(abi_id)
+    return structs + list(new.values()), kept
+
+
 def format_xml(p, sensor, sensor_id, res, strength=None, location=""):
     """Print xml for airframe file (strength: field strength where the mag was calibrated, gauss)."""
     return format_xml_define(sensor, [format_xml_struct(p, sensor_id, res, strength, location)])

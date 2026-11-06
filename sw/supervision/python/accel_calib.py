@@ -209,9 +209,9 @@ class AccelCalib(QtWidgets.QWidget):
     def calibrate(self):
         """Calibrate all accelerometers of the aircraft shown, as one IMU_ACCEL_CALIB define"""
         import calibration_utils
-        from calib_result_dialog import CalibResultDialog
+        from calib_result_dialog import CalibResultDialog, keep_old_calibration
         key = self.accel_combo.currentData()
-        structs, comments, done = [], [], []
+        new, comments, done, kept_note, xml = {}, [], [], [], ""
         if key is not None:
             for k in sorted(k for k in self.data if k[0] == key[0]):
                 samples = np.asarray(self.data[k]["samples"], dtype=float).reshape(-1, 3)
@@ -223,13 +223,14 @@ class AccelCalib(QtWidgets.QWidget):
                     p1, message, success = calibration_utils.optimize_calibration(accepted, 9.81, p0)
                     if success not in (1, 2, 3, 4) or not np.isfinite(p1).all():
                         raise ValueError(message)
-                    structs.append(calibration_utils.format_xml_struct(p1, k[1], 10))
+                    new[str(k[1])] = calibration_utils.format_xml_struct(p1, k[1], 10)
                     _, norms = calibration_utils.scale_measurements(accepted, p1)
                     done.append(f"accel {k[1]}: {len(accepted)} samples, norm {norms.mean():.3f} \u00b1 {norms.std():.3f} m/s\u00b2")
                 except Exception as error:
                     comments.append(f"accel {k[1]} not calibrated: {error}")
-        xml = calibration_utils.format_xml_define("ACCEL", structs, comments) if structs else ""
-        summary = "\n".join(done + comments) if key is not None else \
+            conf = self.connect.conf_by_id().get(key[0]) if self.connect is not None else None
+            xml, kept_note = keep_old_calibration("ACCEL", "accel", conf, new, comments)
+        summary = "\n".join(done + comments + kept_note) if key is not None else \
             "No accelerometer data yet: start listening and hold the aircraft still in several orientations."
         self.calibration_dialog = CalibResultDialog("Accelerometer calibration", summary, xml, self)
         self.calibration_dialog.open()

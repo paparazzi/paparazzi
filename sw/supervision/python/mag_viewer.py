@@ -227,13 +227,13 @@ try:
         def calibrate(self):
             """Calibrate all magnetometers of the aircraft shown, as one IMU_MAG_CALIB define"""
             import calibration_utils
-            from calib_result_dialog import CalibResultDialog
+            from calib_result_dialog import CalibResultDialog, keep_old_calibration
             key = self.mag_combo.currentData()
             if key is None:
                 summary, xml = "No magnetometer data yet: start listening and turn the aircraft in all directions.", ""
             else:
                 ac_id = key[0]
-                structs, comments, done = [], [], []
+                new, comments, done = {}, [], []
                 # field strength where it is calibrated, from the GNSS fixes of the aircraft
                 strength, location = None, ""
                 pos = self.positions.get(ac_id, [])
@@ -251,13 +251,14 @@ try:
                         p1, msg, success = calibration_utils.optimize_calibration(points, 1., p0)
                         if success not in [1, 2, 3, 4] or not np.isfinite(p1).all():
                             raise ValueError(msg)
-                        structs.append(calibration_utils.format_xml_struct(p1, mag_id, 11, strength, location))
+                        new[str(mag_id)] = calibration_utils.format_xml_struct(p1, mag_id, 11, strength, location)
                         _, norms = calibration_utils.scale_measurements(points, p1)
                         done.append(f"mag {mag_id}: {len(points)} samples, norm {norms.mean():.3f} \u00b1 {norms.std():.3f}")
                     except Exception as e:
                         comments.append(f"mag {mag_id} not calibrated: {e}")
-                xml = calibration_utils.format_xml_define("MAG", structs, comments) if structs else ""
-                summary = "\n".join(done + comments)
+                conf = self.connect.conf_by_id().get(ac_id) if self.connect is not None else None
+                xml, kept_note = keep_old_calibration("MAG", "mag", conf, new, comments)
+                summary = "\n".join(done + comments + kept_note)
                 if strength is None:
                     summary += "\nNo GNSS fix received: no field strength (calibrate.py --lat --lon can add it)"
             self.result_dialog = CalibResultDialog("Magnetometer calibration", summary, xml, self)
