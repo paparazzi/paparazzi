@@ -41,7 +41,10 @@
 extern void actuators_init(void);
 extern void actuators_periodic(void);
 
-/** Submit every registered driver once per output cycle. */
+/** Submit or activate buffered requests in every registered driver.
+ * Call once after setting the requests for an output cycle. Drivers may
+ * transmit asynchronously or apply their own transmission rate limit.
+ */
 extern void actuators_commit(void);
 
 extern struct actuator_driver actuator_drivers[ACTUATORS_DRIVERS_NB];
@@ -91,16 +94,15 @@ struct actuator_t {
  * */
 extern struct actuator_t actuators[ACTUATORS_NB];
 
-/** Scale, bound and submit a PPRZ value to the actuator driver immediately.
- * Buffered drivers transmit at the next commit; other drivers may transmit
- * from their setter. This function does not commit any drivers.
+/** Scale, bound and buffer a PPRZ request in the actuator driver.
+ * The request is submitted or activated by actuators_commit().
  * Invalid indices are ignored.
  * @param pprz_idx general actuators index
  * @param pprz_value actuator's value in pprz unit
  */
 extern void actuator_set(uint8_t pprz_idx, pprz_t pprz_value);
 
-/** Store and submit a value in driver units without scaling or bounding it.
+/** Store and buffer a request in driver units without scaling or bounding it.
  * The last PPRZ request is retained; no inverse conversion is performed.
  * Like actuator_set(), this calls the driver setter without committing.
  * Invalid indices are ignored.

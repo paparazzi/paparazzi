@@ -3,7 +3,9 @@
 
 #include "std.h"
 
+/** Buffer a request in driver units without transmitting or activating it. */
 typedef void (*act_set_t)(uint8_t channel, int16_t value);
+/** Submit or activate buffered requests; transmission may be asynchronous or rate limited. */
 typedef void (*act_commit_t)(void);
 
 struct actuator_driver {
