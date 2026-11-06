@@ -117,8 +117,9 @@ static inline void main_periodic_task(void)
   commands[COMMAND_ROLL] = stateGetNedToBodyEulers_f()->phi * MAX_PPRZ / DEMO_MAX_ROLL;
   commands[COMMAND_PITCH] = stateGetNedToBodyEulers_f()->theta * MAX_PPRZ / DEMO_MAX_ROLL;
 
-  /* generated macro from airframe file, seconds AP_MODE param not used */
-  SetActuatorsFromCommands(commands, 0);
+  /* Apply command laws; the AP_MODE parameter is not used here. */
+  SetActuatorsFromCommandsNoCommit(commands, 0);
+  actuators_commit();
 
   if (sys_time.nb_sec > 1) {
     modules_periodic_task();

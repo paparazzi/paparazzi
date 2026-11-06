@@ -22,8 +22,9 @@
 
 #define SetCommandsFromRC(_commands_array, _rc_array) { }
 #define AllActuatorsInit() { }
-#define AllActuatorsCommit() { }
-#define SetActuatorsFromCommands(values, AP_MODE) { }
+static inline void actuators_commit(void) {}
+#define ACTUATORS_HAS_COMMAND_LAWS 1
+#define SetActuatorsFromCommandsNoCommit(values, AP_MODE) { }
 
 #define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
 #define DEFAULT_CIRCLE_RADIUS 80.
