@@ -29,6 +29,31 @@
 struct GpsState gps_nps = {0};
 bool gps_has_fix;
 
+/** Simulated position accuracy (cm) */
+#ifndef GPS_NPS_PACC
+#define GPS_NPS_PACC 200
+#endif
+
+/** Simulated horizontal position accuracy (cm) */
+#ifndef GPS_NPS_HACC
+#define GPS_NPS_HACC 120
+#endif
+
+/** Simulated vertical position accuracy (cm) */
+#ifndef GPS_NPS_VACC
+#define GPS_NPS_VACC 180
+#endif
+
+/** Simulated speed accuracy (cm/s) */
+#ifndef GPS_NPS_SACC
+#define GPS_NPS_SACC 20
+#endif
+
+/** Simulated position dilution of precision (x100) */
+#ifndef GPS_NPS_PDOP
+#define GPS_NPS_PDOP 140
+#endif
+
 void gps_feed_value(void)
 {
   // FIXME, set proper time instead of hardcoded to May 2014
@@ -76,11 +101,12 @@ void gps_feed_value(void)
 #endif
   SetBit(gps_nps.valid_fields, GPS_VALID_COURSE_BIT);
 
-  gps_nps.pacc = 650;
-  gps_nps.hacc = 450;
-  gps_nps.vacc = 200;
-  gps_nps.sacc = 100;
-  gps_nps.pdop = 650;
+  /* accuracies of a good GNSS receiver with a clear sky view */
+  gps_nps.pacc = GPS_NPS_PACC;
+  gps_nps.hacc = GPS_NPS_HACC;
+  gps_nps.vacc = GPS_NPS_VACC;
+  gps_nps.sacc = GPS_NPS_SACC;
+  gps_nps.pdop = GPS_NPS_PDOP;
 
   if (gps_has_fix) {
     gps_nps.num_sv = 11;
