@@ -22,6 +22,8 @@
 #ifndef ACTUATORS_UAVCAN1_CMD_H
 #define ACTUATORS_UAVCAN1_CMD_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "actuators_uavcan.h"
 
 /** Stub file needed per uavcan interface because of generator */
@@ -30,14 +32,22 @@ extern int16_t actuators_uavcan1cmd_values[SERVOS_UAVCAN1CMD_NB];
 extern void actuators_uavcan1cmd_set(uint8_t idx, int16_t value);
 extern void actuators_uavcan1cmd_commit(void);
 
+static inline void actuators_uavcan1cmd_driver_init(uint8_t driver_id)
+{
 #if USE_NPS
-#define ActuatorUavcan1CmdSet NULL
-#define ActuatorsUavcan1CmdInit() {}
-#define ActuatorsUavcan1CmdCommit()  {}
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_noop_set,
+    .commit = actuators_noop_commit,
+  });
 #else
-#define ActuatorUavcan1CmdSet actuators_uavcan1cmd_set
-#define ActuatorsUavcan1CmdInit() actuators_uavcan_init(&uavcan1)
-#define ActuatorsUavcan1CmdCommit actuators_uavcan1cmd_commit
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_uavcan1cmd_set,
+    .commit = actuators_uavcan1cmd_commit,
+  });
+  actuators_uavcan_init(&uavcan1);
 #endif
+}
+
+#define ActuatorsUavcan1CmdInit actuators_uavcan1cmd_driver_init
 
 #endif /* ACTUATORS_UAVCAN1_CMD_H */

@@ -22,17 +22,25 @@
 #ifndef ACTUATORS_DUMMY_H
 #define ACTUATORS_DUMMY_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "std.h"
 
-/* No-op setter for the generated actuator table. */
+/* No-op actuator setter. */
 static inline void actuators_dummy_set(uint8_t idx, int16_t value)
 {
   (void)idx;
   (void)value;
 }
 
-#define ActuatorDummySet actuators_dummy_set
-#define ActuatorsDummyInit() {}
-#define ActuatorsDummyCommit() {}
+static inline void actuators_dummy_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_dummy_set,
+    .commit = actuators_noop_commit,
+  });
+}
+
+#define ActuatorsDummyInit actuators_dummy_driver_init
 
 #endif
