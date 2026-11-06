@@ -73,12 +73,12 @@ static inline void main_init(void)
   datalink_init();
   downlink_init();
   pprz_dl_init();
-  ActuatorsPwmInit();
+  actuators_pwm_arch_init();
 }
 
 static inline void main_periodic(void)
 {
-  ActuatorsPwmCommit();
+  actuators_pwm_arch_commit();
 
   LED_PERIODIC();
   RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);});
@@ -109,7 +109,7 @@ void dl_parse_msg(struct link_device *dev __attribute__((unused)), struct transp
       LED_TOGGLE(2);
 #endif
       if (servo_no < ACTUATORS_PWM_NB) {
-        ActuatorPwmSet(servo_no, servo_value);
+        actuators_pwm_set(servo_no, servo_value);
       }
     }
     break;
