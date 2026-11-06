@@ -105,7 +105,7 @@ void main_recovery_init(void)
   electrical_tid = sys_time_register_timer(0.1, NULL);
 
   // actuators periodic will update the actuators
-  // but the autopilot.mode is passed to SetActuatorsFromCommands
+  // but the autopilot.mode is passed to SetActuatorsFromCommandsNoCommit
   // it is set to manual if possible, otherwise behavior is undefined
 #ifdef AP_MODE_MANUAL
   autopilot.mode = AP_MODE_MANUAL;

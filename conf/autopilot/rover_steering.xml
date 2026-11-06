@@ -42,7 +42,8 @@
       </control>
       <control>
         <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
-        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
+        <call fun="SetActuatorsFromCommandsNoCommit(commands, autopilot_get_mode())"/>
+        <call fun="actuators_commit()"/>
 
         <call fun="SetAPThrottleFromCommands(commands[COMMAND_THROTTLE])"/>
       </control>
@@ -63,7 +64,8 @@
         <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
 
         <call fun="commands[COMMAND_THROTTLE] = GetCmdFromThrottle(guidance_control.throttle);"/>
-        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
+        <call fun="SetActuatorsFromCommandsNoCommit(commands, autopilot_get_mode())"/>
+        <call fun="actuators_commit()"/>
 
         <call fun="SetAPThrottleFromCommands()"/>
       </control>
@@ -92,7 +94,8 @@
         <call fun="nav_home()"/>
       </control>
       <control>
-        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
+        <call fun="SetActuatorsFromCommandsNoCommit(commands, autopilot_get_mode())"/>
+        <call fun="actuators_commit()"/>
         
         <call fun="SetAPThrottleFromCommands()"/>
       </control>

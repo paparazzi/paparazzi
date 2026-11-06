@@ -28,6 +28,8 @@
 #ifndef ACTUATORS_BEBOP_RAW_H_
 #define ACTUATORS_BEBOP_RAW_H_
 
+#include "modules/actuators/actuators_driver.h"
+
 #include <stdint.h>
 #include "mcu_periph/i2c.h"
 
@@ -44,7 +46,6 @@
 #define ACTUATORS_BEBOP_PLAY_SOUND    0x82    ///< Play a sound (0=stop, 1=short beep, 2=boot beep, 3=Be-Bop-Ah-Lula, negative=repeat)
 #define ACTUATORS_BEBOP_GET_INFO      0xA0    ///< Get version information
 
-
 struct ActuatorsBebop {
   struct i2c_transaction i2c_trans;   ///< I2C transaction for communicating with the bebop BLDC driver
   uint16_t rpm_ref[4];                ///< Reference RPM
@@ -52,13 +53,19 @@ struct ActuatorsBebop {
   uint8_t led;                        ///< Current led status
 };
 
-#define ActuatorsBebopSet actuators_bebop_set
-#define ActuatorsBebopCommit() actuators_bebop_commit();
-#define ActuatorsBebopInit() actuators_bebop_init();
-
 extern struct ActuatorsBebop actuators_bebop;
 extern void actuators_bebop_commit(void);
 extern void actuators_bebop_init(void);
 extern void actuators_bebop_set(uint8_t idx, int16_t val);
+
+static inline void actuators_bebop_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_bebop_set,
+    .commit = actuators_bebop_commit,
+  });
+  actuators_bebop_init();
+}
+
 
 #endif /* ACTUATORS_BEBOP_RAW_H_ */

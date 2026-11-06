@@ -22,13 +22,25 @@
 #ifndef ACTUATORS_dualpwm_H
 #define ACTUATORS_dualpwm_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "modules/actuators/actuators_dualpwm_arch.h"
 
 /** Arch dependent init file.
  * implemented in arch files
  */
 extern void actuators_dualpwm_arch_init(void);
+extern void actuators_dualpwm_set(uint8_t idx, int16_t value);
 
-#define ActuatorsDualpwmInit() actuators_dualpwm_arch_init()
+static inline void actuators_dualpwm_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_dualpwm_set,
+    .commit = actuators_noop_commit,
+  });
+  actuators_dualpwm_arch_init();
+}
+
+#define ActuatorsDualpwmInit actuators_dualpwm_driver_init
 
 #endif /* ACTUATORS_PWM_H */

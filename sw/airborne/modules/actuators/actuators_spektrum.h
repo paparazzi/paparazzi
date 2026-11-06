@@ -27,6 +27,8 @@
 #ifndef ACTUATORS_SPEKTRUM_H
 #define ACTUATORS_SPEKTRUM_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "std.h"
 
 /* Maximum amount of spektrum actuator channels */
@@ -46,9 +48,15 @@ extern void actuators_spektrum_commit(void);
 extern void actuators_spektrum_set(uint8_t idx, int16_t value);
 
 /* Actuator macros */
-#define ActuatorSpektrumSet actuators_spektrum_set
-#define ActuatorsSpektrumInit() actuators_spektrum_init()
-#define ActuatorsSpektrumCommit() actuators_spektrum_commit()
+static inline void actuators_spektrum_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_spektrum_set,
+    .commit = actuators_spektrum_commit,
+  });
+  actuators_spektrum_init();
+}
 
+#define ActuatorsSpektrumInit actuators_spektrum_driver_init
 
 #endif /* ACTUATORS_SPEKTRUM_H */

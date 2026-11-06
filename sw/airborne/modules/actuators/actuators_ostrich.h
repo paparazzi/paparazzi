@@ -26,6 +26,8 @@
 #ifndef ACTUATORS_OSTRICH_H
 #define ACTUATORS_OSTRICH_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "std.h"
 
 /* Main actuator structure */
@@ -38,13 +40,20 @@ struct ActuatorsOstrich {
 extern struct ActuatorsOstrich actuators_ostrich;
 
 extern void actuators_ostrich_init(void);
-extern void actuators_ostrich_periodic(void);
+extern void actuators_ostrich_commit(void);
 extern void actuators_ostrich_set(uint8_t idx, int16_t value);
 
 /* Actuator macros */
-#define ActuatorOSTRICHSet actuators_ostrich_set
-#define ActuatorsOSTRICHInit() actuators_ostrich_init()
-#define ActuatorsOSTRICHCommit() {}
+static inline void actuators_ostrich_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_ostrich_set,
+    .commit = actuators_ostrich_commit,
+  });
+  actuators_ostrich_init();
+}
+
+#define ActuatorsOSTRICHInit actuators_ostrich_driver_init
 
 #endif
 

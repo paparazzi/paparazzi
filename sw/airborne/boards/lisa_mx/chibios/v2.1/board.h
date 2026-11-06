@@ -1363,9 +1363,7 @@
  */
  /* Default actuators driver */
 #define DEFAULT_ACTUATORS "modules/actuators/actuators_pwm.h"
-#define ActuatorDefaultSet ActuatorPwmSet
-#define ActuatorsDefaultInit() ActuatorsPwmInit()
-#define ActuatorsDefaultCommit() ActuatorsPwmCommit()
+#define ActuatorsDefaultInit actuators_pwm_driver_init
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
