@@ -272,7 +272,7 @@ let preprocess_value = fun s v prefix ->
 
 let print_actuators_config = fun out ->
   let actuators = Array.make (Hashtbl.length servos_drivers) "" in
-  Hashtbl.iter (fun s (d, i) ->
+  Hashtbl.iter (fun s (_d, i) ->
     actuators.(i) <- sprintf "    { \\
       .pprz_val = 0, \\
       .driver_val = 0, \\
@@ -284,15 +284,26 @@ let print_actuators_config = fun out ->
         .neutral = SERVO_%s_NEUTRAL, \\
         .travel_up = SERVO_%s_TRAVEL_UP, \\
         .travel_down = SERVO_%s_TRAVEL_DOWN \\
-      }, \\
-      .set = Actuator%sSet \\
-    }" s s s s s s s d;
+      } \\
+    }" s s s s s s s;
   ) servos_drivers;
   fprintf out "#define ACTUATORS_CONFIG { \\\n";
   fprintf out "%s" (String.concat ", \\\n" (Array.to_list actuators));
   fprintf out "\\\n  }\n\n";
   define_out out "ACTUATORS_NB" (string_of_int (Hashtbl.length servos_drivers));
   fprintf out "\n"
+
+(* Generate lifecycle operations independently of command laws.
+ * Drivers own transmission scheduling.
+ *)
+let print_actuators_lifecycle = fun out ->
+  let drivers = get_list_of_drivers () in
+  define_out out "ACTUATORS_DRIVERS_NB" (string_of_int (Hashtbl.length drivers_no));
+  let order = List.map (fun d -> string_of_int (Hashtbl.find drivers_no d)) drivers in
+  define_out out "ACTUATORS_DRIVER_ORDER" ("{" ^ String.concat ", " order ^ "}");
+  fprintf out "#define AllActuatorsInit() { \\\n";
+  List.iter (fun d -> fprintf out "  Actuators%sInit(%d);\\\n" d (Hashtbl.find drivers_no d)) drivers;
+  fprintf out "}\n\n"
 
 let parse_command_laws = fun out command ->
   let a = fun s -> ExtXml.attrib command s in
@@ -438,21 +449,11 @@ let rec parse_section = fun out ac_id s ->
       List.iter (parse_ap_only_commands out) (Xml.children s);
       fprintf out "}\n\n"
     | "command_laws" ->
-      (* print actuators config *)
-      print_actuators_config out;
-      (* print init and commit actuators macros *)
-      let drivers = get_list_of_drivers () in
-      fprintf out "#define AllActuatorsInit() { \\\n";
-      List.iter (fun d -> fprintf out "  Actuators%sInit();\\\n" d) drivers;
-      fprintf out "}\n\n";
-      fprintf out "#define AllActuatorsCommit() { \\\n";
-      List.iter (fun d -> fprintf out "  Actuators%sCommit();\\\n" d) drivers;
-      fprintf out "}\n\n";
-      (* print actuators from commands macro *)
-      fprintf out "#define SetActuatorsFromCommands(values, AP_MODE) { \\\n";
+      define_out out "ACTUATORS_HAS_COMMAND_LAWS" "1";
+      (* Control laws set driver values; callers commit them separately. *)
+      fprintf out "#define SetActuatorsFromCommandsNoCommit(values, AP_MODE) { \\\n";
       if List.length (Xml.children s) > 0 then fprintf out "  int32_t actuator_value_pprz;\\\n\\\n";
       List.iter (parse_command_laws out) (Xml.children s);
-      fprintf out "  AllActuatorsCommit(); \\\n";
       fprintf out "}\n\n";
     | "heli_curves" ->
       let default = ExtXml.attrib_or_default s "default" "0" in
@@ -492,6 +493,8 @@ let hex_to_bin = fun s ->
 
 let generate = fun airframe ac_id ac_name md5sum xml_file out_file ->
   let out = open_out out_file in
+  Hashtbl.clear servos_drivers;
+  Hashtbl.clear drivers_no;
 
   begin_out out xml_file h_name;
   define_string_out out "AIRFRAME_NAME" ac_name;
@@ -499,6 +502,17 @@ let generate = fun airframe ac_id ac_name md5sum xml_file out_file ->
   define_out out "MD5SUM" (sprintf "((uint8_t*)\"%s\")" (hex_to_bin md5sum));
   fprintf out "\n";
   List.iter (parse_section out ac_id) (Xml.children airframe.Airframe.xml);
+  (* Include servo metadata from every section and included file, independently
+   * of command laws.
+   *)
+  print_actuators_config out;
+  print_actuators_lifecycle out;
+  fprintf out "#ifndef ACTUATORS_HAS_COMMAND_LAWS\n";
+  fprintf out "#define ACTUATORS_HAS_COMMAND_LAWS 0\n";
+  fprintf out "#endif\n\n";
+  fprintf out "#ifndef SetActuatorsFromCommandsNoCommit\n";
+  fprintf out "#define SetActuatorsFromCommandsNoCommit(values, AP_MODE) {}\n";
+  fprintf out "#endif\n\n";
   finish_out out h_name;
   close_out out
 

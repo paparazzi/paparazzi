@@ -25,6 +25,7 @@
 
 #include "modules/actuators/actuators_ostrich.h"
 #include "mcu_periph/uart.h"
+#include "mcu_periph/sys_time.h"
 #include "generated/airframe.h"
 
 #define SPEED_NEUTRAL 500
@@ -64,6 +65,7 @@ union RawMessage {
 
 // uart periph
 static struct uart_periph *ostrich_dev;
+static uint32_t last_send_time;
 
 static uint16_t speed_cmd_to_msg(uint16_t speed_cmd)
 {
@@ -85,16 +87,24 @@ static uint8_t compute_checksum(uint8_t bytes[], int len)
 }
 
 
-void actuators_ostrich_init()
+void actuators_ostrich_init(void)
 {
   ostrich_dev = &(ACTUATORS_OSTRICH_DEV);
+  last_send_time = get_sys_time_usec();
   actuators_ostrich.cmds[0] = SPEED_NEUTRAL;
   actuators_ostrich.cmds[1] = SPEED_NEUTRAL;
   actuators_ostrich.cmds[2] = TURN_NEUTRAL;
 }
 
-void actuators_ostrich_periodic()
+void actuators_ostrich_commit(void)
 {
+  // Preserve the controller's 10 Hz output rate independently of commit frequency.
+  uint32_t now = get_sys_time_usec();
+  if ((uint32_t)(now - last_send_time) < 100000) {
+    return;
+  }
+  last_send_time = now;
+
   uint16_t speed_msg = speed_cmd_to_msg(actuators_ostrich.cmds[0]);
   uint16_t speed_y_msg = speed_cmd_to_msg(actuators_ostrich.cmds[1]);
   uint16_t turn_msg = turn_cmd_to_msg(actuators_ostrich.cmds[2]);

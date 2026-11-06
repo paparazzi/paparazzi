@@ -57,9 +57,7 @@
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "boards/disco/actuators.h"
-#define ActuatorDefaultSet ActuatorsDiscoSet
-#define ActuatorsDefaultInit() ActuatorsDiscoInit()
-#define ActuatorsDefaultCommit() ActuatorsDiscoCommit()
+#define ActuatorsDefaultInit actuators_disco_driver_init
 
 /* Cameras */
 #include "peripherals/video_device.h"

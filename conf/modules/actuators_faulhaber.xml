@@ -16,7 +16,7 @@
         <dl_setting var="faulhaber.mode" min="0" step="1" max="3" shortname="mode" values="INIT|VELOCITY|ERROR|REQ_ERROR|RESET_ERROR" module="modules/actuators/actuators_faulhaber" handler="SetMode"/>
         <dl_setting var="faulhaber.p_gain" min="0" step="0.001" max="1"/>
         <dl_setting var="faulhaber.max_velocity" min="0" step="100" max="100000"/>
-        <dl_setting var="faulhaber.setpoint_position" min="0" step="1000" max="3600000"/>
+        <dl_setting var="faulhaber.requested_position" min="0" step="1000" max="3600000" shortname="setpoint_position"/>
         <dl_setting var="faulhaber.real_position" min="0" step="1000" max="3300000"/>
       </dl_settings>
     </dl_settings>

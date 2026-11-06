@@ -27,6 +27,8 @@
 #ifndef ACTUATORS_FAULHABER_H
 #define ACTUATORS_FAULHABER_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "std.h"
 
 enum faulhaber_modes_t {
@@ -44,7 +46,8 @@ struct faulhaber_t {
   float p_gain;                   ///< The proportional gain of the velocity controller
   int32_t max_velocity;           ///< The maximum velocity of the controller
 
-  int32_t setpoint_position;      ///< The setpoint position controlled from the actuator
+  int32_t requested_position;     ///< Buffered position request, activated by commit
+  int32_t setpoint_position;      ///< Active position used by the controller
   int32_t real_position;          ///< The real position from the feedback of the controller
   int32_t target_velocity;        ///< The target velocity send to the controller
 
@@ -59,12 +62,19 @@ extern void actuators_faulhaber_periodic(void);
 extern void actuators_faulhaber_event(void);
 extern void actuators_faulhaber_SetMode(uint8_t mode);
 extern void actuators_faulhaber_set(uint8_t idx, int16_t value);
-
+extern void actuators_faulhaber_commit(void);
 
 #define ACTUATORS_FAULHABER_COMMAND_SCALE 1000.0f
 
-#define ActuatorFaulhaberSet actuators_faulhaber_set
-#define ActuatorsFaulhaberInit() actuators_faulhaber_init()
-#define ActuatorsFaulhaberCommit() {}
+static inline void actuators_faulhaber_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_faulhaber_set,
+    .commit = actuators_faulhaber_commit,
+  });
+  actuators_faulhaber_init();
+}
+
+#define ActuatorsFaulhaberInit actuators_faulhaber_driver_init
 
 #endif /* ACTUATORS_FAULHABER_H */

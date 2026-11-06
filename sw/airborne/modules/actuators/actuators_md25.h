@@ -27,6 +27,8 @@
 #ifndef ACTUATORS_MD25_H
 #define ACTUATORS_MD25_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "std.h"
 #include "mcu_periph/i2c.h"
 
@@ -52,9 +54,16 @@ extern void actuators_md25_commit(void);
 extern void actuators_md25_set(uint8_t idx, int16_t value);
 
 /* Actuator macros */
-#define ActuatorMD25Set actuators_md25_set
-#define ActuatorsMD25Init() actuators_md25_init()
-#define ActuatorsMD25Commit() actuators_md25_set()
+static inline void actuators_md25_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_md25_set,
+    .commit = actuators_md25_commit,
+  });
+  actuators_md25_init();
+}
+
+#define ActuatorsMD25Init actuators_md25_driver_init
 
 #endif
 
