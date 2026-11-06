@@ -22,7 +22,8 @@
 
 #define SetCommandsFromRC(_commands_array, _rc_array) { }
 #define AllActuatorsInit() { }
-static inline void actuators_commit(void) {}
+#define ACTUATORS_DRIVERS_NB 0
+#define ACTUATORS_DRIVER_ORDER {}
 #define ACTUATORS_HAS_COMMAND_LAWS 1
 #define SetActuatorsFromCommandsNoCommit(values, AP_MODE) { }
 

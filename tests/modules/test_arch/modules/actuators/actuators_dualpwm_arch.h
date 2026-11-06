@@ -28,9 +28,14 @@
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define ActuatorDualpwmSet NULL
-#define ActuatorsDualPwmCommit() {}
+#include "std.h"
 
-extern void actuators_dualpwm_arch_init(void);
+static inline void actuators_dualpwm_arch_init(void) {}
+
+static inline void actuators_dualpwm_set(uint8_t idx, int16_t value)
+{
+  (void)idx;
+  (void)value;
+}
 
 #endif /* ACTUATORS_DUALPWM_ARCH_H */
