@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2022-2026 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -24,19 +24,27 @@
  *
  * INS based in the EKF2 of PX4
  *
+ * The EKF2 and the PX4 libraries it needs are copied in sw/ext/px4_ekf2
+ * (see sync_px4_ekf2.py there). The GNSS checks, which PX4 runs in its sensors
+ * module, are done here before the GNSS data is given to the EKF.
  */
 
 #include "modules/ins/ins_ekf2.h"
 #include "modules/nav/waypoints.h"
 #include "modules/core/abi.h"
+#include "modules/imu/imu.h"
 #include "stabilization/stabilization_attitude.h"
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
 #include "EKF/ekf.h"
+#include "lib/gnss/gnss_checks.hpp"
+#include "lib/world_magnetic_model/geo_mag_declination.h"
 #include "math/pprz_isa.h"
 #include "math/pprz_geodetic_wgs84.h"
 #include "mcu_periph/sys_time.h"
 #include "autopilot.h"
+
+using namespace estimator;
 
 /** For SITL and NPS we need special includes */
 #if defined SITL && USE_NPS
@@ -44,70 +52,185 @@
 #include <stdio.h>
 #endif
 
+/* Options of the previous EKF2 version, replaced by the PX4 parameters (see conf/modules/ins_ekf2.xml) */
+#if defined(INS_EKF2_FUSION_MODE) || defined(INS_EKF2_VDIST_SENSOR_TYPE) || defined(INS_EKF2_MAG_FUSION_TYPE)
+#error "INS_EKF2_FUSION_MODE, VDIST_SENSOR_TYPE and MAG_FUSION_TYPE are replaced by INS_EKF2_GPS_CTRL, EV_CTRL, OF_CTRL, DRAG_CTRL, HGT_REF and MAG_TYPE"
+#endif
+#if defined(INS_EKF2_GPS_CHECK_MASK) || defined(INS_EKF2_GPS_REQ_EPH) || defined(INS_EKF2_GPS_REQ_EPV) || defined(INS_EKF2_GPS_REQ_SACC) || defined(INS_EKF2_GPS_REQ_NSATS) || defined(INS_EKF2_GPS_REQ_PDOP)
+#error "INS_EKF2_GPS_CHECK_MASK and GPS_REQ_* are replaced by INS_EKF2_GNSS_CHECK and GNSS_REQ_*"
+#endif
+#if defined(INS_EKF2_FLOW_SENSOR_DELAY) || defined(INS_EKF2_MIN_FLOW_QUALITY) || defined(INS_EKF2_MAX_FLOW_RATE) || defined(INS_EKF2_FLOW_NOISE) || defined(INS_EKF2_FLOW_NOISE_QMIN) || defined(INS_EKF2_FLOW_INNOV_GATE) || defined(INS_EKF2_FLOW_POS_X) || defined(INS_EKF2_FLOW_POS_Y) || defined(INS_EKF2_FLOW_POS_Z)
+#error "INS_EKF2_FLOW_* are replaced by INS_EKF2_OF_DELAY, OF_QMIN, OF_MAX_RATE, OF_N_MIN, OF_N_MAX, OF_GATE and OF_POS_*"
+#endif
+#if defined(INS_EKF2_SONAR_MIN_RANGE) || defined(INS_EKF2_SONAR_MAX_RANGE) || defined(INS_EKF2_RANGE_MAIN_AGL)
+#error "INS_EKF2_SONAR_* and RANGE_MAIN_AGL are replaced by INS_EKF2_RNG_MIN_DIST, RNG_MAX_DIST and RNG_CTRL"
+#endif
+#if defined(INS_EKF2_RELHEADING_DISTANCE) || defined(INS_EKF2_RELHEADING_ERR) || defined(INS_EKF2_GPS_COURSE_YAW)
+#error "INS_EKF2_RELHEADING_DISTANCE/_ERR and GPS_COURSE_YAW are replaced by INS_EKF2_GPS_ANTENNA_DISTANCE/_ERR and the EKF-GSF yaw estimator (yaw from the GNSS velocity)"
+#endif
+
 /** INS reference from flight plan, true by default */
 #ifndef USE_INS_NAV_INIT
 #define USE_INS_NAV_INIT TRUE
 #endif
 
-/** Maximum allowed error in distance between dual GPS antennae */
-#ifndef INS_EKF2_MAX_REL_LENGTH_ERROR
-#define INS_EKF2_MAX_REL_LENGTH_ERROR 0.2 // Factor which gets multiplied by the reference distance
-#endif
+/*
+ * EKF2 parameters
+ *
+ * All PX4 EKF2 parameters have the PX4 default and can be changed in the airframe as
+ * INS_EKF2_<name> for EKF2_<name>, e.g. INS_EKF2_GPS_CTRL, INS_EKF2_HGT_REF, INS_EKF2_MAG_TYPE
+ * (see generated/ekf2_params.h in sw/ext/px4_ekf2 and the PX4 parameter reference).
+ * The GNSS checks are INS_EKF2_GNSS_<name> for GNSS_<name>.
+ */
 
-/** Special configuration for Optitrack */
+/** GNSS checks (INS_EKF2_GNSS_CHECK), bits of the PX4 GNSS_CHECK parameter */
+#define GNSS_CHECK_NSATS   (1<<0)  ///< number of satellites (INS_EKF2_GNSS_REQ_NSATS)
+#define GNSS_CHECK_PDOP    (1<<1)  ///< position dilution of precision (INS_EKF2_GNSS_REQ_PDOP)
+#define GNSS_CHECK_EPH     (1<<2)  ///< horizontal position accuracy (INS_EKF2_GNSS_REQ_EPH)
+#define GNSS_CHECK_EPV     (1<<3)  ///< vertical position accuracy (INS_EKF2_GNSS_REQ_EPV)
+#define GNSS_CHECK_SACC    (1<<4)  ///< speed accuracy (INS_EKF2_GNSS_REQ_SACC)
+#define GNSS_CHECK_HDRIFT  (1<<5)  ///< horizontal position drift at rest on the ground (INS_EKF2_GNSS_REQ_HDRIFT)
+#define GNSS_CHECK_VDRIFT  (1<<6)  ///< vertical position drift at rest on the ground (INS_EKF2_GNSS_REQ_VDRIFT)
+#define GNSS_CHECK_HSPEED  (1<<7)  ///< horizontal speed at rest on the ground (INS_EKF2_GNSS_REQ_HDRIFT)
+#define GNSS_CHECK_VSPEED  (1<<8)  ///< vertical speed at rest on the ground (INS_EKF2_GNSS_REQ_VDRIFT)
+#define GNSS_CHECK_SPOOFED (1<<9)  ///< receiver reports spoofing
+#define GNSS_CHECK_FIX     (1<<10) ///< fix type (INS_EKF2_GNSS_REQ_FIX)
+#define GNSS_CHECK_JAMMED  (1<<11) ///< receiver reports jamming
+
+/** GNSS checks used, PX4 enables all except jamming (2047) */
+#ifndef INS_EKF2_GNSS_CHECK
+#define INS_EKF2_GNSS_CHECK (GNSS_CHECK_NSATS | GNSS_CHECK_EPH | GNSS_CHECK_SACC | GNSS_CHECK_FIX)
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_GNSS_CHECK)
+
+/** Values of INS_EKF2_GPS_CTRL (bitmask) */
+#define EKF2_GPS_CTRL_HPOS 1  ///< horizontal position
+#define EKF2_GPS_CTRL_VPOS 2  ///< vertical position
+#define EKF2_GPS_CTRL_VEL  4  ///< 3D velocity
+#define EKF2_GPS_CTRL_YAW  8  ///< dual antenna heading
+
+/** Values of INS_EKF2_EV_CTRL (bitmask) */
+#define EKF2_EV_CTRL_HPOS 1  ///< horizontal position
+#define EKF2_EV_CTRL_VPOS 2  ///< vertical position
+#define EKF2_EV_CTRL_VEL  4  ///< 3D velocity
+#define EKF2_EV_CTRL_YAW  8  ///< yaw
+
+/** Values of INS_EKF2_HGT_REF */
+#define EKF2_HGT_REF_BARO  0
+#define EKF2_HGT_REF_GNSS  1
+#define EKF2_HGT_REF_RANGE 2
+#define EKF2_HGT_REF_EV    3
+
+/** Values of INS_EKF2_MAG_TYPE */
+#define EKF2_MAG_TYPE_AUTO    0  ///< heading on the ground, 3D in the air
+#define EKF2_MAG_TYPE_HEADING 1  ///< heading only
+#define EKF2_MAG_TYPE_NONE    5  ///< not used
+#define EKF2_MAG_TYPE_INIT    6  ///< only to initialize the heading
+
+/** Indoor configuration with only external vision (e.g. Optitrack): position, velocity, yaw and height
+ *  from external vision, no GNSS, magnetometer and barometer, and the external vision noise and delay
+ *  of the previous EKF2 version. Each value can still be changed in the airframe. */
 #if INS_EKF2_OPTITRACK
-#ifndef INS_EKF2_FUSION_MODE
-#define INS_EKF2_FUSION_MODE (MASK_USE_EVPOS | MASK_USE_EVVEL | MASK_USE_EVYAW)
+#ifndef INS_EKF2_GPS_CTRL
+#define INS_EKF2_GPS_CTRL 0
 #endif
-#ifndef INS_EKF2_MAG_FUSION_TYPE
-#define INS_EKF2_MAG_FUSION_TYPE MAG_FUSE_TYPE_INDOOR
+#ifndef INS_EKF2_EV_CTRL
+#define INS_EKF2_EV_CTRL (EKF2_EV_CTRL_HPOS | EKF2_EV_CTRL_VPOS | EKF2_EV_CTRL_VEL | EKF2_EV_CTRL_YAW)
 #endif
-#ifndef INS_EKF2_VDIST_SENSOR_TYPE
-#define INS_EKF2_VDIST_SENSOR_TYPE VDIST_SENSOR_EV
+#ifndef INS_EKF2_HGT_REF
+#define INS_EKF2_HGT_REF EKF2_HGT_REF_EV
+#endif
+#ifndef INS_EKF2_MAG_TYPE
+#define INS_EKF2_MAG_TYPE EKF2_MAG_TYPE_NONE
+#endif
+#ifndef INS_EKF2_BARO_CTRL
+#define INS_EKF2_BARO_CTRL 0
+#endif
+#ifndef INS_EKF2_EVP_NOISE
+#define INS_EKF2_EVP_NOISE 0.02f
+#endif
+#ifndef INS_EKF2_EVA_NOISE
+#define INS_EKF2_EVA_NOISE 0.05f
+#endif
+#ifndef INS_EKF2_EV_DELAY
+#define INS_EKF2_EV_DELAY 175.f
 #endif
 #endif
 
-/** The EKF2 fusion mode setting */
-#ifndef INS_EKF2_FUSION_MODE
-#define INS_EKF2_FUSION_MODE (MASK_USE_GPS)
+/** GNSS accuracy thresholds of the previous version (PX4: EPH 3 m, speed accuracy 0.5 m/s),
+ *  reached by the internal receivers of e.g. the Bebop2 */
+#ifndef INS_EKF2_GNSS_REQ_EPH
+#define INS_EKF2_GNSS_REQ_EPH 5.0f
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_FUSION_MODE)
+#ifndef INS_EKF2_GNSS_REQ_SACC
+#define INS_EKF2_GNSS_REQ_SACC 1.0f
+#endif
 
-/** The EKF2 magnetometer fusion type */
-#ifndef INS_EKF2_MAG_FUSION_TYPE
-#define INS_EKF2_MAG_FUSION_TYPE MAG_FUSE_TYPE_AUTO
+/** Barometer as height reference (PX4 uses GNSS), as the previous version: the
+ *  heights don't depend on the ground altitude of the flight plan */
+#ifndef INS_EKF2_HGT_REF
+#define INS_EKF2_HGT_REF EKF2_HGT_REF_BARO
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_MAG_FUSION_TYPE)
 
-/** The EKF2 primary vertical distance sensor type */
-#ifndef INS_EKF2_VDIST_SENSOR_TYPE
-#define INS_EKF2_VDIST_SENSOR_TYPE VDIST_SENSOR_BARO
+/* Vehicle specific defaults, as PX4 (rc.fw_defaults and rc.mc_defaults) */
+#if defined(FIXEDWING_FIRMWARE)
+#ifndef INS_EKF2_ARSP_THR
+#define INS_EKF2_ARSP_THR 8.f     ///< airspeed fusion above 8 m/s
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_VDIST_SENSOR_TYPE)
+#ifndef INS_EKF2_FUSE_BETA
+#define INS_EKF2_FUSE_BETA 1      ///< sideslip fusion
+#endif
+#ifndef INS_EKF2_MAG_ACCLIM
+#define INS_EKF2_MAG_ACCLIM 0.f
+#endif
+#ifndef INS_EKF2_RNG_QLTY_T
+#define INS_EKF2_RNG_QLTY_T 3.f
+#endif
+#else
+#ifndef INS_EKF2_RNG_FOG
+#define INS_EKF2_RNG_FOG 1.f
+#endif
+#endif
 
-/** The EKF2 GPS checks before initialization */
-#ifndef INS_EKF2_GPS_CHECK_MASK
-#define INS_EKF2_GPS_CHECK_MASK 21 // (MASK_GPS_NSATS | MASK_GPS_HACC | MASK_GPS_SACC)
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_GPS_CHECK_MASK)
+/* All parameters with the PX4 defaults, the values above can be used in the airframe */
+#include "generated/ekf2_params.h"
 
-/** Default AGL sensor minimum range */
-#ifndef INS_EKF2_SONAR_MIN_RANGE
-#define INS_EKF2_SONAR_MIN_RANGE 0.001
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_SONAR_MIN_RANGE)
+PRINT_CONFIG_VAR(INS_EKF2_GPS_CTRL)
+PRINT_CONFIG_VAR(INS_EKF2_EV_CTRL)
+PRINT_CONFIG_VAR(INS_EKF2_HGT_REF)
+PRINT_CONFIG_VAR(INS_EKF2_MAG_TYPE)
 
-/** Default AGL sensor maximum range */
-#ifndef INS_EKF2_SONAR_MAX_RANGE
-#define INS_EKF2_SONAR_MAX_RANGE 4
+/** GNSS measurement delay (ms), as the PX4 SENS_GNSS0_DELAY parameter */
+#ifndef INS_EKF2_GPS_DELAY
+#define INS_EKF2_GPS_DELAY 110
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_SONAR_MAX_RANGE)
+PRINT_CONFIG_VAR(INS_EKF2_GPS_DELAY)
 
-/** If enabled uses radar sensor as primary AGL source, if possible */
-#ifndef INS_EKF2_RANGE_MAIN_AGL
-#define INS_EKF2_RANGE_MAIN_AGL 1
+/** Minimum distance the range finder can measure (m) */
+#ifndef INS_EKF2_RNG_MIN_DIST
+#define INS_EKF2_RNG_MIN_DIST 0.001f
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_RANGE_MAIN_AGL)
+PRINT_CONFIG_VAR(INS_EKF2_RNG_MIN_DIST)
+
+/** Maximum distance the range finder can measure (m) */
+#ifndef INS_EKF2_RNG_MAX_DIST
+#define INS_EKF2_RNG_MAX_DIST 4.f
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_RNG_MAX_DIST)
+
+/** Maximum flow rate the optical flow sensor can measure (rad/s) */
+#ifndef INS_EKF2_OF_MAX_RATE
+#define INS_EKF2_OF_MAX_RATE 200.f
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_OF_MAX_RATE)
+
+/** default airspeed sensor to use in INS (equivalent airspeed, only fused above INS_EKF2_ARSP_THR):
+ *  any sensor, or the airspeed computed by air_data from a differential pressure sensor.
+ *  The airspeed estimated from the wind (wind_estimation_quadrotor) is never used. */
+#ifndef INS_EKF2_AIRSPEED_ID
+#define INS_EKF2_AIRSPEED_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_AIRSPEED_ID)
 
 /** default barometer to use in INS */
 #ifndef INS_EKF2_BARO_ID
@@ -167,135 +290,31 @@ PRINT_CONFIG_VAR(INS_EKF2_RELPOS_ID)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_OF_ID)
 
-/* IMU X offset from CoG position in meters */
-#ifndef INS_EKF2_IMU_POS_X
-#define INS_EKF2_IMU_POS_X 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_IMU_POS_X)
-
-/* IMU Y offset from CoG position in meters */
-#ifndef INS_EKF2_IMU_POS_Y
-#define INS_EKF2_IMU_POS_Y 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_IMU_POS_Y)
-
-/* IMU Z offset from CoG position in meters */
-#ifndef INS_EKF2_IMU_POS_Z
-#define INS_EKF2_IMU_POS_Z 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_IMU_POS_Z)
-
-/* GPS X offset from CoG position in meters */
+/* GPS antenna position from the CoG in meters, as the PX4 SENS_GNSS0_OFF* parameters */
 #ifndef INS_EKF2_GPS_POS_X
 #define INS_EKF2_GPS_POS_X 0
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_POS_X)
 
-/* GPS Y offset from CoG position in meters */
 #ifndef INS_EKF2_GPS_POS_Y
 #define INS_EKF2_GPS_POS_Y 0
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_POS_Y)
 
-/* GPS Z offset from CoG position in meters */
 #ifndef INS_EKF2_GPS_POS_Z
 #define INS_EKF2_GPS_POS_Z 0
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_POS_Z)
 
-/* Default flow/radar message delay (in ms) */
-#ifndef INS_EKF2_FLOW_SENSOR_DELAY
-#define INS_EKF2_FLOW_SENSOR_DELAY 15
+/* GNSS heading measurement noise when the receiver gives no accuracy (rad) */
+#ifndef INS_EKF2_GPS_YAW_NOISE
+#define INS_EKF2_GPS_YAW_NOISE 0.1f
 #endif
-PRINT_CONFIG_VAR(INS_FLOW_SENSOR_DELAY)
+PRINT_CONFIG_VAR(INS_EKF2_GPS_YAW_NOISE)
 
-/* Default minimum accepted quality (1 to 255) */
-#ifndef INS_EKF2_MIN_FLOW_QUALITY
-#define INS_EKF2_MIN_FLOW_QUALITY  100
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_MIN_FLOW_QUALITY)
-
-/* Max flow rate that the sensor can measure (rad/sec) */
-#ifndef INS_EKF2_MAX_FLOW_RATE
-#define INS_EKF2_MAX_FLOW_RATE 200
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_MAX_FLOW_RATE)
-
-/* Flow sensor X offset from CoG position in meters */
-#ifndef INS_EKF2_FLOW_POS_X
-#define INS_EKF2_FLOW_POS_X 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_POS_X)
-
-/* Flow sensor Y offset from CoG position in meters */
-#ifndef INS_EKF2_FLOW_POS_Y
-#define INS_EKF2_FLOW_POS_Y 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_POS_Y)
-
-/* Flow sensor Z offset from CoG position in meters */
-#ifndef INS_EKF2_FLOW_POS_Z
-#define INS_EKF2_FLOW_POS_Z 0
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_POS_Z)
-
-/* Flow sensor noise in rad/sec */
-#ifndef INS_EKF2_FLOW_NOISE
-#define INS_EKF2_FLOW_NOISE 0.03
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_NOISE)
-
-/* Flow sensor noise at qmin in rad/sec */
-#ifndef INS_EKF2_FLOW_NOISE_QMIN
-#define INS_EKF2_FLOW_NOISE_QMIN 0.05
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_NOISE_QMIN)
-
-/* Flow sensor innovation gate */
-#ifndef INS_EKF2_FLOW_INNOV_GATE
-#define INS_EKF2_FLOW_INNOV_GATE 4
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_INNOV_GATE)
-
-/* External vision position noise (m) */
-#ifndef INS_EKF2_EVP_NOISE
-#define INS_EKF2_EVP_NOISE 0.02f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_EVP_NOISE)
-
-/* External vision velocity noise (m/s) */
-#ifndef INS_EKF2_EVV_NOISE
-#define INS_EKF2_EVV_NOISE 0.1f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_EVV_NOISE)
-
-/* External vision angle noise (rad) */
-#ifndef INS_EKF2_EVA_NOISE
-#define INS_EKF2_EVA_NOISE 0.05f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_EVA_NOISE)
-
-/* GPS measurement noise for horizontal velocity (m/s) */
-#ifndef INS_EKF2_GPS_V_NOISE
-#define INS_EKF2_GPS_V_NOISE 0.3f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_GPS_V_NOISE)
-
-/* GPS measurement position noise (m) */
-#ifndef INS_EKF2_GPS_P_NOISE
-#define INS_EKF2_GPS_P_NOISE 0.5f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_GPS_P_NOISE)
-
-/* Barometric measurement noise for altitude (m) */
-#ifndef INS_EKF2_BARO_NOISE
-#define INS_EKF2_BARO_NOISE 3.5f
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_BARO_NOISE)
-
-/* Maximum allowed distance error for the RTK relative heading measurement (m) */
-#ifndef INS_EKF2_RELHEADING_ERR
-#define INS_EKF2_RELHEADING_ERR 0.2
+/* Maximum difference between the measured and the configured (INS_EKF2_GPS_ANTENNA_DISTANCE) dual antenna distance (m), the heading is not used otherwise */
+#ifndef INS_EKF2_GPS_ANTENNA_DISTANCE_ERR
+#define INS_EKF2_GPS_ANTENNA_DISTANCE_ERR 0.2
 #endif
 
 #ifdef INS_EXT_VISION_ROTATION
@@ -312,6 +331,7 @@ static abi_event mag_ev;
 static abi_event gps_ev;
 static abi_event relpos_ev;
 static abi_event optical_flow_ev;
+static abi_event airspeed_ev;
 static abi_event reset_ev;
 
 /* All ABI callbacks */
@@ -324,16 +344,48 @@ static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 static void relpos_cb(uint8_t sender_id, uint32_t stamp, struct RelPosNED *relpos);
 static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
+static void airspeed_cb(uint8_t sender_id, float eas);
 static void reset_cb(uint8_t sender_id, uint8_t flag);
 
 /* Static local functions */
-static void ins_ekf2_publish_attitude(uint32_t stamp);
+static void ins_ekf2_publish_attitude(uint64_t time_us);
 
 /* Static local variables */
 static Ekf ekf;                                   ///< EKF class itself
 static parameters *ekf_params;                    ///< The EKF parameters
+static GnssChecks gnss_checks;                    ///< GNSS checks before the GNSS data is used
 struct ekf2_t ekf2;                               ///< Local EKF2 status structure
 static struct extVisionSample sample_ev;          ///< External vision sample
+
+/**
+ * Convert a 32 bit timestamp (us) of an ABI message to the 64 bit time of the EKF,
+ * so the EKF time keeps increasing when the 32 bit time wraps (after 71 minutes)
+ */
+static uint64_t ekf2_time_us(uint32_t stamp)
+{
+  static uint32_t last_now = 0;
+  static uint64_t wraps = 0;
+  uint32_t now = get_sys_time_usec();
+  if (now < last_now) {
+    wraps += (1ULL << 32);
+  }
+  last_now = now;
+
+  // A stamp more than half the range later than now was taken before the last wrap
+  uint64_t time_us = wraps + stamp;
+  if (stamp > now && (stamp - now) > (1UL << 31) && time_us >= (1ULL << 32)) {
+    time_us -= (1ULL << 32);
+  }
+  return time_us;
+}
+
+/** Time of a measurement that was taken delay_ms before it arrived */
+static uint64_t ekf2_delayed_time_us(uint32_t stamp, uint32_t delay_ms)
+{
+  uint64_t time_us = ekf2_time_us(stamp);
+  return (time_us > delay_ms * 1000ULL) ? time_us - delay_ms * 1000ULL : 0;
+}
+
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
@@ -344,7 +396,6 @@ static void send_ins(struct transport_tx *trans, struct link_device *dev)
   // Get it from the EKF
   const Vector3f pos_f{ekf.getPosition()};
   const Vector3f speed_f{ekf.getVelocity()};
-  const Vector3f accel_f{ekf.getVelocityDerivative()};
 
   // Convert to integer
   pos.x = POS_BFP_OF_REAL(pos_f(0));
@@ -353,9 +404,9 @@ static void send_ins(struct transport_tx *trans, struct link_device *dev)
   speed.x = SPEED_BFP_OF_REAL(speed_f(0));
   speed.y = SPEED_BFP_OF_REAL(speed_f(1));
   speed.z = SPEED_BFP_OF_REAL(speed_f(2));
-  accel.x = ACCEL_BFP_OF_REAL(accel_f(0));
-  accel.y = ACCEL_BFP_OF_REAL(accel_f(1));
-  accel.z = ACCEL_BFP_OF_REAL(accel_f(2));
+  accel.x = ACCEL_BFP_OF_REAL(ekf2.accel_ned.x);
+  accel.y = ACCEL_BFP_OF_REAL(ekf2.accel_ned.y);
+  accel.z = ACCEL_BFP_OF_REAL(ekf2.accel_ned.z);
 
   // Send the message
   pprz_msg_send_INS(trans, dev, AC_ID,
@@ -372,12 +423,11 @@ static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
   // Get it from the EKF
   const Vector3f pos_f{ekf.getPosition()};
   const Vector3f speed_f{ekf.getVelocity()};
-  const Vector3f accel_f{ekf.getVelocityDerivative()};
 
   // Convert to integer
   pos_z = POS_BFP_OF_REAL(pos_f(2));
   speed_z = SPEED_BFP_OF_REAL(speed_f(2));
-  accel_z = ACCEL_BFP_OF_REAL(accel_f(2));
+  accel_z = ACCEL_BFP_OF_REAL(ekf2.accel_ned.z);
 
   // Send the message
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
@@ -394,32 +444,43 @@ static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
                           &ekf2.ltp_def.hmsl, &qfe);
 }
 
+/** Innovation test ratio, 0 when not available */
+static float test_ratio(float ratio)
+{
+  return PX4_ISFINITE(ratio) ? ratio : 0.f;
+}
+
 static void send_ins_ekf2(struct transport_tx *trans, struct link_device *dev)
 {
-  uint16_t gps_check_status, soln_status;
-  uint16_t filter_fault_status = ekf.fault_status().value; // FIXME: 32bit instead of 16bit
-  uint32_t control_mode = ekf.control_status().value;
-  ekf.get_gps_check_status(&gps_check_status);
-  ekf.get_ekf_soln_status(&soln_status);
+  uint32_t control_mode = ekf.control_status().value; // lower 32 bits of the status flags
+  uint16_t filter_fault_status = ekf.fault_status().value;
+  uint16_t gps_check_status = gnss_checks.getStrictFailFlags();
+  uint16_t soln_status = ekf.get_ekf_soln_status();
 
-  uint16_t innov_test_status;
-  float mag, vel, pos, hgt, tas, hagl, flow, beta, mag_decl = 0.0f;
-  uint8_t terrain_valid, dead_reckoning;
-  ekf.get_innovation_test_status(innov_test_status, mag, vel, pos, hgt, tas, hagl, beta);
-  //ekf.get_flow_innov(&flow);
-  ekf.get_mag_decl_deg(&mag_decl);
-
-  if (ekf.isTerrainEstimateValid()) {
-    terrain_valid = 1;
-  } else {
-    terrain_valid = 0;
+  // Innovation test ratios, a bit is set in innov_test_status when the test fails (ratio > 1)
+  float mag = test_ratio(ekf.getHeadingInnovationTestRatio());
+  float vel = test_ratio(math::max(test_ratio(ekf.getHorizontalVelocityInnovationTestRatio()),
+                                   test_ratio(ekf.getVerticalVelocityInnovationTestRatio())));
+  float pos = test_ratio(ekf.getHorizontalPositionInnovationTestRatio());
+  float hgt = test_ratio(ekf.getVerticalPositionInnovationTestRatio());
+  float tas = test_ratio(ekf.getAirspeedInnovationTestRatio());
+  float hagl = test_ratio(ekf.getHeightAboveGroundInnovationTestRatio());
+  float beta = test_ratio(ekf.getSyntheticSideslipInnovationTestRatio());
+  float flow = test_ratio(math::max(test_ratio(ekf.aid_src_optical_flow().test_ratio[0]),
+                                    test_ratio(ekf.aid_src_optical_flow().test_ratio[1])));
+  const float ratios[] = {mag, vel, pos, hgt, tas, hagl, flow, beta};
+  uint16_t innov_test_status = 0;
+  for (uint8_t i = 0; i < sizeof(ratios) / sizeof(ratios[0]); i++) {
+    if (ratios[i] > 1.f) {
+      innov_test_status |= (1 << i);
+    }
   }
 
-  if (ekf.inertial_dead_reckoning()) {
-    dead_reckoning = 1;
-  } else {
-    dead_reckoning = 0;
-  }
+  float mag_decl = 0.0f;
+  ekf.get_mag_decl_deg(mag_decl);
+
+  uint8_t terrain_valid = ekf.isTerrainEstimateValid() ? 1 : 0;
+  uint8_t dead_reckoning = ekf.control_status_flags().inertial_dead_reckoning ? 1 : 0;
 
   pprz_msg_send_INS_EKF2(trans, dev, AC_ID,
                          &control_mode, &filter_fault_status, &gps_check_status, &soln_status,
@@ -429,30 +490,61 @@ static void send_ins_ekf2(struct transport_tx *trans, struct link_device *dev)
 
 static void send_ins_ekf2_ext(struct transport_tx *trans, struct link_device *dev)
 {
-  float gps_drift[3];
-  Vector3f vibe = ekf.getImuVibrationMetrics();
-  bool gps_blocked;
-  uint8_t gps_blocked_b;
-  ekf.get_gps_drift_metrics(gps_drift, &gps_blocked);
-  gps_blocked_b = gps_blocked;
+  // GNSS drift on the ground, as computed by the GNSS checks
+  float gps_drift[3] = {
+    gnss_checks.horizontal_position_drift_rate_m_s(),
+    gnss_checks.vertical_position_drift_rate_m_s(),
+    gnss_checks.filtered_horizontal_velocity_m_s()
+  };
+  uint8_t gps_blocked = !PX4_ISFINITE(gps_drift[0]);
+
+  // Upper 32 bits of the control status (the lower ones are in INS_EKF2)
+  uint32_t control_mode_upper = (uint32_t)(ekf.control_status().value >> 32);
+
+  // Estimated accuracies
+  float pos_acc_h, pos_acc_v, vel_acc_h, vel_acc_v;
+  ekf.get_ekf_gpos_accuracy(&pos_acc_h, &pos_acc_v);
+  ekf.get_ekf_vel_accuracy(&vel_acc_h, &vel_acc_v);
+
+  // Height above ground and height sensor biases
+  float hagl = ekf.isTerrainEstimateValid() ? ekf.getHagl() : NAN;
+  float baro_bias = ekf.getBaroBiasEstimatorStatus().bias;
+  float gnss_hgt_bias = ekf.getGpsHgtBiasEstimatorStatus().bias;
+
+  // EKF-GSF emergency yaw estimate (independent of the magnetometer)
+  float yaw_gsf = NAN, yaw_gsf_var = NAN;
+  float gsf_yaw[N_MODELS_EKFGSF], gsf_innov_vn[N_MODELS_EKFGSF], gsf_innov_ve[N_MODELS_EKFGSF], gsf_weight[N_MODELS_EKFGSF];
+  if (!ekf.getDataEKFGSF(&yaw_gsf, &yaw_gsf_var, gsf_yaw, gsf_innov_vn, gsf_innov_ve, gsf_weight)) {
+    yaw_gsf = NAN;
+    yaw_gsf_var = NAN;
+  }
+  float yaw_gsf_std = (PX4_ISFINITE(yaw_gsf_var) && yaw_gsf_var >= 0.f) ? sqrtf(yaw_gsf_var) : NAN;
+
+  // Magnetometer checks against the world magnetic model
+  float mag_inc, mag_inc_ref, mag_strength, mag_strength_ref;
+  ekf.get_mag_checks(mag_inc, mag_inc_ref, mag_strength, mag_strength_ref);
 
   pprz_msg_send_INS_EKF2_EXT(trans, dev, AC_ID,
-                             &gps_drift[0], &gps_drift[1], &gps_drift[2], &gps_blocked_b,
-                             &vibe(0), &vibe(1), &vibe(2));
+                             &gps_drift[0], &gps_drift[1], &gps_drift[2], &gps_blocked,
+                             &control_mode_upper,
+                             &pos_acc_h, &pos_acc_v, &vel_acc_h, &vel_acc_v,
+                             &hagl, &baro_bias, &gnss_hgt_bias,
+                             &yaw_gsf, &yaw_gsf_std,
+                             &mag_inc, &mag_inc_ref, &mag_strength, &mag_strength_ref);
 }
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t ahrs_ekf2_id = AHRS_COMP_ID_EKF2;
-  filter_control_status_u control_mode = ekf.control_status();
+  const auto &flags = ekf.control_status_flags();
   uint32_t filter_fault_status = ekf.fault_status().value;
   uint16_t filter_fault_status_16 = filter_fault_status; //FIXME
   uint8_t mde = 0;
 
   // Check the alignment and if GPS is fused
-  if (control_mode.flags.tilt_align && control_mode.flags.yaw_align && (control_mode.flags.gps || control_mode.flags.ev_pos)) {
+  if (flags.tilt_align && flags.yaw_align && (flags.gnss_pos || flags.ev_pos)) {
     mde = 3;
-  } else if (control_mode.flags.tilt_align && control_mode.flags.yaw_align) {
+  } else if (flags.tilt_align && flags.yaw_align) {
     mde = 4;
   } else {
     mde = 2;
@@ -468,12 +560,12 @@ static void send_filter_status(struct transport_tx *trans, struct link_device *d
 
 static void send_wind_info_ret(struct transport_tx *trans, struct link_device *dev)
 {
-  float tas;
   Vector2f wind = ekf.getWindVelocity();
+  const Vector3f vel = ekf.getVelocity();
+  // True airspeed from the velocity and the wind estimate
+  float tas = Vector3f(vel(0) - wind(0), vel(1) - wind(1), vel(2)).norm();
   uint8_t flags = 0x5;
   float f_zero = 0;
-
-  ekf.get_true_airspeed(&tas);
 
   pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags, &wind(1), &wind(0), &f_zero, &tas);
 }
@@ -491,7 +583,7 @@ static void send_ahrs_bias(struct transport_tx *trans, struct link_device *dev)
 static void send_ahrs_quat(struct transport_tx *trans, struct link_device *dev)
 {
   struct Int32Quat ltp_to_body_quat;
-  const Quatf att_q{ekf.calculate_quaternion()};
+  const Quatf att_q{ekf.getQuaternion()};
   ltp_to_body_quat.qi = QUAT1_BFP_OF_REAL(att_q(0));
   ltp_to_body_quat.qx = QUAT1_BFP_OF_REAL(att_q(1));
   ltp_to_body_quat.qy = QUAT1_BFP_OF_REAL(att_q(2));
@@ -515,7 +607,7 @@ static void send_ahrs_quat(struct transport_tx *trans, struct link_device *dev)
 
 static void send_external_pose_down(struct transport_tx *trans, struct link_device *dev)
 {
-  if(sample_ev.time_us == 0){
+  if (sample_ev.time_us == 0) {
     return;
   }
   float sample_temp_ev[11];
@@ -531,67 +623,375 @@ static void send_external_pose_down(struct transport_tx *trans, struct link_devi
   sample_temp_ev[9]  = sample_ev.quat(2);
   sample_temp_ev[10] = sample_ev.quat(3);
   pprz_msg_send_EXTERNAL_POSE_DOWN(trans, dev, AC_ID,
-                        &sample_temp_ev[0],
-                        &sample_temp_ev[1],
-                        &sample_temp_ev[2],
-                        &sample_temp_ev[3],
-                        &sample_temp_ev[4],
-                        &sample_temp_ev[5],
-                        &sample_temp_ev[6],
-                        &sample_temp_ev[7],
-                        &sample_temp_ev[8],
-                        &sample_temp_ev[9],
-                        &sample_temp_ev[10] );
-} 
+                                   &sample_temp_ev[0],
+                                   &sample_temp_ev[1],
+                                   &sample_temp_ev[2],
+                                   &sample_temp_ev[3],
+                                   &sample_temp_ev[4],
+                                   &sample_temp_ev[5],
+                                   &sample_temp_ev[6],
+                                   &sample_temp_ev[7],
+                                   &sample_temp_ev[8],
+                                   &sample_temp_ev[9],
+                                   &sample_temp_ev[10]);
+}
 #endif
+
+/*
+ * EKF events and status changes as text (INFO_MSG) to the GCS and the flight recorder
+ */
+#ifndef INS_EKF2_EVENT_MSGS
+#define INS_EKF2_EVENT_MSGS TRUE
+#endif
+
+/** Send all the EKF events to the GCS, not only the important ones (alignment, dead reckoning, faults).
+ *  All events are always written to the flight recorder. Can be changed from the GCS. */
+#ifndef INS_EKF2_EVENTS_ALL
+#define INS_EKF2_EVENTS_ALL FALSE
+#endif
+bool ins_ekf2_events_all = INS_EKF2_EVENTS_ALL;
+
+/** Minimum time between two messages about the same status, so a flickering status can't flood the link [s] */
+#ifndef INS_EKF2_EVENT_HOLDOFF
+#define INS_EKF2_EVENT_HOLDOFF 5.f
+#endif
+
+#if INS_EKF2_EVENT_MSGS
+#include "modules/datalink/downlink.h"
+#if FLIGHTRECORDER_SDLOG
+#include "modules/loggers/pprzlog_tp.h"
+#include "modules/loggers/flight_recorder.h"
+#endif
+
+/** Text of a status bit when it is set and cleared (NULL: not reported) */
+struct ekf2_status_text {
+  uint8_t bit;
+  const char *on;
+  const char *off;
+  bool important;   ///< Sent to the GCS (else only with ins_ekf2_events_all), always to the flight recorder
+};
+
+/** Control status bits (filter_control_status_u) */
+static const struct ekf2_status_text ekf2_control_texts[] = {
+  {0,  "tilt aligned", NULL, true},
+  {1,  "yaw aligned", "yaw alignment lost", true},
+  {2,  "GNSS pos fusion on", "GNSS pos fusion off", false},
+  {44, "GNSS vel fusion on", "GNSS vel fusion off", false},
+  {11, "GNSS hgt fusion on", "GNSS hgt fusion off", false},
+  {22, "GNSS yaw fusion on", "GNSS yaw fusion off", false},
+  {9,  "baro hgt fusion on", "baro hgt fusion off", false},
+  {10, "range hgt fusion on", "range hgt fusion off", false},
+  {3,  "flow fusion on", "flow fusion off", false},
+  {12, "EV pos fusion on", "EV pos fusion off", false},
+  {24, "EV vel fusion on", "EV vel fusion off", false},
+  {13, "EV yaw fusion on", "EV yaw fusion off", false},
+  {14, "EV hgt fusion on", "EV hgt fusion off", false},
+  {4,  "mag hdg fusion on", "mag hdg fusion off", false},
+  {5,  "mag 3D fusion on", "mag 3D fusion off", false},
+  {19, "airspeed fusion on", "airspeed fusion off", false},
+  {15, "sideslip fusion on", "sideslip fusion off", false},
+  {16, "mag field disturbed", "mag field ok", false},
+  {18, "mag fault", "mag fault cleared", true},
+  {45, "GNSS fault", "GNSS fault cleared", true},
+  {47, "GNSS hgt fault", "GNSS hgt fault cleared", true},
+  {27, "GNSS yaw fault", "GNSS yaw fault cleared", true},
+  {43, "baro fault", "baro fault cleared", true},
+  {28, "range fault", "range fault cleared", true},
+  {36, "EV yaw fault", "EV yaw fault cleared", true},
+  {29, "dead reckoning", "dead reckoning ended", true},
+  {30, "wind dead reckoning", "wind dead reckoning ended", true},
+};
+
+/** Fault status bits (fault_status_u), numerical errors */
+static const struct ekf2_status_text ekf2_fault_texts[] = {
+  {0,  "mag X fusion error", NULL, true},
+  {1,  "mag Y fusion error", NULL, true},
+  {2,  "mag Z fusion error", NULL, true},
+  {3,  "heading fusion error", NULL, true},
+  {4,  "mag decl fusion error", NULL, true},
+  {5,  "airspeed fusion error", NULL, true},
+  {6,  "sideslip fusion error", NULL, true},
+  {7,  "flow X fusion error", NULL, true},
+  {8,  "flow Y fusion error", NULL, true},
+  {10, "bad vertical accel", NULL, true},
+  {11, "accel clipping", NULL, true},
+};
+
+/** Information events (information_event_status_u), NULL when the control status already reports it
+ *  (the fusion started events, reported as "... fusion on") */
+static const char *const ekf2_info_texts[] = {
+  "GNSS checks passed", "vel reset to GNSS", "vel reset to flow", "vel reset to EV", "vel reset to zero",
+  "pos reset to last known", "pos reset to GNSS", "pos reset to EV", NULL,
+  NULL, NULL, NULL, "yaw aligned to IMU/GNSS",
+  "hgt reset to baro", "hgt reset to GNSS", "hgt reset to range", "hgt reset to EV",
+  "pos reset to ext obs", "wind reset to ext obs",
+};
+
+/** Important information events (sent to the GCS): GNSS checks passed and the yaw reset to the IMU/GNSS yaw estimate */
+#define EKF2_INFO_IMPORTANT ((1UL << 0) | (1UL << 12))
+
+#define EKF2_CONTROL_TEXTS_NB (sizeof(ekf2_control_texts) / sizeof(ekf2_control_texts[0]))
+#define EKF2_FAULT_TEXTS_NB (sizeof(ekf2_fault_texts) / sizeof(ekf2_fault_texts[0]))
+#define EKF2_INFO_TEXTS_NB (sizeof(ekf2_info_texts) / sizeof(ekf2_info_texts[0]))
+
+static struct {
+  uint64_t control;                              ///< last reported control status bits
+  uint32_t fault;                                ///< last reported fault status bits
+  float control_time[EKF2_CONTROL_TEXTS_NB];     ///< time of the last message per control bit
+  float fault_time[EKF2_FAULT_TEXTS_NB];         ///< time of the last message per fault bit
+  float info_time[EKF2_INFO_TEXTS_NB];           ///< time of the last message per information event
+  float last_check;
+  struct {
+    char text[120];
+    uint8_t len;
+  } gcs, log;                                    ///< messages for the GCS and the flight recorder
+} ekf2_events;
+
+static void ekf2_event_send(void)
+{
+#if defined SITL
+  if (ekf2_events.log.len > 0) {
+    printf("%s\n", ekf2_events.log.text);
+  }
+#endif
+#if DOWNLINK
+  if (ekf2_events.gcs.len > 0) {
+    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, ekf2_events.gcs.len, ekf2_events.gcs.text);
+  }
+#endif
+#if FLIGHTRECORDER_SDLOG
+  if (ekf2_events.log.len > 0 && flightRecorderLogFile != -1) {
+    pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, ekf2_events.log.len, ekf2_events.log.text);
+  }
+#endif
+  ekf2_events.gcs.len = 0;
+  ekf2_events.log.len = 0;
+}
+
+/** Add a text to a message */
+static void ekf2_event_append(char *msg, uint8_t *len, size_t size, const char *text)
+{
+  int n = snprintf(msg + *len, size - *len, *len == 0 ? "EKF2: %s" : ", %s", text);
+  if (n > 0) {
+    *len = Min(*len + n, (int)size - 1);
+  }
+}
+
+/** Add a text to the flight recorder message, and to the GCS message when important (or all events are sent),
+ *  the messages are sent when full or at the end of the check */
+static void ekf2_event_add(const char *text, bool important)
+{
+  size_t tlen = strlen(text);
+  if ((ekf2_events.log.len > 0 && ekf2_events.log.len + 2 + tlen >= sizeof(ekf2_events.log.text)) ||
+      (ekf2_events.gcs.len > 0 && ekf2_events.gcs.len + 2 + tlen >= sizeof(ekf2_events.gcs.text))) {
+    ekf2_event_send();
+  }
+  ekf2_event_append(ekf2_events.log.text, &ekf2_events.log.len, sizeof(ekf2_events.log.text), text);
+  if (important || ins_ekf2_events_all) {
+    ekf2_event_append(ekf2_events.gcs.text, &ekf2_events.gcs.len, sizeof(ekf2_events.gcs.text), text);
+  }
+}
+
+/** Report the changed status bits, at most once per INS_EKF2_EVENT_HOLDOFF per bit */
+template<typename T>
+static void ekf2_event_bits(const struct ekf2_status_text *texts, uint8_t nb, float *times, T &reported, T current, float now)
+{
+  for (uint8_t i = 0; i < nb; i++) {
+    T mask = ((T)1) << texts[i].bit;
+    if ((current & mask) == (reported & mask) || (times[i] > 0.f && now - times[i] < INS_EKF2_EVENT_HOLDOFF)) {
+      continue;
+    }
+    const char *text = (current & mask) ? texts[i].on : texts[i].off;
+    if (text != NULL) {
+      ekf2_event_add(text, texts[i].important);
+      times[i] = now;
+    }
+    reported = (reported & ~mask) | (current & mask);
+  }
+}
+
+/** Check the EKF events and status changes (twice per second) */
+static void ins_ekf2_check_events(void)
+{
+  float now = get_sys_time_float();
+  if (now - ekf2_events.last_check < 0.5f) {
+    return;
+  }
+  ekf2_events.last_check = now;
+
+  // Information events (e.g. the resets repeated without aiding), at most once per INS_EKF2_EVENT_HOLDOFF per event
+  uint32_t info = ekf.information_event_status().value;
+  ekf.clear_information_events();
+  for (uint8_t i = 0; i < EKF2_INFO_TEXTS_NB; i++) {
+    float *time = &ekf2_events.info_time[i];
+    if ((info & (1UL << i)) && ekf2_info_texts[i] != NULL && (*time <= 0.f || now - *time >= INS_EKF2_EVENT_HOLDOFF)) {
+      ekf2_event_add(ekf2_info_texts[i], (EKF2_INFO_IMPORTANT & (1UL << i)) != 0);
+      *time = now;
+    }
+  }
+  ekf2_event_bits<uint64_t>(ekf2_control_texts, EKF2_CONTROL_TEXTS_NB, ekf2_events.control_time,
+                            ekf2_events.control, ekf.control_status().value, now);
+  ekf2_event_bits<uint32_t>(ekf2_fault_texts, EKF2_FAULT_TEXTS_NB, ekf2_events.fault_time,
+                            ekf2_events.fault, ekf.fault_status().value, now);
+  ekf2_event_send();
+}
+#else
+#define ins_ekf2_check_events() {}
+#endif /* INS_EKF2_EVENT_MSGS */
+
+/*
+ * Preflight check: the EKF is aligned, without faults, and uses the configured position source
+ */
+#if PREFLIGHT_CHECKS
+#include "modules/checks/preflight_checks.h"
+
+/** Require the configured position source (GNSS or external vision) to be used before takeoff */
+#ifndef INS_EKF2_PREFLIGHT_POS
+#define INS_EKF2_PREFLIGHT_POS TRUE
+#endif
+
+/** Time constant of the low-pass filter of the innovation test ratios for the preflight check (s),
+ *  so a single outlier doesn't block arming (as PX4) */
+#ifndef INS_EKF2_PREFLIGHT_INNOV_TAU
+#define INS_EKF2_PREFLIGHT_INNOV_TAU 1.f
+#endif
+
+static struct preflight_check_t ins_ekf2_pfc;
+
+/** Innovation test ratios checked before takeoff */
+#define EKF2_PREFLIGHT_INNOV_NB 4
+static const char *const ekf2_preflight_innov_names[EKF2_PREFLIGHT_INNOV_NB] = {"heading", "velocity", "position", "height"};
+static struct {
+  float ratio[EKF2_PREFLIGHT_INNOV_NB];   ///< Filtered innovation test ratios, NAN when not available
+  float last_time;                        ///< Last filter update (s)
+} ekf2_preflight;
+
+/** Low-pass filter the innovation test ratios, after each EKF update */
+static void ins_ekf2_preflight_filter(void)
+{
+  float now = get_sys_time_float();
+  float dt = now - ekf2_preflight.last_time;
+  ekf2_preflight.last_time = now;
+  const float ratio[EKF2_PREFLIGHT_INNOV_NB] = {
+    ekf.getHeadingInnovationTestRatio(),
+    math::max(ekf.getHorizontalVelocityInnovationTestRatio(), ekf.getVerticalVelocityInnovationTestRatio()),
+    ekf.getHorizontalPositionInnovationTestRatio(),
+    ekf.getVerticalPositionInnovationTestRatio()
+  };
+  float alpha = math::constrain(dt / (INS_EKF2_PREFLIGHT_INNOV_TAU + dt), 0.f, 1.f);
+  for (uint8_t i = 0; i < EKF2_PREFLIGHT_INNOV_NB; i++) {
+    if (!PX4_ISFINITE(ratio[i])) {
+      ekf2_preflight.ratio[i] = NAN;
+    } else if (!PX4_ISFINITE(ekf2_preflight.ratio[i])) {
+      ekf2_preflight.ratio[i] = ratio[i];
+    } else {
+      ekf2_preflight.ratio[i] += alpha * (ratio[i] - ekf2_preflight.ratio[i]);
+    }
+  }
+}
+
+static void ins_ekf2_preflight(struct preflight_result_t *result)
+{
+  const auto &flags = ekf.control_status_flags();
+  uint16_t fail_cnt = result->fail_cnt;
+
+  if (!flags.tilt_align) {
+    preflight_error(result, "EKF2 attitude not aligned");
+  }
+  if (!flags.yaw_align) {
+    preflight_error(result, "EKF2 heading not aligned");
+  }
+  if (ekf.fault_status().value != 0) {
+    preflight_error(result, "EKF2 numerical fault 0x%x", (unsigned int)ekf.fault_status().value);
+  }
+  if (flags.mag_fault || flags.gnss_fault || flags.baro_fault || flags.gnss_hgt_fault || flags.gnss_yaw_fault) {
+    preflight_error(result, "EKF2 sensor fault (mag %d, GNSS %d, baro %d, GNSS hgt %d, GNSS yaw %d)",
+                    flags.mag_fault, flags.gnss_fault, flags.baro_fault, flags.gnss_hgt_fault, flags.gnss_yaw_fault);
+  }
+  if (flags.inertial_dead_reckoning) {
+    preflight_error(result, "EKF2 dead reckoning");
+  }
+
+#if INS_EKF2_PREFLIGHT_POS
+  const int32_t gnss_pos = static_cast<int32_t>(GnssCtrl::HPOS) | static_cast<int32_t>(GnssCtrl::VEL);
+  if ((ekf_params->ekf2_gps_ctrl & gnss_pos) && !(flags.gnss_pos || flags.gnss_vel)) {
+    static const char *const names[] = {"nsats", "pdop", "hacc", "vacc", "sacc", "hdrift", "vdrift", "hspeed",
+                                        "vspeed", "spoofed", "fix", "jammed"
+                                       };
+    char failed[80] = "";
+    uint16_t flags_fail = gnss_checks.getStrictFailFlags();
+    for (uint8_t i = 0; i < sizeof(names) / sizeof(names[0]); i++) {
+      if (flags_fail & (1 << i)) {
+        size_t l = strlen(failed);
+        snprintf(failed + l, sizeof(failed) - l, "%s%s", l ? "," : "", names[i]);
+      }
+    }
+    preflight_error(result, "EKF2 not using GNSS (failed: %s)", failed[0] ? failed : "no data");
+  }
+  const int32_t ev_pos = static_cast<int32_t>(EvCtrl::HPOS) | static_cast<int32_t>(EvCtrl::VEL);
+  if ((ekf_params->ekf2_ev_ctrl & ev_pos) && !(flags.ev_pos || flags.ev_vel)) {
+    preflight_error(result, "EKF2 not using external vision");
+  }
+#endif
+
+  // Filtered innovation test ratios above 1 mean the measurements are rejected
+  for (uint8_t i = 0; i < EKF2_PREFLIGHT_INNOV_NB; i++) {
+    if (PX4_ISFINITE(ekf2_preflight.ratio[i]) && ekf2_preflight.ratio[i] > 1.f) {
+      preflight_error(result, "EKF2 %s innovation too high (%.1f)", ekf2_preflight_innov_names[i], ekf2_preflight.ratio[i]);
+    }
+  }
+
+  if (flags.mag_field_disturbed) {
+    preflight_warning(result, "EKF2 mag field disturbed");
+  }
+  if (result->fail_cnt == fail_cnt) {
+    preflight_success(result, "EKF2 ok");
+  }
+}
+#else
+#define ins_ekf2_preflight_filter() {}
+#endif /* PREFLIGHT_CHECKS */
 
 /* Initialize the EKF */
 void ins_ekf2_init(void)
 {
-  /* Get the ekf parameters */
+  /* Get the ekf parameters, all with the PX4 defaults or the airframe values */
   ekf_params = ekf.getParamHandle();
-  ekf_params->fusion_mode = INS_EKF2_FUSION_MODE;
-  ekf_params->mag_fusion_type = INS_EKF2_MAG_FUSION_TYPE;
-  ekf_params->vdist_sensor_type = INS_EKF2_VDIST_SENSOR_TYPE;
-  ekf_params->gps_check_mask = INS_EKF2_GPS_CHECK_MASK;
+  ins_ekf2_set_px4_params(ekf_params);
 
-  /* Set specific noise levels */
-  ekf_params->accel_bias_p_noise = 3.0e-3f;
-  ekf_params->gps_vel_noise = INS_EKF2_GPS_V_NOISE;
-  ekf_params->gps_pos_noise = INS_EKF2_GPS_P_NOISE;
-  ekf_params->baro_noise = INS_EKF2_BARO_NOISE;
+  /* The observation buffers must also hold the GNSS delay, which is not an EKF parameter */
+  ekf_params->ekf2_delay_max = math::max((float)INS_EKF2_DELAY_MAX, (float)INS_EKF2_GPS_DELAY);
 
-  /* Set optical flow parameters */
-  ekf_params->flow_qual_min = INS_EKF2_MIN_FLOW_QUALITY;
-  ekf_params->flow_delay_ms = INS_EKF2_FLOW_SENSOR_DELAY;
-  ekf_params->range_delay_ms = INS_EKF2_FLOW_SENSOR_DELAY;
-  ekf_params->flow_noise = INS_EKF2_FLOW_NOISE;
-  ekf_params->flow_noise_qual_min = INS_EKF2_FLOW_NOISE_QMIN;
-  ekf_params->flow_innov_gate = INS_EKF2_FLOW_INNOV_GATE;
+  /* Output predictor, as in the PX4 EKF2 module */
+  ekf.output_predictor().set_imu_offset(ekf_params->imu_pos_body);
+  ekf.output_predictor().set_pos_correction_tc(INS_EKF2_TAU_POS);
+  ekf.output_predictor().set_vel_correction_tc(INS_EKF2_TAU_VEL);
+  ekf.set_gnss_yaw_reset_wait(INS_EKF2_GPS_YAW_RST * 1000000);
 
-  /* Set the IMU position relative from the CoG in xyz (m) */
-  ekf_params->imu_pos_body = {
-    INS_EKF2_IMU_POS_X,
-    INS_EKF2_IMU_POS_Y,
-    INS_EKF2_IMU_POS_Z
-  };
+  /* Enable all sensors, which ones are used follows from the parameters above */
+  FusionControl *fc = ekf.getFusionControlHandle();
+  fc->gps.enabled = true;
+  fc->of.enabled = true;
+  fc->ev.enabled = true;
+  fc->baro.enabled = true;
+  fc->rng.enabled = true;
+  fc->mag.enabled = true;
+  fc->aspd.enabled = true;
+  ekf.updateParameters();
 
-  /* Set the GPS position relative from the CoG in xyz (m) */
-  ekf_params->gps_pos_body = {
-    INS_EKF2_GPS_POS_X,
-    INS_EKF2_GPS_POS_Y,
-    INS_EKF2_GPS_POS_Z
-  };
-
-  /* Set flow sensor offset from CoG position in xyz (m) */
-  ekf_params->flow_pos_body = {
-    INS_EKF2_FLOW_POS_X,
-    INS_EKF2_FLOW_POS_Y,
-    INS_EKF2_FLOW_POS_Z
-  };
-
-  /* Set range as default AGL measurement if possible */
-  ekf_params->range_aid = INS_EKF2_RANGE_MAIN_AGL;
+  /* GNSS checks before the GNSS data is used, as the PX4 GNSS_* parameters */
+  GnssChecks::Params checks_params{};
+  checks_params.check_mask = INS_EKF2_GNSS_CHECK;
+  checks_params.req_nsats = INS_EKF2_GNSS_REQ_NSATS;
+  checks_params.req_pdop = INS_EKF2_GNSS_REQ_PDOP;
+  checks_params.req_eph = INS_EKF2_GNSS_REQ_EPH;
+  checks_params.req_epv = INS_EKF2_GNSS_REQ_EPV;
+  checks_params.req_sacc = INS_EKF2_GNSS_REQ_SACC;
+  checks_params.req_hdrift = INS_EKF2_GNSS_REQ_HDRIFT;
+  checks_params.req_vdrift = INS_EKF2_GNSS_REQ_VDRIFT;
+  checks_params.req_fix = INS_EKF2_GNSS_REQ_FIX;
+  checks_params.min_health_time_us = INS_EKF2_GNSS_REQ_TIME * 1000000;
+  gnss_checks.setParams(checks_params);
 
   /* Initialize struct */
   ekf2.ltp_stamp = 0;
@@ -601,21 +1001,34 @@ void ins_ekf2_init(void)
   ekf2.got_imu_data = false;
   ekf2.quat_reset_counter = 0;
   ekf2.temp = 20.0f; // Default temperature of 20 degrees celcius
-  ekf2.qnh = 1013.25f; // Default atmosphere
+  ekf2.in_air = false;
+  ekf2.armed = false;
+  ekf2.fixed_wing = false;
+  ekf2.air_density = PPRZ_ISA_AIR_DENSITY;
+  /* Field strength of the world magnetic model at the flight plan origin, for a magnetometer without
+   * the strength where it was calibrated (strength in IMU_MAG_CALIB) */
+  ekf2.mag_scale = 0.4f;
+#if USE_INS_NAV_INIT
+  float strength = get_mag_strength_gauss(NAV_LAT0 * 1e-7f, NAV_LON0 * 1e-7f);
+  if (PX4_ISFINITE(strength) && strength > 0.1f && strength < 1.f) {
+    ekf2.mag_scale = strength;
+  }
+#endif
+  ekf2.system_flags_time = 0;
+  FLOAT_VECT3_ZERO(ekf2.accel_ned);
 
   /* Initialize the range sensor limits */
-  ekf.set_rangefinder_limits(INS_EKF2_SONAR_MIN_RANGE, INS_EKF2_SONAR_MAX_RANGE);
+  ekf.set_rangefinder_limits(INS_EKF2_RNG_MIN_DIST, INS_EKF2_RNG_MAX_DIST);
 
   /* Initialize the flow sensor limits */
-  ekf.set_optical_flow_limits(INS_EKF2_MAX_FLOW_RATE, INS_EKF2_SONAR_MIN_RANGE, INS_EKF2_SONAR_MAX_RANGE);
+  ekf.set_optical_flow_limits(INS_EKF2_OF_MAX_RATE, INS_EKF2_RNG_MIN_DIST, INS_EKF2_RNG_MAX_DIST);
 
   // Don't send external vision data by default
   sample_ev.time_us = 0;
 
   /* Initialize the origin from flight plan */
 #if USE_INS_NAV_INIT
-  if(ekf.setEkfGlobalOrigin(NAV_LAT0*1e-7, NAV_LON0*1e-7, (NAV_ALT0)*1e-3)) // EKF2 works HMSL
-  {
+  if (ekf.setEkfGlobalOrigin(NAV_LAT0 * 1e-7, NAV_LON0 * 1e-7, (NAV_ALT0) * 1e-3)) { // EKF2 works HMSL
     struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
     llh_nav0.lat = NAV_LAT0;
     llh_nav0.lon = NAV_LON0;
@@ -658,7 +1071,15 @@ void ins_ekf2_init(void)
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgRELPOS(INS_EKF2_RELPOS_ID, &relpos_ev, relpos_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
+  AbiBindMsgAIRSPEED(INS_EKF2_AIRSPEED_ID, &airspeed_ev, airspeed_cb);
   AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
+
+#if PREFLIGHT_CHECKS
+  for (uint8_t i = 0; i < EKF2_PREFLIGHT_INNOV_NB; i++) {
+    ekf2_preflight.ratio[i] = NAN;
+  }
+  preflight_check_register(&ins_ekf2_pfc, ins_ekf2_preflight);
+#endif
 }
 
 static void reset_ref(void)
@@ -666,7 +1087,7 @@ static void reset_ref(void)
 #if USE_GPS
   if (GpsFixValid()) {
     struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
-    if (ekf.setEkfGlobalOrigin(lla_pos.lat*1e-7, lla_pos.lon*1e-7, gps.hmsl*1e-3)) {
+    if (ekf.setEkfGlobalOrigin(lla_pos.lat * 1e-7, lla_pos.lon * 1e-7, gps.hmsl * 1e-3)) {
       ltp_def_from_lla_i(&ekf2.ltp_def, &lla_pos);
       ekf2.ltp_def.hmsl = gps.hmsl;
       stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
@@ -685,7 +1106,7 @@ static void reset_vertical_ref(void)
       .lon = stateGetLlaOrigin_i().lon,
       .alt = lla_pos.alt
     };
-    if (ekf.setEkfGlobalOrigin(lla.lat*1e-7, lla.lon*1e-7, gps.hmsl*1e-3)) {
+    if (ekf.setEkfGlobalOrigin(lla.lat * 1e-7, lla.lon * 1e-7, gps.hmsl * 1e-3)) {
       ltp_def_from_lla_i(&ekf2.ltp_def, &lla);
       ekf2.ltp_def.hmsl = gps.hmsl;
       stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
@@ -709,20 +1130,65 @@ static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
   }
 }
 
+/** Give the arming and in-air state to the EKF when it changes, and every second
+ *  (the EKF ignores them until it is initialised by the first IMU data) */
+static void ins_ekf2_update_system_flags(void)
+{
+  bool in_air = autopilot_in_flight();
+  bool armed = autopilot_get_motors_on();
+  // airspeed and sideslip fusion, no ground effect, airspeed for the yaw estimator: always for the fixedwing
+  // firmware, in forward flight for hybrids flown with the rotorcraft firmware (e.g. rotwing_state)
+  bool fixed_wing = stateIsFixedWingFlight();
+  uint64_t now = ekf2_time_us(get_sys_time_usec());
+  if (in_air == ekf2.in_air && armed == ekf2.armed && fixed_wing == ekf2.fixed_wing
+      && now < ekf2.system_flags_time + 1000000) {
+    return;
+  }
+
+  systemFlagUpdate flags{};
+  flags.time_us = now;
+  flags.armed = armed;
+  flags.in_air = in_air;
+  flags.is_fixed_wing = fixed_wing;
+  ekf.setSystemFlagData(flags);
+
+  ekf2.in_air = in_air;
+  ekf2.armed = armed;
+  ekf2.fixed_wing = fixed_wing;
+  ekf2.system_flags_time = now;
+}
+
+/** Airspeed (equivalent airspeed) to the EKF as true airspeed */
+static void airspeed_cb(uint8_t sender_id, float eas)
+{
+  if (sender_id == AIRSPEED_WE_QUAD_ID || !PX4_ISFINITE(eas) || eas < 0.f || ekf2.air_density <= 0.f) {
+    return;
+  }
+  airspeedSample sample{};
+  sample.time_us = ekf2_time_us(get_sys_time_usec());
+  sample.eas2tas = sqrtf(PPRZ_ISA_AIR_DENSITY / ekf2.air_density);
+  sample.true_airspeed = eas * sample.eas2tas;
+  ekf.setAirspeedData(sample);
+}
+
 /* Update the INS state */
 void ins_ekf2_update(void)
 {
-  /* Set EKF settings */
-  ekf.set_in_air_status(autopilot_in_flight());
+  ins_ekf2_update_system_flags();
 
   /* Update the EKF */
   if (ekf2.got_imu_data) {
     // Update the EKF but ignore the response and also copy the faster intermediate filter
     ekf.update();
-    filter_control_status_u control_status = ekf.control_status();
+    ins_ekf2_check_events();
+    ins_ekf2_preflight_filter();
+
+    /* Get the accelerations in NED frame (average since the last update) */
+    const Vector3f vel_deriv_f{ekf.getVelocityDerivative()};
+    ekf.resetVelocityDerivativeAccumulation();
 
     // Only publish position after successful alignment
-    if (control_status.flags.tilt_align) {
+    if (ekf.control_status_flags().tilt_align) {
       /* Get the position */
       const Vector3f pos_f{ekf.getPosition()};
       struct NedCoor_f pos;
@@ -743,14 +1209,15 @@ void ins_ekf2_update(void)
       // Publish to state
       stateSetSpeedNed_f(MODULE_INS_EKF2_ID, &speed);
 
-      /* Get the accelerations in NED frame */
-      const Vector3f vel_deriv_f{ekf.getVelocityDerivative()};
-      struct NedCoor_f accel;
-      accel.x = vel_deriv_f(0);
-      accel.y = vel_deriv_f(1);
-      accel.z = vel_deriv_f(2);
+      ekf2.accel_ned.x = vel_deriv_f(0);
+      ekf2.accel_ned.y = vel_deriv_f(1);
+      ekf2.accel_ned.z = vel_deriv_f(2);
 
       // Publish to state
+      struct NedCoor_f accel;
+      accel.x = ekf2.accel_ned.x;
+      accel.y = ekf2.accel_ned.y;
+      accel.z = ekf2.accel_ned.z;
       stateSetAccelNed_f(MODULE_INS_EKF2_ID, &accel);
 
       /* Get local origin */
@@ -761,10 +1228,14 @@ void ins_ekf2_update(void)
       uint64_t origin_time;
 
       // Only update the origin when the state estimator has updated the origin
-      bool ekf_origin_valid = ekf.getEkfGlobalOrigin(origin_time, ekf_origin_lat, ekf_origin_lon, ref_alt);
-      if (ekf_origin_valid && (origin_time > ekf2.ltp_stamp)) {
+      if (ekf.global_origin_valid()) {
+        ekf.getEkfGlobalOrigin(origin_time, ekf_origin_lat, ekf_origin_lon, ref_alt);
+      } else {
+        origin_time = 0;
+      }
+      if (origin_time > ekf2.ltp_stamp) {
 #if INS_EKF2_FORCE_NAV_REF && USE_INS_NAV_INIT
-        if (ekf.setEkfGlobalOrigin(NAV_LAT0*1e-7, NAV_LON0*1e-7, (NAV_ALT0)*1e-3)) {
+        if (ekf.setEkfGlobalOrigin(NAV_LAT0 * 1e-7, NAV_LON0 * 1e-7, (NAV_ALT0) * 1e-3)) {
           struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
           llh_nav0.lat = NAV_LAT0;
           llh_nav0.lon = NAV_LON0;
@@ -799,30 +1270,22 @@ void ins_ekf2_update(void)
   ekf2.got_imu_data = false;
 }
 
-void ins_ekf2_remove_gps(int32_t mode)
+void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf)
 {
-  if (mode) {
-    ekf_params->fusion_mode = ekf2.fusion_mode = (MASK_USE_OF | MASK_USE_GPSYAW);
-  } else {
-    ekf_params->fusion_mode = ekf2.fusion_mode = INS_EKF2_FUSION_MODE;
-  }
-}
-
-void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf) {
   if (DL_EXTERNAL_POSE_ac_id(buf) != AC_ID) { return; } // not for this aircraft
 
-  sample_ev.time_us = get_sys_time_usec(); //FIXME
+  sample_ev.time_us = ekf2_time_us(get_sys_time_usec()); //FIXME
   sample_ev.pos(0) = DL_EXTERNAL_POSE_enu_y(buf);
   sample_ev.pos(1) = DL_EXTERNAL_POSE_enu_x(buf);
   sample_ev.pos(2) = -DL_EXTERNAL_POSE_enu_z(buf);
   sample_ev.vel(0) = DL_EXTERNAL_POSE_enu_yd(buf);
-  sample_ev.vel(1) = DL_EXTERNAL_POSE_enu_xd(buf);      
+  sample_ev.vel(1) = DL_EXTERNAL_POSE_enu_xd(buf);
   sample_ev.vel(2) = -DL_EXTERNAL_POSE_enu_zd(buf);
   sample_ev.quat(0) = DL_EXTERNAL_POSE_body_qi(buf);
   sample_ev.quat(1) = DL_EXTERNAL_POSE_body_qy(buf);
   sample_ev.quat(2) = DL_EXTERNAL_POSE_body_qx(buf);
   sample_ev.quat(3) = -DL_EXTERNAL_POSE_body_qz(buf);
-  
+
 #ifdef INS_EXT_VISION_ROTATION
   // Rotate the quaternion
   struct FloatQuat body_q = {sample_ev.quat(0), sample_ev.quat(1), sample_ev.quat(2), sample_ev.quat(3)};
@@ -834,25 +1297,29 @@ void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf) {
   sample_ev.quat(3) = rot_q.qz;
 #endif
 
-  sample_ev.posVar.setAll(INS_EKF2_EVP_NOISE);
-  sample_ev.velCov = matrix::eye<float, 3>() * INS_EKF2_EVV_NOISE;
-  sample_ev.angVar = INS_EKF2_EVA_NOISE;
-  sample_ev.vel_frame = velocity_frame_t::LOCAL_FRAME_FRD;
+  // The external pose is given in a north aligned frame (converted from ENU to NED above)
+  sample_ev.position_var.setAll(INS_EKF2_EVP_NOISE * INS_EKF2_EVP_NOISE);
+  sample_ev.velocity_var.setAll(INS_EKF2_EVV_NOISE * INS_EKF2_EVV_NOISE);
+  sample_ev.orientation_var.setAll(INS_EKF2_EVA_NOISE * INS_EKF2_EVA_NOISE);
+  sample_ev.pos_frame = PositionFrame::LOCAL_FRAME_NED;
+  sample_ev.vel_frame = VelocityFrame::LOCAL_FRAME_NED;
+  sample_ev.quality = 100;
 
   ekf.setExtVisionData(sample_ev);
 }
 
-void ins_ekf2_parse_EXTERNAL_POSE_SMALL(uint8_t __attribute__((unused)) *buf) {
+void ins_ekf2_parse_EXTERNAL_POSE_SMALL(uint8_t __attribute__((unused)) *buf)
+{
 
 }
 
 /** Publish the attitude and get the new state
  *  Directly called after a succeslfull gyro+accel reading
  */
-static void ins_ekf2_publish_attitude(uint32_t stamp)
+static void ins_ekf2_publish_attitude(uint64_t time_us)
 {
   imuSample imu_sample = {};
-  imu_sample.time_us = stamp;
+  imu_sample.time_us = time_us;
   imu_sample.delta_ang_dt = ekf2.gyro_dt * 1.e-6f;
   imu_sample.delta_ang = Vector3f{ekf2.delta_gyro.p, ekf2.delta_gyro.q, ekf2.delta_gyro.r};
   imu_sample.delta_vel_dt = ekf2.accel_dt * 1.e-6f;
@@ -862,7 +1329,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
   if (ekf.attitude_valid()) {
     // Calculate the quaternion
     struct FloatQuat ltp_to_body_quat;
-    const Quatf att_q{ekf.calculate_quaternion()};
+    const Quatf att_q{ekf.getQuaternion()};
     ltp_to_body_quat.qi = att_q(0);
     ltp_to_body_quat.qx = att_q(1);
     ltp_to_body_quat.qy = att_q(2);
@@ -918,15 +1385,15 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
 /* Update INS based on Baro information */
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, float pressure)
 {
-  baroSample sample;
-  sample.time_us = stamp;
-
   // Calculate the air density
   float rho = pprz_isa_density_of_pressure(pressure, ekf2.temp);
   ekf.set_air_density(rho);
+  ekf2.air_density = rho;
 
   // Calculate the height above mean sea level based on pressure
-  sample.hgt = pprz_isa_height_of_pressure_full(pressure, ekf2.qnh * 100.0f);
+  baroSample sample{};
+  sample.time_us = ekf2_time_us(stamp);
+  sample.hgt = pprz_isa_height_of_pressure_full(pressure, PPRZ_ISA_SEA_LEVEL_PRESSURE); // the EKF estimates the baro offset
   ekf.setBaroData(sample);
 }
 
@@ -939,17 +1406,17 @@ static void temperature_cb(uint8_t __attribute__((unused)) sender_id, float temp
 /* Update INS based on AGL information */
 static void agl_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, float distance)
 {
-  rangeSample sample;
-  sample.time_us = stamp;
+  estimator::sensor::rangeSample sample{};
+  sample.time_us = ekf2_time_us(stamp);
   sample.rng = distance;
-  sample.quality = -1;
+  sample.quality = -1; // unknown signal quality
 
   ekf.setRangeData(sample);
 }
 
 /* Update INS based on Gyro information */
 static void gyro_int_cb(uint8_t __attribute__((unused)) sender_id,
-                    uint32_t stamp, struct FloatRates *delta_gyro, uint16_t dt)
+                        uint32_t stamp, struct FloatRates *delta_gyro, uint16_t dt)
 {
   // Copy and save the gyro data
   RATES_COPY(ekf2.delta_gyro, *delta_gyro);
@@ -958,13 +1425,13 @@ static void gyro_int_cb(uint8_t __attribute__((unused)) sender_id,
 
   /* When Gyro and accelerometer are valid enter it into the EKF */
   if (ekf2.gyro_valid && ekf2.accel_valid) {
-    ins_ekf2_publish_attitude(stamp);
+    ins_ekf2_publish_attitude(ekf2_time_us(stamp));
   }
 }
 
 /* Update INS based on Accelerometer information */
 static void accel_int_cb(uint8_t sender_id __attribute__((unused)),
-                     uint32_t stamp, struct FloatVect3 *delta_accel, uint16_t dt)
+                         uint32_t stamp, struct FloatVect3 *delta_accel, uint16_t dt)
 {
   // Copy and save the gyro data
   VECT3_COPY(ekf2.delta_accel, *delta_accel);
@@ -973,29 +1440,32 @@ static void accel_int_cb(uint8_t sender_id __attribute__((unused)),
 
   /* When Gyro and accelerometer are valid enter it into the EKF */
   if (ekf2.gyro_valid && ekf2.accel_valid) {
-    ins_ekf2_publish_attitude(stamp);
+    ins_ekf2_publish_attitude(ekf2_time_us(stamp));
   }
 }
 
 /* Update INS based on Magnetometer information */
-static void mag_cb(uint8_t __attribute__((unused)) sender_id,
+static void mag_cb(uint8_t sender_id,
                    uint32_t stamp,
                    struct Int32Vect3 *mag)
 {
   struct FloatVect3 mag_gauss;
-  magSample sample;
-  sample.time_us = stamp;
 
-  // Convert Magnetometer information to float and to radius 0.2f
+  // The calibrated magnetometer is 1 where it was calibrated: scale it to the field strength there
+  // (IMU_MAG_CALIB strength, written by the calibration tool), else to the field strength of the
+  // world magnetic model at the flight plan origin. The scale is fixed (a change while the EKF runs
+  // is learned as a magnetometer bias and gives a heading error)
+  struct imu_mag_t *imu_mag = imu_get_mag(sender_id, false);
+  const float scale = (imu_mag != NULL && imu_mag->strength > 0.1f && imu_mag->strength < 1.f) ? imu_mag->strength : ekf2.mag_scale;
   MAGS_FLOAT_OF_BFP(mag_gauss, *mag);
-  mag_gauss.x *= 0.4f;
-  mag_gauss.y *= 0.4f;
-  mag_gauss.z *= 0.4f;
+  mag_gauss.x *= scale;
+  mag_gauss.y *= scale;
+  mag_gauss.z *= scale;
 
   // Publish information to the EKF
-  sample.mag(0) = mag_gauss.x;
-  sample.mag(1) = mag_gauss.y;
-  sample.mag(2) = mag_gauss.z;
+  magSample sample{};
+  sample.time_us = ekf2_time_us(stamp);
+  sample.mag = Vector3f{mag_gauss.x, mag_gauss.y, mag_gauss.z};
 
   ekf.setMagData(sample);
   ekf2.got_imu_data = true;
@@ -1006,63 +1476,81 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp,
                    struct GpsState *gps_s)
 {
-  gps_message gps_msg = {};
-  gps_msg.time_usec = stamp;
-  struct LlaCoor_i lla_pos = lla_int_from_gps(gps_s);
-  gps_msg.lat = lla_pos.lat;
-  gps_msg.lon = lla_pos.lon;
-  gps_msg.alt = gps_s->hmsl; // EKF2 works with HMSL
-#if INS_EKF2_GPS_COURSE_YAW
-  gps_msg.yaw = wrap_pi((float)gps_s->course / 1e7);
-  gps_msg.yaw_offset = 0;
-#elif defined(INS_EKF2_GPS_YAW_OFFSET)
-  if(ekf2.rel_heading_valid) {
-    gps_msg.yaw = wrap_pi(ekf2.rel_heading - RadOfDeg(INS_EKF2_GPS_YAW_OFFSET));
-    ekf2.rel_heading_valid = false;
-  } else {
-    gps_msg.yaw = NAN;
+  // The velocity is converted from ECEF when the receiver gives no NED velocity. Receivers
+  // without any velocity (e.g. Furuno, NMEA, MTK) are used for the position only, as before.
+  bool has_vel = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT) ||
+                 bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_ECEF_BIT);
+  int32_t gps_ctrl = has_vel ? (int32_t)(INS_EKF2_GPS_CTRL) : ((INS_EKF2_GPS_CTRL) & ~EKF2_GPS_CTRL_VEL);
+  if (ekf_params->ekf2_gps_ctrl != gps_ctrl) {
+    ekf_params->ekf2_gps_ctrl = gps_ctrl;
   }
 
-  // Offset also needs to be substracted from the heading (this is for roll/pitch angle limits)
-  gps_msg.yaw_offset = RadOfDeg(INS_EKF2_GPS_YAW_OFFSET);
-#else
-  gps_msg.yaw = NAN;
-  gps_msg.yaw_offset = NAN;
-#endif
-  gps_msg.fix_type = gps_s->fix;
-  gps_msg.eph = gps_s->hacc / 100.0;
-  gps_msg.epv = gps_s->vacc / 100.0;
-  gps_msg.sacc = gps_s->sacc / 100.0;
-  gps_msg.vel_m_s = gps_s->gspeed / 100.0;
+  struct LlaCoor_i lla_pos = lla_int_from_gps(gps_s);
   struct NedCoor_f ned_vel = ned_vel_float_from_gps(gps_s);
-  gps_msg.vel_ned(0) = ned_vel.x;
-  gps_msg.vel_ned(1) = ned_vel.y;
-  gps_msg.vel_ned(2) = ned_vel.z;
-  gps_msg.vel_ned_valid = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT);
-  gps_msg.nsats = gps_s->num_sv;
-  gps_msg.pdop = gps_s->pdop;
 
-  ekf.setGpsData(gps_msg);
+  // Run the GNSS checks
+  gnssChecksSample checks_sample{};
+  checks_sample.time_us = ekf2_time_us(stamp);
+  checks_sample.lat = lla_pos.lat * 1e-7;
+  checks_sample.lon = lla_pos.lon * 1e-7;
+  checks_sample.alt = gps_s->hmsl * 1e-3f; // EKF2 works with HMSL
+  checks_sample.vel = Vector3f{ned_vel.x, ned_vel.y, ned_vel.z};
+  checks_sample.hacc = gps_s->hacc / 100.0f;
+  checks_sample.vacc = gps_s->vacc / 100.0f;
+  checks_sample.sacc = gps_s->sacc / 100.0f;
+  checks_sample.fix_type = gps_s->fix;
+  checks_sample.nsats = gps_s->num_sv;
+  checks_sample.pdop = gps_s->pdop / 100.0f;
+  gnss_checks.run(checks_sample, ekf2.armed, ekf2.in_air, ekf.control_status_flags().vehicle_at_rest);
+
+  // The measurement was taken INS_EKF2_GPS_DELAY before it arrived
+  gnssSample sample{};
+  sample.time_us = ekf2_delayed_time_us(stamp, INS_EKF2_GPS_DELAY);
+  sample.lat = checks_sample.lat;
+  sample.lon = checks_sample.lon;
+  sample.alt = checks_sample.alt;
+  sample.vel = checks_sample.vel;
+  sample.hacc = checks_sample.hacc;
+  sample.vacc = checks_sample.vacc;
+  sample.sacc = checks_sample.sacc;
+  sample.fix_type = checks_sample.fix_type;
+  sample.nsats = checks_sample.nsats;
+  sample.pdop = checks_sample.pdop;
+  sample.pos_body = Vector3f{INS_EKF2_GPS_POS_X, INS_EKF2_GPS_POS_Y, INS_EKF2_GPS_POS_Z};
+  sample.usable = gnss_checks.passed();
+  sample.sacc_passes_strict = !(gnss_checks.getStrictFailFlags() & vehicle_gnss_s::CHECK_SACC);
+  ekf.setGpsData(sample);
+
 }
 
-/* Update the local relative position information */
-static void relpos_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp __attribute__((unused)), struct RelPosNED *relpos)
+/* Update the heading from the relative position (dual antenna RTK GNSS) */
+static void relpos_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, struct RelPosNED *relpos)
 {
   // Verify if we received a valid heading
-  if(
+  if (
 #ifdef INS_EKF2_RELHEADING_REF_ID
     relpos->reference_id != INS_EKF2_RELHEADING_REF_ID ||
 #endif
-#ifdef INS_EKF2_RELHEADING_DISTANCE
-    fabs(relpos->distance - INS_EKF2_RELHEADING_DISTANCE) > INS_EKF2_RELHEADING_ERR ||
+#ifdef INS_EKF2_GPS_ANTENNA_DISTANCE
+    fabs(relpos->distance - INS_EKF2_GPS_ANTENNA_DISTANCE) > INS_EKF2_GPS_ANTENNA_DISTANCE_ERR ||
 #endif
-    !ISFINITE(relpos->heading)
+    !PX4_ISFINITE(relpos->heading)
   ) {
     return;
   }
 
-  ekf2.rel_heading = relpos->heading;
-  ekf2.rel_heading_valid = true;
+#ifdef INS_EKF2_GPS_YAW_OFFSET
+  // The heading is measured from antenna 1 to antenna 2, the offset is the yaw of that baseline in the body frame
+  gnssYawSample yaw_sample{};
+  yaw_sample.time_us = ekf2_delayed_time_us(stamp, INS_EKF2_GPS_DELAY);
+  yaw_sample.yaw = wrap_pi(relpos->heading - RadOfDeg(INS_EKF2_GPS_YAW_OFFSET));
+  yaw_sample.yaw_acc = (PX4_ISFINITE(relpos->heading_acc) && relpos->heading_acc > 0.f) ? relpos->heading_acc : NAN;
+  yaw_sample.yaw_offset = RadOfDeg(INS_EKF2_GPS_YAW_OFFSET);
+  yaw_sample.usable = true;
+  ekf.setGnssYawData(yaw_sample);
+#else
+  (void)stamp;
+#endif
 }
 
 /* Update INS based on Optical Flow information */
@@ -1075,32 +1563,21 @@ static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
                             float quality,
                             float size_divergence __attribute__((unused)))
 {
-  flowSample sample;
-  sample.time_us = stamp;
-
-  // Wait for two measurements in order to integrate
+  // Wait for two measurements in order to know the integration time
   if (ekf2.flow_stamp <= 0) {
     ekf2.flow_stamp = stamp;
     return;
   }
-
-  // Calculate the timestamp
-  sample.dt = (stamp - ekf2.flow_stamp);
+  uint32_t dt = stamp - ekf2.flow_stamp;
   ekf2.flow_stamp = stamp;
 
-  /* Build integrated flow and gyro messages for filter
-  NOTE: pure rotations should result in same flow_x and
-  gyro_roll and same flow_y and gyro_pitch */
-  Vector2f flowdata;
-  flowdata(0) = RadOfDeg(flow_y) * (1e-6 *
-                                    sample.dt);                       // INTEGRATED FLOW AROUND Y AXIS (RIGHT -X, LEFT +X)
-  flowdata(1) = - RadOfDeg(flow_x) * (1e-6 *
-                                      sample.dt);                     // INTEGRATED FLOW AROUND X AXIS (FORWARD +Y, BACKWARD -Y)
-
-  sample.quality = quality;                     // quality indicator between 0 and 255
-  sample.flow_xy_rad =
-    flowdata;                   // measured delta angle of the image about the X and Y body axes (rad), RH rotaton is positive
-  sample.gyro_xyz = Vector3f{NAN, NAN, NAN};    // measured delta angle of the inertial frame about the body axes obtained from rate gyro measurements (rad), RH rotation is positive
+  /* Flow rates of the image about the X and Y body axes (rad/s), RH rotation is positive
+  NOTE: pure rotations should result in same flow_x and gyro_roll and same flow_y and gyro_pitch */
+  flowSample sample{};
+  sample.time_us = ekf2_delayed_time_us(stamp, 0) - dt / 2; // middle of the integration interval
+  sample.flow_rate = Vector2f{(float)RadOfDeg(flow_y), -(float)RadOfDeg(flow_x)};
+  sample.gyro_rate = Vector3f{NAN, NAN, NAN}; // the EKF uses its own gyro measurements
+  sample.quality = quality;                   // quality indicator between 0 and 255
 
   // Update the optical flow data based on the callback
   ekf.setOpticalFlowData(sample);
