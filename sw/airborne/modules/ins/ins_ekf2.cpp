@@ -794,6 +794,13 @@ static void send_external_pose_down(struct transport_tx *trans, struct link_devi
 #define INS_EKF2_EVENT_MSGS TRUE
 #endif
 
+/** Send all the EKF events to the GCS, not only the important ones (alignment, dead reckoning, faults).
+ *  All events are always written to the flight recorder. Can be changed from the GCS. */
+#ifndef INS_EKF2_EVENTS_ALL
+#define INS_EKF2_EVENTS_ALL FALSE
+#endif
+bool ins_ekf2_events_all = INS_EKF2_EVENTS_ALL;
+
 /** Minimum time between two messages about the same status, so a flickering status can't flood the link [s] */
 #ifndef INS_EKF2_EVENT_HOLDOFF
 #define INS_EKF2_EVENT_HOLDOFF 5.f
@@ -811,52 +818,53 @@ struct ekf2_status_text {
   uint8_t bit;
   const char *on;
   const char *off;
+  bool important;   ///< Sent to the GCS (else only with ins_ekf2_events_all), always to the flight recorder
 };
 
 /** Control status bits (filter_control_status_u) */
 static const struct ekf2_status_text ekf2_control_texts[] = {
-  {0,  "tilt aligned", NULL},
-  {1,  "yaw aligned", "yaw alignment lost"},
-  {2,  "GNSS pos fusion on", "GNSS pos fusion off"},
-  {44, "GNSS vel fusion on", "GNSS vel fusion off"},
-  {11, "GNSS hgt fusion on", "GNSS hgt fusion off"},
-  {22, "GNSS yaw fusion on", "GNSS yaw fusion off"},
-  {9,  "baro hgt fusion on", "baro hgt fusion off"},
-  {10, "range hgt fusion on", "range hgt fusion off"},
-  {3,  "flow fusion on", "flow fusion off"},
-  {12, "EV pos fusion on", "EV pos fusion off"},
-  {24, "EV vel fusion on", "EV vel fusion off"},
-  {13, "EV yaw fusion on", "EV yaw fusion off"},
-  {14, "EV hgt fusion on", "EV hgt fusion off"},
-  {4,  "mag hdg fusion on", "mag hdg fusion off"},
-  {5,  "mag 3D fusion on", "mag 3D fusion off"},
-  {19, "airspeed fusion on", "airspeed fusion off"},
-  {15, "sideslip fusion on", "sideslip fusion off"},
-  {16, "mag field disturbed", "mag field ok"},
-  {18, "mag fault", "mag fault cleared"},
-  {45, "GNSS fault", "GNSS fault cleared"},
-  {47, "GNSS hgt fault", "GNSS hgt fault cleared"},
-  {27, "GNSS yaw fault", "GNSS yaw fault cleared"},
-  {43, "baro fault", "baro fault cleared"},
-  {28, "range fault", "range fault cleared"},
-  {36, "EV yaw fault", "EV yaw fault cleared"},
-  {29, "dead reckoning", "dead reckoning ended"},
-  {30, "wind dead reckoning", "wind dead reckoning ended"},
+  {0,  "tilt aligned", NULL, true},
+  {1,  "yaw aligned", "yaw alignment lost", true},
+  {2,  "GNSS pos fusion on", "GNSS pos fusion off", false},
+  {44, "GNSS vel fusion on", "GNSS vel fusion off", false},
+  {11, "GNSS hgt fusion on", "GNSS hgt fusion off", false},
+  {22, "GNSS yaw fusion on", "GNSS yaw fusion off", false},
+  {9,  "baro hgt fusion on", "baro hgt fusion off", false},
+  {10, "range hgt fusion on", "range hgt fusion off", false},
+  {3,  "flow fusion on", "flow fusion off", false},
+  {12, "EV pos fusion on", "EV pos fusion off", false},
+  {24, "EV vel fusion on", "EV vel fusion off", false},
+  {13, "EV yaw fusion on", "EV yaw fusion off", false},
+  {14, "EV hgt fusion on", "EV hgt fusion off", false},
+  {4,  "mag hdg fusion on", "mag hdg fusion off", false},
+  {5,  "mag 3D fusion on", "mag 3D fusion off", false},
+  {19, "airspeed fusion on", "airspeed fusion off", false},
+  {15, "sideslip fusion on", "sideslip fusion off", false},
+  {16, "mag field disturbed", "mag field ok", false},
+  {18, "mag fault", "mag fault cleared", true},
+  {45, "GNSS fault", "GNSS fault cleared", true},
+  {47, "GNSS hgt fault", "GNSS hgt fault cleared", true},
+  {27, "GNSS yaw fault", "GNSS yaw fault cleared", true},
+  {43, "baro fault", "baro fault cleared", true},
+  {28, "range fault", "range fault cleared", true},
+  {36, "EV yaw fault", "EV yaw fault cleared", true},
+  {29, "dead reckoning", "dead reckoning ended", true},
+  {30, "wind dead reckoning", "wind dead reckoning ended", true},
 };
 
 /** Fault status bits (fault_status_u), numerical errors */
 static const struct ekf2_status_text ekf2_fault_texts[] = {
-  {0,  "mag X fusion error", NULL},
-  {1,  "mag Y fusion error", NULL},
-  {2,  "mag Z fusion error", NULL},
-  {3,  "heading fusion error", NULL},
-  {4,  "mag decl fusion error", NULL},
-  {5,  "airspeed fusion error", NULL},
-  {6,  "sideslip fusion error", NULL},
-  {7,  "flow X fusion error", NULL},
-  {8,  "flow Y fusion error", NULL},
-  {10, "bad vertical accel", NULL},
-  {11, "accel clipping", NULL},
+  {0,  "mag X fusion error", NULL, true},
+  {1,  "mag Y fusion error", NULL, true},
+  {2,  "mag Z fusion error", NULL, true},
+  {3,  "heading fusion error", NULL, true},
+  {4,  "mag decl fusion error", NULL, true},
+  {5,  "airspeed fusion error", NULL, true},
+  {6,  "sideslip fusion error", NULL, true},
+  {7,  "flow X fusion error", NULL, true},
+  {8,  "flow Y fusion error", NULL, true},
+  {10, "bad vertical accel", NULL, true},
+  {11, "accel clipping", NULL, true},
 };
 
 /** Information events (information_event_status_u), NULL when the control status already reports it
@@ -869,6 +877,9 @@ static const char *const ekf2_info_texts[] = {
   "pos reset to ext obs", "wind reset to ext obs",
 };
 
+/** Important information events (sent to the GCS): GNSS checks passed and the yaw reset to the IMU/GNSS yaw estimate */
+#define EKF2_INFO_IMPORTANT ((1UL << 0) | (1UL << 12))
+
 #define EKF2_CONTROL_TEXTS_NB (sizeof(ekf2_control_texts) / sizeof(ekf2_control_texts[0]))
 #define EKF2_FAULT_TEXTS_NB (sizeof(ekf2_fault_texts) / sizeof(ekf2_fault_texts[0]))
 #define EKF2_INFO_TEXTS_NB (sizeof(ekf2_info_texts) / sizeof(ekf2_info_texts[0]))
@@ -880,40 +891,54 @@ static struct {
   float fault_time[EKF2_FAULT_TEXTS_NB];         ///< time of the last message per fault bit
   float info_time[EKF2_INFO_TEXTS_NB];           ///< time of the last message per information event
   float last_check;
-  char msg[120];
-  uint8_t len;
+  struct {
+    char text[120];
+    uint8_t len;
+  } gcs, log;                                    ///< messages for the GCS and the flight recorder
 } ekf2_events;
 
 static void ekf2_event_send(void)
 {
-  if (ekf2_events.len == 0) {
-    return;
-  }
 #if defined SITL
-  printf("%s\n", ekf2_events.msg);
+  if (ekf2_events.log.len > 0) {
+    printf("%s\n", ekf2_events.log.text);
+  }
 #endif
 #if DOWNLINK
-  DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, ekf2_events.len, ekf2_events.msg);
+  if (ekf2_events.gcs.len > 0) {
+    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, ekf2_events.gcs.len, ekf2_events.gcs.text);
+  }
 #endif
 #if FLIGHTRECORDER_SDLOG
-  if (flightRecorderLogFile != -1) {
-    pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, ekf2_events.len, ekf2_events.msg);
+  if (ekf2_events.log.len > 0 && flightRecorderLogFile != -1) {
+    pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, ekf2_events.log.len, ekf2_events.log.text);
   }
 #endif
-  ekf2_events.len = 0;
+  ekf2_events.gcs.len = 0;
+  ekf2_events.log.len = 0;
 }
 
-/** Add a text to the message, sent when full or at the end of the check */
-static void ekf2_event_add(const char *text)
+/** Add a text to a message */
+static void ekf2_event_append(char *msg, uint8_t *len, size_t size, const char *text)
+{
+  int n = snprintf(msg + *len, size - *len, *len == 0 ? "EKF2: %s" : ", %s", text);
+  if (n > 0) {
+    *len = Min(*len + n, (int)size - 1);
+  }
+}
+
+/** Add a text to the flight recorder message, and to the GCS message when important (or all events are sent),
+ *  the messages are sent when full or at the end of the check */
+static void ekf2_event_add(const char *text, bool important)
 {
   size_t tlen = strlen(text);
-  if (ekf2_events.len > 0 && ekf2_events.len + 2 + tlen >= sizeof(ekf2_events.msg)) {
+  if ((ekf2_events.log.len > 0 && ekf2_events.log.len + 2 + tlen >= sizeof(ekf2_events.log.text)) ||
+      (ekf2_events.gcs.len > 0 && ekf2_events.gcs.len + 2 + tlen >= sizeof(ekf2_events.gcs.text))) {
     ekf2_event_send();
   }
-  int n = snprintf(ekf2_events.msg + ekf2_events.len, sizeof(ekf2_events.msg) - ekf2_events.len,
-                   ekf2_events.len == 0 ? "EKF2: %s" : ", %s", text);
-  if (n > 0) {
-    ekf2_events.len = Min(ekf2_events.len + n, (int)sizeof(ekf2_events.msg) - 1);
+  ekf2_event_append(ekf2_events.log.text, &ekf2_events.log.len, sizeof(ekf2_events.log.text), text);
+  if (important || ins_ekf2_events_all) {
+    ekf2_event_append(ekf2_events.gcs.text, &ekf2_events.gcs.len, sizeof(ekf2_events.gcs.text), text);
   }
 }
 
@@ -928,7 +953,7 @@ static void ekf2_event_bits(const struct ekf2_status_text *texts, uint8_t nb, fl
     }
     const char *text = (current & mask) ? texts[i].on : texts[i].off;
     if (text != NULL) {
-      ekf2_event_add(text);
+      ekf2_event_add(text, texts[i].important);
       times[i] = now;
     }
     reported = (reported & ~mask) | (current & mask);
@@ -950,7 +975,7 @@ static void ins_ekf2_check_events(void)
   for (uint8_t i = 0; i < EKF2_INFO_TEXTS_NB; i++) {
     float *time = &ekf2_events.info_time[i];
     if ((info & (1UL << i)) && ekf2_info_texts[i] != NULL && (*time <= 0.f || now - *time >= INS_EKF2_EVENT_HOLDOFF)) {
-      ekf2_event_add(ekf2_info_texts[i]);
+      ekf2_event_add(ekf2_info_texts[i], (EKF2_INFO_IMPORTANT & (1UL << i)) != 0);
       *time = now;
     }
   }
