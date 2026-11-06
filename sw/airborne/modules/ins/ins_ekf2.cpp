@@ -877,6 +877,7 @@ static struct {
   uint32_t fault;                                ///< last reported fault status bits
   float control_time[EKF2_CONTROL_TEXTS_NB];     ///< time of the last message per control bit
   float fault_time[EKF2_FAULT_TEXTS_NB];         ///< time of the last message per fault bit
+  float info_time[EKF2_INFO_TEXTS_NB];           ///< time of the last message per information event
   float last_check;
   char msg[120];
   uint8_t len;
@@ -942,11 +943,14 @@ static void ins_ekf2_check_events(void)
   }
   ekf2_events.last_check = now;
 
+  // Information events (e.g. the resets repeated without aiding), at most once per INS_EKF2_EVENT_HOLDOFF per event
   uint32_t info = ekf.information_event_status().value;
   ekf.clear_information_events();
   for (uint8_t i = 0; i < EKF2_INFO_TEXTS_NB; i++) {
-    if (info & (1UL << i)) {
+    float *time = &ekf2_events.info_time[i];
+    if ((info & (1UL << i)) && (*time <= 0.f || now - *time >= INS_EKF2_EVENT_HOLDOFF)) {
       ekf2_event_add(ekf2_info_texts[i]);
+      *time = now;
     }
   }
   ekf2_event_bits<uint64_t>(ekf2_control_texts, EKF2_CONTROL_TEXTS_NB, ekf2_events.control_time,

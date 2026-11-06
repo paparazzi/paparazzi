@@ -58,7 +58,7 @@
     <define name="INS_EKF2_GPS_ID" value="GPS_MULTI_ID" description="ABI sensor ID used ad input for GPS measurements"/>
     <define name="INS_EKF2_RELPOS_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for Relative Position heading measurements"/>
     <define name="INS_EKF2_EVENT_MSGS" value="TRUE|FALSE" description="Send the EKF events and status changes (alignment, fusion started/stopped, resets, faults) as INFO_MSG to the GCS and the flight recorder (default: TRUE)"/>
-    <define name="INS_EKF2_EVENT_HOLDOFF" value="5" unit="s" description="Minimum time between two messages about the same status (default: 5 s)"/>
+    <define name="INS_EKF2_EVENT_HOLDOFF" value="5" unit="s" description="Minimum time between two messages about the same status or event (default: 5 s)"/>
     <define name="INS_EKF2_PREFLIGHT_POS" value="TRUE|FALSE" description="Preflight check: require the configured position source (GNSS or external vision) to be used (default: TRUE)"/>
     <define name="INS_EKF2_PREFLIGHT_INNOV_TAU" value="1.0" description="Preflight check: time constant of the low-pass filter of the innovation test ratios [s], a filtered ratio above 1 blocks arming"/>
     <configure name="INS_EKF2_LOG_INPUTS" value="FALSE|TRUE" description="Log every EKF input on the SD card (EKF2_INPUT messages in the flight recorder log) to replay the EKF offline with sw/tools/ekf2_replay. The EKF starts once the log is open (SDLOG_START_DELAY is then 2 s by default). Needs the flight_recorder module, in NPS the log is in var/logs/sdlog/AIRCRAFT/FLIGHT_RECORDER"/>
