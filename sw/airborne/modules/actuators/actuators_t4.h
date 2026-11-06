@@ -27,6 +27,8 @@
 #ifndef ACTUATORS_T4_H
 #define ACTUATORS_T4_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "modules/actuators/actuators_t4_arch.h"
 #include "actuators_t4_uart.h" //#include "modules/actuators/actuators_t4_uart.h"
 
@@ -35,6 +37,15 @@
  */
 extern void actuators_t4_arch_init(void);
 
-#define ActuatorsT4Init() actuators_t4_arch_init()
+static inline void actuators_t4_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_t4_set,
+    .commit = actuators_t4_commit,
+  });
+  actuators_t4_arch_init();
+}
+
+#define ActuatorsT4Init actuators_t4_driver_init
 
 #endif /* ACTUATORS_T4_H */

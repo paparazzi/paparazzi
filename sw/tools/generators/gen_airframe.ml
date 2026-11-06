@@ -272,7 +272,7 @@ let preprocess_value = fun s v prefix ->
 
 let print_actuators_config = fun out ->
   let actuators = Array.make (Hashtbl.length servos_drivers) "" in
-  Hashtbl.iter (fun s (d, i) ->
+  Hashtbl.iter (fun s (_d, i) ->
     actuators.(i) <- sprintf "    { \\
       .pprz_val = 0, \\
       .driver_val = 0, \\
@@ -284,9 +284,8 @@ let print_actuators_config = fun out ->
         .neutral = SERVO_%s_NEUTRAL, \\
         .travel_up = SERVO_%s_TRAVEL_UP, \\
         .travel_down = SERVO_%s_TRAVEL_DOWN \\
-      }, \\
-      .set = Actuator%sSet \\
-    }" s s s s s s s d;
+      } \\
+    }" s s s s s s s;
   ) servos_drivers;
   fprintf out "#define ACTUATORS_CONFIG { \\\n";
   fprintf out "%s" (String.concat ", \\\n" (Array.to_list actuators));
@@ -299,11 +298,11 @@ let print_actuators_config = fun out ->
  *)
 let print_actuators_lifecycle = fun out ->
   let drivers = get_list_of_drivers () in
+  define_out out "ACTUATORS_DRIVERS_NB" (string_of_int (Hashtbl.length drivers_no));
+  let order = List.map (fun d -> string_of_int (Hashtbl.find drivers_no d)) drivers in
+  define_out out "ACTUATORS_DRIVER_ORDER" ("{" ^ String.concat ", " order ^ "}");
   fprintf out "#define AllActuatorsInit() { \\\n";
-  List.iter (fun d -> fprintf out "  Actuators%sInit();\\\n" d) drivers;
-  fprintf out "}\n\n";
-  fprintf out "static inline void actuators_commit(void)\n{\n";
-  List.iter (fun d -> fprintf out "  Actuators%sCommit();\n" d) drivers;
+  List.iter (fun d -> fprintf out "  Actuators%sInit(%d);\\\n" d (Hashtbl.find drivers_no d)) drivers;
   fprintf out "}\n\n"
 
 let parse_command_laws = fun out command ->

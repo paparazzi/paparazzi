@@ -26,11 +26,9 @@
 #ifndef ACTUATORS_ESC32_H
 #define ACTUATORS_ESC32_H
 
-#include "std.h"
+#include "modules/actuators/actuators_driver.h"
 
-/* Declare commit before airframe.h uses it in actuators_commit(). */
-extern void actuators_esc32_commit(void);
-#define ActuatorsESC32Commit actuators_esc32_commit
+#include "std.h"
 
 #include "generated/airframe.h"
 
@@ -199,15 +197,22 @@ struct ESC32 {
   enum ESC32_config_cmd config_cmd;                     ///< The command
 };
 
-
 extern struct ESC32 actuators_esc32;
 
 extern void actuators_esc32_init(void);
+extern void actuators_esc32_commit(void);
 extern void actuators_esc32_set(uint8_t i, int16_t v);
 extern void actuators_esc32_config_cmd(uint8_t i);
 
-#define ActuatorESC32Set actuators_esc32_set
-#define ActuatorsESC32Init() actuators_esc32_init()
+static inline void actuators_esc32_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_esc32_set,
+    .commit = actuators_esc32_commit,
+  });
+  actuators_esc32_init();
+}
 
+#define ActuatorsESC32Init actuators_esc32_driver_init
 
 #endif /* ACTUATORS_ESC32_H */

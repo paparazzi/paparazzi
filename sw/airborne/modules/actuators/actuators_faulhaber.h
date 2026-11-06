@@ -27,6 +27,8 @@
 #ifndef ACTUATORS_FAULHABER_H
 #define ACTUATORS_FAULHABER_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "std.h"
 
 enum faulhaber_modes_t {
@@ -60,11 +62,17 @@ extern void actuators_faulhaber_event(void);
 extern void actuators_faulhaber_SetMode(uint8_t mode);
 extern void actuators_faulhaber_set(uint8_t idx, int16_t value);
 
-
 #define ACTUATORS_FAULHABER_COMMAND_SCALE 1000.0f
 
-#define ActuatorFaulhaberSet actuators_faulhaber_set
-#define ActuatorsFaulhaberInit() actuators_faulhaber_init()
-#define ActuatorsFaulhaberCommit() {}
+static inline void actuators_faulhaber_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_faulhaber_set,
+    .commit = actuators_noop_commit,
+  });
+  actuators_faulhaber_init();
+}
+
+#define ActuatorsFaulhaberInit actuators_faulhaber_driver_init
 
 #endif /* ACTUATORS_FAULHABER_H */

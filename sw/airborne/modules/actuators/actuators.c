@@ -35,6 +35,23 @@
 #include "main_fbw.h"
 #endif
 
+struct actuator_driver actuator_drivers[ACTUATORS_DRIVERS_NB];
+
+void actuators_register_driver(uint8_t driver_id, struct actuator_driver driver)
+{
+  actuator_drivers[driver_id] = driver;
+}
+
+void actuators_commit(void)
+{
+#if ACTUATORS_DRIVERS_NB
+  static const uint8_t order[ACTUATORS_DRIVERS_NB] = ACTUATORS_DRIVER_ORDER;
+  for (unsigned int i = 0; i < ACTUATORS_DRIVERS_NB; i++) {
+    actuator_drivers[order[i]].commit();
+  }
+#endif
+}
+
 #if ACTUATORS_NB
 
 struct actuator_t actuators[ACTUATORS_NB] = ACTUATORS_CONFIG;
@@ -60,9 +77,7 @@ static int16_t actuator_value_to_driver(const struct act_config_t *config, pprz_
 static void actuator_dispatch(struct actuator_t *actuator, int16_t driver_value)
 {
   actuator->driver_val = driver_value;
-  if (actuator->set != NULL) {
-    actuator->set(actuator->config.servo_idx, actuator->driver_val);
-  }
+  actuator_drivers[actuator->config.driver_no].set(actuator->config.servo_idx, actuator->driver_val);
 }
 
 /* Automatic initialization, telemetry, shell and periodic output require command
@@ -113,9 +128,6 @@ static void show_actuator(shell_stream_t *sh, uint8_t i) {
       actuators[i].config.driver_no, actuators[i].config.servo_idx);
   chprintf(sh, "    min: %d, max: %d, neutral %d\r\n",
       actuators[i].config.min, actuators[i].config.max, actuators[i].config.neutral);
-  if (actuators[i].set == NULL) {
-    chprintf(sh, "    no set function registered");
-  }
   chprintf(sh, "    pprz value  : %d\r\n", actuator_get_pprz(i));
   chprintf(sh, "    driver value: %d\r\n", actuator_get(i));
 }
