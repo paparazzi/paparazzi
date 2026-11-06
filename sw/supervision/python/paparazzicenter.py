@@ -5,6 +5,15 @@ import os
 import sys
 import utils
 
+# Don't keep the arrays per OpenGL context (mag calibration 3D view): some drivers (e.g. in a VM) don't
+# report the current context and every draw fails. Must be set before OpenGL.GL is imported (by pyqtgraph).
+try:
+    import OpenGL
+    OpenGL.ERROR_ON_COPY = True
+    OpenGL.STORE_POINTERS = False
+except ImportError:
+    pass
+
 lib_path = os.path.normpath(os.path.join(utils.PAPARAZZI_SRC, 'sw', 'lib', 'python'))
 sys.path.append(lib_path)
 
