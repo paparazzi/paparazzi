@@ -359,14 +359,16 @@ static struct extVisionSample sample_ev;          ///< External vision sample
 
 /**
  * Convert a 32 bit timestamp (us) of an ABI message to the 64 bit time of the EKF,
- * so the EKF time keeps increasing when the 32 bit time wraps (after 71 minutes)
+ * so the EKF time keeps increasing when the 32 bit time wraps (after 71 minutes).
+ * Only a step back of more than half the range is a wrap: a time read just before a later one stored by
+ * another caller is a little older, and taking it for a wrap would put the EKF time 71 minutes ahead.
  */
 static uint64_t ekf2_time_us(uint32_t stamp)
 {
   static uint32_t last_now = 0;
   static uint64_t wraps = 0;
   uint32_t now = get_sys_time_usec();
-  if (now < last_now) {
+  if (now < last_now && (last_now - now) > (1UL << 31)) {
     wraps += (1ULL << 32);
   }
   last_now = now;
@@ -1159,13 +1161,40 @@ static void ins_ekf2_update_system_flags(void)
 }
 
 /** Airspeed (equivalent airspeed) to the EKF as true airspeed */
+/**
+ * The airspeed can come from another thread (e.g. a UAVCAN sensor through air_data, in the CAN receive thread):
+ * only keep it here, it is given to the EKF from ins_ekf2_update(), as the other samples.
+ */
+static struct {
+  float eas;                ///< Equivalent airspeed (m/s)
+  uint32_t stamp;           ///< Time of the measurement (us)
+  volatile bool new_data;   ///< Set last by the callback, cleared once given to the EKF
+} ekf2_airspeed;
+
 static void airspeed_cb(uint8_t sender_id, float eas)
 {
-  if (sender_id == AIRSPEED_WE_QUAD_ID || !PX4_ISFINITE(eas) || eas < 0.f || ekf2.air_density <= 0.f) {
+  if (sender_id == AIRSPEED_WE_QUAD_ID || !PX4_ISFINITE(eas) || eas < 0.f) {
+    return;
+  }
+  ekf2_airspeed.eas = eas;
+  ekf2_airspeed.stamp = get_sys_time_usec();
+  ekf2_airspeed.new_data = true;
+}
+
+/** Give the last airspeed to the EKF, in the thread of the EKF */
+static void ins_ekf2_airspeed_update(void)
+{
+  if (!ekf2_airspeed.new_data) {
+    return;
+  }
+  const float eas = ekf2_airspeed.eas;
+  const uint32_t stamp = ekf2_airspeed.stamp;
+  ekf2_airspeed.new_data = false;
+  if (ekf2.air_density <= 0.f) {
     return;
   }
   airspeedSample sample{};
-  sample.time_us = ekf2_time_us(get_sys_time_usec());
+  sample.time_us = ekf2_time_us(stamp);
   sample.eas2tas = sqrtf(PPRZ_ISA_AIR_DENSITY / ekf2.air_density);
   sample.true_airspeed = eas * sample.eas2tas;
   ekf.setAirspeedData(sample);
@@ -1175,6 +1204,7 @@ static void airspeed_cb(uint8_t sender_id, float eas)
 void ins_ekf2_update(void)
 {
   ins_ekf2_update_system_flags();
+  ins_ekf2_airspeed_update();
 
   /* Update the EKF */
   if (ekf2.got_imu_data) {
