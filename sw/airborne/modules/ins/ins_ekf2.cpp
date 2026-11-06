@@ -1720,7 +1720,8 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   checks_sample.fix_type = gps_s->fix;
   checks_sample.nsats = gps_s->num_sv;
   checks_sample.pdop = gps_s->pdop / 100.0f;
-  gnss_checks.run(checks_sample, ekf2.armed, ekf2.in_air, ekf.control_status_flags().vehicle_at_rest);
+  const bool at_rest = ekf.control_status_flags().vehicle_at_rest;
+  gnss_checks.run(checks_sample, ekf2.armed, ekf2.in_air, at_rest);
 
   // The measurement was taken INS_EKF2_GPS_DELAY before it arrived
   gnssSample sample{};
@@ -1739,11 +1740,16 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   sample.usable = gnss_checks.passed();
   sample.sacc_passes_strict = !(gnss_checks.getStrictFailFlags() & vehicle_gnss_s::CHECK_SACC);
   {
-    int32_t ints[5] = {lla_pos.lat, lla_pos.lon, sample.fix_type, sample.nsats,
-                       (sample.usable << 0) | (sample.sacc_passes_strict << 1) | (sample.spoofed << 2) | (sample.jammed << 3)};
+    // Flags: the sample (bits 0-3), and to find why a sample isn't usable, the state of the GNSS checks (bits 4-5),
+    // their inputs (bits 6-8), and the checks the sample failed at the strict and relaxed thresholds (GNSS_CHECK_*)
+    int32_t flags = (sample.usable << 0) | (sample.sacc_passes_strict << 1) | (sample.spoofed << 2) | (sample.jammed << 3)
+                    | (gnss_checks.strict() << 4) | (gnss_checks.passedStrict() << 5)
+                    | (at_rest << 6) | (ekf2.armed << 7) | (ekf2.in_air << 8);
+    int32_t ints[7] = {lla_pos.lat, lla_pos.lon, sample.fix_type, sample.nsats, flags,
+                       gnss_checks.getStrictFailFlags(), gnss_checks.getRelaxedFailFlags()};
     float values[11] = {sample.alt, sample.vel(0), sample.vel(1), sample.vel(2), sample.hacc, sample.vacc, sample.sacc,
                         sample.pdop, sample.pos_body(0), sample.pos_body(1), sample.pos_body(2)};
-    ekf2_log(EKF2_IN_GNSS, sample.time_us, 5, ints, 11, values);
+    ekf2_log(EKF2_IN_GNSS, sample.time_us, 7, ints, 11, values);
   }
   ekf.setGpsData(sample);
 

@@ -17,6 +17,11 @@ optical flow, external vision, flags), every update and all EKF parameters are t
 `EKF2_INPUT` messages in the flight recorder log on the SD card (`INS_EKF2_LOG_DEVICE`), about
 25 kB/s at a 500 Hz IMU. Every 10th update the EKF output is logged too, to check the replay.
 
+A GNSS sample also logs why it is (not) usable: in its flags (the 5th integer) bit 4 is set when the
+strict GNSS checks decide, bit 5 when they passed, and bits 6-8 are the at rest, armed and in air
+inputs of the checks; the 6th and 7th integers are the checks failed at the strict and relaxed
+thresholds (`GNSS_CHECK_*` bits, e.g. 0x20 horizontal drift).
+
 The EKF only starts once the log is open, so the replay sees everything the EKF saw.
 `SDLOG_START_DELAY` is therefore 2 s by default with this option (the build tells you when it is set
 higher). Without SD card the EKF starts after `INS_EKF2_LOG_WAIT` (60 s) without logging.
