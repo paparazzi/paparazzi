@@ -20,9 +20,7 @@ optical flow, external vision, flags), every update and all EKF parameters are t
 A GNSS sample also logs why it is (not) usable: in its flags (the 5th integer) bit 4 is set when the
 strict GNSS checks decide, bit 5 when they passed, and bits 6-8 are the at rest, armed and in air
 inputs of the checks; the 6th and 7th integers are the checks failed at the strict and relaxed
-thresholds (`GNSS_CHECK_*` bits, e.g. 0x20 horizontal drift); the 8th to 10th integers are the time
-given to the checks (ms) and the time since their last pass and last failure (ms, -1 when never), the
-11th and 12th the enabled checks and the required pass time (ms) of the checks (constant).
+thresholds (`GNSS_CHECK_*` bits, e.g. 0x20 horizontal drift).
 
 The EKF only starts once the log is open, so the replay sees everything the EKF saw.
 `SDLOG_START_DELAY` is therefore 2 s by default with this option (the build tells you when it is set

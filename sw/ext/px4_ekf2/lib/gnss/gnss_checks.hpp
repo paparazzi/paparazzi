@@ -81,11 +81,6 @@ public:
 	bool run(const gnssChecksSample &gnss, bool armed, bool in_air, bool vehicle_at_rest);
 	bool passed() const { return _passed; }
 
-	// Timestamps of the last sample that passed and of the last failure (us), to debug passed()
-	uint64_t timeLastPassUs() const { return _time_last_pass_us; }
-	uint64_t timeLastFailUs() const { return _time_last_fail_us; }
-	const Params &params() const { return _params; }
-
 	// The strict checks decided the last run: they haven't passed since the vehicle was disarmed on the ground, or they
 	// pass
 	bool strict() const { return _strict; }
