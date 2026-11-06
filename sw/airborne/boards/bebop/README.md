@@ -8,6 +8,10 @@ The Bebop 1 and 2 autopilot (`ap.elf`) is cross-compiled for ARMv7 Linux and lin
   is used as it is: that exact compiler, never another one;
 - otherwise `arm-linux-gnueabi-` from the `PATH` (Ubuntu package `gcc-arm-linux-gnueabi`);
 - otherwise a CodeSourcery toolchain in `/usr/local/codesourcery`.
+- otherwise, if docker is installed, a docker image that has this compiler (`docker/toolchains.txt`):
+  only the compiler commands run in it, the first time the image is built from its Dockerfile
+  (e.g. `docker/bebop-toolchain` with the Parrot 2012.03 and Ubuntu 22.04 compilers).
+  `USE_DOCKER_TOOLCHAIN=0` turns this off.
 
 The Bebop does not use `HARD_FLOAT`: the code uses the FPU (`-mfloat-abi=softfp -mfpu=vfp`) with the
 soft-float calling convention, like the Parrot firmware. OpenCV for the Bebop (`sw/ext/opencv_bebop`,
