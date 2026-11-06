@@ -68,6 +68,7 @@ extern void actuators_sts3032_init(void);
 extern void actuators_sts3032_periodic(void);
 extern void actuators_sts3032_event(void);
 extern void actuators_sts3032_set(uint8_t idx, int16_t value);
+extern void actuators_sts3032_commit(void);
 extern uint8_t id_idx(struct sts3032 *sts, uint8_t id);
 extern void sts3032_write_pos(struct sts3032 *sts, uint8_t id, int16_t position);
 
@@ -88,7 +89,7 @@ static inline void actuators_sts3032_driver_init(uint8_t driver_id)
 {
   actuators_register_driver(driver_id, (struct actuator_driver) {
     .set = actuators_sts3032_set,
-    .commit = actuators_noop_commit,
+    .commit = actuators_sts3032_commit,
   });
   actuators_sts3032_init();
 }

@@ -45,6 +45,7 @@
 #endif
 
 struct sts3032 sts;
+static int16_t position_commands[SERVOS_STS3032_NB];
 uint8_t cbuf[50 * SERVOS_STS3032_NB]; // buffer large enough to queue a command to each servo
 
 #ifndef STS3032_DELAY_MSG
@@ -95,6 +96,7 @@ void actuators_sts3032_init(void)
 
   static const uint8_t tmp_ids[SERVOS_STS3032_NB] = STS3032_IDS;
   memcpy(sts.ids, tmp_ids, sizeof(tmp_ids));
+  memset(position_commands, 0, sizeof(position_commands));
 }
 
 void actuators_sts3032_event(void)
@@ -122,8 +124,17 @@ void actuators_sts3032_periodic(void)
 
 void actuators_sts3032_set(uint8_t idx, int16_t value)
 {
+  if (idx < SERVOS_STS3032_NB && sts3032_enabled) {
+    position_commands[idx] = value;
+  }
+}
+
+void actuators_sts3032_commit(void)
+{
   if (sts3032_enabled) {
-    sts3032_write_pos(&sts, sts.ids[idx], value);
+    for (uint8_t i = 0; i < SERVOS_STS3032_NB; i++) {
+      sts3032_write_pos(&sts, sts.ids[i], position_commands[i]);
+    }
   }
 }
 
