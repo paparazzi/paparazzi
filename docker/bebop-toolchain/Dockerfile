@@ -2,7 +2,7 @@
 # when the compiler that the airframe asks for is not installed on the computer.
 #  - Ubuntu 22.04 arm-linux-gnueabi-gcc 11.4 (the default PREFIX arm-linux-gnueabi-)
 #  - Parrot toolchain 2012.03 (GCC 4.6.3) in /opt/arm-2012.03 (PREFIX /opt/arm-2012.03/bin/arm-none-linux-gnueabi-)
-# See sw/airborne/boards/bebop/README.md
+# See docker/toolchains.txt
 FROM ubuntu:22.04
 
 ARG PARROT_2012_03=https://firmware.parrot.com/Toolchains/parrot-tools-linuxgnutools-2012.03_1.0.0-1_i386.deb
