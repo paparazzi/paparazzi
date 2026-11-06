@@ -29,9 +29,10 @@
 
 #include "paparazzi.h"
 #include "std.h"
+#include "modules/actuators/actuators_driver.h"
 
 /*
- * Defines SetActuatorsFromCommandsNoCommit() and actuators_commit()
+ * Defines SetActuatorsFromCommandsNoCommit() and driver initialization
  * Defines ACTUATORS_NB to 0 if no servo
  * Include servos drivers
  */
@@ -40,13 +41,10 @@
 extern void actuators_init(void);
 extern void actuators_periodic(void);
 
-/** @fn void actuators_commit(void)
- * Commit values already submitted to the actuator drivers.
- * The generated inline function calls each configured driver once.
- * Driver rate dividers are shared by all callers of the same output stream.
- * Call it once per output cycle.
- * Drivers may also transmit from their setters.
- */
+/** Submit every registered driver once per output cycle. */
+extern void actuators_commit(void);
+
+extern struct actuator_driver actuator_drivers[ACTUATORS_DRIVERS_NB];
 
 // Actuator feedback structure for ABI Message
 struct act_feedback_t {
@@ -77,13 +75,6 @@ struct act_config_t {
   float travel_down;  ///< Precomputed travel down coef
 };
 
-/** Actuator set callback
- *
- * @param driver_idx actuator index in driver frame
- * @param driver_value actuator value in driver unit
- */
-typedef void (*act_set_t)(uint8_t driver_idx, int16_t driver_value);
-
 #if ACTUATORS_NB
 
 extern uint32_t actuators_delay_time;
@@ -94,7 +85,6 @@ struct actuator_t {
   pprz_t pprz_val;            ///< Last PPRZ request; unchanged by driver-unit writes
   int16_t driver_val;         ///< Actuator value in driver units (scaling from servo in airframe.h)
   struct act_config_t config; ///< Actuator config
-  act_set_t set;              ///< Actuator set callback function
 };
 
 /** Actuators array.
