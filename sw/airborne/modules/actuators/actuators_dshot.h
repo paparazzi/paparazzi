@@ -27,6 +27,8 @@
 #ifndef ACTUATORS_DSHOT_H
 #define ACTUATORS_DSHOT_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "std.h"
 
 /** In normal DSHOT, first 48 values are special commands
@@ -64,9 +66,16 @@ extern void actuators_dshot_arch_commit(void);
 extern void actuators_dshot_set(uint8_t idx, int16_t value);
 
 /* Actuator macros */
-#define ActuatorDShotSet actuators_dshot_set
-#define ActuatorsDShotInit actuators_dshot_arch_init
-#define ActuatorsDShotCommit actuators_dshot_arch_commit
+static inline void actuators_dshot_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_dshot_set,
+    .commit = actuators_dshot_arch_commit,
+  });
+  actuators_dshot_arch_init();
+}
+
+#define ActuatorsDShotInit actuators_dshot_driver_init
 
 #endif
 

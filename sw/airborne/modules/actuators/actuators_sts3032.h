@@ -26,11 +26,13 @@
 #ifndef SERVO_STS3032_H
 #define SERVO_STS3032_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include <stdint.h>
 #include "mcu_periph/uart.h"
 #include "utils/framed_ring_buffer.h"
-#include "generated/airframe.h"
 
+#include "generated/airframe.h"
 
 enum sts3032_rx_state {
   STS3032_RX_IDLE,
@@ -41,13 +43,11 @@ enum sts3032_rx_state {
 struct sts3032 {
   struct uart_periph *periph;
 
-
   uint8_t ids[SERVOS_STS3032_NB];
   uint8_t states[SERVOS_STS3032_NB];
   uint16_t pos[SERVOS_STS3032_NB];
 
   uint32_t time_last_msg; // last send msg time
-
 
   enum sts3032_rx_state rx_state;
   uint8_t nb_bytes_expected;
@@ -62,7 +62,6 @@ struct sts3032 {
   struct framed_ring_buffer msg_buf;
 };
 
-
 extern struct sts3032 sts;
 
 extern void actuators_sts3032_init(void);
@@ -73,10 +72,6 @@ extern uint8_t id_idx(struct sts3032 *sts, uint8_t id);
 extern void sts3032_write_pos(struct sts3032 *sts, uint8_t id, int16_t position);
 
 /* Actuator macros */
-#define ActuatorSTS3032Set actuators_sts3032_set
-#define ActuatorsSTS3032Init() actuators_sts3032_init()
-#define ActuatorsSTS3032Commit() {}
-
 extern int sts3032_enabled;
 extern int sts3032_current_id;
 extern int sts3032_future_id;
@@ -88,5 +83,16 @@ extern void actuators_sts3032_set_id(float future_id);
 extern void actuators_sts3032_lock_eprom(float lock);
 extern void actuators_sts3032_move(float pos);
 extern void actuators_sts3032_set_response_level(float level);
+
+static inline void actuators_sts3032_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_sts3032_set,
+    .commit = actuators_noop_commit,
+  });
+  actuators_sts3032_init();
+}
+
+#define ActuatorsSTS3032Init actuators_sts3032_driver_init
 
 #endif  // SERVO_STS3032_H

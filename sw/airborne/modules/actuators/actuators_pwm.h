@@ -22,6 +22,8 @@
 #ifndef ACTUATORS_PWM_H
 #define ACTUATORS_PWM_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "std.h"
 #include "modules/actuators/actuators_pwm_arch.h"
 
@@ -44,10 +46,15 @@ extern void actuators_pwm_arch_commit(void);
  */
 extern void actuators_pwm_set(uint8_t idx, int16_t value);
 
-/** Compatibility macros
- */
-#define ActuatorPwmSet actuators_pwm_set
-#define ActuatorsPwmInit actuators_pwm_arch_init
-#define ActuatorsPwmCommit actuators_pwm_arch_commit
+static inline void actuators_pwm_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_pwm_set,
+    .commit = actuators_pwm_arch_commit,
+  });
+  actuators_pwm_arch_init();
+}
+
+#define ActuatorsPwmInit actuators_pwm_driver_init
 
 #endif /* ACTUATORS_PWM_H */

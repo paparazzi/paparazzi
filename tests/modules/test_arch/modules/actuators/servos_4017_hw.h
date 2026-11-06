@@ -25,9 +25,15 @@
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define Actuator4017Set NULL
-#define Actuators4017Init() {}
-#define Actuators4017Commit() {}
+#include "modules/actuators/actuators_driver.h"
+
+static inline void Actuators4017Init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_noop_set,
+    .commit = actuators_noop_commit,
+  });
+}
 
 #endif
 

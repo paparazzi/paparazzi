@@ -30,6 +30,8 @@
 #ifndef ACTUATORS_DISCO_H_
 #define ACTUATORS_DISCO_H_
 
+#include "modules/actuators/actuators_driver.h"
+
 #include "std.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/pwm_sysfs.h"
@@ -60,13 +62,19 @@ struct ActuatorsDisco {
   bool rpm_saturated;               ///< RPM saturation flag (bit 15 in obs data)
 };
 
-#define ActuatorsDiscoSet actuators_disco_set
-#define ActuatorsDiscoCommit() actuators_disco_commit()
-#define ActuatorsDiscoInit() actuators_disco_init()
-
 extern struct ActuatorsDisco actuators_disco;
 extern void actuators_disco_set(uint8_t idx, int16_t val);
 extern void actuators_disco_commit(void);
 extern void actuators_disco_init(void);
+
+static inline void actuators_disco_driver_init(uint8_t driver_id)
+{
+  actuators_register_driver(driver_id, (struct actuator_driver) {
+    .set = actuators_disco_set,
+    .commit = actuators_disco_commit,
+  });
+  actuators_disco_init();
+}
+
 
 #endif /* ACTUATORS_DISCO_H_ */

@@ -265,7 +265,8 @@ let () =
              Gen_airframe.generate
                e (value "ac_id") (get_string_opt !ac_name)
                md5sum airframe.Airframe.filename abs_airframe_h)
-          [ (abs_airframe_h, [airframe.Airframe.filename] @ inc) ];
+          (* Changes to the generator can add interfaces used by airborne code. *)
+          [ (abs_airframe_h, [airframe.Airframe.filename; Sys.executable_name] @ inc) ];
         (* save conf file in aircraft conf dir *)
         begin match Aircraft.get_element_relative_path (!gen_af || !gen_all) aircraft_xml "airframe" with
           | None -> ()

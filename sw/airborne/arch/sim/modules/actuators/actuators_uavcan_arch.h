@@ -26,10 +26,10 @@
 #ifndef ACTUATORS_UAVCAN_ARCH_H
 #define ACTUATORS_UAVCAN_ARCH_H
 
+#include "modules/actuators/actuators_driver.h"
+
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define ActuatorUavcanSet NULL
-#define ActuatorsUavcanCommit() {}
 
 extern void actuators_uavcan_arch_init(void);
 
