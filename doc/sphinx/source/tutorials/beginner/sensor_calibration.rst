@@ -85,6 +85,11 @@ The procedure is very much similar to accelerometer calibration with two differe
     
 Copy the XML output in the *IMU* section of your airframe file.
 
+The calibrated magnetometer is 1 where it was calibrated. The tool also writes the field strength there
+(``strength``, from the world magnetic model at the GNSS position in the log), so the EKF2 knows the real
+field strength when you fly somewhere else. Without GNSS fix in the log (e.g. indoors), give the position
+with ``--lat`` and ``--lon``.
+
 .. note::
     For the magnetometer calibration, your autopilot board **needs** to be in your drone's airframe as it depends on all interferences of the environment, like the wires around the magnetometer, the position of the battery, and maybe the position of saturn in the sky.
 
