@@ -59,6 +59,24 @@ void pprz_bsem_signal(pprz_bsem_t* bsem) {
 }
 
 
+static thread_t *main_thread = NULL;
+
+void pprz_thread_init_main(void) {
+  main_thread = chThdGetSelfX();
+}
+
+bool pprz_thread_is_main(void) {
+  return main_thread == NULL || chThdGetSelfX() == main_thread;
+}
+
+void pprz_thread_assert_main(const char *what, unsigned int id) {
+  (void)what;
+  (void)id;
+  if (!pprz_thread_is_main()) {
+    chSysHalt("not called from the main thread");
+  }
+}
+
 int pprz_thread_create(pprz_thread_t* thread, size_t size, const char *name, uint8_t prio, void (*pf)(void *), void* arg) {
   *thread = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(size), name, prio, pf, arg);
   if(*thread == NULL) {

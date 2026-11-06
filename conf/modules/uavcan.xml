@@ -3,12 +3,15 @@
 <module name="uavcan" dir="uavcan" task="core">
   <doc>
     <description>
-      UAVCan interface for transmitting/receiving uavcan messages on CAN busses
+      UAVCan interface for transmitting/receiving uavcan messages on CAN busses.
+      The received frames are queued by the CAN receive thread and handled in the main thread
+      (uavcan_rx_event), so the callbacks of the modules and the ABI messages they send run in the main thread.
    </description>
    <configure name="UAVCAN_USE_CAN1" value="FALSE" description="Enable UAVCAN on CAN1 interface"/>
    <configure name="UAVCAN_USE_CAN2" value="FALSE" description="Enable UAVCAN on CAN2 interface"/>
    <define name="UAVCAN_NODE_ID" value="100" description="The UAVCAN node ID of the AP"/>
    <define name="UAVCAN_BAUDRATE" value="1000000" description="The baudrate of the CAN interface"/>
+   <define name="UAVCAN_RX_QUEUE_SIZE" value="64" description="Received CAN frames queued per interface until the main thread handles them"/>
   </doc>
   <dep>
     <depends>can</depends>
@@ -18,6 +21,7 @@
   </header>
   <init fun="uavcan_init()"/>
   <periodic fun="uavcan_reporting()" freq="2"/>
+  <event fun="uavcan_rx_event()"/>
   <makefile>
     <!-- Enable the CAN busses if needed -->
     <configure name="UAVCAN_USE_CAN1" default="FALSE"/>

@@ -41,6 +41,19 @@
 #define UAVCAN_TID_STORE_CAPACITY   30
 
 /** uavcan interface structure */
+/** Received CAN frames queued per interface, between the CAN receive thread and the main thread */
+#ifndef UAVCAN_RX_QUEUE_SIZE
+#define UAVCAN_RX_QUEUE_SIZE 64
+#endif
+
+struct uavcan_rx_frame {
+  CanardCANFrame frame;
+  uint32_t timestamp;   ///< Reception time (us)
+};
+
+/** A frame is a record of the framed ring buffer: 2 bytes length, and 3 bytes margin for the buffer */
+#define UAVCAN_RX_BUFFER_SIZE (UAVCAN_RX_QUEUE_SIZE * (sizeof(struct uavcan_rx_frame) + 2) + 3)
+
 struct uavcan_iface_t {
   struct pprzaddr_can can_net;
   uint32_t can_baudrate;
@@ -64,6 +77,11 @@ struct uavcan_iface_t {
   uint8_t transfer_ids_values[UAVCAN_TID_STORE_CAPACITY];
   uint8_t transfer_ids_used[UAVCAN_TID_STORE_CAPACITY];
   kv_store_t transfer_ids_store;
+
+  struct framed_ring_buffer rx_queue;          ///< Received frames, from the CAN receive thread to the main thread
+  uint8_t rx_queue_buf[UAVCAN_RX_BUFFER_SIZE];
+  uint16_t rx_overflows;                       ///< Frames dropped because the queue was full
+
   bool initialized;
 };
 
@@ -89,6 +107,7 @@ extern struct uavcan_iface_t uavcan2;
 
 /** uavcan external functions */
 void uavcan_init(void);
+void uavcan_rx_event(void);
 void uavcan_reporting(void);
 void uavcan_bind(uint16_t data_type_id, uint64_t data_type_signature, uavcan_event *ev, uavcan_callback cb);
 void uavcan_transfer(struct uavcan_iface_t *iface, CanardTxTransfer* transfer);

@@ -14,9 +14,29 @@
 #include "modules/core/threads_arch.h"
 #include "stdbool.h"
 #include <semaphore.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
+
+static pthread_t main_thread;
+static bool main_thread_set = false;
+
+void pprz_thread_init_main(void) {
+  main_thread = pthread_self();
+  main_thread_set = true;
+}
+
+bool pprz_thread_is_main(void) {
+  return !main_thread_set || pthread_equal(pthread_self(), main_thread);
+}
+
+void pprz_thread_assert_main(const char *what, unsigned int id) {
+  if (!pprz_thread_is_main()) {
+    fprintf(stderr, "%s %u sent outside the main thread\n", what, id);
+    abort();
+  }
+}
 
 int pprz_mtx_init(pprz_mutex_t* mtx) {
   return pthread_mutex_init(&mtx->mtx, NULL);
