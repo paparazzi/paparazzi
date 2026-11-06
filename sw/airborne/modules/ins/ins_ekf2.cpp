@@ -1745,11 +1745,18 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     int32_t flags = (sample.usable << 0) | (sample.sacc_passes_strict << 1) | (sample.spoofed << 2) | (sample.jammed << 3)
                     | (gnss_checks.strict() << 4) | (gnss_checks.passedStrict() << 5)
                     | (at_rest << 6) | (ekf2.armed << 7) | (ekf2.in_air << 8);
-    int32_t ints[7] = {lla_pos.lat, lla_pos.lon, sample.fix_type, sample.nsats, flags,
-                       gnss_checks.getStrictFailFlags(), gnss_checks.getRelaxedFailFlags()};
+    // the time given to the checks with their last pass and failure, relative to it (ms, -1 when never),
+    // and two constant parameters of the checks (enabled checks, pass time in ms) to detect memory corruption
+    const uint64_t checks_time = checks_sample.time_us;
+    const uint64_t last_pass = gnss_checks.timeLastPassUs(), last_fail = gnss_checks.timeLastFailUs();
+    int32_t ints[12] = {lla_pos.lat, lla_pos.lon, sample.fix_type, sample.nsats, flags,
+                        gnss_checks.getStrictFailFlags(), gnss_checks.getRelaxedFailFlags(), (int32_t)(checks_time / 1000),
+                        last_pass ? (int32_t)(((int64_t)checks_time - (int64_t)last_pass) / 1000) : -1,
+                        last_fail ? (int32_t)(((int64_t)checks_time - (int64_t)last_fail) / 1000) : -1,
+                        gnss_checks.params().check_mask, (int32_t)(gnss_checks.params().min_health_time_us / 1000)};
     float values[11] = {sample.alt, sample.vel(0), sample.vel(1), sample.vel(2), sample.hacc, sample.vacc, sample.sacc,
                         sample.pdop, sample.pos_body(0), sample.pos_body(1), sample.pos_body(2)};
-    ekf2_log(EKF2_IN_GNSS, sample.time_us, 7, ints, 11, values);
+    ekf2_log(EKF2_IN_GNSS, sample.time_us, 12, ints, 11, values);
   }
   ekf.setGpsData(sample);
 
