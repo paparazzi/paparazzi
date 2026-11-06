@@ -73,6 +73,12 @@ void stateInit(void)
   state.rates_input_filter = STATE_INPUT_ANY;
   state.wind_air_input_filter = STATE_INPUT_ANY;
 
+#ifdef FIXEDWING_FIRMWARE
+  state.fixed_wing_flight = true;
+#else
+  state.fixed_wing_flight = false;
+#endif
+
   /* setting to zero forces recomputation of zone using lla when utm uninitialised*/
   state.utm_origin_f.zone = 0;
 

@@ -296,6 +296,11 @@ void rotwing_state_periodic(void)
     last_stall_time = current_time;
   }
 
+  /* Forward flight as a fixed wing for the estimators (e.g. airspeed and sideslip fusion of ins_ekf2):
+   * the wing is skewed for forward flight and the pusher motor runs */
+  stateSetFixedWingFlight(rotwing_state_skew_angle_valid() && meas_skew_angle >= ROTWING_FW_SKEW_ANGLE
+                          && rotwing_state_pusher_motor_running());
+
   /* Override modes if flying with RC */
   rotwing_state.state = rotwing_state.nav_state;
   if (autopilot.mode == AP_MODE_FAILSAFE) {
