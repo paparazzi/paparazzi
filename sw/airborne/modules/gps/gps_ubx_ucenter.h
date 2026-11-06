@@ -54,6 +54,11 @@ struct gps_ubx_ucenter_struct {
   /// Port identifier number
   uint8_t port_id;
 
+  bool cfg_prt_reply;   ///< Port configuration (legacy CFG-PRT) received
+  bool version_reply;   ///< Version (MON-VER) received
+  uint8_t protver;      ///< Protocol version major (MON-VER extension), 0 when not reported
+  bool valset;          ///< Configured with UBX-CFG-VALSET: the receiver doesn't have the legacy UBX-CFG messages
+
   char replies[GPS_UBX_UCENTER_CONFIG_STEPS];
 
   // Gps device
