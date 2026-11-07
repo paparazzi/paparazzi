@@ -14,6 +14,7 @@ unidecode
 matplotlib
 distro
 empy<=3.3.4
+future
 pexpect
 setuptools==81.0.0
 dronecan

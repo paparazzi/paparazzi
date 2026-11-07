@@ -64,6 +64,8 @@ dronecan - dronecan
 EOF
   # the DroneCAN code generator (sw/ext/dronecan) needs empy 3, Ubuntu 26.04 has empy 4
   if ver_ge 26.04; then echo "em - empy<=3.3.4"; else echo "em python3-empy empy<=3.3.4"; fi
+  # the MAVLink code generator (sw/ext/mavlink, mavgen.py) needs future, Ubuntu 26.04 has no python3-future
+  if ver_ge 26.04; then echo "future - future"; else echo "future python3-future future"; fi
 }
 
 # ── Compilers ─────────────────────────────────────────────────────────────────
@@ -215,7 +217,6 @@ cv2 python3-opencv opencv-python
 pymap3d python3-pymap3d pymap3d
 pyquaternion - pyquaternion
 EOF
-  ver_le 24.04 && echo "future python3-future future"
   return 0
 }
 
