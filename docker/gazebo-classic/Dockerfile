@@ -36,6 +36,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pprzgcs \
     # the Qt6 platform plugins (xcb) of PprzGCS: only recommended by libqt6gui6, so not installed here
     qt6-qpa-plugins \
+    # GStreamer for the video programs (sw/tools/video/video_to_gcs.sh); gstreamer1.0-x: the X window sinks
+    gstreamer1.0-tools \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-x \
     # Build tools (simulation only — ARM cross-compiler not needed)
     build-essential \
     cmake \
