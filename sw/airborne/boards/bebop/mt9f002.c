@@ -22,6 +22,10 @@
 /**
  * @file boards/bebop/mt9f002.c
  * Initialization of MT9F002 chip and options to change settings
+ *
+ * Runs onboard AND in NPS (included by mt9f002_nps.c). NPS has no sensor: no I2C is done and
+ * every register reads as 0. So never configure from values read from the sensor (e.g. ask it
+ * for its resolution and store that in the struct): it would work onboard and break NPS.
  */
 
 #include "std.h"
@@ -47,6 +51,12 @@
 static bool i2c_checked(struct i2c_periph *p, struct i2c_transaction *t, uint8_t slave, uint16_t reg,
                         uint8_t len_w, uint16_t len_r, float timeout, const char *tag)
 {
+#if SITL // no sensor in the simulator: no I2C, registers read as 0
+  for (uint16_t i = 0; i < len_r; i++) {
+    t->buf[i] = 0;
+  }
+  return true;
+#endif
   for (int tries = 1; tries <= MT9F002_I2C_TRIES; tries++) {
     for (int w = 0; w < 500 && (t->status == I2CTransPending || t->status == I2CTransRunning); w++) {
       usleep(1000);
