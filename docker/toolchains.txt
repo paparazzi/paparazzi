@@ -1,0 +1,11 @@
+# Docker images with arm-linux cross-compilers (Bebop, Bebop 2, Disco).
+#
+# conf/Makefile.arm-linux-toolchain uses them when the compiler asked for (the airframe PREFIX, or the
+# default arm-linux-gnueabi-) is not installed: the compiler commands then run in the first image of
+# that PREFIX that exists on this computer, otherwise the first one is built once from its Dockerfile.
+# Everything else (code generation, version) stays on the computer. Set USE_DOCKER_TOOLCHAIN=0 to disable.
+#
+# <PREFIX>                                      <image>                            <Dockerfile folder>
+/opt/arm-2012.03/bin/arm-none-linux-gnueabi-    paparazziuav/bebop-toolchain       docker/bebop-toolchain
+arm-linux-gnueabi-                              paparazziuav/bebop-toolchain       docker/bebop-toolchain
+arm-linux-gnueabi-                              paparazziuav/pprz-gazebo-classic   docker/gazebo-classic
