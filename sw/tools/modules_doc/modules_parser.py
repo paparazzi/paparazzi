@@ -152,3 +152,5 @@ class ModuleDoc(Parser):
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_source_suffix(".xml", "pprz_module")
     app.add_source_parser(ModuleDoc)
+    # each module page is parsed on its own, no shared state: safe for sphinx-build -j
+    return {'parallel_read_safe': True, 'parallel_write_safe': True}
