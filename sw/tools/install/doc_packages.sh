@@ -25,7 +25,7 @@ PY_MODE=system
 set_colors 0
 has_apt() { return 0; }
 REPOS=(); CMDS=()
-run() { CMDS+=("$*"); }
+run() { CMDS+=("$(shell_line "$@")"); }
 note() { :; }
 add_ppa() { REPOS+=("ppa:$1"); }
 add_osrf_repo() { REPOS+=("packages.osrfoundation.org (Gazebo)"); }

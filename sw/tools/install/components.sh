@@ -102,7 +102,7 @@ bebop_install() {
 
 COMPONENTS+=(parrot_2012)
 parrot_2012_title="Parrot 2012.03 Bebop compiler (GCC 4.6.3, /opt/arm-2012.03)"
-parrot_2012_desc="The original Parrot cross-compiler, for the airframes that ask for it with PREFIX=/opt/arm-2012.03/bin/arm-none-linux-gnueabi-. Downloaded from Parrot, checked (sha256) and unpacked in /opt/arm-2012.03, with the 32-bit C library to run it."
+parrot_2012_desc="The original Parrot cross-compiler, for the airframes that ask for it with PREFIX=/opt/arm-2012.03/bin/arm-none-linux-gnueabi-. Downloaded from Parrot, checked (sha256 84fa8c2782bd0f71ab39b905bf9833b1a8bc78419390c5a1ef6503ef74154c9c) and unpacked in /opt/arm-2012.03, with the 32-bit C library to run it."
 parrot_2012_default=0
 parrot_2012_needs=""
 parrot_2012_provides="/opt/arm-2012.03/bin/arm-none-linux-gnueabi-gcc"
@@ -122,12 +122,17 @@ parrot_2012_install() {
   if [ ! -f "$deb" ] || [ "${DRY_RUN:-0}" = 1 ]; then
     run curl -fL -o "$deb" "$PARROT_2012_URL" || return 1
   fi
-  if ! run sh -c "echo '$PARROT_2012_SHA256  $deb' | sha256sum -c -"; then
-    [ "${DRY_RUN:-0}" = 1 ] || rm -f "$deb"
+  # sha256sum must print PARROT_2012_SHA256 (see the description)
+  run sha256sum "$deb" || return 1
+  if [ "${DRY_RUN:-0}" != 1 ] && [ -z "${DOC_MODE:-}" ] && \
+     [ "$(sha256sum "$deb" | cut -d' ' -f1)" != "$PARROT_2012_SHA256" ]; then
+    fail "wrong sha256 of $deb, expected $PARROT_2012_SHA256: removed, try again"
+    rm -f "$deb"
+    COMP_FAILED=1
     return 1
   fi
-  # only the compiler: the package has no install scripts, and outside /opt only its changelog
-  run $SUDO sh -c "dpkg-deb --fsys-tarfile '$deb' | tar -x -C / ./opt/arm-2012.03"
+  # the package has no install scripts: /opt/arm-2012.03 and its changelog in /usr/share/doc
+  run $SUDO dpkg-deb -x "$deb" /
 }
 parrot_2012_check() { /opt/arm-2012.03/bin/arm-none-linux-gnueabi-gcc --version >/dev/null 2>&1; }
 
