@@ -36,6 +36,9 @@ class DocPanel(QWidget, Ui_DocPanel):
         except AttributeError:
             ...
         self.current_ac = None
+        # the local doc when it is built (make doc), else the online doc
+        if os.path.isfile(os.path.join(LOCAL_DOC_ROOT, "index.html")):
+            self.doc_source_combo.setCurrentText("Local")
         self.doc_source_combo.currentTextChanged.connect(self.change_doc_source)
         self.open_browser_button.clicked.connect(lambda: QDesktopServices.openUrl(self.webView.url()))
         self.urlLineEdit.returnPressed.connect(lambda: self.webView.setUrl(QUrl(self.urlLineEdit.text())))
@@ -48,8 +51,16 @@ class DocPanel(QWidget, Ui_DocPanel):
         self.target_combo.currentTextChanged.connect(self.target_changed)
         self.backButton.clicked.connect(self.webView.back)
         self.webView.urlChanged.connect(lambda u: self.urlLineEdit.setText(u.toString()))
-        url = self.make_url("index.html")
-        self.webView.load(url)
+        self.load(self.make_url("index.html"))
+
+    def load(self, url: QUrl):
+        if url.isLocalFile() and not os.path.isfile(url.toLocalFile()):
+            self.webView.setHtml("<h2>Local documentation not found</h2>"
+                                 f"<p>{url.toLocalFile()} does not exist.</p>"
+                                 "<p>Build it with <code>make doc</code> in the Paparazzi folder "
+                                 "(needs Sphinx: <code>doc/sphinx/requirements.txt</code>), or choose the source Internet.</p>")
+        else:
+            self.webView.load(url)
 
     def load_finished(self, finished):
         # print(f"load finished: {finished}")
@@ -118,13 +129,13 @@ class DocPanel(QWidget, Ui_DocPanel):
             url = QUrl(current_url.replace(lu, iu))
         if source == "Local" and iu in current_url:
             url = QUrl(current_url.replace(iu, lu))
-        self.webView.load(url)
+        self.load(url)
 
     def handle_select_module(self, txt):
         if txt == "":
             return
         url = self.make_url("modules/{}.html".format(txt))
-        self.webView.load(url)
+        self.load(url)
 
     def get_all_modules(self, ac: conf.Aircraft, target: str):
         args = [conf.MOD_DEP, "-ac", ac.name, "-af", ac.airframe, "-fp", ac.flight_plan]
