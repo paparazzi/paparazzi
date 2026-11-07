@@ -22,6 +22,10 @@
 /**
  * @file boards/bebop/mt9f002.c
  * Initialization of MT9F002 chip and options to change settings
+ *
+ * Runs onboard AND in NPS (included by mt9f002_nps.c). NPS has no sensor: no I2C is done and
+ * every register reads as 0. So never configure from values read from the sensor (e.g. ask it
+ * for its resolution and store that in the struct): it would work onboard and break NPS.
  */
 
 #include "std.h"
