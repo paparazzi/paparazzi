@@ -108,11 +108,11 @@ To see the commands for your computer without running them:
 
     ./install.sh --dry-run --yes default
 
-The lists below show what each component installs on Ubuntu 22.04, 24.04 and 26.04.
-They are made from the installer itself (``sw/tools/install/components.sh``) when this documentation is built.
-With the Python packages in the system (``--python=system``), the modules marked *pip only* are installed with
-``pip --user`` on Ubuntu 22.04 and are not installed on newer versions (choose venv if you need them).
-With conda, all the Python modules come from pip.
+Or install by hand: the commands below install each component on Ubuntu 22.04, 24.04 and 26.04, to copy and paste
+in a terminal. They are made from the installer itself (``sw/tools/install/components.sh``) when this documentation is
+built, for Paparazzi cloned in ``~/paparazzi``. Start with ``core``, ``python`` and ``build``, then add what you need.
+The Python modules that Ubuntu doesn't have go in the venv ``pprzEnv`` (``python``), like ``./install.sh --python=venv``;
+``./paparazzi`` uses it when it exists. With conda, install all the Python modules with pip in your environment instead.
 
 .. include:: install_packages.inc
 
