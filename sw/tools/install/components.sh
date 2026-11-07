@@ -83,6 +83,8 @@ bebop_title="Bebop and Disco compiler (arm-linux-gnueabi)"
 bebop_desc="Cross-compiler for the Parrot Bebop 1/2 and Disco, and the Python module for the Bebop upload tools."
 bebop_default=0
 bebop_needs=""
+# what a build may ask for (./install.sh --for=..., conf/Makefile.on_demand)
+bebop_provides="arm-linux-gnueabi-gcc"
 bebop_available() { needs_apt; }
 bebop_packages() { echo gcc-arm-linux-gnueabi g++-arm-linux-gnueabi; }
 bebop_python() {
@@ -97,6 +99,42 @@ bebop_install() {
 }
 
 # ── Simulation ────────────────────────────────────────────────────────────────
+
+COMPONENTS+=(parrot_2012)
+parrot_2012_title="Parrot 2012.03 Bebop compiler (GCC 4.6.3, /opt/arm-2012.03)"
+parrot_2012_desc="The original Parrot cross-compiler, for the airframes that ask for it with PREFIX=/opt/arm-2012.03/bin/arm-none-linux-gnueabi-. Downloaded from Parrot, checked (sha256 84fa8c2782bd0f71ab39b905bf9833b1a8bc78419390c5a1ef6503ef74154c9c) and unpacked in /opt/arm-2012.03, with the 32-bit C library to run it."
+parrot_2012_default=0
+parrot_2012_needs=""
+parrot_2012_provides="/opt/arm-2012.03/bin/arm-none-linux-gnueabi-gcc"
+PARROT_2012_URL=https://firmware.parrot.com/Toolchains/parrot-tools-linuxgnutools-2012.03_1.0.0-1_i386.deb
+PARROT_2012_SHA256=84fa8c2782bd0f71ab39b905bf9833b1a8bc78419390c5a1ef6503ef74154c9c
+parrot_2012_available() {
+  needs_apt || return 1
+  [ "$(dpkg --print-architecture 2>/dev/null)" = amd64 ] && return 0
+  echo "only on amd64: the compiler is a 32-bit x86 program"
+  return 1
+}
+# libc6-i386: the 32-bit C library (an amd64 package, no i386 architecture needed)
+parrot_2012_packages() { echo libc6-i386 curl; }
+parrot_2012_install() {
+  local deb="$PPRZ_DIR/var/downloads/${PARROT_2012_URL##*/}"
+  run mkdir -p "$PPRZ_DIR/var/downloads" || return 1
+  if [ ! -f "$deb" ] || [ "${DRY_RUN:-0}" = 1 ]; then
+    run curl -fL -o "$deb" "$PARROT_2012_URL" || return 1
+  fi
+  # sha256sum must print PARROT_2012_SHA256 (see the description)
+  run sha256sum "$deb" || return 1
+  if [ "${DRY_RUN:-0}" != 1 ] && [ -z "${DOC_MODE:-}" ] && \
+     [ "$(sha256sum "$deb" | cut -d' ' -f1)" != "$PARROT_2012_SHA256" ]; then
+    fail "wrong sha256 of $deb, expected $PARROT_2012_SHA256: removed, try again"
+    rm -f "$deb"
+    COMP_FAILED=1
+    return 1
+  fi
+  # the package has no install scripts: /opt/arm-2012.03 and its changelog in /usr/share/doc
+  run $SUDO dpkg-deb -x "$deb" /
+}
+parrot_2012_check() { /opt/arm-2012.03/bin/arm-none-linux-gnueabi-gcc --version >/dev/null 2>&1; }
 
 COMPONENTS+=(jsbsim)
 jsbsim_title="JSBSim flight dynamics for the simulator (NPS)"
@@ -115,6 +153,7 @@ gazebo_available() {
   is_ubuntu && ver_ge 22.04 && return 0
   echo "Ubuntu 22.04 or newer"; return 1
 }
+gazebo_provides="gz"
 gazebo_packages() { if ver_ge 26.04; then echo gz-jetty; else echo gz-harmonic; fi; }
 gazebo_repos() { add_osrf_repo; }
 gazebo_install() { submodule sw/ext/tudelft_gazebo_models; }
