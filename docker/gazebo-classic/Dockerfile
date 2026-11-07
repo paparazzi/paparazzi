@@ -22,8 +22,6 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     # Paparazzi PPA
     && add-apt-repository -y ppa:paparazzi-uav/ppa \
-    # kisak-mesa: Mesa 24.x backport — required for Intel Arc (Meteor Lake) iris driver
-    && add-apt-repository -y ppa:kisak/kisak-mesa \
     # OSRF: Gazebo Classic 11
     && curl -sSL https://packages.osrfoundation.org/gazebo.gpg \
          -o /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
@@ -36,6 +34,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Paparazzi build & GCS
     paparazzi-dev \
     pprzgcs \
+    # the Qt6 platform plugins (xcb) of PprzGCS: only recommended by libqt6gui6, so not installed here
+    qt6-qpa-plugins \
+    # GStreamer for the video programs (sw/tools/video/video_to_gcs.sh); gstreamer1.0-x: the X window sinks
+    gstreamer1.0-tools \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-x \
     # Build tools (simulation only — ARM cross-compiler not needed)
     build-essential \
     cmake \
@@ -50,7 +55,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Gazebo Classic 11
     gazebo \
     libgazebo-dev \
-    # Mesa 24.x for Intel Arc GPU (iris driver)
+    # Mesa of Ubuntu 22.04 (23.2) for the GPU (the kisak-mesa PPA has no 22.04 packages any more)
     mesa-utils \
     libgl1-mesa-dri \
     libglx-mesa0 \
