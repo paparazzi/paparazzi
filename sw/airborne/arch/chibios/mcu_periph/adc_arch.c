@@ -377,6 +377,12 @@ void adc_init(void)
   adc_watchdog.vmin = (1 << 12) - 1; // max adc
 #endif
 
+  // No ADC channel used (e.g. crazyflie: battery voltage comes over syslink):
+  // don't start a conversion of 0 channels into a 0 sample buffer
+  if (ADC_NUM_CHANNELS == 0) {
+    return;
+  }
+
   // Configure the ADC structure
   adc_configure(&adc1_group, ADC_NUM_CHANNELS, adc_channel_map, ADC_SAMPLE_RATE, adc1callback, adcerrorcallback);
 
