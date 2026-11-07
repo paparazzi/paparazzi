@@ -17,9 +17,22 @@ ok()     { printf '  %s✔%s %s\n' "$GREEN" "$NC" "$1"; }
 fail()   { printf '  %s✘ %s%s\n' "$RED$BOLD" "$1" "$NC"; }
 note()   { printf '  %sℹ %s%s\n' "$YELLOW" "$1" "$NC"; NOTES+=("$1"); }
 
+# a command line to copy and paste: the arguments with shell characters (empy<=3.3.4, sh -c '...') quoted
+shell_line() {
+  local a out=()
+  for a in "$@"; do
+    if [[ "$a" =~ ^[][A-Za-z0-9_./:,@%+=~^-]+$ ]]; then out+=("$a")
+    elif [[ "$a" != *"'"* ]]; then out+=("'$a'")
+    elif [[ "$a" != *[\"\$\`\\]* ]]; then out+=("\"$a\"")
+    else out+=("$(printf '%q' "$a")")
+    fi
+  done
+  printf '%s' "${out[*]}"
+}
+
 # Run one command, show it first. DRY_RUN=1 only shows it.
 run() {
-  printf '  %s$ %s%s\n' "$CYAN" "$*" "$NC"
+  printf '  %s$ %s%s\n' "$CYAN" "$(shell_line "$@")" "$NC"
   [ "${DRY_RUN:-0}" = 1 ] && return 0
   if "$@"; then
     return 0
@@ -207,8 +220,10 @@ py_install() {
   fi
   if [ "${DRY_RUN:-0}" = 1 ] && [ "$PY_MODE" != conda ]; then
     # nothing installed yet: the modules without apt package that the Python can't import now
-    [ -x "$py" ] || py=/usr/bin/python3
-    missing=" $(py_missing "$py" $(awk 'NF && $2 == "-" {print $1}' <<< "$lines") | tr '\n' ' ')"
+    # (the venv may not exist yet: check with the system Python, but show the commands with the venv)
+    local pycheck=$py
+    [ -x "$pycheck" ] || pycheck=/usr/bin/python3
+    missing=" $(py_missing "$pycheck" $(awk 'NF && $2 == "-" {print $1}' <<< "$lines") | tr '\n' ' ')"
   else
     missing=" $(py_missing "$py" $(awk 'NF {print $1}' <<< "$lines") | tr '\n' ' ')"
   fi
