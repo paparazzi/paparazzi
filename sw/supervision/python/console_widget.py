@@ -46,6 +46,12 @@ class ConsoleWidget(QWidget, Ui_Console):
         Level.INFO: ["pragma message", "info:", "paparazzi version", "build aircraft"]
     }
 
+    # Lines that start with one of these tags have their own colour and the Info level, whatever words
+    # they contain (e.g. the apt output of a docker image build is not a Paparazzi error).
+    TAG_STYLES = {
+        "[docker]": "background-color:cyan;",
+    }
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
         self.setupUi(self)
@@ -62,7 +68,10 @@ class ConsoleWidget(QWidget, Ui_Console):
         self.update_content()
 
     def display_record(self, record):
-        if record.level == Level.ERROR:
+        tag_style = self.tag_style(record.data)
+        if tag_style is not None:
+            bg = tag_style
+        elif record.level == Level.ERROR:
             bg = "background-color:red;"
         elif record.level == Level.WARNING:
             bg = "background-color:orange;"
@@ -81,7 +90,15 @@ class ConsoleWidget(QWidget, Ui_Console):
         data = "<span style=\"{}{}\">{}</span>".format(bg, ch, record.data)
         self.console_textedit.append(data)
 
+    def tag_style(self, line: str) -> Optional[str]:
+        for tag, style in self.TAG_STYLES.items():
+            if line.startswith(tag):
+                return style
+        return None
+
     def classify(self, line: str):
+        if self.tag_style(line) is not None:
+            return Level.INFO
         for level, regs in self.LEVELS_REG.items():
             for reg in regs:
                 if reg in line.lower():
