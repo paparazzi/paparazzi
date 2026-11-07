@@ -52,9 +52,11 @@ sudo systemctl restart docker
 ### Step 1: Build the Docker Image
 
 ```bash
-cd paparazzi/docker/gazebo-classic
-docker build -t paparazziuav/pprz-gazebo-classic .
+cd paparazzi/
+docker build -t paparazziuav/pprz-gazebo-classic -f docker/gazebo-classic/Dockerfile .
 ```
+
+The image is installed with the Paparazzi installer (`./install.sh`), the same as on a computer.
 
 This takes ~10-15 minutes the first time (downloads Ubuntu 22.04 + all
 dependencies + Gazebo Classic 11).
