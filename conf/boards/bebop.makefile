@@ -3,6 +3,7 @@
 # bebop.makefile
 #
 # http://wiki.paparazziuav.org/wiki/Bebop
+# Cross-compilers: sw/airborne/boards/bebop/README.md
 #
 
 BOARD=bebop
@@ -40,6 +41,9 @@ $(TARGET).srcs +=  $(SRC_BOARD)/board.c
 # Link static (Done for GLIBC)
 $(TARGET).CFLAGS += -DLINUX_LINK_STATIC
 $(TARGET).LDFLAGS += -static
+
+# 32-bit time_t like the Parrot firmware (from Ubuntu 24.04 on the cross-compiler defaults to 64-bit)
+$(TARGET).CFLAGS += -U_TIME_BITS
 
 # limit main loop to 1kHz so ap doesn't need 100% cpu
 #$(TARGET).CFLAGS += -DLIMIT_EVENT_POLLING
