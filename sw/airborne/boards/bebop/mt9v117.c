@@ -40,11 +40,19 @@
  * Blocking I2C transaction with result check and retry.
  * Never resubmits while the previous transaction is still queued, and sets the register
  * address again before each read (a failed read can overwrite it).
+ * Without a sensor (MT9V117_NO_SENSOR, the simulator in mt9v117_nps.c) nothing is sent: reads
+ * give zeros, so only the configuration code runs and the start-up doesn't wait for timeouts.
  * @return true when the transaction succeeded
  */
 static bool i2c_checked(struct i2c_periph *p, struct i2c_transaction *t, uint8_t slave, uint16_t reg,
                         uint8_t len_w, uint16_t len_r, float timeout, const char *tag)
 {
+#ifdef MT9V117_NO_SENSOR
+  for (uint16_t i = 0; i < len_r; i++) {
+    t->buf[i] = 0;
+  }
+  return true;
+#endif
   for (int tries = 1; tries <= MT9V117_I2C_TRIES; tries++) {
     for (int w = 0; w < 500 && (t->status == I2CTransPending || t->status == I2CTransRunning); w++) {
       usleep(1000);

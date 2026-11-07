@@ -4,5 +4,7 @@
 
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+// no sensor in the simulator: the driver only runs its configuration code, without I2C
+#define MT9F002_NO_SENSOR
 #include "mt9f002.c"
 #pragma GCC diagnostic pop
