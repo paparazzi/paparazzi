@@ -55,7 +55,8 @@ void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uin
   uint16_t corner_cnt = *num_corners;
   int pixel[16];
   int16_t i;
-  uint16_t x, y, x_min, x_max, y_min, x_start, x_end, y_start, y_end;
+  uint16_t x, y, x_min, x_max, x_start, x_end, y_start, y_end;
+  uint16_t y_min = 0; // only set and used when min_dist > 0
   uint8_t need_skip;
   // Set the pixel size
   uint8_t pixel_size = 1;
