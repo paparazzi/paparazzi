@@ -28,6 +28,8 @@ Options:
       --text            menu in the terminal, also with a desktop
       --gui             window (zenity)
       --list            list the components and whether they are installed
+      --for=FILE|COMMAND  install the component that provides it, after asking (used by the build:
+                        conf/Makefile.on_demand). Exit 0: there, 1: not installed, 2: no component has it
       --no-recommends   apt without recommended packages (Docker images)
   -h, --help            this help
 
@@ -39,13 +41,14 @@ EOF
 
 # ── Arguments ─────────────────────────────────────────────────────────────────
 
-ASSUME_YES=0; DRY_RUN=0; UI=auto; LIST=0; NO_RECOMMENDS=0; PY_MODE=""; ARGS_IDS=()
+ASSUME_YES=0; DRY_RUN=0; UI=auto; LIST=0; NO_RECOMMENDS=0; PY_MODE=""; ARGS_IDS=(); FOR=""
 NOTES=()
 for arg in "$@"; do
   case "$arg" in
     -y|--yes) ASSUME_YES=1 ;;
     -n|--dry-run) DRY_RUN=1 ;;
     --python=*) PY_MODE=${arg#--python=} ;;
+    --for=*) FOR=${arg#--for=} ;;
     --text) UI=text ;;
     --gui) UI=gui ;;
     --list) LIST=1 ;;
@@ -271,13 +274,91 @@ install_all() {
     printf '\n  %sCheck the errors above and the documentation: %s%s\n' "$RED" "$DOCS_URL" "$NC"
     return 1
   fi
-  printf '\n  %sDone.%s Start the Paparazzi Center with: %s./paparazzi%s\n' "$GREEN$BOLD" "$NC" "$BOLD" "$NC"
+  if [ -n "$FOR" ]; then
+    printf '\n  %sDone.%s The build continues.\n' "$GREEN$BOLD" "$NC"
+  else
+    printf '\n  %sDone.%s Start the Paparazzi Center with: %s./paparazzi%s\n' "$GREEN$BOLD" "$NC" "$BOLD" "$NC"
+  fi
 }
 
 # log without colors in var/install.log
 log_to() { tee >(sed -u 's/\x1b\[[0-9;?]*[A-Za-z]//g' >> "$1"); }
 
+# ── On demand: the build needs a file or command ──────────────────────────────
+#
+# ./install.sh --for=<file or command>, e.g. from conf/Makefile.on_demand while compiling an airframe.
+# Finds the component whose <id>_provides has it, asks (terminal, or a window without terminal) and installs
+# it with the components it needs. All output goes to stderr (make reads stdout).
+# Exit: 0 there or installed, 1 not installed (refused, failed or can't ask), 2 no component provides it.
+
+comp_provider() {
+  local id p
+  for id in "${COMPONENTS[@]}"; do
+    for p in $(comp_var "$id" provides); do [ "$p" = "$1" ] && { echo "$id"; return 0; }; done
+  done
+  return 1
+}
+
+for_install() {
+  local need=$1 id reason question todo=()
+  # already there (a file, or a command in the PATH)
+  { [ -e "$need" ] || command -v "$need" >/dev/null 2>&1; } && return 0
+  id=$(comp_provider "$need") || return 2
+  if comp_installed "$id" 2>/dev/null; then
+    echo "$need: $(comp_var "$id" title) is installed, but $need is not there" >&2
+    return 1
+  fi
+  if ! reason=$(comp_available "$id"); then
+    echo "$need: $(comp_var "$id" title) is not available here: $reason" >&2
+    return 1
+  fi
+  mapfile -t todo < <(comp_resolve "$id")
+  question="This build needs $need, from the installer component '$id': $(comp_var "$id" title)."
+  question+=$'\n'"$(comp_var "$id" desc)"
+  if [ "$ASSUME_YES" = 1 ]; then
+    :
+  elif [ -t 0 ]; then
+    # make started in a terminal. Not /dev/tty: the Paparazzi Center may have been started from a terminal,
+    # its make has a pipe as stdin and the question would wait, unseen, in that terminal.
+    local answer
+    printf '\n%s\n%sInstall it now (%s) [y/N]? %s' "$question" "$BOLD" "${todo[*]}" "$NC" >&2
+    read -r answer
+    case "$answer" in y|Y|yes) ;; *) echo "Not installed. Later: ./install.sh $id" >&2; return 1 ;; esac
+  elif { [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; } && command -v zenity >/dev/null 2>&1; then
+    zen --question --title="Paparazzi installer" --width=600 \
+      --text="$question"$'\n\n'"Install it now (${todo[*]})?" || { echo "Not installed. Later: ./install.sh $id" >&2; return 1; }
+    set_colors 0
+    gui_sudo
+    [ "$DRY_RUN" = 1 ] || [ -z "$SUDO" ] || $SUDO -v || return 1
+    mkdir -p "$PPRZ_DIR/var"
+    install_all "${todo[@]}" 2>&1 | log_to "$PPRZ_DIR/var/install.log" | \
+      zen --text-info --auto-scroll --title="Paparazzi installer (log in var/install.log)" --width=1000 --height=650
+    return "${PIPESTATUS[0]}"
+  else
+    echo "$question" >&2
+    echo "Install it with: ./install.sh $id" >&2
+    return 1
+  fi
+  if [ "$DRY_RUN" = 0 ] && [ -n "$SUDO" ]; then
+    if [ -t 0 ]; then
+      sudo -v || return 1
+    else
+      # no terminal to type the password in (sudo would ask in /dev/tty, maybe unseen): only without password
+      SUDO="sudo -n"
+      sudo -n -v 2>/dev/null || { echo "Installing needs sudo: run in a terminal: ./install.sh $id" >&2; return 1; }
+    fi
+  fi
+  mkdir -p "$PPRZ_DIR/var"
+  install_all "${todo[@]}" 2>&1 | log_to "$PPRZ_DIR/var/install.log" >&2
+  return "${PIPESTATUS[0]}"
+}
+
 # ── Main ──────────────────────────────────────────────────────────────────────
+
+if [ -n "$FOR" ]; then
+  for_install "$FOR"
+  exit $?
+fi
 
 scan
 if [ "$LIST" = 1 ]; then
