@@ -7,18 +7,12 @@ RUN /bin/bash -c "source $HOME/.cargo/env; \
     rustup target add thumbv7em-none-eabihf; \
     rustup target add x86_64-unknown-linux-gnu"
 
-RUN curl -sSL https://packages.osrfoundation.org/gazebo.gpg \
-         -o /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] \
-         https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" \
-         > /etc/apt/sources.list.d/gazebo-stable.list
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
-    g++-arm-linux-gnueabi \
-    gz-harmonic \
+# Gazebo (gz-harmonic) and the Bebop compiler with the installer of the pprz-dep image
+RUN /opt/pprz-install/install.sh --yes --python=system bebop gazebo \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     rustc cargo \
     python3-lxml \
     python3-empy \
     python3-pexpect \
-    build-essential cmake extra-cmake-modules qt6-base-dev qt6-svg-dev qt6-charts-devlibxml2-dev libzip-dev \
+    build-essential cmake extra-cmake-modules qt6-base-dev qt6-svg-dev qt6-charts-dev libxml2-dev libzip-dev \
     && rm -rf /var/lib/apt/lists/*

@@ -17,6 +17,13 @@ env = os.environ
 env['PAPARAZZI_HOME'] = PAPARAZZI_HOME
 env['PAPARAZZI_SRC'] = PAPARAZZI_SRC
 
+# Python packages in the venv pprzEnv (./install.sh --python=venv): use it like an activated venv, also for the
+# programs started by the Center, unless a venv or conda environment is active already
+venv = os.path.join(PAPARAZZI_HOME, 'pprzEnv')
+if os.path.isfile(os.path.join(venv, 'bin', 'python3')) and not env.get('VIRTUAL_ENV') and not env.get('CONDA_PREFIX'):
+    env['VIRTUAL_ENV'] = venv
+    env['PATH'] = os.path.join(venv, 'bin') + os.pathsep + env.get('PATH', '')
+
 if len(sys.argv) > 1 and sys.argv[1] == "-legacy":
     del sys.argv[1]
     path = os.path.normpath(os.path.join(dirname, 'sw', 'supervision', 'paparazzicenter'))

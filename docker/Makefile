@@ -14,7 +14,7 @@ help:
 	@echo ""
 
 build:
-	docker build --tag=paparazziuav/pprz-dep dep/.
+	docker build --tag=paparazziuav/pprz-dep -f dep/Dockerfile ..
 	docker build --tag=paparazziuav/pprz-dev dev/.
 	docker build --tag=paparazziuav/pprz-ci ci/.
 
