@@ -1,0 +1,20 @@
+# Hey Emacs, this is a -*- makefile -*-
+#
+# On-demand installation of what a build needs (a compiler, a simulator...):
+#
+#   $(call pprz_on_demand,<file or command>)
+#
+# Nothing happens when it is there. Otherwise the installer (./install.sh --for=<it>) looks for the component
+# that provides it (<id>_provides in sw/tools/install/components.sh), asks (in the terminal, or in a window
+# when started from the Paparazzi Center) and installs it, then the build continues. The build stops when it
+# is not installed. Returns "missing" when no component provides it, so the caller can print its own error.
+#
+# PPRZ_ON_DEMAND=0 turns it off (e.g. for automated builds); PPRZ_INSTALL_FLAGS=--yes installs without asking.
+
+PPRZ_INSTALL ?= $(PAPARAZZI_SRC)/install.sh
+PPRZ_INSTALL_FLAGS ?=
+# only with the bash installer, which has --for
+PPRZ_ON_DEMAND ?= $(if $(wildcard $(dir $(PPRZ_INSTALL))sw/tools/install/components.sh),1,0)
+
+pprz_on_demand = $(if $(wildcard $(1))$(shell command -v $(1) 2>/dev/null),,$(if $(filter 1,$(PPRZ_ON_DEMAND)),$(call _pprz_on_demand,$(1),$(shell $(PPRZ_INSTALL) $(PPRZ_INSTALL_FLAGS) --for=$(1) >&2; echo $$?)),missing))
+_pprz_on_demand = $(if $(filter 0,$(2)),,$(if $(filter 2,$(2)),missing,$(error $(1) is not installed, see above)))
