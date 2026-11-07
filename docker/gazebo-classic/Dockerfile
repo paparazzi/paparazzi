@@ -34,6 +34,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Paparazzi build & GCS
     paparazzi-dev \
     pprzgcs \
+    # the Qt6 platform plugins (xcb) of PprzGCS: only recommended by libqt6gui6, so not installed here
+    qt6-qpa-plugins \
     # Build tools (simulation only — ARM cross-compiler not needed)
     build-essential \
     cmake \
