@@ -6,6 +6,8 @@ on:
         - 'master'
         paths:
         - 'docker/**'
+        - 'install.sh'
+        - 'sw/tools/install/**'
     schedule:
         - cron: '0 3 27 * *'  # build the 27 of each month (for no particular reasons)
 

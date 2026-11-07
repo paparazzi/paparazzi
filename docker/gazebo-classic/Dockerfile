@@ -16,40 +16,25 @@ RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime \
     && rm -rf /var/lib/apt/lists/*
 
 # ── Repositories ─────────────────────────────────────────────────────
+# kisak-mesa: Mesa 24.x backport — required for Intel Arc (Meteor Lake) iris driver
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        software-properties-common curl lsb-release gnupg git ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    # Paparazzi PPA
-    && add-apt-repository -y ppa:paparazzi-uav/ppa \
-    # kisak-mesa: Mesa 24.x backport — required for Intel Arc (Meteor Lake) iris driver
+    && apt-get install -y --no-install-recommends software-properties-common curl gnupg git ca-certificates \
     && add-apt-repository -y ppa:kisak/kisak-mesa \
-    # OSRF: Gazebo Classic 11
-    && curl -sSL https://packages.osrfoundation.org/gazebo.gpg \
-         -o /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] \
-         http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" \
-         > /etc/apt/sources.list.d/gazebo-stable.list
+    && rm -rf /var/lib/apt/lists/*
 
-# ── All packages in one layer ─────────────────────────────────────────
+# ── Paparazzi with the installer (install.sh, sw/tools/install): the same recipe as on a computer ──
+# Built with the paparazzi folder as context:
+#   docker build -t paparazziuav/pprz-gazebo-classic -f docker/gazebo-classic/Dockerfile .
+COPY install.sh /opt/pprz-install/install.sh
+COPY sw/tools/install /opt/pprz-install/sw/tools/install
+
+# core, python, Bebop compiler, Gazebo Classic 11, PprzGCS, video tools (VLC, OpenCV)
+RUN /opt/pprz-install/install.sh --yes --no-recommends --python=system core python bebop gazebo_classic gcs video \
+    && rm -rf /var/lib/apt/lists/*
+
+# ── What the installer doesn't install ───────────────────────────────
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Paparazzi build & GCS
-    paparazzi-dev \
-    pprzgcs \
-    # Build tools (simulation only — ARM cross-compiler not needed)
     build-essential \
-    cmake \
-    python-is-python3 \
-    python3-future \
-    python3-lxml \
-    python3-numpy \
-    python3-opencv \
-    # Unified Mocap Router
-    libboost-program-options-dev \
-    libboost-filesystem-dev \
-    # Gazebo Classic 11
-    gazebo \
-    libgazebo-dev \
     # Mesa 24.x for Intel Arc GPU (iris driver)
     mesa-utils \
     libgl1-mesa-dri \
@@ -64,14 +49,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Audio (PulseAudio client only — server runs on host)
     libpulse0 \
     pulseaudio-utils \
-    # Compiler for BEBOP
-    gcc-arm-linux-gnueabi \
-    g++-arm-linux-gnueabi \
-    libc6-dev-armel-cross \
-    linux-libc-dev-armel-cross \
-    binutils-arm-linux-gnueabi \
-    # Video (RTP viewer)
-    vlc \
     # Speech synthesis (PprzGCS uses --speech for command confirmations)
     speech-dispatcher \
     espeak-ng \
@@ -90,7 +67,7 @@ RUN groupadd -f input \
     && useradd --shell /bin/bash -u $USER_ID -o -c "Paparazzi Docker user" -m $USERNAME \
     && usermod -aG sudo,dialout,plugdev,input $USERNAME
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY docker/gazebo-classic/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 ENTRYPOINT ["/tini", "--", "/usr/local/bin/entrypoint.sh"]

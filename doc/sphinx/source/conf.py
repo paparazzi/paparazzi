@@ -72,6 +72,12 @@ author = u'Paparazzi UAV Team'
 import subprocess
 import re
 
+# What each installer component installs per Ubuntu version (getting_started/install.rst), from the installer
+_src = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(_src, 'getting_started', 'install_packages.inc'), 'w') as f:
+    subprocess.run(['bash', os.path.join(_src, '..', '..', '..', 'sw', 'tools', 'install', 'doc_packages.sh')],
+                   stdout=f, check=True)
+
 pprz_version = subprocess.run(["../../../paparazzi_version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 pprz_version = pprz_version.stdout
 version = re.split('_|-', pprz_version)[0]
