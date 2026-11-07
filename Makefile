@@ -248,6 +248,13 @@ sim: sim_static
 
 
 #
+# user documentation (Sphinx), shown by the Paparazzi Center (Doc tab, source Local)
+#
+doc:
+	$(Q)$(MAKE) -C doc/sphinx html
+	@echo "Done. Open doc/sphinx/build/html/index.html in your browser or the Paparazzi Center (Doc, Local)."
+
+#
 # doxygen html documentation
 #
 dox:
@@ -347,7 +354,7 @@ test_full:
 
 
 
-.PHONY: all print_build_version _print_building _save_build_version init dox ground_segment ground_segment.opt \
+.PHONY: all print_build_version _print_building _save_build_version init doc dox ground_segment ground_segment.opt \
 subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install tmtc tmtc.opt generators\
 static sim_static opencv_bebop mocap \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \

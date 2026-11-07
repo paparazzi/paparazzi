@@ -39,13 +39,13 @@ class ModuleParser:
         if edep is not None:
             edepends = edep.find("depends")     # type: ET._Element
             if edepends is not None:
-                self.depends = edepends.text.split(",")
+                self.depends = [x.strip() for x in (edepends.text or "").split(",") if x.strip()]
             eprovides = edep.find("provides")
             if eprovides is not None:
-                self.provides = eprovides.text.split(",")
+                self.provides = [x.strip() for x in (eprovides.text or "").split(",") if x.strip()]
             econflicts = edep.find("conflicts")
             if econflicts is not None:
-                self.conflicts = econflicts.text.split(",")
+                self.conflicts = [x.strip() for x in (econflicts.text or "").split(",") if x.strip()]
 
 
 class ModuleDoc(Parser):
@@ -107,13 +107,10 @@ class ModuleDoc(Parser):
         self.setup_parse(inputstring, document)
         try:
             m = ModuleParser(inputstring)
-        except:
-            # print(document.source, document.current_source)
-            print(document.reporter.warning("test"))
-            # print(document.transformer)
+        except Exception as e:
+            document.reporter.warning(f"module XML not parsed: {type(e).__name__}: {e}")
             self.finish_parse()
             return
-            pass
 
         root = self.make_section(m.name)
 
@@ -155,3 +152,5 @@ class ModuleDoc(Parser):
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_source_suffix(".xml", "pprz_module")
     app.add_source_parser(ModuleDoc)
+    # each module page is parsed on its own, no shared state: safe for sphinx-build -j
+    return {'parallel_read_safe': True, 'parallel_write_safe': True}
