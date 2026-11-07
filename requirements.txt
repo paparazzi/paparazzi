@@ -1,3 +1,5 @@
+# Python packages for pip (venv, conda). The installer (./install.sh) installs them per component, with the
+# Ubuntu python3-* packages where they exist: sw/tools/install/components.sh. Keep both lists the same.
 lxml
 numpy
 scipy

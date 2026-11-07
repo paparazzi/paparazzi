@@ -21,7 +21,7 @@ To get in touch, subscribe to the mailing list [paparazzi-devel@nongnu.org] (htt
 Required software
 -----------------
 
-Instructions for installation can be found on the wiki (http://wiki.paparazziuav.org/wiki/Installation).
+Paparazzi runs on Ubuntu 20.04 to 26.04. Installation: https://paparazzi-uav.readthedocs.io/en/latest/getting_started/install.html
 
 Quick start:
 
@@ -29,18 +29,13 @@ Quick start:
 git clone https://github.com/paparazzi/paparazzi.git
 cd ./paparazzi
 ./install.sh
+./paparazzi
 ```
 
-
-
-For Ubuntu users, required packages are available in the [paparazzi-uav PPA] (https://launchpad.net/~paparazzi-uav/+archive/ppa),
-Debian users can use the [OpenSUSE Build Service repository] (http://download.opensuse.org/repositories/home:/flixr:/paparazzi-uav/Debian_7.0/)
-
-Debian/Ubuntu packages:
-- **paparazzi-dev** is the meta-package on which the Paparazzi software depends to compile and run the ground segment and simulator.
-- **paparazzi-jsbsim** is needed for using JSBSim as flight dynamics model for the simulator.
-
-Recommended cross compiling toolchain: https://launchpad.net/gcc-arm-embedded
+`./install.sh` opens a window (or a menu in the terminal) to choose what to install: the Paparazzi apt repository
+([paparazzi-uav PPA](https://launchpad.net/~paparazzi-uav/+archive/ppa)) with **paparazzi-dev** (everything to build
+Paparazzi and run the ground segment), the compilers, the simulators (JSBSim, Gazebo), the ground station and more.
+`./install.sh --help` shows how to use it without menu, e.g. in scripts and Docker images.
 
 
 Directories quick and dirty description:
