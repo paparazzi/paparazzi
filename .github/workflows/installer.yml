@@ -1,0 +1,57 @@
+# Tests of the installer (./install.sh, sw/tools/install) when it changes, and every week (new Ubuntu packages).
+#  - dry-run: the commands of every component for each Ubuntu version (--os), and the documentation pages
+#  - install: a real installation in the bare Ubuntu Docker images (python3 installed first, like docker/*), then the Python
+#    modules are imported
+name: Installer
+
+on:
+  push:
+    paths: ['install.sh', 'requirements.txt', 'sw/tools/install/**', '.github/workflows/installer.yml']
+  pull_request:
+    paths: ['install.sh', 'requirements.txt', 'sw/tools/install/**', '.github/workflows/installer.yml']
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: commands of every component per Ubuntu version
+        run: |
+          for os in 20.04 22.04 24.04 26.04; do
+            for python in system venv; do
+              ./install.sh --os=$os --dry-run --yes --python=$python available
+            done
+          done
+      - name: documentation
+        run: |
+          ./install.sh --doc > /dev/null
+          ./install.sh --wiki > /dev/null
+          ./install.sh --doxygen=/tmp/dox
+          ./install.sh --requirements
+
+  install:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {ubuntu: '22.04', python: system}
+          - {ubuntu: '24.04', python: system}
+          - {ubuntu: '24.04', python: venv}
+          - {ubuntu: '26.04', python: venv}
+    container: ubuntu:${{ matrix.ubuntu }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: ./install.sh core python arm jsbsim
+        run: ./install.sh --yes --python=${{ matrix.python }} core python arm jsbsim
+      - name: everything installed
+        run: |
+          ./install.sh --list --python=${{ matrix.python }}
+          test -z "$(./install.sh --list --python=${{ matrix.python }} | awk '$1 ~ /^(core|python|arm|jsbsim)$/ && $2 != "installed"')"
+      - name: Python modules
+        run: |
+          PY=/usr/bin/python3; [ -x pprzEnv/bin/python3 ] && PY=pprzEnv/bin/python3
+          $PY -c 'import lxml, numpy, scipy, ivy, serial, PyQt5, pyqtgraph, matplotlib, em, future; print("imports OK")'

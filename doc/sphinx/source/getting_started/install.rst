@@ -109,7 +109,7 @@ To see the commands for your computer without running them:
     ./install.sh --dry-run --yes default
 
 The lists below show what each component installs on Ubuntu 22.04, 24.04 and 26.04.
-They are made from the installer itself (``sw/tools/install/components.sh``) when this documentation is built.
+They are made from the installer itself (``sw/tools/install/components.txt``) when this documentation is built.
 With the Python packages in the system (``--python=system``), the modules marked *pip only* are installed with
 ``pip --user`` on Ubuntu 22.04 and are not installed on newer versions (choose venv if you need them).
 With conda, all the Python modules come from pip.

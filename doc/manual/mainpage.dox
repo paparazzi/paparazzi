@@ -14,6 +14,8 @@ specific topics.
 
 The @ref onboard_modules page list all available modules.
 
+The @ref install_components page lists what the installer (./install.sh) installs.
+
 
  */
 
