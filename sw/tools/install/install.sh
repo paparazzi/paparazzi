@@ -35,11 +35,12 @@ start_installer() {
 
 start_installer "$@"
 
-# No python3 yet (e.g. a bare Docker image)
+# No python3 yet (e.g. a bare Docker image). A build asking for something (--for) just stops.
 yes=0
 dry_run=0
 for arg in "$@"; do
   case "$arg" in
+    --for=*) exit 2 ;;
     -y|--yes) yes=1 ;;
     -n|--dry-run) dry_run=1 ;;
   esac
