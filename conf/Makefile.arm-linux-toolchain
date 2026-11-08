@@ -34,6 +34,12 @@ endif
 endif
 endif
 
+# if the compiler is not installed, the installer may install it now (conf/Makefile.on_demand)
+include $(PAPARAZZI_SRC)/conf/Makefile.on_demand
+ifeq ($(shell which $(PREFIX)gcc),)
+  TOOLCHAIN_ON_DEMAND := $(call pprz_on_demand,$(PREFIX)gcc)
+endif
+
 # if toolchain could not be found, print some useful info
 ifeq ($(shell which $(PREFIX)gcc),)
   # no suitable toolchain found...

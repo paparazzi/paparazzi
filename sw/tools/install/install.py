@@ -9,7 +9,7 @@ The window and the terminal menu are in ui.py, the documentation in docs.py, the
 are the bash scripts in steps/ (each also runs by itself: steps/<name>.sh --help).
 
 Sections: settings, the recipe, the installer (this computer, available, installed, needs, apt, Python modules,
-steps, install, list, documentation), the command line.
+steps, install, list, documentation), on demand (--for), the command line.
 """
 
 import argparse
@@ -138,7 +138,7 @@ def words(lines, key):
 class Component:
     """What the menus, --list and the Paparazzi Center show of a component."""
 
-    def __init__(self, cid, state, default, python, title, reason, about):
+    def __init__(self, cid, state, default, python, title, reason, about, provides):
         self.id = cid
         self.state = state                # 'installed', '-' or 'n/a'
         self.default = default            # selected by default when not installed yet
@@ -146,6 +146,7 @@ class Component:
         self.title = title
         self.reason = reason              # why it is not available here ('' when it is)
         self.about = about
+        self.provides = provides          # files or commands a build may ask for (--for)
         self.installed = state == 'installed'
 
 
@@ -160,6 +161,7 @@ class Installer:
         self.no_recommends = no_recommends
         self.sim = bool(os_arg)           # --os: a fresh Ubuntu, nothing installed
         self.doc = False                  # the commands as written in the documentation (~/paparazzi, $USER)
+        self.for_build = False            # installing for a build (--for): ends with "The build continues."
         self.sinks = [sys.stdout]         # where the output goes (also var/install.log, or a window)
         self.notes = []
         self.failed = False
@@ -223,11 +225,14 @@ class Installer:
         return 'system'
 
     def sudo_command(self, askpass):
-        """sudo: nothing as root; with --askpass the password is asked in a window."""
+        """sudo: nothing as root; with --askpass the password is asked in a window; without terminal (e.g. a build
+        from the Paparazzi Center) only without password, else sudo would wait for a password nobody sees."""
         if os.geteuid() == 0 and not self.sim:
             return []
         if askpass:
             return ['sudo', '-A']
+        if not sys.stdin.isatty() and not self.dry_run:
+            return ['sudo', '-n']
         return ['sudo']
 
     def has_apt(self):
@@ -349,7 +354,9 @@ class Installer:
                 return 'needs the Paparazzi PPA (Ubuntu), see the manual installation'
             if word == 'ubuntu' and self.os_id != 'ubuntu':
                 return why or 'Ubuntu only'
-            if word not in ('apt', 'ppa', 'ubuntu') and not in_range(self.os_ver, word):
+            if word == 'amd64' and not self.sim and dpkg_architecture() != 'amd64':
+                return why or 'amd64 only'
+            if word not in ('apt', 'ppa', 'ubuntu', 'amd64') and not in_range(self.os_ver, word):
                 return why or 'Ubuntu ' + word
         return ''
 
@@ -379,6 +386,8 @@ class Installer:
                 path = args[0] if args[0].startswith('/') else os.path.join(PPRZ_DIR, args[0])
                 if not os.path.exists(path):
                     return False
+            if kind == 'runs' and not runs(args):
+                return False
             if kind == 'command' and shutil.which(args[0]) is None:
                 return False
             if kind == 'group' and self.needs_group(args[0]):
@@ -411,7 +420,7 @@ class Installer:
         else:
             state = '-'
         return Component(cid, state, self.value(cid, 'default') == 'yes', bool(values(lines, 'py')),
-                         self.value(cid, 'title'), reason, self.value(cid, 'about'))
+                         self.value(cid, 'title'), reason, self.value(cid, 'about'), words(lines, 'provides'))
 
     # ── Output and commands ───────────────────────────────────────────────────
 
@@ -616,7 +625,10 @@ class Installer:
         if failed:
             self.echo('  Check the errors above and the documentation: ' + DOCS_URL)
             return False
-        self.echo('  Done. Start the Paparazzi Center with: ./paparazzi')
+        if self.for_build:
+            self.echo('  Done. The build continues.')
+        else:
+            self.echo('  Done. Start the Paparazzi Center with: ./paparazzi')
         return True
 
     def install_logged(self, ids):
@@ -632,9 +644,12 @@ class Installer:
         return ok
 
     def sudo_once(self, ids):
-        """Ask for the sudo password once, before installing. False when sudo is refused."""
+        """Ask for the sudo password once, before installing. False when sudo is refused or can't ask."""
         if self.dry_run or not self.sudo:
             return True
+        if self.sudo == ['sudo', '-n'] and not runs(['sudo', '-n', '-v']):
+            self.echo('Installing needs sudo: run in a terminal: ./install.sh ' + ' '.join(ids))
+            return False
         return subprocess.call(self.sudo + ['-v']) == 0
 
     # ── List and documentation ────────────────────────────────────────────────
@@ -726,6 +741,48 @@ def udev_rules_installed():
 def has_display():
     """True on a desktop with zenity (the installer windows)."""
     return bool(os.environ.get('DISPLAY') or os.environ.get('WAYLAND_DISPLAY')) and shutil.which('zenity') is not None
+
+
+# ── On demand: the build needs a file or command ──────────────────────────────
+
+def on_demand(inst, need, yes):
+    """./install.sh --for=<need>, e.g. from conf/Makefile.on_demand while compiling an airframe: find the component
+    that provides it, ask in the terminal, else in a window, else say how to install it. All output goes to
+    stderr (make reads stdout). Exit code 0: there or installed, 1: not installed, 2: no component provides it."""
+    if os.path.exists(need) or shutil.which(need):
+        return 0
+    comps = [inst.info(cid) for cid in inst.components()]
+    comp = next((c for c in comps if need in c.provides), None)
+    if comp is None:
+        return 2
+    if comp.installed:
+        print('%s: %s is installed, but %s is not there' % (need, comp.title, need))
+        return 1
+    if comp.reason:
+        print('%s: %s is not available here: %s' % (need, comp.title, comp.reason))
+        return 1
+    question = "This build needs %s, from the installer component '%s': %s.\n%s" % (need, comp.id, comp.title,
+                                                                                   comp.about)
+    inst.for_build = True
+    if yes:
+        return install_selected(inst, [comp.id], ask=False)
+    import ui
+    if sys.stdin.isatty():
+        # make started in a terminal. Not /dev/tty: the Paparazzi Center may have been started from a terminal,
+        # its make has a pipe as stdin and the question would wait, unseen, in that terminal.
+        if not ui.ask_in_terminal(question, comp.id):
+            print('Not installed. Later: ./install.sh ' + comp.id)
+            return 1
+        return install_selected(inst, [comp.id], ask=False)
+    if has_display():
+        # no terminal, a desktop (e.g. a build from the Paparazzi Center): ask in a window
+        if not ui.ask_in_window(question, comp.id):
+            print('Not installed. Later: ./install.sh ' + comp.id)
+            return 1
+        return install_in_window(inst, [comp.id])
+    print(question)
+    print('Install it with: ./install.sh ' + comp.id)
+    return 1
 
 
 # ── Installing what was chosen ────────────────────────────────────────────────
@@ -834,6 +891,9 @@ def parse_args(argv):
     parser.add_argument('--gui', dest='ui', action='store_const', const='gui', help='window (zenity)')
     parser.add_argument('--list', action='store_true', help='list the components and whether they are installed')
     parser.add_argument('--json', action='store_true', help='the same list for programs (the Paparazzi Center)')
+    parser.add_argument('--for', dest='for_need', metavar='FILE|COMMAND',
+                        help='install the component that provides it, after asking (used by the build: '
+                             'conf/Makefile.on_demand). Exit 0: there, 1: not installed, 2: no component has it')
     parser.add_argument('--no-recommends', action='store_true', help='apt without recommended packages (Docker)')
     parser.add_argument('--os', choices=list(UBUNTU), metavar='VERSION',
                         help='a fresh Ubuntu VERSION (%s), with --dry-run or --list' % ', '.join(UBUNTU))
@@ -876,7 +936,12 @@ def main(argv):
     if args.os and not (args.dry_run or args.list or args.json):
         print('--os only simulates: add --dry-run (or --list)', file=sys.stderr)
         return 2
+    if args.for_need:
+        # make reads stdout: everything to stderr
+        sys.stdout = sys.stderr
     inst = Installer(args.os, args.python, args.dry_run, args.askpass, args.no_recommends)
+    if args.for_need:
+        return on_demand(inst, args.for_need, args.yes)
     if args.json:
         inst.print_json()
         return 0

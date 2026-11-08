@@ -16,8 +16,9 @@
 #   default     yes: selected by default when not installed yet
 #   needs       the components installed first
 #   on          where it can be installed, all words must hold: apt (Ubuntu or Debian), ppa (the Paparazzi PPA:
-#               Ubuntu), ubuntu, an Ubuntu range like 22.04-
-#   why         the reason shown when ubuntu or a range does not hold
+#               Ubuntu), ubuntu, amd64, an Ubuntu range like 22.04-
+#   why         the reason shown when ubuntu, amd64 or a range does not hold
+#   provides    files or commands a build may ask for (./install.sh --for=..., conf/Makefile.on_demand)
 #   repo        ppa:<name>, or osrf (packages.osrfoundation.org, for Gazebo)
 #   apt         apt packages
 #   py          a Python module: <module to import> <apt package, or -> <pip requirement, or ->
@@ -26,8 +27,8 @@
 #               also runs by itself: steps/<name>.sh --help)
 #   note        a message for the user at the end
 #   check       how to see that it is installed, instead of "all apt packages and Python modules":
-#               packages, file <path in paparazzi or absolute>, command <name>, group <name>, udev-rules
-#               (several check lines: all must hold)
+#               packages, file <path in paparazzi or absolute>, runs <command>, command <name>, group <name>,
+#               udev-rules (several check lines: all must hold)
 
 # ── Core ──────────────────────────────────────────────────────────────────────
 
@@ -88,10 +89,22 @@ apt       gcc-arm-none-eabi libnewlib-arm-none-eabi gdb-multiarch
 title     Bebop and Disco compiler (arm-linux-gnueabi)
 about     Cross-compiler for the Parrot Bebop 1/2 and Disco, and the Python module for the Bebop upload tools.
 on        apt
+provides  arm-linux-gnueabi-gcc
 apt       gcc-arm-linux-gnueabi g++-arm-linux-gnueabi
 # the Bebop tools use telnetlib, removed from Python 3.13
 py        telnetlib3                  -                           telnetlib3        if python 3.13-
 note      Ubuntu 24.04 and newer: the Bebop cameras need a 32-bit time_t, see https://github.com/paparazzi/paparazzi/issues/3762    if 24.04-
+
+[parrot_2012]
+title     Parrot 2012.03 Bebop compiler (GCC 4.6.3, /opt/arm-2012.03)
+about     The original Parrot cross-compiler, for the airframes that ask for it with PREFIX=/opt/arm-2012.03/bin/arm-none-linux-gnueabi-. Downloaded from Parrot, checked (sha256 84fa8c2782bd0f71ab39b905bf9833b1a8bc78419390c5a1ef6503ef74154c9c) and unpacked in /opt/arm-2012.03, with the 32-bit C library to run it.
+on        apt amd64
+why       only on amd64: the compiler is a 32-bit x86 program
+provides  /opt/arm-2012.03/bin/arm-none-linux-gnueabi-gcc
+# libc6-i386: the 32-bit C library (an amd64 package, no i386 architecture needed)
+apt       libc6-i386 curl
+step      unpack_deb https://firmware.parrot.com/Toolchains/parrot-tools-linuxgnutools-2012.03_1.0.0-1_i386.deb 84fa8c2782bd0f71ab39b905bf9833b1a8bc78419390c5a1ef6503ef74154c9c
+check     runs /opt/arm-2012.03/bin/arm-none-linux-gnueabi-gcc --version
 
 # ── Simulation ────────────────────────────────────────────────────────────────
 
@@ -108,6 +121,7 @@ title     Gazebo simulator (gz Harmonic or Jetty)
 about     The new Gazebo (gz-sim) from packages.osrfoundation.org, with the TU Delft Gazebo models.
 on        ubuntu 22.04-
 why       Ubuntu 22.04 or newer
+provides  gz
 repo      osrf
 apt       gz-harmonic                 if -25.10
 apt       gz-jetty                    if 26.04-
