@@ -12,6 +12,10 @@ The compiler is chosen in `conf/Makefile.arm-linux-toolchain`:
 Known to work: Ubuntu 22.04, 24.04 and 26.04 `gcc-arm-linux-gnueabi`, Arm GNU Toolchain 10.3-2021.07
 and the Parrot 2012.03 toolchain (GCC 4.6.3, no OpenCV 4). Compiler history: paparazzi/paparazzi#3762.
 
+The installer installs the Ubuntu compiler (`./install.sh bebop`) and the Parrot 2012.03 toolchain in
+`/opt/arm-2012.03` (`./install.sh parrot_2012`). A build that needs one of them and doesn't find it
+offers to install it (`conf/Makefile.on_demand`).
+
 `time_t` must stay 32-bit: the Parrot Linux 3.4 kernel only knows the 32-bit `time_t` V4L2 ioctls, and
 with a 64-bit `time_t` `ap.elf` hangs at camera start. From Ubuntu 24.04 on, the cross-compiler
 defaults to 64-bit, so the board makefiles add `-U_TIME_BITS`.

@@ -5,8 +5,8 @@
 
 # ── Settings ──────────────────────────────────────────────────────────────────
 #
-# install.py sets: PPRZ_INSTALL=1, PPRZ_DIR (the paparazzi folder), SUDO ("sudo", "sudo -A"
-# or empty for root), DRY_RUN (1: only show the commands), PY_MODE (system, venv or conda),
+# install.py sets: PPRZ_INSTALL=1, PPRZ_DIR (the paparazzi folder), SUDO ("sudo", "sudo -A",
+# "sudo -n" or empty for root), DRY_RUN (1: only show the commands), PY_MODE (system, venv or conda),
 # VENV_NAME, SIM (1: a simulated fresh Ubuntu, --os) and DOC (1: the commands for the documentation).
 # A step started by hand gets these defaults (DRY_RUN and PY_MODE can be given, e.g. DRY_RUN=1 steps/make.sh):
 if [ -z "$PPRZ_INSTALL" ]; then

@@ -2,6 +2,7 @@
 
   choose_in_window(inst, comps)      choose the components and where the Python packages go, in windows
   choose_in_terminal(inst, comps)    the same in a menu in the terminal
+  ask_in_terminal / ask_in_window    the question of ./install.sh --for (a build needs a component)
   LogWindow                          a window that shows the output while installing (no terminal)
 
 They only show and ask: install.py knows the components (inst.info) and installs. Python standard library
@@ -10,6 +11,7 @@ only; zenity is on every Ubuntu desktop.
 
 import os
 import subprocess
+import sys
 
 from install import PY_MODES
 
@@ -171,3 +173,18 @@ class LogWindow:
         except OSError:
             pass
         self.proc.wait()
+
+
+# ── The questions of --for ────────────────────────────────────────────────────
+
+def ask_in_terminal(question, cid):
+    """Ask in the terminal (stderr: make reads stdout) whether to install component `cid` now."""
+    print('\n' + question, file=sys.stderr)
+    sys.stderr.write('Install it now (%s) [y/N]? ' % cid)
+    sys.stderr.flush()
+    return sys.stdin.readline().strip() in ('y', 'Y', 'yes')
+
+
+def ask_in_window(question, cid):
+    """Ask in a window whether to install component `cid` now."""
+    return zenity('--question', '--width=600', '--text=%s\n\nInstall it now (%s)?' % (question, cid)) is not None
