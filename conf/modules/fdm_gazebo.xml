@@ -160,6 +160,13 @@
     <file name="nps_fdm_gazebo.cpp" dir="nps"/>
   </makefile>
   <makefile target="nps" cond="ifeq ($(GAZEBO_VERSION), gz)">
+    <raw>
+      <!-- Gazebo not installed: the installer may install it now (conf/Makefile.on_demand) -->
+      include $(PAPARAZZI_SRC)/conf/Makefile.on_demand
+      GZ_ON_DEMAND := $(call pprz_on_demand,gz)
+    </raw>
+  </makefile>
+  <makefile target="nps" cond="ifeq ($(GAZEBO_VERSION), gz)">
     <configure name="GZ_SIM_PKG" default="$(firstword $(foreach pkg,gz-sim gz-sim8,$(shell pkg-config --exists $(pkg) ${AND} echo $(pkg))))"/>
     <raw>
       <!-- -isystem: no warnings from the gz headers -->

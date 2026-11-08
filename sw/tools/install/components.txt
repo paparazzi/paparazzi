@@ -1,0 +1,216 @@
+# Paparazzi installer recipe: the components and what they install, per Ubuntu version.
+#
+# One file for the installer (install.sh, also in the Docker images), the menus, the Paparazzi Center and the
+# documentation (Sphinx, Doxygen, wiki). Plain data: no code.
+#
+# One [component] section per component, then one "key value" per line. A line can end with a condition:
+#   if 24.04-25.10     Ubuntu 24.04 to 25.10        if 26.04-   26.04 and newer      if -22.04   22.04 and older
+#   if python 3.13-    the Python of the system (/usr/bin/python3) is 3.13 or newer
+#   if missing docker  the command docker is not installed (another docker, e.g. docker-ce, is kept)
+#   if not-in-group docker   the user is not in the group docker yet
+#   if wsl             in the Windows Subsystem for Linux
+#
+# Keys:
+#   title       one line for the menus
+#   about       a longer description
+#   default     yes: selected by default when not installed yet
+#   needs       the components installed first
+#   on          where it can be installed, all words must hold: apt (Ubuntu or Debian), ppa (the Paparazzi PPA:
+#               Ubuntu), ubuntu, amd64, an Ubuntu range like 22.04-
+#   why         the reason shown when ubuntu, amd64 or a range does not hold
+#   provides    files or commands a build may ask for (./install.sh --for=..., conf/Makefile.on_demand)
+#   repo        ppa:<name>, or osrf (packages.osrfoundation.org, for Gazebo)
+#   apt         apt packages
+#   py          a Python module: <module to import> <apt package, or -> <pip requirement, or ->
+#               (system: apt; venv and conda: apt then pip for the modules still missing; see install.sh --help)
+#   step        a special step: the script sw/tools/install/steps/<name>.sh with its arguments (each script
+#               also runs by itself: steps/<name>.sh --help)
+#   note        a message for the user at the end
+#   check       how to see that it is installed, instead of "all apt packages and Python modules":
+#               packages, file <path in paparazzi or absolute>, runs <command>, command <name>, group <name>,
+#               udev-rules (several check lines: all must hold)
+
+# ── Core ──────────────────────────────────────────────────────────────────────
+
+[core]
+title     Paparazzi core (PPA, paparazzi-dev, build tools)
+about     The Paparazzi apt repository and the packages needed to build Paparazzi and run the Paparazzi Center.
+default   yes
+on        ppa
+repo      ppa:paparazzi-uav/ppa
+apt       paparazzi-dev python-is-python3 cmake libboost-program-options-dev libboost-filesystem-dev
+# plot and messages tools on 24.04 (26.04: lablgtk3, with paparazzi-dev)
+apt       liblablgtk2-ocaml-dev       if 24.04-25.10
+# joystick tools: SDL 1.2 headers, not pulled in by paparazzi-dev on 26.04
+apt       libsdl1.2-dev               if 26.04-
+
+[python]
+title     Python packages of the Paparazzi Center and tools
+about     The Python modules of requirements.txt: from apt (system), in the pprzEnv venv or in the active conda environment.
+default   yes
+needs     core
+#         module                      apt package                 pip
+py        lxml                        python3-lxml                lxml
+py        numpy                       python3-numpy               numpy
+py        scipy                       python3-scipy               scipy
+py        ivy                         ivy-python                  ivy-python
+py        serial                      python3-serial              pyserial
+py        PyQt5                       python3-pyqt5               PyQt5
+py        PyQt5.QtWebEngineWidgets    python3-pyqt5.qtwebengine   PyQtWebEngine
+py        pyqtgraph                   python3-pyqtgraph           pyqtgraph
+py        OpenGL                      python3-opengl              PyOpenGL
+py        unidecode                   python3-unidecode           unidecode
+py        matplotlib                  python3-matplotlib          matplotlib
+py        distro                      python3-distro              distro
+py        pexpect                     python3-pexpect             pexpect
+py        pyubx2                      -                           pyubx2
+py        dronecan                    -                           dronecan
+# the DroneCAN code generator (sw/ext/dronecan) needs empy 3, Ubuntu 26.04 has empy 4
+py        em                          python3-empy                empy<=3.3.4       if -25.10
+py        em                          -                           empy<=3.3.4       if 26.04-
+# the MAVLink code generator (sw/ext/mavlink, mavgen.py) needs future, Ubuntu 26.04 has no python3-future
+py        future                      python3-future              future            if -25.10
+py        future                      -                           future            if 26.04-
+# future 0.18 of Ubuntu (up to 25.10) imports imp, which Python 3.12 (Ubuntu 24.04) removed: zombie-imp brings it back
+py        imp                         python3-zombie-imp          -                 if 24.04-25.10
+# the pprzlink Python library in the venv or conda environment
+step      pprzlink
+
+# ── Compilers ─────────────────────────────────────────────────────────────────
+
+[arm]
+title     Autopilot compiler (gcc-arm-none-eabi, gdb)
+about     Cross-compiler and debugger for the STM32 autopilots (ChibiOS).
+default   yes
+on        apt
+apt       gcc-arm-none-eabi libnewlib-arm-none-eabi gdb-multiarch
+
+[bebop]
+title     Bebop and Disco compiler (arm-linux-gnueabi)
+about     Cross-compiler for the Parrot Bebop 1/2 and Disco, and the Python module for the Bebop upload tools.
+on        apt
+provides  arm-linux-gnueabi-gcc
+apt       gcc-arm-linux-gnueabi g++-arm-linux-gnueabi
+# the Bebop tools use telnetlib, removed from Python 3.13
+py        telnetlib3                  -                           telnetlib3        if python 3.13-
+note      Ubuntu 24.04 and newer: the Bebop cameras need a 32-bit time_t, see https://github.com/paparazzi/paparazzi/issues/3762    if 24.04-
+
+[parrot_2012]
+title     Parrot 2012.03 Bebop compiler (GCC 4.6.3, /opt/arm-2012.03)
+about     The original Parrot cross-compiler, for the airframes that ask for it with PREFIX=/opt/arm-2012.03/bin/arm-none-linux-gnueabi-. Downloaded from Parrot, checked (sha256 84fa8c2782bd0f71ab39b905bf9833b1a8bc78419390c5a1ef6503ef74154c9c) and unpacked in /opt/arm-2012.03, with the 32-bit C library to run it.
+on        apt amd64
+why       only on amd64: the compiler is a 32-bit x86 program
+provides  /opt/arm-2012.03/bin/arm-none-linux-gnueabi-gcc
+# libc6-i386: the 32-bit C library (an amd64 package, no i386 architecture needed)
+apt       libc6-i386 curl
+step      unpack_deb https://firmware.parrot.com/Toolchains/parrot-tools-linuxgnutools-2012.03_1.0.0-1_i386.deb 84fa8c2782bd0f71ab39b905bf9833b1a8bc78419390c5a1ef6503ef74154c9c
+check     runs /opt/arm-2012.03/bin/arm-none-linux-gnueabi-gcc --version
+
+# ── Simulation ────────────────────────────────────────────────────────────────
+
+[jsbsim]
+title     JSBSim flight dynamics for the simulator (NPS)
+about     The JSBSim library used by the NPS simulator of fixed wings and some rotorcraft.
+default   yes
+needs     core
+on        ppa
+apt       paparazzi-jsbsim
+
+[gazebo]
+title     Gazebo simulator (gz Harmonic or Jetty)
+about     The new Gazebo (gz-sim) from packages.osrfoundation.org, with the TU Delft Gazebo models.
+on        ubuntu 22.04-
+why       Ubuntu 22.04 or newer
+provides  gz
+repo      osrf
+apt       gz-harmonic                 if -25.10
+apt       gz-jetty                    if 26.04-
+step      submodule sw/ext/tudelft_gazebo_models
+
+[gazebo_classic]
+title     Gazebo Classic simulator (Gazebo 11)
+about     Gazebo 11 (Ubuntu 20.04: from packages.osrfoundation.org, 22.04: from Ubuntu), with the TU Delft Gazebo models (MAV course).
+on        ubuntu -22.04
+why       Ubuntu 22.04 or older (use Gazebo, or the docker/gazebo-classic image with the docker component)
+# packages.osrfoundation.org has gazebo11 for 20.04 only, Ubuntu 22.04 has gazebo 11.10
+repo      osrf                        if -21.10
+apt       gazebo11 libgazebo11-dev    if -21.10
+apt       gazebo libgazebo-dev        if 22.04-
+step      submodule sw/ext/tudelft_gazebo_models
+
+[docker]
+title     Docker (CI images, Gazebo Classic on newer Ubuntu)
+about     Docker from Ubuntu, to run the CI images (docker/) or the Gazebo Classic image (docker/gazebo-classic) on Ubuntu 24.04 and newer. Adds your user to the docker group.
+on        apt
+# Docker installed in another way (docker-ce from docker.com): keep it
+apt       docker.io docker-buildx     if missing docker
+step      group docker
+note      Log out and in again to use docker without sudo (group docker)        if not-in-group docker
+check     command docker
+check     group docker
+
+# ── Ground station and hardware ───────────────────────────────────────────────
+
+[gcs]
+title     PprzGCS ground station
+about     The PprzGCS ground control station (binary package from the Paparazzi PPA).
+default   yes
+needs     core
+on        ppa
+apt       pprzgcs
+
+[usb]
+title     USB access and flashing (udev rules, dfu-util)
+about     Udev rules for the autopilots and radios, dfu-util to flash, and the dialout/plugdev groups for your user.
+default   yes
+on        apt
+apt       dfu-util
+step      udev_rules
+step      group dialout,plugdev
+note      Log out and in again to use the serial ports (group dialout)          if not-in-group dialout
+note      WSL: share the USB devices from Windows with usbipd-win, see https://learn.microsoft.com/windows/wsl/connect-usb    if wsl
+check     udev-rules
+check     packages
+
+# ── Extras ────────────────────────────────────────────────────────────────────
+
+[opencv_bebop]
+title     OpenCV for the Bebop (sw/ext/opencv_bebop)
+about     The OpenCV submodule for computer vision on the Bebop, and the libraries to build it.
+needs     bebop
+on        apt
+apt       cmake libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev
+apt       libdc1394-dev               if 22.04-
+apt       libdc1394-22-dev            if -21.10
+step      submodule sw/ext/opencv_bebop
+check     packages
+check     file sw/ext/opencv_bebop/opencv/CMakeLists.txt
+
+[video]
+title     Video, joystick and motion capture tools
+about     VLC, GStreamer and ffmpeg for the video streams, the joystick test tool, and the Python modules of the RTP viewer, NatNet (Optitrack) and moving base tools.
+on        apt
+apt       ffmpeg vlc gstreamer1.0-tools gstreamer1.0-plugins-good jstest-gtk
+py        cv2                         python3-opencv              opencv-python
+py        pymap3d                     python3-pymap3d             pymap3d
+py        pyquaternion                -                           pyquaternion
+
+[docs]
+title     Documentation build tools (Sphinx, Doxygen)
+about     To build the user documentation (make doc) and the code documentation (make dox) locally. Sphinx comes from pip in its own venv doc/sphinx/venv, with the versions of doc/sphinx/requirements.txt, like Read the Docs.
+on        apt
+apt       doxygen graphviz python3-venv
+step      docs_venv
+check     packages
+check     file doc/sphinx/venv/bin/sphinx-build
+
+# ── Build ─────────────────────────────────────────────────────────────────────
+
+[build]
+title     Build Paparazzi (make)
+about     Get the submodules and build Paparazzi, so the Paparazzi Center can start. Takes a while the first time.
+default   yes
+needs     core python
+step      make
+check     file sw/ground_segment/tmtc/link
+check     file var/include/pprzlink

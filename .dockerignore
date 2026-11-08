@@ -1,0 +1,5 @@
+# The pprz-dep and pprz-gazebo-classic images are built with the paparazzi folder as context, for the installer only
+*
+!install.sh
+!sw/tools/install/
+!docker/gazebo-classic/entrypoint.sh

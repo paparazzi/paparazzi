@@ -3,7 +3,8 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    = -j auto
-SPHINXBUILD   = sphinx-build
+# the venv of the installer (./install.sh docs) when it is there, otherwise the sphinx-build in the PATH
+SPHINXBUILD   = $(if $(wildcard venv/bin/sphinx-build),venv/bin/sphinx-build,sphinx-build)
 PAPER         =
 BUILDDIR      = build
 

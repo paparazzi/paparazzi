@@ -20,6 +20,7 @@ from generated.ui_supervision_window import Ui_SupervisionWindow
 from generated.ui_new_ac_dialog import Ui_NewACDialog
 from program_widget import TabProgramsState
 from aircraft_list_widget import AircraftListWidget
+from install_dialog import InstallDialog
 
 try:
     from pprz_connect import PprzConnect
@@ -51,6 +52,10 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.setWindowIcon(icon)
 
         self.settings_action.triggered.connect(self.edit_settings)
+        self.install_dialog = None
+        self.install_action = QAction("Install components", self)
+        self.install_action.triggered.connect(self.show_install_dialog)
+        self.menuFile.insertAction(self.settings_action, self.install_action)
         self.about_action.triggered.connect(lambda: QMessageBox.about(self, "About Paparazzi", utils.ABOUT_TEXT))
         self.setup_selection_mode_ui()
 
@@ -537,6 +542,16 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
     def edit_settings(self):
         settings_dialog = AppSettings(self)
         settings_dialog.show()
+
+    def show_install_dialog(self):
+        if self.install_dialog is None:
+            self.install_dialog = InstallDialog(self.launch_install, self)
+        self.install_dialog.show()
+        self.install_dialog.raise_()
+
+    def launch_install(self, name, cmd, callback):
+        self.tabwidget.setCurrentWidget(self.configuration_panel)
+        self.configuration_panel.launch_program(name, cmd, None, callback)
 
     def set_upload_status(self, text):
         self.upload_status.setText(text)

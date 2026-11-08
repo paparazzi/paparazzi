@@ -41,6 +41,7 @@ jobs:
           export PAPARAZZI_SRC=$(realpath -e paparazzi)
           ./paparazzi/sw/tools/doxygen_gen/gen_modules_doc.py -pv
           ./paparazzi/sw/tools/doxygen_gen/gen_messages_doc.py -pv
+          ./paparazzi/sw/tools/install/docs.py --doxygen
 
       - name: prepare doxygen conf
         run: |
