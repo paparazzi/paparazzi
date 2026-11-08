@@ -204,3 +204,4 @@ tests/results/*
 # K-develop
 *.kate-swp
 doc/sphinx/source/getting_started/install_packages.inc
+doc/sphinx/venv/

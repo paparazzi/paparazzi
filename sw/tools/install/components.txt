@@ -183,9 +183,12 @@ py        pyquaternion                -                           pyquaternion
 
 [docs]
 title     Documentation build tools (Sphinx, Doxygen)
-about     To build the user documentation (doc/sphinx) and the code documentation (make dox) locally.
+about     To build the user documentation (make doc) and the code documentation (make dox) locally. Sphinx comes from pip in its own venv doc/sphinx/venv, with the versions of doc/sphinx/requirements.txt, like Read the Docs.
 on        apt
-apt       doxygen graphviz python3-sphinx python3-sphinx-rtd-theme python3-myst-parser
+apt       doxygen graphviz python3-venv
+step      docs_venv
+check     packages
+check     file doc/sphinx/venv/bin/sphinx-build
 
 # ── Build ─────────────────────────────────────────────────────────────────────
 
