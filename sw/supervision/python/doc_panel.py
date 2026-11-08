@@ -58,7 +58,7 @@ class DocPanel(QWidget, Ui_DocPanel):
             self.webView.setHtml("<h2>Local documentation not found</h2>"
                                  f"<p>{url.toLocalFile()} does not exist.</p>"
                                  "<p>Build it with <code>make doc</code> in the Paparazzi folder "
-                                 "(needs Sphinx: <code>doc/sphinx/requirements.txt</code>), or choose the source Internet.</p>")
+                                 "(needs the Sphinx of <code>./install.sh docs</code>), or choose the source Internet.</p>")
         else:
             self.webView.load(url)
 

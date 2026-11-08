@@ -17,6 +17,15 @@ env = os.environ
 env['PAPARAZZI_HOME'] = PAPARAZZI_HOME
 env['PAPARAZZI_SRC'] = PAPARAZZI_SRC
 
+# Python packages in the venv pprzEnv (./install.sh --python=venv): use it like an activated venv, also for the
+# programs started by the Center, unless a venv or a conda environment is active already. The conda base
+# environment doesn't count: conda activates it in every terminal by default, without the Paparazzi packages.
+venv = os.path.join(PAPARAZZI_HOME, 'pprzEnv')
+conda_env = env.get('CONDA_DEFAULT_ENV', 'base') if env.get('CONDA_PREFIX') else 'base'
+if os.path.isfile(os.path.join(venv, 'bin', 'python3')) and not env.get('VIRTUAL_ENV') and conda_env == 'base':
+    env['VIRTUAL_ENV'] = venv
+    env['PATH'] = os.path.join(venv, 'bin') + os.pathsep + env.get('PATH', '')
+
 if len(sys.argv) > 1 and sys.argv[1] == "-legacy":
     del sys.argv[1]
     path = os.path.normpath(os.path.join(dirname, 'sw', 'supervision', 'paparazzicenter'))

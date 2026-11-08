@@ -11,26 +11,21 @@ ENV LANG=C.UTF-8
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# add Paparazzi PPA
-RUN apt-get update && apt-get install -y software-properties-common
-RUN add-apt-repository ppa:paparazzi-uav/ppa
-#RUN add-apt-repository ppa:team-gcc-arm-embedded/ppa
-
-# setup tzdata
+# time zone without question
 ENV TZ=Etc/UTC
 RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt-get -y install tzdata
 
-# install paparazzi-dev which pull in the dependencies
-# also install cross compiler and some stuff for X
-RUN apt-get update && apt-get install -y \
-    cmake \
+# The installer of paparazzi (install.sh, sw/tools/install): the same recipe as on a computer.
+# Kept in /opt/pprz-install for the images based on this one (ci).
+COPY install.sh /opt/pprz-install/install.sh
+COPY sw/tools/install /opt/pprz-install/sw/tools/install
+
+RUN apt-get update && apt-get install -y tzdata \
+    && /opt/pprz-install/install.sh --yes --python=system core arm jsbsim \
+    && apt-get install -y \
     libcanberra-gtk-module \
-    paparazzi-dev \
-    paparazzi-jsbsim \
     x11-apps \
     gedit \
-    gcc-arm-none-eabi \
     python3-future \
     python3-zombie-imp \
     curl \
