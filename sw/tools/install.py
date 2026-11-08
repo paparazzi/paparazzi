@@ -112,6 +112,9 @@ class InstallWindow(QWidget):
     def cmd_gcs(self):
         self.step('Step 5 — Installing binary ground station')
         self.execute('sudo -E apt-get -f -y install pprzgcs')
+        if distro_version == 22.04:
+            # PprzGCS (Qt6) needs the xcb platform plugin, which Ubuntu 22.04 doesn't pull in
+            self.execute('sudo -E apt-get -f -y install qt6-qpa-plugins')
         self.execute('sudo -E apt-get -f -y install python3-pyqt5.qtwebkit') # for the documentation
         self.done('Ground station installed successfully', 'Ground station installation failed')
 
