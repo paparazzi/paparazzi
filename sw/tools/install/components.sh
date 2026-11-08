@@ -66,6 +66,8 @@ EOF
   if ver_ge 26.04; then echo "em - empy<=3.3.4"; else echo "em python3-empy empy<=3.3.4"; fi
   # the MAVLink code generator (sw/ext/mavlink, mavgen.py) needs future, Ubuntu 26.04 has no python3-future
   if ver_ge 26.04; then echo "future - future"; else echo "future python3-future future"; fi
+  # future 0.18 of Ubuntu (up to 24.04) imports imp, which Python 3.12 removed: python3-zombie-imp brings it back
+  if ! ver_ge 26.04 && py_ver_ge 3.12; then echo "imp python3-zombie-imp -"; fi
 }
 
 # ── Compilers ─────────────────────────────────────────────────────────────────
