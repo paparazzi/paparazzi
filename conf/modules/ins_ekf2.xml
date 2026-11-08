@@ -73,6 +73,8 @@
     <configure name="CXXSTANDARD" value="-std=c++14"/>
     <flag name="CXXFLAGS" value="Wno-unused-but-set-variable"/>
     <flag name="CXXFLAGS" value="Wno-unused-variable"/>
+    <!-- PX4 ecl (archived upstream): sensor_range_finder.hpp overloads Sensor::runChecks() -->
+    <flag name="CXXFLAGS" value="Wno-overloaded-virtual"/>
 
     <!-- EKF2 files -->
     <file name="ins.c"/>

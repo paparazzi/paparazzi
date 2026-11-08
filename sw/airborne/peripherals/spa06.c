@@ -585,7 +585,9 @@ static void spa06_register_write(struct spa06_t *spa, uint8_t reg, uint8_t value
     spa->tx_buffer[1] = value;
     spa->spi.trans.output_length = 2;
     spa->spi.trans.input_length = 0;
+#if SPI_MASTER  /* spi_submit only exists with the spi_master module, without it the bus is I2C */
     spi_submit(spa->spi.p, &(spa->spi.trans));
+#endif
   } else {
     if (spa->i2c.trans.status != I2CTransDone) return;
     /* I2C transaction */
@@ -619,7 +621,9 @@ static void spa06_register_read(struct spa06_t *spa, uint8_t reg, uint16_t size)
     spa->spi.trans.output_length = 2;
     spa->spi.trans.input_length = size + 1; // already 1 is added for the transmission of the register to read
     spa->tx_buffer[1] = 0;
+#if SPI_MASTER  /* spi_submit only exists with the spi_master module, without it the bus is I2C */
     spi_submit(spa->spi.p, &(spa->spi.trans));
+#endif
   } else {
     if (spa->i2c.trans.status != I2CTransDone) return;
     /* Guard against receive buffer overflow */
