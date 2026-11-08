@@ -1,7 +1,8 @@
-# Tests of the installer (./install.sh, sw/tools/install) when it changes, and every week (new Ubuntu packages).
-#  - dry-run: the commands of every component for each Ubuntu version (--os), and the documentation pages
-#  - install: a real installation in the bare Ubuntu Docker images (python3 installed first, like docker/*), then the Python
-#    modules are imported
+# Tests of the installer (./install.sh, sw/tools/install).
+#  - dry-run, when the installer changes: the commands of every component for each Ubuntu version (--os), and the
+#    documentation pages
+#  - install, every week (new Ubuntu packages) or by hand (Actions > Installer > Run workflow): a real installation in
+#    the bare Ubuntu Docker images (python3 installed first, like docker/*), then the Python modules are imported
 name: Installer
 
 on:
@@ -33,6 +34,7 @@ jobs:
           ./install.sh --requirements
 
   install:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -44,6 +46,12 @@ jobs:
           - {ubuntu: '26.04', python: venv}
     container: ubuntu:${{ matrix.ubuntu }}
     steps:
+      # git first, so that the checkout is a git clone and the installer can get the submodules (pprzlink);
+      # the container runs as root in a folder of another user
+      - name: git
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends git ca-certificates
+          git config --global --add safe.directory '*'
       - uses: actions/checkout@v4
       - name: ./install.sh core python arm jsbsim
         run: ./install.sh --yes --python=${{ matrix.python }} core python arm jsbsim

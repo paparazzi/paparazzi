@@ -25,39 +25,9 @@ Get Paparazzi and install
 
 With a desktop, ``./install.sh`` opens a window, otherwise a menu in the terminal (or use ``./install.sh --text``).
 Choose what to install; the parts needed to build and run Paparazzi are selected, installed parts are marked.
-The installer needs nothing else than bash: every command is shown before it runs, ``sudo`` asks for your password.
-
-.. list-table::
-    :header-rows: 1
-
-    * - Component
-      - What it installs
-    * - ``core``
-      - The Paparazzi apt repository (PPA) and ``paparazzi-dev``: everything to build Paparazzi and run the Paparazzi Center
-    * - ``python``
-      - The Python packages of the Paparazzi Center and the tools (see `Python packages`_)
-    * - ``arm``
-      - The compiler and debugger for the autopilots (``gcc-arm-none-eabi``, ``gdb-multiarch``)
-    * - ``bebop``
-      - The compiler for the Parrot Bebop and Disco (``arm-linux-gnueabi``)
-    * - ``jsbsim``
-      - JSBSim, the flight dynamics of the simulator
-    * - ``gazebo``, ``gazebo_classic``
-      - The Gazebo simulator: Gazebo (Harmonic or Jetty) from Ubuntu 22.04, Gazebo Classic up to Ubuntu 22.04
-    * - ``docker``
-      - Docker, to run the CI images or the Gazebo Classic image (``docker/gazebo-classic``) on newer Ubuntu
-    * - ``gcs``
-      - The PprzGCS ground station
-    * - ``usb``
-      - The udev rules to access the autopilots and radios over USB, ``dfu-util``, and the ``dialout`` group
-    * - ``opencv_bebop``
-      - OpenCV for computer vision on the Bebop
-    * - ``video``
-      - Video (VLC, GStreamer), joystick and motion capture (NatNet) tools
-    * - ``docs``
-      - Sphinx, Doxygen and Graphviz, to build this documentation and the code documentation locally
-    * - ``build``
-      - Build Paparazzi (``make``). This takes a while the first time
+The installer is ``install.py`` (Python 3, installed first when it is missing): every command is shown before it
+runs, ``sudo`` asks for your password. The components and what they install are listed under
+`Manual installation`_ below.
 
 Finally, launch Paparazzi with
 
@@ -102,7 +72,38 @@ The installer also runs as root without ``sudo`` and without terminal, as in the
 Manual installation
 -------------------
 
-To see the commands for your computer without running them:
+The original installation commands still work. Add the paparazzi apt-repository and install the dependencies:
+
+.. code-block:: bash
+
+    sudo add-apt-repository -y ppa:paparazzi-uav/ppa
+    sudo apt-get update
+    sudo apt-get -f -y install paparazzi-dev paparazzi-jsbsim dfu-util pprzgcs
+    sudo apt-get install python-is-python3 gcc-arm-none-eabi gdb-multiarch
+
+.. note:: If you are on Ubuntu 24.04, please also install ``liblablgtk2-ocaml-dev`` in order to use the plot and messages tools.
+
+Clone the repository:
+
+.. code-block:: bash
+
+    cd ~
+    git clone --origin upstream https://github.com/paparazzi/paparazzi.git
+    cd ~/paparazzi
+    git remote update -p
+    sudo cp conf/system/udev/rules/*.rules /etc/udev/rules.d/
+    sudo udevadm control --reload-rules
+
+Get the submodules and build Paparazzi. This step might take a long time the first time you launch it:
+
+.. code-block:: bash
+
+    make -j1
+
+.. note::
+    The ``-j1`` argument may not be necessary, but if you are not familiar with paparazzi, its safer to use it. However, it will make paparazzi build much slower.
+
+To see what the installer would run on your computer, without running it:
 
 .. code-block:: bash
 

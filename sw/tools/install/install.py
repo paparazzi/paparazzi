@@ -365,7 +365,14 @@ class Installer:
             if kind == 'packages' and not self.packages_installed(words(lines, 'apt')):
                 return False
             if kind == 'python':
-                modules = [value.split()[0] for value in values(lines, 'py')]
+                # the system Python of Ubuntu 23.04 and newer refuses pip: there the modules without apt package
+                # can't be installed (the install says so), so they don't count
+                pip_refused = self.py_mode == 'system' and self.py_externally_managed()
+                modules = []
+                for value in values(lines, 'py'):
+                    module, apt = value.split()[:2]
+                    if not (pip_refused and apt == '-'):
+                        modules.append(module)
                 if self.missing_modules(self.py_bin(), modules):
                     return False
             if kind == 'file':
