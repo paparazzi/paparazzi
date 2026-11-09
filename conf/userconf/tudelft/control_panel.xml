@@ -404,7 +404,6 @@
       <program name="Settings (Python)">
         <arg constant="@AC_ID" flag="--ac_id" />
       </program>
-      <program name="AeronauticalInfo"/>
       <program name="RotWingStatus"/>
     </session>
 
