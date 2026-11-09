@@ -87,8 +87,8 @@ class InstallWindow(QWidget):
             self.execute('sudo apt-add-repository \'deb https://apt.kitware.com/ubuntu/ bionic main\'')
         self.execute('sudo apt-get update && sudo apt-get install cmake')
         self.execute('sudo -E apt-get install -y libboost-program-options-dev libboost-filesystem-dev')
-        if distro_version == 24.04:
-            self.execute('python3 -m pip install telnetlib3') # Required for bebop tools
+        # the Bebop tools use telnetlib of the system Python (up to Ubuntu 24.04); 26.04 (Python 3.13+) has no
+        # telnetlib and no apt package of telnetlib3
         self.done('Paparazzi Dev installed successfully', 'Some development packages failed to install')
 
 
@@ -115,8 +115,7 @@ class InstallWindow(QWidget):
         if distro_version == 22.04:
             # PprzGCS (Qt6) needs the xcb platform plugin, which Ubuntu 22.04 doesn't pull in
             self.execute('sudo -E apt-get -f -y install qt6-qpa-plugins')
-        if distro_version <= 26.04:
-            self.execute('sudo -E apt-get -f -y install python3-pyqt5.qtwebengine') # the documentation viewer of the Paparazzi Center
+        self.execute('sudo -E apt-get -f -y install python3-pyqt5.qtwebengine') # the documentation viewer of the Paparazzi Center
         self.done('Ground station installed successfully', 'Ground station installation failed')
 
     def cmd_mcu(self):
@@ -127,7 +126,7 @@ class InstallWindow(QWidget):
 
     def cmd_gazebo_classic(self):
         self.step('Step 7a — Installing Gazebo 11 Classic')
-        if distro_version == 22.04:
+        if distro_version <= 22.04:
             self.execute('sudo -E apt-get update')
             self.execute('sudo -E apt-get -f -y install lsb-release wget gnupg')
             self.execute('sudo sh -c \'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list\'')
@@ -142,7 +141,7 @@ class InstallWindow(QWidget):
         self.done('Gazebo Classic installed successfully', 'Gazebo Classic installation failed')
 
     def cmd_gazebo(self):
-        self.step('Step 7b — Installing Gazebo Harmonic')
+        self.step('Step 7b — Installing Gazebo (Harmonic, Jetty on 26.04)')
         if distro_version >= 22.04:
             self.execute('sudo -E apt-get update')
             self.execute('sudo -E apt-get -f -y install curl lsb-release gnupg')
@@ -154,7 +153,7 @@ class InstallWindow(QWidget):
             else:
                 self.execute('sudo -E apt-get -f -y install gz-harmonic')
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
-        self.done('Gazebo Harmonic installed successfully', 'Gazebo Harmonic installation failed')
+        self.done('Gazebo installed successfully', 'Gazebo installation failed')
 
 
     def cmd_bebopcv(self):
@@ -170,11 +169,17 @@ class InstallWindow(QWidget):
         self.step('Step 9 — Installing VLC, Joystick & NatNet tools')
         self.execute('sudo -E apt-get -f -y install ffmpeg vlc gstreamer1.0-tools gstreamer1.0-plugins-good jstest-gtk default-jre')
         self.execute('sudo -E apt-get install -y python3-pip')
-        if distro_version < 26.04:
+        if distro_version < 24.04:
             self.execute('python3 -m pip install future') # Required for MAVLink
             self.execute('python3 -m pip install pyquaternion ivy-python') # Required for NatNat
             self.execute('python3 -m pip install pymap3d') # Required for Moving-Base
             self.execute('python3 -m pip install opencv-python') # Required for RTP-viewer
+        else:
+            # from Ubuntu 23.04 pip can't install in the system Python: the apt packages
+            # (no apt package for pyquaternion (NatNet), and for future (MAVLink) on 26.04)
+            self.execute('sudo -E apt-get -f -y install python3-opencv python3-pymap3d ivy-python') # RTP-viewer, Moving-Base, NatNet
+            if distro_version < 26.04:
+                self.execute('sudo -E apt-get -f -y install python3-future') # Required for MAVLink
         self.done('VLC / Joystick / NatNet installed successfully', 'Some packages failed to install')
 
 
@@ -250,7 +255,7 @@ class InstallWindow(QWidget):
         button7.clicked.connect(self.cmd_gazebo_classic)
         btn_layout.addWidget(button7)
 
-        button7b = QPushButton('7b) Gazebo Harmonic')
+        button7b = QPushButton('7b) Gazebo (Harmonic/Jetty)')
         if distro_version >= 22.04:
             button7b.clicked.connect(self.cmd_gazebo)
         else:
