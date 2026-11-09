@@ -101,8 +101,10 @@ fi
 
 print_header "Step 1/3 — Installing Qt platform dependencies"
 
-# Solves: Could not load the Qt platform plugin "xcb"
-if run_step "Installing Qt libraries" sudo apt install -y libxcb-xinerama0 libxcb-cursor0 libxkbcommon-x11-0 libglu1-mesa; then
+# Solves: Could not load the Qt platform plugin "xcb" (the PyQt5 of pip needs these libraries; the Ubuntu
+# desktop has icccm4 and keysyms1 up to 24.04, not on 26.04)
+if run_step "Installing Qt libraries" sudo apt install -y libxcb-xinerama0 libxcb-cursor0 libxkbcommon-x11-0 libglu1-mesa \
+     libxcb-icccm4 libxcb-keysyms1 libxcb-randr0 libxcb-shape0 libxcb-sync1 libxcb-xfixes0; then
   print_success "Qt dependencies installed successfully"
 else
   exit 1
