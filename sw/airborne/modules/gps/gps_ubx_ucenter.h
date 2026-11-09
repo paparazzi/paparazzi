@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008-2011 The Paparazzi Team
+ *               2026 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -53,6 +53,11 @@ struct gps_ubx_ucenter_struct {
 
   /// Port identifier number
   uint8_t port_id;
+
+  bool cfg_prt_reply;   ///< Port configuration (legacy CFG-PRT) received
+  bool version_reply;   ///< Version (MON-VER) received
+  uint8_t protver;      ///< Protocol version major (MON-VER extension), 0 when not reported
+  bool valset;          ///< Configured with UBX-CFG-VALSET: the receiver doesn't have the legacy UBX-CFG messages
 
   char replies[GPS_UBX_UCENTER_CONFIG_STEPS];
 

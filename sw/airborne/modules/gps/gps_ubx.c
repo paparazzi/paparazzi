@@ -478,7 +478,9 @@ static void gps_ubx_parse_nav_daheading(struct GpsUbx *gubx)
 
   uint32_t flags = UBX_NAV_DAHEADING_flags(gubx->msg_buf);
   bool relPosValid = (flags >> 2) & 0x1;
-  bool relPosHeadingValid = (flags >> 6) & 0x1;
+  uint8_t carrSoln = (flags >> 3) & 0x3;
+  // As u-blox advises: the heading only with a fixed carrier phase solution
+  bool relPosHeadingValid = ((flags >> 6) & 0x1) && carrSoln == 2;
   if (!relPosValid) {
     return;
   }
