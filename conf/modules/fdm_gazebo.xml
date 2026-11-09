@@ -165,6 +165,7 @@
       <!-- -isystem: no warnings from the gz headers -->
       nps.CXXFLAGS += $(patsubst -I%,-isystem %,$(shell pkg-config --cflags $(GZ_SIM_PKG)))
       nps.LDFLAGS  += $(shell pkg-config --libs $(GZ_SIM_PKG))
+      nps.LDFLAGS  += -lfmt
     </raw>
     <file name="nps_fdm_gz.cpp" dir="nps"/>
   </makefile>
