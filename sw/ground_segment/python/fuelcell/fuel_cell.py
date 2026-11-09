@@ -18,19 +18,34 @@
 # along with paparazzi.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import wx
+"""
+Nederdrone status window: fuel cell, battery and CAN ESC status from the Ivy bus.
+The window itself is in fuel_cell_viewer.py.
+"""
+
+import argparse
+import signal
+import sys
+
+from PyQt5 import QtWidgets
+
 import fuel_cell_viewer
 
-class FuelCellApp(wx.App):
-    def OnInit(self):
-        self.main = fuel_cell_viewer.FuelCellFrame()
-        self.main.Show()
-        self.SetTopWindow(self.main)
-        return True
 
 def main():
-    application = FuelCellApp(0)
-    application.MainLoop()
+    """ Parse the arguments, open the window and run the Qt event loop """
+    parser = argparse.ArgumentParser(description="Nederdrone fuel cell, battery and ESC status")
+    parser.add_argument("-b", "--ivy_bus", dest="ivy_bus", default=None,
+                        help="Ivy bus address:port (default: $IVY_BUS or the system default)")
+    args = parser.parse_args()
+
+    app = QtWidgets.QApplication(sys.argv)
+    window = fuel_cell_viewer.FuelCellWidget(args.ivy_bus)
+    window.show()
+    # Ctrl-C in the terminal closes the window (and stops Ivy)
+    signal.signal(signal.SIGINT, lambda *args: window.close())
+    sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main()
