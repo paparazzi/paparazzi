@@ -769,5 +769,15 @@
   .pwmp = &PWMD5 \
 }
 
+/*
+ * For the buzzer (buzzer_tunes module)
+ * ALARM pin (TIM5_CH1), BUZZER pin AUX_A1
+ */
+#define BUZZER_GPIO         PAL_PORT(LINE_AUX_A1)
+#define BUZZER_PIN          PAL_PAD(LINE_AUX_A1)
+#define BUZZER_AF           AUX_A1_TIM_AF
+#define BUZZER_PWMD         PWMD5
+#define BUZZER_PWM_CHANNEL  0
+
 #endif /* CONFIG_TAWAKI_1_00_H */
 
