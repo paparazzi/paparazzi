@@ -67,6 +67,17 @@
 
 static const char PPRZ_LOG_NAME[] = "pprzlog_";
 static const char PPRZ_LOG_DIR[] = "PPRZ";
+
+/** Write the configuration of the firmware next to the logs (PPRZ/<date>_<md5>_<aircraft>.conf.gz),
+ * so sd2log can decode them without the var/conf of the computer that built the firmware */
+#ifndef SDLOG_CONF
+#define SDLOG_CONF TRUE
+#endif
+#if SDLOG_CONF
+#include "generated/aircraft_conf.h"
+#endif
+/** Result of writing the configuration, reported to the GCS */
+static SdioError sdlog_conf_error = SDLOG_OK;
 #if FLIGHTRECORDER_SDLOG
 static const char FLIGHTRECORDER_LOG_NAME[] = "fr_";
 static const char FR_LOG_DIR[] = "FLIGHT_RECORDER";
@@ -324,6 +335,31 @@ static FileDes sdlog_open(const char *base, const char *dir, const char *prefix,
   return fd;
 }
 
+#if SDLOG_CONF
+/** Write the configuration in base/dir if it is not there yet (under a temporary name first) */
+static SdioError sdlog_write_conf(const char *base, const char *dir)
+{
+  char path[512], tmp[520];
+  struct stat st;
+  snprintf(path, sizeof(path), "%s/%s/%s", base, dir, AIRCRAFT_CONF_NAME);
+  if (stat(path, &st) == 0) {
+    return SDLOG_OK;
+  }
+  snprintf(tmp, sizeof(tmp), "%s.tmp", path);
+  FILE *f = fopen(tmp, "wb");
+  if (f == NULL) {
+    return SDLOG_FATFS_ERROR;
+  }
+  bool ok = fwrite(aircraft_conf_gz, 1, sizeof(aircraft_conf_gz), f) == sizeof(aircraft_conf_gz);
+  ok = (fclose(f) == 0) && ok;
+  if (!ok || rename(tmp, path) != 0) {
+    remove(tmp);
+    return ok ? SDLOG_FATFS_ERROR : SDLOG_FSFULL;
+  }
+  return SDLOG_OK;
+}
+#endif
+
 #if PREFLIGHT_CHECKS
 #include "modules/checks/preflight_checks.h"
 static struct preflight_check_t sdlog_pfc;
@@ -331,10 +367,11 @@ static struct preflight_check_t sdlog_pfc;
 static void sdlog_preflight(struct preflight_result_t *result)
 {
   if (sdlog_status != SDLOG_RUNNING) {
+    const char *cause = (sdlog_status == SDLOG_STOPPED) ? "not started" : sdlog_error_string(sdlog_error);
 #ifdef SDLOG_PREFLIGHT_ERROR
-    preflight_error(result, "SDLogger is not running [%d:%d]", sdlog_status, sdlog_error);
+    preflight_error(result, "SD log not running: %s", cause);
 #else
-    preflight_warning(result, "SDLogger is not running [%d:%d]", sdlog_status, sdlog_error);
+    preflight_warning(result, "SD log not running: %s", cause);
 #endif
   } else {
     preflight_success(result, "SDLogger running");
@@ -344,8 +381,40 @@ static void sdlog_preflight(struct preflight_result_t *result)
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
+/**
+ * Tell the GCS in words how the log start went: the log files, or why the logger does not run
+ * (no SD card, card full, ...), and when the configuration could not be written. Also every time the
+ * logger goes into error later. Sent with the LOGGER_STATUS message, from the main thread.
+ */
+static void sdlog_report_status(struct transport_tx *trans, struct link_device *dev)
+{
+  static int reported = SDLOG_STOPPED;
+  int status = sdlog_status;
+  // only on a change: the start (stopped to running or error), and every time it goes into error
+  if (status == reported || status == SDLOG_STOPPED || (status == SDLOG_RUNNING && reported == SDLOG_ERROR)) {
+    reported = status;
+    return;
+  }
+  reported = status;
+  char msg[120];
+  int len;
+  if (status == SDLOG_ERROR) {
+    len = snprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(sdlog_error));
+  } else if (sdlog_conf_error != SDLOG_OK) {
+    len = snprintf(msg, sizeof(msg), "SD log started: %s, configuration not written: %s", sdlog_filenames,
+                sdlog_error_string(sdlog_conf_error));
+  } else {
+    len = snprintf(msg, sizeof(msg), "SD log started: %s", sdlog_filenames);
+  }
+  if (len > 0) {
+    len = Min(len, (int)sizeof(msg) - 1);
+    pprz_msg_send_INFO_MSG(trans, dev, AC_ID, len, msg);
+  }
+}
+
 static void send_sdlog_status(struct transport_tx *trans, struct link_device *dev)
 {
+  sdlog_report_status(trans, dev);
   uint8_t status = (uint8_t) sdlog_status;
   uint8_t err = (uint8_t) sdlog_error;
   uint32_t used = (uint32_t) sdlog_bytes;
@@ -386,6 +455,11 @@ void sdlog_chibios_init(void)
   sdlog_error = SDLOG_OK;
   pprzLogFile = sdlog_open(base, PPRZ_LOG_DIR, PPRZ_LOG_NAME, name, sizeof(name));
   snprintf(sdlog_filenames, sizeof(sdlog_filenames), "%s", pprzLogFile != -1 ? name : "");
+#if SDLOG_CONF
+  if (pprzLogFile != -1) {
+    sdlog_conf_error = sdlog_write_conf(base, PPRZ_LOG_DIR);
+  }
+#endif
 #if FLIGHTRECORDER_SDLOG
   flightRecorderLogFile = sdlog_open(base, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, name, sizeof(name));
   if (flightRecorderLogFile != -1) {
