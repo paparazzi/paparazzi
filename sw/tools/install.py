@@ -104,6 +104,8 @@ class InstallWindow(QWidget):
             self.execute('sudo -E apt-get install -y python3-lxml python3-numpy')
         elif distro_version == 24.04:
             self.execute('sudo -E apt-get install -y liblablgtk2-ocaml-dev')
+            # the MAVLink generator uses future 0.18, which imports imp: removed from Python 3.12
+            self.execute('sudo -E apt-get install -y python3-zombie-imp')
         if distro_version == 18.04:
             self.execute('wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -')
             self.execute('sudo apt-add-repository -y \'deb https://apt.kitware.com/ubuntu/ bionic main\'')
