@@ -242,15 +242,18 @@ static void rc_cb(uint8_t sender_id __attribute__((unused)), struct RadioControl
 static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
                    struct GpsState *gps_s) {
+  // ECEF from the LLA position and NED velocity when the receiver doesn't send it
+  struct EcefCoor_i ecef_pos = ecef_int_from_gps(gps_s);
+  struct EcefCoor_i ecef_vel = ecef_vel_int_from_gps(gps_s);
   pprz_msg_send_IMCU_REMOTE_GPS(&(intermcu.transport.trans_tx), intermcu.device, INTERMCU_FBW,
-    &gps_s->ecef_pos.x,
-    &gps_s->ecef_pos.y,
-    &gps_s->ecef_pos.z,
+    &ecef_pos.x,
+    &ecef_pos.y,
+    &ecef_pos.z,
     &gps_s->lla_pos.alt,
     &gps_s->hmsl,
-    &gps_s->ecef_vel.x,
-    &gps_s->ecef_vel.y,
-    &gps_s->ecef_vel.z,
+    &ecef_vel.x,
+    &ecef_vel.y,
+    &ecef_vel.z,
     &gps_s->course,
     &gps_s->gspeed,
     &gps_s->pacc,
