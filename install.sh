@@ -8,7 +8,7 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
 
-USE_VENV=true
+USE_VENV=false
 BASHRC_SOURCE_VENV=false
 
 # ── Helper functions ──────────────────────────────────────────────────────────
@@ -59,16 +59,16 @@ do
   if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]
   then
     echo "Usage: ./install.sh [-n|--no-venv] [-h|---help]"
-    echo "  -n, --no-venv   Do not use python virtual environment"
+    echo "  -v, --venv      Use python virtual environment: pprzEnv"
     echo "  -s, --source    Add venv source in ~/.bashrc"
     echo "  -h, --help      Print this help"
     exit 0
   fi
 
-  if [ "$arg" = "-n" ] || [ "$arg" = "--no-venv" ]
+  if [ "$arg" = "-v" ] || [ "$arg" = "--venv" ]
   then
-    USE_VENV=false
-    echo -e "${YELLOW}  ⚠ Virtual environment will NOT be installed.${NC}"
+    USE_VENV=true
+    echo -e "${GREEN}  ⚠ Virtual environment will be installed.${NC}"
   fi
 
   if [ "$arg" = "-s" ] || [ "$arg" = "--source" ]
