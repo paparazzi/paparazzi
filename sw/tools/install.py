@@ -194,17 +194,15 @@ class InstallWindow(QWidget):
     def cmd_vlc(self):
         self.step('Step 9 — Installing VLC, Joystick & NatNet tools')
         self.execute('sudo -E apt-get -f -y install ffmpeg vlc gstreamer1.0-tools gstreamer1.0-plugins-good jstest-gtk default-jre')
-        self.execute('sudo -E apt-get install -y python3-pip')
-        if distro_version < 24.04:
-            self.execute('python3 -m pip install future') # Required for MAVLink
-            self.execute('python3 -m pip install pymap3d') # Required for Moving-Base
-            self.execute('python3 -m pip install opencv-python') # Required for RTP-viewer
+        self.execute('sudo -E apt-get -f -y install python3-opencv') # RTP-viewer
+        if distro_version <= 20.04:
+            # no apt package of pymap3d on 20.04, where pip may still install in the system Python
+            self.execute('sudo -E apt-get install -y python3-pip')
+            self.execute('python3 -m pip install pymap3d') # Moving-Base
         else:
-            # from Ubuntu 23.04 pip can't install in the system Python: the apt packages
-            # (no apt package for future (MAVLink) on 26.04)
-            self.execute('sudo -E apt-get -f -y install python3-opencv python3-pymap3d') # RTP-viewer, Moving-Base
-            if distro_version < 26.04:
-                self.execute('sudo -E apt-get -f -y install python3-future') # Required for MAVLink
+            self.execute('sudo -E apt-get -f -y install python3-pymap3d') # Moving-Base
+        if distro_version < 26.04:
+            self.execute('sudo -E apt-get -f -y install python3-future') # MAVLink generator (no apt package on 26.04)
         self.done('VLC / Joystick / NatNet installed successfully', 'Some packages failed to install')
 
 
