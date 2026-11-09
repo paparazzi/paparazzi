@@ -26,9 +26,8 @@ class AccelCalib(QtWidgets.QWidget):
         super().__init__(parent)
         self.connect = None
         self.raw_bind_id = None
-        self.samples = []
-        self.times = []
-        self.start_time = None
+        # samples of every accelerometer, per (ac_id, sensor_id): times, samples, start time
+        self.data = {}
         self.dirty = False
         layout = QtWidgets.QVBoxLayout(self)
         if pg is None:
@@ -41,12 +40,13 @@ class AccelCalib(QtWidgets.QWidget):
         controls.addWidget(QtWidgets.QLabel("Accelerometers:"))
         self.accel_combo = QtWidgets.QComboBox(self)
         self.accel_combo.addItem("--- Select sensor in list ---", None)
+        self.accel_combo.setToolTip("Accelerometer shown. The data of all of them is collected")
         controls.addWidget(self.accel_combo, 1)
         self.ivy_sub_button = QtWidgets.QPushButton("Start listening", self)
         self.ivy_sub_button.setEnabled(False)
         self.ivy_sub_button.clicked.connect(self.sub_unsub)
         controls.addWidget(self.ivy_sub_button)
-        clear_button = QtWidgets.QPushButton("Clear data", self)
+        clear_button = QtWidgets.QPushButton("Clear all data", self)
         clear_button.clicked.connect(self.reset_data)
         controls.addWidget(clear_button)
         self.distance_auto_chk = QtWidgets.QCheckBox("size auto", self)
@@ -54,7 +54,8 @@ class AccelCalib(QtWidgets.QWidget):
             QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.distance_auto_chk.setChecked(True)
         controls.addWidget(self.distance_auto_chk)
-        self.calibrate_button = QtWidgets.QPushButton("calibrate", self)
+        self.calibrate_button = QtWidgets.QPushButton("Calibrate all", self)
+        self.calibrate_button.setToolTip("Calibrate all accelerometers of the aircraft shown")
         self.calibrate_button.clicked.connect(self.calibrate)
         controls.addWidget(self.calibrate_button)
 
@@ -97,7 +98,7 @@ class AccelCalib(QtWidgets.QWidget):
             "Hold the sensor still in several orientations covering both directions "
             "of each axis. Dots mark samples accepted for calibration."))
 
-        self.accel_combo.currentIndexChanged.connect(self.reset_data)
+        self.accel_combo.currentIndexChanged.connect(self.show_selected)
         self.accel_sig.connect(self.update_accel)
         self.plot_timer = QtCore.QTimer(self)
         self.plot_timer.setInterval(100)
@@ -111,9 +112,18 @@ class AccelCalib(QtWidgets.QWidget):
         if pg is not None:
             self.ivy_sub_button.setEnabled(connection is not None)
 
+    @property
+    def times(self):
+        return self.data.get(self.accel_combo.currentData(), {}).get("times", [])
+
+    @property
+    def samples(self):
+        return self.data.get(self.accel_combo.currentData(), {}).get("samples", [])
+
     def sub_unsub(self):
         if self.raw_bind_id is None:
-            self.start_time = None
+            for d in self.data.values():
+                d["start"] = None
 
             def callback(sender, msg):
                 self.accel_sig.emit((str(sender), int(msg['id']),
@@ -130,28 +140,37 @@ class AccelCalib(QtWidgets.QWidget):
 
     def update_accel(self, data):
         ac_id, sensor_id, timestamp, sample = data
-        if self.raw_bind_id is None:
+        if self.raw_bind_id is None or not np.isfinite(sample).all():
             return
         key = (ac_id, sensor_id)
-        index = next((i for i in range(self.accel_combo.count())
-                      if self.accel_combo.itemData(i) == key), -1)
-        if index == -1:
+        if key not in self.data:
+            self.data[key] = {"times": [], "samples": [], "start": None}
             conf = self.connect.conf_by_id().get(ac_id)
             aircraft = conf.name if conf is not None else "Aircraft " + ac_id
             self.accel_combo.addItem(f"{aircraft}: {sensor_id}", key)
-        if self.accel_combo.currentData() != key or not np.isfinite(sample).all():
-            return
-        if self.start_time is None:
+            if self.accel_combo.currentData() is None:
+                self.accel_combo.setCurrentIndex(self.accel_combo.count() - 1)
+        d = self.data[key]
+        if d["start"] is None:
             # Continue from the last sample, excluding the gap between sessions.
-            self.start_time = timestamp - (self.times[-1] if self.times else 0)
-        self.times.append(timestamp - self.start_time)
-        self.samples.append(sample)
+            d["start"] = timestamp - (d["times"][-1] if d["times"] else 0)
+        d["times"].append(timestamp - d["start"])
+        d["samples"].append(sample)
+        if self.accel_combo.currentData() == key:
+            self.dirty = True
+
+    def show_selected(self):
         self.dirty = True
+        self.refresh_plot()
+        self.distance_auto_chk.setChecked(True)
+        self.plot_widget.enableAutoRange(x=True, y=True)
 
     def reset_data(self):
-        self.samples.clear()
-        self.times.clear()
-        self.start_time = None
+        self.data = {}
+        self.accel_combo.blockSignals(True)
+        while self.accel_combo.count() > 1:
+            self.accel_combo.removeItem(1)
+        self.accel_combo.blockSignals(False)
         self.dirty = True
         self.refresh_plot()
 
@@ -184,29 +203,36 @@ class AccelCalib(QtWidgets.QWidget):
             accepted.setData(times[indices], samples[indices, axis])
         self.status_label.setText(
             f"{len(samples)} samples collected; {len(indices)} accepted for calibration")
-        self.calibrate_button.setEnabled(len(indices) >= 6)
+        self.calibrate_button.setEnabled(bool(self.data))
         self.dirty = False
 
     def calibrate(self):
-        try:
-            import calibration_utils
-
-            samples = np.asarray(self.samples, dtype=float).reshape(-1, 3)
-            accepted = samples[self.accepted_indices(samples)]
-            if len(accepted) < 6 or np.any(np.ptp(accepted, axis=0) == 0):
-                raise ValueError("Collect more stationary samples in different orientations.")
-            p0 = calibration_utils.get_min_max_guess(accepted, 9.81)
-            p1, message, success = calibration_utils.optimize_calibration(accepted, 9.81, p0)
-            if success not in (1, 2, 3, 4) or not np.isfinite(p1).all():
-                raise ValueError("Calibration failed: " + message)
-            text = calibration_utils.format_xml(
-                p1, "ACCEL", self.accel_combo.currentData()[1], 10)
-        except Exception as error:
-            text = "Calibration error\n" + str(error)
-        self.calibration_dialog = QtWidgets.QMessageBox(
-            QtWidgets.QMessageBox.Information, "Accelerometer calibration", text,
-            QtWidgets.QMessageBox.Ok, self)
-        self.calibration_dialog.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
+        """Calibrate all accelerometers of the aircraft shown, as one IMU_ACCEL_CALIB define"""
+        import calibration_utils
+        from calib_result_dialog import CalibResultDialog, keep_old_calibration
+        key = self.accel_combo.currentData()
+        new, comments, done, kept_note, xml = {}, [], [], [], ""
+        if key is not None:
+            for k in sorted(k for k in self.data if k[0] == key[0]):
+                samples = np.asarray(self.data[k]["samples"], dtype=float).reshape(-1, 3)
+                accepted = samples[self.accepted_indices(samples)]
+                try:
+                    if len(accepted) < 6 or np.any(np.ptp(accepted, axis=0) == 0):
+                        raise ValueError("not enough stationary samples in different orientations")
+                    p0 = calibration_utils.get_min_max_guess(accepted, 9.81)
+                    p1, message, success = calibration_utils.optimize_calibration(accepted, 9.81, p0)
+                    if success not in (1, 2, 3, 4) or not np.isfinite(p1).all():
+                        raise ValueError(message)
+                    new[str(k[1])] = calibration_utils.format_xml_struct(p1, k[1], 10)
+                    _, norms = calibration_utils.scale_measurements(accepted, p1)
+                    done.append(f"accel {k[1]}: {len(accepted)} samples, norm {norms.mean():.3f} \u00b1 {norms.std():.3f} m/s\u00b2")
+                except Exception as error:
+                    comments.append(f"accel {k[1]} not calibrated: {error}")
+            conf = self.connect.conf_by_id().get(key[0]) if self.connect is not None else None
+            xml, kept_note = keep_old_calibration("ACCEL", "accel", conf, new, comments)
+        summary = "\n".join(done + comments + kept_note) if key is not None else \
+            "No accelerometer data yet: start listening and hold the aircraft still in several orientations."
+        self.calibration_dialog = CalibResultDialog("Accelerometer calibration", summary, xml, self)
         self.calibration_dialog.open()
 
     def stop(self):
