@@ -254,10 +254,8 @@ class InstallWindow(QWidget):
         mainlayout.addWidget(os)
 
         photo = QLabel()
-        photo.setGeometry(QRect(0, 0, 350, 300))
-        photo.setText("")
         photo.setPixmap(QPixmap("./data/pictures/Penguin.gif"))
-        photo.setScaledContents(True)
+        photo.setAlignment(Qt.AlignCenter)   # its own size, not stretched to the width of the window
         photo.setObjectName("photo")
         mainlayout.addWidget(photo)
 
