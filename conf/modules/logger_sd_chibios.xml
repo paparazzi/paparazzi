@@ -12,6 +12,9 @@
       On Linux based autopilots (Bebop, ...) and in NPS simulation the same logs are written
       as files in SDLOG_DIR, with the same layout as on the SD card (PPRZ/pprzlog_0001.LOG and
       FLIGHT_RECORDER/fr_0001.LOG), so they can be converted with sd2log.
+
+      The configuration the firmware was built with is written once next to the logs
+      (PPRZ/DATE_MD5_AIRCRAFT.conf.gz, as in var/conf), sd2log uses it to decode the logs.
       In simulation the default directory is $PAPARAZZI_HOME/var/logs/sdlog/AIRCRAFT_NAME.
     </description>
     <configure name="SDLOG_SDIO" value="SDCDx" description="The SDC device which the SD card is connected to. Default: SDCD1"/>
@@ -21,6 +24,7 @@
     <define name="SDLOG_CONTIGUOUS_STORAGE_MEM" value="50" unit="Mo" description="Try to reserve a given contiguous mass storage memory. Default: 50Mo"/>
     <define name="SDLOG_PREFLIGHT_ERROR" value="FALSE" description="If set to TRUE, the autopilot will not arm if the SDLogger is not running. Default: FALSE"/>
     <define name="SDLOG_ENABLE_LOWBAT_FLUSH" value="TRUE" description="If set to TRUE or undefined, the autopilot will flush the buffer on detecting low voltage by ADC."/>
+    <define name="SDLOG_CONF" value="TRUE|FALSE" description="Write the configuration of the firmware (airframe, flight plan, settings, messages; 30-60 kB of flash) next to the logs as PPRZ/DATE_MD5_AIRCRAFT.conf.gz, once per configuration, so sd2log can decode the logs on any computer. Default: TRUE"/>
     <define name="SDLOG_DIR" value="&quot;/path&quot;" description="Linux/NPS only: directory of the log files. Default: /data/ftp/internal_000/sdlog on Linux, $PAPARAZZI_HOME/var/logs/sdlog/AIRCRAFT_NAME in simulation"/>
   </doc>
    <settings>

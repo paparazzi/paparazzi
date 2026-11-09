@@ -67,6 +67,15 @@
 
 static const char PPRZ_LOG_NAME[] = "pprzlog_";
 static const char PPRZ_LOG_DIR[] = "PPRZ";
+
+/** Write the configuration of the firmware next to the logs (PPRZ/<date>_<md5>_<aircraft>.conf.gz),
+ * so sd2log can decode them without the var/conf of the computer that built the firmware */
+#ifndef SDLOG_CONF
+#define SDLOG_CONF TRUE
+#endif
+#if SDLOG_CONF
+#include "generated/aircraft_conf.h"
+#endif
 #if FLIGHTRECORDER_SDLOG
 static const char FLIGHTRECORDER_LOG_NAME[] = "fr_";
 static const char FR_LOG_DIR[] = "FLIGHT_RECORDER";
@@ -324,6 +333,29 @@ static FileDes sdlog_open(const char *base, const char *dir, const char *prefix,
   return fd;
 }
 
+#if SDLOG_CONF
+/** Write the configuration in base/dir if it is not there yet (under a temporary name first) */
+static void sdlog_write_conf(const char *base, const char *dir)
+{
+  char path[512], tmp[520];
+  struct stat st;
+  snprintf(path, sizeof(path), "%s/%s/%s", base, dir, AIRCRAFT_CONF_NAME);
+  if (stat(path, &st) == 0) {
+    return;
+  }
+  snprintf(tmp, sizeof(tmp), "%s.tmp", path);
+  FILE *f = fopen(tmp, "wb");
+  if (f == NULL) {
+    return;
+  }
+  bool ok = fwrite(aircraft_conf_gz, 1, sizeof(aircraft_conf_gz), f) == sizeof(aircraft_conf_gz);
+  ok = (fclose(f) == 0) && ok;
+  if (!ok || rename(tmp, path) != 0) {
+    remove(tmp);
+  }
+}
+#endif
+
 #if PREFLIGHT_CHECKS
 #include "modules/checks/preflight_checks.h"
 static struct preflight_check_t sdlog_pfc;
@@ -386,6 +418,11 @@ void sdlog_chibios_init(void)
   sdlog_error = SDLOG_OK;
   pprzLogFile = sdlog_open(base, PPRZ_LOG_DIR, PPRZ_LOG_NAME, name, sizeof(name));
   snprintf(sdlog_filenames, sizeof(sdlog_filenames), "%s", pprzLogFile != -1 ? name : "");
+#if SDLOG_CONF
+  if (pprzLogFile != -1) {
+    sdlog_write_conf(base, PPRZ_LOG_DIR);
+  }
+#endif
 #if FLIGHTRECORDER_SDLOG
   flightRecorderLogFile = sdlog_open(base, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, name, sizeof(name));
   if (flightRecorderLogFile != -1) {
