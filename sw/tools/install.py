@@ -115,7 +115,8 @@ class InstallWindow(QWidget):
         if distro_version == 22.04:
             # PprzGCS (Qt6) needs the xcb platform plugin, which Ubuntu 22.04 doesn't pull in
             self.execute('sudo -E apt-get -f -y install qt6-qpa-plugins')
-        self.execute('sudo -E apt-get -f -y install python3-pyqt5.qtwebengine') # the documentation viewer of the Paparazzi Center
+        if distro_version <= 26.04:
+            self.execute('sudo -E apt-get -f -y install python3-pyqt5.qtwebengine') # the documentation viewer of the Paparazzi Center
         self.done('Ground station installed successfully', 'Ground station installation failed')
 
     def cmd_mcu(self):
@@ -148,7 +149,10 @@ class InstallWindow(QWidget):
             self.execute('sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg')
             self.execute('echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null')
             self.execute('sudo apt update')
-            self.execute('sudo -E apt-get -f -y install gz-harmonic')
+            if distro_version >= 26.04:
+                self.execute('sudo -E apt-get -f -y install gz-jetty')
+            else:
+                self.execute('sudo -E apt-get -f -y install gz-harmonic')
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
         self.done('Gazebo Harmonic installed successfully', 'Gazebo Harmonic installation failed')
 
@@ -166,12 +170,13 @@ class InstallWindow(QWidget):
         self.step('Step 9 — Installing VLC, Joystick & NatNet tools')
         self.execute('sudo -E apt-get -f -y install ffmpeg vlc gstreamer1.0-tools gstreamer1.0-plugins-good jstest-gtk default-jre')
         self.execute('sudo -E apt-get install -y python3-pip')
-        self.execute('python3 -m pip install future') # Required for MAVLink
-        self.execute('python3 -m pip install pyquaternion ivy-python') # Required for NatNat
-        self.execute('python3 -m pip install pymap3d') # Required for Moving-Base
-        self.execute('python3 -m pip install opencv-python') # Required for RTP-viewer
+        if distro_version < 26.04:
+            self.execute('python3 -m pip install future') # Required for MAVLink
+            self.execute('python3 -m pip install pyquaternion ivy-python') # Required for NatNat
+            self.execute('python3 -m pip install pymap3d') # Required for Moving-Base
+            self.execute('python3 -m pip install opencv-python') # Required for RTP-viewer
         self.done('VLC / Joystick / NatNet installed successfully', 'Some packages failed to install')
-        
+
 
     def cmd_doc(self):
         self.view('https://paparazzi-uav.readthedocs.io')
