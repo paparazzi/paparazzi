@@ -68,7 +68,6 @@
       </program>
       <program name="Server"/>
       <program name="PprzGCS">
-        <arg flag="--speech"/>
       </program>
       <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
         <arg flag="-ac" constant="@AIRCRAFT"/>
