@@ -15,6 +15,9 @@
 
       The configuration the firmware was built with is written once next to the logs
       (PPRZ/DATE_MD5_AIRCRAFT.conf.gz, as in var/conf), sd2log uses it to decode the logs.
+
+      When the logger does not run, at the start or later, it tells the GCS why in words (INFO_MSG:
+      no SD card, card full, ...), with the LOGGER_STATUS message. A normal start is not reported.
       In simulation the default directory is $PAPARAZZI_HOME/var/logs/sdlog/AIRCRAFT_NAME.
     </description>
     <configure name="SDLOG_SDIO" value="SDCDx" description="The SDC device which the SD card is connected to. Default: SDCD1"/>
