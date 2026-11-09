@@ -21,11 +21,17 @@ Add paparazzi apt-repository and install dependencies:
     sudo add-apt-repository -y ppa:paparazzi-uav/ppa
     sudo apt-get update
     sudo apt-get -f -y install paparazzi-dev paparazzi-jsbsim dfu-util pprzgcs
-    sudo apt-get install python-is-python3 gcc-arm-none-eabi gdb-multiarch
+    sudo apt-get install python-is-python3 gcc-arm-none-eabi gdb-multiarch cmake
+
+.. note:: Alternatively, for more packages or in case of missing packages; first `Clone the repository`_ and then run: ``./install.sh``
 
 .. note:: If you are on Ubuntu 24.04, please also install ``liblablgtk2-ocaml-dev`` in order to use the plot and messages tools.
 
-Clone the repository: 
+.. note:: If you are on Ubuntu 26.04, please also install ``libsdl1.2-dev`` to be able to make.
+
+
+Clone the repository
+--------------------
 
 .. code-block:: bash
 

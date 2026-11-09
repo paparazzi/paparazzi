@@ -7,5 +7,6 @@ if command -v gzclient > /dev/null; then
   exec gzclient
 else
   export GZ_SIM_RESOURCE_PATH="$PAPARAZZI_HOME/conf/simulator/gazebo/models:$PAPARAZZI_HOME/sw/ext/tudelft_gazebo_models/models:$PAPARAZZI_HOME/conf/simulator/gazebo/models_gz:$GZ_SIM_RESOURCE_PATH"
+  export QT_QPA_PLATFORM=xcb
   exec gz sim -g
 fi
