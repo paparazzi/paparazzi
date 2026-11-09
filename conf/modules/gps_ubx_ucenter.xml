@@ -8,7 +8,9 @@ Ublox GPS autoconfiguration.
 Automatically configure any Ublox GPS for paparazzi, for any firmware and INS.
 
 - automatic baudrate detection (the target baudrate first), then sets the target baudrate
+- detects the receiver port the autopilot is connected to (UBX-CFG-PRT, or UBX-MON-COMMS on the X20)
 - configures the navigation messages and rates, the dynamic model and the 3D fix mode
+- saves the configuration to battery backed RAM and flash
 
 The configuration interface is detected from the protocol version (UBX-MON-VER): receivers without
 the legacy UBX-CFG messages (protocol 40 and later, e.g. X20) are configured with UBX-CFG-VALSET, the
@@ -19,13 +21,12 @@ NAV-DAHEADING (dual antenna heading of the X20D).
 
 Warning: you still need to tell the driver, which paparazzi port you use.
     </description>
-    <define name="GPS_UBX_UCENTER_RATE" value="100|200|250" description="Measurement period [ms]. Default 250 with the legacy messages and 100 with UBX-CFG-VALSET (200 when the receiver refuses it)"/>
+    <define name="GPS_UBX_UCENTER_RATE" value="100|200|250" description="Measurement period [ms]. Default 200 (5 Hz), 100 (10 Hz) with UBX-CFG-VALSET (X20). When the receiver refuses it 250 with the legacy messages and 200 with UBX-CFG-VALSET"/>
     <define name="GPS_UBX_NAV5_DYNAMICS"
             value="NAV5_DYN_PORTABLE|NAV5_DYN_FIXED|NAV5_DYN_STATIONARY|NAV5_DYN_PEDESTRIAN|NAV5_DYN_AUTOMOTIVE|NAV5_DYN_SEA|NAV5_DYN_AIRBORNE_1G|NAV5_DYN_AIRBORNE_2G|NAV5_DYN_AIRBORNE_4G"
             description="Dynamic model used by ublox GPS filter. Default:NAV5_DYN_AIRBORNE_2G"/>
     <define name="GPS_UBX_UCENTER_ENABLE_NMEA" value="FALSE|TRUE" description="Also output NMEA (default FALSE)"/>
-    <define name="GPS_UBX_UCENTER_SAVE" value="TRUE|FALSE" description="Save the configuration (default TRUE): battery backed RAM and flash with the legacy messages, battery backed RAM with UBX-CFG-VALSET"/>
-    <define name="GPS_UBX_UCENTER_UART" value="1|2" description="With UBX-CFG-VALSET: receiver UART the autopilot is connected to (default 1), the legacy receivers report it. UART2 of the X20D is input only (corrections)"/>
+    <define name="GPS_UBX_UCENTER_SAVE" value="TRUE|FALSE" description="Save the configuration to battery backed RAM and flash (default TRUE)"/>
     <define name="USE_GPS_UBX_RTCM" value="FALSE|TRUE" description="RTK: output NAV-RELPOSNED (and with the legacy messages also HPPOSLLH and RXM-RTCM, DGNSS mode RTK fixed)"/>
     <define name="GPS_UBX_UCENTER_PVT_ONLY" value="FALSE|TRUE" description="Legacy messages: only NAV-PVT (and NAV-SAT) instead of POSLLH, VELNED, STATUS, SOL and SVINFO"/>
     <define name="GPS_UBX_UCENTER_SLOW_NAV_SOL" value="FALSE|TRUE" description="Legacy messages: NAV-SOL at every 8th solution"/>

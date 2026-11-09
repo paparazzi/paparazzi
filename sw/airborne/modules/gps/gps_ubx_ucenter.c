@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008-2011 The Paparazzi Team
+ *               2026 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  *
  * Initial author: C. De Wagter
  */
@@ -45,16 +45,17 @@
 //////////////////////////////////////////////////////////////////////////////////////
 // Configuration, the same for both interfaces where possible
 
-/** Measurement period [ms], default 250 ms (4 Hz) with the legacy messages and 100 ms (10 Hz) with
- *  the configuration interface (newer receivers). The latter falls back to 200 ms when refused. */
+/** Measurement period [ms]: 5 Hz by default, 10 Hz with the configuration interface (X20). When the
+ *  receiver refuses it, the fallback (4 Hz legacy, e.g. LEA-4, and 5 Hz with the configuration interface) */
 #ifdef GPS_UBX_UCENTER_RATE
 #define GPS_UBX_UCENTER_RATE_LEGACY GPS_UBX_UCENTER_RATE
 #define GPS_UBX_UCENTER_RATE_VALSET GPS_UBX_UCENTER_RATE
 #else
-#define GPS_UBX_UCENTER_RATE_LEGACY 250
+#define GPS_UBX_UCENTER_RATE_LEGACY 200
 #define GPS_UBX_UCENTER_RATE_VALSET 100
 #endif
-#define GPS_UBX_UCENTER_RATE_FALLBACK 200
+#define GPS_UBX_UCENTER_RATE_LEGACY_FALLBACK 250
+#define GPS_UBX_UCENTER_RATE_VALSET_FALLBACK 200
 
 /** Dynamic platform model (same values for CFG-NAV5 and CFG-NAVSPG-DYNMODEL) */
 #define NAV5_DYN_PORTABLE    0 // ublox default
@@ -83,16 +84,17 @@
 #define GPS_UBX_ENABLE_NMEA_DATA_MASK 0x00
 #endif
 
-/** Save the configuration (battery backed RAM, and flash with the legacy messages) */
+/** Save the configuration to battery backed RAM and flash (UBX-CFG-CFG) */
 #ifndef GPS_UBX_UCENTER_SAVE
 #define GPS_UBX_UCENTER_SAVE TRUE
 #endif
 
-/** Receiver UART the autopilot is connected to (1 or 2), for the configuration interface only:
- *  with the legacy messages the receiver reports it */
-#ifndef GPS_UBX_UCENTER_UART
-#define GPS_UBX_UCENTER_UART 1
-#endif
+/** Receiver port numbers (UBX-CFG-PRT), also the offset of the CFG-MSGOUT keys */
+#define GPS_PORT_DDC      0x00
+#define GPS_PORT_UART1    0x01
+#define GPS_PORT_UART2    0x02
+#define GPS_PORT_USB      0x03
+#define GPS_PORT_SPI      0x04
 
 //////////////////////////////////////////////////////////////////////////////////////
 // UCENTER: init, periodic and event
@@ -284,6 +286,12 @@ void gps_ubx_ucenter_event(void)
         gps_ubx_ucenter.hw_ver_l = 10 * (UBX_MON_VER_c(gps_ubx[0].msg_buf, 36) - '0') + (UBX_MON_VER_c(gps_ubx[0].msg_buf, 37) - '0');
       } else if (gps_ubx[0].msg_id == UBX_MON_GNSS_ID) {
         gps_ubx_ucenter.gnss_in_use = UBX_MON_GNSS_enabled(gps_ubx[0].msg_buf);
+      } else if (gps_ubx[0].msg_id == UBX_MON_COMMS_ID) {
+        // Port this reply is output on (X20, 0 when not reported): 1 I2C, 2 UART1, 3 UART2, 4 USB, 5 SPI
+        uint8_t output_port = (UBX_MON_COMMS_txErrors(gps_ubx[0].msg_buf) >> 2) & 0x07;
+        if (output_port != 0) {
+          gps_ubx_ucenter.port_id = output_port - 1;
+        }
       }
       break;
     case UBX_CFG_ID:
@@ -316,9 +324,10 @@ static const uint32_t gps_ubx_ucenter_bauds[] = {B38400, B9600, B57600, B4800, B
 #define GPS_UBX_UCENTER_NB_BAUDS (sizeof(gps_ubx_ucenter_bauds) / sizeof(gps_ubx_ucenter_bauds[0]))
 
 /**
- * Poll the port configuration (legacy UBX-CFG-PRT) and the version (UBX-MON-VER, all receivers).
- * Any reply tells that the baudrate is right. Without a payload, CFG-PRT reports the port the poll
- * was received on.
+ * Poll the port configuration (legacy UBX-CFG-PRT), the version (UBX-MON-VER, all receivers) and the
+ * port information (UBX-MON-COMMS, generation 9 and later). Any reply tells that the baudrate is right.
+ * The port the autopilot is connected to is reported by CFG-PRT (without a payload: the port the poll
+ * was received on) or, on receivers without CFG-PRT (X20), by MON-COMMS.
  */
 static void gps_ubx_ucenter_autobaud_poll(void)
 {
@@ -326,6 +335,7 @@ static void gps_ubx_ucenter_autobaud_poll(void)
   gps_ubx_ucenter.version_reply = false;
   UbxSend_CFG_PRT_POLL(gps_ubx_ucenter.dev);
   UbxSend_MON_GET_VER(gps_ubx_ucenter.dev);
+  UbxSend_MON_GET_COMMS(gps_ubx_ucenter.dev);
 }
 
 /**
@@ -350,6 +360,10 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
     // interface exists from 23 (generation 9): also used then when the CFG-PRT poll isn't answered.
     gps_ubx_ucenter.valset = gps_ubx_ucenter.protver >= 40 ||
                              (gps_ubx_ucenter.protver >= 23 && !gps_ubx_ucenter.cfg_prt_reply);
+    // Not over I2C: when the receiver didn't report the port (still the I2C/DDC default), assume UART1
+    if (gps_ubx_ucenter.port_id == GPS_PORT_DDC) {
+      gps_ubx_ucenter.port_id = GPS_PORT_UART1;
+    }
     return false;
   }
 
@@ -442,12 +456,6 @@ static inline void gps_ubx_ucenter_config_nav(void)
 #define NMEA_PROTO_MASK   0x0002
 #define RTCM_PROTO_MASK   0x0004
 #define RTCM3_PROTO_MASK  0x0020
-
-#define GPS_PORT_DDC      0x00
-#define GPS_PORT_UART1    0x01
-#define GPS_PORT_UART2    0x02
-#define GPS_PORT_USB      0x03
-#define GPS_PORT_SPI      0x04
 
 static inline void gps_ubx_ucenter_config_port(void)
 {
@@ -596,6 +604,11 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       UbxSend_CFG_RATE(gps_ubx_ucenter.dev, GPS_UBX_UCENTER_RATE_LEGACY, 0x0001, 0x0000);
       break;
     case 16:
+      // A slower measurement rate when it is refused (NAK, e.g. the LEA-4 up to 4 Hz)
+      if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_NACK &&
+          GPS_UBX_UCENTER_RATE_LEGACY < GPS_UBX_UCENTER_RATE_LEGACY_FALLBACK) {
+        UbxSend_CFG_RATE(gps_ubx_ucenter.dev, GPS_UBX_UCENTER_RATE_LEGACY_FALLBACK, 0x0001, 0x0000);
+      }
       // Raw Measurement Data
 #if USE_GPS_UBX_RXM_RAW
       gps_ubx_ucenter_enable_msg(UBX_RXM_ID, UBX_RXM_RAW_ID, 1);
@@ -646,29 +659,23 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
 //////////////////////////////////////////////////////////////////////////////////////
 // Configuration interface (UBX-CFG-VALSET), u-blox generation 9 and later
 
-/** Layers the configuration is written to: RAM (1) and battery backed RAM (2). Not flash, which
- *  is not on every receiver (the whole message is refused then) and would be written at every boot. */
-#if GPS_UBX_UCENTER_SAVE
-#define VALSET_LAYERS 0x03
-#else
-#define VALSET_LAYERS 0x01
-#endif
+/** Written to RAM only, saved afterwards like with the legacy messages (UBX-CFG-CFG): flash is not on
+ *  every receiver, the whole message would be refused then */
+#define VALSET_LAYER_RAM 0x01
 
 /* Configuration keys (u-blox interface description), the value size is in bits 28-30 of the key */
-#define CFG_RATE_MEAS          0x30210001 // U2 measurement period [ms]
-#define CFG_RATE_NAV           0x30210002 // U2 measurements per navigation solution
-#define CFG_NAVSPG_FIXMODE     0x20110011 // E1 position fix mode
-#define CFG_NAVSPG_DYNMODEL    0x20110021 // E1 dynamic platform model
-#if GPS_UBX_UCENTER_UART == 2
-#define CFG_UART_BAUDRATE      0x40530001 // U4
-#define CFG_UART_INPROT_RTCM3X 0x10750004 // L RTCM3 corrections in
-#define CFG_UART_OUTPROT_NMEA  0x10760002 // L NMEA out
-#else
-#define CFG_UART_BAUDRATE      0x40520001
-#define CFG_UART_INPROT_RTCM3X 0x10730004
-#define CFG_UART_OUTPROT_NMEA  0x10740002
-#endif
-/* Message output rate keys (per navigation solution) for the I2C port, the UART1 key is +1, UART2 +2 */
+#define CFG_RATE_MEAS            0x30210001 // U2 measurement period [ms]
+#define CFG_RATE_NAV             0x30210002 // U2 measurements per navigation solution
+#define CFG_NAVSPG_FIXMODE       0x20110011 // E1 position fix mode
+#define CFG_NAVSPG_DYNMODEL      0x20110021 // E1 dynamic platform model
+#define CFG_UART1_BAUDRATE       0x40520001 // U4
+#define CFG_UART2_BAUDRATE       0x40530001
+#define CFG_UART1INPROT_RTCM3X   0x10730004 // L RTCM3 corrections in
+#define CFG_UART2INPROT_RTCM3X   0x10750004
+#define CFG_UART1OUTPROT_NMEA    0x10740002 // L NMEA out
+#define CFG_UART2OUTPROT_NMEA    0x10760002
+/* Message output rate keys (per navigation solution) for the I2C port, the key for the other ports is
+ * the port number (CFG-PRT) higher: UART1 +1, UART2 +2, USB +3, SPI +4 */
 #define CFG_MSGOUT_NAV_PVT       0x20910006
 #define CFG_MSGOUT_NAV_POSLLH    0x20910029
 #define CFG_MSGOUT_NAV_VELNED    0x20910042
@@ -676,55 +683,78 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
 #define CFG_MSGOUT_NAV_SAT       0x20910015
 #define CFG_MSGOUT_NAV_RELPOSNED 0x2091008d
 #define CFG_MSGOUT_NAV_DAHEADING 0x209103df // X20D
+
 #if USE_GPS_UBX_RTCM
 #define VALSET_RELPOSNED_RATE 1
 #else
 #define VALSET_RELPOSNED_RATE 0
 #endif
-#ifdef GPS_I2C
-#define CFG_MSGOUT(_key) (_key)
-#else
-#define CFG_MSGOUT(_key) ((_key) + GPS_UBX_UCENTER_UART)
-#endif
+
+/** What a configuration item applies to */
+#define VALSET_RECEIVER 0 // the receiver
+#define VALSET_UART     1 // the UART the autopilot is connected to: key for UART1, key_uart2 for UART2
+#define VALSET_MSGOUT   2 // a message output on the port the autopilot is connected to
 
 /** Configuration, one item per step: the receiver refuses the whole message when it doesn't know one key */
 static const struct {
+  uint8_t type;
   uint32_t key;
+  uint32_t key_uart2;
   uint32_t value;
 } gps_ubx_ucenter_valset_cfg[] = {
-  { CFG_UART_OUTPROT_NMEA, (GPS_UBX_ENABLE_NMEA_DATA_MASK != 0) },
-  { CFG_UART_INPROT_RTCM3X, 1 },
-  { CFG_NAVSPG_DYNMODEL, GPS_UBX_NAV5_DYNAMICS },
-  { CFG_NAVSPG_FIXMODE, NAV5_3D_ONLY },
-  { CFG_RATE_MEAS, GPS_UBX_UCENTER_RATE_VALSET },
-  { CFG_RATE_NAV, 1 },
+  { VALSET_UART, CFG_UART1OUTPROT_NMEA, CFG_UART2OUTPROT_NMEA, (GPS_UBX_ENABLE_NMEA_DATA_MASK != 0) },
+  { VALSET_UART, CFG_UART1INPROT_RTCM3X, CFG_UART2INPROT_RTCM3X, 1 },
+  { VALSET_RECEIVER, CFG_NAVSPG_DYNMODEL, 0, GPS_UBX_NAV5_DYNAMICS },
+  { VALSET_RECEIVER, CFG_NAVSPG_FIXMODE, 0, NAV5_3D_ONLY },
+  { VALSET_RECEIVER, CFG_RATE_MEAS, 0, GPS_UBX_UCENTER_RATE_VALSET },
+  { VALSET_RECEIVER, CFG_RATE_NAV, 0, 1 },
   // Position, velocity and time in one message, the others are not needed
-  { CFG_MSGOUT(CFG_MSGOUT_NAV_PVT), 1 },
-  { CFG_MSGOUT(CFG_MSGOUT_NAV_POSLLH), 0 },
-  { CFG_MSGOUT(CFG_MSGOUT_NAV_VELNED), 0 },
-  { CFG_MSGOUT(CFG_MSGOUT_NAV_STATUS), 0 },
+  { VALSET_MSGOUT, CFG_MSGOUT_NAV_PVT, 0, 1 },
+  { VALSET_MSGOUT, CFG_MSGOUT_NAV_POSLLH, 0, 0 },
+  { VALSET_MSGOUT, CFG_MSGOUT_NAV_VELNED, 0, 0 },
+  { VALSET_MSGOUT, CFG_MSGOUT_NAV_STATUS, 0, 0 },
   // Satellite information, every 10th solution
-  { CFG_MSGOUT(CFG_MSGOUT_NAV_SAT), 10 },
+  { VALSET_MSGOUT, CFG_MSGOUT_NAV_SAT, 0, 10 },
   // Relative position (RTK base or dual antenna heading)
-  { CFG_MSGOUT(CFG_MSGOUT_NAV_RELPOSNED), VALSET_RELPOSNED_RATE },
+  { VALSET_MSGOUT, CFG_MSGOUT_NAV_RELPOSNED, 0, VALSET_RELPOSNED_RATE },
   // Dual antenna heading (X20D, off by default), the other receivers refuse it
-  { CFG_MSGOUT(CFG_MSGOUT_NAV_DAHEADING), 1 },
+  { VALSET_MSGOUT, CFG_MSGOUT_NAV_DAHEADING, 0, 1 },
 };
 #define VALSET_CFG_NB (sizeof(gps_ubx_ucenter_valset_cfg) / sizeof(gps_ubx_ucenter_valset_cfg[0]))
 
-/** Set one configuration item */
+/** Key of a configuration item for the port the autopilot is connected to, 0 when it doesn't apply */
+static uint32_t gps_ubx_ucenter_valset_key(uint8_t type, uint32_t key, uint32_t key_uart2)
+{
+  switch (type) {
+    case VALSET_UART:
+      if (gps_ubx_ucenter.port_id == GPS_PORT_UART1) {
+        return key;
+      } else if (gps_ubx_ucenter.port_id == GPS_PORT_UART2) {
+        return key_uart2;
+      }
+      return 0;
+    case VALSET_MSGOUT:
+      return key + gps_ubx_ucenter.port_id;
+    default:
+      return key;
+  }
+}
+
+/** Set one configuration item in RAM */
 static void gps_ubx_ucenter_valset(uint32_t key, uint32_t value)
 {
   switch ((key >> 28) & 0x07) {
+    case 0: // no key
+      break;
     case 1: // one bit
     case 2: // one byte
-      UbxSend_CFG_VALSET_U1(gps_ubx_ucenter.dev, 0, VALSET_LAYERS, RESERVED, key, value);
+      UbxSend_CFG_VALSET_U1(gps_ubx_ucenter.dev, 0, VALSET_LAYER_RAM, RESERVED, key, value);
       break;
     case 3: // two bytes
-      UbxSend_CFG_VALSET_U2(gps_ubx_ucenter.dev, 0, VALSET_LAYERS, RESERVED, key, value);
+      UbxSend_CFG_VALSET_U2(gps_ubx_ucenter.dev, 0, VALSET_LAYER_RAM, RESERVED, key, value);
       break;
     default: // four bytes
-      UbxSend_CFG_VALSET_U4(gps_ubx_ucenter.dev, 0, VALSET_LAYERS, RESERVED, key, value);
+      UbxSend_CFG_VALSET_U4(gps_ubx_ucenter.dev, 0, VALSET_LAYER_RAM, RESERVED, key, value);
       break;
   }
 }
@@ -738,10 +768,9 @@ static bool gps_ubx_ucenter_configure_valset(uint8_t nr)
   }
 
   if (nr == 0) {
-#ifndef GPS_I2C
     // Use the found baudrate to change it to the target one
-    gps_ubx_ucenter_valset(CFG_UART_BAUDRATE, UART_SPEED(gps_ubx_ucenter.baud_target));
-#endif
+    gps_ubx_ucenter_valset(gps_ubx_ucenter_valset_key(VALSET_UART, CFG_UART1_BAUDRATE, CFG_UART2_BAUDRATE),
+                           UART_SPEED(gps_ubx_ucenter.baud_target));
   } else if (nr == 1) {
 #ifndef GPS_I2C
     // Now the receiver baudrate should have changed
@@ -753,13 +782,20 @@ static bool gps_ubx_ucenter_configure_valset(uint8_t nr)
     // A slower measurement rate when it is refused (NAK, e.g. in moving base heading mode)
     if (i > 0 && gps_ubx_ucenter_valset_cfg[i - 1].key == CFG_RATE_MEAS &&
         gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_NACK &&
-        gps_ubx_ucenter_valset_cfg[i - 1].value < GPS_UBX_UCENTER_RATE_FALLBACK) {
-      gps_ubx_ucenter_valset(CFG_RATE_MEAS, GPS_UBX_UCENTER_RATE_FALLBACK);
+        gps_ubx_ucenter_valset_cfg[i - 1].value < GPS_UBX_UCENTER_RATE_VALSET_FALLBACK) {
+      gps_ubx_ucenter_valset(CFG_RATE_MEAS, GPS_UBX_UCENTER_RATE_VALSET_FALLBACK);
     }
-    gps_ubx_ucenter_valset(gps_ubx_ucenter_valset_cfg[i].key, gps_ubx_ucenter_valset_cfg[i].value);
+    gps_ubx_ucenter_valset(gps_ubx_ucenter_valset_key(gps_ubx_ucenter_valset_cfg[i].type,
+                           gps_ubx_ucenter_valset_cfg[i].key, gps_ubx_ucenter_valset_cfg[i].key_uart2),
+                           gps_ubx_ucenter_valset_cfg[i].value);
   } else if (nr == 2 + VALSET_CFG_NB) {
-    UbxSend_MON_GET_GNSS(gps_ubx_ucenter.dev);
+#if GPS_UBX_UCENTER_SAVE
+    // Save the configuration in RAM to battery backed RAM and flash
+    UbxSend_CFG_CFG(gps_ubx_ucenter.dev, 0x00000000, 0xffffffff, 0x00000000);
+#endif
   } else if (nr == 3 + VALSET_CFG_NB) {
+    UbxSend_MON_GET_GNSS(gps_ubx_ucenter.dev);
+  } else if (nr == 4 + VALSET_CFG_NB) {
     // Wait for the GNSS reply
   } else {
     gps_ubx_ucenter_send_info(0);
