@@ -6,6 +6,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 import distro
+import os
 import subprocess
 import webbrowser
 
@@ -211,7 +212,9 @@ class InstallWindow(QWidget):
 
     def cmd_go(self):
         self.step('Step 11 — Building and launching Paparazzi Center')
-        self.execute('make clean')
+        # a fresh clone has nothing to clean, and make clean fails on its still empty pprzlink submodule
+        if os.path.isfile('sw/ext/pprzlink/Makefile'):
+            self.execute('make clean')
         self.execute('make -j1')
         self.done('Build succeeded', 'Build failed — not starting Paparazzi Center')
         if self._ok:
