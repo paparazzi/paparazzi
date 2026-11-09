@@ -49,7 +49,7 @@ class InstallWindow(QWidget):
             self._ok = False
             self.buttonlist.setEnabled(True)
             return False
-        
+
 
     def view(self,link):
         webbrowser.open(link)
@@ -80,7 +80,7 @@ class InstallWindow(QWidget):
         # Missing
         if distro_version <= 20.04:
             self.execute('sudo -E apt-get install -y python3-lxml python3-numpy')
-        elif distro_version >= 24.04:
+        elif distro_version == 24.04:
             self.execute('sudo -E apt-get install -y liblablgtk2-ocaml-dev')
         if distro_version == 18.04:
             self.execute('wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -')
@@ -126,7 +126,7 @@ class InstallWindow(QWidget):
 
     def cmd_gazebo_classic(self):
         self.step('Step 7a — Installing Gazebo 11 Classic')
-        if distro_version <= 22.04:
+        if distro_version == 22.04:
             self.execute('sudo -E apt-get update')
             self.execute('sudo -E apt-get -f -y install lsb-release wget gnupg')
             self.execute('sudo sh -c \'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list\'')
