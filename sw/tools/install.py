@@ -109,13 +109,16 @@ class InstallWindow(QWidget):
         if distro_version == 18.04:
             self.execute('wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -')
             self.execute('sudo apt-add-repository -y \'deb https://apt.kitware.com/ubuntu/ bionic main\'')
-        self.execute('sudo -E apt-get update && sudo -E apt-get install -y cmake')
+        self.execute('sudo -E apt-get install -y cmake')
         self.execute('sudo -E apt-get install -y libboost-program-options-dev libboost-filesystem-dev')
         # SDL 1.2 for the joystick (sw/ground_segment/joystick, NPS joystick): not pulled in by paparazzi-dev on 26.04
         self.execute('sudo -E apt-get install -y libsdl1.2-dev')
         # the Bebop upload tools use telnetlib, removed from Python 3.13 (26.04): a copy of it from apt
         if distro_version >= 26.04:
             self.execute('sudo -E apt-get install -y python3-zombie-telnetlib')
+        # many old tools still require wx
+        if distro_version >= 22.04:
+            self.execute('sudo -E apt-get install -y python3-wxgtk4.0')
         self.done('Paparazzi Dev installed successfully', 'Some development packages failed to install')
 
 
