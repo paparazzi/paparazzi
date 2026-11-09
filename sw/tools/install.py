@@ -73,12 +73,11 @@ class InstallWindow(QWidget):
         button.clicked.connect(lambda: self.run(step))
 
     def run(self, step):
-        # run an install step, and put a green ✔ in its button when it succeeded
+        # run an install step, and mark its button: ✔ succeeded, ✘ failed
         step()
         button = self.step_button[step]
-        if self._ok and not button.text().startswith('✔'):
-            button.setText('✔ ' + button.text())
-            button.setStyleSheet('color: green')
+        text = button.text().lstrip('✔✘ ')
+        button.setText(('✔ ' if self._ok else '✘ ') + text)
 
     def cmd_repo(self):
         self.step('Step 1 — Adding Paparazzi PPA repository')
@@ -269,7 +268,7 @@ class InstallWindow(QWidget):
         self.buttonlist.setLayout(btn_layout)
 
 
-        button0 = QPushButton('Everything (steps 1 to 9, then 11)')
+        button0 = QPushButton('Everything')
         button0.setFont(QFont(button0.font().family(), -1, QFont.Bold))
         button0.clicked.connect(self.cmd_everything)
         btn_layout.addWidget(button0)
@@ -330,7 +329,7 @@ class InstallWindow(QWidget):
         self.add_step(button11, self.cmd_go)
         btn_layout.addWidget(button11)
 
-        self.close_after_make = QCheckBox('Close the installer when the Paparazzi Center starts')
+        self.close_after_make = QCheckBox('Close the installer when\nthe Paparazzi Center starts')
         self.close_after_make.setChecked(True)
         btn_layout.addWidget(self.close_after_make)
 
