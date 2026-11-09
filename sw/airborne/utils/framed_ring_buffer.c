@@ -9,6 +9,13 @@
 #include "framed_ring_buffer.h"
 #include <string.h>
 
+/*
+ * One producer (put) and one consumer (get) can run in different threads: each only writes its own
+ * offset, with release semantics after the data, and reads the other one with acquire semantics.
+ */
+#define FRB_LOAD(_x) __atomic_load_n(&(_x), __ATOMIC_ACQUIRE)
+#define FRB_STORE(_x, _v) __atomic_store_n(&(_x), (_v), __ATOMIC_RELEASE)
+
 
 void framed_ring_buffer_init(struct framed_ring_buffer *cb, uint8_t *buffer, size_t len)
 {
@@ -22,7 +29,7 @@ void framed_ring_buffer_init(struct framed_ring_buffer *cb, uint8_t *buffer, siz
 int framed_ring_buffer_get(struct framed_ring_buffer *cb, uint8_t *buf, size_t len)
 {
   // buffer empty
-  if (cb->read_offset == cb->write_offset) { return CIR_ERROR_NO_MSG; }
+  if (cb->read_offset == FRB_LOAD(cb->write_offset)) { return CIR_ERROR_NO_MSG; }
   // LEN| MSG...| LEN | MSG...
   uint16_t msg_len_p = cb->_buf[cb->read_offset] | (cb->_buf[(cb->read_offset + 1) % cb->_buf_len] << 8);
   // output buffer too small
@@ -39,13 +46,13 @@ int framed_ring_buffer_get(struct framed_ring_buffer *cb, uint8_t *buf, size_t l
     memcpy(buf, start, msg_len_p);
   } else {
     size_t len1 = cb->_buf_len - (cb->read_offset + 2);
-    size_t len2 = len - len1;
+    size_t len2 = msg_len_p - len1;
     memcpy(buf, start, len1);
     memcpy(buf + len1, cb->_buf, len2);
   }
 
   int nb_bytes = msg_len_p;
-  cb->read_offset = end_offset;
+  FRB_STORE(cb->read_offset, end_offset);
   return nb_bytes;
 }
 
@@ -83,7 +90,7 @@ int framed_ring_buffer_put(struct framed_ring_buffer *cb, const uint8_t *buf, si
     memcpy(&cb->_buf[(cb->write_offset + 2) % cb->_buf_len], buf, len);
   }
 
-  cb->write_offset = end_offset;
+  FRB_STORE(cb->write_offset, end_offset);
   return 0;
 }
 
@@ -110,10 +117,12 @@ int framed_ring_buffer_drop_last(struct framed_ring_buffer *cb) {
 size_t framed_ring_buffer_available(struct framed_ring_buffer *cb) {
   // write_offset == read_offset is considered an empty buffer. => 3= 2 (lenght) + 1 (margin)
   int available = 0;
-  if (cb->read_offset > cb->write_offset) {
-    available = (int)cb->read_offset - (int)cb->write_offset - 3;
+  size_t read_offset = FRB_LOAD(cb->read_offset);
+  size_t write_offset = FRB_LOAD(cb->write_offset);
+  if (read_offset > write_offset) {
+    available = (int)read_offset - (int)write_offset - 3;
   } else {
-    available = cb->_buf_len - ((int)cb->write_offset - (int)cb->read_offset) - 3;
+    available = cb->_buf_len - ((int)write_offset - (int)read_offset) - 3;
   }
 
   return available > 0 ? (size_t)available : 0;
