@@ -68,6 +68,18 @@ class InstallWindow(QWidget):
             print(f'\n{RED}{BOLD}  ✘ {error_msg}{NC}')
             print(f'{RED}    Check documentation: {docs}{NC}\n')
 
+    def add_step(self, button, step):
+        self.step_button[step] = button
+        button.clicked.connect(lambda: self.run(step))
+
+    def run(self, step):
+        # run an install step, and put a green ✔ in its button when it succeeded
+        step()
+        button = self.step_button[step]
+        if self._ok and not button.text().startswith('✔'):
+            button.setText('✔ ' + button.text())
+            button.setStyleSheet('color: green')
+
     def cmd_repo(self):
         self.step('Step 1 — Adding Paparazzi PPA repository')
         self.execute('sudo -E add-apt-repository -y ppa:paparazzi-uav/ppa && sudo -E apt-get update')
@@ -215,7 +227,7 @@ class InstallWindow(QWidget):
         self.buttonlist.setEnabled(False)
         try:
             for run_step in steps:
-                run_step()
+                self.run(run_step)
                 if not self._ok:
                     failed.append(self._title)
             if failed:
@@ -223,7 +235,7 @@ class InstallWindow(QWidget):
                 for title in failed:
                     print(f'{RED}    {title}{NC}')
                 print(f'{RED}    Check documentation: {docs}{NC}\n')
-            self.cmd_go()
+            self.run(self.cmd_go)
         finally:
             self._everything = False
             self.buttonlist.setEnabled(True)
@@ -235,6 +247,7 @@ class InstallWindow(QWidget):
     def __init__(self):
         QWidget.__init__(self)
         self._everything = False
+        self.step_button = {}
         mainlayout = QVBoxLayout()
 
         os = QLabel(f"OS: {distro.name()} {distro.version()}")
@@ -262,51 +275,51 @@ class InstallWindow(QWidget):
         btn_layout.addWidget(button0)
 
         button1 = QPushButton('1) Add repository')
-        button1.clicked.connect(self.cmd_repo)
+        self.add_step(button1, self.cmd_repo)
         btn_layout.addWidget(button1)
 
         button2 = QPushButton('2) Paparazzi Dev')
-        button2.clicked.connect(self.cmd_dev)
+        self.add_step(button2, self.cmd_dev)
         btn_layout.addWidget(button2)
 
         button3 = QPushButton('3) Compiler for autopilots')
-        button3.clicked.connect(self.cmd_arm)
+        self.add_step(button3, self.cmd_arm)
         btn_layout.addWidget(button3)
 
         button4 = QPushButton('4) JSB Simulator')
-        button4.clicked.connect(self.cmd_jsb)
+        self.add_step(button4, self.cmd_jsb)
         btn_layout.addWidget(button4)
 
         button5 = QPushButton('5) Binary ground station')
         if distro_version < 20.04:
             button5.setDisabled(True)
         else:
-            button5.clicked.connect(self.cmd_gcs)
+            self.add_step(button5, self.cmd_gcs)
         btn_layout.addWidget(button5)
 
         button6 = QPushButton('6) Flash and debug MCU')
-        button6.clicked.connect(self.cmd_mcu)
+        self.add_step(button6, self.cmd_mcu)
         btn_layout.addWidget(button6)
 
         button7 = QPushButton('7a) Gazebo11 Classic')
         if distro_version > 22.04:
             button7.setDisabled(True)
-        button7.clicked.connect(self.cmd_gazebo_classic)
+        self.add_step(button7, self.cmd_gazebo_classic)
         btn_layout.addWidget(button7)
 
         button7b = QPushButton('7b) Gazebo (Harmonic/Jetty)')
         if distro_version >= 22.04:
-            button7b.clicked.connect(self.cmd_gazebo)
+            self.add_step(button7b, self.cmd_gazebo)
         else:
             button7b.setDisabled(True)
         btn_layout.addWidget(button7b)
 
         button8 = QPushButton('8) Bebop Opencv')
-        button8.clicked.connect(self.cmd_bebopcv)
+        self.add_step(button8, self.cmd_bebopcv)
         btn_layout.addWidget(button8)
 
         button9 = QPushButton('9) VLC + Joystick + Natnet')
-        button9.clicked.connect(self.cmd_vlc)
+        self.add_step(button9, self.cmd_vlc)
         btn_layout.addWidget(button9)
 
         button10 = QPushButton('10) View Documentation')
@@ -314,7 +327,7 @@ class InstallWindow(QWidget):
         btn_layout.addWidget(button10)
 
         button11 = QPushButton('11) Make and start Pprz Center')
-        button11.clicked.connect(self.cmd_go)
+        self.add_step(button11, self.cmd_go)
         btn_layout.addWidget(button11)
 
         self.close_after_make = QCheckBox('Close the installer when the Paparazzi Center starts')
