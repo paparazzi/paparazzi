@@ -40,14 +40,14 @@ class InstallWindow(QWidget):
         if p.returncode == 0:
             print(f'  {GREEN}✔{NC} {cmd} {GREEN}done{NC}')
             print('')
-            self.buttonlist.setEnabled(True)
+            self.buttonlist.setEnabled(not self._everything)
             return True
         else:
             print(f'  {RED}{BOLD}✘ FAILED:{NC} {cmd}')
             print(f'{RED}    Check documentation: {docs}{NC}')
             print('')
             self._ok = False
-            self.buttonlist.setEnabled(True)
+            self.buttonlist.setEnabled(not self._everything)
             return False
 
 
@@ -56,6 +56,7 @@ class InstallWindow(QWidget):
 
     def step(self, title):
         self._ok = True
+        self._title = title
         print(f'\n{CYAN}{BOLD}{"═" * 80}')
         print(f'  {title}')
         print(f'{"═" * 80}{NC}\n')
@@ -193,6 +194,37 @@ class InstallWindow(QWidget):
         self.done('Build succeeded', 'Build failed — not starting Paparazzi Center')
         if self._ok:
             self.execute('./paparazzi &')
+            if self.close_after_make.isChecked():
+                self.close()
+
+    def cmd_everything(self):
+        # every install step of this Ubuntu version, then build and start the Paparazzi Center
+        steps = [self.cmd_repo, self.cmd_dev, self.cmd_arm, self.cmd_jsb]
+        if distro_version >= 20.04:
+            steps.append(self.cmd_gcs)
+        steps.append(self.cmd_mcu)
+        if distro_version <= 22.04:
+            steps.append(self.cmd_gazebo_classic)
+        if distro_version >= 22.04:
+            steps.append(self.cmd_gazebo)
+        steps += [self.cmd_bebopcv, self.cmd_vlc]
+        failed = []
+        self._everything = True
+        self.buttonlist.setEnabled(False)
+        try:
+            for run_step in steps:
+                run_step()
+                if not self._ok:
+                    failed.append(self._title)
+            if failed:
+                print(f'{RED}{BOLD}  ✘ Failed steps:{NC}')
+                for title in failed:
+                    print(f'{RED}    {title}{NC}')
+                print(f'{RED}    Check documentation: {docs}{NC}\n')
+            self.cmd_go()
+        finally:
+            self._everything = False
+            self.buttonlist.setEnabled(True)
 
     def cmd_pdf(self):
         self.view('https://github.com/tudelft/coursePaparazzi/raw/master/paparazzi_crash_course.pdf')
@@ -200,6 +232,7 @@ class InstallWindow(QWidget):
 
     def __init__(self):
         QWidget.__init__(self)
+        self._everything = False
         mainlayout = QVBoxLayout()
 
         os = QLabel(f"OS: {distro.name()} {distro.version()}")
@@ -220,6 +253,11 @@ class InstallWindow(QWidget):
         btn_layout = QVBoxLayout()
         self.buttonlist.setLayout(btn_layout)
 
+
+        button0 = QPushButton('Everything (steps 1 to 9, then 11)')
+        button0.setFont(QFont(button0.font().family(), -1, QFont.Bold))
+        button0.clicked.connect(self.cmd_everything)
+        btn_layout.addWidget(button0)
 
         button1 = QPushButton('1) Add repository')
         button1.clicked.connect(self.cmd_repo)
@@ -276,6 +314,10 @@ class InstallWindow(QWidget):
         button11 = QPushButton('11) Make and start Pprz Center')
         button11.clicked.connect(self.cmd_go)
         btn_layout.addWidget(button11)
+
+        self.close_after_make = QCheckBox('Close the installer when the Paparazzi Center starts')
+        self.close_after_make.setChecked(True)
+        btn_layout.addWidget(self.close_after_make)
 
         mainlayout.addWidget(self.buttonlist)
 
