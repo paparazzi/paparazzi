@@ -145,19 +145,22 @@ static void sdlog_preflight(struct preflight_result_t *result) {
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 /**
- * Tell the GCS in words how the log start went, once: the log files, or why the logger does not run
- * (no SD card, card full, ...), and when the configuration could not be written. Sent with the first
- * LOGGER_STATUS after the start, from the main thread.
+ * Tell the GCS in words how the log start went: the log files, or why the logger does not run
+ * (no SD card, card full, ...), and when the configuration could not be written. Also every time the
+ * logger goes into error later. Sent with the LOGGER_STATUS message, from the main thread.
  */
-static void sdlog_report_start(struct transport_tx *trans, struct link_device *dev)
+static void sdlog_report_status(struct transport_tx *trans, struct link_device *dev)
 {
-  static bool reported = false;
-  if (reported || chibios_sdlog_status == SDLOG_STOPPED) {
+  static int reported = SDLOG_STOPPED;
+  int status = chibios_sdlog_status;
+  // only on a change: the start (stopped to running or error), and every time it goes into error
+  if (status == reported || status == SDLOG_STOPPED || (status == SDLOG_RUNNING && reported == SDLOG_ERROR)) {
+    reported = status;
     return;
   }
-  reported = true;
+  reported = status;
   char msg[120];
-  if (chibios_sdlog_status == SDLOG_ERROR) {
+  if (status == SDLOG_ERROR) {
     chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(sdLogGetStorageStatus()));
   } else if (sdlog_conf_error != SDLOG_OK) {
     chsnprintf(msg, sizeof(msg), "SD log started: %s, configuration not written: %s", chibios_sdlog_filenames,
@@ -170,7 +173,7 @@ static void sdlog_report_start(struct transport_tx *trans, struct link_device *d
 
 static void send_sdlog_status(struct transport_tx *trans, struct link_device *dev)
 {
-  sdlog_report_start(trans, dev);
+  sdlog_report_status(trans, dev);
   uint8_t status = (uint8_t) chibios_sdlog_status;
   uint8_t errno = (uint8_t) sdLogGetStorageStatus();
   uint32_t used = (uint32_t) sdLogGetNbBytesWrittenToStorage();
