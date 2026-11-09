@@ -199,6 +199,7 @@ class LogWidget(QWidget, Ui_LogWidget):
             check.toggled.connect(self.save_settings)
         self.log_table.itemSelectionChanged.connect(self.update_details)
         self.log_table.itemChanged.connect(self.update_buttons)
+        self.all_check.clicked.connect(self.tick_all)
         self.plotter_button.clicked.connect(self.open_plotter)
         self.folder_button.clicked.connect(self.open_folder)
         self.extract_new_button.clicked.connect(self.extract_new)
@@ -386,7 +387,21 @@ class LogWidget(QWidget, Ui_LogWidget):
     def new_logs(self):
         return [p for p in self.logs if self.record_of(p) is None]
 
+    def tick_all(self):
+        """Tick all logs, or untick them all when they are all ticked already."""
+        rows = range(self.log_table.rowCount())
+        tick = any(self.log_table.item(r, COL_FILE).checkState() != Qt.Checked for r in rows)
+        self.log_table.blockSignals(True)
+        for r in rows:
+            self.log_table.item(r, COL_FILE).setCheckState(Qt.Checked if tick else Qt.Unchecked)
+        self.log_table.blockSignals(False)
+        self.update_buttons()
+
     def update_buttons(self, *_):
+        ticked = len(self.ticked_logs())
+        self.all_check.setCheckState(Qt.Unchecked if ticked == 0 else
+                                     Qt.Checked if ticked == len(self.logs) else Qt.PartiallyChecked)
+        self.all_check.setEnabled(bool(self.logs))
         running = self.process.state() != QProcess.NotRunning or bool(self.queue)
         new = len(self.new_logs()) if not running else 0
         self.extract_new_button.setText(f"Extract new ({new})" if new else "Extract new")
@@ -669,7 +684,7 @@ class LogWidget(QWidget, Ui_LogWidget):
                                 "<h1>SD log extractor</h1>"
                                 "Extract the logs of the flight recorder SD card with sd2log.<br/>"
                                 "SD cards are detected when they are mounted; Browse reads the logs of a folder. "
-                                "New logs are ticked; the extracted ones are remembered in "
+                                "New logs are ticked (All ticks or unticks them all); the extracted ones are remembered in "
                                 "var/sd_log_state.json.<br/><br/>"
                                 "You can use substitution variables in the output folder:<br/>"
                                 "<b>$AIRCRAFT</b>: aircraft name<br/>"

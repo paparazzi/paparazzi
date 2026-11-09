@@ -443,10 +443,12 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         return self.session is not None and self.session.any_program_running()
 
     def handle_session_started(self):
+        # Called for every program of the session: don't rescan the logs (slow on a shared folder),
+        # only update the statuses, no log can become complete while recording
         if self.session_start is None:
             self.session_start = time.time() - 1
         self.cancel.set()
-        self.refresh_pending()
+        self.fill_pending()
 
     def handle_session_stopped(self):
         if self.session_start is not None and not self.session_running():
