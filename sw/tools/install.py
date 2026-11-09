@@ -88,6 +88,8 @@ class InstallWindow(QWidget):
             self.execute('sudo apt-add-repository -y \'deb https://apt.kitware.com/ubuntu/ bionic main\'')
         self.execute('sudo -E apt-get update && sudo -E apt-get install -y cmake')
         self.execute('sudo -E apt-get install -y libboost-program-options-dev libboost-filesystem-dev')
+        # SDL 1.2 for the joystick (sw/ground_segment/joystick, NPS joystick): not pulled in by paparazzi-dev on 26.04
+        self.execute('sudo -E apt-get install -y libsdl1.2-dev')
         # the Bebop tools use telnetlib of the system Python (up to Ubuntu 24.04); 26.04 (Python 3.13+) has no
         # telnetlib and no apt package of telnetlib3
         self.done('Paparazzi Dev installed successfully', 'Some development packages failed to install')
