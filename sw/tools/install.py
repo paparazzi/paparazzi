@@ -84,8 +84,8 @@ class InstallWindow(QWidget):
             self.execute('sudo -E apt-get install -y liblablgtk2-ocaml-dev')
         if distro_version == 18.04:
             self.execute('wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -')
-            self.execute('sudo apt-add-repository \'deb https://apt.kitware.com/ubuntu/ bionic main\'')
-        self.execute('sudo apt-get update && sudo apt-get install cmake')
+            self.execute('sudo apt-add-repository -y \'deb https://apt.kitware.com/ubuntu/ bionic main\'')
+        self.execute('sudo -E apt-get update && sudo -E apt-get install -y cmake')
         self.execute('sudo -E apt-get install -y libboost-program-options-dev libboost-filesystem-dev')
         # the Bebop tools use telnetlib of the system Python (up to Ubuntu 24.04); 26.04 (Python 3.13+) has no
         # telnetlib and no apt package of telnetlib3
