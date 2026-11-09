@@ -171,13 +171,12 @@ class InstallWindow(QWidget):
         self.execute('sudo -E apt-get install -y python3-pip')
         if distro_version < 24.04:
             self.execute('python3 -m pip install future') # Required for MAVLink
-            self.execute('python3 -m pip install pyquaternion ivy-python') # Required for NatNat
             self.execute('python3 -m pip install pymap3d') # Required for Moving-Base
             self.execute('python3 -m pip install opencv-python') # Required for RTP-viewer
         else:
             # from Ubuntu 23.04 pip can't install in the system Python: the apt packages
-            # (no apt package for pyquaternion (NatNet), and for future (MAVLink) on 26.04)
-            self.execute('sudo -E apt-get -f -y install python3-opencv python3-pymap3d ivy-python') # RTP-viewer, Moving-Base, NatNet
+            # (no apt package for future (MAVLink) on 26.04)
+            self.execute('sudo -E apt-get -f -y install python3-opencv python3-pymap3d') # RTP-viewer, Moving-Base
             if distro_version < 26.04:
                 self.execute('sudo -E apt-get -f -y install python3-future') # Required for MAVLink
         self.done('VLC / Joystick / NatNet installed successfully', 'Some packages failed to install')
