@@ -21,6 +21,17 @@ BOLD = '\033[1m'
 NC = '\033[0m'
 
 
+def mark(symbol, color):
+    # a small icon with a colored symbol, for the buttons
+    pixmap = QPixmap(16, 16)
+    pixmap.fill(Qt.transparent)
+    painter = QPainter(pixmap)
+    painter.setPen(QColor(color))
+    painter.drawText(pixmap.rect(), Qt.AlignCenter, symbol)
+    painter.end()
+    return QIcon(pixmap)
+
+
 class InstallWindow(QWidget):
 
     def execute(self,cmd):
@@ -73,11 +84,9 @@ class InstallWindow(QWidget):
         button.clicked.connect(lambda: self.run(step))
 
     def run(self, step):
-        # run an install step, and mark its button: ✔ succeeded, ✘ failed
+        # run an install step, and mark its button: green ✔ succeeded, red ✘ failed
         step()
-        button = self.step_button[step]
-        text = button.text().lstrip('✔✘ ')
-        button.setText(('✔ ' if self._ok else '✘ ') + text)
+        self.step_button[step].setIcon(mark('✔', 'green') if self._ok else mark('✘', 'red'))
 
     def cmd_repo(self):
         self.step('Step 1 — Adding Paparazzi PPA repository')
