@@ -113,8 +113,9 @@ class InstallWindow(QWidget):
         self.execute('sudo -E apt-get install -y libboost-program-options-dev libboost-filesystem-dev')
         # SDL 1.2 for the joystick (sw/ground_segment/joystick, NPS joystick): not pulled in by paparazzi-dev on 26.04
         self.execute('sudo -E apt-get install -y libsdl1.2-dev')
-        # the Bebop tools use telnetlib of the system Python (up to Ubuntu 24.04); 26.04 (Python 3.13+) has no
-        # telnetlib and no apt package of telnetlib3
+        # the Bebop upload tools use telnetlib, removed from Python 3.13 (26.04): a copy of it from apt
+        if distro_version >= 26.04:
+            self.execute('sudo -E apt-get install -y python3-zombie-telnetlib')
         self.done('Paparazzi Dev installed successfully', 'Some development packages failed to install')
 
 
