@@ -258,6 +258,10 @@ SdioError sdLogInit(uint32_t *freeSpaceInKo)
 #endif
 
   if (rc != FR_OK) {
+    // Most boards have no card detect pin, a missing card is only seen when it cannot be read
+    if (rc == FR_NOT_READY || rc == FR_DISK_ERR) {
+      return storageStatus = SDLOG_NOCARD;
+    }
     return storageStatus = SDLOG_FATFS_ERROR;
   }
 

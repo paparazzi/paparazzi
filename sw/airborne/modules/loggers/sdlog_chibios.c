@@ -88,6 +88,8 @@ static const char PPRZ_LOG_DIR[] = "PPRZ";
 #if SDLOG_CONF
 #include "generated/aircraft_conf.h"
 #endif
+/** Result of writing the configuration, reported to the GCS */
+static volatile SdioError sdlog_conf_error = SDLOG_OK;
 
 /*
  * Start log thread
@@ -127,10 +129,12 @@ static struct preflight_check_t sdlog_pfc;
 
 static void sdlog_preflight(struct preflight_result_t *result) {
   if(chibios_sdlog_status != SDLOG_RUNNING) {
+    const char *cause = (chibios_sdlog_status == SDLOG_STOPPED) ? "not started yet" :
+                        sdlog_error_string(sdLogGetStorageStatus());
 #ifdef SDLOG_PREFLIGHT_ERROR
-    preflight_error(result, "SDLogger is not running [%d:%d]", chibios_sdlog_status, sdLogGetStorageStatus());
+    preflight_error(result, "SD log not running: %s", cause);
 #else
-    preflight_warning(result, "SDLogger is not running [%d:%d]", chibios_sdlog_status, sdLogGetStorageStatus());
+    preflight_warning(result, "SD log not running: %s", cause);
 #endif
   } else {
     preflight_success(result, "SDLogger running");
@@ -140,8 +144,35 @@ static void sdlog_preflight(struct preflight_result_t *result) {
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
+/**
+ * Tell the GCS in words why the logger does not run (no SD card, card full, ...): at the start and
+ * every time it goes into error later, and when the configuration could not be written. A normal
+ * start is not reported. Sent with the LOGGER_STATUS message, from the main thread.
+ */
+static void sdlog_report_status(struct transport_tx *trans, struct link_device *dev)
+{
+  static int reported = SDLOG_STOPPED;
+  int status = chibios_sdlog_status;
+  // only on a change: the start (stopped to running or error), and every time it goes into error
+  if (status == reported || status == SDLOG_STOPPED || (status == SDLOG_RUNNING && reported == SDLOG_ERROR)) {
+    reported = status;
+    return;
+  }
+  reported = status;
+  char msg[120];
+  if (status == SDLOG_ERROR) {
+    chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(sdLogGetStorageStatus()));
+  } else if (sdlog_conf_error != SDLOG_OK) {
+    chsnprintf(msg, sizeof(msg), "SD log: configuration not written: %s", sdlog_error_string(sdlog_conf_error));
+  } else {
+    return; // a normal start is not reported
+  }
+  pprz_msg_send_INFO_MSG(trans, dev, AC_ID, strlen(msg), msg);
+}
+
 static void send_sdlog_status(struct transport_tx *trans, struct link_device *dev)
 {
+  sdlog_report_status(trans, dev);
   uint8_t status = (uint8_t) chibios_sdlog_status;
   uint8_t errno = (uint8_t) sdLogGetStorageStatus();
   uint32_t used = (uint32_t) sdLogGetNbBytesWrittenToStorage();
@@ -347,7 +378,7 @@ static void thd_startlog(void *arg)
 #endif
 #if SDLOG_CONF
     // once per configuration, a failure does not stop the logging
-    sdLogWriteFile(PPRZ_LOG_DIR, AIRCRAFT_CONF_NAME, aircraft_conf_gz, sizeof(aircraft_conf_gz));
+    sdlog_conf_error = sdLogWriteFile(PPRZ_LOG_DIR, AIRCRAFT_CONF_NAME, aircraft_conf_gz, sizeof(aircraft_conf_gz));
 #endif
   }
 
