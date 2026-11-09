@@ -34,6 +34,10 @@
 #include "filters/low_pass_filter.h"
 #include "generated/airframe.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef IMU_MAX_SENSORS
 #define IMU_MAX_SENSORS 4
 #endif
@@ -93,6 +97,7 @@ struct imu_mag_t {
   struct FloatVect3 current_scale;    ///< Current scaling multiplying
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
   struct FloatEulers body_to_sensor_f;///< Rotation from body to sensor frame (with floating points eulers)
+  float strength;                     ///< Earth field strength where it was calibrated (gauss), the scaled values are 1 there; 0 if unknown
 };
 
 
@@ -132,5 +137,9 @@ extern void imu_SetBodyToImuTheta(float theta);
 extern void imu_SetBodyToImuPsi(float psi);
 extern void imu_SetBodyToImuCurrent(float set);
 extern void imu_ResetBodyToImu(float reset);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* IMU_H */

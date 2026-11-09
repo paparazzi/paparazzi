@@ -21,6 +21,7 @@
 
 from __future__ import print_function, division
 
+import os
 import re
 import numpy as np
 from numpy import sin, cos
@@ -169,29 +170,168 @@ def estimate_mag_current_relation(meas):
         offset.append(intercept)
     return coefficient, offset
 
-def format_xml(p, sensor, sensor_id, res):
-    """Print xml for airframe file."""
+# World magnetic model table of the PX4 EKF2 (the reference of ins_ekf2)
+WMM_TABLE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "ext", "px4_ekf2", "lib",
+                         "world_magnetic_model", "geo_magnetic_tables.hpp")
+
+
+def get_mag_strength_gauss(lat, lon, table_file=WMM_TABLE):
+    """Earth magnetic field strength (gauss) at lat/lon (deg), interpolated in the world magnetic model
+    table of the PX4 EKF2 as get_mag_strength_gauss() of ins_ekf2."""
+    with open(table_file) as f:
+        src = f.read()
+    res = float(re.search(r"SAMPLING_RES\s*=\s*([0-9.]+)", src).group(1))
+    min_lat = float(re.search(r"SAMPLING_MIN_LAT\s*=\s*(-?[0-9.]+)", src).group(1))
+    max_lat = float(re.search(r"SAMPLING_MAX_LAT\s*=\s*(-?[0-9.]+)", src).group(1))
+    min_lon = float(re.search(r"SAMPLING_MIN_LON\s*=\s*(-?[0-9.]+)", src).group(1))
+    max_lon = float(re.search(r"SAMPLING_MAX_LON\s*=\s*(-?[0-9.]+)", src).group(1))
+    scale = float(re.search(r"WMM_TOTALINTENSITY_SCALE_TO_NANOTESLA\s*=\s*([0-9.]+)", src).group(1))
+    body = re.search(r"totalintensity_table\[\d+\]\[\d+\]\s*\{(.*?)\n\};", src, re.S).group(1)
+    rows = [[int(v) for v in re.findall(r"-?\d+", r.split("*/", 1)[1].split("}")[0])]
+            for r in body.split("\n") if "LAT:" in r]
+    table = np.array(rows, dtype=float)
+
+    lat = min(max(lat, min_lat), max_lat)
+    if lon > max_lon:
+        lon -= 360.
+    if lon < min_lon:
+        lon += 360.
+    i = min(int((np.floor(lat / res) * res - min_lat) / res), table.shape[0] - 2)
+    j = min(int((np.floor(lon / res) * res - min_lon) / res), table.shape[1] - 2)
+    lat_s = min(max((lat - (min_lat + i * res)) / res, 0.), 1.)
+    lon_s = min(max((lon - (min_lon + j * res)) / res, 0.), 1.)
+    d_min = lon_s * (table[i, j + 1] - table[i, j]) + table[i, j]
+    d_max = lon_s * (table[i + 1, j + 1] - table[i + 1, j]) + table[i + 1, j]
+    return (lat_s * (d_max - d_min) + d_min) * scale * 1e-5  # nT to gauss
+
+
+def read_log_position(ac_id, filename):
+    """Median position (lat, lon in deg) of the 3D GNSS fixes (GPS_INT) in a log, None without fix."""
+    # GPS_INT: ecef_x ecef_y ecef_z lat lon alt hmsl ecef_xd ecef_yd ecef_zd pacc sacc tow pdop numsv fix
+    pattern = re.compile(r"\S+ " + ac_id + r" GPS_INT(?: \S+){3} (\S+) (\S+)(?: \S+){10} (\S+)")
+    pos = []
+    with open(filename) as f:
+        for line in f:
+            m = re.match(pattern, line)
+            if m and int(m.group(3)) >= 3:
+                pos.append([float(m.group(1)) * 1e-7, float(m.group(2)) * 1e-7])
+    if not pos:
+        return None
+    return tuple(np.median(np.array(pos), axis=0))
+
+
+def format_xml_struct(p, sensor_id, res, strength=None, location="", indent="  "):
+    """Calibration of one sensor as a struct of the IMU_<sensor>_CALIB array
+    (strength: field strength where the mag was calibrated, gauss)."""
     x_sens = p[3]*2**res
     y_sens = p[4]*2**res
     z_sens = p[5]*2**res
-
-    s = f""
-    s += f'<define name="IMU_{sensor}_CALIB" type="array">\n'
-    s += f'  <field type="struct">\n'
-    s += f'    <field name="abi_id" value="{sensor_id}"/>\n'
-    s += f'    <field name="calibrated" type="struct">\n'
-    s += f'      <field name="neutral" value="true"/>\n'
-    s += f'      <field name="scale_f" value="true"/>\n'
-    s += f'    </field>\n'
-    s += f'    <field name="neutral" value="{round(p[0]):d},{int(round(p[1])):d},{int(round(p[2])):d}" type="int[]"/>\n'
-    s += f'    <field name="scale_f" value="{{ {x_sens:.4f}, {y_sens:.4f}, {z_sens:.4f} }}"/>\n'
-    s += f'  </field>\n'
-    s += f'</define>\n'
+    i = indent
+    s = f'{i}<field type="struct">\n'
+    s += f'{i}  <field name="abi_id" value="{sensor_id}"/>\n'
+    s += f'{i}  <field name="calibrated" type="struct">\n'
+    s += f'{i}    <field name="neutral" value="true"/>\n'
+    s += f'{i}    <field name="scale_f" value="true"/>\n'
+    s += f'{i}  </field>\n'
+    s += f'{i}  <field name="neutral" value="{int(round(p[0])):d},{int(round(p[1])):d},{int(round(p[2])):d}" type="int[]"/>\n'
+    s += f'{i}  <field name="scale_f" value="{{ {x_sens:.4f}, {y_sens:.4f}, {z_sens:.4f} }}"/>\n'
+    if strength is not None:
+        s += f'{i}  <!-- WMM field strength where it was calibrated: {location} -->\n'
+        s += f'{i}  <field name="strength" value="{strength:.4f}"/>\n'
+    s += f'{i}</field>\n'
     return s
 
-def print_xml(p, sensor, sensor_id, res):
+
+def format_xml_define(sensor, structs, comments=()):
+    """IMU_<sensor>_CALIB define for the airframe file with the struct of each sensor;
+    comments (e.g. sensors that failed) are added as XML comments, so the text can be pasted as is."""
+    s = ""
+    for c in comments:
+        s += f'<!-- {c} -->\n'
+    s += f'<define name="IMU_{sensor}_CALIB" type="array">\n'
+    s += "".join(structs)
+    s += '</define>\n'
+    return s
+
+
+def airframe_calib_structs(airframe, sensor, indent="  "):
+    """The structs of the IMU_<sensor>_CALIB define in an airframe file (path or file:// URL),
+    as a list of (abi_id, struct XML), in the order of the file. Empty when there is none."""
+    import xml.etree.ElementTree as ET
+    if not airframe:
+        return []
+    path = airframe[len("file://"):] if airframe.startswith("file://") else airframe
+    try:
+        root = ET.parse(path, ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))).getroot()
+    except (OSError, ET.ParseError):
+        return []
+    define = None
+    for d in root.iter("define"):
+        name = d.get("name", "")
+        if name == f"IMU_{sensor}_CALIB" or name == f"{sensor}_CALIB" and any(
+                sec.get("prefix") == "IMU_" and d in list(sec) for sec in root.iter("section")):
+            define = d
+    if define is None:
+        return []
+    structs = []
+    for struct in define.findall("field"):
+        abi_id = next((f.get("value") for f in struct.findall("field") if f.get("name") == "abi_id"), None)
+        if abi_id is None:
+            continue
+        struct.tail = None
+        ET.indent(struct, space="  ")
+        text = ET.tostring(struct, encoding="unicode")
+        structs.append((abi_id.strip(), "".join(indent + line + "\n" for line in text.splitlines())))
+    return structs
+
+
+def _keep_other_fields(old_xml, new_xml, indent="  "):
+    """New calibration struct with the fields of the old one it doesn't set (e.g. the filter or the rotation)."""
+    import xml.etree.ElementTree as ET
+
+    def parse(text):
+        return ET.fromstring(text, ET.XMLParser(target=ET.TreeBuilder(insert_comments=True)))
+
+    def calibrated(struct):
+        return next((f for f in struct.findall("field") if f.get("name") == "calibrated"), None)
+
+    old, new = parse(old_xml), parse(new_xml)
+    set_fields = {f.get("name") for f in new.findall("field")} | {"scale", "scale_f"}
+    extra = [f for f in old.findall("field") if f.get("name") not in set_fields]
+    old_cal, new_cal = calibrated(old), calibrated(new)
+    if not extra and (old_cal is None or all(f.get("name") in set_fields | {"neutral"} for f in old_cal)):
+        return new_xml
+    if old_cal is not None and new_cal is not None:
+        for f in old_cal.findall("field"):
+            if f.get("name") not in ("neutral", "scale", "scale_f"):
+                new_cal.append(f)
+    for f in extra:
+        new.append(f)
+    ET.indent(new, space="  ")
+    return "".join(indent + line + "\n" for line in ET.tostring(new, encoding="unicode").splitlines())
+
+
+def merge_calib_structs(old, new):
+    """Replace the old structs ((abi_id, XML) list) by the new ones ({abi_id: XML}), keeping the order
+    of the old ones and the sensors not calibrated now. Returns the structs and the abi_ids kept."""
+    new = dict(new)
+    structs, kept = [], []
+    for abi_id, xml in old:
+        if abi_id in new:
+            structs.append(_keep_other_fields(xml, new.pop(abi_id)))
+        else:
+            structs.append(xml)
+            kept.append(abi_id)
+    return structs + list(new.values()), kept
+
+
+def format_xml(p, sensor, sensor_id, res, strength=None, location=""):
+    """Print xml for airframe file (strength: field strength where the mag was calibrated, gauss)."""
+    return format_xml_define(sensor, [format_xml_struct(p, sensor_id, res, strength, location)])
+
+def print_xml(p, sensor, sensor_id, res, strength=None, location=""):
     """Print xml for airframe file."""
-    print(format_xml(p, sensor, sensor_id, res))
+    print(format_xml(p, sensor, sensor_id, res, strength, location))
 
 def print_imu_scaled(sensor, measurements, attrs):
     print("")
