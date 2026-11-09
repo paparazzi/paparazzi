@@ -186,9 +186,9 @@ class InstallWindow(QWidget):
         self.step('Step 8 — Installing Bebop OpenCV')
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/opencv_bebop')
         if distro_version < 22.04:
-            self.execute('sudo -E apt-get -f -y install cmake libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-22-dev')
+            self.execute('sudo -E apt-get -f -y install libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-22-dev')
         else:
-            self.execute('sudo -E apt-get -f -y install cmake libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-dev')
+            self.execute('sudo -E apt-get -f -y install libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-dev')
         self.done('Bebop OpenCV installed successfully', 'Bebop OpenCV installation failed')
 
     def cmd_vlc(self):
