@@ -115,7 +115,7 @@ class InstallWindow(QWidget):
         if distro_version == 22.04:
             # PprzGCS (Qt6) needs the xcb platform plugin, which Ubuntu 22.04 doesn't pull in
             self.execute('sudo -E apt-get -f -y install qt6-qpa-plugins')
-        self.execute('sudo -E apt-get -f -y install python3-pyqt5.qtwebkit') # for the documentation
+        self.execute('sudo -E apt-get -f -y install python3-pyqt5.qtwebengine') # the documentation viewer of the Paparazzi Center
         self.done('Ground station installed successfully', 'Ground station installation failed')
 
     def cmd_mcu(self):
