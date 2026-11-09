@@ -87,7 +87,7 @@ class InstallWindow(QWidget):
             self.execute('sudo apt-add-repository \'deb https://apt.kitware.com/ubuntu/ bionic main\'')
         self.execute('sudo apt-get update && sudo apt-get install cmake')
         self.execute('sudo -E apt-get install -y libboost-program-options-dev libboost-filesystem-dev')
-        if distro_version >= 24.04:
+        if distro_version == 24.04:
             self.execute('python3 -m pip install telnetlib3') # Required for bebop tools
         self.done('Paparazzi Dev installed successfully', 'Some development packages failed to install')
 
