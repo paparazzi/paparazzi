@@ -176,6 +176,9 @@ class InstallWindow(QWidget):
             self.execute('sudo apt update')
             if distro_version >= 26.04:
                 self.execute('sudo -E apt-get -f -y install gz-jetty')
+                # gz-sim.pc of gz-sim10 requires exactly Qt6QuickControls2 6.4 (Ubuntu 26.04 has 6.10):
+                # pkg-config then fails and the NPS build doesn't find the gz headers
+                self.execute('sudo sed -i "s/Qt6QuickControls2 = 6.4/Qt6QuickControls2/" /usr/lib/x86_64-linux-gnu/pkgconfig/gz-sim.pc')
             else:
                 self.execute('sudo -E apt-get -f -y install gz-harmonic')
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
