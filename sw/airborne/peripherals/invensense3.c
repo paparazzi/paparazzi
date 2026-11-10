@@ -250,6 +250,7 @@ void invensense3_init(struct invensense3_t *inv) {
   inv->sample_size = INVENSENSE3_SAMPLE_SIZE_PK3;
 
   inv->sample_numbers = samples_from_odr(Min((int)inv->gyro_odr, (int)inv->accel_odr));
+  inv->fifo_cnt = 0;
 }
 
 /**
@@ -287,7 +288,8 @@ void invensense3_periodic(struct invensense3_t *inv) {
             break;
           case INVENSENSE3_PARSER_FIFO:
           {
-            static const uint16_t max_bytes = sizeof(inv->spi.rx_buf) - 3;
+            // Not more than the parser can handle (INVENSENSE3_FIFO_BUFFER_LEN), the rest is read next time
+            const uint16_t max_bytes = INVENSENSE3_FIFO_BUFFER_LEN * invensense3_fifo_sample_size[inv->sample_size];
             int read_bytes = (inv->sample_numbers + inv->timer) * invensense3_fifo_sample_size[inv->sample_size];
             read_bytes = Min(max_bytes, read_bytes);
             // round to the packet boundaries
@@ -387,8 +389,9 @@ void invensense3_event(struct invensense3_t *inv) {
             // Parse the data
             if(*inv->rx_length > 3) {
               uint16_t nb_packets_read = (*inv->rx_length - 3) / invensense3_fifo_sample_size[inv->sample_size];
-              invensense3_parse_fifo_data(inv, &inv->rx_buffer[3], Min(n_samples, nb_packets_read));
-              inv->timer -= nb_packets_read;
+              uint16_t nb_packets = Min(n_samples, nb_packets_read);
+              invensense3_parse_fifo_data(inv, &inv->rx_buffer[3], nb_packets);
+              inv->timer -= nb_packets;
             }
 
             break;
@@ -449,58 +452,49 @@ static void invensense3_parse_fifo_data(struct invensense3_t *inv, uint8_t *data
 
   samples = Min(samples, INVENSENSE3_FIFO_BUFFER_LEN);
 
-  uint8_t gyro_samplerate  = 17 - inv->gyro_odr;
-  uint8_t accel_samplerate = 17 - inv->accel_odr;
-
-  uint8_t faster_odr = gyro_samplerate;
-  if (accel_samplerate > gyro_samplerate)
-    faster_odr = accel_samplerate;
+  // The FIFO packets come at the faster ODR, the slower sensor is decimated with the ratio of the rates
+  // (keep a sample each time cnt * rate / faster_rate passes an integer, cnt is modulo faster_rate)
+  const uint32_t gyro_rate = inv->gyro_samplerate;
+  const uint32_t accel_rate = inv->accel_samplerate;
+  const uint32_t faster_rate = Max(gyro_rate, accel_rate);
 
   // Go through the different samples
   uint8_t i = 0;
   uint8_t j = 0;
+  uint8_t valid = 0;
   int32_t temp = 0;
-  uint16_t gyro_samplerate_count;
-  uint16_t accel_samplerate_count;
   for(uint8_t sample = 0; sample < samples; sample++) { 
 
     if ((data[0] & 0xFC) != 0x68) {
         // no or bad data
     } else {
-      
-      gyro_samplerate_count = gyro_samplerate * (sample + 1);
-      if(gyro_samplerate_count % faster_odr == 0) {
+      const uint32_t cnt = inv->fifo_cnt;
+      inv->fifo_cnt = (cnt + 1) % faster_rate;
+
+      if(((cnt + 1) * gyro_rate) / faster_rate != (cnt * gyro_rate) / faster_rate) {
         gyro[i].p =  (int16_t)((uint16_t)data[7]  | data[8]  << 8 );
         gyro[i].q =  (int16_t)((uint16_t)data[9]  | data[10] << 8 );
         gyro[i].r =  (int16_t)((uint16_t)data[11] | data[12] << 8 );
-        
-        // Temperature sensor register data TEMP_DATA is updated with new data at max(Accelerometer ODR, Gyroscope ODR)
-        if(gyro_samplerate == faster_odr)
-          temp += (int8_t)data[13];
-        
         i++;
       }
 
-      accel_samplerate_count = accel_samplerate * (sample + 1);
-      if(accel_samplerate_count % faster_odr == 0) {
+      if(((cnt + 1) * accel_rate) / faster_rate != (cnt * accel_rate) / faster_rate) {
         accel[j].x =  (int16_t)((uint16_t)data[1] | data[2] << 8 );
         accel[j].y =  (int16_t)((uint16_t)data[3] | data[4] << 8 );
         accel[j].z =  (int16_t)((uint16_t)data[5] | data[6] << 8 );
-
-        if(accel_samplerate == faster_odr)
-          temp += (int8_t)data[13];
-
         j++;
       }
+
+      // Temperature is updated at the faster ODR, once in every packet
+      temp += (int8_t)data[13];
+      valid++;
     }
 
       data += invensense3_fifo_sample_size[inv->sample_size];
   }
 
   // ADC temp * temp sensitivity + temp zero
-  float temp_f = ((float)temp / i) / 2.07 + 25.f; 
-  if (accel_samplerate == faster_odr)
-    temp_f = ((float)temp / j) / 2.07 + 25.f;
+  float temp_f = (valid > 0) ? ((float)temp / valid) / 2.07f + 25.f : NAN;
 
   // Send the scaled values over ABI
   uint32_t now_ts = get_sys_time_usec();
