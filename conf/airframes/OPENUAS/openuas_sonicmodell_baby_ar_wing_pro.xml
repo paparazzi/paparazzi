@@ -191,7 +191,6 @@ Safety
         <!-- <define name="SDP3X_PRESSURE_OFFSET" value="0.0"/>--> <!-- pressure offset in Pa (default: set according to pressure range and output type according to datasheet) -->
         <!-- <define name="SDP3X_AIRSPEED_SCALE" value="1.6327"/> --> <!-- quadratic scale factor to convert differential pressure to airspeed" -->
         <define name="SDP3X_LOWPASS_TAU" value="0.09"/>
-        <define name="USE_AIRSPEED_SDP3X" value="TRUE"/>
         <define name="USE_AIRSPEED" value="TRUE"/>
         <!-- <define name="USE_AIRSPEED_LOWPASS_FILTER" value="TRUE"/> --><!-- Already TRUE per default -->
         <define name="SDP3X_PRESSURE_SCALE" value="SDP3X_SCALE_PRESSURE_SDP33"/>
@@ -536,12 +535,6 @@ Safety
       <!--<define name="FC_IMU_ID" value="ABI_BROADCAST"/>-->
       <!--<define name="FC_MAG_ID" value="MAG_QMC5883_SENDER_ID"/>-->
     <!--<define name="FC_MAG_ID" value="MAG_RM3100_SENDER_ID"/>-->
-  </section>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="TRUE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
   <section name="AGL" prefix="AGL_DIST_SONAR_"> <!-- SONAR is type of technology Ranger is sensor class -->
