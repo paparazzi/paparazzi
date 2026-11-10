@@ -359,6 +359,11 @@ size_t sdLogGetNbBytesWrittenToStorage(void);
 */
 SdioError sdLogGetStorageStatus(void);
 
+/**
+ * @brief    FatFS result of the last failed mount (0 when it did not fail), to tell why the card could not be used
+ */
+uint8_t sdLogGetMountResult(void);
+
 
 #endif
 

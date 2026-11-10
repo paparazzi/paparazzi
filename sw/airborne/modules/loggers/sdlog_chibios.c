@@ -161,7 +161,14 @@ static void sdlog_report_status(struct transport_tx *trans, struct link_device *
   reported = status;
   char msg[120];
   if (status == SDLOG_ERROR) {
-    chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(sdLogGetStorageStatus()));
+    SdioError error = sdLogGetStorageStatus();
+    uint8_t mount = sdLogGetMountResult();
+    if (mount != 0) {
+      // the FatFS result tells why the card could not be mounted
+      chsnprintf(msg, sizeof(msg), "SD log error: %s (FatFS %d)", sdlog_error_string(error), mount);
+    } else {
+      chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(error));
+    }
   } else if (sdlog_conf_error != SDLOG_OK) {
     chsnprintf(msg, sizeof(msg), "SD log: configuration not written: %s", sdlog_error_string(sdlog_conf_error));
   } else {

@@ -222,6 +222,13 @@ static void thdSdLog(void *arg) ;
 static int32_t uiGetIndexOfLogFile(const char *prefix, const char *fileName) ;
 static inline SdioError flushWriteByteBuffer(const FileDes fd);
 
+static FRESULT lastMountResult = FR_OK;
+
+uint8_t sdLogGetMountResult(void)
+{
+  return (uint8_t) lastMountResult;
+}
+
 SdioError sdLogInit(uint32_t *freeSpaceInKo)
 {
   DWORD clusters = 0;
@@ -258,6 +265,7 @@ SdioError sdLogInit(uint32_t *freeSpaceInKo)
 #endif
 
   if (rc != FR_OK) {
+    lastMountResult = rc;
     // Most boards have no card detect pin, a missing card is only seen when it cannot be read
     if (rc == FR_NOT_READY || rc == FR_DISK_ERR) {
       return storageStatus = SDLOG_NOCARD;
