@@ -5,8 +5,14 @@
     <description>
       UAVCan actuators
    </description>
-   <define name="UAVCAN_ACTUATORS_USE_CURRENT" value="TRUE" description="Enable the usage of the current sensing in the ESC telemetry"/>
-   <define name="UAVCAN_ACTUATORS_TELEM_IDX" value="{4}" description="Only report these ESC indices in the ESC telemetry message (counted over UAVCAN1 then UAVCAN2), to get a higher update rate for them. Default: all ESCs"/>
+      <define name="UAVCAN_ACTUATORS_USE_CURRENT" value="TRUE" description="Enable the usage of the current sensing in the ESC telemetry"/>
+      <define name="UAVCAN_ACTUATORS_TELEM_IDX" value="{4}" description="Only report these ESC indices in the ESC telemetry message (counted over UAVCAN1 then UAVCAN2), to get a higher update rate for them. Default: all ESCs"/>
+    <section name="ACTUATORS_UAVCAN">
+      <define name="ACTUATOR_UAVCAN1_CMD_TYPES" value="{UNITLESS, PWM}" description="Command types: UNITLESS, POSITION, FORCE, SPEED or PWM. Default: UNITLESS"/>
+      <define name="ACTUATOR_UAVCAN1_CMD_FACTORS" value="{9600.f, 1.f}" description="Nonzero divisors for actuator command values. Default: 9600"/>
+      <define name="ACTUATOR_UAVCAN2_CMD_TYPES" value="{UNITLESS, PWM}" description="Command types: UNITLESS, POSITION, FORCE, SPEED or PWM. Default: UNITLESS"/>
+      <define name="ACTUATOR_UAVCAN2_CMD_FACTORS" value="{9600.f, 1.f}" description="Nonzero divisors for actuator command values. Default: 9600"/>
+    </section>
   </doc>
   <dep>
     <depends>uavcan,actuators</depends>
