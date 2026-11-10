@@ -52,7 +52,6 @@
     <module name="gps" type="ubx_ucenter"/>
     <module name="ins" type="ekf2"/>
 
-    <module name="air_data"/>
     <module name="actuators" type="disco"/>
     <!--<module name="control" type="new"/>-->
     <module name="stabilization" type="indi">

@@ -125,9 +125,6 @@
         <define name="SDP3X_PRESSURE_SCALE" value="SDP3X_SCALE_PRESSURE_SDP33"/>
         <define name="SDP3X_PRESSURE_OFFSET" value="0.0"/>
         <define name="SDP3X_AIRSPEED_SCALE" value="1.6327"/>
-        <define name="SDP3X_LOWPASS_TAU" value="0.15"/>
-        <!--<define name="USE_AIRSPEED_LOWPASS_FILTER" value="FALSE">-->
-        <define name="USE_AIRSPEED_SDP3X" value="TRUE"/>
       </module>
 
       <module name="actuators" type="pwm"/>
@@ -264,7 +261,6 @@
 
     <module name="geo_mag"/>
 
-    <module name="air_data"/>
 
     <module name="navigation"/>
     <!--<module name="nav" type="drop"/>-->
@@ -666,12 +662,6 @@
     <define name="HEIGHT_MIN" value="50." unit="m"/>
     <define name="HEIGHT_MAX" value="120." unit="m"/>
     <define name="RADIUS_MIN" value="70." unit="m"/>
-  </section>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="TRUE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
   <!-- Can as well be your handlaunch, a.k.a. the human catapult ;) -->

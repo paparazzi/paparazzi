@@ -25,8 +25,8 @@
 #include "std.h"
 #include "mcu_periph/i2c.h"
 #include "modules/sensors/airspeed_sdp3x.h"
-#include "filters/low_pass_filter.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
@@ -34,19 +34,6 @@
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
-#endif
-
-#ifndef USE_AIRSPEED_SDP3X
-#if USE_AIRSPEED
-#define USE_AIRSPEED_SDP3X TRUE
-PRINT_CONFIG_MSG("USE_AIRSPEED_SDP3X set to TRUE since this is set USE_AIRSPEED")
-#endif
-#endif
-
-/** Use low pass filter on pressure values
- */
-#ifndef USE_AIRSPEED_LOWPASS_FILTER
-#define USE_AIRSPEED_LOWPASS_FILTER TRUE
 #endif
 
 /** Commands and scales
@@ -105,19 +92,8 @@ PRINT_CONFIG_VAR(SDP3X_PRESSURE_OFFSET)
 #define SDP3X_AIRSPEED_SCALE 1.6327
 #endif
 
-/** Time constant for second order Butterworth low pass filter
- * Default of 0.15 should give cut-off freq of 1/(2*pi*tau) ~= 1Hz
- */
-#ifndef SDP3X_LOWPASS_TAU
-#define SDP3X_LOWPASS_TAU 0.15
-#endif
-
 struct AirspeedSdp3x sdp3x;
 static struct i2c_transaction sdp3x_trans;
-
-#ifdef USE_AIRSPEED_LOWPASS_FILTER
-static Butterworth2LowPass sdp3x_filter;
-#endif
 
 static bool sdp3x_crc(const uint8_t data[], unsigned size, uint8_t checksum)
 {
@@ -161,20 +137,10 @@ void sdp3x_init(void)
   sdp3x.pressure_scale = SDP3X_PRESSURE_SCALE;
   sdp3x.pressure_offset = SDP3X_PRESSURE_OFFSET;
   sdp3x.airspeed_scale = SDP3X_AIRSPEED_SCALE;
-  sdp3x.autoset_offset = false;
   sdp3x.sync_send = SDP3X_SYNC_SEND;
   sdp3x.initialized = false;
 
   sdp3x_trans.status = I2CTransDone;
-  // setup low pass filter with time constant and 100Hz sampling freq
-#ifdef USE_AIRSPEED_LOWPASS_FILTER
-  init_butterworth_2_low_pass(&sdp3x_filter, SDP3X_LOWPASS_TAU,
-                              SDP3X_PERIODIC_PERIOD, 0);
-#endif
-
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, sdp3x_downlink); // FIXME
-#endif
 }
 
 void sdp3x_periodic(void)
@@ -196,16 +162,12 @@ void sdp3x_periodic(void)
   }
 }
 
-#define AUTOSET_NB_MAX 20
-
 void sdp3x_event(void)
 {
   /* Check if transaction is succesfull */
   if (sdp3x_trans.status == I2CTransSuccess) {
 
     if (sdp3x.initialized) {
-      static int autoset_nb = 0;
-      static float autoset_offset = 0.f;
       uint8_t buf[6];
       for (uint8_t i = 0; i < 6; i++) {
         buf[i] = sdp3x_trans.buf[i];
@@ -223,37 +185,18 @@ void sdp3x_event(void)
 
       float p_out = ((float)p_raw / sdp3x.pressure_scale) - sdp3x.pressure_offset;
 
-#ifdef USE_AIRSPEED_LOWPASS_FILTER
-      sdp3x.pressure = update_butterworth_2_low_pass(&sdp3x_filter, p_out);
-#else
       sdp3x.pressure = p_out;
-#endif
-
-      if (sdp3x.autoset_offset) {
-        if (autoset_nb < AUTOSET_NB_MAX) {
-          autoset_offset += (float)p_raw / sdp3x.pressure_scale;
-          autoset_nb++;
-        } else {
-          sdp3x.pressure_offset = autoset_offset / (float)autoset_nb;
-          autoset_offset = 0.f;
-          autoset_nb = 0;
-          sdp3x.autoset_offset = false;
-        }
-      }
 
       int16_t t_raw = ((int16_t)(buf[3]) << 8) | (int16_t)(buf[4]);
       sdp3x.temperature = (float)t_raw / SDP3X_SCALE_TEMPERATURE;
 
-      // Send (differential) pressure via ABI
-      AbiSendMsgBARO_DIFF(SDP3X_SENDER_ID, sdp3x.pressure);
+      // Send (differential) pressure via ABI, air_data zeroes it and computes the airspeed
+      AbiSendMsgBARO_DIFF_RAW(SDP3X_SENDER_ID, get_sys_time_usec(), sdp3x.pressure);
       // Send temperature as float in deg Celcius via ABI
-      AbiSendMsgTEMPERATURE(SDP3X_SENDER_ID, sdp3x.temperature);
+      AbiSendMsgTEMPERATURE_RAW(SDP3X_SENDER_ID, get_sys_time_usec(), sdp3x.temperature, TEMPERATURE_TYPE_DIFF);
       // Compute airspeed
       sdp3x.airspeed = sqrtf(Max(sdp3x.pressure * sdp3x.airspeed_scale, 0));
 
-#if USE_AIRSPEED_SDP3X
-      AbiSendMsgAIRSPEED(AIRSPEED_SDP3X_ID, sdp3x.airspeed);
-#endif
       if (sdp3x.sync_send) {
         sdp3x_downlink(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
       }

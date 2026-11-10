@@ -27,7 +27,6 @@
 
     <module name="ahrs" type="float_dcm"/>
     <module name="ins" type="alt_float"/>
-    <module name="air_data"/>
 
     <module name="telemetry" type="xbee_api"/>
 

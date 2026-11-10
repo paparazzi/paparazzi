@@ -52,7 +52,6 @@
     <module name="ins" type="ekf2"/>
     <!--module name="ins"/>
     <module name="ahrs" type="int_cmpl_quat"/-->
-    <module name="air_data"/>
 
     <module name="actuators" type="pwm"/>
     <module name="switch" type="servo"/>
