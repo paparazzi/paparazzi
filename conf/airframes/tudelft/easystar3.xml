@@ -67,7 +67,6 @@
     </module>
     <module name="ins" type="ekf2"/>
 
-    <module name="air_data"/>
     <module name="actuators" type="pwm"/>
     <module name="stabilization" type="indi">
       <define name="WLS_N_U_MAX" value="4"/>

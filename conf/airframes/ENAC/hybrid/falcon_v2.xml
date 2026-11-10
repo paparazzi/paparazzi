@@ -63,7 +63,6 @@
       <define name="SDP3X_i2C_DEV" value="i2c2"/>
       <define name="SDP3X_PRESSURE_SCALE" value="7.0"/>
       <define name="SDP3X_PRESSURE_OFFSET" value="0.0"/>
-      <define name="USE_AIRSPEED_SDP3X" value="TRUE"/>
     </module>
 
     <!--module name="board" type="tawaki">
