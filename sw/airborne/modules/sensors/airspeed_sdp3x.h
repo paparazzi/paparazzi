@@ -34,7 +34,6 @@ struct AirspeedSdp3x {
   float airspeed_scale;        ///< Quadratic scale factor to convert (differential) pressure to airspeed
   float pressure_scale;        ///< Scaling factor from raw measurement to Pascal
   float pressure_offset;       ///< Offset in Pascal
-  bool autoset_offset;         ///< Set offset value from current filtered value
   bool sync_send;              ///< Flag to enable sending every new measurement via telemetry for debugging purpose
   bool initialized;            ///< init flag
   uint16_t raw_p;              ///< raw value from chip

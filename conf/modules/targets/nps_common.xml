@@ -10,7 +10,7 @@
     </description>
   </doc>
   <dep>
-    <depends>math</depends>
+    <depends>math,air_data</depends>
   </dep>
   <makefile target="sim|nps|hitl">
     <configure name="BARO_PERIODIC_FREQUENCY" default="50"/>

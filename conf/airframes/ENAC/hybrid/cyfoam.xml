@@ -68,7 +68,6 @@
 
     <!--<module name="servo_tester"/>-->
 
-    <module name="air_data"/>
     <module name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
