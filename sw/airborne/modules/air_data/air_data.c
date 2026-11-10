@@ -41,8 +41,9 @@
 #include <string.h>
 
 /** Calibration of the sensors in the airframe, for example
- * <define name="DIFF_CALIB" value="{{.abi_id=MS45XX_SENDER_ID, .calibrated={.offset=true}, .offset=12.3}}"/>
+ * <define name="DIFF_CALIB" value="{{.abi_id=MS45XX_SENDER_ID, .calibrated={.offset=true}, .offset=12.3, .filter_freq=2}}"/>
  * in a section with prefix AIR_DATA_. The order sets the priority of the automatic selection.
+ * Without .filter_freq the default filter of the type (AIR_DATA_*_FILTER_FREQ) is used, negative for no filter.
  */
 #ifndef AIR_DATA_BARO_CALIB
 #define AIR_DATA_BARO_CALIB {}
@@ -55,6 +56,24 @@
 #endif
 #ifndef AIR_DATA_TEMP_CALIB
 #define AIR_DATA_TEMP_CALIB {}
+#endif
+
+/** Default cut-off frequency (Hz) of the low-pass filter on the raw values, 0 for no filter.
+ * A sensor in the *_CALIB sets its own with .filter_freq, negative for no filter.
+ * The filter runs at the measured rate of the sensor. The differential pressure default is
+ * the old 0.15 s time constant of the pitot drivers.
+ */
+#ifndef AIR_DATA_BARO_FILTER_FREQ
+#define AIR_DATA_BARO_FILTER_FREQ 0.f
+#endif
+#ifndef AIR_DATA_DIFF_FILTER_FREQ
+#define AIR_DATA_DIFF_FILTER_FREQ 1.f
+#endif
+#ifndef AIR_DATA_AIRSPEED_FILTER_FREQ
+#define AIR_DATA_AIRSPEED_FILTER_FREQ 0.f
+#endif
+#ifndef AIR_DATA_TEMP_FILTER_FREQ
+#define AIR_DATA_TEMP_FILTER_FREQ 0.f
 #endif
 
 /** Sensors to use (ABI id), ABI_BROADCAST for the first healthy one */
@@ -157,6 +176,49 @@ static float calib_start = 0.f;     ///< Start time of the calibration (s)
  * Sensors
  */
 
+/** Defaults of the values not set in the airframe calibration */
+static void air_data_sensor_defaults(struct air_data_sensor_t *sensors, struct air_data_sensor_t *s)
+{
+  if (s->scale == 0.f) {
+    s->scale = 1.f;
+  }
+  if (s->filter_freq == 0.f) {
+    if (sensors == air_data.baros) {
+      s->filter_freq = AIR_DATA_BARO_FILTER_FREQ;
+    } else if (sensors == air_data.diffs) {
+      s->filter_freq = AIR_DATA_DIFF_FILTER_FREQ;
+    } else if (sensors == air_data.airspeeds) {
+      // no filter on an estimate
+      s->filter_freq = AIR_DATA_IS_ESTIMATE(s->abi_id) ? 0.f : AIR_DATA_AIRSPEED_FILTER_FREQ;
+    } else {
+      s->filter_freq = AIR_DATA_TEMP_FILTER_FREQ;
+    }
+  }
+}
+
+/** (Re)initialize the low-pass filter with the measured interval, from its last output if running */
+static void air_data_filter_init(struct air_data_sensor_t *s, float value)
+{
+  // the bilinear transform needs a cut-off below the Nyquist frequency
+  float freq = Min(s->filter_freq, 0.4f / s->dt);
+  float init = (s->filter_dt > 0.f) ? get_butterworth_2_low_pass(&s->filter) : value;
+  init_butterworth_2_low_pass(&s->filter, 1.f / (2.f * M_PI * freq), s->dt, init);
+  s->filter_dt = s->dt;
+}
+
+/** Low-pass filter of a raw value, the filter follows the rate of the sensor */
+static float air_data_sensor_filter(struct air_data_sensor_t *s, float raw)
+{
+  if (s->filter_freq <= 0.f || s->dt <= 0.f) {
+    s->filter_dt = 0.f;
+    return raw;
+  }
+  if (s->filter_dt <= 0.f || fabsf(s->dt - s->filter_dt) > 0.2f * s->filter_dt) {
+    air_data_filter_init(s, raw);
+  }
+  return update_butterworth_2_low_pass(&s->filter, raw);
+}
+
 struct air_data_sensor_t *air_data_get_sensor(struct air_data_sensor_t *sensors, uint8_t abi_id, bool create)
 {
   if (abi_id == ABI_DISABLE || abi_id == ABI_BROADCAST) {
@@ -172,9 +234,7 @@ struct air_data_sensor_t *air_data_get_sensor(struct air_data_sensor_t *sensors,
     for (uint8_t i = 0; i < AIR_DATA_MAX_SENSORS; i++) {
       if (sensors[i].abi_id == ABI_DISABLE) {
         sensors[i].abi_id = abi_id;
-        if (sensors[i].scale == 0.f) {
-          sensors[i].scale = 1.f;
-        }
+        air_data_sensor_defaults(sensors, &sensors[i]);
         return &sensors[i];
       }
     }
@@ -190,7 +250,7 @@ static void air_data_sensor_update(struct air_data_sensor_t *s, uint32_t stamp, 
     s->dt = (s->dt > 0.f) ? 0.9f * s->dt + 0.1f * dt : dt;
   }
   s->raw = raw;
-  s->value = (raw - s->offset) * s->scale;
+  s->value = (air_data_sensor_filter(s, raw) - s->offset) * s->scale;
   s->stamp = stamp;
   s->time = now;
   if (calib_running) {
@@ -388,6 +448,7 @@ static void diff_raw_cb(uint8_t sender_id, uint32_t stamp, float pressure)
   struct air_data_sensor_t *sel = air_data_select_airspeed(now);
   air_data.airspeed_used = (sel != NULL) ? sel->abi_id : ABI_DISABLE;
   if (sel == s) {
+    air_data.airspeed_filter = Max(s->filter_freq, 0.f);
     air_data.differential = s->value;
     AbiSendMsgBARO_DIFF(AIR_DATA_SENDER_ID, s->value);
     air_data_set_airspeed(eas_from_dynamic_pressure(s->value), true);
@@ -414,6 +475,7 @@ static void airspeed_raw_cb(uint8_t sender_id, uint32_t stamp, float eas)
   struct air_data_sensor_t *sel = air_data_select_airspeed(now);
   air_data.airspeed_used = (sel != NULL) ? sel->abi_id : ABI_DISABLE;
   if (sel == s) {
+    air_data.airspeed_filter = Max(s->filter_freq, 0.f);
     // an estimate isn't sent, the estimators (e.g. ins_ekf2) would fuse it
     air_data_set_airspeed(s->value, !AIR_DATA_IS_ESTIMATE(sender_id));
   }
@@ -520,6 +582,22 @@ void air_data_Calibrate(bool calibrate)
 {
   if (calibrate && !calib_running) {
     air_data_start_calibration(false);
+  }
+}
+
+void air_data_SetAirspeedFilter(float freq)
+{
+  struct air_data_sensor_t *s = air_data_get_sensor(air_data.diffs, air_data.airspeed_used, false);
+  if (s == NULL) {
+    s = air_data_get_sensor(air_data.airspeeds, air_data.airspeed_used, false);
+  }
+  if (s == NULL) {
+    return;
+  }
+  s->filter_freq = (freq > 0.f) ? freq : -1.f;
+  air_data.airspeed_filter = Max(s->filter_freq, 0.f);
+  if (s->filter_freq > 0.f && s->filter_dt > 0.f) {
+    air_data_filter_init(s, s->raw);
   }
 }
 
@@ -633,11 +711,11 @@ static void send_amsl(struct transport_tx *trans, struct link_device *dev)
 void air_data_init(void)
 {
   /* the sensors of the airframe calibration, the settings are statically initialized */
-  for (uint8_t i = 0; i < AIR_DATA_MAX_SENSORS; i++) {
-    struct air_data_sensor_t *sensors[] = {&air_data.baros[i], &air_data.diffs[i], &air_data.airspeeds[i], &air_data.temps[i]};
-    for (uint8_t k = 0; k < 4; k++) {
-      if (sensors[k]->scale == 0.f) {
-        sensors[k]->scale = 1.f;
+  struct air_data_sensor_t *sensors[] = {air_data.baros, air_data.diffs, air_data.airspeeds, air_data.temps};
+  for (uint8_t k = 0; k < 4; k++) {
+    for (uint8_t i = 0; i < AIR_DATA_MAX_SENSORS; i++) {
+      if (sensors[k][i].abi_id != ABI_DISABLE) {
+        air_data_sensor_defaults(sensors[k], &sensors[k][i]);
       }
     }
   }

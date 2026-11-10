@@ -39,21 +39,6 @@
 #define AIRSPEED_UAVCAN_DIFF_P_SCALE 1.0f
 #endif
 
-/* Airspeed lowpass filter*/
-#ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
-#include "filters/low_pass_filter.h"
-
-#ifndef AIRSPEED_UAVCAN_LOWPASS_TAU
-#define AIRSPEED_UAVCAN_LOWPASS_TAU 0.15
-#endif
-
-#ifndef AIRSPEED_UAVCAN_LOWPASS_PERIOD
-#define AIRSPEED_UAVCAN_LOWPASS_PERIOD 0.1
-#endif
-
-static Butterworth2LowPass airspeed_filter;
-#endif  /* USE_AIRSPEED_UAVCAN_LOWPASS_FILTER */
-
 /* Local variables */
 struct airspeed_uavcan_t airspeed_uavcan = {0};
 static uavcan_event airspeed_uavcan_ev;
@@ -71,16 +56,8 @@ static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unuse
 
 
   if(!isnan(diff_p)) {
-    // Apply a scaling factor, air_data zeroes it and computes the airspeed
-    diff_p *= airspeed_uavcan.diff_p_scale;
-
-    // Filtering
-#ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
-    float diff_p_filt = update_butterworth_2_low_pass(&airspeed_filter, diff_p);
-    airspeed_uavcan.diff_p = diff_p_filt;
-#else
-    airspeed_uavcan.diff_p = diff_p;
-#endif
+    // Apply a scaling factor, air_data filters and zeroes it and computes the airspeed
+    airspeed_uavcan.diff_p = diff_p * airspeed_uavcan.diff_p_scale;
 
     // Send the ABI message
 #if AIRSPEED_UAVCAN_SEND_ABI
@@ -100,11 +77,6 @@ void airspeed_uavcan_init(void)
 {
   // Set the default values
   airspeed_uavcan.diff_p_scale = AIRSPEED_UAVCAN_DIFF_P_SCALE;
-
-  // Setup the low pass filter
-#ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
-  init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_UAVCAN_LOWPASS_TAU, AIRSPEED_UAVCAN_LOWPASS_PERIOD, 0);
-#endif
 
   // Bind uavcan RAWAIRDATA message from EQUIPMENT.AIR_DATA
   uavcan_bind(UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID, UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE, &airspeed_uavcan_ev, &airspeed_uavcan_cb);
