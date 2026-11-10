@@ -200,6 +200,9 @@ static void send_gps_relpos(struct transport_tx *trans, struct link_device *dev)
 
 static void send_gps_int(struct transport_tx *trans, struct link_device *dev)
 {
+  // ECEF from the LLA position and NED velocity when the receiver doesn't send it
+  struct EcefCoor_i ecef_pos = ecef_int_from_gps(&gps);
+  struct EcefCoor_i ecef_vel = ecef_vel_int_from_gps(&gps);
 #if PPRZLINK_DEFAULT_VER == 2 && GPS_POS_BROADCAST
   // broadcast GPS message
   struct pprzlink_msg msg;
@@ -212,10 +215,10 @@ static void send_gps_int(struct transport_tx *trans, struct link_device *dev)
 #else
   pprz_msg_send_GPS_INT(trans, dev, AC_ID,
 #endif
-                        &gps.ecef_pos.x, &gps.ecef_pos.y, &gps.ecef_pos.z,
+                        &ecef_pos.x, &ecef_pos.y, &ecef_pos.z,
                         &gps.lla_pos.lat, &gps.lla_pos.lon, &gps.lla_pos.alt,
                         &gps.hmsl,
-                        &gps.ecef_vel.x, &gps.ecef_vel.y, &gps.ecef_vel.z,
+                        &ecef_vel.x, &ecef_vel.y, &ecef_vel.z,
                         &gps.pacc, &gps.sacc,
                         &gps.tow,
                         &gps.pdop,

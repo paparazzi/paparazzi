@@ -465,7 +465,6 @@
 
     <section name="EKF2" prefix="INS_EKF2_">
         <define name="GPS_YAW_OFFSET" value="0"/>
-        <define name="GPS_ANTENNA_DISTANCE" value="1.02"/>
 
         <define name="IMU_POS_X" value="0.0"/>
         <define name="IMU_POS_Y" value="0.0"/>

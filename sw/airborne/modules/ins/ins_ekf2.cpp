@@ -66,7 +66,10 @@ using namespace estimator;
 #error "INS_EKF2_SONAR_* and RANGE_MAIN_AGL are replaced by INS_EKF2_RNG_MIN_DIST, RNG_MAX_DIST and RNG_CTRL"
 #endif
 #if defined(INS_EKF2_RELHEADING_DISTANCE) || defined(INS_EKF2_RELHEADING_ERR) || defined(INS_EKF2_GPS_COURSE_YAW)
-#error "INS_EKF2_RELHEADING_DISTANCE/_ERR and GPS_COURSE_YAW are replaced by INS_EKF2_GPS_ANTENNA_DISTANCE/_ERR and the EKF-GSF yaw estimator (yaw from the GNSS velocity)"
+#error "INS_EKF2_RELHEADING_DISTANCE/_ERR and GPS_COURSE_YAW are replaced by GPS_UBX_HEADING_BASELINE/_TOL (gps_ublox) and the EKF-GSF yaw estimator (yaw from the GNSS velocity)"
+#endif
+#if defined(INS_EKF2_GPS_ANTENNA_DISTANCE) || defined(INS_EKF2_GPS_ANTENNA_DISTANCE_ERR)
+#error "INS_EKF2_GPS_ANTENNA_DISTANCE/_ERR are replaced by GPS_UBX_HEADING_BASELINE/_TOL in the gps_ublox module, which drops the heading itself"
 #endif
 
 /** INS reference from flight plan, true by default */
@@ -314,11 +317,6 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_POS_Z)
 #define INS_EKF2_GPS_YAW_NOISE 0.1f
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_YAW_NOISE)
-
-/* Maximum difference between the measured and the configured (INS_EKF2_GPS_ANTENNA_DISTANCE) dual antenna distance (m), the heading is not used otherwise */
-#ifndef INS_EKF2_GPS_ANTENNA_DISTANCE_ERR
-#define INS_EKF2_GPS_ANTENNA_DISTANCE_ERR 0.2
-#endif
 
 #ifdef INS_EXT_VISION_ROTATION
 struct FloatQuat ins_ext_vision_rot;
@@ -1795,9 +1793,6 @@ static void relpos_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp,
   if (
 #ifdef INS_EKF2_RELHEADING_REF_ID
     relpos->reference_id != INS_EKF2_RELHEADING_REF_ID ||
-#endif
-#ifdef INS_EKF2_GPS_ANTENNA_DISTANCE
-    fabs(relpos->distance - INS_EKF2_GPS_ANTENNA_DISTANCE) > INS_EKF2_GPS_ANTENNA_DISTANCE_ERR ||
 #endif
     !PX4_ISFINITE(relpos->heading)
   ) {
