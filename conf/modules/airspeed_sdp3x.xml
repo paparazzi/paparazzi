@@ -12,7 +12,6 @@
     <define name="SDP3X_PRESSURE_SCALE" value="1.0" description="pressure scaling factor to convert raw output to Pa (default: set according to pressure range and output type according to datasheet)"/>
     <define name="SDP3X_PRESSURE_OFFSET" value="0.0" description="pressure offset in Pa (default: set according to pressure range and output type according to datasheet)"/>
     <define name="SDP3X_AIRSPEED_SCALE" value="1.6327" description="quadratic scale factor to convert differential pressure to airspeed, only for SDP3X_SYNC_SEND"/>
-    <define name="SDP3X_LOWPASS_TAU" value="0.15" description="Time constant for second order Butterworth low pass filter, cut-off freq of 1/(2*pi*tau) ~= 1Hz"/>
   </doc>
 
   <settings>

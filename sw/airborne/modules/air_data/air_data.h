@@ -32,6 +32,7 @@
 #define AIR_DATA_H
 
 #include "std.h"
+#include "filters/low_pass_filter.h"
 #include "pprzlink/pprzlink_device.h"
 #include "pprzlink/pprzlink_transport.h"
 
@@ -63,6 +64,9 @@ struct air_data_sensor_t {
   float dt;                           ///< Filtered interval between the values (s), for the health check
   float calib_sum;                    ///< Sum of the raw values while calibrating
   uint16_t calib_cnt;                 ///< Number of raw values while calibrating
+  float filter_freq;                  ///< Low-pass filter cut-off frequency (Hz), negative for no filter
+  float filter_dt;                    ///< Interval the filter is set up for (s), 0 if not running
+  Butterworth2LowPass filter;         ///< Low-pass filter of the raw value
 };
 
 /** Air Data structure */
@@ -80,6 +84,7 @@ struct AirData {
   uint8_t temp_used;    ///< Temperature in use (ABI id), ABI_DISABLE if none
   uint8_t baro_send_id;     ///< Barometer in the BARO_RAW telemetry (ABI id), ABI_BROADCAST for all in turn, ABI_DISABLE for none
   uint8_t airspeed_send_id; ///< Airspeed sensor in the AIRSPEED_RAW telemetry (ABI id), ABI_BROADCAST for all in turn, ABI_DISABLE for none
+  float airspeed_filter;    ///< Low-pass filter cut-off frequency (Hz) of the airspeed sensor in use, 0 for no filter
 
   bool calibrate;       ///< Calibrate all sensors (zero the differential pressures, line up the barometers), true while running
   bool calib_armed;     ///< Allow the calibration while the motors are armed
@@ -120,6 +125,8 @@ extern void air_data_periodic(void);
  * Refused while the motors are armed, unless #AirData.calib_armed.
  */
 extern void air_data_Calibrate(bool calibrate);
+
+extern void air_data_SetAirspeedFilter(float freq);
 
 /** Find (or create) the sensor of an ABI id.
  * @param sensors The sensors (air_data.baros, diffs, airspeeds or temps)

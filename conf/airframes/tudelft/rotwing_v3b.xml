@@ -81,15 +81,9 @@
         <module name="airspeed" type="ms45xx_i2c">
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
             <define name="MS45XX_PRESSURE_SCALE"        value="1.9077609"/>
-            <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
-            <define name="MS45XX_LOWPASS_TAU"           value="0.25"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
         </module>
-        <module name="airspeed" type="uavcan">
-            <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER"   value="TRUE" />
-            <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD"   value="0.1" />
-            <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
-        </module>
+        <module name="airspeed" type="uavcan"/>
         <module name="air_data">
             <define name="AIR_DATA_AIRSPEED_ID" value="MS45XX_SENDER_ID"/> <!-- Use the uavcan airspeed only when the MS45XX fails -->
         </module>
@@ -228,6 +222,11 @@
         <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(9, -9600)) : actuators_pprz[2])" SERVO="BMOTOR_BACK"/>
         <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(10, -9600)) : actuators_pprz[3])" SERVO="BMOTOR_LEFT"/>
     </command_laws>
+
+    <section name="AIR_DATA" prefix="AIR_DATA_">
+        <!-- Low-pass cut-off (Hz) per pitot (was a time constant of 0.25 s and 0.15 s), the order is also the priority -->
+        <define name="DIFF_CALIB" value="{{.abi_id=MS45XX_SENDER_ID, .filter_freq=0.64}, {.abi_id=UAVCAN_SENDER_ID, .filter_freq=1.06}}"/>
+    </section>
 
     <section PREFIX="SYS_ID_" NAME="SYS_ID">
         <define name="DOUBLET_AXES" value="{0,1,2,3,4,5,6,7,8}"/>
