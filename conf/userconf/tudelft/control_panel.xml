@@ -227,7 +227,12 @@
 
     <session name="PythonTools">
       <program name="IridiumDialer"/>
-      <program name="PayloadForward"/>
+      <program name="Ivy2Udp">
+        <arg flag="-payload_only"/>
+        <arg flag="-id" constant="@AC_ID"/>
+        <arg flag="-h" constant="127.0.0.1"/>
+        <arg flag="-p" constant="32000"/>
+      </program>
       <program name="SVInfo"/>
       <program name="IridiumDialer"/>
     </session>
@@ -404,7 +409,6 @@
       <program name="Settings (Python)">
         <arg constant="@AC_ID" flag="--ac_id" />
       </program>
-      <program name="AeronauticalInfo"/>
       <program name="RotWingStatus"/>
     </session>
 
