@@ -53,7 +53,7 @@
 #endif
 
 // Global variables
-uint16_t pBaroRaw;
+static uint16_t pBaroRaw;
 bool baro_hca_valid;
 float baro_hca_p;
 

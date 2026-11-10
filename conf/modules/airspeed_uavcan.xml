@@ -15,7 +15,7 @@
   <settings>
     <dl_settings>
       <dl_settings name="Airspeed UAVCAN">
-        <dl_setting shortname="diff_p scale" var="airspeed_uavcan.diff_p_scale" min="0" max="1" step="0.01" type="float" param="AIRSPEED_UAVCAN_DIFF_P_SCALE"/>
+        <dl_setting shortname="diff_p scale" var="airspeed_uavcan.diff_p_scale" min="0.5" max="2" step="0.01" type="float" param="AIRSPEED_UAVCAN_DIFF_P_SCALE"/>
       </dl_settings>
     </dl_settings>
   </settings>

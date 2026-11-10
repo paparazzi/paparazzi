@@ -60,12 +60,6 @@
 #define TEMPERATURE_AMSYS_MIN -25
 #endif
 
-#ifndef USE_AIRSPEED_AMSYS
-#if USE_AIRSPEED
-#define USE_AIRSPEED_AMSYS TRUE
-PRINT_CONFIG_MSG("USE_AIRSPEED_AMSYS automatically set to TRUE")
-#endif
-#endif
 
 
 
@@ -78,7 +72,7 @@ float airspeed_amsys_tmp;
 float airspeed_amsys_p; //Pascal
 float airspeed_amsys; //mps
 float airspeed_scale;
-float airspeed_filter;
+float airspeed_amsys_filter;
 struct i2c_transaction airspeed_amsys_i2c_trans;
 
 // Local variables
@@ -102,7 +96,7 @@ void airspeed_amsys_init(void)
   airspeed_amsys_valid = true;
   airspeed_amsys_offset_init = false;
   airspeed_scale = AIRSPEED_AMSYS_SCALE;
-  airspeed_filter = AIRSPEED_AMSYS_FILTER;
+  airspeed_amsys_filter = AIRSPEED_AMSYS_FILTER;
   airspeed_amsys_i2c_trans.status = I2CTransDone;
   airspeed_amsys_cnt = AIRSPEED_AMSYS_OFFSET_NBSAMPLES_INIT +
                        AIRSPEED_AMSYS_OFFSET_NBSAMPLES_AVRG;
@@ -186,14 +180,12 @@ void airspeed_amsys_read_event(void)
       // convert pressure to airspeed
       airspeed_amsys_tmp = sqrtf(2 * airspeed_amsys_p * airspeed_scale / 1.2041);
       // Lowpassfiltering
-      airspeed_amsys = airspeed_filter * airspeed_old +
-                       (1.0 - airspeed_filter) * airspeed_amsys_tmp;
+      airspeed_amsys = airspeed_amsys_filter * airspeed_old +
+                       (1.0 - airspeed_amsys_filter) * airspeed_amsys_tmp;
       airspeed_old = airspeed_amsys;
 
       //New value available, air_data calibrates it and sets the airspeed
-#if USE_AIRSPEED_AMSYS
       AbiSendMsgAIRSPEED_RAW(AIRSPEED_AMSYS_ID, get_sys_time_usec(), airspeed_amsys);
-#endif
     }
 
   }

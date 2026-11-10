@@ -27,12 +27,15 @@
     <define name="AIR_DATA_AIRSPEED_ID" value="ABI_SENDER_ID" description="differential pressure or airspeed sensor to use (default: ABI_BROADCAST, the first healthy one)"/>
     <define name="AIR_DATA_TEMP_ID" value="ABI_SENDER_ID" description="temperature to use (default: ABI_BROADCAST, an air temperature probe, then a pitot, then a barometer)"/>
     <define name="AIR_DATA_SEND_ALL_SENSORS" value="FALSE|TRUE" description="also send every calibrated sensor with its own ABI id (default: FALSE)"/>
-    <define name="AIR_DATA_TIMEOUT" value="0.5" description="a sensor is unhealthy without a valid value for this time in s"/>
+    <define name="AIR_DATA_TIMEOUT" value="0.5" description="minimum time in s without a valid value before a sensor is unhealthy"/>
+    <define name="AIR_DATA_TIMEOUT_FACTOR" value="5." description="a sensor is unhealthy without a valid value for this times its interval"/>
+    <define name="AIR_DATA_ALIGN_NB" value="20" description="number of values to line up a barometer that starts after the calibration"/>
+    <define name="AIR_DATA_DIFF_MAX" value="10000." description="differential pressures above this (Pa) are ignored"/>
     <define name="AIR_DATA_CALIB_AT_BOOT" value="TRUE|FALSE" description="calibrate at boot (default: TRUE)"/>
     <define name="AIR_DATA_CALIB_BOOT_DELAY" value="3." description="time after boot of the calibration in s"/>
     <define name="AIR_DATA_CALIB_TIME" value="2." description="calibration time in s"/>
     <define name="AIR_DATA_CALIB_ARMED" value="FALSE|TRUE" description="allow the calibration while armed (default: FALSE)"/>
-    <define name="USE_AIRSPEED_AIR_DATA" value="TRUE|FALSE" description="set airspeed in state interface (defaults to TRUE if USE_AIRSPEED)"/>
+    <define name="USE_AIRSPEED_AIR_DATA" value="TRUE|FALSE" description="set airspeed in state interface (default: TRUE)"/>
   </doc>
   <settings>
     <dl_settings>

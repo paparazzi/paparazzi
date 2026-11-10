@@ -60,6 +60,7 @@ struct air_data_sensor_t {
   float value;                        ///< Last calibrated value (Pa, m/s or deg Celcius)
   uint32_t stamp;                     ///< Driver timestamp of the last value (us)
   float time;                         ///< System time of the last valid value (s), 0 if never
+  float dt;                           ///< Filtered interval between the values (s), for the health check
   float calib_sum;                    ///< Sum of the raw values while calibrating
   uint16_t calib_cnt;                 ///< Number of raw values while calibrating
 };

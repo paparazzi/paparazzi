@@ -69,7 +69,7 @@
 
 
 // Global variables
-uint16_t pBaroRaw;
+static uint16_t pBaroRaw;
 uint16_t tBaroRaw;
 uint16_t baro_amsys_adc;
 float baro_amsys_offset;

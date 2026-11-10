@@ -98,7 +98,7 @@ void baro_scp_event(void)
       baro_scp_pressure *= 25;
 
       uint32_t now_ts = get_sys_time_usec();
-      float pressure = (float) baro_scp_pressure;
+      float pressure = (float) baro_scp_pressure / 100.f; // 0.01 Pa to Pa
       AbiSendMsgBARO_ABS_RAW(BARO_SCP_SENDER_ID, now_ts, pressure);
 
       baro_scp_status = BARO_SCP_IDLE;

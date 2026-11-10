@@ -53,17 +53,6 @@
 #include "modules/datalink/telemetry.h"
 #endif
 
-#ifndef USE_AIRSPEED_ETS
-#if USE_AIRSPEED
-#define USE_AIRSPEED_ETS TRUE
-PRINT_CONFIG_MSG("USE_AIRSPEED_ETS automatically set to TRUE")
-#endif
-#endif
-
-#if !USE_AIRSPEED_ETS
-PRINT_CONFIG_MSG("AIRSPEED_ETS not used")
-#endif
-
 #define AIRSPEED_ETS_ADDR 0xEA
 
 #ifndef AIRSPEED_ETS_SCALE
@@ -278,10 +267,8 @@ void airspeed_ets_read_event(void)
       airspeed_ets = 0.0;   
     }
 
-#if USE_AIRSPEED_ETS
     // Publish airspeed sensor, air_data calibrates it and sets the airspeed
     AbiSendMsgAIRSPEED_RAW(AIRSPEED_ETS_ID, get_sys_time_usec(), airspeed_ets);
-#endif
   } else {
     airspeed_ets = 0.0;
   }
