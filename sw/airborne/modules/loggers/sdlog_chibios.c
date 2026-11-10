@@ -90,6 +90,10 @@ static const char PPRZ_LOG_DIR[] = "PPRZ";
 #endif
 /** Result of writing the configuration, reported to the GCS */
 static volatile SdioError sdlog_conf_error = SDLOG_OK;
+// Error of the start step that failed, the storage status can be changed later by other calls
+static volatile SdioError sdlog_start_error = SDLOG_OK;
+static const char *sdlog_start_step = "";
+static volatile uint8_t sdlog_start_fatfs = 0;
 
 /*
  * Start log thread
@@ -130,7 +134,7 @@ static struct preflight_check_t sdlog_pfc;
 static void sdlog_preflight(struct preflight_result_t *result) {
   if(chibios_sdlog_status != SDLOG_RUNNING) {
     const char *cause = (chibios_sdlog_status == SDLOG_STOPPED) ? "not started yet" :
-                        sdlog_error_string(sdLogGetStorageStatus());
+                        sdlog_error_string(sdlog_start_error != SDLOG_OK ? sdlog_start_error : sdLogGetStorageStatus());
 #ifdef SDLOG_PREFLIGHT_ERROR
     preflight_error(result, "SD log not running: %s", cause);
 #else
@@ -161,13 +165,12 @@ static void sdlog_report_status(struct transport_tx *trans, struct link_device *
   reported = status;
   char msg[120];
   if (status == SDLOG_ERROR) {
-    SdioError error = sdLogGetStorageStatus();
-    uint8_t fatfs = sdLogGetFatfsResult();
-    if (fatfs != 0) {
-      // the FatFS result tells why the card could not be used
-      chsnprintf(msg, sizeof(msg), "SD log error: %s (FatFS %d)", sdlog_error_string(error), fatfs);
+    if (sdlog_start_error != SDLOG_OK) {
+      // the start failed: the failing step and its FatFS result tell why the card could not be used
+      chsnprintf(msg, sizeof(msg), "SD log error: %s (%s, FatFS %d)", sdlog_error_string(sdlog_start_error),
+                 sdlog_start_step, sdlog_start_fatfs);
     } else {
-      chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(error));
+      chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(sdLogGetStorageStatus()));
     }
   } else if (sdlog_conf_error != SDLOG_OK) {
     chsnprintf(msg, sizeof(msg), "SD log: configuration not written: %s", sdlog_error_string(sdlog_conf_error));
@@ -345,6 +348,17 @@ static void thd_bat_survey(void *arg)
 #endif // SDLOG_ENABLE_LOWBAT_FLUSH
 #endif
 
+/** Keep why the start failed (the first failing step only) */
+static void sdlog_start_failed(const char *step, SdioError err)
+{
+  if (sdOk) {
+    sdlog_start_step = step;
+    sdlog_start_fatfs = sdLogGetFatfsResult();
+    sdlog_start_error = err;
+  }
+  sdOk = false;
+}
+
 static void thd_startlog(void *arg)
 {
   (void) arg;
@@ -364,22 +378,25 @@ static void thd_startlog(void *arg)
   // Check for init errors
   sdOk = true;
 
-  if (sdLogInit(NULL) != SDLOG_OK) {
-    sdOk = false;
+  SdioError err = sdLogInit(NULL);
+  if (err != SDLOG_OK) {
+    sdlog_start_failed("init", err);
   } else {
     removeEmptyLogs(PPRZ_LOG_DIR, PPRZ_LOG_NAME, 50);
-    if (sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR,
-                     PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
-                     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
-      sdOk = false;
+    err = sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR,
+                       PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
+                       SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename));
+    if (err != SDLOG_OK) {
+      sdlog_start_failed("open log", err);
     }
     chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), "%s", tmpFilename);
 #if FLIGHTRECORDER_SDLOG
     removeEmptyLogs(FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, 50);
-    if (sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME,
-                     SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
-                     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
-      sdOk = false;
+    err = sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME,
+                       SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
+                       SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename));
+    if (err != SDLOG_OK) {
+      sdlog_start_failed("open flight recorder", err);
     }
     chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), "%s,%s", chibios_sdlog_filenames, tmpFilename);
 #endif
