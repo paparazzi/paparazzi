@@ -194,9 +194,6 @@ Safety
         <define name="SDP3X_PRESSURE_SCALE" value="SDP3X_SCALE_PRESSURE_SDP33"/>
         <!--<define name="SDP3X_SYNC_SEND" value="TRUE"/>--> <!-- Only enable while debugging -->
       </module>
-      <module name="air_data">
-        <define name="AIR_DATA_DIFF_FILTER_FREQ" value="1.77"/> <!-- was a time constant of 0.09 s -->
-      </module>
 
       <!-- Optional alternative magnetometer driver chip on GNSS board --> 
       
@@ -432,6 +429,10 @@ Safety
     <axis name="YAW"          failsafe_value="0"/>
     <axis name="ACTIVELIGHTS" failsafe_value="0"/>
   </commands>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="DIFF_FILTER_FREQ" value="1.77"/> <!-- was a time constant of 0.09 s -->
+  </section>
 
   <section name="ServoPositions">
     <!--  Definitions terms for e.g. flightplan -->

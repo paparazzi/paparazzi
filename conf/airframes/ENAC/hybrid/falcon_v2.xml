@@ -99,9 +99,6 @@
       <define name="LIS3MDL_CHAN_Z_SIGN" value="+" />
     </module>
 
-    <module name="air_data">
-      <define name="USE_AIRSPEED_AIR_DATA" value="TRUE"/>
-    </module>
 
     <module name="stabilization" type="indi"/>
     <module name="guidance" type="indi_hybrid_tailsitter"/>

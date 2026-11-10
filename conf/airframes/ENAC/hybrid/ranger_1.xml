@@ -70,9 +70,6 @@
       <define name="RM3100_CHAN_X_SIGN" value="-"/>
     </module>
 
-    <module name="air_data">
-      <!--define name="USE_AIRSPEED_AIR_DATA" value="TRUE"/-->
-    </module>
 
     <module name="stabilization" type="indi">
       <configure name="INDI_NUM_ACT" value="4"/> <!-- only rotorcraft part for now -->

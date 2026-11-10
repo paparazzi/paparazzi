@@ -72,9 +72,6 @@
       <configure name="BMP3_I2C_DEV" value="i2c3"/>
       <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR_ALT"/>
     </module>
-    <module name="air_data">
-      <define name="AIR_DATA_BARO_ID" value="BARO_BMP3_SENDER_ID"/>
-    </module>
 
     <module name="mag" type="hmc58xx">
    <!-- <define name="MAG_TO_IMU_THETA" value="2" unit="deg"/>-->
@@ -121,6 +118,10 @@
     <servo name="BACK_RIGHT"  no="2" min="0" neutral="20" max="255"/>
     <servo name="BACK_LEFT"   no="3" min="0" neutral="20" max="255"/>
   </servos>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="BARO_ID" value="BARO_BMP3_SENDER_ID"/>
+  </section>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TYPE" value="QUAD_X"/>
