@@ -64,8 +64,8 @@ struct imu_gyro_t {
   struct FloatRates scale_f;          ///< Scaling
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame, set as imu to sensor in the airframe calibration and combined with body_to_imu at init
   struct FloatEulers body_to_sensor_f;///< Rotation from imu to sensor frame in eulers (airframe calibration, only used at init)
-  float filter_freq;                  ///< Filter frequency
-  float filter_sample_freq;           ///< Lowpass filter sample frequency (Hz)
+  float filter_freq;                  ///< Lowpass filter cutoff frequency (Hz)
+  float sample_freq;                  ///< Calibrated sample frequency (Hz) for the filter and integration, the driver rate if not set
   Butterworth2LowPass filter[3];      ///< Lowpass filter optional
   struct FloatVect3 last_delta_alpha; ///< Last integrated sample delta angle in sensor frame for the coning correction (IMU_INTEGRATION)
 };
@@ -82,8 +82,8 @@ struct imu_accel_t {
   struct FloatVect3 scale_f;          ///< Scaling
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame, set as imu to sensor in the airframe calibration and combined with body_to_imu at init
   struct FloatEulers body_to_sensor_f;///< Rotation from imu to sensor frame in eulers (airframe calibration, only used at init)
-  float filter_freq;                  ///< Lowpass filter frequency (Hz)
-  float filter_sample_freq;           ///< Lowpass filter sample frequency (Hz)
+  float filter_freq;                  ///< Lowpass filter cutoff frequency (Hz)
+  float sample_freq;                  ///< Calibrated sample frequency (Hz) for the filter and integration, the driver rate if not set
   Butterworth2LowPass filter[3];      ///< Lowpass filter optional
 };
 

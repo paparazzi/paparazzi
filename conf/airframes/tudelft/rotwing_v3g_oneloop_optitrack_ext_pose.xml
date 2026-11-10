@@ -293,8 +293,8 @@
             </field>
         </define>
 
-        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-19,0,28}, .scale={{1537,43219,6232},{157,4410,641}}, .filter_sample_freq=1127, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-1,2,33}, .scale={{21914,8531,5489},{4477,1738,1120}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-47,0,3}, .scale={{17288,29444,25808},{3531,6031,5293}}}}"/>
-        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1127, .filter_freq=30}}"/>
+        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-19,0,28}, .scale={{1537,43219,6232},{157,4410,641}}, .sample_freq=1127, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-1,2,33}, .scale={{21914,8531,5489},{4477,1738,1120}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-47,0,3}, .scale={{17288,29444,25808},{3531,6031,5293}}}}"/>
+        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .sample_freq=1127, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->
         <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>

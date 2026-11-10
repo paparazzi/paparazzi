@@ -436,27 +436,23 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
 static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data);
 static void imu_set_body_to_imu_eulers(struct FloatEulers *body_to_imu_eulers);
 
-/** Set when a lowpass filter in the airframe calibration is invalid and therefore disabled */
-static bool imu_filter_invalid = false;
-
 /**
- * @brief Initialize the lowpass filters of a sensor
- * The filter state is reset to the first sample in the raw callbacks
+ * @brief Initialize the lowpass filters of a sensor on its first sample
  * @param filter The 3 filters of the sensor
  * @param freq The cutoff frequency (Hz)
  * @param sample_freq The sample frequency (Hz)
+ * @param init The first sample to start the filters from
  * @return true if the filter is valid, false (filter disabled) if a frequency is not set or invalid
  */
-static bool imu_filter_init(Butterworth2LowPass filter[3], float freq, float sample_freq)
+static bool imu_filter_init(Butterworth2LowPass filter[3], float freq, float sample_freq, const float init[3])
 {
-  if (!(freq > 0.f) || !(sample_freq > 0.f)) {
-    imu_filter_invalid = true;
+  if (!(freq > 0.f) || !(sample_freq > 0.f) || !isfinite(sample_freq)) {
     return false;
   }
   float tau = 1.0 / (2.0 * M_PI * freq);
   float sample_time = 1.0 / sample_freq;
   for (uint8_t j = 0; j < 3; j++) {
-    init_butterworth_2_low_pass(&filter[j], tau, sample_time, 0.0);
+    init_butterworth_2_low_pass(&filter[j], tau, sample_time, init[j]);
   }
   return true;
 }
@@ -485,9 +481,6 @@ static void imu_preflight(struct preflight_result_t *result)
         && !(imu.mags[i].calibrated.neutral && imu.mags[i].calibrated.scale_f)) {
       preflight_warning(result, "IMU mag %d not calibrated", imu.mags[i].abi_id);
     }
-  }
-  if (imu_filter_invalid) {
-    preflight_warning(result, "IMU filter_freq or filter_sample_freq not set, filter disabled");
   }
   if (result->fail_cnt == fail_cnt && result->warning_cnt == warning_cnt) {
     preflight_success(result, "IMU calibrated");
@@ -558,10 +551,6 @@ void imu_init(void)
     int32_rmat_comp(&body_to_sensor, body_to_imu_rmat, &imu.gyros[i].body_to_sensor);
     RMAT_COPY(imu.gyros[i].body_to_sensor, body_to_sensor);
 
-    if(imu.gyros[i].calibrated.filter) {
-      imu.gyros[i].calibrated.filter = imu_filter_init(imu.gyros[i].filter, imu.gyros[i].filter_freq, imu.gyros[i].filter_sample_freq);
-    }
-
     /* Copy accel calibration if needed */
     if(i >= accel_calib_len) {
       imu.accels[i].abi_id = ABI_DISABLE;
@@ -604,10 +593,6 @@ void imu_init(void)
     imu.accels[i].last_stamp = 0;
     int32_rmat_comp(&body_to_sensor, body_to_imu_rmat, &imu.accels[i].body_to_sensor);
     RMAT_COPY(imu.accels[i].body_to_sensor, body_to_sensor);
-
-    if(imu.accels[i].calibrated.filter) {
-      imu.accels[i].calibrated.filter = imu_filter_init(imu.accels[i].filter, imu.accels[i].filter_freq, imu.accels[i].filter_sample_freq);
-    }
 
     /* Copy mag calibrated if needed */
     if(i >= mag_calib_len) {
@@ -782,15 +767,20 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
   if(gyro == NULL || samples < 1)
     return;
 
+  // Use the calibrated sample frequency (e.g. measured from a log) instead of the nominal one of the driver
+  if(gyro->sample_freq > 0.f) {
+    rate = gyro->sample_freq;
+  }
+
+  // Initialize the filter on the first sample, it is disabled without a valid cutoff and sample frequency
+  if(gyro->calibrated.filter && gyro->last_stamp == 0) {
+    const float init[3] = {data[0].p, data[0].q, data[0].r};
+    gyro->calibrated.filter = imu_filter_init(gyro->filter, gyro->filter_freq, rate, init);
+  }
+
   // Filter the gyro (data points to the filtered samples after the block, only allocate them if needed)
   struct Int32Rates data_filtered[gyro->calibrated.filter ? samples : 1];
   if(gyro->calibrated.filter) {
-    // Start the filter from the first sample instead of 0
-    if(gyro->last_stamp == 0) {
-      reset_butterworth_2_low_pass(&gyro->filter[0], data[0].p);
-      reset_butterworth_2_low_pass(&gyro->filter[1], data[0].q);
-      reset_butterworth_2_low_pass(&gyro->filter[2], data[0].r);
-    }
     for(uint8_t i = 0; i < samples; i++) {
       data_filtered[i].p = update_butterworth_2_low_pass(&gyro->filter[0], data[i].p);
       data_filtered[i].q = update_butterworth_2_low_pass(&gyro->filter[1], data[i].q);
@@ -860,9 +850,9 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
     float_rmat_transp_ratemult(&integrated, &body_to_sensor, &integrated_sensor);
 
     // Send the integrated values
-    // Only if dt fits in the uint16_t (us) of the ABI message (up to 65.5ms)
-    float dt = (1e6f / rate) * samples;
-    if(dt <= UINT16_MAX) {
+    // Only if dt (rounded to us) fits in the uint16_t of the ABI message (up to 65.5ms)
+    float dt = (1e6f / rate) * samples + 0.5f;
+    if(dt < UINT16_MAX + 1.f) {
       AbiSendMsgIMU_GYRO_INT(sender_id, stamp, &integrated, (uint16_t)dt);
     }
   }
@@ -891,15 +881,20 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
   if(accel == NULL || samples < 1)
     return;
 
+  // Use the calibrated sample frequency (e.g. measured from a log) instead of the nominal one of the driver
+  if(accel->sample_freq > 0.f) {
+    rate = accel->sample_freq;
+  }
+
+  // Initialize the filter on the first sample, it is disabled without a valid cutoff and sample frequency
+  if(accel->calibrated.filter && accel->last_stamp == 0) {
+    const float init[3] = {data[0].x, data[0].y, data[0].z};
+    accel->calibrated.filter = imu_filter_init(accel->filter, accel->filter_freq, rate, init);
+  }
+
   // Filter the accel (data points to the filtered samples after the block, only allocate them if needed)
   struct Int32Vect3 data_filtered[accel->calibrated.filter ? samples : 1];
   if(accel->calibrated.filter) {
-    // Start the filter from the first sample instead of 0
-    if(accel->last_stamp == 0) {
-      reset_butterworth_2_low_pass(&accel->filter[0], data[0].x);
-      reset_butterworth_2_low_pass(&accel->filter[1], data[0].y);
-      reset_butterworth_2_low_pass(&accel->filter[2], data[0].z);
-    }
     for(uint8_t i = 0; i < samples; i++) {
       data_filtered[i].x = update_butterworth_2_low_pass(&accel->filter[0], data[i].x);
       data_filtered[i].y = update_butterworth_2_low_pass(&accel->filter[1], data[i].y);
@@ -968,9 +963,9 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
     integrated.z = integrated.z * (1.f / rate);
 
     // Send the integrated values
-    // Only if dt fits in the uint16_t (us) of the ABI message (up to 65.5ms)
-    float dt = (1e6f / rate) * samples;
-    if(dt <= UINT16_MAX) {
+    // Only if dt (rounded to us) fits in the uint16_t of the ABI message (up to 65.5ms)
+    float dt = (1e6f / rate) * samples + 0.5f;
+    if(dt < UINT16_MAX + 1.f) {
       AbiSendMsgIMU_ACCEL_INT(sender_id, stamp, &integrated, (uint16_t)dt);
     }
   }
