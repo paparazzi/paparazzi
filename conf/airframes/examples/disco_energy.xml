@@ -13,8 +13,9 @@
    
     <target name="ap" board="disco">    
       <module name="radio_control" type="sbus"/>
-      <module name="airspeed" type="ms45xx_i2c">        
-        <define name="MS45XX_LOWPASS_TAU" value="0.25"/> 
+      <module name="airspeed" type="ms45xx_i2c"/>
+      <module name="air_data">
+        <define name="AIR_DATA_DIFF_FILTER_FREQ" value="0.64"/> <!-- was a time constant of 0.25 s -->
       </module>
       
       <module name="logger_file">
@@ -48,7 +49,6 @@
     <define name="USE_AIRSPEED" value="1"/>
     <define name="STALL_AIRSPEED" value="8"/>
     
-    <module name="air_data"/>
     
     <define name="USE_MAGNETOMETER_ONGROUND" value="TRUE"/> <!--DEFINE only used if float_dcm Use magnetic compensation before takeoff only while GPS course not good -->
     <configure name="USE_MAGNETOMETER" value="TRUE"/> <!-- Make sure is callibrated if set to TRUE -->

@@ -33,6 +33,7 @@
 #include "math/pprz_algebra_float.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio_arch.h"
 #include "std.h"
 
@@ -285,7 +286,7 @@ static void invensense3_456_parse_fifo_data(struct invensense3_456_t *inv, uint8
   uint32_t now_ts = get_sys_time_usec();
   AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, sample_idx, inv->imu_samplerate, temp_f);
   AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, sample_idx, inv->imu_samplerate, temp_f);
-  AbiSendMsgTEMPERATURE(inv->abi_id, temp_f);
+  AbiSendMsgTEMPERATURE_RAW(inv->abi_id, now_ts, temp_f, TEMPERATURE_TYPE_IMU);
 }
 
 /**
