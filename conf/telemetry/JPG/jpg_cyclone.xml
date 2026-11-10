@@ -85,7 +85,6 @@
       <message name="DL_VALUE"           period="0.5"/>
       <message name="ALIVE"              period="2.1"/>
       <message name="FILTER_ALIGNER"     period="2.2"/>
-      <message name="FILTER"             period=".5"/>
       <message name="GEO_MAG"            period="5."/>
       <message name="AHRS_GYRO_BIAS_INT" period="0.08"/>
       <message name="AHRS_QUAT_INT"      period=".25"/>
@@ -183,7 +182,6 @@
     </mode>
 
     <mode name="RTCM3" >
-      <message name="GPS_RXMRTCM"              period="1"/>
       <message name="GPS_INT"                  period=".25"/>
       <message name="GPS_RELPOS"               period="1"/>
     </mode>
