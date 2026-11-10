@@ -225,12 +225,6 @@
 
   </section>
 
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="TRUE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
-  </section>
-
   <section name="GCS">
     <define name="SPEECH_NAME" value="OverDone"/>
     <define name="AC_ICON" value="flyingwing"/>

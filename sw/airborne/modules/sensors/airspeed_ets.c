@@ -141,21 +141,6 @@ uint16_t airspeed_ets_cnt;
 uint32_t airspeed_ets_delay_time;
 bool   airspeed_ets_delay_done;
 
-static void airspeed_ets_downlink(struct transport_tx *trans, struct link_device *dev)
-{
-  uint8_t dev_id = AIRSPEED_ETS_ID;
-  float press = 0;
-  float temp = 0;
-  float offset = airspeed_ets_offset;
-  pprz_msg_send_AIRSPEED_RAW(trans,dev,AC_ID,
-                                &dev_id,
-                                &airspeed_ets_raw,
-                                &offset,
-                                &press,
-                                &temp,
-                                &airspeed_ets);
-}
-
 void airspeed_ets_init(void)
 {
   int n;
@@ -183,11 +168,6 @@ void airspeed_ets_init(void)
   airspeed_ets_delay_done = false;
   SysTimeTimerStart(airspeed_ets_delay_time);
 
-
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, airspeed_ets_downlink);
-#endif
-
 #ifndef SITL
 #if AIRSPEED_ETS_SDLOG
   log_airspeed_ets_started = false;
@@ -207,7 +187,7 @@ void airspeed_ets_read_periodic(void)
   }
 #elif !defined USE_NPS
   extern float sim_air_speed;
-  stateSetAirspeed_f(MODULE_AIRSPEED_ETS_ID, sim_air_speed);
+  AbiSendMsgAIRSPEED_RAW(AIRSPEED_ETS_ID, get_sys_time_usec(), sim_air_speed);
 #endif //SITL
 }
 
@@ -298,11 +278,9 @@ void airspeed_ets_read_event(void)
       airspeed_ets = 0.0;   
     }
 
-    // Publish airspeed sensor
-    AbiSendMsgAIRSPEED(AIRSPEED_ETS_ID, airspeed_ets);
-
 #if USE_AIRSPEED_ETS
-    stateSetAirspeed_f(MODULE_AIRSPEED_ETS_ID, airspeed_ets);
+    // Publish airspeed sensor, air_data calibrates it and sets the airspeed
+    AbiSendMsgAIRSPEED_RAW(AIRSPEED_ETS_ID, get_sys_time_usec(), airspeed_ets);
 #endif
   } else {
     airspeed_ets = 0.0;

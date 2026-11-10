@@ -574,12 +574,6 @@ NOTES:
     <define name="RADIUS_MIN" value="70." unit="m"/>
   </section>
 
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
-  </section>
-
   <!--  Can as well be your handlaunch, a.k.a. the human catapult ;) -->
   <section name="CATAPULT" prefix="NAV_CATAPULT_">
     <define name="MOTOR_DELAY" value="0." unit="s"/>

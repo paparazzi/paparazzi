@@ -31,6 +31,7 @@
 #include "modules/datalink/downlink.h"
 #include "generated/modules.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "modules/air_data/air_data.h"
 
 #if PERIODIC_TELEMETRY
@@ -155,7 +156,7 @@ void wind_estimation_quadrotor_periodic(void)
   // send airspeed as ABI message
   struct FloatVect2 tas = { we_quad.filter.X[WE_QUAD_VA_X], we_quad.filter.X[WE_QUAD_VA_Y] };
   float eas = eas_from_tas(float_vect2_norm(&tas));
-  AbiSendMsgAIRSPEED(AIRSPEED_WE_QUAD_ID, eas);
+  AbiSendMsgAIRSPEED_RAW(AIRSPEED_WE_QUAD_ID, get_sys_time_usec(), eas);
   // update wind in state interface only if enabled
 #if WE_QUAD_UPDATE_STATE
   struct FloatVect2 wind_ne = {

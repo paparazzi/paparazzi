@@ -29,6 +29,7 @@
 #include "math/pprz_isa.h"
 #include "modules/gps/gps.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 
 PRINT_CONFIG_VAR(BARO_SIM_SENDER_ID)
 
@@ -41,5 +42,5 @@ void baro_sim_periodic(void)
 {
   uint32_t now_ts = get_sys_time_usec();
   float pressure = pprz_isa_pressure_of_altitude(gps.hmsl / 1000.0);
-  AbiSendMsgBARO_ABS(BARO_SIM_SENDER_ID, now_ts, pressure);
+  AbiSendMsgBARO_ABS_RAW(BARO_SIM_SENDER_ID, now_ts, pressure);
 }
