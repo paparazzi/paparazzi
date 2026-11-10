@@ -401,9 +401,6 @@
 	<arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
 	<arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
       </program>
-      <program name="Settings (Python)">
-        <arg constant="@AC_ID" flag="--ac_id" />
-      </program>
       <program name="RotWingStatus"/>
     </session>
 
