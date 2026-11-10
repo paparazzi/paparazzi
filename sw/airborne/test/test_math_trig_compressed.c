@@ -281,7 +281,8 @@ static inline void main_periodic(void)
 
     result = result;
 
-    DOWNLINK_SEND_CSC_CAN_MSG(DefaultChannel, DefaultDevice, &result1, &result2, &result3, &result4);
+    float cycles[4] = { result1, result2, result3, result4 };
+    DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 4, cycles);
   }
 }
 
