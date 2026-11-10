@@ -164,11 +164,7 @@
     <!--<module name="guidance" type="indi"/>--><!-- for later if classic works-->
 
     <!-- Also used if QNH needed -->
-    <module name="air_data">
-     <define name="CALC_AIRSPEED" value="FALSE"/>
-     <define name="CALC_TAS_FACTOR" value="FALSE"/>
-     <define name="CALC_AMSL_BARO" value="TRUE"/>
-    </module>
+    <module name="air_data"/>
 
     <module name="geo_mag"/>
 
@@ -300,12 +296,6 @@
     <define name="CENTER_X" value="0.51015"/>
     <define name="CENTER_Y" value="0.51015"/>
     <define name="DHANE_K" value="1.25"/>
-  </section>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
 <!-- ************************* IMU ************************* -->

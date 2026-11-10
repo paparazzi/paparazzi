@@ -34,6 +34,7 @@
 #include "boards/apogee/imu_apogee.h"
 
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 
 // sd-log
@@ -115,9 +116,9 @@ void apogee_baro_event(void)
   if (apogee_baro.data_available && startup_cnt == 0) {
     uint32_t now_ts = get_sys_time_usec();
     float pressure = ((float)apogee_baro.pressure / (1 << 2));
-    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, pressure);
+    AbiSendMsgBARO_ABS_RAW(BARO_BOARD_SENDER_ID, now_ts, pressure);
     float temp = apogee_baro.temperature / 16.0f;
-    AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
+    AbiSendMsgTEMPERATURE_RAW(BARO_BOARD_SENDER_ID, get_sys_time_usec(), temp, TEMPERATURE_TYPE_BARO);
     apogee_baro.data_available = false;
 
 #if APOGEE_BARO_SDLOG

@@ -47,7 +47,7 @@
     <module name="air_data"/>
     <module name="baro_bmp3">
       <configure name="BMP3_I2C_DEV" value="i2c3"/>
-      <define name="AIR_DATA_BARO_ABS_ID" value="BARO_BMP3_SENDER_ID"/>
+      <define name="AIR_DATA_BARO_ID" value="BARO_BMP3_SENDER_ID"/>
       <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR_ALT"/>
     </module>
 

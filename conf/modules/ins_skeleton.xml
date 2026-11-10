@@ -15,17 +15,17 @@
       which is then used to update the state interface.
     </description>
     <define name="INS_MODULE_IMU_ID" value="ABI_BROADCAST" description="ABI sender id of IMU messages to subscribe to"/>
-    <define name="INS_MODULE_BARO_ID" value="ABI_BROADCAST" description="ABI sender id of BARO_ABS messages to subscribe to"/>
+    <define name="INS_MODULE_BARO_ID" value="AIR_DATA_SENDER_ID" description="ABI sender id of BARO_ABS messages to subscribe to (default: AIR_DATA_SENDER_ID, the barometer selected by air_data)"/>
     <define name="INS_MODULE_GPS_ID" value="GPS_MULTI_ID" description="ABI sender id of GPS messages to subscribe to"/>
   </doc>
   <dep>
-    <depends>@imu,@gps</depends>
+    <depends>@imu,@gps,air_data</depends>
     <provides>ins</provides>
   </dep>
-  <init fun="ins_module_wrapper_init()"/>
   <header>
     <file name="ins_skeleton.h"/>
   </header>
+  <init fun="ins_module_wrapper_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="ins.c"/>
     <file name="ins_skeleton.c"/>
