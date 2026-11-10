@@ -39,7 +39,6 @@
     </module>
 
     <module name="geo_mag"/>
-    <module name="air_data"/>
 
     <module name="wls">
       <define name="WLS_N_U_MAX" value = "6"/>
@@ -90,12 +89,6 @@
     <define NAME="STABILIZATION_ATTITUDE_SP_MAX_THETA" value = "45." UNIT="deg"   />
     <define NAME="STABILIZATION_ATTITUDE_SP_MAX_R"     value = "90." UNIT="deg/s" />
     <define NAME="STABILIZATION_ATTITUDE_DEADBAND_R"   value = "200"              />
-  </section>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED"    value="FALSE"/>
-    <define name="CALC_TAS_FACTOR"  value="FALSE"/>
-    <define name="CALC_AMSL_BARO"   value="TRUE"/>
   </section>
 
   <section name="IMU" prefix="IMU_">

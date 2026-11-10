@@ -29,7 +29,6 @@
     <module name="navigation"/>
     <!-- Sensors -->
     <module name="gps" type="ublox"/>
-    <module name="air_data"/>
     <module name="airspeed" type="ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c1"/>
     </module>
