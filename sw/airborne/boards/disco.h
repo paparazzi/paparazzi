@@ -100,14 +100,6 @@ extern struct video_config_t front_camera;
 #define MS45XX_PRESSURE_TYPE 1
 #define MS45XX_OUTPUT_TYPE 1
 #define MS45XX_PRESSURE_OUTPUT_TYPE_InH2O 1
-#ifndef USE_AIRSPEED_LOWPASS_FILTER
-#define USE_AIRSPEED_LOWPASS_FILTER 1
-#endif
-//#if USE_AIRSPEED_LOWPASS_FILTER /* Always used now */
-#ifndef MS45XX_LOWPASS_TAU
-#define MS45XX_LOWPASS_TAU 0.15
-#endif
-//#endif
 
 /* To be flexible and be able to disable use of airspeed in state this could have been in the airframe file ofcourse
  * but most users just want to have perfectly flying Disco, so enable per default... */

@@ -6,9 +6,6 @@
       Airspeed sensor over the uavcan protocol and optionally publishes over ABI.
       Sends the differential pressure and static air temperature to air_data, which zeroes the pressure (at boot and with its Calibrate setting) and computes the airspeed.
     </description>
-    <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER" value="TRUE|FALSE" description="Enable the lowpass filter for the airspeed"/>
-    <define name="AIRSPEED_UAVCAN_LOWPASS_TAU" value="0.15" description="Time constant for second order Butterworth low pass filter"/>
-    <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD" value="0.1" description="Period at which the sensor is sending airspeed"/>
     <define name="AIRSPEED_UAVCAN_SEND_ABI" value="true" description="Send the uavcan airspeed sensor over ABI"/>
     <define name="AIRSPEED_UAVCAN_DIFF_P_SCALE" value="1.0" description="Pressure scaling correcting factor"/>
   </doc>

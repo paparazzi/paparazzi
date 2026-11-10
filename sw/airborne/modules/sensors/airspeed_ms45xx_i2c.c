@@ -28,7 +28,6 @@
 #include "std.h"
 #include "mcu_periph/i2c.h"
 #include "modules/sensors/airspeed_ms45xx_i2c.h"
-#include "filters/low_pass_filter.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
 
@@ -73,12 +72,6 @@
  * note there are theoretical more types than 2, e.g. Absolute not implemented */
 #ifndef MS45XX_PRESSURE_TYPE
 #define MS45XX_PRESSURE_TYPE 0
-#endif
-
-/** Use low pass filter on pressure values
- */
-#ifndef USE_AIRSPEED_LOWPASS_FILTER
-#define USE_AIRSPEED_LOWPASS_FILTER TRUE
 #endif
 
 /** MS45xx output Type.
@@ -149,18 +142,8 @@ PRINT_CONFIG_MSG("MS45XX changed air density. PS: Use MS45XX_PRESSURE_SCALE to c
 #define MS45XX_RHO_DIV_2 1.6327
 
 
-/** Time constant for second order Butterworth low pass filter
- * Default of 0.15 should give cut-off freq of 1/(2*pi*tau) ~= 1Hz
- */
-#ifndef MS45XX_LOWPASS_TAU
-#define MS45XX_LOWPASS_TAU 0.15
-#endif
-
 struct AirspeedMs45xx ms45xx;
 static struct i2c_transaction ms45xx_trans;
-#ifdef USE_AIRSPEED_LOWPASS_FILTER
-static Butterworth2LowPass ms45xx_filter;
-#endif
 
 void ms45xx_i2c_init(void)
 {
@@ -171,25 +154,8 @@ void ms45xx_i2c_init(void)
   ms45xx.pressure_type = MS45XX_PRESSURE_TYPE;
   ms45xx.pressure_scale = MS45XX_PRESSURE_SCALE;
   ms45xx.pressure_offset = MS45XX_PRESSURE_OFFSET;
-  ms45xx.lowpass_tau = MS45XX_LOWPASS_TAU;
 
   ms45xx_trans.status = I2CTransDone;
-  // setup low pass filter with time constant and 100Hz sampling freq
-#ifdef USE_AIRSPEED_LOWPASS_FILTER
-  init_butterworth_2_low_pass(&ms45xx_filter, ms45xx.lowpass_tau,
-                              MS45XX_I2C_PERIODIC_PERIOD, 0);
-#endif
-
-}
-
-
-void airspeed_ms45xx_i2c_change_tau(float new_tau)
-{
-  ms45xx.lowpass_tau = new_tau;
-#ifdef USE_AIRSPEED_LOWPASS_FILTER
-  init_butterworth_2_low_pass(&ms45xx_filter, ms45xx.lowpass_tau,
-                            MS45XX_I2C_PERIODIC_PERIOD, get_butterworth_2_low_pass(&ms45xx_filter));
-#endif
 }
 
 
@@ -248,13 +214,9 @@ void ms45xx_i2c_event(void)
       //   p_out -= 65.0f * volt_diff;
       //   ms45xx.temperature -= 8.87f * volt_diff;
       // }
-#ifdef USE_AIRSPEED_LOWPASS_FILTER
-      ms45xx.pressure = update_butterworth_2_low_pass(&ms45xx_filter, p_out);
-#else
       ms45xx.pressure = p_out;
-#endif
 
-      // Send (differential) pressure via ABI, air_data zeroes it and computes the airspeed
+      // Send (differential) pressure via ABI, air_data filters and zeroes it and computes the airspeed
       #if AIRSPEED_MS45XX_SEND_ABI
       uint32_t now_ts = get_sys_time_usec();
       AbiSendMsgBARO_DIFF_RAW(MS45XX_SENDER_ID, now_ts, ms45xx.pressure);
