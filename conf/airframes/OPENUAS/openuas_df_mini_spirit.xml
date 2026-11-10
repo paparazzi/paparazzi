@@ -312,6 +312,16 @@
     <servo name="S_ELEVON_RIGHT" no="2" min="1100" neutral="1500" max="1900"/><!--neutral maybe 1450 in this arframe a new servo with no good midpoint-->
   </servos>
 
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <!-- Low-pass cut-off (Hz) of the pitot, the old 0.15 s time constant of the driver -->
+    <define name="DIFF_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="SDP3X_SENDER_ID"/>
+        <field name="filter_freq" value="1.06"/>
+      </field>
+    </define>
+  </section>
+
   <section name="ServoPositions">
     <!--  Just name a few,  value can be used in e.g. flightplan -->
     <define name="LANDINGGEAR_EXTEND" value="-MAX_PPRZ"/>
