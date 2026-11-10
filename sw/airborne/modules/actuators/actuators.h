@@ -29,9 +29,10 @@
 
 #include "paparazzi.h"
 #include "std.h"
+#include "modules/actuators/actuators_driver.h"
 
 /*
- * Defines SetActuatorsFromCommands() macro
+ * Defines SetActuatorsFromCommandsNoCommit() and driver initialization
  * Defines ACTUATORS_NB to 0 if no servo
  * Include servos drivers
  */
@@ -39,6 +40,14 @@
 
 extern void actuators_init(void);
 extern void actuators_periodic(void);
+
+/** Submit or activate buffered requests in every registered driver.
+ * Call once after setting the requests for an output cycle. Drivers may
+ * transmit asynchronously or apply their own transmission rate limit.
+ */
+extern void actuators_commit(void);
+
+extern struct actuator_driver actuator_drivers[ACTUATORS_DRIVERS_NB];
 
 // Actuator feedback structure for ABI Message
 struct act_feedback_t {
@@ -69,13 +78,6 @@ struct act_config_t {
   float travel_down;  ///< Precomputed travel down coef
 };
 
-/** Actuator set callback
- *
- * @param driver_idx actuator index in driver frame
- * @param driver_value actuator value in driver unit
- */
-typedef void (*act_set_t)(uint8_t driver_idx, int16_t driver_value);
-
 #if ACTUATORS_NB
 
 extern uint32_t actuators_delay_time;
@@ -83,33 +85,48 @@ extern bool   actuators_delay_done;
 
 // Actuator feedback structure for ABI Message
 struct actuator_t {
-  pprz_t pprz_val;            ///< Actuator value in PPRZ units
+  pprz_t pprz_val;            ///< Last PPRZ request; unchanged by driver-unit writes
   int16_t driver_val;         ///< Actuator value in driver units (scaling from servo in airframe.h)
   struct act_config_t config; ///< Actuator config
-  act_set_t set;              ///< Actuator set callback function
 };
 
 /** Actuators array.
  * */
 extern struct actuator_t actuators[ACTUATORS_NB];
 
-/** Set actuators.
+/** Scale, bound and buffer a PPRZ request in the actuator driver.
+ * The request is submitted or activated by actuators_commit().
+ * Invalid indices are ignored.
  * @param pprz_idx general actuators index
  * @param pprz_value actuator's value in pprz unit
  */
 extern void actuator_set(uint8_t pprz_idx, pprz_t pprz_value);
 
-/** Backward compatibility
+/** Store and buffer a request in driver units without scaling or bounding it.
+ * The last PPRZ request is retained; no inverse conversion is performed.
+ * Like actuator_set(), this calls the driver setter without committing.
+ * Invalid indices are ignored.
+ * @param pprz_idx general actuators index
+ * @param driver_value actuator's value in driver units
+ */
+extern void actuator_set_driver(uint8_t pprz_idx, int16_t driver_value);
+
+/** Set an actuator by its name from the airframe's servos section.
  * @param _n actuators name as given in airframe file, servos section
  * @param _v new actuator's value
  */
 #define ActuatorSet(_n, _v) actuator_set(SERVO_ ## _n ## _IDX, _v)
 
-/** Get current actuator value in driver unit
+/** Get current actuator value in driver units, or zero for an invalid index.
  */
 extern int16_t actuator_get(uint8_t pprz_idx);
 
-/** Get global index from driver index
+/** Get the last bounded PPRZ request, or zero for an invalid index.
+ * Driver-unit writes do not change the last PPRZ request.
+ */
+extern pprz_t actuator_get_pprz(uint8_t pprz_idx);
+
+/** Get global index from driver index, or ACTUATORS_NB if not found.
  */
 extern uint8_t actuator_get_idx(uint8_t driver_no, uint8_t servo_idx);
 
