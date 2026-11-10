@@ -21,11 +21,14 @@
 """
 SV Info: shows the GPS satellites of the SVINFO messages on the Ivy bus.
 
-The top part is a sky plot (north up, azimuth around the circle, elevation as
-distance from the centre: 0 deg at the centre, 90 deg on the outer circle)
-with one dot per satellite, coloured by its quality indicator (QI); the dot is
+The top part is a sky plot (north up, azimuth around the circle, elevation
+90 deg (zenith) at the centre, 45 deg on the inner circle and 0 deg (horizon)
+on the outer circle) with one dot per satellite, coloured by its quality indicator (QI); the dot is
 larger when the satellite is used in the fix. The bottom part shows one bar per
 receiver channel with the signal strength (C/N0 in dBHz).
+
+Only one aircraft is shown: the one given with -i, or else the first one that
+sends SVINFO. Channels without news for STALE_TIME seconds are removed.
 
 The window size and position are remembered between runs.
 """
@@ -34,6 +37,7 @@ import sys
 import os
 import math
 import argparse
+import time
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -43,12 +47,14 @@ PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirn
                                                                    '../../../..')))
 
 sys.path.append(PPRZ_HOME + "/var/lib/python")  # pprzlink
+os.environ.setdefault("PAPARAZZI_HOME", PPRZ_HOME)  # pprzlink finds messages.xml with it
 
 from pprzlink.ivy import IvyMessagesInterface, IVY_BUS
 
 WIDTH = 300     # default width of the window (and of the sky plot)
 BARH = 140      # default height of the signal bars below the sky plot
 CHANNEL = 16    # number of receiver channels shown as bars
+STALE_TIME = 5  # seconds without SVINFO after which a channel is removed
 
 # Colour of a satellite for each quality indicator (QI) value
 QI_COLOURS = {
@@ -73,17 +79,17 @@ class SvChannel(object):
         self.CNO = int(msg['CNO'])
         self.Elev = int(msg['Elev'])
         self.Azim = int(msg['Azim'])
+        self.time = time.monotonic()
 
 
 class SVInfoWindow(QtWidgets.QWidget):
     """Window drawing the sky plot and the signal bars."""
 
     # Emitted from the Ivy thread with (channel, SvChannel), handled in the GUI thread
-    sv_received = QtCore.pyqtSignal(int, object)
+    sv_received = QtCore.pyqtSignal(str, int, object)
 
-    def __init__(self, ivy_bus):
+    def __init__(self, ivy_bus, ac_id=None):
         super().__init__()
-        self.setWindowTitle("SV Info")
         self.setWindowIcon(QtGui.QIcon(os.path.join(PPRZ_SRC, "sw/ground_segment/python/svinfo/svinfo.ico")))
 
         # Restore the window size and position of the last run
@@ -92,8 +98,15 @@ class SVInfoWindow(QtWidgets.QWidget):
         if self.settings.contains("left"):
             self.move(int(self.settings.value("left")), int(self.settings.value("top")))
 
+        self.ac_id = ac_id  # aircraft shown; None: the first one that sends SVINFO
         self.sv = {}  # channel number -> SvChannel
         self.sv_received.connect(self.update_sv)
+        self.update_title()
+
+        # Remove stale channels (e.g. after a GPS restart) and redraw
+        self.timer = QtCore.QTimer(self)
+        self.timer.timeout.connect(self.remove_stale)
+        self.timer.start(1000)
 
         self.interface = IvyMessagesInterface("svinfoframe", ivy_bus=ivy_bus)
         self.interface.subscribe(self.message_recv)
@@ -102,12 +115,28 @@ class SVInfoWindow(QtWidgets.QWidget):
         """Ivy callback (Ivy thread): pass SVINFO messages to the GUI thread."""
         if msg.name == "SVINFO":
             chn = int(msg['chn'])
-            self.sv_received.emit(chn, SvChannel(chn, msg))
+            self.sv_received.emit(str(ac_id), chn, SvChannel(chn, msg))
 
-    def update_sv(self, chn, sv):
-        """Store the new channel values and redraw (GUI thread)."""
+    def update_title(self):
+        self.setWindowTitle("SV Info" if self.ac_id is None else "SV Info (aircraft %s)" % self.ac_id)
+
+    def update_sv(self, ac_id, chn, sv):
+        """Store the new channel values of the shown aircraft and redraw (GUI thread)."""
+        if self.ac_id is None:
+            self.ac_id = ac_id
+            self.update_title()
+        if ac_id != self.ac_id:
+            return
         self.sv[chn] = sv
         self.update()
+
+    def remove_stale(self):
+        now = time.monotonic()
+        stale = [chn for chn, sv in self.sv.items() if now - sv.time > STALE_TIME]
+        for chn in stale:
+            del self.sv[chn]
+        if stale:
+            self.update()
 
     def paintEvent(self, event):
         """Draw the sky plot with the satellites and the signal bar of each channel."""
@@ -136,6 +165,9 @@ class SVInfoWindow(QtWidgets.QWidget):
         p.drawText(QtCore.QPointF(w - 15, w / 2 + tdy + fm.ascent()), "E")
         p.drawText(QtCore.QPointF(2, w / 2 + tdy + fm.ascent()), "W")
 
+        if not self.sv:
+            p.drawText(QtCore.QRectF(0, w, w, hgt - w), QtCore.Qt.AlignCenter, "Waiting for SVINFO")
+
         # Satellites and their signal bars
         p.setFont(QtGui.QFont("Serif", 8))
         fm = p.fontMetrics()
@@ -144,7 +176,7 @@ class SVInfoWindow(QtWidgets.QWidget):
             used = sv.Flags & 1
             s = 7 + used * 5  # dot radius, larger when used in the fix
 
-            el = sv.Elev / 90.0 * w / 2.0  # distance from the centre
+            el = (90 - min(max(sv.Elev, 0), 90)) / 90.0 * w / 2.0  # distance from the centre: 0 at the zenith
             az = math.radians(sv.Azim)
             x = w / 2.0 + math.sin(az) * el
             y = w / 2.0 - math.cos(az) * el
@@ -165,6 +197,7 @@ class SVInfoWindow(QtWidgets.QWidget):
         self.settings.setValue("height", self.height())
         self.settings.setValue("left", self.x())
         self.settings.setValue("top", self.y())
+        self.timer.stop()
         self.interface.shutdown()
         super().closeEvent(event)
 
@@ -172,10 +205,11 @@ class SVInfoWindow(QtWidgets.QWidget):
 def main():
     parser = argparse.ArgumentParser(description="Sky plot and signal strength of the GPS satellites (SVINFO messages)")
     parser.add_argument("-b", "--ivy_bus", default=IVY_BUS, help="Ivy bus address:port (default: $IVY_BUS or the Ivy default)")
+    parser.add_argument("-i", "--ac_id", help="aircraft id to show (default: the first one that sends SVINFO)")
     args = parser.parse_args()
 
     app = QtWidgets.QApplication(sys.argv)
-    window = SVInfoWindow(args.ivy_bus)
+    window = SVInfoWindow(args.ivy_bus, args.ac_id)
     window.show()
     sys.exit(app.exec_())
 
