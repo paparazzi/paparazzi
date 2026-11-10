@@ -1,0 +1,2 @@
+# Optional: spoken warnings (rotwing_mon.py -s 1)
+pyttsx3
