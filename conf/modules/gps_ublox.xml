@@ -20,8 +20,9 @@
     <configure name="UBX_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
     <configure name="UBX_GPS_BAUD" value="B38400" description="UART baud rate"/>
     <configure name="GPS_UBX_BOOTRESET" value="0" description="Force a hot, warm or cold reset when the system boot up"/>
-    <define name="GPS_UBX_HEADING_BASELINE" value="0." unit="m" description="Distance between the two antennas of a heading receiver (dual-antenna or moving base); the heading is dropped when the measured distance differs more than GPS_UBX_HEADING_BASELINE_TOL. 0 (default) doesn't check it"/>
-    <define name="GPS_UBX_HEADING_BASELINE_TOL" value="0.1" unit="m" description="Largest difference between the measured and the configured antenna distance (default 0.1 m)"/>
+    <define name="GPS_UBX_HEADING_BASELINE" value="0." unit="m" description="Distance between the two antennas of a heading receiver (dual-antenna or moving base); the heading is dropped when the measured distance differs more than GPS_UBX_HEADING_BASELINE_TOL. With 0 (default) only a distance above GPS_UBX_HEADING_BASELINE_MAX is dropped"/>
+    <define name="GPS_UBX_HEADING_BASELINE_TOL" value="0.4" unit="m" description="Largest difference between the measured and the configured antenna distance (default 0.4 m)"/>
+    <define name="GPS_UBX_HEADING_BASELINE_MAX" value="10." unit="m" description="Without GPS_UBX_HEADING_BASELINE: longest antenna distance for which the heading is used (default 10 m, as PX4)"/>
   </doc>
 
   <settings>

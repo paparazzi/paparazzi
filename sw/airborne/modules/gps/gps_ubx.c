@@ -75,7 +75,12 @@
 
 /** Largest difference between the measured and the configured antenna distance [m] */
 #ifndef GPS_UBX_HEADING_BASELINE_TOL
-#define GPS_UBX_HEADING_BASELINE_TOL 0.1
+#define GPS_UBX_HEADING_BASELINE_TOL 0.4
+#endif
+
+/** Longest antenna distance for which a heading is used when GPS_UBX_HEADING_BASELINE is not set [m] (as PX4) */
+#ifndef GPS_UBX_HEADING_BASELINE_MAX
+#define GPS_UBX_HEADING_BASELINE_MAX 10.
 #endif
 /* last error type */
 #define GPS_UBX_ERR_NONE         0
@@ -432,7 +437,7 @@ static void gps_ubx_parse_nav_status(struct GpsUbx *gubx)
 static bool gps_ubx_heading_baseline_ok(double distance)
 {
   if (GPS_UBX_HEADING_BASELINE <= 0.) {
-    return true;
+    return distance < GPS_UBX_HEADING_BASELINE_MAX;
   }
   return fabs(distance - GPS_UBX_HEADING_BASELINE) <= GPS_UBX_HEADING_BASELINE_TOL;
 }
