@@ -21,10 +21,17 @@
 """
 SV Info: shows the GPS satellites of the SVINFO messages on the Ivy bus.
 
-The top part is a sky plot (north up, azimuth around the circle, elevation
-90 deg (zenith) at the centre, 45 deg on the inner circle and 0 deg (horizon)
-on the outer circle) with one dot per satellite, coloured by its quality indicator (QI); the dot is
-larger when the satellite is used in the fix. The bottom part shows one bar per
+Elevation and azimuth follow the u-blox NAV-SVINFO / NAV-SAT definitions (NMEA
+GSV uses the same): elevation in degrees above the horizon (0 horizon, 90
+zenith, unknown when out of -90..90), azimuth in degrees from true north,
+clockwise.
+
+The top part is a sky plot (north up, east right as seen from above, the zenith
+at the centre, 45 deg elevation on the inner circle and the horizon on the
+outer circle) with one dot per satellite, coloured by its quality indicator
+(QI); the dot is larger when the satellite is used in the fix. Satellites with
+an unknown position (elevation out of range, or 0/0 while not used, as sent by
+a receiver without orbit data) and satellites below the horizon get no dot. The bottom part shows one bar per
 receiver channel with the signal strength (C/N0 in dBHz).
 
 Only one aircraft is shown: the one given with -i, or else the first one that
@@ -58,14 +65,14 @@ STALE_TIME = 5  # seconds without SVINFO after which a channel is removed
 
 # Colour of a satellite for each quality indicator (QI) value
 QI_COLOURS = {
-    0: QtGui.QColor(64, 64, 64),     # This channel is idle
-    1: QtGui.QColor(128, 128, 128),  # Searching
+    0: QtGui.QColor(64, 64, 64),     # No signal (channel idle)
+    1: QtGui.QColor(128, 128, 128),  # Searching signal
     2: QtGui.QColor(0, 128, 128),    # Signal acquired
     3: QtGui.QColor(255, 0, 0),      # Signal detected but unusable
-    4: QtGui.QColor(0, 0, 255),      # Code lock on signal
-    5: QtGui.QColor(0, 255, 0),      # Code and carrier locked
-    6: QtGui.QColor(0, 255, 0),      # Code and carrier locked
-    7: QtGui.QColor(0, 255, 0),      # Code and carrier locked
+    4: QtGui.QColor(0, 0, 255),      # Code locked and time synchronized
+    5: QtGui.QColor(0, 255, 0),      # Code and carrier locked and time synchronized
+    6: QtGui.QColor(0, 255, 0),      # Code and carrier locked and time synchronized
+    7: QtGui.QColor(0, 255, 0),      # Code and carrier locked and time synchronized
 }
 
 
@@ -80,6 +87,13 @@ class SvChannel(object):
         self.Elev = int(msg['Elev'])
         self.Azim = int(msg['Azim'])
         self.time = time.monotonic()
+
+
+def sky_position_known(sv):
+    """True when the satellite has a known position above the horizon."""
+    if not 0 <= sv.Elev <= 90:
+        return False  # below the horizon, or unknown (u-blox: out of -90..90)
+    return bool(sv.Flags & 1) or sv.Elev != 0 or sv.Azim != 0  # 0/0: no orbit data
 
 
 class SVInfoWindow(QtWidgets.QWidget):
@@ -176,14 +190,14 @@ class SVInfoWindow(QtWidgets.QWidget):
             used = sv.Flags & 1
             s = 7 + used * 5  # dot radius, larger when used in the fix
 
-            el = (90 - min(max(sv.Elev, 0), 90)) / 90.0 * w / 2.0  # distance from the centre: 0 at the zenith
-            az = math.radians(sv.Azim)
-            x = w / 2.0 + math.sin(az) * el
-            y = w / 2.0 - math.cos(az) * el
-
             p.setBrush(QI_COLOURS.get(sv.QI, QI_COLOURS[0]))
-            p.drawEllipse(QtCore.QPointF(x, y), s, s)
-            p.drawText(QtCore.QPointF(x + tdx, y + tdy + fm.ascent()), str(sv.SVID))
+            if sky_position_known(sv):
+                el = (90 - sv.Elev) / 90.0 * w / 2.0  # distance from the centre: 0 at the zenith
+                az = math.radians(sv.Azim)
+                x = w / 2.0 + math.sin(az) * el
+                y = w / 2.0 - math.cos(az) * el
+                p.drawEllipse(QtCore.QPointF(x, y), s, s)
+                p.drawText(QtCore.QPointF(x + tdx, y + tdy + fm.ascent()), str(sv.SVID))
 
             bh = (bar - th - th) * sv.CNO / 55.0
             p.drawRect(QtCore.QRectF(cw * chn + 5 * (1 - used), hgt - th - bh, cw - 2 - 10 * (1 - used), bh))
