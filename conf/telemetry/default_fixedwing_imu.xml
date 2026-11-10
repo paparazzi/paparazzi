@@ -7,6 +7,7 @@
       <message name="AIRSPEED"            period="1"/>
       <message name="ALIVE"               period="5.1"/>
       <message name="GPS"                 period="0.25"/>
+      <message name="UBLOX_INFO"          period="61.3"/>
       <message name="NAVIGATION"          period="1."/>
       <message name="ATTITUDE"            period="0.1"/>
       <message name="ESTIMATOR"           period="0.5"/>
