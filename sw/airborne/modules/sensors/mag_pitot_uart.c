@@ -30,6 +30,7 @@
 #include "pprzlink/intermcu_msg.h"
 #include "mcu_periph/uart.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "modules/imu/imu.h"
 #include "state.h"
 
@@ -87,8 +88,8 @@ static inline void mag_pitot_parse_msg(void)
     float pitot_stat = DL_IMCU_REMOTE_BARO_pitot_stat(mp_msg_buf);
     float pitot_temp = DL_IMCU_REMOTE_BARO_pitot_temp(mp_msg_buf);
 
-    AbiSendMsgBARO_ABS(IMU_MAG_PITOT_ID, now_ts, pitot_stat);
-    AbiSendMsgTEMPERATURE(IMU_MAG_PITOT_ID, pitot_temp);
+    AbiSendMsgBARO_ABS_RAW(IMU_MAG_PITOT_ID, now_ts, pitot_stat);
+    AbiSendMsgTEMPERATURE_RAW(IMU_MAG_PITOT_ID, now_ts, pitot_temp, TEMPERATURE_TYPE_DIFF);
     break;
   }
 
@@ -96,7 +97,7 @@ static inline void mag_pitot_parse_msg(void)
   case DL_IMCU_REMOTE_AIRSPEED: {
     // Should be updated to differential pressure
     float pitot_ias = DL_IMCU_REMOTE_AIRSPEED_pitot_IAS(mp_msg_buf);
-    AbiSendMsgAIRSPEED(IMU_MAG_PITOT_ID, pitot_ias);
+    AbiSendMsgAIRSPEED_RAW(IMU_MAG_PITOT_ID, now_ts, pitot_ias);
     break;
   }
 
