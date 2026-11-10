@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2018 TUDelft
 #
@@ -79,8 +79,8 @@ def index_from_volt(volt):
     return int(index)
 
 def mah_from_volt_and_current(volt, current):
-    global f_batmodel
-    return f_batmodel(volt, current)  # (current - a0) / da * dm + m0
+    """Charge used (mAh per cell) at this cell voltage and current, as a plain float"""
+    return float(f_batmodel(volt, current)[0, 0])
 
 def volt_amp_from_mAh_power(mAh, power):
     Vs = np.zeros(5)
