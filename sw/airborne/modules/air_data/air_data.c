@@ -40,9 +40,18 @@
 #include "modules/datalink/downlink.h"
 #include <string.h>
 
-/** Calibration of the sensors in the airframe, for example
- * <define name="DIFF_CALIB" value="{{.abi_id=MS45XX_SENDER_ID, .calibrated={.offset=true}, .offset=12.3, .filter_freq=2}}"/>
- * in a section with prefix AIR_DATA_. The order sets the priority of the automatic selection.
+/** Calibration of the sensors in the airframe, in a section with prefix AIR_DATA_, for example
+ * <define name="DIFF_CALIB" type="array">
+ *   <field type="struct">
+ *     <field name="abi_id" value="MS45XX_SENDER_ID"/>
+ *     <field name="calibrated" type="struct">
+ *       <field name="offset" value="true"/>
+ *     </field>
+ *     <field name="offset" value="12.3"/>
+ *     <field name="filter_freq" value="2"/>
+ *   </field>
+ * </define>
+ * The order sets the priority of the automatic selection.
  * Without .filter_freq the default filter of the type (AIR_DATA_*_FILTER_FREQ) is used, negative for no filter.
  */
 #ifndef AIR_DATA_BARO_CALIB

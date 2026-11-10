@@ -137,9 +137,6 @@
       <module name="gps" type="ubx_ucenter"/>
 
       <module name="airspeed" type="ms45xx_i2c"/>
-      <module name="air_data">
-        <define name="AIR_DATA_DIFF_FILTER_FREQ" value="0.64"/> <!-- was a time constant of 0.25 s -->
-      </module>
 
       <!-- SBUS out is AETR by default, our transmitter sends TAER as per standard so correct in radio file -->
       <module name="radio_control" type="sbus"> <!-- The output type of RX, over the air it can can be all kinds e.g. DSMX, FRSky-->
@@ -423,6 +420,10 @@
     <servo name="S_GEAR" no="4" min="1100" neutral="1500" max="1900"/> <!-- No gear eiter Can be used for other purpose of choice -->
     <servo name="S_FLAPS" no="5" min="1100" neutral="1500" max="1900"/> <!-- No real flaps either, Can be used for other purpose of choice -->
   </servos>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="DIFF_FILTER_FREQ" value="0.64"/> <!-- was a time constant of 0.25 s -->
+  </section>
 
   <section name="ServoPositions">
     <define name="SERVO_BRAKE_FULL" value="-MAX_PPRZ" />

@@ -16,17 +16,33 @@
     with the one in use, so switching barometers gives no altitude step. It is refused while the motors are armed, unless calib_armed.
     At boot the sensors with an offset in the airframe keep it.
 
-    It is loaded automatically (by the barometers, pitots, INS and the ap and simulation targets), add it to the airframe only to configure it.
-
-    Calibration in the airframe, in a section with prefix AIR_DATA_, for example:
-    &lt;define name="DIFF_CALIB" value="{{.abi_id=MS45XX_SENDER_ID, .calibrated={.offset=true}, .offset=12.3, .filter_freq=2}}"/&gt;
-    The filter is a second order Butterworth at the measured rate of the sensor. Without .filter_freq a sensor uses the
-    default of its type (AIR_DATA_*_FILTER_FREQ), a negative .filter_freq turns it off.
+    It is loaded automatically (by the barometers, pitots, INS and the ap and simulation targets), like the IMU it is not
+    added to the airframe. The configuration goes in a section with prefix AIR_DATA_, for example:
+    &lt;section name="AIR_DATA" prefix="AIR_DATA_"&gt;
+      &lt;define name="AIRSPEED_ID" value="MS45XX_SENDER_ID"/&gt;
+      &lt;define name="DIFF_CALIB" type="array"&gt;
+        &lt;field type="struct"&gt;
+          &lt;field name="abi_id" value="MS45XX_SENDER_ID"/&gt;
+          &lt;field name="calibrated" type="struct"&gt;
+            &lt;field name="offset" value="true"/&gt;
+          &lt;/field&gt;
+          &lt;field name="offset" value="12.3"/&gt;
+          &lt;field name="filter_freq" value="2"/&gt;
+        &lt;/field&gt;
+        &lt;field type="struct"&gt;
+          &lt;field name="abi_id" value="UAVCAN_SENDER_ID"/&gt;
+        &lt;/field&gt;
+      &lt;/define&gt;
+    &lt;/section&gt;
+    Each sensor is a struct with the fields abi_id, calibrated (offset, scale), offset, scale and filter_freq.
+    The order of a *_CALIB is also the priority of the automatic selection.
+    The filter is a second order Butterworth at the measured rate of the sensor. Without filter_freq a sensor uses the
+    default of its type (AIR_DATA_*_FILTER_FREQ), a negative filter_freq turns it off.
     </description>
-    <define name="AIR_DATA_BARO_CALIB" value="{{.abi_id=X, .calibrated={.offset=true, .scale=true}, .offset=0, .scale=1}}" description="calibration of the barometers, also their priority"/>
-    <define name="AIR_DATA_DIFF_CALIB" value="{{.abi_id=X, ...}}" description="calibration of the differential pressure sensors, the scale is the pitot correction"/>
-    <define name="AIR_DATA_AIRSPEED_CALIB" value="{{.abi_id=X, ...}}" description="calibration of the airspeed sensors"/>
-    <define name="AIR_DATA_TEMP_CALIB" value="{{.abi_id=X, ...}}" description="calibration of the temperatures"/>
+    <define name="AIR_DATA_BARO_CALIB" value="array of structs" description="calibration of the barometers, also their priority (see the description)"/>
+    <define name="AIR_DATA_DIFF_CALIB" value="array of structs" description="calibration of the differential pressure sensors, the scale is the pitot correction"/>
+    <define name="AIR_DATA_AIRSPEED_CALIB" value="array of structs" description="calibration of the airspeed sensors"/>
+    <define name="AIR_DATA_TEMP_CALIB" value="array of structs" description="calibration of the temperatures"/>
     <define name="AIR_DATA_BARO_FILTER_FREQ" value="0." description="default low-pass cut-off of the barometers in Hz, 0 for none (default: 0)"/>
     <define name="AIR_DATA_DIFF_FILTER_FREQ" value="1." description="default low-pass cut-off of the differential pressures in Hz, 0 for none (default: 1)"/>
     <define name="AIR_DATA_AIRSPEED_FILTER_FREQ" value="0." description="default low-pass cut-off of the airspeed sensors in Hz, 0 for none (default: 0)"/>

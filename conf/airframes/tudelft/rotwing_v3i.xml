@@ -80,9 +80,6 @@
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
         </module>
         <module name="airspeed" type="uavcan"/>
-        <module name="air_data">
-            <define name="AIR_DATA_AIRSPEED_ID" value="MS45XX_SENDER_ID"/> <!-- Use the uavcan airspeed only when the MS45XX fails -->
-        </module>
 
         <configure name="PRIMARY_GPS" value="ublox"/>
         <configure name="SECONDARY_GPS" value="ublox2"/>
@@ -223,8 +220,18 @@
     </command_laws>
 
     <section name="AIR_DATA" prefix="AIR_DATA_">
+        <define name="AIRSPEED_ID" value="MS45XX_SENDER_ID"/> <!-- Use the uavcan airspeed only when the MS45XX fails -->
         <!-- Low-pass cut-off (Hz) per pitot (was a time constant of 0.25 s and 0.15 s), the order is also the priority -->
-        <define name="DIFF_CALIB" value="{{.abi_id=MS45XX_SENDER_ID, .filter_freq=0.64}, {.abi_id=UAVCAN_SENDER_ID, .filter_freq=1.06}}"/>
+        <define name="DIFF_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="MS45XX_SENDER_ID"/>
+                <field name="filter_freq" value="0.64"/>
+            </field>
+            <field type="struct">
+                <field name="abi_id" value="UAVCAN_SENDER_ID"/>
+                <field name="filter_freq" value="1.06"/>
+            </field>
+        </define>
     </section>
 
     <section PREFIX="SYS_ID_" NAME="SYS_ID">
