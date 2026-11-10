@@ -49,7 +49,6 @@
     <module name="control" type="new"/>
     <module name="navigation"/>
 
-
     <module name="flight_recorder"/>
   </firmware>
 
@@ -71,10 +70,6 @@
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
   </rc_commands>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="BARO_ID" value="BARO_BMP3_SENDER_ID"/>
-  </section>
 
   <section name="MIXER">
     <define name="AILEVON_AILERON_RATE" value="0.75"/>
