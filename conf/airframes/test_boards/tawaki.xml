@@ -50,7 +50,7 @@
     <module name="navigation"/>
 
     <module name="air_data"> 
-      <define name="AIR_DATA_BARO_ABS_ID" value="BARO_BMP3_SENDER_ID"/>
+      <define name="AIR_DATA_BARO_ID" value="BARO_BMP3_SENDER_ID"/>
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
     </module>
 

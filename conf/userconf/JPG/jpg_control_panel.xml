@@ -135,7 +135,7 @@
         <arg flag="-t" constant="BARO"/>
         <arg flag="-u" constant="0.05"/>
         <arg flag="-c" constant="101325.0"/>
-        <arg flag="-c" constant="*:telemetry:BARO_RAW:abs"/>
+        <arg flag="-c" constant="*:telemetry:BARO_RAW:pressure"/>
       </program>
     </session>
     <session name="Scaled Sensors">

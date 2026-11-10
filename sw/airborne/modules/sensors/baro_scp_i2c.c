@@ -16,10 +16,6 @@
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 
-#ifndef SENSOR_SYNC_SEND
-#warning set SENSOR_SYNC_SEND to use baro_scp_i2c
-#endif
-
 
 uint8_t  baro_scp_status;
 uint32_t baro_scp_pressure;
@@ -103,10 +99,7 @@ void baro_scp_event(void)
 
       uint32_t now_ts = get_sys_time_usec();
       float pressure = (float) baro_scp_pressure;
-      AbiSendMsgBARO_ABS(BARO_SCP_SENDER_ID, now_ts, pressure);
-#ifdef SENSOR_SYNC_SEND
-      DOWNLINK_SEND_SCP_STATUS(DefaultChannel, DefaultDevice, &baro_scp_pressure, &baro_scp_temperature);
-#endif
+      AbiSendMsgBARO_ABS_RAW(BARO_SCP_SENDER_ID, now_ts, pressure);
 
       baro_scp_status = BARO_SCP_IDLE;
     }

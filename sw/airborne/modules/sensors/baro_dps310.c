@@ -28,6 +28,7 @@
 
 #include "baro_dps310.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 
 #ifdef DPS310_SYNC_SEND
 #include "mcu_periph/uart.h"
@@ -59,8 +60,8 @@ void baro_dps310_event(void)
   if (baro_dps310.data_available) {
     uint32_t now_ts = get_sys_time_usec();
     // send ABI message
-    AbiSendMsgBARO_ABS(BARO_DPS310_SENDER_ID, now_ts, baro_dps310.pressure);
-    AbiSendMsgTEMPERATURE(BARO_DPS310_SENDER_ID, baro_dps310.temperature);
+    AbiSendMsgBARO_ABS_RAW(BARO_DPS310_SENDER_ID, now_ts, baro_dps310.pressure);
+    AbiSendMsgTEMPERATURE_RAW(BARO_DPS310_SENDER_ID, get_sys_time_usec(), baro_dps310.temperature, TEMPERATURE_TYPE_BARO);
     baro_dps310.data_available = false;
 
 #ifdef DPS310_SYNC_SEND
