@@ -222,6 +222,13 @@ static void thdSdLog(void *arg) ;
 static int32_t uiGetIndexOfLogFile(const char *prefix, const char *fileName) ;
 static inline SdioError flushWriteByteBuffer(const FileDes fd);
 
+static FRESULT lastMountResult = FR_OK;
+
+uint8_t sdLogGetMountResult(void)
+{
+  return (uint8_t) lastMountResult;
+}
+
 SdioError sdLogInit(uint32_t *freeSpaceInKo)
 {
   DWORD clusters = 0;
@@ -258,6 +265,11 @@ SdioError sdLogInit(uint32_t *freeSpaceInKo)
 #endif
 
   if (rc != FR_OK) {
+    lastMountResult = rc;
+    // Most boards have no card detect pin, a missing card is only seen when it cannot be read
+    if (rc == FR_NOT_READY || rc == FR_DISK_ERR) {
+      return storageStatus = SDLOG_NOCARD;
+    }
     return storageStatus = SDLOG_FATFS_ERROR;
   }
 
@@ -855,6 +867,53 @@ SdioError removeEmptyLogs(const char *directoryName, const char *prefix, const s
   }
 
   return  storageStatus = SDLOG_OK;
+}
+
+SdioError sdLogWriteFile(const char *directoryName, const char *fileName,
+                         const uint8_t *data, const size_t len)
+{
+  // DMA capable buffers: the data may be in flash, it is copied sector by sector
+  static FIL IN_SDMMC_DMA_SECTION_NOINIT(fil);
+  static uint8_t IN_SDMMC_DMA_SECTION_NOINIT(buf[512]);
+  char path[128], tmpPath[136];
+  FILINFO fno;
+  UINT written;
+
+  chsnprintf(path, sizeof(path), "/%s/%s", directoryName, fileName);
+  if (f_stat(path, &fno) == FR_OK) {
+    return SDLOG_OK;
+  }
+
+  // the directory may not exist yet
+  chsnprintf(tmpPath, sizeof(tmpPath), "/%s", directoryName);
+  FRESULT rc = f_mkdir(tmpPath);
+  if (rc != FR_OK && rc != FR_EXIST) {
+    return SDLOG_FATFS_ERROR;
+  }
+
+  // written under a temporary name first, so a power cut never leaves a partial file
+  chsnprintf(tmpPath, sizeof(tmpPath), "%s.tmp", path);
+  if (f_open(&fil, tmpPath, FA_WRITE | FA_CREATE_ALWAYS) != FR_OK) {
+    return SDLOG_FATFS_ERROR;
+  }
+  rc = FR_OK;
+  for (size_t ofs = 0; ofs < len && rc == FR_OK; ofs += sizeof(buf)) {
+    const size_t n = MIN(len - ofs, sizeof(buf));
+    memcpy(buf, &data[ofs], n);
+    rc = f_write(&fil, buf, n, &written);
+    if (rc == FR_OK && written != n) {
+      rc = FR_DENIED; // disk full
+    }
+  }
+  if (f_close(&fil) != FR_OK || rc != FR_OK) {
+    f_unlink(tmpPath);
+    return (rc == FR_DENIED) ? SDLOG_FSFULL : SDLOG_FATFS_ERROR;
+  }
+  if (f_rename(tmpPath, path) != FR_OK) {
+    f_unlink(tmpPath);
+    return SDLOG_FATFS_ERROR;
+  }
+  return SDLOG_OK;
 }
 
 /*
