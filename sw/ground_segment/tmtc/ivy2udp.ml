@@ -80,7 +80,7 @@ let () =
   let get_datalink_message = fun _ ->
     begin
       try
-        let n = input (Unix.in_channel_of_descr socket) buffer 0 buffer_size in
+        let n = Unix.recv socket buffer 0 buffer_size [] in
         let b = Bytes.sub buffer 0 n in
         Debug.trace 'x' (Debug.xprint (Bytes.to_string b));
 
