@@ -216,7 +216,6 @@
         <field name="filter_freq" value="1.06"/>
       </field>
     </define>
-    <define name="AIRSPEED_ID" value="MS45XX_SENDER_ID"/> <!-- UAVCAN_SENDER_ID -->
   </section>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
