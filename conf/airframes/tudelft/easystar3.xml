@@ -67,7 +67,6 @@
     </module>
     <module name="ins" type="ekf2"/>
 
-    <module name="air_data"/>
     <module name="actuators" type="pwm"/>
     <module name="stabilization" type="indi">
       <define name="WLS_N_U_MAX" value="4"/>
@@ -105,6 +104,16 @@
     <set servo="ELEVATOR" value="$manual? @PITCH : actuators_pprz[0]"/>
     <set servo="RUDDER" value="$manual? @ROLL : actuators_pprz[1]"/>
   </command_laws>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <!-- Low-pass cut-off (Hz) of the pitot, the old 0.15 s time constant of the driver -->
+    <define name="DIFF_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="MS45XX_SENDER_ID"/>
+        <field name="filter_freq" value="1.06"/>
+      </field>
+    </define>
+  </section>
 
   <section name="MISC">
     <define name="NO_GPS_LOST_WITH_RC_VALID" value="TRUE"/>

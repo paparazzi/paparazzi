@@ -190,10 +190,7 @@ Safety
         <!-- <define name="SDP3X_PRESSURE_SCALE" value="1.0"/> --> <!-- pressure scaling factor to convert raw output to Pa (default: set according to pressure range and output type according to datasheet) -->
         <!-- <define name="SDP3X_PRESSURE_OFFSET" value="0.0"/>--> <!-- pressure offset in Pa (default: set according to pressure range and output type according to datasheet) -->
         <!-- <define name="SDP3X_AIRSPEED_SCALE" value="1.6327"/> --> <!-- quadratic scale factor to convert differential pressure to airspeed" -->
-        <define name="SDP3X_LOWPASS_TAU" value="0.09"/>
-        <define name="USE_AIRSPEED_SDP3X" value="TRUE"/>
         <define name="USE_AIRSPEED" value="TRUE"/>
-        <!-- <define name="USE_AIRSPEED_LOWPASS_FILTER" value="TRUE"/> --><!-- Already TRUE per default -->
         <define name="SDP3X_PRESSURE_SCALE" value="SDP3X_SCALE_PRESSURE_SDP33"/>
         <!--<define name="SDP3X_SYNC_SEND" value="TRUE"/>--> <!-- Only enable while debugging -->
       </module>
@@ -370,7 +367,6 @@ Safety
     <!-- disable after initial filter tuning-->
     <module name="imu_quality_assessment"/>
 
-    <module name="air_data"/>
     <module name="geo_mag"/>
 
     <module name="navigation"/>
@@ -433,6 +429,16 @@ Safety
     <axis name="YAW"          failsafe_value="0"/>
     <axis name="ACTIVELIGHTS" failsafe_value="0"/>
   </commands>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <!-- Low-pass cut-off (Hz) of the pitot, was a time constant of 0.09 s -->
+    <define name="DIFF_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="SDP3X_SENDER_ID"/>
+        <field name="filter_freq" value="1.77"/>
+      </field>
+    </define>
+  </section>
 
   <section name="ServoPositions">
     <!--  Definitions terms for e.g. flightplan -->
@@ -536,12 +542,6 @@ Safety
       <!--<define name="FC_IMU_ID" value="ABI_BROADCAST"/>-->
       <!--<define name="FC_MAG_ID" value="MAG_QMC5883_SENDER_ID"/>-->
     <!--<define name="FC_MAG_ID" value="MAG_RM3100_SENDER_ID"/>-->
-  </section>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="TRUE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
   <section name="AGL" prefix="AGL_DIST_SONAR_"> <!-- SONAR is type of technology Ranger is sensor class -->
