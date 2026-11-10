@@ -80,6 +80,21 @@ PRINT_CONFIG_MSG("INS_EKF2_LOG_INPUTS: the EKF2 only starts after the SD log is 
 static const char PPRZ_LOG_NAME[] = "pprzlog_";
 static const char PPRZ_LOG_DIR[] = "PPRZ";
 
+/** Write the configuration of the firmware next to the logs (PPRZ/<date>_<md5>_<aircraft>.conf.gz),
+ * so sd2log can decode them without the var/conf of the computer that built the firmware */
+#ifndef SDLOG_CONF
+#define SDLOG_CONF TRUE
+#endif
+#if SDLOG_CONF
+#include "generated/aircraft_conf.h"
+#endif
+/** Result of writing the configuration, reported to the GCS */
+static volatile SdioError sdlog_conf_error = SDLOG_OK;
+// Error of the start step that failed, the storage status can be changed later by other calls
+static volatile SdioError sdlog_start_error = SDLOG_OK;
+static const char *sdlog_start_step = "";
+static volatile uint8_t sdlog_start_fatfs = 0;
+
 /*
  * Start log thread
  */
@@ -118,10 +133,12 @@ static struct preflight_check_t sdlog_pfc;
 
 static void sdlog_preflight(struct preflight_result_t *result) {
   if(chibios_sdlog_status != SDLOG_RUNNING) {
+    const char *cause = (chibios_sdlog_status == SDLOG_STOPPED) ? "not started yet" :
+                        sdlog_error_string(sdlog_start_error != SDLOG_OK ? sdlog_start_error : sdLogGetStorageStatus());
 #ifdef SDLOG_PREFLIGHT_ERROR
-    preflight_error(result, "SDLogger is not running [%d:%d]", chibios_sdlog_status, sdLogGetStorageStatus());
+    preflight_error(result, "SD log not running: %s", cause);
 #else
-    preflight_warning(result, "SDLogger is not running [%d:%d]", chibios_sdlog_status, sdLogGetStorageStatus());
+    preflight_warning(result, "SD log not running: %s", cause);
 #endif
   } else {
     preflight_success(result, "SDLogger running");
@@ -131,8 +148,41 @@ static void sdlog_preflight(struct preflight_result_t *result) {
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
+/**
+ * Tell the GCS in words why the logger does not run (no SD card, card full, ...): at the start and
+ * every time it goes into error later, and when the configuration could not be written. A normal
+ * start is not reported. Sent with the LOGGER_STATUS message, from the main thread.
+ */
+static void sdlog_report_status(struct transport_tx *trans, struct link_device *dev)
+{
+  static int reported = SDLOG_STOPPED;
+  int status = chibios_sdlog_status;
+  // only on a change: the start (stopped to running or error), and every time it goes into error
+  if (status == reported || status == SDLOG_STOPPED || (status == SDLOG_RUNNING && reported == SDLOG_ERROR)) {
+    reported = status;
+    return;
+  }
+  reported = status;
+  char msg[120];
+  if (status == SDLOG_ERROR) {
+    if (sdlog_start_error != SDLOG_OK) {
+      // the start failed: the failing step and its FatFS result tell why the card could not be used
+      chsnprintf(msg, sizeof(msg), "SD log error: %s (%s, FatFS %d)", sdlog_error_string(sdlog_start_error),
+                 sdlog_start_step, sdlog_start_fatfs);
+    } else {
+      chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(sdLogGetStorageStatus()));
+    }
+  } else if (sdlog_conf_error != SDLOG_OK) {
+    chsnprintf(msg, sizeof(msg), "SD log: configuration not written: %s", sdlog_error_string(sdlog_conf_error));
+  } else {
+    return; // a normal start is not reported
+  }
+  pprz_msg_send_INFO_MSG(trans, dev, AC_ID, strlen(msg), msg);
+}
+
 static void send_sdlog_status(struct transport_tx *trans, struct link_device *dev)
 {
+  sdlog_report_status(trans, dev);
   uint8_t status = (uint8_t) chibios_sdlog_status;
   uint8_t errno = (uint8_t) sdLogGetStorageStatus();
   uint32_t used = (uint32_t) sdLogGetNbBytesWrittenToStorage();
@@ -298,6 +348,17 @@ static void thd_bat_survey(void *arg)
 #endif // SDLOG_ENABLE_LOWBAT_FLUSH
 #endif
 
+/** Keep why the start failed (the first failing step only) */
+static void sdlog_start_failed(const char *step, SdioError err)
+{
+  if (sdOk) {
+    sdlog_start_step = step;
+    sdlog_start_fatfs = sdLogGetFatfsResult();
+    sdlog_start_error = err;
+  }
+  sdOk = false;
+}
+
 static void thd_startlog(void *arg)
 {
   (void) arg;
@@ -317,24 +378,31 @@ static void thd_startlog(void *arg)
   // Check for init errors
   sdOk = true;
 
-  if (sdLogInit(NULL) != SDLOG_OK) {
-    sdOk = false;
+  SdioError err = sdLogInit(NULL);
+  if (err != SDLOG_OK) {
+    sdlog_start_failed("init", err);
   } else {
     removeEmptyLogs(PPRZ_LOG_DIR, PPRZ_LOG_NAME, 50);
-    if (sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR,
-                     PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
-                     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
-      sdOk = false;
+    err = sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR,
+                       PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
+                       SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename));
+    if (err != SDLOG_OK) {
+      sdlog_start_failed("open log", err);
     }
     chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), "%s", tmpFilename);
 #if FLIGHTRECORDER_SDLOG
     removeEmptyLogs(FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, 50);
-    if (sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME,
-                     SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
-                     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
-      sdOk = false;
+    err = sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME,
+                       SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
+                       SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename));
+    if (err != SDLOG_OK) {
+      sdlog_start_failed("open flight recorder", err);
     }
     chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), "%s,%s", chibios_sdlog_filenames, tmpFilename);
+#endif
+#if SDLOG_CONF
+    // once per configuration, a failure does not stop the logging
+    sdlog_conf_error = sdLogWriteFile(PPRZ_LOG_DIR, AIRCRAFT_CONF_NAME, aircraft_conf_gz, sizeof(aircraft_conf_gz));
 #endif
   }
 
