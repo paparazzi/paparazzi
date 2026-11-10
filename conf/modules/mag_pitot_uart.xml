@@ -10,7 +10,7 @@
     <define name="IMU_TO_MAG_PSI" value="0" description="rotation of magneto compared to the magneto in yaw axis"/>
   </doc>
   <dep>
-    <depends>uart,@imu</depends>
+    <depends>uart,@imu,air_data</depends>
     <provides>mag</provides>
   </dep>
   <header>

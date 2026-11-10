@@ -30,7 +30,6 @@
 #include "mcu_periph/i2c.h"
 
 extern float airspeed_scale;
-extern float airspeed_filter;
 
 extern struct i2c_transaction airspeed_amsys_i2c_trans;
 

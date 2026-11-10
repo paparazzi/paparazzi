@@ -24,6 +24,7 @@
 #include "modules/sensors/baro.h"
 #include "mcu_periph/i2c.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 
 enum LisaBaroStatus {
@@ -141,7 +142,7 @@ void lisa_l_baro_event(void)
       uint32_t now_ts = get_sys_time_usec();
       int16_t tmp = baro_trans.buf[0] << 8 | baro_trans.buf[1];
       float pressure = LISA_L_BARO_SENS * (float)tmp;
-      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, pressure);
+      AbiSendMsgBARO_ABS_RAW(BARO_BOARD_SENDER_ID, now_ts, pressure);
     }
   } else if (baro_board.status == LBS_READING_DIFF &&
              baro_trans.status != I2CTransPending) {
@@ -149,7 +150,7 @@ void lisa_l_baro_event(void)
     if (baro_trans.status == I2CTransSuccess) {
       int16_t tmp = baro_trans.buf[0] << 8 | baro_trans.buf[1];
       float diff = LISA_L_DIFF_SENS * (float)tmp;
-      AbiSendMsgBARO_DIFF(BARO_BOARD_SENDER_ID, diff);
+      AbiSendMsgBARO_DIFF_RAW(BARO_BOARD_SENDER_ID, now_ts, diff);
     }
   }
 }
