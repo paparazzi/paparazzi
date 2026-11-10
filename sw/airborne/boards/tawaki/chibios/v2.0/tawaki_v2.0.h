@@ -741,16 +741,6 @@
 #define SPI_SELECT_SLAVE5_PIN   PAL_PAD(LINE_SPI6_INTERNAL_CS)
 
 /**
- * Baro
- *
- * Apparently needed for backwards compatibility
- * with the ancient onboard baro boards
- */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 0
-#endif
-
-/**
  * SDIO
  */
 #define SDIO_D0_PORT  PAL_PORT(LINE_SDMMC1_D0)

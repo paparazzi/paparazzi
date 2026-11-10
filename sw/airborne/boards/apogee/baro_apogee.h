@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2013 Gautier Hattenberger (ENAC)
  *
  * This file is part of paparazzi.
  *
@@ -17,30 +17,26 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
 /**
- * @file modules/sensors/baro.h
+ * @file boards/apogee/baro_apogee.h
  *
- * Common barometric sensor implementation.
- * Used with baro integrated to the autopilot board.
- * Implementation is in boards/<board_name>/baro_board.[ch]
- *
+ * integrated barometer for Apogee boards (mpl3115)
  */
 
-#ifndef SENSORS_BARO_H
-#define SENSORS_BARO_H
+#ifndef BOARDS_APOGEE_BARO_H
+#define BOARDS_APOGEE_BARO_H
 
-#include BOARD_CONFIG
+#include "std.h"
 
-#if USE_BARO_BOARD
-#include "baro_board.h"
-#ifndef BARO_BOARD
-#define BARO_BOARD BARO_BOARD_DEFAULT
-#endif
+#ifndef BARO_APOGEE_FREQ
+#define BARO_APOGEE_FREQ 5
 #endif
 
-extern void baro_init(void);
-extern void baro_periodic(void);
+extern void baro_apogee_init(void);
+extern void baro_apogee_periodic(void);
+extern void baro_apogee_event(void);
 
-#endif /* SENSORS_BARO_H */
+#endif // BOARDS_APOGEE_BARO_H

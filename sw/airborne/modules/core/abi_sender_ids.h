@@ -36,11 +36,6 @@
 #define AIR_DATA_SENDER_ID 254
 #endif
 
-/** default onboard baro */
-#ifndef BARO_BOARD_SENDER_ID
-#define BARO_BOARD_SENDER_ID 1
-#endif
-
 /*
  * IDs of baro modules that can be loaded (message 0)
  */

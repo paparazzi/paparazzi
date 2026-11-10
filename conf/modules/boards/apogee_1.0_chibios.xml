@@ -7,13 +7,10 @@
     </description>
   </doc>
   <dep>
-    <depends>i2c,baro_board_common,hard_fault_recovery,power_switch</depends>
-    <provides>baro</provides>
+    <depends>i2c,baro_apogee,hard_fault_recovery,power_switch</depends>
   </dep>
   <makefile target="!sim|nps|fbw">
     <define name="USE_I2C1"/>
-    <file name="mpl3115.c" dir="peripherals"/>
-    <file name="baro_board.c" dir="$(SRC_BOARD)"/>
   </makefile>
 </module>
 

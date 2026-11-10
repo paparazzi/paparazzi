@@ -10,7 +10,6 @@
     <configure name="PERIODIC_FREQUENCY"  value="500"/>
 
     <target name="ap" board="px4fmu_5.0_chibios">
-      <define name="USE_BARO_BOARD" value="1"/>
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART3"/>
       </module>

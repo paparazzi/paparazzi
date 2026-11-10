@@ -55,7 +55,6 @@ $(TARGET).CFLAGS += -U_TIME_BITS
 
 # default LED configuration
 RADIO_CONTROL_LED   ?= none
-BARO_LED            ?= none
 AHRS_ALIGNER_LED    ?= 1
 GPS_LED             ?= none
 SYS_TIME_LED        ?= 0

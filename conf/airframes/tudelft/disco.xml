@@ -52,9 +52,7 @@ ffmpeg -f concat -safe 0 -i images.txt -c:v libx264 -crf 18 -profile:v baseline 
     <module name="gps" type="ublox"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="ins" type="alt_float"/>
-    <module name="baro" type="ms5611_i2c">
-      <define name="BB_MS5611_TYPE_MS5607" value="TRUE" />
-    </module>
+    <module name="baro" type="ms5611_i2c"/>
     <module name="airspeed" type="ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c1"/>
     </module>

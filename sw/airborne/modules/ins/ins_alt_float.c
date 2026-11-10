@@ -54,7 +54,6 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 struct InsAltFloat ins_altf;
 
 #if USE_BAROMETER
-#include "modules/sensors/baro.h"
 #include "math/pprz_isa.h"
 
 PRINT_CONFIG_MSG("USE_BAROMETER is TRUE: Using baro for altitude estimation.")

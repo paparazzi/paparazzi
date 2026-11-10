@@ -24,10 +24,6 @@
         <configure name="MODEM_BAUD" value="B115200"/>
       </module>
     
-      <module name="baro_ms5611_spi" >
-        <configure name="MS5611_SPI_DEV" value="spi1"/>
-        <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
-      </module>
 
       <module name="optical_flow_mateksys_3901_l0x.xml">
         <configure name="MATEKSYS_3901_L0X_PORT" value="UART3"/>
