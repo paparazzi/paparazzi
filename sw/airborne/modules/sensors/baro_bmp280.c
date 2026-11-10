@@ -30,6 +30,7 @@
 #include "baro_bmp280.h"
 
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
@@ -107,8 +108,8 @@ void baro_bmp280_event(void)
   if (baro_bmp280.data_available) {
     uint32_t now_ts = get_sys_time_usec();
     // send ABI message
-    AbiSendMsgBARO_ABS(BARO_BMP_SENDER_ID, now_ts, baro_bmp280.pressure);
-    AbiSendMsgTEMPERATURE(BARO_BMP_SENDER_ID, baro_bmp280.temperature);
+    AbiSendMsgBARO_ABS_RAW(BARO_BMP_SENDER_ID, now_ts, baro_bmp280.pressure);
+    AbiSendMsgTEMPERATURE_RAW(BARO_BMP_SENDER_ID, now_ts, baro_bmp280.temperature, TEMPERATURE_TYPE_BARO);
     baro_bmp280.data_available = false;
     baro_alt = pprz_isa_altitude_of_pressure(baro_bmp280.pressure);
     baro_alt_valid = true;

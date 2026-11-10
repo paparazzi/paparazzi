@@ -117,7 +117,7 @@ static inline void main_init(void)
 
   baro_tid = sys_time_register_timer(1. / BARO_PERIODIC_FREQUENCY, NULL);
 
-  AbiBindMsgBARO_ABS(BARO_ABS_ID, &pressure_abs_ev, pressure_abs_cb);
+  AbiBindMsgBARO_ABS_RAW(BARO_ABS_ID, &pressure_abs_ev, pressure_abs_cb);
 }
 
 static inline void main_periodic_task(void)
