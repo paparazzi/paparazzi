@@ -50,6 +50,7 @@ struct gps_ubx_ucenter_struct {
   uint16_t hw_ver_l;
 
   uint8_t gnss_in_use;
+  uint8_t sbas_in_use;  ///< SBAS usage flags as configured (GPS_SBAS_*)
 
   /// Port identifier number
   uint8_t port_id;

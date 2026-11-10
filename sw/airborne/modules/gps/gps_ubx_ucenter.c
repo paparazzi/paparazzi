@@ -33,6 +33,9 @@
 #include "modules/gps/gps_ubx.h"
 #include "ubx_protocol.h"
 #include "modules/datalink/downlink.h"
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+#endif
 
 #if GPS_UBX_NB > 1
 #warning "Only one GPS_UBX is supported for ucenter configuration."
@@ -123,6 +126,16 @@ static bool gps_ubx_ucenter_configure_valset(uint8_t nr);
 struct gps_ubx_ucenter_struct gps_ubx_ucenter;
 
 
+#if PERIODIC_TELEMETRY
+/** Receiver information, slowly for the GCS and the logs (the configuration itself is only done at start) */
+static void send_ublox_info(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_UBLOX_INFO(trans, dev, AC_ID, &gps_ubx_ucenter.baud_run, &gps_ubx_ucenter.sw_ver_h,
+                           &gps_ubx_ucenter.sw_ver_l, &gps_ubx_ucenter.hw_ver_h, &gps_ubx_ucenter.hw_ver_l,
+                           &gps_ubx_ucenter.sbas_in_use, &gps_ubx_ucenter.gnss_in_use);
+}
+#endif
+
 /////////////////////////////
 // Init Function
 
@@ -141,6 +154,8 @@ void gps_ubx_ucenter_init(void)
   gps_ubx_ucenter.sw_ver_l = 0;
   gps_ubx_ucenter.hw_ver_h = 0;
   gps_ubx_ucenter.hw_ver_l = 0;
+  gps_ubx_ucenter.sbas_in_use = 0;
+  gps_ubx_ucenter.gnss_in_use = 0;
 
   gps_ubx_ucenter.cfg_prt_reply = false;
   gps_ubx_ucenter.version_reply = false;
@@ -152,6 +167,15 @@ void gps_ubx_ucenter_init(void)
   }
 
   gps_ubx_ucenter.dev = &(UBX_GPS_PORT).device;
+
+#if PERIODIC_TELEMETRY
+  // The init also runs again when the configuration is restarted from the settings
+  static bool telemetry_registered = false;
+  if (!telemetry_registered) {
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_UBLOX_INFO, send_ublox_info);
+    telemetry_registered = true;
+  }
+#endif
 }
 
 
@@ -387,16 +411,15 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
 /** Send the configuration replies (DEBUG message) and the receiver information to the ground */
 static void gps_ubx_ucenter_send_info(uint8_t sbas)
 {
+  gps_ubx_ucenter.sbas_in_use = sbas;
 #if DEBUG_GPS_UBX_UCENTER
   // To view, enable the DEBUG message in your telemetry configuration
   DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, GPS_UBX_UCENTER_CONFIG_STEPS, gps_ubx_ucenter.replies);
 #endif
 #ifdef DOWNLINK_TRANSPORT
-  uint8_t gnss = gps_ubx_ucenter.gnss_in_use;
   DOWNLINK_SEND_UBLOX_INFO(DefaultChannel, DefaultDevice, &gps_ubx_ucenter.baud_run, &gps_ubx_ucenter.sw_ver_h,
-                           &gps_ubx_ucenter.sw_ver_l, &gps_ubx_ucenter.hw_ver_h, &gps_ubx_ucenter.hw_ver_l, &sbas, &gnss);
-#else
-  (void) sbas;
+                           &gps_ubx_ucenter.sw_ver_l, &gps_ubx_ucenter.hw_ver_h, &gps_ubx_ucenter.hw_ver_l,
+                           &gps_ubx_ucenter.sbas_in_use, &gps_ubx_ucenter.gnss_in_use);
 #endif
 }
 
