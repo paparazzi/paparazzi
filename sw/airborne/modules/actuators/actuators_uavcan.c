@@ -43,6 +43,12 @@
 #define UAVCAN_ACTUATORS_USE_CURRENT TRUE
 #endif
 
+#define UNITLESS    UAVCAN_EQUIPMENT_ACTUATOR_COMMAND_COMMAND_TYPE_UNITLESS
+#define POSITION    UAVCAN_EQUIPMENT_ACTUATOR_COMMAND_COMMAND_TYPE_POSITION
+#define FORCE       UAVCAN_EQUIPMENT_ACTUATOR_COMMAND_COMMAND_TYPE_FORCE
+#define SPEED       UAVCAN_EQUIPMENT_ACTUATOR_COMMAND_COMMAND_TYPE_SPEED
+#define PWM         UAVCAN_EQUIPMENT_ACTUATOR_COMMAND_COMMAND_TYPE_PWM
+
 /* uavcan ESC status telemetry structure */
 struct actuators_uavcan_telem_t {
   bool set;
@@ -74,15 +80,41 @@ void actuators_uavcan2_set(uint8_t idx, int16_t value)
   actuators_uavcan2_values[idx] = value;
 }
 #endif
+
 #ifdef SERVOS_UAVCAN1CMD_NB
+
+#ifndef ACTUATOR_UAVCAN1_CMD_TYPES
+#define ACTUATOR_UAVCAN1_CMD_TYPES {[0 ... SERVOS_UAVCAN1CMD_NB - 1] = UNITLESS}
+#endif
+
+#ifndef ACTUATOR_UAVCAN1_CMD_FACTORS
+#define ACTUATOR_UAVCAN1_CMD_FACTORS {[0 ... SERVOS_UAVCAN1CMD_NB - 1] = (float)MAX_PPRZ}
+#endif
+
+static const uint8_t uavcan1_cmd_types[SERVOS_UAVCAN1CMD_NB] = ACTUATOR_UAVCAN1_CMD_TYPES;
+static const float uavcan1_cmd_factors[SERVOS_UAVCAN1CMD_NB] = ACTUATOR_UAVCAN1_CMD_FACTORS;
+
 int16_t actuators_uavcan1cmd_values[SERVOS_UAVCAN1CMD_NB];
 
 void actuators_uavcan1cmd_set(uint8_t idx, int16_t value)
 {
   actuators_uavcan1cmd_values[idx] = value;
 }
+
 #endif
+
 #ifdef SERVOS_UAVCAN2CMD_NB
+#ifndef ACTUATOR_UAVCAN2_CMD_TYPES
+#define ACTUATOR_UAVCAN2_CMD_TYPES {[0 ... SERVOS_UAVCAN2CMD_NB - 1] = UNITLESS}
+#endif
+
+#ifndef ACTUATOR_UAVCAN2_CMD_FACTORS
+#define ACTUATOR_UAVCAN2_CMD_FACTORS {[0 ... SERVOS_UAVCAN2CMD_NB - 1] = (float)MAX_PPRZ}
+#endif
+
+static const uint8_t uavcan2_cmd_types[SERVOS_UAVCAN2CMD_NB] = ACTUATOR_UAVCAN2_CMD_TYPES;
+static const float uavcan2_cmd_factors[SERVOS_UAVCAN2CMD_NB] = ACTUATOR_UAVCAN2_CMD_FACTORS;
+
 int16_t actuators_uavcan2cmd_values[SERVOS_UAVCAN2CMD_NB];
 
 void actuators_uavcan2cmd_set(uint8_t idx, int16_t value)
@@ -459,6 +491,27 @@ void actuators_uavcan_commit(struct uavcan_iface_t *iface, int16_t *values, uint
  */
 void actuators_uavcan_cmd_commit(struct uavcan_iface_t *iface, int16_t *values, uint8_t nb)
 {
+
+  const uint8_t *cmd_types = NULL;
+  const float *cmd_factors = NULL;
+
+#ifdef SERVOS_UAVCAN1CMD_NB
+  if(iface == &uavcan1) {
+    cmd_types = uavcan1_cmd_types;
+    cmd_factors = uavcan1_cmd_factors;
+  }
+#endif
+#ifdef SERVOS_UAVCAN2CMD_NB
+  if(iface == &uavcan2) {
+    cmd_types = uavcan2_cmd_types;
+    cmd_factors = uavcan2_cmd_factors;
+  }
+#endif
+
+  if (cmd_types == NULL || cmd_factors == NULL) {
+    return;
+  }
+
   struct uavcan_equipment_actuator_ArrayCommand msg = {0};
   msg.commands.len = 0;
 
@@ -469,8 +522,8 @@ void actuators_uavcan_cmd_commit(struct uavcan_iface_t *iface, int16_t *values, 
       continue;
     
     msg.commands.data[msg.commands.len].actuator_id = i;
-    msg.commands.data[msg.commands.len].command_type = UAVCAN_EQUIPMENT_ACTUATOR_COMMAND_COMMAND_TYPE_UNITLESS;
-    msg.commands.data[msg.commands.len].command_value = (float)values[i] / (float)MAX_PPRZ;
+    msg.commands.data[msg.commands.len].command_type = cmd_types[i];
+    msg.commands.data[msg.commands.len].command_value = (float)values[i] / cmd_factors[i];
     msg.commands.len++;
   }
 
