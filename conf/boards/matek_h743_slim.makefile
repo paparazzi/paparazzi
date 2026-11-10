@@ -54,7 +54,6 @@ PX4_BL_PORT ?= "/dev/serial/by-id/usb-*_MatekH743_*"
 #
 SDLOG_LED          ?= none
 RADIO_CONTROL_LED  ?= none
-BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= 2
 GPS_LED            ?= none
 SYS_TIME_LED       ?= 1

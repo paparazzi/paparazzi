@@ -292,9 +292,4 @@
 /* servo 3 on TIM8 */
 #define PWM_TIM8_CHAN_MASK (PWM_SERVO_3_OC_BIT)
 
-/* by default activate onboard baro */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 1
-#endif
-
 #endif /* CONFIG_NAVSTIK_1_0_H */

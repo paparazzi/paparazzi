@@ -60,7 +60,6 @@
       <define name="SDP3X_i2C_DEV" value="i2c2"/>
       <define name="SDP3X_PRESSURE_SCALE" value="8.0"/>
       <define name="SDP3X_PRESSURE_OFFSET" value="0.0"/>
-      <define name="USE_AIRSPEED_SDP3X" value="TRUE"/>
     </module>
 
     <module name="board" type="tawaki">
@@ -77,7 +76,6 @@
       <define name="LIS3MDL_CHAN_Y_SIGN" value="-" />
     </module>
 
-    <module name="air_data"/>
     <module name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
       <configure name="UBX_GPS_PORT" value="UART7"/>
@@ -116,6 +114,16 @@
     <set servo="BL" value="autopilot.motors_on ? actuators_pprz[2] : -MAX_PPRZ"/>
     <set servo="UL" value="autopilot.motors_on ? actuators_pprz[3] : -MAX_PPRZ"/>
   </command_laws>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <!-- Low-pass cut-off (Hz) of the pitot, the old 0.15 s time constant of the driver -->
+    <define name="DIFF_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="SDP3X_SENDER_ID"/>
+        <field name="filter_freq" value="1.06"/>
+      </field>
+    </define>
+  </section>
 
   <section name="IMU" prefix="IMU_">
     <!-- IMU calibration, make sure to calibrate the IMU properly before flight, see the wiki for more info-->
