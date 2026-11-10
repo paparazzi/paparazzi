@@ -228,7 +228,6 @@
     <session name="PythonTools">
       <program name="IridiumDialer"/>
       <program name="PayloadForward"/>
-      <program name="SVInfo"/>
       <program name="IridiumDialer"/>
     </session>
 
