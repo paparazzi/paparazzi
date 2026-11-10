@@ -136,10 +136,7 @@
       of nifty Galilleio setting we rather keep that, but for now, lazyness -->
       <module name="gps" type="ubx_ucenter"/>
 
-      <module name="airspeed" type="ms45xx_i2c">
-        <!--Gives cut-off freq of 1/(2*pi*tau) in 1Hz -->
-        <define name="MS45XX_LOWPASS_TAU" value="0.25"/> <!-- TODO: find optimum value for stock Disco -->
-      </module>
+      <module name="airspeed" type="ms45xx_i2c"/>
 
       <!-- SBUS out is AETR by default, our transmitter sends TAER as per standard so correct in radio file -->
       <module name="radio_control" type="sbus"> <!-- The output type of RX, over the air it can can be all kinds e.g. DSMX, FRSky-->
@@ -198,8 +195,7 @@
       <module name="ins" type="alt_float"/>-->
       <module name="baro_sim"/>
       <!-- For various parameter info here  https://wiki.paparazziuav.org/wiki/Subsystem/ahrs -->
-      <!--<module name="ahrs" type="int_cmpl_quat">
-      </module>-->
+      <!--<module name="ahrs" type="int_cmpl_quat"/>-->
       <!--<module name="uart"/>--><!-- TODO: Exteral HITL PC debugging e.g a photocam trigger etc -->
     </target>
 
@@ -321,11 +317,6 @@
     <module name="auto1_commands"/> <!-- FIXME not working in JSBSim target with RC controller steering in Simulator-->
 
     <!-- Also used if QNH needed -->
-    <module name="air_data">
-     <define name="CALC_AIRSPEED" value="FALSE"/><!--  we set use airspeed elsewhere-->
-     <define name="CALC_TAS_FACTOR" value="FALSE"/>
-     <define name="CALC_AMSL_BARO" value="TRUE"/>
-    </module>
 
     <module name="geo_mag"/>
 
@@ -412,11 +403,9 @@
     </module>
 
     <!-- Nice when flying multiple airframes, Now the next step is to get the cam look at other AC_ID working between Rotor and Fixed -->
-    <module name="traffic_info">
-    </module>
+    <module name="traffic_info"/>
 
-    <module name="tcas">
-    </module>
+    <module name="tcas"/>
 
   </firmware>
 
@@ -431,6 +420,10 @@
     <servo name="S_GEAR" no="4" min="1100" neutral="1500" max="1900"/> <!-- No gear eiter Can be used for other purpose of choice -->
     <servo name="S_FLAPS" no="5" min="1100" neutral="1500" max="1900"/> <!-- No real flaps either, Can be used for other purpose of choice -->
   </servos>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="DIFF_FILTER_FREQ" value="0.64"/> <!-- was a time constant of 0.25 s -->
+  </section>
 
   <section name="ServoPositions">
     <define name="SERVO_BRAKE_FULL" value="-MAX_PPRZ" />

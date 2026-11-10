@@ -8,10 +8,9 @@
     </description>
     <configure name="MS5611_SPI_DEV" value="spiX" description="select spi peripheral to use (default spi1)"/>
     <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE0" description="SPI slave select index"/>
-    <define name="SENSOR_SYNC_SEND" description="flag to enable sending BARO_MS5611 message on every new measurement"/>
   </doc>
   <dep>
-    <depends>spi_master</depends>
+    <depends>spi_master,air_data</depends>
     <provides>baro</provides>
   </dep>
   <header>

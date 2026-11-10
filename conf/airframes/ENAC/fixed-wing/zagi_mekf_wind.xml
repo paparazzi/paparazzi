@@ -74,12 +74,6 @@
       <define name="USE_AOA"/>
       <define name="USE_SIDESLIP"/>
     </module>
-    <module name="air_data"> 
-      <!--define name="AIR_DATA_BARO_ABS_ID" value="BARO_BOARD_SENDER_ID"/-->
-      <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
-      <!--define name="AIR_DATA_BARO_DIFF_ID" value="BARODIFF_BOARD_SENDER_ID"/-->
-      <!--define name="USE_AIRSPEED_AIR_DATA" value="FALSE"/-->
-    </module>
 
     <module name="airspeed" type="ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c1"/>
@@ -104,6 +98,11 @@
     <set command="ROLL"     value="@ROLL"/>
     <set command="PITCH"    value="@PITCH"/>
   </rc_commands>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <!--define name="BARO_ID" value="BARO_BOARD_SENDER_ID"/-->
+    <!--define name="AIRSPEED_ID" value="BARODIFF_BOARD_SENDER_ID"/-->
+  </section>
 
   <section name="MIXER">
     <define name="AILEVON_AILERON_RATE"  value="0.75"/>

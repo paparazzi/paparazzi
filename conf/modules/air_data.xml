@@ -4,30 +4,79 @@
   <doc>
     <description>
     AirData interface.
-    Provides an interface for baro absolute and differential pressure as well as airspeed.
-    Subscribes to BARO_ABS, BARO_DIFF and TEMPERATURE ABI messages and calculates QNH and true airspeed from it.
-    Also enables you to fly on "flight levels" using AMSL (AltitudeAboveSeaLevel) calculated from current pressure and QNH.
+    Combines the barometers, differential pressure, airspeed and temperature sensors, like the IMU combines the gyros, accelerometers and magnetometers.
 
-    When using this module to provide airspeed you need a differential pressure sensor module publishing the BARO_DIFF ABI message. Make sure to disable other modules which otherwise directly set the airspeed in the state interface.
+    The drivers send their raw values with their own ABI sender ids (BARO_ABS_RAW, BARO_DIFF_RAW, AIRSPEED_RAW and TEMPERATURE_RAW).
+    Per sensor air_data low-pass filters the raw value and applies the calibration (value = (filter(raw) - offset) * scale), selects the sensor to use
+    (the one of the setting, otherwise the first healthy one in the order of the airframe calibration) and sends it
+    with AIR_DATA_SENDER_ID as BARO_ABS, BARO_DIFF, AIRSPEED and TEMPERATURE. It falls back to the next healthy sensor
+    when one stops sending. It also calculates QNH, true airspeed and AMSL (AltitudeAboveSeaLevel) to fly on "flight levels".
+
+    The calibration (at boot and with the Calibrate setting) zeroes the differential pressures and lines up the barometers
+    with the one in use, so switching barometers gives no altitude step. It is refused while the motors are armed, unless calib_armed.
+    At boot the sensors with an offset in the airframe keep it.
+
+    It is loaded automatically (by the barometers, pitots, INS and the ap and simulation targets), like the IMU it is not
+    added to the airframe. The configuration goes in a section with prefix AIR_DATA_, for example:
+    &lt;section name="AIR_DATA" prefix="AIR_DATA_"&gt;
+      &lt;define name="AIRSPEED_ID" value="MS45XX_SENDER_ID"/&gt;
+      &lt;define name="DIFF_CALIB" type="array"&gt;
+        &lt;field type="struct"&gt;
+          &lt;field name="abi_id" value="MS45XX_SENDER_ID"/&gt;
+          &lt;field name="calibrated" type="struct"&gt;
+            &lt;field name="offset" value="true"/&gt;
+          &lt;/field&gt;
+          &lt;field name="offset" value="12.3"/&gt;
+          &lt;field name="filter_freq" value="2"/&gt;
+        &lt;/field&gt;
+        &lt;field type="struct"&gt;
+          &lt;field name="abi_id" value="UAVCAN_SENDER_ID"/&gt;
+        &lt;/field&gt;
+      &lt;/define&gt;
+    &lt;/section&gt;
+    Each sensor is a struct with the fields abi_id, calibrated (offset, scale), offset, scale and filter_freq.
+    The order of a *_CALIB is also the priority of the automatic selection.
+    The filter is a second order Butterworth at the measured rate of the sensor. Without filter_freq a sensor uses the
+    default of its type (AIR_DATA_*_FILTER_FREQ), a negative filter_freq turns it off.
     </description>
-    <define name="AIR_DATA_BARO_ABS_ID" value="ABI_SENDER_ID" description="ABI sender id for absolute baro measurement (default: ABI_BROADCAST)"/>
-    <define name="AIR_DATA_BARO_DIFF_ID" value="ABI_SENDER_ID" description="ABI sender id for differential baro measurement (default: ABI_BROADCAST)"/>
-    <define name="AIR_DATA_TEMPERATURE_ID" value="ABI_SENDER_ID" description="ABI sender id for temperature measurement (default: ABI_BROADCAST)"/>
-    <define name="AIR_DATA_AIRSPEED_ID" value="ABI_SENDER_ID" description="ABI sender id for airspeed measurement (default: ABI_BROADCAST)"/>
-    <define name="AIR_DATA_CALC_AIRSPEED" value="FALSE|TRUE" description="Calculate Airspeed from differential pressure (default: TRUE)"/>
-    <define name="AIR_DATA_CALC_TAS_FACTOR" value="FALSE|TRUE" description="Calculate TAS factor from temp and pressure (default: TRUE)"/>
-    <define name="AIR_DATA_CALC_AMSL_BARO" value="FALSE|TRUE" description="Calculate AMS from baro and QNH (default: FALSE)"/>
-    <define name="USE_AIRSPEED_AIR_DATA" value="TRUE|FALSE" description="set airspeed in state interface (defaults to TRUE if USE_AIRSPEED)"/>
+    <define name="AIR_DATA_BARO_CALIB" value="array of structs" description="calibration of the barometers, also their priority (see the description)"/>
+    <define name="AIR_DATA_DIFF_CALIB" value="array of structs" description="calibration of the differential pressure sensors, the scale is the pitot correction"/>
+    <define name="AIR_DATA_AIRSPEED_CALIB" value="array of structs" description="calibration of the airspeed sensors"/>
+    <define name="AIR_DATA_TEMP_CALIB" value="array of structs" description="calibration of the temperatures"/>
+    <define name="AIR_DATA_BARO_FILTER_FREQ" value="0." description="default low-pass cut-off of the barometers in Hz, 0 for none (default: 0)"/>
+    <define name="AIR_DATA_DIFF_FILTER_FREQ" value="1." description="default low-pass cut-off of the differential pressures in Hz, 0 for none (default: 1)"/>
+    <define name="AIR_DATA_AIRSPEED_FILTER_FREQ" value="0." description="default low-pass cut-off of the airspeed sensors in Hz, 0 for none (default: 0)"/>
+    <define name="AIR_DATA_TEMP_FILTER_FREQ" value="0." description="default low-pass cut-off of the temperatures in Hz, 0 for none (default: 0)"/>
+    <define name="AIR_DATA_BARO_ID" value="ABI_SENDER_ID" description="barometer to use (default: ABI_BROADCAST, the first healthy one)"/>
+    <define name="AIR_DATA_AIRSPEED_ID" value="ABI_SENDER_ID" description="differential pressure or airspeed sensor to use (default: ABI_BROADCAST, the first healthy one)"/>
+    <define name="AIR_DATA_TEMP_ID" value="ABI_SENDER_ID" description="temperature to use (default: ABI_BROADCAST, an air temperature probe, then a pitot, then a barometer)"/>
+    <define name="AIR_DATA_BARO_SEND_ID" value="ABI_SENDER_ID" description="barometer in the BARO_RAW telemetry (default: ABI_BROADCAST, all in turn; ABI_DISABLE for none)"/>
+    <define name="AIR_DATA_AIRSPEED_SEND_ID" value="ABI_SENDER_ID" description="airspeed sensor in the AIRSPEED_RAW telemetry (default: ABI_BROADCAST, all in turn; ABI_DISABLE for none)"/>
+    <define name="AIR_DATA_SEND_ALL_SENSORS" value="FALSE|TRUE" description="also send every calibrated sensor with its own ABI id (default: FALSE)"/>
+    <define name="AIR_DATA_TIMEOUT" value="0.5" description="minimum time in s without a valid value before a sensor is unhealthy"/>
+    <define name="AIR_DATA_TIMEOUT_FACTOR" value="5." description="a sensor is unhealthy without a valid value for this times its interval"/>
+    <define name="AIR_DATA_ALIGN_NB" value="20" description="number of values to line up a barometer that starts after the calibration"/>
+    <define name="AIR_DATA_DIFF_MAX" value="10000." description="differential pressures above this (Pa) are ignored"/>
+    <define name="AIR_DATA_CALIB_AT_BOOT" value="TRUE|FALSE" description="calibrate at boot (default: TRUE)"/>
+    <define name="AIR_DATA_CALIB_BOOT_DELAY" value="3." description="time after boot of the calibration in s"/>
+    <define name="AIR_DATA_CALIB_TIME" value="2." description="calibration time in s"/>
+    <define name="AIR_DATA_CALIB_ARMED" value="FALSE|TRUE" description="allow the calibration while armed (default: FALSE)"/>
+    <define name="USE_AIRSPEED_AIR_DATA" value="TRUE|FALSE" description="set airspeed in state interface (default: TRUE)"/>
   </doc>
   <settings>
     <dl_settings>
       <dl_settings name="air_data">
+        <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="air_data.calibrate" module="air_data/air_data" handler="Calibrate" shortname="Calibrate"/>
+        <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="air_data.calib_armed" module="air_data/air_data" shortname="calibArmed"/>
+        <dl_setting min="0" max="255" step="1" var="air_data.baro_id" module="air_data/air_data" shortname="baroId" param="AIR_DATA_BARO_ID" type="uint8"/>
+        <dl_setting min="0" max="255" step="1" var="air_data.airspeed_id" module="air_data/air_data" shortname="airspeedId" param="AIR_DATA_AIRSPEED_ID" type="uint8"/>
+        <dl_setting min="0" max="255" step="1" var="air_data.temp_id" module="air_data/air_data" shortname="tempId" param="AIR_DATA_TEMP_ID" type="uint8"/>
+        <dl_setting min="0" max="255" step="1" var="air_data.baro_send_id" module="air_data/air_data" shortname="baroSendId" param="AIR_DATA_BARO_SEND_ID" type="uint8"/>
+        <dl_setting min="0" max="255" step="1" var="air_data.airspeed_send_id" module="air_data/air_data" shortname="airspeedSendId" param="AIR_DATA_AIRSPEED_SEND_ID" type="uint8"/>
+        <dl_setting min="0" max="10" step="0.1" var="air_data.airspeed_filter" module="air_data/air_data" handler="SetAirspeedFilter" shortname="airspeedFilter" type="float"/>
+        <dl_setting min="0.8" max="1.5" step="0.01" var="air_data.diffs[0].scale" module="air_data/air_data" shortname="pitotScale" type="float" persistent="true"/>
         <dl_setting min="800" max="1200" step="1" module="air_data/air_data" var="air_data.qnh" shortname="QNH"/>
-        <dl_setting min="0.8" max="1.3" step="0.01" module="air_data/air_data" var="air_data.tas_factor" shortname="TASfactor" param="AIR_DATA_TAS_FACTOR" type="float" persistent="true"/>
         <dl_setting min="0" max="1" step="1" var="air_data.calc_qnh_once" module="air_data/air_data" shortname="calcQNH"/>
-        <dl_setting min="0" max="1" step="1" var="air_data.calc_airspeed" module="air_data/air_data" shortname="calcAirspeed" param="AIR_DATA_CALC_AIRSPEED" type="uint8" persistent="true"/>
-        <dl_setting min="0" max="1" step="1" var="air_data.calc_tas_factor" module="air_data/air_data" shortname="calcTASfactor" param="AIR_DATA_CALC_TAS_FACTOR" type="uint8" persistent="true"/>
-        <dl_setting min="0" max="1" step="1" var="air_data.calc_amsl_baro" module="air_data/air_data" shortname="calcAMSL" param="AIR_DATA_CALC_AMSL_BARO" type="uint8" persistent="true"/>
       </dl_settings>
     </dl_settings>
   </settings>

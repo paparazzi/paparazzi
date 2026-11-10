@@ -115,10 +115,6 @@
     </module>
     <module name="stabilization" type="rate_indi"/>
 
-    <module name="air_data">
-      <define name="AIR_DATA_BARO_DIFF_ID" value="MS45XX_SENDER_ID"/> <!-- UAVCAN_SENDER_ID -->
-      <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE" />
-    </module>
 
     <module name="AOA_pwm">
       <define name="USE_PWM_INPUT1" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
@@ -211,6 +207,10 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="AIRSPEED_ID" value="MS45XX_SENDER_ID"/> <!-- UAVCAN_SENDER_ID -->
+  </section>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <!-- frontleft left (CCW), frontleft mid (CW), frontleft right (CCW), frontright left (CW), frontright mid (CCW), frontright right (CW) -->
