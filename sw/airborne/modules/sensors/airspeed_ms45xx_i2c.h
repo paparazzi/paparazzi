@@ -36,8 +36,6 @@ struct AirspeedMs45xx {
   bool  pressure_type;         ///< Pressure type Differential of Gauge
   float pressure_scale;        ///< Scaling factor from raw measurement to Pascal
   float pressure_offset;       ///< Offset in Pascal
-  bool autoset_offset;         ///< Set offset value from current filtered value
-  bool offset_set;             ///< Offset is set once
   float lowpass_tau;           ///< Time constant for low pass filter
 };
 
