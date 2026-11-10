@@ -107,12 +107,12 @@ void baro_event(void)
       bb_ms5611.data.temperature = update_median_filter_f(&board_baro_median_temp, bb_ms5611.data.temperature);
       #endif  
       float temp = bb_ms5611.data.temperature / 100.0f;    
-      AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
+      AbiSendMsgTEMPERATURE_RAW(BARO_BOARD_SENDER_ID, now_ts, temp, TEMPERATURE_TYPE_BARO);
 
       #if USE_BARO_MEDIAN_FILTER
       bb_ms5611.data.pressure = update_median_filter_f(&board_baro_median_pressure, bb_ms5611.data.pressure);
       #endif
-      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, bb_ms5611.data.pressure);
+      AbiSendMsgBARO_ABS_RAW(BARO_BOARD_SENDER_ID, now_ts, bb_ms5611.data.pressure);
 
       bb_ms5611.data_available = false;
 
@@ -120,12 +120,6 @@ void baro_event(void)
       RunOnceEvery(10, LED_TOGGLE(BARO_LED));
 #endif
 
-#if DEBUG
-      float fbaroms = bb_ms5611.data.pressure / 100.;
-      DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
-                                &bb_ms5611.data.d1, &bb_ms5611.data.d2,
-                                &fbaroms, &temp);
-#endif
     }
   }
 }

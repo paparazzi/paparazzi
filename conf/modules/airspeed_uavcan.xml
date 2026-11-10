@@ -3,7 +3,8 @@
 <module name="airspeed_uavcan" dir="sensors" task="sensors">
   <doc>
     <description>
-      Airspeed sensor over the uavcan protocol and optionally publishes over ABI. 
+      Airspeed sensor over the uavcan protocol and optionally publishes over ABI.
+      Sends the differential pressure and static air temperature to air_data, which zeroes the pressure (at boot and with its Calibrate setting) and computes the airspeed.
     </description>
     <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER" value="TRUE|FALSE" description="Enable the lowpass filter for the airspeed"/>
     <define name="AIRSPEED_UAVCAN_LOWPASS_TAU" value="0.15" description="Time constant for second order Butterworth low pass filter"/>
@@ -14,14 +15,12 @@
   <settings>
     <dl_settings>
       <dl_settings name="Airspeed UAVCAN">
-        <dl_setting shortname="autoset offset" var="autoset_offset" handler="autoset_offset" min="0" max="1" step="1" values="FALSE|TRUE" type="fun" module="modules/sensors/airspeed_uavcan"/>
-        <dl_setting shortname="diff_p offset" var="airspeed_uavcan.diff_p_offset" min="-2000" max="1000" step="0.1" type="float"/>
-        <dl_setting shortname="diff_p scale" var="airspeed_uavcan.diff_p_scale" min="0" max="1" step="0.01" type="float" param="AIRSPEED_UAVCAN_DIFF_P_SCALE"/>
+        <dl_setting shortname="diff_p scale" var="airspeed_uavcan.diff_p_scale" min="0.5" max="2" step="0.01" type="float" param="AIRSPEED_UAVCAN_DIFF_P_SCALE"/>
       </dl_settings>
     </dl_settings>
   </settings>
   <dep>
-    <depends>uavcan</depends>
+    <depends>uavcan,air_data</depends>
     <provides>airspeed</provides>
   </dep>
   <header>

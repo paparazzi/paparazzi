@@ -29,6 +29,7 @@
 #include "generated/airframe.h"
 #include "state.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "generated/modules.h"
 
 #ifndef USE_AIRSPEED_ADC
@@ -87,9 +88,8 @@ void airspeed_adc_update(void)
   airspeed_adc.airspeed = sim_air_speed;
 #endif //SITL
 
-  AbiSendMsgAIRSPEED(AIRSPEED_ADC_ID, airspeed_adc.airspeed);
-
 #if USE_AIRSPEED_ADC
-  stateSetAirspeed_f(MODULE_AIRSPEED_ADC_ID, airspeed_adc.airspeed);
+  // air_data calibrates it and sets the airspeed
+  AbiSendMsgAIRSPEED_RAW(AIRSPEED_ADC_ID, get_sys_time_usec(), airspeed_adc.airspeed);
 #endif
 }

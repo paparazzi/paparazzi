@@ -11,7 +11,7 @@
     <define name="BMP3_COMPENSATION" value="BMP3_SINGLE_PRECISION_COMPENSATION" description="select precision for compensation (single precision, double precision, or integer)"/>
   </doc>
   <dep>
-    <depends>i2c</depends>
+    <depends>i2c,air_data</depends>
     <provides>baro</provides>
   </dep>
   <header>

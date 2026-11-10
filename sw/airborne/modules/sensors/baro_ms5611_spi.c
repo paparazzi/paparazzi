@@ -108,25 +108,19 @@ void baro_ms5611_event(void)
     #endif
     float temp = baro_ms5611.data.temperature / 100.0f;
     // First Temp as ABI since pressure could depend on temp
-    AbiSendMsgTEMPERATURE(BARO_MS5611_SENDER_ID, temp);
+    AbiSendMsgTEMPERATURE_RAW(BARO_MS5611_SENDER_ID, now_ts, temp, TEMPERATURE_TYPE_BARO);
 
     #if USE_BARO_MEDIAN_FILTER
       baro_ms5611.data.pressure = update_median_filter_f(&baro_median_pressure, baro_ms5611.data.pressure);
     #endif
     float pressure = (float)baro_ms5611.data.pressure;
-    AbiSendMsgBARO_ABS(BARO_MS5611_SENDER_ID, now_ts, pressure);
+    AbiSendMsgBARO_ABS_RAW(BARO_MS5611_SENDER_ID, now_ts, pressure);
 
     baro_ms5611.data_available = false;
 
     baro_ms5611_alt = pprz_isa_altitude_of_pressure(pressure);
     baro_ms5611_alt_valid = true;
 
-#ifdef SENSOR_SYNC_SEND
-    fbaroms = baro_ms5611.data.pressure / 100.;
-    DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
-                              &baro_ms5611.data.d1, &baro_ms5611.data.d2,
-                              &fbaroms, &temp);
-#endif
   }
 }
 

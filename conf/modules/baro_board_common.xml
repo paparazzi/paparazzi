@@ -8,6 +8,7 @@
     <configure name="USE_BARO_BOARD" value="FALSE|TRUE" description="enable or not the internal baro driver (default TRUE)"/>
   </doc>
   <dep>
+    <depends>air_data</depends>
     <provides>baro</provides>
   </dep>
   <header>

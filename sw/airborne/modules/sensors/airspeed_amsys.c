@@ -24,6 +24,8 @@
  */
 
 #include "sensors/airspeed_amsys.h"
+#include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "state.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
@@ -58,12 +60,6 @@
 #define TEMPERATURE_AMSYS_MIN -25
 #endif
 
-#ifndef USE_AIRSPEED_AMSYS
-#if USE_AIRSPEED
-#define USE_AIRSPEED_AMSYS TRUE
-PRINT_CONFIG_MSG("USE_AIRSPEED_AMSYS automatically set to TRUE")
-#endif
-#endif
 
 
 
@@ -76,7 +72,7 @@ float airspeed_amsys_tmp;
 float airspeed_amsys_p; //Pascal
 float airspeed_amsys; //mps
 float airspeed_scale;
-float airspeed_filter;
+float airspeed_amsys_filter;
 struct i2c_transaction airspeed_amsys_i2c_trans;
 
 // Local variables
@@ -100,7 +96,7 @@ void airspeed_amsys_init(void)
   airspeed_amsys_valid = true;
   airspeed_amsys_offset_init = false;
   airspeed_scale = AIRSPEED_AMSYS_SCALE;
-  airspeed_filter = AIRSPEED_AMSYS_FILTER;
+  airspeed_amsys_filter = AIRSPEED_AMSYS_FILTER;
   airspeed_amsys_i2c_trans.status = I2CTransDone;
   airspeed_amsys_cnt = AIRSPEED_AMSYS_OFFSET_NBSAMPLES_INIT +
                        AIRSPEED_AMSYS_OFFSET_NBSAMPLES_AVRG;
@@ -116,28 +112,10 @@ void airspeed_amsys_read_periodic(void)
     i2c_receive(&AIRSPEED_AMSYS_I2C_DEV, &airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 4);
 #endif
   }
-
-#if USE_AIRSPEED_AMSYS
-  stateSetAirspeed_f(MODULE_AIRSPEED_AMSYS_ID, airspeed_amsys);
-#endif
-
 #elif !defined USE_NPS
   extern float sim_air_speed;
-  stateSetAirspeed_f(MODULE_AIRSPEED_AMSYS_ID, sim_air_speed);
+  AbiSendMsgAIRSPEED_RAW(AIRSPEED_AMSYS_ID, get_sys_time_usec(), sim_air_speed);
 #endif //SITL
-
-
-#ifndef AIRSPEED_AMSYS_SYNC_SEND
-  RunOnceEvery(10, airspeed_amsys_downlink());
-#endif
-}
-
-void airspeed_amsys_downlink(void)
-{
-  DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice,
-                               &airspeed_amsys_raw, &airspeed_amsys_p,
-                               &airspeed_amsys_tmp, &airspeed_amsys,
-                               &airspeed_temperature);
 }
 
 void airspeed_amsys_read_event(void)
@@ -202,17 +180,12 @@ void airspeed_amsys_read_event(void)
       // convert pressure to airspeed
       airspeed_amsys_tmp = sqrtf(2 * airspeed_amsys_p * airspeed_scale / 1.2041);
       // Lowpassfiltering
-      airspeed_amsys = airspeed_filter * airspeed_old +
-                       (1.0 - airspeed_filter) * airspeed_amsys_tmp;
+      airspeed_amsys = airspeed_amsys_filter * airspeed_old +
+                       (1.0 - airspeed_amsys_filter) * airspeed_amsys_tmp;
       airspeed_old = airspeed_amsys;
 
-      //New value available
-#if USE_AIRSPEED
-      stateSetAirspeed_f(MODULE_AIRSPEED_AMSYS_ID, airspeed_amsys);
-#endif
-#ifdef AIRSPEED_AMSYS_SYNC_SEND
-      airspeed_amsys_downlink();
-#endif
+      //New value available, air_data calibrates it and sets the airspeed
+      AbiSendMsgAIRSPEED_RAW(AIRSPEED_AMSYS_ID, get_sys_time_usec(), airspeed_amsys);
     }
 
   }
