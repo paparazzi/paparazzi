@@ -126,13 +126,23 @@ static bool gps_ubx_ucenter_configure_valset(uint8_t nr);
 struct gps_ubx_ucenter_struct gps_ubx_ucenter;
 
 
+/**
+ * Satellite systems in use: from the satellites in the solution (UBX-NAV-SAT), else as reported by UBX-MON-GNSS.
+ * The X20 reports only GPS in UBX-MON-GNSS while it uses more systems.
+ */
+static inline uint8_t gps_ubx_ucenter_gnss(void)
+{
+  return (gps_ubx[0].gnss_in_use != 0) ? gps_ubx[0].gnss_in_use : gps_ubx_ucenter.gnss_in_use;
+}
+
 #if PERIODIC_TELEMETRY
 /** Receiver information, slowly for the GCS and the logs (the configuration itself is only done at start) */
 static void send_ublox_info(struct transport_tx *trans, struct link_device *dev)
 {
+  uint8_t gnss = gps_ubx_ucenter_gnss();
   pprz_msg_send_UBLOX_INFO(trans, dev, AC_ID, &gps_ubx_ucenter.baud_run, &gps_ubx_ucenter.sw_ver_h,
                            &gps_ubx_ucenter.sw_ver_l, &gps_ubx_ucenter.hw_ver_h, &gps_ubx_ucenter.hw_ver_l,
-                           &gps_ubx_ucenter.sbas_in_use, &gps_ubx_ucenter.gnss_in_use);
+                           &gps_ubx_ucenter.sbas_in_use, &gnss);
 }
 #endif
 
@@ -417,9 +427,10 @@ static void gps_ubx_ucenter_send_info(uint8_t sbas)
   DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, GPS_UBX_UCENTER_CONFIG_STEPS, gps_ubx_ucenter.replies);
 #endif
 #ifdef DOWNLINK_TRANSPORT
+  uint8_t gnss = gps_ubx_ucenter_gnss();
   DOWNLINK_SEND_UBLOX_INFO(DefaultChannel, DefaultDevice, &gps_ubx_ucenter.baud_run, &gps_ubx_ucenter.sw_ver_h,
                            &gps_ubx_ucenter.sw_ver_l, &gps_ubx_ucenter.hw_ver_h, &gps_ubx_ucenter.hw_ver_l,
-                           &gps_ubx_ucenter.sbas_in_use, &gps_ubx_ucenter.gnss_in_use);
+                           &gps_ubx_ucenter.sbas_in_use, &gnss);
 #endif
 }
 

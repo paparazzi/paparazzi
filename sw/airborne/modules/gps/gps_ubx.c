@@ -406,6 +406,22 @@ static void gps_ubx_parse_nav_sat(struct GpsUbx *gubx)
     return;
   }
 
+  // Satellite systems used in the solution, over all satellites (also above GPS_NB_CHANNELS)
+  const uint16_t nb_sats = Min(UBX_NAV_SAT_numSvs(gubx->msg_buf), (gubx->len - 8) / 12);
+  uint8_t gnss = 0;
+  for (uint16_t i = 0; i < nb_sats; i++) {
+    if ((UBX_NAV_SAT_flags(gubx->msg_buf, i) >> 3) & 0x1) {
+      switch (UBX_NAV_SAT_gnssId(gubx->msg_buf, i)) {
+        case 0: gnss |= 0x01; break; // GPS
+        case 6: gnss |= 0x02; break; // GLONASS
+        case 3: gnss |= 0x04; break; // BeiDou
+        case 2: gnss |= 0x08; break; // Galileo
+        default: break;              // SBAS, QZSS, NavIC
+      }
+    }
+  }
+  gubx->gnss_in_use = gnss;
+
   // Go through all the different channels
   for (uint8_t i = 0; i < gubx->state.nb_channels; i++) {
     uint32_t flags = UBX_NAV_SAT_flags(gubx->msg_buf, i);
