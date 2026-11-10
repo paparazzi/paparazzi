@@ -4,13 +4,13 @@
   <doc>
     <description>MS5534a barometer (SPI)</description>
   </doc>
+  <dep>
+    <depends>spi_master,air_data</depends>
+    <provides>baro</provides>
+  </dep>
   <header>
     <file name="baro_MS5534A.h"/>
   </header>
-  <dep>
-    <depends>spi_master</depends>
-    <provides>baro</provides>
-  </dep>
   <init fun="baro_MS5534A_init()"/>
   <periodic fun="baro_MS5534A_send()" freq="20"/>
   <event fun="baro_MS5534A_event()"/>

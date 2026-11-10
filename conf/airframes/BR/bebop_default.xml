@@ -81,12 +81,6 @@
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
 
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
-  </section>
-
   <include href="conf/airframes/tudelft/calibrations/bebop_bart.xml" />
 
   <section name="IMU" prefix="IMU_">

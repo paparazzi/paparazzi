@@ -22,6 +22,7 @@
 #include "modules/meteo/meteo_stick.h"
 
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "peripherals/ads1220.h"
 #include "mcu_periph/pwm_input.h"
 #include "generated/airframe.h"
@@ -449,7 +450,7 @@ void meteo_stick_event(void)
     uint32_t now_ts = get_sys_time_usec();
     meteo_stick.current_pressure = get_pressure(meteo_stick.pressure.data);
 #if USE_MS_PRESSURE
-    AbiSendMsgBARO_ABS(METEO_STICK_SENDER_ID, now_ts, meteo_stick.current_pressure);
+    AbiSendMsgBARO_ABS_RAW(METEO_STICK_SENDER_ID, now_ts, meteo_stick.current_pressure);
 #endif
     meteo_stick.pressure.data_available = false;
   }
@@ -470,7 +471,7 @@ void meteo_stick_event(void)
     else {
 #if USE_MS_DIFF_PRESSURE
       float diff = get_diff(meteo_stick.diff_pressure.data);
-      AbiSendMsgBARO_DIFF(METEO_STICK_SENDER_ID, diff);
+      AbiSendMsgBARO_DIFF_RAW(METEO_STICK_SENDER_ID, get_sys_time_usec(), diff);
 #endif
       meteo_stick.current_airspeed = get_pitot(meteo_stick.diff_pressure.data);
       meteo_stick.diff_pressure.data_available = false;
@@ -483,7 +484,7 @@ void meteo_stick_event(void)
   if (meteo_stick.temperature.data_available) {
     meteo_stick.current_temperature = get_temp(meteo_stick.temperature.data);
 #if USE_MS_TEMPERATURE
-    AbiSendMsgTEMPERATURE(METEO_STICK_SENDER_ID, meteo_stick.current_temperature);
+    AbiSendMsgTEMPERATURE_RAW(METEO_STICK_SENDER_ID, get_sys_time_usec(), meteo_stick.current_temperature, TEMPERATURE_TYPE_AIR);
 #endif
     meteo_stick.temperature.data_available = false;
   }
