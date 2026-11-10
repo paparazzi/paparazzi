@@ -25,7 +25,6 @@
 #include "std.h"
 #include "mcu_periph/i2c.h"
 #include "modules/sensors/airspeed_sdp3x.h"
-#include "filters/low_pass_filter.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
 
@@ -35,12 +34,6 @@
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
-#endif
-
-/** Use low pass filter on pressure values
- */
-#ifndef USE_AIRSPEED_LOWPASS_FILTER
-#define USE_AIRSPEED_LOWPASS_FILTER TRUE
 #endif
 
 /** Commands and scales
@@ -99,19 +92,8 @@ PRINT_CONFIG_VAR(SDP3X_PRESSURE_OFFSET)
 #define SDP3X_AIRSPEED_SCALE 1.6327
 #endif
 
-/** Time constant for second order Butterworth low pass filter
- * Default of 0.15 should give cut-off freq of 1/(2*pi*tau) ~= 1Hz
- */
-#ifndef SDP3X_LOWPASS_TAU
-#define SDP3X_LOWPASS_TAU 0.15
-#endif
-
 struct AirspeedSdp3x sdp3x;
 static struct i2c_transaction sdp3x_trans;
-
-#ifdef USE_AIRSPEED_LOWPASS_FILTER
-static Butterworth2LowPass sdp3x_filter;
-#endif
 
 static bool sdp3x_crc(const uint8_t data[], unsigned size, uint8_t checksum)
 {
@@ -159,12 +141,6 @@ void sdp3x_init(void)
   sdp3x.initialized = false;
 
   sdp3x_trans.status = I2CTransDone;
-  // setup low pass filter with time constant and 100Hz sampling freq
-#ifdef USE_AIRSPEED_LOWPASS_FILTER
-  init_butterworth_2_low_pass(&sdp3x_filter, SDP3X_LOWPASS_TAU,
-                              SDP3X_PERIODIC_PERIOD, 0);
-#endif
-
 }
 
 void sdp3x_periodic(void)
@@ -209,11 +185,7 @@ void sdp3x_event(void)
 
       float p_out = ((float)p_raw / sdp3x.pressure_scale) - sdp3x.pressure_offset;
 
-#ifdef USE_AIRSPEED_LOWPASS_FILTER
-      sdp3x.pressure = update_butterworth_2_low_pass(&sdp3x_filter, p_out);
-#else
       sdp3x.pressure = p_out;
-#endif
 
       int16_t t_raw = ((int16_t)(buf[3]) << 8) | (int16_t)(buf[4]);
       sdp3x.temperature = (float)t_raw / SDP3X_SCALE_TEMPERATURE;

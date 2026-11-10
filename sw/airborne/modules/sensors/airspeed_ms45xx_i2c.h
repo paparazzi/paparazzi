@@ -36,12 +36,10 @@ struct AirspeedMs45xx {
   bool  pressure_type;         ///< Pressure type Differential of Gauge
   float pressure_scale;        ///< Scaling factor from raw measurement to Pascal
   float pressure_offset;       ///< Offset in Pascal
-  float lowpass_tau;           ///< Time constant for low pass filter
 };
 
 extern struct AirspeedMs45xx ms45xx;
 
-extern void airspeed_ms45xx_i2c_change_tau(float new_tau);
 
 extern void ms45xx_i2c_init(void);
 extern void ms45xx_i2c_periodic(void);
