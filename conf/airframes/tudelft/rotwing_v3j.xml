@@ -216,8 +216,7 @@
     </command_laws>
 
     <section name="AIR_DATA" prefix="AIR_DATA_">
-        <define name="AIRSPEED_ID" value="MS45XX_SENDER_ID"/> <!-- Use the uavcan airspeed only when the MS45XX fails -->
-        <!-- Low-pass cut-off (Hz) per pitot (was a time constant of 0.25 s and 0.15 s), the order is also the priority -->
+        <!-- Low-pass cut-off (Hz) per pitot (was a time constant of 0.25 s and 0.15 s), the order is the priority: uavcan only when the MS45XX fails -->
         <define name="DIFF_CALIB" type="array">
             <field type="struct">
                 <field name="abi_id" value="MS45XX_SENDER_ID"/>

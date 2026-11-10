@@ -119,10 +119,6 @@
     <servo name="BACK_LEFT"   no="3" min="0" neutral="20" max="255"/>
   </servos>
 
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="BARO_ID" value="BARO_BMP3_SENDER_ID"/>
-  </section>
-
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TYPE" value="QUAD_X"/>
   </section>
