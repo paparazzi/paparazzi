@@ -59,6 +59,27 @@ extern FileDes flightRecorderLogFile;
 extern void sdlog_chibios_init(void);
 extern void sdlog_chibios_finish(bool flush);
 
+/** Human readable cause of a logger error, for the messages to the GCS */
+static inline const char *sdlog_error_string(SdioError error)
+{
+  switch (error) {
+    case SDLOG_OK: return "no error";
+    case SDLOG_NOCARD: return "no SD card";
+    case SDLOG_FATFS_ERROR: return "file system error";
+    case SDLOG_FATFS_NOENT: return "file or folder not found";
+    case SDLOG_FSFULL: return "SD card full";
+    case SDLOG_FDFULL: return "too many open files";
+    case SDLOG_QUEUEFULL: return "write queue full";
+    case SDLOG_MEMFULL: return "out of memory";
+    case SDLOG_NOTHREAD: return "logger thread not started";
+    case SDLOG_INTERNAL_ERROR: return "internal error";
+    case SDLOG_CANNOT_EXPAND: return "cannot reserve space on the SD card";
+    case SDLOG_LOGNUM_ERROR: return "too many log files";
+    case SDLOG_WAS_LAUNCHED: return "already started";
+    default: return "unknown error";
+  }
+}
+
 /** chibios_sdlog structure
  */
 struct chibios_sdlog {
