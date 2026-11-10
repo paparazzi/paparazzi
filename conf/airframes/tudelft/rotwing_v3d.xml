@@ -381,7 +381,7 @@
                 </field>
                 <field name="neutral" value="-25,-9,17" type="int[]"/>
                 <field name="scale" value="{{46918,61969,35413},{4789,6347,3639}}"/>
-                <field name="filter_sample_freq" value="1138"/>
+                <field name="sample_freq" value="1138"/>
                 <field name="filter_freq" value="30"/>
             </field>
             <field type="struct">
@@ -393,7 +393,7 @@
                 </field>
                 <field name="neutral" value="-3,-5,56" type="int[]"/>
                 <field name="scale" value="{{60377,40442,16047},{12337,8253,3269}}"/>
-                <field name="filter_sample_freq" value="4022"/>
+                <field name="sample_freq" value="4022"/>
                 <field name="filter_freq" value="30"/>
             </field>
             <field type="struct">
@@ -405,7 +405,7 @@
                 </field>
                 <field name="neutral" value="-55,-14,-12" type="int[]"/>
                 <field name="scale" value="{{4966,3294,2529},{1015,673,518}}"/>
-                <field name="filter_sample_freq" value="1132"/>
+                <field name="sample_freq" value="1132"/>
                 <field name="filter_freq" value="30"/>
             </field>
         </define>
@@ -426,7 +426,7 @@
         </define>
 
         <!-- Gyro Calibration -->
-        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1139, .filter_freq=30}}"/>
+        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .sample_freq=1139, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->
         <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
