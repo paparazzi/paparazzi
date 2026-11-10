@@ -76,11 +76,7 @@ static void send_filter_status(struct transport_tx *trans, struct link_device *d
  */
 /** baro */
 #ifndef INS_FINV_BARO_ID
-#if USE_BARO_BOARD
-#define INS_FINV_BARO_ID BARO_BOARD_SENDER_ID
-#else
-#define INS_FINV_BARO_ID ABI_BROADCAST
-#endif
+#define INS_FINV_BARO_ID AIR_DATA_SENDER_ID
 #endif
 PRINT_CONFIG_VAR(INS_FINV_BARO_ID)
 
