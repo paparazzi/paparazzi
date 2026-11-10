@@ -94,7 +94,8 @@ static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
 {
   if (flag == INS_RESET_REF) {
     if (ins_module.gps.fix >= GPS_FIX_3D) {
-      ltp_def_from_ecef_i(&ins_module.ltp_def, &ins_module.gps.ecef_pos);
+      struct EcefCoor_i ecef_pos = ecef_int_from_gps(&ins_module.gps);
+      ltp_def_from_ecef_i(&ins_module.ltp_def, &ecef_pos);
       ins_module.ltp_def.lla.alt = ins_module.gps.lla_pos.alt;
       ins_module.ltp_def.hmsl = ins_module.gps.hmsl;
       ins_module.ltp_initialized = true;
@@ -184,10 +185,12 @@ void WEAK ins_module_update_gps(struct GpsState *gps_s, float dt __attribute__((
   }
 
   /* copy position from GPS */
-  if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_ECEF_BIT)) {
+  if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_ECEF_BIT) ||
+      bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT)) {
     /* convert ECEF to NED */
     struct NedCoor_i gps_pos_cm_ned;
-    ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_module.ltp_def, &gps_s->ecef_pos);
+    struct EcefCoor_i gps_ecef_pos = ecef_int_from_gps(gps_s);
+    ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_module.ltp_def, &gps_ecef_pos);
     /* convert pos from cm to m in BFP with INT32_POS_FRAC */
     INT32_VECT3_SCALE_2(ins_module.ltp_pos, gps_pos_cm_ned,
                         INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);

@@ -43,9 +43,7 @@
     <define name="INS_EKF2_GNSS_REQ_PDOP" value="2.5" description="Maximum PDOP"/>
     <define name="INS_EKF2_GPS_DELAY" value="110" description="GNSS measurement delay [ms] (PX4 SENS_GNSS0_DELAY)"/>
     <define name="INS_EKF2_GPS_POS_X" value="0" description="GNSS antenna X offset from the CoG [m] (also _Y and _Z, PX4 SENS_GNSS0_OFF*)"/>
-    <define name="INS_EKF2_GPS_YAW_OFFSET" value="0" description="Yaw of the dual antenna baseline in the body frame [deg], enables the GNSS heading from RELPOS"/>
-    <define name="INS_EKF2_GPS_ANTENNA_DISTANCE" value="1.0" description="Distance between the two antennas of the dual antenna heading [m], the heading is only used when the measured distance is within INS_EKF2_GPS_ANTENNA_DISTANCE_ERR (not checked when not set)"/>
-    <define name="INS_EKF2_GPS_ANTENNA_DISTANCE_ERR" value="0.2" description="Maximum difference between the measured and the configured antenna distance [m]"/>
+    <define name="INS_EKF2_GPS_YAW_OFFSET" value="0" description="Yaw of the dual antenna baseline in the body frame [deg], enables the GNSS heading from RELPOS (set the antenna distance with GPS_UBX_HEADING_BASELINE in gps_ublox)"/>
     <define name="INS_EKF2_GPS_YAW_NOISE" value="0.1" description="GNSS heading noise when the receiver gives no accuracy [rad]"/>
     <define name="INS_EKF2_RNG_MIN_DIST" value="0.001" description="Minimum distance the range finder measures [m]"/>
     <define name="INS_EKF2_RNG_MAX_DIST" value="4" description="Maximum distance the range finder measures [m]"/>
