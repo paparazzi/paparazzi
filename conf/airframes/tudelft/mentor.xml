@@ -38,7 +38,6 @@
         <define name="USE_I2C4"/>
         <configure name="MS45XX_I2C_DEV" value="i2c4"/>
     </module-->
-    <module name="air_data"/>
 
     <module name="control" type="energy"/>
     <module name="navigation"/>

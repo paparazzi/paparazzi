@@ -71,7 +71,6 @@
         </target>
 
         <module name="imu" type="cube"/>
-        <module name="air_data"/>
         <module name="ins" type="ekf2">
         </module>
 

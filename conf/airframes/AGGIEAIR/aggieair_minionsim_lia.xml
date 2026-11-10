@@ -72,7 +72,6 @@ AggieAir Minion Sim
       <define name="BATMON_TEMP_OFFSET" value="250"/>
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
     </module>
-    <module name="air_data"/>
   </firmware>
 
   <!-- commands section -->

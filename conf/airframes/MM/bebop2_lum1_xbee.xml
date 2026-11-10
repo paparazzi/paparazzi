@@ -38,7 +38,6 @@
 
     <!--module name="wind_estimator"/-->
     <module name="geo_mag"/>
-    <module name="air_data"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="logger_file">
       <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000"/>
@@ -78,12 +77,6 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
-  </section>
 
   <section name="IMU" prefix="IMU_">
   <!-- Magnetometer still needs to be calibrated -->

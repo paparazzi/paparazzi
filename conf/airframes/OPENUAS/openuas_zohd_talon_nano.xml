@@ -135,11 +135,6 @@ NOTES:
 
     <module name="geo_mag"/>
 
-    <module name="air_data">
-      <define name="CALC_AIRSPEED" value="FALSE"/>
-      <define name="CALC_TAS_FACTOR" value="FALSE"/>
-      <define name="CALC_AMSL_BARO" value="FALSE"/>
-    </module>
 
     <module name="navigation"/>
     <module name="nav" type="drop"/>

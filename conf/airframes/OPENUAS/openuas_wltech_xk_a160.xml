@@ -139,7 +139,6 @@ NOTES:
 
       <!-- <module name="mag_calib_ukf"/>--><!-- New, and needs more testing, be careful with testflights if enabled -->
 
-      <module name="air_data"/>
 
       <module name="baro_ms5611_spi">
         <configure name="MS5611_SPI_DEV" value="spi1"/>
@@ -572,12 +571,6 @@ NOTES:
     <define name="HEIGHT_MIN" value="50." unit="m"/>
     <define name="HEIGHT_MAX" value="120." unit="m"/>
     <define name="RADIUS_MIN" value="70." unit="m"/>
-  </section>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
   <!--  Can as well be your handlaunch, a.k.a. the human catapult ;) -->
