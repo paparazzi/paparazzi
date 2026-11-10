@@ -80,7 +80,6 @@
       </module>
 
       <module name="geo_mag" />
-      <module name="air_data" />
   
       <module name="mag" type="hmc58xx">
         <define name="HMC58XX_STARTUP_DELAY" value="1.4"/>
@@ -181,12 +180,6 @@
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]" />
     <set servo="RELEASE_SERVO" value="@RELEASE" />
   </command_laws>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE" />
-    <define name="CALC_TAS_FACTOR" value="FALSE" />
-    <define name="CALC_AMSL_BARO" value="TRUE" />
-  </section>
 
   <section name="AHRS" prefix="AHRS_">
     <define name="H_X" value="0.3892503" />
