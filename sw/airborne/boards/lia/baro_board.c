@@ -30,6 +30,7 @@
 #include "peripherals/bmp085_regs.h"
 #include <libopencm3/stm32/gpio.h>
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 
 #include "led.h"
 
@@ -76,9 +77,9 @@ void baro_event(void)
   if (baro_bmp085.data_available) {
     uint32_t now_ts = get_sys_time_usec();
     float pressure = (float)baro_bmp085.pressure;
-    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, pressure);
+    AbiSendMsgBARO_ABS_RAW(BARO_BOARD_SENDER_ID, now_ts, pressure);
     float temp = baro_bmp085.temperature / 10.0f;
-    AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
+    AbiSendMsgTEMPERATURE_RAW(BARO_BOARD_SENDER_ID, now_ts, temp, TEMPERATURE_TYPE_BARO);
     baro_bmp085.data_available = false;
 #ifdef BARO_LED
     RunOnceEvery(10, LED_TOGGLE(BARO_LED));
