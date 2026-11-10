@@ -38,7 +38,6 @@
             <define     name="MODULE_RM3100_UPDATE_AHRS"    value="TRUE"/>
             <configure  name="MAG_RM3100_I2C_DEV"           value="I2C2"/>
         </module>
-        <module name="air_data"/>                  
         <module name="gps"           type="ublox">
             <configure name="UBX_GPS_BAUD" value="B460800"/>
             <define name="USE_GPS_UBX_RTCM" value="TRUE"/>

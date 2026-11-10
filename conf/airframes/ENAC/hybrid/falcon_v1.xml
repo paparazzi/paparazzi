@@ -60,7 +60,6 @@
       <define name="SDP3X_i2C_DEV" value="i2c2"/>
       <define name="SDP3X_PRESSURE_SCALE" value="8.0"/>
       <define name="SDP3X_PRESSURE_OFFSET" value="0.0"/>
-      <define name="USE_AIRSPEED_SDP3X" value="TRUE"/>
     </module>
 
     <module name="board" type="tawaki">
@@ -77,7 +76,6 @@
       <define name="LIS3MDL_CHAN_Y_SIGN" value="-" />
     </module>
 
-    <module name="air_data"/>
     <module name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
       <configure name="UBX_GPS_PORT" value="UART7"/>

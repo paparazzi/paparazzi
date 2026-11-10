@@ -48,7 +48,6 @@
     <define name="USE_AIRSPEED" value="1"/>
     <define name="STALL_AIRSPEED" value="8"/>
     
-    <module name="air_data"/>
     
     <define name="USE_MAGNETOMETER_ONGROUND" value="TRUE"/> <!--DEFINE only used if float_dcm Use magnetic compensation before takeoff only while GPS course not good -->
     <configure name="USE_MAGNETOMETER" value="TRUE"/> <!-- Make sure is callibrated if set to TRUE -->

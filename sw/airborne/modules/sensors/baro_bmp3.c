@@ -30,6 +30,7 @@
 #include "baro_bmp3.h"
 
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
@@ -58,8 +59,8 @@ void baro_bmp3_event(void)
   if (baro_bmp3.data_available) {
     uint32_t now_ts = get_sys_time_usec();
     // send ABI message
-    AbiSendMsgBARO_ABS(BARO_BMP3_SENDER_ID, now_ts, baro_bmp3.pressure);
-    AbiSendMsgTEMPERATURE(BARO_BMP3_SENDER_ID, baro_bmp3.temperature);
+    AbiSendMsgBARO_ABS_RAW(BARO_BMP3_SENDER_ID, now_ts, baro_bmp3.pressure);
+    AbiSendMsgTEMPERATURE_RAW(BARO_BMP3_SENDER_ID, get_sys_time_usec(), baro_bmp3.temperature, TEMPERATURE_TYPE_BARO);
     baro_bmp3.data_available = false;
 
 #ifdef BMP3_SYNC_SEND

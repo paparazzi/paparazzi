@@ -47,9 +47,10 @@
             <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER"   value="TRUE" />
             <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD"   value="0.1" />
             <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
-            <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
             </module>         
-        <module name="air_data"/>
+        <module name="air_data">
+            <define name="AIR_DATA_AIRSPEED_ID" value="MS45XX_SENDER_ID"/> <!-- Use the uavcan airspeed only when the MS45XX fails -->
+        </module>
         <module name="gps"           type="ublox">
             <configure name="UBX_GPS_BAUD" value="B460800"/>
             <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
