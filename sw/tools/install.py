@@ -185,6 +185,8 @@ class InstallWindow(QWidget):
                 self.execute('sudo sed -i "s/Qt6QuickControls2 = 6.4/Qt6QuickControls2/" /usr/lib/x86_64-linux-gnu/pkgconfig/gz-sim.pc')
             else:
                 self.execute('sudo -E apt-get -f -y install gz-harmonic')
+                self.execute('sudo -E apt-get -f -y install libfmt-dev')  # Submodule links to it in Jetty
+
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
         self.done('Gazebo installed successfully', 'Gazebo installation failed')
 
