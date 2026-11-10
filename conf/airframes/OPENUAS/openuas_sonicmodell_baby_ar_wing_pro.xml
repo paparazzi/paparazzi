@@ -431,7 +431,13 @@ Safety
   </commands>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="DIFF_FILTER_FREQ" value="1.77"/> <!-- was a time constant of 0.09 s -->
+    <!-- Low-pass cut-off (Hz) of the pitot, was a time constant of 0.09 s -->
+    <define name="DIFF_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="SDP3X_SENDER_ID"/>
+        <field name="filter_freq" value="1.77"/>
+      </field>
+    </define>
   </section>
 
   <section name="ServoPositions">
