@@ -422,7 +422,13 @@
   </servos>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="DIFF_FILTER_FREQ" value="0.64"/> <!-- was a time constant of 0.25 s -->
+    <!-- Low-pass cut-off (Hz) of the pitot, was a time constant of 0.25 s -->
+    <define name="DIFF_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="MS45XX_SENDER_ID"/>
+        <field name="filter_freq" value="0.64"/>
+      </field>
+    </define>
   </section>
 
   <section name="ServoPositions">

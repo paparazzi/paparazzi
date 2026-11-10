@@ -102,6 +102,16 @@ ffmpeg -f concat -safe 0 -i images.txt -c:v libx264 -crf 18 -profile:v baseline 
     <set command="PITCH" value="@PITCH"/>
   </rc_commands>
 
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <!-- Low-pass cut-off (Hz) of the pitot, the old 0.15 s time constant of the driver -->
+    <define name="DIFF_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="MS45XX_SENDER_ID"/>
+        <field name="filter_freq" value="1.06"/>
+      </field>
+    </define>
+  </section>
+
   <section name="MIXER">
     <define name="AILEVON_AILERON_RATE" value="0.75"/>
     <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>

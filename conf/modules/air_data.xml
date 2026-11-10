@@ -36,17 +36,13 @@
     &lt;/section&gt;
     Each sensor is a struct with the fields abi_id, calibrated (offset, scale), offset, scale and filter_freq.
     The order of a *_CALIB is also the priority of the automatic selection.
-    The filter is a second order Butterworth at the measured rate of the sensor. Without filter_freq a sensor uses the
-    default of its type (AIR_DATA_*_FILTER_FREQ), a negative filter_freq turns it off.
+    A sensor with a filter_freq (Hz) is low-pass filtered, a second order Butterworth at the measured rate of the sensor.
+    Without filter_freq it isn't filtered. The airspeedFilter setting changes it for the airspeed sensor in use.
     </description>
     <define name="AIR_DATA_BARO_CALIB" value="array of structs" description="calibration of the barometers, also their priority (see the description)"/>
     <define name="AIR_DATA_DIFF_CALIB" value="array of structs" description="calibration of the differential pressure sensors, the scale is the pitot correction"/>
     <define name="AIR_DATA_AIRSPEED_CALIB" value="array of structs" description="calibration of the airspeed sensors"/>
     <define name="AIR_DATA_TEMP_CALIB" value="array of structs" description="calibration of the temperatures"/>
-    <define name="AIR_DATA_BARO_FILTER_FREQ" value="0." description="default low-pass cut-off of the barometers in Hz, 0 for none (default: 0)"/>
-    <define name="AIR_DATA_DIFF_FILTER_FREQ" value="1." description="default low-pass cut-off of the differential pressures in Hz, 0 for none (default: 1)"/>
-    <define name="AIR_DATA_AIRSPEED_FILTER_FREQ" value="0." description="default low-pass cut-off of the airspeed sensors in Hz, 0 for none (default: 0)"/>
-    <define name="AIR_DATA_TEMP_FILTER_FREQ" value="0." description="default low-pass cut-off of the temperatures in Hz, 0 for none (default: 0)"/>
     <define name="AIR_DATA_BARO_ID" value="ABI_SENDER_ID" description="barometer to use (default: ABI_BROADCAST, the first healthy one)"/>
     <define name="AIR_DATA_AIRSPEED_ID" value="ABI_SENDER_ID" description="differential pressure or airspeed sensor to use (default: ABI_BROADCAST, the first healthy one)"/>
     <define name="AIR_DATA_TEMP_ID" value="ABI_SENDER_ID" description="temperature to use (default: ABI_BROADCAST, an air temperature probe, then a pitot, then a barometer)"/>

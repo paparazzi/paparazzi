@@ -64,7 +64,7 @@ struct air_data_sensor_t {
   float dt;                           ///< Filtered interval between the values (s), for the health check
   float calib_sum;                    ///< Sum of the raw values while calibrating
   uint16_t calib_cnt;                 ///< Number of raw values while calibrating
-  float filter_freq;                  ///< Low-pass filter cut-off frequency (Hz), negative for no filter
+  float filter_freq;                  ///< Low-pass filter cut-off frequency (Hz), 0 for no filter
   float filter_dt;                    ///< Interval the filter is set up for (s), 0 if not running
   Butterworth2LowPass filter;         ///< Low-pass filter of the raw value
 };
