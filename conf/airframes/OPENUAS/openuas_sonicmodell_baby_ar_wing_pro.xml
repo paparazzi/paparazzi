@@ -537,12 +537,6 @@ Safety
     <!--<define name="FC_MAG_ID" value="MAG_RM3100_SENDER_ID"/>-->
   </section>
 
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="TRUE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
-  </section>
-
   <section name="AGL" prefix="AGL_DIST_SONAR_"> <!-- SONAR is type of technology Ranger is sensor class -->
     <define name="ID" value="ABI_BROADCAST"/>
     <define name="MAX_RANGE" value="30." unit="m"/>

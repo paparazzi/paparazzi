@@ -112,7 +112,6 @@
 
     <module name="air_data">
       <define name="AIR_DATA_AIRSPEED_ID" value="MS45XX_SENDER_ID"/> <!-- UAVCAN_SENDER_ID -->
-      <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE" />
     </module>
 
     <!-- Internal MAG -->

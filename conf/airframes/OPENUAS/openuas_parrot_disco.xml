@@ -321,11 +321,7 @@
     <module name="auto1_commands"/> <!-- FIXME not working in JSBSim target with RC controller steering in Simulator-->
 
     <!-- Also used if QNH needed -->
-    <module name="air_data">
-     <define name="CALC_AIRSPEED" value="FALSE"/><!--  we set use airspeed elsewhere-->
-     <define name="CALC_TAS_FACTOR" value="FALSE"/>
-     <define name="CALC_AMSL_BARO" value="TRUE"/>
-    </module>
+    <module name="air_data"/>
 
     <module name="geo_mag"/>
 

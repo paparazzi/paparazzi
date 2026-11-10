@@ -173,10 +173,6 @@ ffmpeg -f concat -safe 0 -i images.txt -c:v libx264 -crf 18 -profile:v baseline 
 
 
 
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
-  </section>
-
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="0.12"/>

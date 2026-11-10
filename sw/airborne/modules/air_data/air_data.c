@@ -97,26 +97,6 @@
 /** Airspeed estimates (not sensors): only used when no sensor is healthy, and not sent as AIRSPEED */
 #define AIR_DATA_IS_ESTIMATE(_id) ((_id) == AIRSPEED_WE_QUAD_ID)
 
-/** Default factor to convert estimated airspeed (EAS) to true airspeed (TAS) */
-#ifndef AIR_DATA_TAS_FACTOR
-#define AIR_DATA_TAS_FACTOR 1.0
-#endif
-
-/** Calculate Airspeed from differential pressure by default */
-#ifndef AIR_DATA_CALC_AIRSPEED
-#define AIR_DATA_CALC_AIRSPEED TRUE
-#endif
-
-/** Calculate tas_factor from temp and pressure by default */
-#ifndef AIR_DATA_CALC_TAS_FACTOR
-#define AIR_DATA_CALC_TAS_FACTOR TRUE
-#endif
-
-/** Don't calculate AMSL from baro and QNH by default */
-#ifndef AIR_DATA_CALC_AMSL_BARO
-#define AIR_DATA_CALC_AMSL_BARO FALSE
-#endif
-
 #ifndef USE_AIRSPEED_AIR_DATA
 #if USE_AIRSPEED
 #define USE_AIRSPEED_AIR_DATA TRUE
@@ -136,10 +116,6 @@ struct AirData air_data = {
   .airspeed_id = AIR_DATA_AIRSPEED_ID,
   .temp_id = AIR_DATA_TEMP_ID,
   .calib_armed = AIR_DATA_CALIB_ARMED,
-  .tas_factor = AIR_DATA_TAS_FACTOR,
-  .calc_airspeed = AIR_DATA_CALC_AIRSPEED,
-  .calc_tas_factor = AIR_DATA_CALC_TAS_FACTOR,
-  .calc_amsl_baro = AIR_DATA_CALC_AMSL_BARO,
 };
 
 static abi_event baro_raw_ev, diff_raw_ev, airspeed_raw_ev, temp_raw_ev, incidence_ev;
@@ -299,7 +275,7 @@ static void air_data_set_pressure(uint32_t stamp, float pressure)
     air_data.calc_qnh_once = false;
   }
 
-  if (air_data.calc_amsl_baro && air_data.qnh > 0) {
+  if (air_data.qnh > 0) {
     air_data.amsl_baro = pprz_isa_height_of_pressure_full(air_data.pressure,
                          air_data.qnh * 100.f);
     air_data.amsl_baro_valid = true;
@@ -371,9 +347,7 @@ static void diff_raw_cb(uint8_t sender_id, uint32_t stamp, float pressure)
   if (sel == s) {
     air_data.differential = s->value;
     AbiSendMsgBARO_DIFF(AIR_DATA_SENDER_ID, s->value);
-    if (air_data.calc_airspeed) {
-      air_data_set_airspeed(eas_from_dynamic_pressure(s->value), true);
-    }
+    air_data_set_airspeed(eas_from_dynamic_pressure(s->value), true);
   }
 }
 
@@ -420,11 +394,6 @@ static void temp_raw_cb(uint8_t sender_id, uint32_t stamp, float temp, uint8_t t
   if (sel == s) {
     air_data.temperature = s->value;
     AbiSendMsgTEMPERATURE(AIR_DATA_SENDER_ID, air_data.temperature);
-    /* only calculate tas factor if enabled and we have airspeed and valid data */
-    if (air_data.calc_tas_factor && air_data.airspeed > 0 && baro_health_counter > 0 &&
-        air_data.pressure > 0) {
-      air_data.tas_factor = get_tas_factor(air_data.pressure, air_data.temperature);
-    }
   }
 }
 
@@ -616,6 +585,7 @@ void air_data_init(void)
   air_data.temp_used = ABI_DISABLE;
   air_data.calibrate = false;
   air_data.qfe = -1.f;
+  air_data.tas_factor = 1.f;
   air_data.calc_qnh_once = true;
   air_data.amsl_baro_valid = false;
 
@@ -786,23 +756,20 @@ float get_tas_factor(float p, float t)
 }
 
 /**
- * Internal utility function to compute current tas factor if needed
+ * Internal utility function to compute the current tas factor
  */
 static void compute_tas_factor(void)
 {
-  // update tas factor if requested
-  if (air_data.calc_tas_factor) {
-    if (air_data.pressure > 0.f && air_data.temperature > -900.f) {
-      // compute air density from pressure and temperature
-      air_data.tas_factor = get_tas_factor(air_data.pressure, air_data.temperature);
-    }
-    else {
-      // compute air density from altitude in ISA condition
-      const float z = air_data_get_amsl();
-      const float p = pprz_isa_pressure_of_altitude(z);
-      const float t = pprz_isa_temperature_of_altitude(z);
-      air_data.tas_factor = get_tas_factor(p, CelsiusOfKelvin(t));
-    }
+  if (air_data.pressure > 0.f && air_data.temperature > -900.f) {
+    // compute air density from pressure and temperature
+    air_data.tas_factor = get_tas_factor(air_data.pressure, air_data.temperature);
+  }
+  else {
+    // compute air density from altitude in ISA condition
+    const float z = air_data_get_amsl();
+    const float p = pprz_isa_pressure_of_altitude(z);
+    const float t = pprz_isa_temperature_of_altitude(z);
+    air_data.tas_factor = get_tas_factor(p, CelsiusOfKelvin(t));
   }
 }
 

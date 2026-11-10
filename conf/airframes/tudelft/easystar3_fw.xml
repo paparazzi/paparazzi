@@ -54,9 +54,7 @@
       <configure name="MS45XX_I2C_DEV" value="i2c4"/>
     </module>
     <module name="baro_board"/>
-    <module name="air_data">
-      <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
-    </module>
+    <module name="air_data"/>
     <module name="actuators" type="pwm"/>
     <module name="control" type="new"/>
     <module name="navigation"/>

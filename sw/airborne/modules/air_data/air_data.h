@@ -88,14 +88,11 @@ struct AirData {
 
   float airspeed;     ///< Equivalent Air Speed (equals to Calibrated Air Speed at low speed/altitude) (in m/s, -1 if unknown
   float tas;          ///< True Air Speed (TAS) in m/s, -1 if unknown
-  float tas_factor;   ///< factor to convert equivalent airspeed (EAS) to true airspeed (TAS)
+  float tas_factor;   ///< factor to convert equivalent airspeed (EAS) to true airspeed (TAS), from pressure and temperature (or ISA at the altitude)
   float qnh;              ///< Barometric pressure adjusted to sea level in hPa, -1 if unknown
   float amsl_baro;        ///< altitude above sea level in m from pressure and QNH
   bool amsl_baro_valid; ///< TRUE if #amsl_baro is currently valid
-  bool calc_airspeed;   ///< if TRUE, calculate airspeed from differential pressure
   bool calc_qnh_once;   ///< flag to calculate QNH with next pressure measurement
-  bool calc_amsl_baro;  ///< if TRUE, calculate #amsl_baro
-  bool calc_tas_factor; ///< if TRUE, calculate #tas_factor when getting a temp measurement
 
   float aoa;          ///< angle of attack (rad)
   float sideslip;     ///< sideslip angle (rad)
