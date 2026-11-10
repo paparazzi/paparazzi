@@ -7,7 +7,7 @@
     Combines the barometers, differential pressure, airspeed and temperature sensors, like the IMU combines the gyros, accelerometers and magnetometers.
 
     The drivers send their raw values with their own ABI sender ids (BARO_ABS_RAW, BARO_DIFF_RAW, AIRSPEED_RAW and TEMPERATURE_RAW).
-    Per sensor air_data applies the calibration (value = (raw - offset) * scale), selects the sensor to use
+    Per sensor air_data low-pass filters the raw value and applies the calibration (value = (filter(raw) - offset) * scale), selects the sensor to use
     (the one of the setting, otherwise the first healthy one in the order of the airframe calibration) and sends it
     with AIR_DATA_SENDER_ID as BARO_ABS, BARO_DIFF, AIRSPEED and TEMPERATURE. It falls back to the next healthy sensor
     when one stops sending. It also calculates QNH, true airspeed and AMSL (AltitudeAboveSeaLevel) to fly on "flight levels".
@@ -19,12 +19,18 @@
     It is loaded automatically (by the barometers, pitots, INS and the ap and simulation targets), add it to the airframe only to configure it.
 
     Calibration in the airframe, in a section with prefix AIR_DATA_, for example:
-    &lt;define name="DIFF_CALIB" value="{{.abi_id=MS45XX_SENDER_ID, .calibrated={.offset=true}, .offset=12.3}}"/&gt;
+    &lt;define name="DIFF_CALIB" value="{{.abi_id=MS45XX_SENDER_ID, .calibrated={.offset=true}, .offset=12.3, .filter_freq=2}}"/&gt;
+    The filter is a second order Butterworth at the measured rate of the sensor. Without .filter_freq a sensor uses the
+    default of its type (AIR_DATA_*_FILTER_FREQ), a negative .filter_freq turns it off.
     </description>
     <define name="AIR_DATA_BARO_CALIB" value="{{.abi_id=X, .calibrated={.offset=true, .scale=true}, .offset=0, .scale=1}}" description="calibration of the barometers, also their priority"/>
     <define name="AIR_DATA_DIFF_CALIB" value="{{.abi_id=X, ...}}" description="calibration of the differential pressure sensors, the scale is the pitot correction"/>
     <define name="AIR_DATA_AIRSPEED_CALIB" value="{{.abi_id=X, ...}}" description="calibration of the airspeed sensors"/>
     <define name="AIR_DATA_TEMP_CALIB" value="{{.abi_id=X, ...}}" description="calibration of the temperatures"/>
+    <define name="AIR_DATA_BARO_FILTER_FREQ" value="0." description="default low-pass cut-off of the barometers in Hz, 0 for none (default: 0)"/>
+    <define name="AIR_DATA_DIFF_FILTER_FREQ" value="1." description="default low-pass cut-off of the differential pressures in Hz, 0 for none (default: 1)"/>
+    <define name="AIR_DATA_AIRSPEED_FILTER_FREQ" value="0." description="default low-pass cut-off of the airspeed sensors in Hz, 0 for none (default: 0)"/>
+    <define name="AIR_DATA_TEMP_FILTER_FREQ" value="0." description="default low-pass cut-off of the temperatures in Hz, 0 for none (default: 0)"/>
     <define name="AIR_DATA_BARO_ID" value="ABI_SENDER_ID" description="barometer to use (default: ABI_BROADCAST, the first healthy one)"/>
     <define name="AIR_DATA_AIRSPEED_ID" value="ABI_SENDER_ID" description="differential pressure or airspeed sensor to use (default: ABI_BROADCAST, the first healthy one)"/>
     <define name="AIR_DATA_TEMP_ID" value="ABI_SENDER_ID" description="temperature to use (default: ABI_BROADCAST, an air temperature probe, then a pitot, then a barometer)"/>
@@ -51,6 +57,7 @@
         <dl_setting min="0" max="255" step="1" var="air_data.temp_id" module="air_data/air_data" shortname="tempId" param="AIR_DATA_TEMP_ID" type="uint8"/>
         <dl_setting min="0" max="255" step="1" var="air_data.baro_send_id" module="air_data/air_data" shortname="baroSendId" param="AIR_DATA_BARO_SEND_ID" type="uint8"/>
         <dl_setting min="0" max="255" step="1" var="air_data.airspeed_send_id" module="air_data/air_data" shortname="airspeedSendId" param="AIR_DATA_AIRSPEED_SEND_ID" type="uint8"/>
+        <dl_setting min="0" max="10" step="0.1" var="air_data.airspeed_filter" module="air_data/air_data" handler="SetAirspeedFilter" shortname="airspeedFilter" type="float"/>
         <dl_setting min="0.8" max="1.5" step="0.01" var="air_data.diffs[0].scale" module="air_data/air_data" shortname="pitotScale" type="float" persistent="true"/>
         <dl_setting min="800" max="1200" step="1" module="air_data/air_data" var="air_data.qnh" shortname="QNH"/>
         <dl_setting min="0" max="1" step="1" var="air_data.calc_qnh_once" module="air_data/air_data" shortname="calcQNH"/>

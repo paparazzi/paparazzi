@@ -66,23 +66,6 @@
 #define AIRSPEED_ETS_OFFSET_NBSAMPLES_INIT 40
 #define AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG 60
 
-#ifndef AIRSPEED_ETS_USE_FILTER
-#define AIRSPEED_ETS_USE_FILTER FALSE
-#endif
-
-#ifdef AIRSPEED_ETS_USE_FILTER
-#define AIRSPEED_ETS_NBSAMPLES_AVRG 20
-#else
-#define AIRSPEED_ETS_NBSAMPLES_AVRG 10
-#endif
-
-/** Time constant for second order Butterworth low pass filter
- * Default of 0.15 should give cut-off freq of 1/(2*pi*tau) ~= 1Hz
- */
-#ifndef AIRSPEED_ETS_LOWPASS_TAU
-#define AIRSPEED_ETS_LOWPASS_TAU 0.15
-#endif
-
 #ifndef AIRSPEED_ETS_I2C_DEV
 #define AIRSPEED_ETS_I2C_DEV i2c0
 #endif
@@ -93,10 +76,6 @@ PRINT_CONFIG_VAR(AIRSPEED_ETS_I2C_DEV)
 #define AIRSPEED_ETS_START_DELAY 0.2
 #endif
 PRINT_CONFIG_VAR(AIRSPEED_ETS_START_DELAY)
-
-#ifdef AIRSPEED_ETS_USE_FILTER
-#include "filters/low_pass_filter.h"
-#endif
 
 #ifndef SITL
 #if AIRSPEED_ETS_SDLOG
@@ -113,14 +92,8 @@ uint16_t airspeed_ets_raw;
 uint16_t airspeed_ets_offset;
 bool airspeed_ets_valid;
 float airspeed_ets;
-int airspeed_ets_buffer_idx;
-float airspeed_ets_buffer[AIRSPEED_ETS_NBSAMPLES_AVRG];
 
 struct i2c_transaction airspeed_ets_i2c_trans;
-
-#ifdef AIRSPEED_ETS_USE_FILTER
-static Butterworth2LowPass airspeed_filter;
-#endif
 
 // Local variables
 volatile bool airspeed_ets_i2c_done;
@@ -132,7 +105,6 @@ bool   airspeed_ets_delay_done;
 
 void airspeed_ets_init(void)
 {
-  int n;
   airspeed_ets_raw = 0;
   airspeed_ets = 0.0;
   airspeed_ets_offset = 0;
@@ -141,16 +113,6 @@ void airspeed_ets_init(void)
   airspeed_ets_valid = false;
   airspeed_ets_offset_init = false;
   airspeed_ets_cnt = AIRSPEED_ETS_OFFSET_NBSAMPLES_INIT + AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG;
-
-  airspeed_ets_buffer_idx = 0;
-  for (n = 0; n < AIRSPEED_ETS_NBSAMPLES_AVRG; ++n) {
-    airspeed_ets_buffer[n] = 0.0;
-  }
-
-#ifdef AIRSPEED_ETS_USE_FILTER
-  init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_ETS_LOWPASS_TAU,
-                              AIRSPEED_ETS_READ_PERIODIC_PERIOD, airspeed_ets);
-#endif
 
   airspeed_ets_i2c_trans.status = I2CTransDone;
 
@@ -182,7 +144,6 @@ void airspeed_ets_read_periodic(void)
 
 void airspeed_ets_read_event(void)
 {
-  int n;
   float airspeed_tmp = 0.0;
 
   // Get raw airspeed from buffer
@@ -242,32 +203,10 @@ void airspeed_ets_read_event(void)
     if (airspeed_tmp < 0.0) {
       airspeed_tmp = 0.0;
     }
-    // Moving average
-    airspeed_ets_buffer[airspeed_ets_buffer_idx++] = airspeed_tmp;
-    if (airspeed_ets_buffer_idx >= AIRSPEED_ETS_NBSAMPLES_AVRG) {
-      airspeed_ets_buffer_idx = 0;
-    }
-    airspeed_ets = 0.0;
-    for (n = 0; n < AIRSPEED_ETS_NBSAMPLES_AVRG; ++n) {
-      airspeed_ets += airspeed_ets_buffer[n];
-    }
-    airspeed_ets = airspeed_ets / (float)AIRSPEED_ETS_NBSAMPLES_AVRG;
-    
-#ifdef AIRSPEED_ETS_USE_FILTER
-    float a_out;
-    a_out = airspeed_tmp;
-    airspeed_ets = update_butterworth_2_low_pass(&airspeed_filter, a_out);
-#endif
+    // air_data filters it
+    airspeed_ets = airspeed_tmp;
 
-    //Sometimes offset is not correct enough calculated dynamically and yields to a small negative airspeed once in a while at certain samples
-    //Also with steep airspeed decline and a butterworth_2_low_pass filter on it could overshoot to a negative value this is also capped
-    //so force cap it to zero
-    if ((airspeed_ets < 0.0) || (airspeed_tmp < 0.0)) {
-      airspeed_tmp = 0.0; //for filter also
-      airspeed_ets = 0.0;   
-    }
-
-    // Publish airspeed sensor, air_data calibrates it and sets the airspeed
+    // Publish airspeed sensor, air_data filters and calibrates it and sets the airspeed
     AbiSendMsgAIRSPEED_RAW(AIRSPEED_ETS_ID, get_sys_time_usec(), airspeed_ets);
   } else {
     airspeed_ets = 0.0;
