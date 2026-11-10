@@ -165,10 +165,12 @@ static void sdlog_report_status(struct transport_tx *trans, struct link_device *
   reported = status;
   char msg[120];
   if (status == SDLOG_ERROR) {
-    if (sdlog_start_error != SDLOG_OK) {
+    if (sdlog_start_error != SDLOG_OK && sdlog_start_fatfs != 0) {
       // the start failed: the failing step and its FatFS result tell why the card could not be used
       chsnprintf(msg, sizeof(msg), "SD log error: %s (%s, FatFS %d)", sdlog_error_string(sdlog_start_error),
                  sdlog_start_step, sdlog_start_fatfs);
+    } else if (sdlog_start_error != SDLOG_OK) {
+      chsnprintf(msg, sizeof(msg), "SD log error: %s (%s)", sdlog_error_string(sdlog_start_error), sdlog_start_step);
     } else {
       chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(sdLogGetStorageStatus()));
     }
