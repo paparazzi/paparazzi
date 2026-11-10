@@ -162,10 +162,10 @@ static void sdlog_report_status(struct transport_tx *trans, struct link_device *
   char msg[120];
   if (status == SDLOG_ERROR) {
     SdioError error = sdLogGetStorageStatus();
-    uint8_t mount = sdLogGetMountResult();
-    if (mount != 0) {
-      // the FatFS result tells why the card could not be mounted
-      chsnprintf(msg, sizeof(msg), "SD log error: %s (FatFS %d)", sdlog_error_string(error), mount);
+    uint8_t fatfs = sdLogGetFatfsResult();
+    if (fatfs != 0) {
+      // the FatFS result tells why the card could not be used
+      chsnprintf(msg, sizeof(msg), "SD log error: %s (FatFS %d)", sdlog_error_string(error), fatfs);
     } else {
       chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(error));
     }

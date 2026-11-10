@@ -222,11 +222,24 @@ static void thdSdLog(void *arg) ;
 static int32_t uiGetIndexOfLogFile(const char *prefix, const char *fileName) ;
 static inline SdioError flushWriteByteBuffer(const FileDes fd);
 
-static FRESULT lastMountResult = FR_OK;
+static FRESULT lastFatfsResult = FR_OK;
 
-uint8_t sdLogGetMountResult(void)
+uint8_t sdLogGetFatfsResult(void)
 {
-  return (uint8_t) lastMountResult;
+  return (uint8_t) lastFatfsResult;
+}
+
+/**
+ * Keep the FatFS result of a failed start step. Most boards have no card detect pin, so a missing card is
+ * only seen when it cannot be read.
+ */
+static SdioError fatfsError(FRESULT rc)
+{
+  lastFatfsResult = rc;
+  if (rc == FR_NOT_READY || rc == FR_DISK_ERR) {
+    return SDLOG_NOCARD;
+  }
+  return SDLOG_FATFS_ERROR;
 }
 
 SdioError sdLogInit(uint32_t *freeSpaceInKo)
@@ -234,6 +247,8 @@ SdioError sdLogInit(uint32_t *freeSpaceInKo)
   DWORD clusters = 0;
   FATFS *fsp = NULL;
   nbBytesWritten = 0;
+
+  lastFatfsResult = FR_OK;
 
   // if init is already done, return ERROR
   if (sdLogThd != NULL) {
@@ -265,12 +280,7 @@ SdioError sdLogInit(uint32_t *freeSpaceInKo)
 #endif
 
   if (rc != FR_OK) {
-    lastMountResult = rc;
-    // Most boards have no card detect pin, a missing card is only seen when it cannot be read
-    if (rc == FR_NOT_READY || rc == FR_DISK_ERR) {
-      return storageStatus = SDLOG_NOCARD;
-    }
-    return storageStatus = SDLOG_FATFS_ERROR;
+    return storageStatus = fatfsError(rc);
   }
 
   if (freeSpaceInKo != NULL) {
@@ -338,16 +348,16 @@ SdioError sdLogOpenLog(FileDes *fd, const char *directoryName, const char *prefi
 
   sde = getFileName(prefix, directoryName, fileName, nameLength, +1);
   if (sde != SDLOG_OK) {
-    // sd card is not inserted, so logging task can be deleted
+    // sd card is not inserted (or the folder cannot be read), so logging task can be deleted
     fileDes[ldf].inUse = false;
-    return storageStatus = SDLOG_FATFS_ERROR;
+    return storageStatus = (sde == SDLOG_NOCARD) ? SDLOG_NOCARD : SDLOG_FATFS_ERROR;
   }
 
 
   rc = f_open(&fileDes[ldf].fil, fileName, FA_WRITE | FA_CREATE_ALWAYS);
   if (rc) {
     fileDes[ldf].inUse = false;
-    return storageStatus = SDLOG_FATFS_ERROR;
+    return storageStatus = fatfsError(rc);
   } else {
     fileDes[ldf].tagAtClose = appendTagAtClose;
     fileDes[ldf].autoFlushPeriod = autoFlushPeriod;
@@ -783,11 +793,11 @@ SdioError getFileName(const char *prefix, const char *directoryName,
   if (rc != FR_OK) {
     rc = f_mkdir(slashDirName);
     if (rc != FR_OK) {
-      return storageStatus = SDLOG_FATFS_ERROR;
+      return storageStatus = fatfsError(rc);
     }
     rc = f_opendir(&dir, directoryName);
     if (rc != FR_OK) {
-      return storageStatus = SDLOG_FATFS_ERROR;
+      return storageStatus = fatfsError(rc);
     }
   }
 
@@ -805,12 +815,12 @@ SdioError getFileName(const char *prefix, const char *directoryName,
     }
   }
   if (rc) {
-    return storageStatus = SDLOG_FATFS_ERROR;
+    return storageStatus = fatfsError(rc);
   }
 
   rc = f_closedir(&dir);
   if (rc) {
-    return  storageStatus = SDLOG_FATFS_ERROR;
+    return  storageStatus = fatfsError(rc);
   }
 
   if (maxCurrentIndex < NUMBERMAX) {
