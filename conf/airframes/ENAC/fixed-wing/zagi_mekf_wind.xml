@@ -75,9 +75,9 @@
       <define name="USE_SIDESLIP"/>
     </module>
     <module name="air_data"> 
-      <!--define name="AIR_DATA_BARO_ABS_ID" value="BARO_BOARD_SENDER_ID"/-->
+      <!--define name="AIR_DATA_BARO_ID" value="BARO_BOARD_SENDER_ID"/-->
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
-      <!--define name="AIR_DATA_BARO_DIFF_ID" value="BARODIFF_BOARD_SENDER_ID"/-->
+      <!--define name="AIR_DATA_AIRSPEED_ID" value="BARODIFF_BOARD_SENDER_ID"/-->
       <!--define name="USE_AIRSPEED_AIR_DATA" value="FALSE"/-->
     </module>
 

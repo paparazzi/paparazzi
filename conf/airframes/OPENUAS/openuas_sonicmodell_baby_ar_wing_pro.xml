@@ -191,7 +191,6 @@ Safety
         <!-- <define name="SDP3X_PRESSURE_OFFSET" value="0.0"/>--> <!-- pressure offset in Pa (default: set according to pressure range and output type according to datasheet) -->
         <!-- <define name="SDP3X_AIRSPEED_SCALE" value="1.6327"/> --> <!-- quadratic scale factor to convert differential pressure to airspeed" -->
         <define name="SDP3X_LOWPASS_TAU" value="0.09"/>
-        <define name="USE_AIRSPEED_SDP3X" value="TRUE"/>
         <define name="USE_AIRSPEED" value="TRUE"/>
         <!-- <define name="USE_AIRSPEED_LOWPASS_FILTER" value="TRUE"/> --><!-- Already TRUE per default -->
         <define name="SDP3X_PRESSURE_SCALE" value="SDP3X_SCALE_PRESSURE_SDP33"/>

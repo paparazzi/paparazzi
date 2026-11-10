@@ -37,7 +37,7 @@
     <define name="AIRSPEED_ETS_SDLOG" value="TRUE|FALSE" description="start logging to SD card for Chibios only"/>
   </doc>
   <dep>
-    <depends>i2c</depends>
+    <depends>i2c,air_data</depends>
     <provides>airspeed</provides>
   </dep>
 
