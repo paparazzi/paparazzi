@@ -5,19 +5,34 @@
     <description>
 Ublox GPS autoconfiguration.
 
-Automatically configure any Ublox GPS for paparazzi.
+Automatically configure any Ublox GPS for paparazzi, for any firmware and INS.
 
-- configures all the messages, and the rates
-- automatic baudrate detection
+- automatic baudrate detection (the target baudrate first), then sets the target baudrate
+- detects the receiver port the autopilot is connected to (UBX-CFG-PRT, or UBX-MON-COMMS on the X20)
+- configures the navigation messages and rates, the dynamic model and the 3D fix mode
+- saves the configuration to battery backed RAM and flash
+
+The configuration interface is detected from the protocol version (UBX-MON-VER): receivers without
+the legacy UBX-CFG messages (protocol 40 and later, e.g. X20) are configured with UBX-CFG-VALSET, the
+others with the legacy messages (generation 9 also with UBX-CFG-VALSET when it doesn't answer the
+UBX-CFG-PRT poll). Over I2C the legacy messages are used.
+With UBX-CFG-VALSET, NAV-PVT is the only navigation message, plus NAV-SAT, NAV-RELPOSNED with RTCM and
+NAV-DAHEADING (dual antenna heading of the X20D).
 
 Warning: you still need to tell the driver, which paparazzi port you use.
     </description>
-    <define name="GPS_UBX_UCENTER_RATE" value="250" description="Data output rate in ms"/>
+    <define name="GPS_UBX_UCENTER_RATE" value="100|200|250" description="Measurement period [ms]. Default 200 (5 Hz), 100 (10 Hz) with UBX-CFG-VALSET (X20). When the receiver refuses it 250 with the legacy messages and 200 with UBX-CFG-VALSET"/>
     <define name="GPS_UBX_NAV5_DYNAMICS"
             value="NAV5_DYN_PORTABLE|NAV5_DYN_FIXED|NAV5_DYN_STATIONARY|NAV5_DYN_PEDESTRIAN|NAV5_DYN_AUTOMOTIVE|NAV5_DYN_SEA|NAV5_DYN_AIRBORNE_1G|NAV5_DYN_AIRBORNE_2G|NAV5_DYN_AIRBORNE_4G"
             description="Dynamic model used by ublox GPS filter. Default:NAV5_DYN_AIRBORNE_2G"/>
-    <define name="USE_GPS_UBX_RXM_RAW" description="Activate raw measurments (only available on U-Blox T versions)"/>
-    <define name="GPS_UBX_ENABLE_NMEA_DATA_MASK" value="0x00|0xff" description="NMEA is disabled by default (0x00). To enable NMEA and UBX, set MASK to 0xff."/>
+    <define name="GPS_UBX_UCENTER_ENABLE_NMEA" value="FALSE|TRUE" description="Also output NMEA (default FALSE)"/>
+    <define name="GPS_UBX_UCENTER_SAVE" value="TRUE|FALSE" description="Save the configuration to battery backed RAM and flash (default TRUE)"/>
+    <define name="USE_GPS_UBX_RTCM" value="FALSE|TRUE" description="RTK: output NAV-RELPOSNED (and with the legacy messages also HPPOSLLH and RXM-RTCM, DGNSS mode RTK fixed)"/>
+    <define name="GPS_UBX_UCENTER_PVT_ONLY" value="FALSE|TRUE" description="Legacy messages: only NAV-PVT (and NAV-SAT) instead of POSLLH, VELNED, STATUS, SOL and SVINFO"/>
+    <define name="GPS_UBX_UCENTER_SLOW_NAV_SOL" value="FALSE|TRUE" description="Legacy messages: NAV-SOL at every 8th solution"/>
+    <define name="USE_GPS_UBX_RXM_RAW" value="FALSE|TRUE" description="Legacy messages: raw measurements (only available on U-Blox T versions)"/>
+    <define name="USE_GPS_UBX_RXM_SFRB" value="FALSE|TRUE" description="Legacy messages: subframe buffer"/>
+    <define name="DEBUG_GPS_UBX_UCENTER" value="FALSE|TRUE" description="Send the replies of the configuration steps in a DEBUG message"/>
   </doc>
 
   <settings>
