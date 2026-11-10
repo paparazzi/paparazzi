@@ -145,6 +145,10 @@ void lis3mdl_event(struct Lis3mdl *mag)
         }
         // End reading, back to idle
         mag->status = LIS3MDL_STATUS_IDLE;
+      } else if (mag->i2c_trans.status == I2CTransFailed) {
+        // Failed reading, back to idle to try again
+        mag->i2c_trans.status = I2CTransDone;
+        mag->status = LIS3MDL_STATUS_IDLE;
       }
       break;
 

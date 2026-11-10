@@ -58,7 +58,7 @@ static const struct FloatVect3 invensense2_accel_scale_f[5] = {
   {1.22583, 1.22583, 1.22583},    // 4G
   {2.4525,  2.4525,  2.4525},     // 8G
   {4.905, 4.905, 4.905},          // 16G
-  {9.196875, 9.196875, 9.196875}, // 30G
+  {9.81, 9.81, 9.81},             // 30G: ICM20649 has 1024 LSB/g (counts span 32G)
 };
 
 /**
@@ -280,9 +280,13 @@ static void invensense2_parse_data(struct invensense2_t *inv, volatile uint8_t *
   if(inv->accel_dlpf != INVENSENSE2_ACCEL_DLPF_OFF)
     accel_samplerate = 1125;
 
+  // The FIFO records come at the gyro rate, take every downsample'th accel sample
+  // (an accel faster than the gyro is limited to the gyro rate)
+  uint8_t downsample = Max(1, gyro_samplerate / accel_samplerate);
+  accel_samplerate = gyro_samplerate / downsample;
+
   // Go through the different samples
   uint8_t j = 0;
-  uint8_t downsample = gyro_samplerate / accel_samplerate;
   int32_t temp = 0;
   for(uint8_t i = 0; i < samples; i++) { 
     if(i % downsample == 0) {

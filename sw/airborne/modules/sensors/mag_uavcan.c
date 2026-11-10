@@ -46,8 +46,7 @@ static void mag_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), 
     return;   // decode error
   }
 
-  // The LIS3MDL module configure a +/- 4 gauss sensitivity, for 16bits data.
-  // (2**15)/4 = 8192
+  // The field is in gauss, scaled with 8192 (2**13) for the int32 raw message (the airframe calibration sets the real scale)
   struct Int32Vect3 mag = {
     msg.magnetic_field_ga[0] * 8192,
     msg.magnetic_field_ga[1] * 8192,
@@ -72,19 +71,19 @@ static void mag_uavcan_cb2(struct uavcan_iface_t *iface __attribute__((unused)),
     return;   // decode error
   }
 
-  // The LIS3MDL module configure a +/- 4 gauss sensitivity, for 16bits data.
-  // (2**15)/4 = 8192
+  // The field is in gauss, scaled with 8192 (2**13) for the int32 raw message (the airframe calibration sets the real scale)
   struct Int32Vect3 mag = {
     msg.magnetic_field_ga[0] * 8192,
     msg.magnetic_field_ga[1] * 8192,
     msg.magnetic_field_ga[2] * 8192,
   };
 
-  // use sensor_id as abi_id
-  AbiSendMsgIMU_MAG_RAW(msg.sensor_id, now_ts, &mag);
+  // Same ABI id as MagneticFieldStrength: the node sensor_id (0, 1, ...) would be ABI_DISABLE or collide with other mags
+  AbiSendMsgIMU_MAG_RAW(MAG_UAVCAN_SENDER_ID, now_ts, &mag);
 
 #if MAG_UAVCAN_SYNC_SEND
-    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &msg.sensor_id, &mag.x, &mag.y, &mag.z);
+    uint8_t abi_id = MAG_UAVCAN_SENDER_ID;
+    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &abi_id, &mag.x, &mag.y, &mag.z);
 #endif
 
 }
