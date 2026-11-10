@@ -30,7 +30,6 @@
     <module name="board" type="tawaki"/>
     <module name="ahrs" type="float_dcm"/> <!--Attitude and heading reference system-->
     <module name="ins" type="alt_float"/><!--Inertial navigation system-->
-    <module name="air_data"/>
     <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
     </module>

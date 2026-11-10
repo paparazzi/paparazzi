@@ -71,7 +71,6 @@
         </module>
 
         <!-- Sensors -->  
-        <module name="air_data"/>                  
         <module name="gps" type="datalink"/>   
         
         <!-- IMU / INS -->  
