@@ -34,6 +34,7 @@
 #include "baro_spa06.h"
 
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "math/pprz_isa.h"
 #ifdef SPA06_SYNC_SEND
   #include "mcu_periph/uart.h"
@@ -131,8 +132,8 @@ void baro_spa06_event(void)
   if (baro_spa06.data_available) {
     uint32_t now_ts = get_sys_time_usec();
     // send ABI message
-    AbiSendMsgBARO_ABS(BARO_SPA_SENDER_ID, now_ts, baro_spa06.pressure);
-    AbiSendMsgTEMPERATURE(BARO_SPA_SENDER_ID, baro_spa06.temperature);
+    AbiSendMsgBARO_ABS_RAW(BARO_SPA_SENDER_ID, now_ts, baro_spa06.pressure);
+    AbiSendMsgTEMPERATURE_RAW(BARO_SPA_SENDER_ID, get_sys_time_usec(), baro_spa06.temperature, TEMPERATURE_TYPE_BARO);
     baro_spa06.data_available = false;
     baro_spa06_alt = pprz_isa_altitude_of_pressure(baro_spa06.pressure);
     baro_spa06_alt_valid = true;

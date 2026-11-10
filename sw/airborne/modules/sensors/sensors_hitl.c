@@ -22,6 +22,7 @@
 #include "modules/imu/imu.h"
 #include "modules/gps/gps.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "modules/energy/electrical.h"
 #include "generated/airframe.h"
 #include "modules/datalink/datalink.h"
@@ -183,10 +184,10 @@ void sensors_hitl_parse_HITL_AIR_DATA(uint8_t *buf) {
   if (bit_is_set(flag, 0)) {
     uint32_t now_ts = get_sys_time_usec();
     float pressure = DL_HITL_AIR_DATA_baro(buf);
-    AbiSendMsgBARO_ABS(BARO_SIM_SENDER_ID, now_ts, pressure);
+    AbiSendMsgBARO_ABS_RAW(BARO_SIM_SENDER_ID, now_ts, pressure);
   }
   if (bit_is_set(flag, 1)) {
-    AbiSendMsgAIRSPEED(AIRSPEED_NPS_ID, DL_HITL_AIR_DATA_airspeed(buf));
+    AbiSendMsgAIRSPEED_RAW(AIRSPEED_NPS_ID, get_sys_time_usec(), DL_HITL_AIR_DATA_airspeed(buf));
   }
   if (bit_is_set(flag, 2) || bit_is_set(flag, 3)) {
     uint8_t incidence_flag = (flag >> 2) & (0x3);

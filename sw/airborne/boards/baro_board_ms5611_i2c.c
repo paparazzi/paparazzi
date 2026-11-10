@@ -102,21 +102,15 @@ void baro_event(void)
 
     if (bb_ms5611.data_available) {
       uint32_t now_ts = get_sys_time_usec();
-      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, bb_ms5611.data.pressure);
+      AbiSendMsgBARO_ABS_RAW(BARO_BOARD_SENDER_ID, now_ts, bb_ms5611.data.pressure);
       float temp = bb_ms5611.data.temperature / 100.0f;
-      AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
+      AbiSendMsgTEMPERATURE_RAW(BARO_BOARD_SENDER_ID, get_sys_time_usec(), temp, TEMPERATURE_TYPE_BARO);
       bb_ms5611.data_available = false;
 
 #ifdef BARO_LED
       RunOnceEvery(10, LED_TOGGLE(BARO_LED));
 #endif
 
-#if DEBUG
-      float fbaroms = bb_ms5611.data.pressure / 100.;
-      DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
-                                &bb_ms5611.data.d1, &bb_ms5611.data.d2,
-                                &fbaroms, &temp);
-#endif
     }
   }
 }
