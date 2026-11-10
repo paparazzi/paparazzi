@@ -113,10 +113,6 @@
         <configure name="MODULE_RM3100_SYNC_SEND" value="TRUE"/>
       </module>
 
-      <module name="baro_ms5611_spi">
-        <configure name="MS5611_SPI_DEV" value="spi1"/>
-        <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
-      </module>
 
       <module name="airspeed" type="sdp3x">
         <configure name="SDP3X_I2C_DEV" value="i2c1"/>
@@ -218,7 +214,6 @@
 
     <define name="autopilot_motors_on" value="TRUE"/>
 
-    <configure name="USE_BARO_BOARD" value="TRUE"/>
     <define name="SENSOR_SYNC_SEND"/>
     <configure name="BARO_PERIODIC_FREQUENCY" value="50"/>
     <define name="USE_BARO_MEDIAN_FILTER"/>

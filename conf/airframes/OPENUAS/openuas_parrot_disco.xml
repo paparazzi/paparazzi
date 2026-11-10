@@ -271,7 +271,6 @@
     <!-- <define name="MS45XX_SENSOR_SYNC_SEND"/>--> <!-- Temp for debugging Airspeed -->
     <!-- temp fix for geomag, normally only used for rotorcraft -->
     <define name="SENSOR_SYNC_SEND"/> <!-- Temp for debugging Baro -->
-    <configure name="USE_BARO_BOARD" value="TRUE"/>
 
     <!-- amount of time it take for the bat to trigger check -->
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->

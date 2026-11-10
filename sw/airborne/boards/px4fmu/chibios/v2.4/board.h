@@ -954,16 +954,6 @@
 #define SPI_SELECT_SLAVE3_PIN GPIO7
 
 /**
- * Baro
- *
- * Apparently needed for backwards compatibility
- * with the ancient onboard baro boards
- */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 1
-#endif
-
-/**
  *
  * Kludge for SD_LOG
  */

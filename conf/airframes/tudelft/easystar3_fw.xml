@@ -13,7 +13,6 @@
     <define name="USE_BAROMETER" value="TRUE"/>
 
     <target name="ap" board="px4fmu_5.0_chibios">
-      <define name="USE_BARO_BOARD" value="TRUE"/>
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <!--define name="ADC_CHANNEL_VSUPPLY" value="ADC_3"/>
       <define name="ADC_CHANNEL_CURRENT" value="ADC_4"/-->
@@ -53,7 +52,6 @@
     <module name="airspeed" type="ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c4"/>
     </module>
-    <module name="baro_board"/>
     <module name="actuators" type="pwm"/>
     <module name="control" type="new"/>
     <module name="navigation"/>

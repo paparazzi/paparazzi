@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_apogee" dir="boards/apogee" task="sensors">
+  <doc>
+    <description>
+      MPL3115 barometer of the Apogee board.
+      It is an i2c slave of the MPU6050, so it is only read once the MPU is configured.
+      Loaded by the Apogee board, needs the imu_apogee or imu_apogee_mpu9150 module.
+    </description>
+    <configure name="BARO_APOGEE_FREQ" value="5" description="reading frequency in Hz (default: 5)"/>
+    <define name="MPL3115_OVERSAMPLING" value="0-7" description="oversampling ratio of the MPL3115"/>
+    <define name="APOGEE_BARO_SDLOG" value="TRUE|FALSE" description="log the pressure and temperature to the SD card"/>
+  </doc>
+  <dep>
+    <depends>i2c,air_data</depends>
+    <provides>baro</provides>
+  </dep>
+  <header>
+    <file name="baro_apogee.h" dir="boards/apogee"/>
+  </header>
+  <init fun="baro_apogee_init()"/>
+  <periodic fun="baro_apogee_periodic()" freq="BARO_APOGEE_FREQ"/>
+  <event fun="baro_apogee_event()"/>
+  <makefile target="ap">
+    <configure name="BARO_APOGEE_FREQ" default="5"/>
+    <define name="BARO_APOGEE_FREQ" value="$(BARO_APOGEE_FREQ)"/>
+    <define name="USE_I2C1"/>
+    <file name="baro_apogee.c" dir="boards/apogee"/>
+    <file name="mpl3115.c" dir="peripherals"/>
+  </makefile>
+</module>
