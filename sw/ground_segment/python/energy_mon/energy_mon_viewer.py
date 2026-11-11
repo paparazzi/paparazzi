@@ -17,12 +17,19 @@
 # along with paparazzi.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import wx
+"""
+Energy monitor window: battery cell state and flight time prediction.
+
+Listens on Ivy to the ENERGY, TEMP_ADC and AIR_DATA telemetry messages and shows,
+per battery cell (see battery_model.py for the pack layout), coloured status bars
+(voltage, current, used charge, temperature, power, predicted hover and forward
+flight time left) next to the cell discharge curves of batterymodel.csv.
+"""
 
 import sys
 import os
-import math
-import datetime
+
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 import battery_model as bat
 
@@ -41,26 +48,31 @@ BARH = 140
 
 
 def get_text_from_seconds(secs):
+    """Seconds as mm:ss"""
     m, s = divmod(int(secs), int(60))
     return "{:02d}:{:02d}".format(m, s)
 
 class AirDataMessage(object):
+    """Fields used from AIR_DATA"""
     def __init__(self, msg):
         self.airspeed = float(msg['airspeed'])
 
 class EnergyMessage(object):
+    """Fields used from ENERGY (whole battery); energy is the used charge in mAh"""
     def __init__(self, msg):
-        self.volt = float(msg['bat'])
-        self.current = float(msg['amp'])
+        self.volt = float(msg['voltage'])
+        self.current = float(msg['current'])
         self.power = float(msg['power'])
-        self.energy = float(msg['energy'])
+        self.energy = float(msg['charge']) * 1000.0
 
 class TempMessage(object):
+    """Fields used from TEMP_ADC (temp2 is the battery)"""
     def __init__(self, msg):
         self.motor = float(msg['temp1'])
         self.battery = float(msg['temp2'])
 
 class BatteryCell(object):
+    """State of one battery cell, with texts, bar fractions (0..1) and colours (0.1 red, 0.5 orange, 1 green)"""
     def __init__(self):
         self.voltage = 0
         self.current = 0
@@ -119,14 +131,14 @@ class BatteryCell(object):
         elif self.current > 4.5:
             return 0.1
         return 0.5
-    
+
     def get_energy_color(self):
         if self.energy > 3000:
             return 0.1
         elif self.energy < 2000:
             return 1
         return 0.5
-  
+
     def get_temp_color(self):
         if (self.temperature > 20) & (self.temperature < 40):
             return 1
@@ -138,6 +150,7 @@ class BatteryCell(object):
         return 0.5
 
 class EnergyPrediction(object):
+    """Flight time left from the cell state, the airspeed and the battery model"""
     coeffs_power_from_airspeed = [2.9229, -95.559, 1029.8] # Coefficients from matlab
     energy_land = 3  # Wh required to land
     energy_takeoff = 3  # Wh required for take-off
@@ -244,213 +257,176 @@ class EnergyPrediction(object):
         return mAh_vmin
 
 
-class EnergyMonFrame(wx.Frame):
-    def message_recv(self, ac_id, msg):
-        if msg.name == "ENERGY":
-            self.bat = EnergyMessage(msg)
-            self.cell.fill_from_energy_msg(self.bat)
+class EnergyMonWindow(QtWidgets.QWidget):
+    """Window drawing the status bars (left) and the discharge plot (right)"""
 
-            wx.CallAfter(self.update)
-        elif msg.name == "TEMP_ADC":
-            self.temp = TempMessage(msg)
-            self.cell.fill_from_temp_msg(self.temp)
-            wx.CallAfter(self.update)
+    # Ivy messages are handed from the Ivy thread to the GUI thread with this signal
+    msg_received = QtCore.pyqtSignal(object)
 
-        elif msg.name == "AIR_DATA":
-            self.air_data = AirDataMessage(msg)
-            self.energy_prediction.fill_from_air_data_msg(self.air_data)
-            wx.CallAfter(self.update)    
+    # Discharge curves of batterymodel.csv: 2, 4, 6, 8 and 10 A per cell
+    CURVE_COLORS = [(0, 0, 0), (0, 0, 255), (0, 255, 0), (255, 255, 0), (255, 0, 0)]
 
-    def update(self):
-        self.Refresh()
+    def __init__(self, ivy_bus=None):
+        super().__init__()
+        self.setWindowTitle('Energy Monitoring')
+        self.setWindowIcon(QtGui.QIcon(PPRZ_SRC + "/sw/ground_segment/python/energy_mon/energy_mon.ico"))
 
-    def OnSize(self, event):
-        self.w = event.GetSize().x
-        self.h = event.GetSize().y
-        self.cfg.Write("width", str(self.w));
-        self.cfg.Write("height", str(self.h));
-        self.Refresh()
+        # Size and position of the last session
+        self.settings = QtCore.QSettings('paparazzi', 'energymon_conf')
+        self.resize(self.settings.value('size', QtCore.QSize(WIDTH, WIDTH + BARH)))
+        if self.settings.contains('pos'):
+            self.move(self.settings.value('pos'))
 
-    def OnMove(self, event):
-        self.x = event.GetPosition().x
-        self.y = event.GetPosition().y
-        self.cfg.Write("left", str(self.x));
-        self.cfg.Write("top", str(self.y));
-
-
-    def StatusBox(self, dc, nr, txt, percent, color):
-        if percent < 0:
-            percent = 0
-        if percent > 1:
-            percent = 1
-        boxw = self.stat
-        tdx = int(boxw * 10.0 / 300.0)
-        tdy = int(boxw * 6.0 / 300.0)
-        boxh = int(boxw * 40.0 / 300.0)
-        boxw = self.stat - 2*tdx
-        spacing = boxh+10
-
-        dc.SetPen(wx.Pen(wx.Colour(0,0,0))) 
-        dc.SetBrush(wx.Brush(wx.Colour(220,220,220))) 
-        dc.DrawRectangle(tdx, int(nr*spacing+tdx), int(boxw), boxh)
-        dc.SetTextForeground(wx.Colour(0, 0, 0))
-        if color < 0.2:
-            dc.SetTextForeground(wx.Colour(255, 255, 255))
-            dc.SetBrush(wx.Brush(wx.Colour(250,0,0)))
-        elif color < 0.6:
-            dc.SetBrush(wx.Brush(wx.Colour(250,180,0)))
-        else:
-            dc.SetBrush(wx.Brush(wx.Colour(0,250,0)))
-#        dc.DrawLine(200,50,350,50)
-        dc.DrawRectangle(tdx, int(nr*spacing+tdx), int(boxw * percent), boxh)
-        dc.DrawText(txt,18,int(nr*spacing+tdy+tdx))
-
-    def plot_x(self, x):
-        return int(self.stat+self.tdx +  x * (self.w-self.stat-2*self.tdx))
-
-    def plot_y(self, y):
-        return int(self.tdx + (1-y) * (self.h-self.tdx-self.tdx))
-
-    def plot(self, dc, i1, i2):
-        dc.DrawLine(self.plot_x(i1[1]/3500), self.plot_y((i1[0]-2.5)/(4.2-2.5)), self.plot_x(i2[1]/3500), self.plot_y((i2[0]-2.5)/(4.2-2.5)))
-
-    def DischargePlot(self, dc):
-        self.tdx = int(self.stat * 10.0 / 300.0)
-        dc.SetPen(wx.Pen(wx.Colour(0,0,0),1))
-        dc.SetBrush(wx.Brush(wx.Colour(250,250,250))) 
-        dc.DrawRectangle(self.plot_x(0.0), self.plot_y(1.0), self.w-self.stat-2*self.tdx, self.h-2*self.tdx)
-        
-        for i in range(0,6):
-            dc.DrawLine(self.plot_x(0.0), self.plot_y(i/6.0), self.plot_x(1.0), self.plot_y(i/6.0))
-        for i in range(0,7):
-            dc.DrawLine(self.plot_x(i/7.0), self.plot_y(0), self.plot_x(i/7.0), self.plot_y(1))
-
-        
-        dc.SetPen(wx.Pen(wx.Colour(0,0,0),4))
-        dc.DrawLine(self.plot_x(self.cell.model/3500), self.plot_y(0), self.plot_x(self.cell.model/3500), self.plot_y(1))
-        dc.DrawLine(self.plot_x(0.0), self.plot_y(self.cell.get_volt_perc()), self.plot_x(1.0), self.plot_y(self.cell.get_volt_perc()))
-
-        # Draw maximum charge point
-        dc.SetPen(wx.Pen(wx.Colour(0,0,255),2))
-        dc.DrawLine(self.plot_x(self.energy_prediction.get_max_hover_charge() / 3500), self.plot_y(0), self.plot_x(self.energy_prediction.get_max_hover_charge() / 3500), self.plot_y(1))
-        dc.DrawLine(self.plot_x(1415. / 3500), self.plot_y(0), self.plot_x(1415. / 3500), self.plot_y(1))  # Competition latest land at joe (18km/h0degwind, 25m/s)
-
-
-        font = wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL)
-        dc.SetFont(font)
-        for i in range(0,3500,500):
-            dc.DrawText(str(i) + "mAh", self.plot_x(float(i)/3500.0), self.plot_y(1.0))
-        for i in range(25,43,3):
-            dc.DrawText(str(round(i/10.0,1)) + "V", self.plot_x(0), self.plot_y(self.cell.get_volt_percent(float(i/10.0))))
-
-        thickness = 3
-        dc.SetPen(wx.Pen(wx.Colour(0,0,0),thickness))
-        li = bat.batmodel[0,[0,1]]
-        for i in bat.batmodel[:,[0,1]]:
-            self.plot(dc,li,i)
-            li=i
-
-        dc.SetPen(wx.Pen(wx.Colour(0,0,255),thickness))
-        li = bat.batmodel[0,[0,2]]
-        for i in bat.batmodel[:,[0,2]]:
-            self.plot(dc,li,i)
-            li=i
-            
-        dc.SetPen(wx.Pen(wx.Colour(0,255,0),thickness))
-        li = bat.batmodel[0,[0,3]]
-        for i in bat.batmodel[:,[0,3]]:
-            self.plot(dc,li,i)
-            li=i
-            
-        dc.SetPen(wx.Pen(wx.Colour(255,255,0),thickness))
-        li = bat.batmodel[0,[0,4]]
-        for i in bat.batmodel[:,[0,4]]:
-            self.plot(dc,li,i)
-            li=i
-            
-        dc.SetPen(wx.Pen(wx.Colour(255,0,0),thickness))
-        li = bat.batmodel[0,[0,5]]
-        for i in bat.batmodel[:,[0,5]]:
-            self.plot(dc,li,i)
-            li=i
-            
-
-    def OnPaint(self, e):
-        # Automatic Scaling
-        w = self.w
-        h = self.h
-
-        self.stat = int(w/4)
-        if self.stat<100:
-            self.stat=100
-
-        dc = wx.PaintDC(self)
-        brush = wx.Brush("white")
-        dc.SetBackground(brush)
-        dc.Clear()
-
-        # Background
-        dc.SetBrush(wx.Brush(wx.Colour(0, 0, 0), wx.TRANSPARENT))
-
-        fontscale = int(w * 11.0 / 800.0)
-        if fontscale < 6:
-            fontscale = 6
-        font = wx.Font(fontscale, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
-        dc.SetFont(font)
-
-        self.StatusBox(dc,0, self.cell.get_volt(), self.cell.get_volt_perc(), self.cell.get_volt_color())
-        self.StatusBox(dc,1, self.cell.get_current(), self.cell.get_current_perc(), self.cell.get_current_color() )
-        self.StatusBox(dc,2, self.cell.get_energy(), self.cell.get_energy_perc(), self.cell.get_energy_color() )
-        self.StatusBox(dc,3, self.cell.get_mah_from_volt(), self.cell.get_energy_perc(), self.cell.get_energy_color() )
-        self.StatusBox(dc,4, self.cell.get_temp(), self.cell.get_temp_perc(), self.cell.get_temp_color())
-        self.StatusBox(dc,6, self.cell.get_power_text(), self.cell.get_power_perc(), self.cell.get_power_color())
-        self.StatusBox(dc,7, self.energy_prediction.get_power_fraction_text(), self.energy_prediction.get_power_fraction(), self.energy_prediction.get_power_fraction_color())
-        self.StatusBox(dc,8, self.energy_prediction.get_hover_seconds_left_text(), self.energy_prediction.get_hover_seconds_fraction(), self.energy_prediction.get_hover_seconds_color())
-        self.StatusBox(dc,9, self.energy_prediction.get_fw_seconds_left_text(), self.energy_prediction.get_fw_seconds_fraction(), self.energy_prediction.get_fw_seconds_color())
-        self.StatusBox(dc,10, self.energy_prediction.get_fw_seconds_left_20mps_text(), self.energy_prediction.get_fw_seconds_left_20mps_fraction(), self.energy_prediction.get_fw_seconds_left_20mps_color())
-
-        self.DischargePlot(dc)
-
-    def __init__(self):
-
-        self.w = WIDTH
-        self.h = WIDTH + BARH
-
-        self.cfg = wx.Config('energymon_conf')
-        if self.cfg.Exists('width'):
-            self.w = int(self.cfg.Read('width'))
-            self.h = int(self.cfg.Read('height'))
-
-        wx.Frame.__init__(self, id=-1, parent=None, name=u'EnergyMonFrame',
-                          size=wx.Size(self.w, self.h), title=u'Energy Monitoring')
-
-        if self.cfg.Exists('left'):
-            self.x = int(self.cfg.Read('left'))
-            self.y = int(self.cfg.Read('top'))
-            self.SetPosition(wx.Point(self.x,self.y))
-
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.Bind(wx.EVT_SIZE, self.OnSize)
-        self.Bind(wx.EVT_MOVE, self.OnMove)
-        self.Bind(wx.EVT_CLOSE, self.OnClose)
-
-        ico = wx.Icon(PPRZ_SRC + "/sw/ground_segment/python/energy_mon/energy_mon.ico", wx.BITMAP_TYPE_ICO)
-        self.SetIcon(ico)
-
-        self.bat = {}
-        self.temp = {}
         self.cell = BatteryCell()
         self.energy_prediction = EnergyPrediction(self.cell)
 
-        self.interface = IvyMessagesInterface("energymonframe")
-        self.interface.subscribe(self.message_recv)
+        self.msg_received.connect(self.handle_message)
+        if ivy_bus:
+            self.interface = IvyMessagesInterface("energymonframe", ivy_bus=ivy_bus)
+        else:
+            self.interface = IvyMessagesInterface("energymonframe")
+        self.interface.subscribe(self.message_recv, '^([^ ]* +(ENERGY|TEMP_ADC|AIR_DATA)( .*|$))')
 
-    def OnClose(self, event):
+    def message_recv(self, ac_id, msg):
+        """Ivy thread: pass the message to the GUI thread"""
+        self.msg_received.emit(msg)
+
+    def handle_message(self, msg):
+        """GUI thread: update the cell state and the prediction, then redraw"""
+        if msg.name == "ENERGY":
+            self.cell.fill_from_energy_msg(EnergyMessage(msg))
+        elif msg.name == "TEMP_ADC":
+            self.cell.fill_from_temp_msg(TempMessage(msg))
+        elif msg.name == "AIR_DATA":
+            self.energy_prediction.fill_from_air_data_msg(AirDataMessage(msg))
+        self.update()
+
+    def closeEvent(self, event):
+        """Save the window geometry and stop Ivy"""
+        self.settings.setValue('size', self.size())
+        self.settings.setValue('pos', self.pos())
         self.interface.shutdown()
-        self.Destroy()
+        super().closeEvent(event)
+
+    def draw_text(self, p, x, y, txt):
+        """Draw text with its top left corner at (x, y)"""
+        p.drawText(x, y + p.fontMetrics().ascent(), txt)
+
+    def status_box(self, p, nr, txt, percent, color):
+        """Status bar number nr: grey box, coloured fill of percent (0..1), text"""
+        percent = min(max(percent, 0), 1)
+        tdx = int(self.stat * 10.0 / 300.0)
+        tdy = int(self.stat * 6.0 / 300.0)
+        boxh = int(self.stat * 40.0 / 300.0)
+        boxw = self.stat - 2 * tdx
+        top = int(nr * (boxh + 10) + tdx)
+
+        p.setPen(QtGui.QColor(0, 0, 0))
+        p.setBrush(QtGui.QColor(220, 220, 220))
+        p.drawRect(tdx, top, boxw, boxh)
+        text_color = QtGui.QColor(0, 0, 0)
+        if color < 0.2:
+            text_color = QtGui.QColor(255, 255, 255)
+            p.setBrush(QtGui.QColor(250, 0, 0))
+        elif color < 0.6:
+            p.setBrush(QtGui.QColor(250, 180, 0))
+        else:
+            p.setBrush(QtGui.QColor(0, 250, 0))
+        p.drawRect(tdx, top, int(boxw * percent), boxh)
+        p.setPen(text_color)
+        self.draw_text(p, 18, top + tdy, txt)
+
+    def plot_x(self, x):
+        """Plot x (0..1) to pixels"""
+        return int(self.stat + self.tdx + x * (self.width() - self.stat - 2 * self.tdx))
+
+    def plot_y(self, y):
+        """Plot y (0..1) to pixels"""
+        return int(self.tdx + (1 - y) * (self.height() - 2 * self.tdx))
+
+    def plot_point(self, volt, mah):
+        """Pixel position of a (cell voltage, mAh) point of the discharge plot"""
+        return QtCore.QPoint(self.plot_x(mah / 3500), self.plot_y((volt - 2.5) / (4.2 - 2.5)))
+
+    def vertical_line(self, p, x):
+        """Vertical line over the whole plot at x (0..1)"""
+        p.drawLine(self.plot_x(x), self.plot_y(0), self.plot_x(x), self.plot_y(1))
+
+    def discharge_plot(self, p):
+        """Discharge curves with the current cell state and charge limits"""
+        self.tdx = int(self.stat * 10.0 / 300.0)
+        p.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 1))
+        p.setBrush(QtGui.QColor(250, 250, 250))
+        p.drawRect(self.plot_x(0.0), self.plot_y(1.0), self.width() - self.stat - 2 * self.tdx,
+                   self.height() - 2 * self.tdx)
+
+        # Grid
+        for i in range(0, 6):
+            p.drawLine(self.plot_x(0.0), self.plot_y(i / 6.0), self.plot_x(1.0), self.plot_y(i / 6.0))
+        for i in range(0, 7):
+            self.vertical_line(p, i / 7.0)
+
+        # Current cell state: charge used (model) and voltage
+        p.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 4))
+        self.vertical_line(p, self.cell.model / 3500)
+        p.drawLine(self.plot_x(0.0), self.plot_y(self.cell.get_volt_perc()),
+                   self.plot_x(1.0), self.plot_y(self.cell.get_volt_perc()))
+
+        # Maximum charge for hover, and competition latest land at joe (18km/h0degwind, 25m/s)
+        p.setPen(QtGui.QPen(QtGui.QColor(0, 0, 255), 2))
+        self.vertical_line(p, self.energy_prediction.get_max_hover_charge() / 3500)
+        self.vertical_line(p, 1415. / 3500)
+
+        # Axis labels
+        p.setPen(QtGui.QColor(0, 0, 0))
+        p.setFont(QtGui.QFont("Serif", 8))
+        for i in range(0, 3500, 500):
+            self.draw_text(p, self.plot_x(float(i) / 3500.0), self.plot_y(1.0), str(i) + "mAh")
+        for i in range(25, 43, 3):
+            self.draw_text(p, self.plot_x(0), self.plot_y(self.cell.get_volt_percent(float(i / 10.0))),
+                           str(round(i / 10.0, 1)) + "V")
+
+        # Discharge curves
+        for curve, color in enumerate(self.CURVE_COLORS):
+            p.setPen(QtGui.QPen(QtGui.QColor(*color), 3))
+            points = [self.plot_point(row[0], row[curve + 1]) for row in bat.batmodel]
+            p.drawPolyline(QtGui.QPolygon(points))
+
+    def paintEvent(self, event):
+        """Draw the whole window, scaled to its size"""
+        self.stat = max(int(self.width() / 4), 100)
+
+        p = QtGui.QPainter(self)
+        p.fillRect(self.rect(), QtGui.QColor(255, 255, 255))
+
+        font = QtGui.QFont("Serif", max(int(self.width() * 11.0 / 800.0), 6))
+        font.setBold(True)
+        p.setFont(font)
+
+        cell = self.cell
+        pred = self.energy_prediction
+        self.status_box(p, 0, cell.get_volt(), cell.get_volt_perc(), cell.get_volt_color())
+        self.status_box(p, 1, cell.get_current(), cell.get_current_perc(), cell.get_current_color())
+        self.status_box(p, 2, cell.get_energy(), cell.get_energy_perc(), cell.get_energy_color())
+        self.status_box(p, 3, cell.get_mah_from_volt(), cell.get_energy_perc(), cell.get_energy_color())
+        self.status_box(p, 4, cell.get_temp(), cell.get_temp_perc(), cell.get_temp_color())
+        self.status_box(p, 6, cell.get_power_text(), cell.get_power_perc(), cell.get_power_color())
+        self.status_box(p, 7, pred.get_power_fraction_text(), pred.get_power_fraction(),
+                        pred.get_power_fraction_color())
+        self.status_box(p, 8, pred.get_hover_seconds_left_text(), pred.get_hover_seconds_fraction(),
+                        pred.get_hover_seconds_color())
+        self.status_box(p, 9, pred.get_fw_seconds_left_text(), pred.get_fw_seconds_fraction(),
+                        pred.get_fw_seconds_color())
+        self.status_box(p, 10, pred.get_fw_seconds_left_20mps_text(), pred.get_fw_seconds_left_20mps_fraction(),
+                        pred.get_fw_seconds_left_20mps_color())
+
+        self.discharge_plot(p)
+        p.end()
+
 
 if __name__ == '__main__':
-    energy_message = EnergyMessage({"bat": 22, "amp": 18, "power": 22 * 18, "energy": 10000})
+    # Quick check of the prediction without Ivy or GUI
+    energy_message = EnergyMessage({"voltage": 22, "current": 18, "power": 22 * 18, "charge": 10.0})
     air_data_message = AirDataMessage({"airspeed": 21})
     cell = BatteryCell()
     cell.fill_from_energy_msg(energy_message)
@@ -462,15 +438,3 @@ if __name__ == '__main__':
     print(energy_prediction.get_hover_seconds_left_text())
     print(energy_prediction.get_fw_seconds_left_text())
     print(energy_prediction.get_fw_seconds_left_20mps_text())
-    import matplotlib.pyplot as plt
-    import numpy as np
-    energies = np.arange(0, 3200*6, 10)
-    seconds_left = np.zeros(energies.shape)
-
-    # for i, energy in enumerate(energies):
-    #     cell.fill_from_energy_msg(EnergyMessage({"bat": 22, "amp": 18, "power": 22 * 18, "energy": energy}))
-    #     seconds_left[i] = energy_prediction.get_hover_seconds_left()
-    #
-    #
-    # plt.plot(energies, seconds_left)
-    # plt.show()

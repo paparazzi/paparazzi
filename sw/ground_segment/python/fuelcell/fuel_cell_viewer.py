@@ -17,13 +17,20 @@
 # along with paparazzi.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import wx
+"""
+Nederdrone status window (PyQt5).
+
+Draws a top view of the Nederdrone with coloured status bars for the fuel cell
+(PAYLOAD message), the battery (ENERGY, TEMP_ADC) and every CAN ESC (ESC).
+The data classes below turn the Ivy messages into texts, bar lengths (0..1)
+and colours (below 0.2 red, below 0.6 orange, else green).
+"""
 
 import sys
 import os
-import math
 from datetime import datetime
 
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                     '../../../..')))
@@ -39,15 +46,13 @@ WIDTH = 600
 BARH = 140
 
 
-def get_text_from_seconds(secs):
-    m, s = divmod(int(secs), int(60))
-    return "{:02d}:{:02d}".format(m, s)
-
 class AirDataMessage(object):
+    """ AIR_DATA message: airspeed """
     def __init__(self, msg):
         self.airspeed = float(msg['airspeed'])
 
 class EnergyMessage(object):
+    """ ENERGY message: battery voltage, current, power and energy """
     def __init__(self, msg):
         self.volt = float(msg['voltage'])
         self.current = float(msg['current'])
@@ -56,11 +61,13 @@ class EnergyMessage(object):
         self.averagepower = float(msg['avg_power'])
 
 class TempMessage(object):
+    """ TEMP_ADC message: motor and battery temperature """
     def __init__(self, msg):
         self.motor = float(msg['temp1'])
         self.battery = float(msg['temp2'])
 
 class EscMessage(object):
+    """ ESC message of one CAN ESC, with texts, bars and colours for its status box """
     def __init__(self, msg):
         self.id = int(msg['node_id']) # motor_id
         self.amp = float(msg['amps'])
@@ -133,6 +140,7 @@ class EscMessage(object):
         return 1
 
 class MotorList(object):
+    """ Last ESC message of every ESC, by node id """
     def __init__(self):
         self.mot = []
 
@@ -148,6 +156,7 @@ class MotorList(object):
 
 
 class BatteryCell(object):
+    """ Battery state from ENERGY and TEMP_ADC, with texts, bars and colours """
     def __init__(self):
         self.voltage = 0
         self.current = 0
@@ -247,39 +256,41 @@ class BatteryCell(object):
 
 
 class PayloadMessage(object):
+    """ PAYLOAD message: the bytes as a text string """
     def __init__(self, msg):
         self.values = ''.join(chr(int(x)) for x in msg['values'])
 
 
 
 class FuelCellStatus(object):
-    def _init_(self):
+    """ Fuel cell state from its PAYLOAD string "<tank%,battery%,status,0xerrors>" """
+    def __init__(self):
         self.blink = 0
-        self.msgtime = 0
+        self.msgtime = datetime.now()
 
     def update(self,msg):
         self.msg = msg
         self.msgtime = datetime.now()
-        if hasattr(self, 'blink'):
-            self.blink = 1 - self.blink
-        else:
-            self.blink = 0
+        self.blink = 1 - self.blink
         elements = self.msg.strip('<').strip('>').split(',')
         if (len(elements) == 4):
-            self.tank = float(elements[0])
-            self.battery = float(elements[1])
+            try:
+                tank = float(elements[0])
+                battery = float(elements[1])
+                int(elements[2])
+                hex = '0000'
+                if (len(elements[3]) >= 4):
+                    hex = elements[3][2:6]
+                #array of 16 error codes
+                error_bin = bin(int(hex, 16))[2:].zfill(16)
+            except ValueError:
+                # garbled string: keep the last good values (it is still shown raw)
+                return
+            self.tank = tank
+            self.battery = battery
             self.status = elements[2]
             self.error = elements[3]
-
-            self.errors = []
-            hex = '0000'
-            if (len(self.error) >= 4):
-                hex = self.error[2:6]
-            #array of 16 error codes
-            self.error_bin = bin(int(hex, 16))[2:].zfill(16)
-
-        #else:
-        #    print('ERROR: ' + msg)
+            self.error_bin = error_bin
 
     def get_age(self):
         now = datetime.now()
@@ -365,55 +376,78 @@ class FuelCellStatus(object):
                 
 
 
-class FuelCellFrame(wx.Frame):
+
+
+class FuelCellWidget(QtWidgets.QWidget):
+    """ Window that draws the drone with all status boxes, updated from Ivy """
+
+    # Ivy messages are passed from the Ivy thread to the GUI thread with this signal
+    msg_sig = QtCore.pyqtSignal(object, object)
+
+    def __init__(self, ivy_bus=None):
+        super().__init__()
+        self.setWindowTitle('Fuel Cell Monitoring')
+        self.setWindowIcon(QtGui.QIcon(PPRZ_SRC + "/sw/ground_segment/python/energy_mon/energy_mon.ico"))
+
+        # restore the last window size and position
+        self.settings = QtCore.QSettings('paparazzi', 'fuel_cell')
+        self.resize(WIDTH, WIDTH + BARH)
+        if self.settings.contains('geometry'):
+            self.restoreGeometry(self.settings.value('geometry'))
+
+        self.CPUTIME = 0
+        self.bat = {}
+        self.temp = {}
+        self.cell = BatteryCell()
+        self.motors = MotorList()
+        self.fuelcell = FuelCellStatus()
+        self.fuelcell.update('<0,0,0,0x00000000>')
+
+        # redraw every second so the ages keep counting when no messages arrive
+        self.timer = QtCore.QTimer(self)
+        self.timer.timeout.connect(self.update)
+        self.timer.start(1000)
+
+        self.msg_sig.connect(self.handle_message)
+        if ivy_bus is None:
+            self.interface = IvyMessagesInterface("fuelcellframe")
+        else:
+            self.interface = IvyMessagesInterface("fuelcellframe", ivy_bus=ivy_bus)
+        self.interface.subscribe(self.message_recv)
+
     def message_recv(self, ac_id, msg):
-        if msg.name == "ENERGY":
-            self.bat = EnergyMessage(msg)
-            self.cell.fill_from_energy_msg(self.bat)
+        """ Ivy thread: hand the message to the GUI thread """
+        self.msg_sig.emit(ac_id, msg)
 
-            wx.CallAfter(self.update)
-        elif msg.name == "TEMP_ADC":
-            self.temp = TempMessage(msg)
-            self.cell.fill_from_temp_msg(self.temp)
-            wx.CallAfter(self.update)
+    def handle_message(self, ac_id, msg):
+        """ GUI thread: store the message data and redraw """
+        try:
+            if msg.name == "ENERGY":
+                self.bat = EnergyMessage(msg)
+                self.cell.fill_from_energy_msg(self.bat)
+            elif msg.name == "TEMP_ADC":
+                self.temp = TempMessage(msg)
+                self.cell.fill_from_temp_msg(self.temp)
+            elif msg.name == "AIR_DATA":
+                self.air_data = AirDataMessage(msg)
+            elif msg.name == "ESC":
+                self.esc = EscMessage(msg)
+                self.motors.fill_from_esc_msg(self.esc)
+            elif msg.name == "PAYLOAD":
+                self.payload = PayloadMessage(msg)
+                self.fuelcell.update(self.payload.values)
+            elif msg.name == "ROTORCRAFT_STATUS":
+                self.CPUTIME = float(msg['cpu_time'])
+                return
+            else:
+                return
+        except (KeyError, ValueError, TypeError) as e:
+            print("Bad {} message: {}".format(msg.name, e))
+            return
+        self.update()
 
-        elif msg.name == "AIR_DATA":
-            self.air_data = AirDataMessage(msg)
-            wx.CallAfter(self.update)    
-
-        elif msg.name == "ESC":
-            self.esc = EscMessage(msg)
-            self.motors.fill_from_esc_msg(self.esc)
-            wx.CallAfter(self.update)    
-
-        elif msg.name == "PAYLOAD":
-            self.payload = PayloadMessage(msg)
-            self.fuelcell.update(self.payload.values)
-            #print("Payload: " + self.payload.values)
-
-        elif msg.name == "ROTORCRAFT_STATUS":
-            self.CPUTIME = float(msg['cpu_time'])
-
-
-
-    def update(self):
-        self.Refresh()
-
-    def OnSize(self, event):
-        self.w = event.GetSize().x
-        self.h = event.GetSize().y
-        self.cfg.Write("width", str(self.w));
-        self.cfg.Write("height", str(self.h));
-        self.Refresh()
-
-    def OnMove(self, event):
-        self.x = event.GetPosition().x
-        self.y = event.GetPosition().y
-        self.cfg.Write("left", str(self.x));
-        self.cfg.Write("top", str(self.y));
-
-
-    def StatusBox(self, dc, dx, dy, row, col, txt, percent, color):
+    def status_box(self, p, dx, dy, row, col, txt, percent, color):
+        """ Draw one status box: grey background, coloured bar of length percent (0..1) and text """
         if percent < 0:
             percent = 0
         if percent > 1:
@@ -425,98 +459,86 @@ class FuelCellFrame(wx.Frame):
         boxw = self.stat - 2*tdx
         spacing = boxh+3
 
-        dc.SetPen(wx.Pen(wx.Colour(0,0,0))) 
-        dc.SetBrush(wx.Brush(wx.Colour(220,220,220))) 
-        dc.DrawRectangle(tdx +  col * 200 + dx, int(row*spacing+tdx) +dy, int(boxw), boxh)
-        dc.SetTextForeground(wx.Colour(0, 0, 0))
+        p.setPen(QtGui.QColor(0, 0, 0))
+        p.setBrush(QtGui.QColor(220, 220, 220))
+        p.drawRect(tdx + col * 200 + dx, int(row*spacing+tdx) + dy, int(boxw), boxh)
+        text_color = QtGui.QColor(0, 0, 0)
         if color < 0.2:
-            dc.SetTextForeground(wx.Colour(255, 255, 255))
-            dc.SetBrush(wx.Brush(wx.Colour(250,0,0)))
+            text_color = QtGui.QColor(255, 255, 255)
+            p.setBrush(QtGui.QColor(250, 0, 0))
         elif color < 0.6:
-            dc.SetBrush(wx.Brush(wx.Colour(250,180,0)))
+            p.setBrush(QtGui.QColor(250, 180, 0))
         else:
-            dc.SetBrush(wx.Brush(wx.Colour(0,250,0)))
-#        dc.DrawLine(200,50,350,50)
-        dc.DrawRectangle(tdx +  col * 200 + dx, int(row*spacing+tdx+dy), int(boxw * percent), boxh)
-        dc.DrawText(txt,18 + col * 200 + dx,int(row*spacing+tdy+tdx+dy))
+            p.setBrush(QtGui.QColor(0, 250, 0))
+        p.drawRect(tdx + col * 200 + dx, int(row*spacing+tdx+dy), int(boxw * percent), boxh)
+        # drawText takes the baseline, so add the font ascent to start at the top
+        p.setPen(text_color)
+        p.drawText(18 + col * 200 + dx, int(row*spacing+tdy+tdx+dy) + p.fontMetrics().ascent(), txt)
 
-    def plot_x(self, x):
-        return int(self.stat+self.tdx +  x * (self.w-self.stat-2*self.tdx))
-
-    def plot_y(self, y):
-        return int(self.tdx + (1-y) * (self.h-self.tdx-self.tdx))
-
-    def plot(self, dc, i1, i2):
-        dc.DrawLine(self.plot_x(i1[1]/3500), self.plot_y((i1[0]-2.5)/(4.2-2.5)), self.plot_x(i2[1]/3500), self.plot_y((i2[0]-2.5)/(4.2-2.5)))
-
-          
-
-    def OnPaint(self, e):
+    def paintEvent(self, event):
+        """ Draw the drone, the fuel cell, the battery, the fuel cell errors and the motors """
         # Automatic Scaling
-        w = self.w
-        h = self.h - 25
+        w = self.width()
+        h = self.height()
 
-        dc = wx.PaintDC(self)
-        brush = wx.Brush("white")
-        dc.SetBackground(brush)
-        dc.Clear()
-
-        # Background
-        dc.SetBrush(wx.Brush(wx.Colour(0, 0, 0), wx.TRANSPARENT))
+        p = QtGui.QPainter(self)
+        p.fillRect(self.rect(), QtGui.QColor(255, 255, 255))
 
         fontscale = int(w * 11.0 / 1500.0)
         if fontscale < 6:
             fontscale = 6
-        font = wx.Font(fontscale, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
-        dc.SetFont(font)
+        p.setFont(QtGui.QFont("Serif", fontscale, QtGui.QFont.Bold))
 
-	# Draw Drone
-        dc.SetPen(wx.Pen(wx.Colour(0,0,0))) 
-        dc.SetBrush(wx.Brush(wx.Colour(240,240,220))) 
+        # Draw Drone
+        p.setPen(QtGui.QColor(0, 0, 0))
+        p.setBrush(QtGui.QColor(240, 240, 220))
         # Fuselage
-        dc.DrawRoundedRectangle(int(0.37*w), int(0.05*h),int(0.26*w), int(0.9*h), int(0.1*w))
+        p.drawRoundedRect(int(0.37*w), int(0.05*h), int(0.26*w), int(0.9*h), int(0.1*w), int(0.1*w))
         # Front Wing
-        dc.DrawRectangle(int(0.05*w), int(0.25*h),int(0.9*w), int(0.15*h))
+        p.drawRect(int(0.05*w), int(0.25*h), int(0.9*w), int(0.15*h))
         # Back Wing
-        dc.DrawRectangle(int(0.01*w), int(0.65*h),int(0.98*w), int(0.15*h))
+        p.drawRect(int(0.01*w), int(0.65*h), int(0.98*w), int(0.15*h))
 
         # Fuel Cell
-        dc.SetBrush(wx.Brush(wx.Colour(100,100,100))) 
-        dc.DrawRoundedRectangle(int(0.39*w), int(0.07*h),int(0.22*w), int(0.35*h), int(0.08*w))
+        p.setBrush(QtGui.QColor(100, 100, 100))
+        p.drawRoundedRect(int(0.39*w), int(0.07*h), int(0.22*w), int(0.35*h), int(0.08*w), int(0.08*w))
 
         self.stat = int(0.14*w)
 
+        # Battery
         dx = int(0.43*w)
         dy = int(0.43*h)
-        self.StatusBox(dc, dx, dy, 0, 0, self.cell.get_volt(), self.cell.get_volt_perc(), self.cell.get_volt_color())
-        self.StatusBox(dc, dx, dy, 1, 0, self.cell.get_current(), self.cell.get_current_perc(), self.cell.get_current_color() )
-        self.StatusBox(dc, dx, dy, 2, 0, self.cell.get_power_text(), self.cell.get_power_perc(), self.cell.get_power_color())
-        self.StatusBox(dc, dx, dy, 3, 0, self.cell.get_energy(), self.cell.get_energy_perc(), self.cell.get_energy_color() )
-        self.StatusBox(dc, dx, dy, 4, 0, self.cell.get_averagepower_text(), self.cell.get_averagepower_perc(), self.cell.get_averagepower_color() )
+        self.status_box(p, dx, dy, 0, 0, self.cell.get_volt(), self.cell.get_volt_perc(), self.cell.get_volt_color())
+        self.status_box(p, dx, dy, 1, 0, self.cell.get_current(), self.cell.get_current_perc(), self.cell.get_current_color())
+        self.status_box(p, dx, dy, 2, 0, self.cell.get_power_text(), self.cell.get_power_perc(), self.cell.get_power_color())
+        self.status_box(p, dx, dy, 3, 0, self.cell.get_energy(), self.cell.get_energy_perc(), self.cell.get_energy_color())
+        self.status_box(p, dx, dy, 4, 0, self.cell.get_averagepower_text(), self.cell.get_averagepower_perc(), self.cell.get_averagepower_color())
 
+        # Fuel cell
         dx = int(0.43*w)
         dy = int(0.15*h)
-        self.StatusBox(dc, dx, dy, 0, 0, self.fuelcell.get_raw(), 0, self.fuelcell.get_raw_color())
-        self.StatusBox(dc, dx, dy, 1, 0, self.fuelcell.get_tank(), self.fuelcell.get_tank_perc(), self.fuelcell.get_tank_color())
-        self.StatusBox(dc, dx, dy, 2, 0, self.fuelcell.get_battery(), self.fuelcell.get_battery_perc(), self.fuelcell.get_battery_color())
-        self.StatusBox(dc, dx, dy, 3, 0, self.fuelcell.get_status(), self.fuelcell.get_status_perc(), self.fuelcell.get_status_color())
-        self.StatusBox(dc, dx, dy, 4, 0, self.fuelcell.get_error(), self.fuelcell.get_error_perc(), self.fuelcell.get_error_color())
-        self.StatusBox(dc, dx, dy, 5, 0, self.fuelcell.get_age(), 0, 1)
+        self.status_box(p, dx, dy, 0, 0, self.fuelcell.get_raw(), 0, self.fuelcell.get_raw_color())
+        self.status_box(p, dx, dy, 1, 0, self.fuelcell.get_tank(), self.fuelcell.get_tank_perc(), self.fuelcell.get_tank_color())
+        self.status_box(p, dx, dy, 2, 0, self.fuelcell.get_battery(), self.fuelcell.get_battery_perc(), self.fuelcell.get_battery_color())
+        self.status_box(p, dx, dy, 3, 0, self.fuelcell.get_status(), self.fuelcell.get_status_perc(), self.fuelcell.get_status_color())
+        self.status_box(p, dx, dy, 4, 0, self.fuelcell.get_error(), self.fuelcell.get_error_perc(), self.fuelcell.get_error_color())
+        self.status_box(p, dx, dy, 5, 0, self.fuelcell.get_age(), 0, 1)
 
         # Warnings
         self.stat = int(0.14*w)
-        dc.SetBrush(wx.Brush(wx.Colour(70,70,40))) 
-        dc.DrawRectangle(int(0.36*w), int(0.63*h),int(0.28*w), int(0.35*h))
+        p.setBrush(QtGui.QColor(70, 70, 40))
+        p.drawRect(int(0.36*w), int(0.63*h), int(0.28*w), int(0.35*h))
         dx = int(0.36*w)
         dy = int(0.63*h)
-        for i in range(0,8,1):
-            self.StatusBox(dc, dx, dy,i, 0, self.fuelcell.get_error_nr(i*2), 1, self.fuelcell.get_error_nr_color(i*2))
-            self.StatusBox(dc, int(0.5*w), dy,i, 0, self.fuelcell.get_error_nr(i*2+1), 1, self.fuelcell.get_error_nr_color(i*2+1))
+        for i in range(0, 8, 1):
+            self.status_box(p, dx, dy, i, 0, self.fuelcell.get_error_nr(i*2), 1, self.fuelcell.get_error_nr_color(i*2))
+            self.status_box(p, int(0.5*w), dy, i, 0, self.fuelcell.get_error_nr(i*2+1), 1, self.fuelcell.get_error_nr_color(i*2+1))
 
-        # Motors
+        # Motors: position of ESC node id 1..20 on the drawing (-100: not drawn)
         self.stat = int(0.10*w)
 
-        dc.SetBrush(wx.Brush(wx.Colour(200,200,100))) 
+        p.setPen(QtGui.QColor(0, 0, 0))
+        p.setBrush(QtGui.QColor(200, 200, 100))
         w1 = 0.20
         w2 = 0.60
         dw = 0.11
@@ -524,80 +546,26 @@ class FuelCellFrame(wx.Frame):
         mm = [(0.03,w1), (0.03+dw,w1), (0.03+2*dw,w1), (0.97-mw-2*dw,w1), (0.97-mw-dw,w1), (0.97-mw,w1), (-100,0), (-100,0), (-100,0), (0.03,w2+0.19),
               (0.03,w2), (0.03+dw,w2), (0.03+2*dw,w2), (0.97-mw-2*dw,w2), (0.97-mw-dw,w2), (0.97-mw,w2), (0.97-mw,w2+0.19), (-100,0), (-100,0), (-100,0)]
         for m in mm:
-            dc.DrawRectangle(int(m[0]*w), int(m[1]*h),int(mw*w), int(0.15*h))
+            p.drawRect(int(m[0]*w), int(m[1]*h), int(mw*w), int(0.15*h))
 
         for m in self.motors.mot:
+            if m.id < 1 or m.id > len(mm):
+                continue  # node id without a place on the drawing
             mo_co = mm[m.id-1]
-            #print(m.id, mo_co)
             dx = int(mo_co[0]*w)
             dy = int(mo_co[1]*h)
-            self.StatusBox(dc, dx, dy, 0, 0, m.get_volt(), m.get_volt_perc(), 1)
-            self.StatusBox(dc, dx, dy, 1, 0, m.get_current(), m.get_current_perc(), 1)
-            self.StatusBox(dc, dx, dy, 2, 0, m.get_rpm(), m.get_rpm_perc(), m.get_rpm_color())
-            self.StatusBox(dc, dx, dy, 3, 0, m.get_temp(), m.get_temp_perc(), m.get_temp_color())
-            self.StatusBox(dc, dx, dy, 4, 0, m.get_err(), m.get_err_perc(), m.get_err_color())
-            self.StatusBox(dc, dx, dy, 5, 0, m.get_timestamp(self.CPUTIME), m.get_err_perc(), m.get_timestamp_color(self.CPUTIME))
+            self.status_box(p, dx, dy, 0, 0, m.get_volt(), m.get_volt_perc(), 1)
+            self.status_box(p, dx, dy, 1, 0, m.get_current(), m.get_current_perc(), 1)
+            self.status_box(p, dx, dy, 2, 0, m.get_rpm(), m.get_rpm_perc(), m.get_rpm_color())
+            self.status_box(p, dx, dy, 3, 0, m.get_temp(), m.get_temp_perc(), m.get_temp_color())
+            self.status_box(p, dx, dy, 4, 0, m.get_err(), m.get_err_perc(), m.get_err_color())
+            self.status_box(p, dx, dy, 5, 0, m.get_timestamp(self.CPUTIME), m.get_err_perc(), m.get_timestamp_color(self.CPUTIME))
 
+        p.end()
 
-
-    def __init__(self):
-
-        self.w = WIDTH
-        self.h = WIDTH + BARH
-
-        self.cfg = wx.Config('fuel_cell_conf')
-        if self.cfg.Exists('width'):
-            self.w = int(self.cfg.Read('width'))
-            self.h = int(self.cfg.Read('height'))
-
-        wx.Frame.__init__(self, id=-1, parent=None, name=u'FuelCellFrame',
-                          size=wx.Size(self.w, self.h), title=u'Fuel Cell Monitoring')
-
-        if self.cfg.Exists('left'):
-            self.x = int(self.cfg.Read('left'))
-            self.y = int(self.cfg.Read('top'))
-            self.SetPosition(wx.Point(self.x,self.y))
-
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.Bind(wx.EVT_SIZE, self.OnSize)
-        self.Bind(wx.EVT_MOVE, self.OnMove)
-        self.Bind(wx.EVT_CLOSE, self.OnClose)
-
-        ico = wx.Icon(PPRZ_SRC + "/sw/ground_segment/python/energy_mon/energy_mon.ico", wx.BITMAP_TYPE_ICO)
-        self.SetIcon(ico)
-
-        self.CPUTIME = 0
-        self.bat = {}
-        self.temp = {}
-        self.cell = BatteryCell()
-        self.motors = MotorList()
-        self.fuelcell = FuelCellStatus()
-        self.fuelcell.update('<0,0,0,0x00000000>')
-     
-        self.interface = IvyMessagesInterface("fuelcellframe")
-        self.interface.subscribe(self.message_recv)
-
-    def OnClose(self, event):
+    def closeEvent(self, event):
+        """ Save the window size and position and stop Ivy """
+        self.settings.setValue('geometry', self.saveGeometry())
+        self.timer.stop()
         self.interface.shutdown()
-        self.Destroy()
-
-if __name__ == '__main__':
-    energy_message = EnergyMessage({"bat": 22, "amp": 18, "power": 22 * 18, "energy": 10000})
-    air_data_message = AirDataMessage({"airspeed": 21})
-    esc_message = Esc({})
-    cell = BatteryCell()
-    cell.fill_from_energy_msg(energy_message)
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-    energies = np.arange(0, 3200*6, 10)
-    seconds_left = np.zeros(energies.shape)
-
-    # for i, energy in enumerate(energies):
-    #     cell.fill_from_energy_msg(EnergyMessage({"bat": 22, "amp": 18, "power": 22 * 18, "energy": energy}))
-    #     seconds_left[i] = energy_prediction.get_hover_seconds_left()
-    #
-    #
-    # plt.plot(energies, seconds_left)
-    # plt.show()
-    
+        event.accept()
