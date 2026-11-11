@@ -52,6 +52,13 @@ struct imu_calib_t {
   bool filter: 1;     ///< Enable the lowpass filter (gyro and accel only, ignored for the mag)
 };
 
+/** Measured sample rate of a sensor, counted against the timestamps */
+struct imu_rate_est_t {
+  uint32_t start;                     ///< Timestamp of the current window start (us)
+  uint32_t samples;                   ///< Samples received since the window start
+  float rate;                         ///< Filtered measured sample rate (Hz), 0 until the first window
+};
+
 struct imu_gyro_t {
   uint8_t abi_id;                     ///< ABI sensor ID
   uint32_t last_stamp;                ///< Last measurement timestamp for integration
@@ -65,9 +72,11 @@ struct imu_gyro_t {
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame, set as imu to sensor in the airframe calibration and combined with body_to_imu at init
   struct FloatEulers body_to_sensor_f;///< Rotation from imu to sensor frame in eulers (airframe calibration, only used at init)
   float filter_freq;                  ///< Lowpass filter cutoff frequency (Hz)
-  float sample_freq;                  ///< Calibrated sample frequency (Hz) for the filter and integration, the driver rate if not set
+  float sample_freq;                  ///< Calibrated sample frequency (Hz) for the filter, and reference of the measured integration rate (the driver rate if not set)
   Butterworth2LowPass filter[3];      ///< Lowpass filter optional
+  struct FloatVect3 last_sample;      ///< Last scaled sample in sensor frame for the integration (IMU_INTEGRATION)
   struct FloatVect3 last_delta_alpha; ///< Last integrated sample delta angle in sensor frame for the coning correction (IMU_INTEGRATION)
+  struct imu_rate_est_t rate_est;     ///< Measured sample rate for the integration (IMU_INTEGRATION)
 };
 
 struct imu_accel_t {
@@ -83,8 +92,10 @@ struct imu_accel_t {
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame, set as imu to sensor in the airframe calibration and combined with body_to_imu at init
   struct FloatEulers body_to_sensor_f;///< Rotation from imu to sensor frame in eulers (airframe calibration, only used at init)
   float filter_freq;                  ///< Lowpass filter cutoff frequency (Hz)
-  float sample_freq;                  ///< Calibrated sample frequency (Hz) for the filter and integration, the driver rate if not set
+  float sample_freq;                  ///< Calibrated sample frequency (Hz) for the filter, and reference of the measured integration rate (the driver rate if not set)
   Butterworth2LowPass filter[3];      ///< Lowpass filter optional
+  struct FloatVect3 last_sample;      ///< Last scaled sample in sensor frame for the integration (IMU_INTEGRATION)
+  struct imu_rate_est_t rate_est;     ///< Measured sample rate for the integration (IMU_INTEGRATION)
 };
 
 struct imu_mag_t {
