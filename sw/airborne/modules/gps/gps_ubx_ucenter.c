@@ -293,6 +293,19 @@ static uint8_t gps_ubx_ucenter_parse_protver(uint8_t *payload, uint16_t len)
   return 0;
 }
 
+/** Value of a hexadecimal character (0 when it isn't one) */
+static uint8_t gps_ubx_ucenter_hex(char c)
+{
+  if (c >= '0' && c <= '9') {
+    return c - '0';
+  } else if (c >= 'A' && c <= 'F') {
+    return c - 'A' + 10;
+  } else if (c >= 'a' && c <= 'f') {
+    return c - 'a' + 10;
+  }
+  return 0;
+}
+
 void gps_ubx_ucenter_event(void)
 {
   // Save processing time inflight
@@ -315,9 +328,11 @@ void gps_ubx_ucenter_event(void)
         gps_ubx_ucenter.version_reply = true;
         gps_ubx_ucenter_parse_sw_version(gps_ubx[0].msg_buf);
         gps_ubx_ucenter.protver = gps_ubx_ucenter_parse_protver(gps_ubx[0].msg_buf, gps_ubx[0].len);
-        // hwVersion: 10 characters at 30, e.g. "00190000" (generation 9)
-        gps_ubx_ucenter.hw_ver_h = 10 * (UBX_MON_VER_c(gps_ubx[0].msg_buf, 32) - '0') + (UBX_MON_VER_c(gps_ubx[0].msg_buf, 33) - '0');
-        gps_ubx_ucenter.hw_ver_l = 10 * (UBX_MON_VER_c(gps_ubx[0].msg_buf, 36) - '0') + (UBX_MON_VER_c(gps_ubx[0].msg_buf, 37) - '0');
+        // hwVersion: 10 hexadecimal characters at 30, e.g. "00190000" (generation 9), "000B0000" (X20)
+        gps_ubx_ucenter.hw_ver_h = 16 * gps_ubx_ucenter_hex(UBX_MON_VER_c(gps_ubx[0].msg_buf, 32)) +
+                                   gps_ubx_ucenter_hex(UBX_MON_VER_c(gps_ubx[0].msg_buf, 33));
+        gps_ubx_ucenter.hw_ver_l = 16 * gps_ubx_ucenter_hex(UBX_MON_VER_c(gps_ubx[0].msg_buf, 36)) +
+                                   gps_ubx_ucenter_hex(UBX_MON_VER_c(gps_ubx[0].msg_buf, 37));
       } else if (gps_ubx[0].msg_id == UBX_MON_GNSS_ID) {
         gps_ubx_ucenter.gnss_in_use = UBX_MON_GNSS_enabled(gps_ubx[0].msg_buf);
       } else if (gps_ubx[0].msg_id == UBX_MON_COMMS_ID) {
@@ -391,9 +406,9 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
   if (nr > 2 && (gps_ubx_ucenter.cfg_prt_reply || gps_ubx_ucenter.version_reply)) {
     gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
     // The legacy UBX-CFG messages are gone from protocol version 40 (e.g. X20). The configuration
-    // interface exists from 23 (generation 9): also used then when the CFG-PRT poll isn't answered.
+    // interface exists from 27 (generation 9, F9 HPG 1.00): also used then when the CFG-PRT poll isn't answered.
     gps_ubx_ucenter.valset = gps_ubx_ucenter.protver >= 40 ||
-                             (gps_ubx_ucenter.protver >= 23 && !gps_ubx_ucenter.cfg_prt_reply);
+                             (gps_ubx_ucenter.protver >= 27 && !gps_ubx_ucenter.cfg_prt_reply);
     // Not over I2C: when the receiver didn't report the port (still the I2C/DDC default), assume UART1
     if (gps_ubx_ucenter.port_id == GPS_PORT_DDC) {
       gps_ubx_ucenter.port_id = GPS_PORT_UART1;
@@ -554,9 +569,11 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       break;
     case 1:
 #ifndef GPS_I2C
-      // Now the GPS baudrate should have changed
-      uart_periph_set_baudrate(&(UBX_GPS_PORT), gps_ubx_ucenter.baud_target);
-      gps_ubx_ucenter.baud_run = UART_SPEED(gps_ubx_ucenter.baud_target);
+      // Now the GPS baudrate should have changed, unless the receiver refused it
+      if (gps_ubx_ucenter.reply != GPS_UBX_UCENTER_REPLY_NACK) {
+        uart_periph_set_baudrate(&(UBX_GPS_PORT), gps_ubx_ucenter.baud_target);
+        gps_ubx_ucenter.baud_run = UART_SPEED(gps_ubx_ucenter.baud_target);
+      }
 #endif /*GPS_I2C*/
       UbxSend_MON_GET_VER(gps_ubx_ucenter.dev);
       break;
@@ -807,9 +824,11 @@ static bool gps_ubx_ucenter_configure_valset(uint8_t nr)
                            UART_SPEED(gps_ubx_ucenter.baud_target));
   } else if (nr == 1) {
 #ifndef GPS_I2C
-    // Now the receiver baudrate should have changed
-    uart_periph_set_baudrate(&(UBX_GPS_PORT), gps_ubx_ucenter.baud_target);
-    gps_ubx_ucenter.baud_run = UART_SPEED(gps_ubx_ucenter.baud_target);
+    // Now the receiver baudrate should have changed, unless the receiver refused it
+    if (gps_ubx_ucenter.reply != GPS_UBX_UCENTER_REPLY_NACK) {
+      uart_periph_set_baudrate(&(UBX_GPS_PORT), gps_ubx_ucenter.baud_target);
+      gps_ubx_ucenter.baud_run = UART_SPEED(gps_ubx_ucenter.baud_target);
+    }
 #endif
   } else if (nr < 2 + VALSET_CFG_NB) {
     uint8_t i = nr - 2;

@@ -41,9 +41,10 @@
 #define RTCM3_MSG_1097 0xC5
 #endif
 
+#include <math.h>
+
 #if PRINT_DEBUG_GPS_UBX
 #include <stdio.h>
-#include <math.h>
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) {}
@@ -489,7 +490,7 @@ static void gps_ubx_parse_nav_relposned(struct GpsUbx *gubx)
       relpos.pos.x = UBX_NAV_RELPOSNED_relPosN(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPN(gubx->msg_buf) * 1e-4;
       relpos.pos.y = UBX_NAV_RELPOSNED_relPosE(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPE(gubx->msg_buf) * 1e-4;
       relpos.pos.z = UBX_NAV_RELPOSNED_relPosD(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPD(gubx->msg_buf) * 1e-4;
-      relpos.distance = UBX_NAV_RELPOSNED_relPosLength(gubx->msg_buf) * 1e-2;
+      relpos.distance = UBX_NAV_RELPOSNED_relPosLength(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPLength(gubx->msg_buf) * 1e-4;
       relpos.pos_acc.x = UBX_NAV_RELPOSNED_accN(gubx->msg_buf) * 1e-4;
       relpos.pos_acc.y = UBX_NAV_RELPOSNED_accE(gubx->msg_buf) * 1e-4;
       relpos.pos_acc.z = UBX_NAV_RELPOSNED_accD(gubx->msg_buf) * 1e-4;
