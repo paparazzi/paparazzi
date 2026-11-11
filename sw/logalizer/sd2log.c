@@ -1280,6 +1280,7 @@ static bool find_conf_by_md5(const char *conf_dir, const char *md5, char *out_pa
   DIR *d = opendir(conf_dir);
   if (!d) return false;
 
+  // <md5>_<aircraft>.conf.gz on the SD card, <date>_<md5>_<aircraft>.conf.gz in var/conf (and older SD cards)
   const size_t md5_ofs = 3 * 6 + 1;
   const size_t md5_len = 32;
   bool found = false;
@@ -1289,7 +1290,9 @@ static bool find_conf_by_md5(const char *conf_dir, const char *md5, char *out_pa
     size_t n = strlen(ent->d_name);
     // skip a file the SD logger was still writing (power cut)
     bool tmp = n > 4 && !strcmp(ent->d_name + n - 4, ".tmp");
-    if (n > md5_ofs + md5_len && !tmp && !strncmp(ent->d_name + md5_ofs, md5, md5_len)) {
+    bool at_start = n > md5_len && ent->d_name[md5_len] == '_' && !strncmp(ent->d_name, md5, md5_len);
+    bool after_date = n > md5_ofs + md5_len && !strncmp(ent->d_name + md5_ofs, md5, md5_len);
+    if (!tmp && (at_start || after_date)) {
       path_join(out_path, out_sz, conf_dir, ent->d_name);
       found = true;
       break;
@@ -1301,7 +1304,7 @@ static bool find_conf_by_md5(const char *conf_dir, const char *md5, char *out_pa
 }
 
 /* The configuration of the build: written by the SD logger next to the logs
- * (PPRZ/<date>_<md5>_<aircraft>.conf.gz), else saved in var/conf at the build */
+ * (PPRZ/<md5>_<aircraft>.conf.gz), else saved in var/conf at the build */
 static bool find_build_conf(const char *input, const char *var_dir, const char *md5,
                             char *out_path, size_t out_sz)
 {

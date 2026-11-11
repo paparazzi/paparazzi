@@ -80,7 +80,7 @@ PRINT_CONFIG_MSG("INS_EKF2_LOG_INPUTS: the EKF2 only starts after the SD log is 
 static const char PPRZ_LOG_NAME[] = "pprzlog_";
 static const char PPRZ_LOG_DIR[] = "PPRZ";
 
-/** Write the configuration of the firmware next to the logs (PPRZ/<date>_<md5>_<aircraft>.conf.gz),
+/** Write the configuration of the firmware next to the logs (PPRZ/<md5>_<aircraft>.conf.gz),
  * so sd2log can decode them without the var/conf of the computer that built the firmware */
 #ifndef SDLOG_CONF
 #define SDLOG_CONF TRUE
