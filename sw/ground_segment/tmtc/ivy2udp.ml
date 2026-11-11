@@ -20,7 +20,10 @@
  *
  *)
 
-(** Forward telemetry messages from the ivy bus to an UDP connection *)
+(** Forward telemetry messages from the ivy bus to an UDP connection.
+    With -payload_only, only the bytes of the PAYLOAD messages are sent (raw,
+    one UDP packet per message), and each UDP packet received is sent to the
+    aircraft as a PAYLOAD_COMMAND. *)
 
 
 let my_id = 0
@@ -36,14 +39,16 @@ let () =
   let host = ref "85.214.48.162"
   and port = ref 4242
   and datalink_port = ref 4243
-  and id = ref "7" in
+  and id = ref "7"
+  and payload_only = ref false in
 
   let options = [
     "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
     "-h", Arg.Set_string host, (sprintf "<remote host> Default is %s" !host);
     "-id", Arg.Set_string id , (sprintf "<aircraft id> Default is %s" !id);
     "-p", Arg.Set_int port, (sprintf "<remote port> Default is %d" !port);
-    "-dp", Arg.Set_int datalink_port, (sprintf "<listening port> Default is %d" !datalink_port)
+    "-dp", Arg.Set_int datalink_port, (sprintf "<listening port> Default is %d" !datalink_port);
+    "-payload_only", Arg.Set payload_only, "Only forward the bytes of PAYLOAD messages; UDP packets received are sent as PAYLOAD_COMMAND"
   ] in
   Arg.parse
     options
@@ -68,7 +73,23 @@ let () =
       assert (n = n')
     with _ -> () in
 
-  let _b = Ivy.bind get_ivy_message (sprintf "^%s (.*)" !id) in
+  (* Only the bytes of a PAYLOAD message, without pprzlink header *)
+  let get_payload_message = fun _ vs ->
+    try
+      match PprzLink.assoc "values" vs with
+      | PprzLink.Array a ->
+        let buf = Bytes.init (Array.length a) (fun i -> Char.chr ((PprzLink.int_of_value a.(i)) land 0xff)) in
+        let n = Bytes.length buf in
+        let n' = Unix.sendto socket buf 0 n [] sockaddr in
+        assert (n = n')
+      | _ -> ()
+    with _ -> () in
+
+  let _b =
+    if !payload_only then
+      Tm_Pprz.message_bind ~sender:!id "PAYLOAD" get_payload_message
+    else
+      Ivy.bind get_ivy_message (sprintf "^%s (.*)" !id) in
 
   (* Receiving a datalink message over UDP, on the same port *)
   let sockaddr = Unix.ADDR_INET (Unix.inet_addr_any, !datalink_port)
@@ -80,7 +101,7 @@ let () =
   let get_datalink_message = fun _ ->
     begin
       try
-        let n = input (Unix.in_channel_of_descr socket) buffer 0 buffer_size in
+        let n = Unix.recv socket buffer 0 buffer_size [] in
         let b = Bytes.sub buffer 0 n in
         Debug.trace 'x' (Debug.xprint (Bytes.to_string b));
 
@@ -90,7 +111,13 @@ let () =
           let msg = Dl_Pprz.message_of_id header.PprzLink.message_id in
           Dl_Pprz.message_send "ground_dl" msg.PprzLink.name values in
 
-        assert (PprzTransport.parse use_dl_message (Bytes.to_string b) = n)
+        if !payload_only then
+          (* the whole packet is the command of a PAYLOAD_COMMAND *)
+          let command = Array.init n (fun i -> PprzLink.Int (Char.code (Bytes.get b i))) in
+          Dl_Pprz.message_send "ground_dl" "PAYLOAD_COMMAND"
+            ["ac_id", PprzLink.Int (int_of_string !id); "command", PprzLink.Array command]
+        else
+          assert (PprzTransport.parse use_dl_message (Bytes.to_string b) = n)
       with
           exc ->
             prerr_endline (Printexc.to_string exc)
