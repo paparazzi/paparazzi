@@ -173,7 +173,7 @@ class RWStatusMessage(object):
 
     def __init__(self, msg):
         self.state = int(msg['state'])
-        self.nav_state = int(msg['state'])
+        self.nav_state = int(msg['nav_state'])
         self.status = int(msg['status'])
         self.meas_skew_angle = float(msg['meas_skew_angle'])
         self.sp_skew_angle = float(msg['sp_skew_angle'])
@@ -189,11 +189,14 @@ class RWStatusMessage(object):
         self.pusher_motor_running = bool(self.status & (0x1 << 4))
         self.skew_forced = bool(self.status & (0x1 << 5))
 
+    def state_name(self, state):
+        return self.STATES[state] if 0 <= state < len(self.STATES) else str(state)
+
     def get_state(self):
-        return self.STATES[self.state]
+        return self.state_name(self.state)
 
     def get_nav_state(self):
-        return self.STATES[self.nav_state]
+        return self.state_name(self.nav_state)
 
 
 class AIRDATAMessage(object):
