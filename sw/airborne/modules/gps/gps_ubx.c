@@ -41,6 +41,8 @@
 #define RTCM3_MSG_1097 0xC5
 #endif
 
+#include <math.h>
+
 #if PRINT_DEBUG_GPS_UBX
 #include <stdio.h>
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
@@ -66,6 +68,21 @@
 #define NAV_RELPOSNED_VERSION   0x01
 #define NAV_DAHEADING_VERSION   0x02
 #define NAV_DAHEADING_REF_ID    0xFFFF  ///< RELPOS reference id used for the dual-antenna heading
+
+/** Distance between the two antennas of a heading receiver [m] (dual-antenna or moving base), 0 to not check it */
+#ifndef GPS_UBX_HEADING_BASELINE
+#define GPS_UBX_HEADING_BASELINE 0.
+#endif
+
+/** Largest difference between the measured and the configured antenna distance [m] */
+#ifndef GPS_UBX_HEADING_BASELINE_TOL
+#define GPS_UBX_HEADING_BASELINE_TOL 0.4
+#endif
+
+/** Longest antenna distance for which a heading is used when GPS_UBX_HEADING_BASELINE is not set [m] (as PX4) */
+#ifndef GPS_UBX_HEADING_BASELINE_MAX
+#define GPS_UBX_HEADING_BASELINE_MAX 10.
+#endif
 /* last error type */
 #define GPS_UBX_ERR_NONE         0
 #define GPS_UBX_ERR_OVERRUN      1
@@ -390,6 +407,22 @@ static void gps_ubx_parse_nav_sat(struct GpsUbx *gubx)
     return;
   }
 
+  // Satellite systems used in the solution, over all satellites (also above GPS_NB_CHANNELS)
+  const uint16_t nb_sats = Min(UBX_NAV_SAT_numSvs(gubx->msg_buf), (gubx->len - 8) / 12);
+  uint8_t gnss = 0;
+  for (uint16_t i = 0; i < nb_sats; i++) {
+    if ((UBX_NAV_SAT_flags(gubx->msg_buf, i) >> 3) & 0x1) {
+      switch (UBX_NAV_SAT_gnssId(gubx->msg_buf, i)) {
+        case 0: gnss |= 0x01; break; // GPS
+        case 6: gnss |= 0x02; break; // GLONASS
+        case 3: gnss |= 0x04; break; // BeiDou
+        case 2: gnss |= 0x08; break; // Galileo
+        default: break;              // SBAS, QZSS, NavIC
+      }
+    }
+  }
+  gubx->gnss_in_use = gnss;
+
   // Go through all the different channels
   for (uint8_t i = 0; i < gubx->state.nb_channels; i++) {
     uint32_t flags = UBX_NAV_SAT_flags(gubx->msg_buf, i);
@@ -412,6 +445,18 @@ static void gps_ubx_parse_nav_status(struct GpsUbx *gubx)
   }
   gubx->state.tow     = UBX_NAV_STATUS_iTOW(gubx->msg_buf);
   gubx->status_flags  = UBX_NAV_STATUS_flags(gubx->msg_buf);
+}
+
+/**
+ * A receiver can report a fixed and valid heading on a wrong carrier phase solution (seen indoors with
+ * the antennas tens of meters apart). The measured antenna distance shows it, while the INS can't tell.
+ */
+static bool gps_ubx_heading_baseline_ok(double distance)
+{
+  if (GPS_UBX_HEADING_BASELINE <= 0.) {
+    return distance < GPS_UBX_HEADING_BASELINE_MAX;
+  }
+  return fabs(distance - GPS_UBX_HEADING_BASELINE) <= GPS_UBX_HEADING_BASELINE_TOL;
 }
 
 static void gps_ubx_parse_nav_relposned(struct GpsUbx *gubx)
@@ -445,14 +490,14 @@ static void gps_ubx_parse_nav_relposned(struct GpsUbx *gubx)
       relpos.pos.x = UBX_NAV_RELPOSNED_relPosN(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPN(gubx->msg_buf) * 1e-4;
       relpos.pos.y = UBX_NAV_RELPOSNED_relPosE(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPE(gubx->msg_buf) * 1e-4;
       relpos.pos.z = UBX_NAV_RELPOSNED_relPosD(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPD(gubx->msg_buf) * 1e-4;
-      relpos.distance = UBX_NAV_RELPOSNED_relPosLength(gubx->msg_buf) * 1e-2;
+      relpos.distance = UBX_NAV_RELPOSNED_relPosLength(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPLength(gubx->msg_buf) * 1e-4;
       relpos.pos_acc.x = UBX_NAV_RELPOSNED_accN(gubx->msg_buf) * 1e-4;
       relpos.pos_acc.y = UBX_NAV_RELPOSNED_accE(gubx->msg_buf) * 1e-4;
       relpos.pos_acc.z = UBX_NAV_RELPOSNED_accD(gubx->msg_buf) * 1e-4;
       relpos.distance_acc = UBX_NAV_RELPOSNED_accLength(gubx->msg_buf) * 1e-4;
 
-      // The heading is only valid when relPosHeadingValid is set (NAN is ignored by the INS)
-      if (relPosHeadingValid) {
+      // The heading is only valid when relPosHeadingValid is set and the antenna distance is right (NAN is ignored by the INS)
+      if (relPosHeadingValid && gps_ubx_heading_baseline_ok(relpos.distance)) {
         relpos.heading = RadOfDeg(UBX_NAV_RELPOSNED_relPosHeading(gubx->msg_buf) * 1e-5);
         relpos.heading_acc = RadOfDeg(UBX_NAV_RELPOSNED_accHeading(gubx->msg_buf) * 1e-5);
       } else {
@@ -478,7 +523,9 @@ static void gps_ubx_parse_nav_daheading(struct GpsUbx *gubx)
 
   uint32_t flags = UBX_NAV_DAHEADING_flags(gubx->msg_buf);
   bool relPosValid = (flags >> 2) & 0x1;
-  bool relPosHeadingValid = (flags >> 6) & 0x1;
+  uint8_t carrSoln = (flags >> 3) & 0x3;
+  // As u-blox advises: the heading only with a fixed carrier phase solution
+  bool relPosHeadingValid = ((flags >> 6) & 0x1) && carrSoln == 2;
   if (!relPosValid) {
     return;
   }
@@ -496,8 +543,8 @@ static void gps_ubx_parse_nav_daheading(struct GpsUbx *gubx)
   relpos.pos_acc.z = UBX_NAV_DAHEADING_accD(gubx->msg_buf) * 1e-3;
   relpos.distance_acc = UBX_NAV_DAHEADING_accLength(gubx->msg_buf) * 1e-3;
 
-  // The heading is only valid when relPosHeadingValid is set (NAN is ignored by the INS)
-  if (relPosHeadingValid) {
+  // The heading is only valid when relPosHeadingValid is set and the antenna distance is right (NAN is ignored by the INS)
+  if (relPosHeadingValid && gps_ubx_heading_baseline_ok(relpos.distance)) {
     relpos.heading = RadOfDeg(UBX_NAV_DAHEADING_relPosHeading(gubx->msg_buf) * 1e-5);
     relpos.heading_acc = RadOfDeg(UBX_NAV_DAHEADING_accHeading(gubx->msg_buf) * 1e-5);
   } else {

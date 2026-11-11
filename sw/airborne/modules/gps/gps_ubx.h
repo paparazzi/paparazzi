@@ -70,6 +70,7 @@ struct GpsUbx {
   uint8_t status_flags;
   uint8_t sol_flags;
   bool pacc_valid;
+  uint8_t gnss_in_use;  ///< Satellite systems used in the solution (UBX-NAV-SAT): 1 GPS, 2 GLONASS, 4 BeiDou, 8 Galileo
 
   struct GpsState state;
 };
