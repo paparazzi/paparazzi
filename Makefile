@@ -268,16 +268,20 @@ dox:
 # Cleaning
 #
 
+# skip sw/ext (cleaned by its own Makefile), hidden folders (e.g. .git, .claude
+# with other worktrees) and Python virtual environments
+CLEAN_PRUNE = \( -path ./sw/ext -o -path './.*' -o -name venv \) -prune -o
+
 clean:
 	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml
 	$(Q)rm -f  $(GEN_HEADERS)
 	$(Q)MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) uninstall
 	$(Q)rm -fr $(MAVLINK_DIR)
-	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
+	$(Q)find . $(CLEAN_PRUNE) -name Makefile ! -path ./Makefile -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)$(MAKE) -C $(EXT) clean
-	$(Q)find . -name '*~' -exec rm -f {} \;
-	$(Q)find . -name '*.pyc' -exec rm -f {} \;
-	$(Q)find . -name 'Cargo.lock' -exec rm -f {} \;
+	$(Q)find . $(CLEAN_PRUNE) -name '*~' -exec rm -f {} \;
+	$(Q)find . $(CLEAN_PRUNE) -name '*.pyc' -exec rm -f {} \;
+	$(Q)find . $(CLEAN_PRUNE) -name 'Cargo.lock' -exec rm -f {} \;
 
 cleanspaces:
 	find sw -path sw/ext -prune -o -type f -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
