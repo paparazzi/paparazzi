@@ -94,6 +94,10 @@ static volatile SdioError sdlog_conf_error = SDLOG_OK;
 static volatile SdioError sdlog_start_error = SDLOG_OK;
 static const char *sdlog_start_step = "";
 static volatile uint8_t sdlog_start_fatfs = 0;
+// Every switch into error is counted with its cause by the logger thread (it checks every second),
+// so the GCS report (every LOGGER_STATUS) misses none and gives the cause of that moment
+static volatile uint32_t sdlog_error_events = 0;
+static volatile SdioError sdlog_error_cause = SDLOG_OK;
 
 /*
  * Start log thread
@@ -155,29 +159,32 @@ static void sdlog_preflight(struct preflight_result_t *result) {
  */
 static void sdlog_report_status(struct transport_tx *trans, struct link_device *dev)
 {
-  static int reported = SDLOG_STOPPED;
-  int status = chibios_sdlog_status;
-  // only on a change: the start (stopped to running or error), and every time it goes into error
-  if (status == reported || status == SDLOG_STOPPED || (status == SDLOG_RUNNING && reported == SDLOG_ERROR)) {
-    reported = status;
-    return;
-  }
-  reported = status;
+  static uint32_t reported_errors = 0;
+  static bool start_reported = false;
   char msg[120];
-  if (status == SDLOG_ERROR) {
-    if (sdlog_start_error != SDLOG_OK && sdlog_start_fatfs != 0) {
+  const uint32_t errors = sdlog_error_events;
+  if (errors != reported_errors) {
+    // went into error (at the start or later) since the last report
+    reported_errors = errors;
+    const SdioError start_error = sdlog_start_error;
+    if (start_error != SDLOG_OK && sdlog_start_fatfs != 0) {
       // the start failed: the failing step and its FatFS result tell why the card could not be used
-      chsnprintf(msg, sizeof(msg), "SD log error: %s (%s, FatFS %d)", sdlog_error_string(sdlog_start_error),
+      chsnprintf(msg, sizeof(msg), "SD log error: %s (%s, FatFS %d)", sdlog_error_string(start_error),
                  sdlog_start_step, sdlog_start_fatfs);
-    } else if (sdlog_start_error != SDLOG_OK) {
-      chsnprintf(msg, sizeof(msg), "SD log error: %s (%s)", sdlog_error_string(sdlog_start_error), sdlog_start_step);
+    } else if (start_error != SDLOG_OK) {
+      chsnprintf(msg, sizeof(msg), "SD log error: %s (%s)", sdlog_error_string(start_error), sdlog_start_step);
     } else {
-      chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(sdLogGetStorageStatus()));
+      chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(sdlog_error_cause));
     }
-  } else if (sdlog_conf_error != SDLOG_OK) {
+  } else if (!start_reported && chibios_sdlog_status != SDLOG_STOPPED) {
+    // started: only a configuration that could not be written is reported, a normal start is not
+    start_reported = true;
+    if (sdlog_conf_error == SDLOG_OK) {
+      return;
+    }
     chsnprintf(msg, sizeof(msg), "SD log: configuration not written: %s", sdlog_error_string(sdlog_conf_error));
   } else {
-    return; // a normal start is not reported
+    return;
   }
   pprz_msg_send_INFO_MSG(trans, dev, AC_ID, strlen(msg), msg);
 }
@@ -357,6 +364,7 @@ static void sdlog_start_failed(const char *step, SdioError err)
     sdlog_start_step = step;
     sdlog_start_fatfs = sdLogGetFatfsResult();
     sdlog_start_error = err;
+    sdlog_error_cause = err;
   }
   sdOk = false;
 }
@@ -419,18 +427,30 @@ static void thd_startlog(void *arg)
     chibios_sdlog_status = SDLOG_RUNNING;
   } else {
     chibios_sdlog_status = SDLOG_ERROR;
+    sdlog_error_events++;
   }
 
+  bool in_error = !sdOk;
   while (true) {
 #ifdef SDLOG_LED
     LED_TOGGLE(SDLOG_LED);
 #endif
     // Blink faster if init has errors
     chThdSleepMilliseconds(sdOk == true ? 1000 : 200);
-    if (sdLogGetStorageStatus() != SDLOG_OK) {
+    const SdioError storage = sdLogGetStorageStatus();
+    if (storage != SDLOG_OK) {
+      if (!in_error) {
+        // a new error: keep its cause for the report
+        sdlog_error_cause = storage;
+        sdlog_error_events++;
+      }
+      in_error = true;
       chibios_sdlog_status = SDLOG_ERROR;
       sdOk = false;
     } else {
+      // running again: a later error is not the start error anymore
+      in_error = false;
+      sdlog_start_error = SDLOG_OK;
       chibios_sdlog_status = SDLOG_RUNNING;
       sdOk = true;
     }

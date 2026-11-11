@@ -889,6 +889,10 @@ SdioError sdLogWriteFile(const char *directoryName, const char *fileName,
   FILINFO fno;
   UINT written;
 
+  // a longer name (very long aircraft name) would be cut silently
+  if (strlen(directoryName) + strlen(fileName) + 2 >= sizeof(path)) {
+    return SDLOG_INTERNAL_ERROR;
+  }
   chsnprintf(path, sizeof(path), "/%s/%s", directoryName, fileName);
   if (f_stat(path, &fno) == FR_OK) {
     return SDLOG_OK;

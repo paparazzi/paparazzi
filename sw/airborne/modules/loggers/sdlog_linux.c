@@ -118,6 +118,17 @@ static FILE *sdlog_file(FileDes fd)
   return sdlog_files[fd];
 }
 
+/** Error of a failed write or close: only a full disk is "SD card full" */
+static SdioError sdlog_errno_error(int err)
+{
+#ifdef EDQUOT
+  if (err == EDQUOT) {
+    return SDLOG_FSFULL;
+  }
+#endif
+  return (err == ENOSPC || err == EFBIG) ? SDLOG_FSFULL : SDLOG_FATFS_ERROR;
+}
+
 static void sdlog_write(FileDes fd, const uint8_t *data, size_t len)
 {
   FILE *f = sdlog_file(fd);
@@ -125,7 +136,7 @@ static void sdlog_write(FileDes fd, const uint8_t *data, size_t len)
     return;
   }
   if (fwrite(data, 1, len, f) != len) {
-    sdlog_error = SDLOG_FSFULL;
+    sdlog_error = sdlog_errno_error(errno);
     sdlog_status = SDLOG_ERROR;
     return;
   }
@@ -341,7 +352,9 @@ static SdioError sdlog_write_conf(const char *base, const char *dir)
 {
   char path[512], tmp[520];
   struct stat st;
-  snprintf(path, sizeof(path), "%s/%s/%s", base, dir, AIRCRAFT_CONF_NAME);
+  if (snprintf(path, sizeof(path), "%s/%s/%s", base, dir, AIRCRAFT_CONF_NAME) >= (int)sizeof(path)) {
+    return SDLOG_INTERNAL_ERROR; // path too long
+  }
   if (stat(path, &st) == 0) {
     return SDLOG_OK;
   }
@@ -350,11 +363,20 @@ static SdioError sdlog_write_conf(const char *base, const char *dir)
   if (f == NULL) {
     return SDLOG_FATFS_ERROR;
   }
-  bool ok = fwrite(aircraft_conf_gz, 1, sizeof(aircraft_conf_gz), f) == sizeof(aircraft_conf_gz);
-  ok = (fclose(f) == 0) && ok;
-  if (!ok || rename(tmp, path) != 0) {
+  int err = 0;
+  if (fwrite(aircraft_conf_gz, 1, sizeof(aircraft_conf_gz), f) != sizeof(aircraft_conf_gz)) {
+    err = errno;
+  }
+  if (fclose(f) != 0 && err == 0) {
+    err = errno;
+  }
+  if (err != 0) {
     remove(tmp);
-    return ok ? SDLOG_FATFS_ERROR : SDLOG_FSFULL;
+    return sdlog_errno_error(err);
+  }
+  if (rename(tmp, path) != 0) {
+    remove(tmp);
+    return SDLOG_FATFS_ERROR;
   }
   return SDLOG_OK;
 }
