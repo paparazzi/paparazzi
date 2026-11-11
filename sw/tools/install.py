@@ -116,9 +116,6 @@ class InstallWindow(QWidget):
         # the Bebop upload tools use telnetlib, removed from Python 3.13 (26.04): a copy of it from apt
         if distro_version >= 26.04:
             self.execute('sudo -E apt-get install -y python3-zombie-telnetlib')
-        # many old tools still require wx
-        if distro_version >= 22.04:
-            self.execute('sudo -E apt-get install -y python3-wxgtk4.0')
         self.done('Paparazzi Dev installed successfully', 'Some development packages failed to install')
 
 

@@ -18,19 +18,32 @@
 # along with paparazzi.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import wx
+"""
+Energy monitor (Center tool EnergyManager): battery cell state and flight time
+prediction from the ENERGY, TEMP_ADC and AIR_DATA telemetry on the Ivy bus.
+The window is in energy_mon_viewer.py, the battery model in battery_model.py.
+"""
+
+import sys
+import argparse
+
+from PyQt5 import QtWidgets
+
 import energy_mon_viewer
 
-class EnergyMonApp(wx.App):
-    def OnInit(self):
-        self.main = energy_mon_viewer.EnergyMonFrame()
-        self.main.Show()
-        self.SetTopWindow(self.main)
-        return True
 
 def main():
-    application = EnergyMonApp(0)
-    application.MainLoop()
+    """Parse the arguments and run the window"""
+    parser = argparse.ArgumentParser(description="Energy monitor: battery state and flight time left")
+    parser.add_argument("-b", "--ivy_bus", dest="ivy_bus", default=None,
+                        help="Ivy bus address:port (default: IVY_BUS environment variable or the Ivy default)")
+    args = parser.parse_args()
+
+    app = QtWidgets.QApplication(sys.argv)
+    window = energy_mon_viewer.EnergyMonWindow(args.ivy_bus)
+    window.show()
+    sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main()
