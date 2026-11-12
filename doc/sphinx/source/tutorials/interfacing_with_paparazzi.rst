@@ -23,7 +23,7 @@ The pprzlink messages that will interest us are those of the `ground` class. Mos
 
 See the message list here: http://docs.paparazziuav.org/latest/paparazzi_messages.html#GROUND_CLASS.
 
-This python example shows the reception and emission of messages. For the reception, we subscribe to the FLIGHT_PARAM and ENGINE_STATUS messages at lines 25 and 27 to monitor the position of the drone, its throttle level and battery voltage. For the emission, we forge, then emit an INTRUDER message in the `send_dummy_intruder` method to display a dummy intruder on the Ground Control Station.
+This python example shows the reception and emission of messages. For the reception, we subscribe to the FLIGHT_PARAM and ENGINE_STATUS messages at lines 26 and 28 to monitor the position of the drone, its throttle level and battery voltage. For the emission, we forge, then emit an INTRUDER message in the `send_dummy_intruder` method to display a dummy intruder on the Ground Control Station.
 
 .. code-block:: python
     :linenos:
@@ -68,7 +68,7 @@ This python example shows the reception and emission of messages. For the recept
             msg['name'] = "DUMMY"
             msg['lat'] = int((43.463 + 0.001*math.sin(0.2*time.time()))*1e7)
             msg['lon'] = int((1.273 +  0.001*math.cos(0.2*time.time()))*1e7)
-            msg['alt'] = 500
+            msg['alt'] = 500000  # mm
             msg['course'] = 360 - math.degrees(0.2*time.time())%360
             msg['speed'] = 10
             msg['climb'] = 0
