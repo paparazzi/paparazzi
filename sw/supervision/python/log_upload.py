@@ -9,7 +9,8 @@ POST /api/logs/check, POST /api/upload-reservations and POST /api/upload.
 Uploads only run while no session is running in the Paparazzi Center. Logs recorded
 during a session of this Paparazzi Center are uploaded when the session stops, logs
 extracted from an SD card right after extraction; other logs (e.g. from a server
-started elsewhere) only after they were unchanged for QUIET_TIME.
+started elsewhere) only after they were unchanged for QUIET_TIME, or right away when
+selected and uploaded with "Upload selected".
 Uploaded, skipped, rejected and ignored ("Don't upload") pairs are remembered in
 $PAPARAZZI_HOME/var/log_upload_state.json so they are not hashed or sent again.
 The tab lists the pending logs and why they wait, and uploading can be paused.
@@ -411,6 +412,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         self.pause_button.toggled.connect(self.set_paused)
         self.pending_button.toggled.connect(self.show_view)
         self.history_button.toggled.connect(self.show_view)
+        self.force_button.clicked.connect(self.force_selected)
         self.ignore_button.clicked.connect(self.ignore_selected)
         self.ignore_all_button.clicked.connect(self.ignore_all)
         self.requeue_button.clicked.connect(self.requeue_selected)
@@ -427,6 +429,9 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.start)
         self.timer.start(RETRY_INTERVAL * 1000)
+        self.ready_timer = QtCore.QTimer(self)    # run when a waiting log becomes unchanged for QUIET_TIME
+        self.ready_timer.setSingleShot(True)
+        self.ready_timer.timeout.connect(self.start)
         QtCore.QTimer.singleShot(10000, self.start)
         self.show_view()
         self.refresh_pending()
@@ -559,6 +564,12 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         server, _ = self.settings()
         self.pending = scan_pending(server, self.sessions, self.finished) if server else []
         self.fill_pending()
+        waiting = [p["mtime"] + QUIET_TIME for p in self.pending if not p["complete"]]
+        if waiting:
+            delay = max(min(waiting) - time.time(), 0) + 5
+            self.ready_timer.start(int(min(delay, RETRY_INTERVAL) * 1000))
+        else:
+            self.ready_timer.stop()
 
     def pending_status(self, p):
         """Why this pending log is not uploaded yet."""
@@ -566,7 +577,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
             if self.session_running() and self.session_start is not None and p["mtime"] >= self.session_start:
                 return "Recording (session running)"
             ready = time.strftime("%H:%M", time.localtime(p["mtime"] + QUIET_TIME))
-            return f"Still changing, waits until unchanged for {QUIET_TIME // 60} min (about {ready})"
+            return f"Still changing, waits until unchanged for {QUIET_TIME // 60} min (about {ready}), or Upload selected"
         if p["sig"][0][0] == 0:
             return "Empty, will be skipped"
         if self.pause_button.isChecked():
@@ -637,6 +648,15 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         self.pending = [p for p in self.pending if p["name"] not in names]
         self.fill_pending()
 
+    def force_selected(self):
+        """Upload the selected pending logs without waiting for QUIET_TIME, as if they were complete."""
+        names = set(self.selected_names(self.pending_table))
+        for p in self.pending:
+            if p["name"] in names:
+                self.finished.add(os.path.realpath(p["data"]))
+        self.refresh_pending()
+        self.start()
+
     def ignore_selected(self):
         names = set(self.selected_names(self.pending_table))
         self.ignore([p for p in self.pending if p["name"] in names])
@@ -661,10 +681,13 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
     def update_buttons(self):
         pending_view = self.pending_button.isChecked()
         configured = self.configured()
+        self.force_button.setVisible(pending_view)
         self.ignore_button.setVisible(pending_view)
         self.ignore_all_button.setVisible(pending_view)
         self.requeue_button.setVisible(not pending_view)
-        self.ignore_button.setEnabled(configured and bool(self.pending_table.selectionModel().selectedRows()))
+        selected = bool(self.pending_table.selectionModel().selectedRows())
+        self.force_button.setEnabled(configured and selected and not self.pause_button.isChecked())
+        self.ignore_button.setEnabled(configured and selected)
         self.ignore_all_button.setEnabled(configured and bool(self.pending))
         ignored = [i for i in self.history_table.selectionModel().selectedRows()
                    if self.history_table.item(i.row(), 2).text() == "Ignored"]
@@ -689,7 +712,8 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
             f"Server: {server or '-'}\nLogs folder: {LOGS_DIR}\n"
             f"Logs are uploaded when a session stops, after an SD log extraction, at start-up and every "
             f"{RETRY_INTERVAL // 60} minutes.\n"
-            f"Logs not recorded by this Paparazzi Center are uploaded after {QUIET_TIME // 60} minutes without changes.")
+            f"Logs not recorded by this Paparazzi Center are uploaded after {QUIET_TIME // 60} minutes without changes,\n"
+            f"or right away with Upload selected.")
         self.update_buttons()
 
     def add_entry(self, entry):

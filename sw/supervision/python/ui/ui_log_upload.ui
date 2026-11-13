@@ -158,6 +158,16 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="force_button">
+       <property name="toolTip">
+        <string>Upload the selected logs now, without waiting until they are unchanged for an hour. Only for logs which are no longer being recorded.</string>
+       </property>
+       <property name="text">
+        <string>Upload selected</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="ignore_button">
        <property name="toolTip">
         <string>Never upload the selected logs (unless they change). The files are not deleted.</string>
