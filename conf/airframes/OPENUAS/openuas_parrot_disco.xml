@@ -223,20 +223,6 @@
       <module name="udp"/><!--FIXME-->
     </target>
 
-<!-- ********* Yet another way for simulation of the flight *********-->
-<!-- FIXME: Needs fixes in CRRC simfdm-->
-<!--
-    <target name="nps" board="pc">
-      <configure name="PERIODIC_FREQUENCY" value="512"/>
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
-      <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
-      <module name="radio_control" type="ppm"/>
-      <module name="fdm" type="crrcsim"/>
-      <module name="imu" type="nps"/>
-      <module name="telemetry" type="transparent"/>
-    </target>
--->
-
 <!-- ********************* and another one ... ********************* -->
     <!-- <target name="yasim" board="pc"> -->
       <!-- Note NPS needs the ppm type radio_control module -->
