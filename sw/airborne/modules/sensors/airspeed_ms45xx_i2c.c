@@ -36,11 +36,6 @@
 #include "modules/datalink/downlink.h"
 
 
-/* Enable ABI sending */
-#ifndef AIRSPEED_MS45XX_SEND_ABI
-#define AIRSPEED_MS45XX_SEND_ABI true
-#endif
-
 /** Default I2C device
  */
 #ifndef MS45XX_I2C_DEV
@@ -217,14 +212,12 @@ void ms45xx_i2c_event(void)
       ms45xx.pressure = p_out;
 
       // Send (differential) pressure via ABI, air_data filters and zeroes it and computes the airspeed
-      #if AIRSPEED_MS45XX_SEND_ABI
       uint32_t now_ts = get_sys_time_usec();
       AbiSendMsgBARO_DIFF_RAW(MS45XX_SENDER_ID, now_ts, ms45xx.pressure);
 
       // Send temperature as float in deg Celcius via ABI
       float temp = ms45xx.temperature / 10.0f;
       AbiSendMsgTEMPERATURE_RAW(MS45XX_SENDER_ID, now_ts, temp, TEMPERATURE_TYPE_DIFF);
-      #endif
 
       // Compute airspeed
       float sign = 1.0f;

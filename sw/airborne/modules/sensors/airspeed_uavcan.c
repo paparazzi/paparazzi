@@ -29,11 +29,6 @@
 #include "mcu_periph/sys_time.h"
 #include "uavcan.equipment.air_data.RawAirData.h"
 
-/* Enable ABI sending */
-#ifndef AIRSPEED_UAVCAN_SEND_ABI
-#define AIRSPEED_UAVCAN_SEND_ABI true
-#endif
-
 /* Default pressure scaling */
 #ifndef AIRSPEED_UAVCAN_DIFF_P_SCALE
 #define AIRSPEED_UAVCAN_DIFF_P_SCALE 1.0f
@@ -51,9 +46,7 @@ static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unuse
     return;   // decode error
   }
 
-#if AIRSPEED_UAVCAN_SEND_ABI
   uint32_t now_ts = get_sys_time_usec();
-#endif
   float diff_p = msg.differential_pressure;
   float static_air_temp = msg.static_air_temperature;
 
@@ -62,17 +55,12 @@ static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unuse
     // Apply a scaling factor, air_data filters and zeroes it and computes the airspeed
     airspeed_uavcan.diff_p = diff_p * airspeed_uavcan.diff_p_scale;
 
-    // Send the ABI message
-#if AIRSPEED_UAVCAN_SEND_ABI
     AbiSendMsgBARO_DIFF_RAW(UAVCAN_SENDER_ID, now_ts, airspeed_uavcan.diff_p);
-#endif
   }
 
   if(!isnan(static_air_temp)) {
     airspeed_uavcan.temperature = static_air_temp;
-#if AIRSPEED_UAVCAN_SEND_ABI
     AbiSendMsgTEMPERATURE_RAW(UAVCAN_SENDER_ID, now_ts, airspeed_uavcan.temperature, TEMPERATURE_TYPE_AIR);
-#endif
   }
 }
 
