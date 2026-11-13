@@ -74,11 +74,6 @@ extern struct video_config_t front_camera;
 /* ISP */
 //struct mt9f002_t mt9f002;
 
-/* by default baro module is used */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 0
-#endif
-
 /* The ADC from the sonar */
 #if USE_ADC0
 #define ADC0_ID             0
@@ -100,14 +95,6 @@ extern struct video_config_t front_camera;
 #define MS45XX_PRESSURE_TYPE 1
 #define MS45XX_OUTPUT_TYPE 1
 #define MS45XX_PRESSURE_OUTPUT_TYPE_InH2O 1
-#ifndef USE_AIRSPEED_LOWPASS_FILTER
-#define USE_AIRSPEED_LOWPASS_FILTER 1
-#endif
-//#if USE_AIRSPEED_LOWPASS_FILTER /* Always used now */
-#ifndef MS45XX_LOWPASS_TAU
-#define MS45XX_LOWPASS_TAU 0.15
-#endif
-//#endif
 
 /* To be flexible and be able to disable use of airspeed in state this could have been in the airframe file ofcourse
  * but most users just want to have perfectly flying Disco, so enable per default... */

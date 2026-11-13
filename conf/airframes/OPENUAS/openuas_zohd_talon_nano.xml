@@ -107,7 +107,6 @@ NOTES:
     <define name="WIND_INFO_RET"/>
 
     <define name="SENSOR_SYNC_SEND"/> 
-    <configure name="USE_BARO_BOARD" value="FALSE"/>
 
     <define name="BAT_CHECKER_DELAY" value="80"/>
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/>
@@ -127,19 +126,13 @@ NOTES:
       <define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="FALSE"/>
     </module>
 
-    <module name="ins" type="alt_float">
-    </module>
+    <module name="ins" type="alt_float"/>
 
     <module name="control" type="new"/>
     <module name="auto1_commands"/>
 
     <module name="geo_mag"/>
 
-    <module name="air_data">
-      <define name="CALC_AIRSPEED" value="FALSE"/>
-      <define name="CALC_TAS_FACTOR" value="FALSE"/>
-      <define name="CALC_AMSL_BARO" value="FALSE"/>
-    </module>
 
     <module name="navigation"/>
     <module name="nav" type="drop"/>

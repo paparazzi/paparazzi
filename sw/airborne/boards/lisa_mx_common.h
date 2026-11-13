@@ -551,9 +551,4 @@
 #define PWM_TIM4_CHAN_MASK (PWM_SERVO_7_OC_BIT|PWM_SERVO_8_OC_BIT)
 
 
-/* by default activate onboard baro */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 1
-#endif
-
 #endif /* CONFIG_LISA_MX_COMMON_H */

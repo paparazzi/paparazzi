@@ -1348,16 +1348,6 @@
 
 #define SPI3_GPIO_PORT_NSS GPIO
 
-/**
- * Baro
- *
- * Apparently needed for backwards compatibility
- * with the ancient onboard baro boards
- */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 1
-#endif
-
 /*
  * Actuators for fixedwing
  */

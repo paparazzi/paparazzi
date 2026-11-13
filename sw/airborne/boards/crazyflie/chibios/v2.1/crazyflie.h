@@ -301,16 +301,6 @@
 #define SPI_SELECT_SLAVE3_PORT PAL_PORT(LINE_E_CS3)
 #define SPI_SELECT_SLAVE3_PIN PAL_PAD(LINE_E_CS3)
 
-/**)
- * Baro
- *
- * Apparently needed for backwards compatibility
- * with the ancient onboard baro boards
- */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 0
-#endif
-
 /*
  * Actuators for fixedwing
  */

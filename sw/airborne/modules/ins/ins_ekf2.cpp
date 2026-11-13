@@ -234,23 +234,19 @@ PRINT_CONFIG_VAR(INS_EKF2_OF_MAX_RATE)
  *  any sensor, or the airspeed computed by air_data from a differential pressure sensor.
  *  The airspeed estimated from the wind (wind_estimation_quadrotor) is never used. */
 #ifndef INS_EKF2_AIRSPEED_ID
-#define INS_EKF2_AIRSPEED_ID ABI_BROADCAST
+#define INS_EKF2_AIRSPEED_ID AIR_DATA_SENDER_ID
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_AIRSPEED_ID)
 
 /** default barometer to use in INS */
 #ifndef INS_EKF2_BARO_ID
-#if USE_BARO_BOARD
-#define INS_EKF2_BARO_ID BARO_BOARD_SENDER_ID
-#else
-#define INS_EKF2_BARO_ID ABI_BROADCAST
-#endif
+#define INS_EKF2_BARO_ID AIR_DATA_SENDER_ID
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_BARO_ID)
 
 /** default temperature sensor to use in INS */
 #ifndef INS_EKF2_TEMPERATURE_ID
-#define INS_EKF2_TEMPERATURE_ID ABI_BROADCAST
+#define INS_EKF2_TEMPERATURE_ID AIR_DATA_SENDER_ID
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_TEMPERATURE_ID)
 

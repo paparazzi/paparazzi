@@ -28,9 +28,12 @@
 #ifndef ABI_SENDER_IDS_H
 #define ABI_SENDER_IDS_H
 
-/** default onboard baro */
-#ifndef BARO_BOARD_SENDER_ID
-#define BARO_BOARD_SENDER_ID 1
+/** air_data: the calibrated and selected sensor on BARO_ABS, BARO_DIFF, AIRSPEED and TEMPERATURE.
+ * The sensor drivers send BARO_ABS_RAW, BARO_DIFF_RAW, AIRSPEED_RAW and TEMPERATURE_RAW with their own ids
+ * (below), which air_data also uses when it sends every sensor (AIR_DATA_SEND_ALL_SENSORS).
+ */
+#ifndef AIR_DATA_SENDER_ID
+#define AIR_DATA_SENDER_ID 254
 #endif
 
 /*
@@ -127,9 +130,10 @@
 #define AIRSPEED_WE_QUAD_ID 5
 #endif
 
-#ifndef AIRSPEED_AIR_DATA_ID
-#define AIRSPEED_AIR_DATA_ID 6 ///< airspeed computed by air_data from the differential pressure
+#ifndef AIRSPEED_AMSYS_ID
+#define AIRSPEED_AMSYS_ID 7
 #endif
+
 
 /*
  * IDs of Incidence angles (message 25)

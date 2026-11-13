@@ -113,10 +113,6 @@
         <configure name="MODULE_RM3100_SYNC_SEND" value="TRUE"/>
       </module>
 
-      <module name="baro_ms5611_spi">
-        <configure name="MS5611_SPI_DEV" value="spi1"/>
-        <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
-      </module>
 
       <module name="airspeed" type="sdp3x">
         <configure name="SDP3X_I2C_DEV" value="i2c1"/>
@@ -125,9 +121,6 @@
         <define name="SDP3X_PRESSURE_SCALE" value="SDP3X_SCALE_PRESSURE_SDP33"/>
         <define name="SDP3X_PRESSURE_OFFSET" value="0.0"/>
         <define name="SDP3X_AIRSPEED_SCALE" value="1.6327"/>
-        <define name="SDP3X_LOWPASS_TAU" value="0.15"/>
-        <!--<define name="USE_AIRSPEED_LOWPASS_FILTER" value="FALSE">-->
-        <define name="USE_AIRSPEED_SDP3X" value="TRUE"/>
       </module>
 
       <module name="actuators" type="pwm"/>
@@ -221,7 +214,6 @@
 
     <define name="autopilot_motors_on" value="TRUE"/>
 
-    <configure name="USE_BARO_BOARD" value="TRUE"/>
     <define name="SENSOR_SYNC_SEND"/>
     <configure name="BARO_PERIODIC_FREQUENCY" value="50"/>
     <define name="USE_BARO_MEDIAN_FILTER"/>
@@ -264,7 +256,6 @@
 
     <module name="geo_mag"/>
 
-    <module name="air_data"/>
 
     <module name="navigation"/>
     <!--<module name="nav" type="drop"/>-->
@@ -315,6 +306,16 @@
     <servo name="S_ELEVON_LEFT" no="1" min="1900" neutral="1500" max="1100"/>
     <servo name="S_ELEVON_RIGHT" no="2" min="1100" neutral="1500" max="1900"/><!--neutral maybe 1450 in this arframe a new servo with no good midpoint-->
   </servos>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <!-- Low-pass cut-off (Hz) of the pitot, the old 0.15 s time constant of the driver -->
+    <define name="DIFF_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="SDP3X_SENDER_ID"/>
+        <field name="filter_freq" value="1.06"/>
+      </field>
+    </define>
+  </section>
 
   <section name="ServoPositions">
     <!--  Just name a few,  value can be used in e.g. flightplan -->
@@ -666,12 +667,6 @@
     <define name="HEIGHT_MIN" value="50." unit="m"/>
     <define name="HEIGHT_MAX" value="120." unit="m"/>
     <define name="RADIUS_MIN" value="70." unit="m"/>
-  </section>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="TRUE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
   <!-- Can as well be your handlaunch, a.k.a. the human catapult ;) -->

@@ -372,31 +372,6 @@ endif
 
 
 #
-# test_baro_board : reads barometers and sends values over telemetry
-#
-# configuration
-#   SYS_TIME_LED
-#   MODEM_PORT
-#   MODEM_BAUD
-#
-test_baro_board.ARCHDIR = $(ARCH)
-test_baro_board.CFLAGS += $(COMMON_TEST_CFLAGS)
-test_baro_board.srcs   += $(COMMON_TEST_SRCS)
-test_baro_board.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
-test_baro_board.srcs   += $(COMMON_TELEMETRY_SRCS)
-test_baro_board.srcs += test/test_baro_board.c
-test_baro_board.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-ifeq ($(TARGET),test_baro_board)
-include $(CFG_SHARED)/baro_board.makefile
-endif
-test_baro_board.CFLAGS += $(BARO_BOARD_CFLAGS)
-test_baro_board.srcs += $(BARO_BOARD_SRCS)
-ifeq ($(IMU_INIT),1)
-test_baro_board.srcs += test/test_baro_board_imu.c
-endif
-
-
-#
 # test_adc
 #
 # configuration
