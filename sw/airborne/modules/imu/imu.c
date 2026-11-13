@@ -39,6 +39,26 @@
 #define IMU_INTEGRATION false
 #endif
 
+/** Window to measure the sample rate for the integration (us) */
+#ifndef IMU_RATE_EST_WINDOW
+#define IMU_RATE_EST_WINDOW 1000000
+#endif
+
+/** Low-pass factor of the measured sample rate per window (0.1: averaged over ~10 windows) */
+#ifndef IMU_RATE_EST_ALPHA
+#define IMU_RATE_EST_ALPHA 0.1f
+#endif
+
+/** Maximum relative deviation of the measured sample rate from the calibrated sample_freq or driver rate */
+#ifndef IMU_RATE_EST_BOUND
+#define IMU_RATE_EST_BOUND 0.03f
+#endif
+
+/** Timestamp jitter (us) allowed before a callback interval is seen as a gap with lost samples */
+#ifndef IMU_RATE_EST_JITTER
+#define IMU_RATE_EST_JITTER 2000
+#endif
+
 /** By default gyro signs are positive for single IMU with old format or defaults */
 #if defined(IMU_GYRO_CALIB) && (defined(IMU_GYRO_P_SIGN) || defined(IMU_GYRO_Q_SIGN) || defined(IMU_GYRO_R_SIGN))
 #warning "The IMU_GYRO_?_SIGN's aren't compatible with the IMU_GYRO_CALIB define in the airframe"
@@ -344,8 +364,8 @@ static void send_mag_current(struct transport_tx *trans, struct link_device *dev
 #include "string.h"
 
 static void show_calibrated(shell_stream_t *sh, struct imu_calib_t *calibrated) {
-  chprintf(sh, "  calibrated: neutral %d, scale %d, rotation %d, current %d, filter %d\r\n",
-      calibrated->neutral, calibrated->scale_f, calibrated->rotation, calibrated->current, calibrated->filter);
+  chprintf(sh, "  calibrated: neutral %d, scale %d, scale_f %d, rotation %d, current %d, filter %d\r\n",
+      calibrated->neutral, calibrated->scale, calibrated->scale_f, calibrated->rotation, calibrated->current, calibrated->filter);
 }
 
 static void show_vect3(shell_stream_t *sh, char* name, struct Int32Vect3 *v) {
@@ -383,7 +403,7 @@ static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
   chprintf(sh, "GYRO IMU data\r\n");
   for (i = 0; i < IMU_MAX_SENSORS; i++) {
     if (imu.gyros[i].abi_id != 0) {
-      chprintf(sh, " Gyro id: %u, time %lu\r\n", imu.gyros[i].abi_id, imu.gyros[i].last_stamp);
+      chprintf(sh, " Gyro id: %u, time %lu, measured rate %.2f Hz\r\n", imu.gyros[i].abi_id, imu.gyros[i].last_stamp, imu.gyros[i].rate_est.rate);
       show_calibrated(sh, &imu.gyros[i].calibrated);
       show_rates(sh, "neutral", &imu.gyros[i].neutral);
       show_ratesf(sh, "scale", &imu.gyros[i].scale_f);
@@ -398,7 +418,7 @@ static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
   chprintf(sh, "ACCEL IMU data\r\n");
   for (i = 0; i < IMU_MAX_SENSORS; i++) {
     if (imu.accels[i].abi_id != 0) {
-      chprintf(sh, " Accel id: %u, time %lu\r\n", imu.accels[i].abi_id, imu.accels[i].last_stamp);
+      chprintf(sh, " Accel id: %u, time %lu, measured rate %.2f Hz\r\n", imu.accels[i].abi_id, imu.accels[i].last_stamp, imu.accels[i].rate_est.rate);
       show_calibrated(sh, &imu.accels[i].calibrated);
       show_vect3(sh, "neutral", &imu.accels[i].neutral);
       show_vect3f(sh, "scale", &imu.accels[i].scale_f);
@@ -435,6 +455,97 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
 static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data, uint8_t samples, float rate, float temp);
 static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data);
 static void imu_set_body_to_imu_eulers(struct FloatEulers *body_to_imu_eulers);
+
+/**
+ * @brief Initialize the lowpass filters of a sensor on its first sample
+ * @param filter The 3 filters of the sensor
+ * @param freq The cutoff frequency (Hz)
+ * @param sample_freq The sample frequency (Hz)
+ * @param init The first sample to start the filters from
+ * @return true if the filter is valid, false (filter disabled) if a frequency is not set or invalid
+ */
+static bool imu_filter_init(Butterworth2LowPass filter[3], float freq, float sample_freq, const float init[3])
+{
+  if (!(freq > 0.f) || !(sample_freq > 0.f) || !isfinite(sample_freq)) {
+    return false;
+  }
+  float tau = 1.0 / (2.0 * M_PI * freq);
+  float sample_time = 1.0 / sample_freq;
+  for (uint8_t j = 0; j < 3; j++) {
+    init_butterworth_2_low_pass(&filter[j], tau, sample_time, init[j]);
+  }
+  return true;
+}
+
+#if IMU_INTEGRATION
+/**
+ * @brief Measure the sample rate from the number of samples against the timestamps
+ * The timestamps (us, MCU crystal) jitter with the scheduling, but only the window ends count, so the error
+ * is about 2 * jitter / window, further averaged by the low-pass over the windows (consecutive windows share
+ * their ends). Windows with a gap (lost samples, e.g. a FIFO overflow) or out of bounds are discarded.
+ * @param est The rate estimator of the sensor
+ * @param ref The reference rate (Hz), the calibrated sample_freq or the driver rate
+ * @param stamp The timestamp of this callback (us)
+ * @param last_stamp The timestamp of the previous callback (us), 0 if none
+ * @param samples The number of samples in this callback
+ * @return The measured rate if it is within IMU_RATE_EST_BOUND of the reference, else the reference
+ */
+static float imu_rate_est_update(struct imu_rate_est_t *est, float ref, uint32_t stamp, uint32_t last_stamp, uint8_t samples)
+{
+  if(!isfinite(ref) || !(ref > 0.f)) {
+    return ref;
+  }
+
+  const float bound = IMU_RATE_EST_BOUND * ref;
+  const float max_interval = samples * (1e6f / ref) * (1.f + IMU_RATE_EST_BOUND) + IMU_RATE_EST_JITTER;
+  if(last_stamp == 0 || stamp <= last_stamp || (float)(stamp - last_stamp) > max_interval) {
+    // Start a new window from this callback (its samples are from before the timestamp)
+    est->start = stamp;
+    est->samples = 0;
+  } else {
+    est->samples += samples;
+    const uint32_t window = stamp - est->start;
+    if(window >= IMU_RATE_EST_WINDOW) {
+      const float window_rate = (float)est->samples * 1e6f / (float)window;
+      if(fabsf(window_rate - ref) <= bound) {
+        est->rate = (est->rate > 0.f) ? est->rate + IMU_RATE_EST_ALPHA * (window_rate - est->rate) : window_rate;
+      }
+      est->start = stamp;
+      est->samples = 0;
+    }
+  }
+
+  return (est->rate > 0.f && fabsf(est->rate - ref) <= bound) ? est->rate : ref;
+}
+
+/**
+ * @brief Trapezoidal integration of one sample in the sensor frame
+ * With a coning correction (as in PX4 IntegratorConing) if beta is not NULL:
+ * beta += 0.5 * (alpha + last_delta / 6) x delta, alpha += delta
+ * @param alpha The integrated value
+ * @param beta The coning correction (NULL to disable)
+ * @param last_sample The previous sample, updated to the new sample
+ * @param last_delta The previous delta for the coning correction, updated (unused without beta)
+ * @param sample The new sample
+ * @param dt The sample time (s)
+ */
+static inline void imu_integrate_sample(struct FloatVect3 *alpha, struct FloatVect3 *beta, struct FloatVect3 *last_sample,
+                                        struct FloatVect3 *last_delta, const struct FloatVect3 *sample, float dt)
+{
+  struct FloatVect3 delta;
+  VECT3_SUM(delta, *last_sample, *sample);
+  VECT3_SMUL(delta, delta, 0.5f * dt);
+  if(beta != NULL) {
+    struct FloatVect3 coning_arm, coning;
+    VECT3_SUM_SCALED(coning_arm, *alpha, *last_delta, 1.f / 6.f);
+    VECT3_CROSS_PRODUCT(coning, coning_arm, delta);
+    VECT3_ADD_SCALED(*beta, coning, 0.5f);
+    *last_delta = delta;
+  }
+  VECT3_ADD(*alpha, delta);
+  *last_sample = *sample;
+}
+#endif
 
 /*
  * Preflight check: warn for accelerometers and magnetometers that send data without a calibration
@@ -526,15 +637,11 @@ void imu_init(void)
       }
     }
     imu.gyros[i].last_stamp = 0;
+    FLOAT_VECT3_ZERO(imu.gyros[i].last_sample);
+    FLOAT_VECT3_ZERO(imu.gyros[i].last_delta_alpha);
+    imu.gyros[i].rate_est = (struct imu_rate_est_t) {0};
     int32_rmat_comp(&body_to_sensor, body_to_imu_rmat, &imu.gyros[i].body_to_sensor);
     RMAT_COPY(imu.gyros[i].body_to_sensor, body_to_sensor);
-
-    if(imu.gyros[i].calibrated.filter) {
-      float tau = 1.0 / (2.0 * M_PI * imu.gyros[i].filter_freq);
-      float sample_time = 1 / imu.gyros[i].filter_sample_freq;
-      for(uint8_t j = 0; j < 3; j++)
-        init_butterworth_2_low_pass(&imu.gyros[i].filter[j], tau, sample_time, 0.0);
-    }
 
     /* Copy accel calibration if needed */
     if(i >= accel_calib_len) {
@@ -576,15 +683,10 @@ void imu_init(void)
       }
     }
     imu.accels[i].last_stamp = 0;
+    FLOAT_VECT3_ZERO(imu.accels[i].last_sample);
+    imu.accels[i].rate_est = (struct imu_rate_est_t) {0};
     int32_rmat_comp(&body_to_sensor, body_to_imu_rmat, &imu.accels[i].body_to_sensor);
     RMAT_COPY(imu.accels[i].body_to_sensor, body_to_sensor);
-
-    if(imu.accels[i].calibrated.filter) {
-      float tau = 1.0 / (2.0 * M_PI * imu.accels[i].filter_freq);
-      float sample_time = 1 / imu.accels[i].filter_sample_freq;
-      for(uint8_t j = 0; j < 3; j++)
-        init_butterworth_2_low_pass(&imu.accels[i].filter[j], tau, sample_time, 0.0);
-    }
 
     /* Copy mag calibrated if needed */
     if(i >= mag_calib_len) {
@@ -626,7 +728,7 @@ void imu_init(void)
       }
     }
     if(!imu.mags[i].calibrated.current) {
-      INT_VECT3_ZERO(imu.mags[i].current_scale);
+      FLOAT_VECT3_ZERO(imu.mags[i].current_scale);
     }
     int32_rmat_comp(&body_to_sensor, body_to_imu_rmat, &imu.mags[i].body_to_sensor);
     RMAT_COPY(imu.mags[i].body_to_sensor, body_to_sensor);
@@ -759,8 +861,20 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
   if(gyro == NULL || samples < 1)
     return;
 
-  // Filter the gyro
-  struct Int32Rates data_filtered[samples];
+  // Reference rate for the filter and the measured integration rate:
+  // the calibrated sample frequency (e.g. measured from a log) instead of the nominal one of the driver
+  if(gyro->sample_freq > 0.f) {
+    rate = gyro->sample_freq;
+  }
+
+  // Initialize the filter on the first sample, it is disabled without a valid cutoff and sample frequency
+  if(gyro->calibrated.filter && gyro->last_stamp == 0) {
+    const float init[3] = {data[0].p, data[0].q, data[0].r};
+    gyro->calibrated.filter = imu_filter_init(gyro->filter, gyro->filter_freq, rate, init);
+  }
+
+  // Filter the gyro (data points to the filtered samples after the block, only allocate them if needed)
+  struct Int32Rates data_filtered[gyro->calibrated.filter ? samples : 1];
   if(gyro->calibrated.filter) {
     for(uint8_t i = 0; i < samples; i++) {
       data_filtered[i].p = update_butterworth_2_low_pass(&gyro->filter[0], data[i].p);
@@ -784,57 +898,56 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
 
 #if IMU_INTEGRATION
   // Only integrate if we have gotten a previous measurement and didn't overflow the timer
-  if(!isnan(rate) && gyro->last_stamp > 0 && stamp > gyro->last_stamp) {
-    struct FloatRates integrated;
+  // and the rate is valid (positive and finite, NaN if unknown)
+  // The measured sample rate is used if it is within IMU_RATE_EST_BOUND of the calibrated or driver rate
+  const float int_rate = imu_rate_est_update(&gyro->rate_est, rate, stamp, gyro->last_stamp, samples);
+  const bool integrate = isfinite(int_rate) && int_rate > 0.f && gyro->last_stamp > 0 && stamp > gyro->last_stamp;
 
-    // Trapezoidal integration (TODO: coning correction)
-    integrated.p = RATE_FLOAT_OF_BFP(gyro->scaled.p + scaled_rot.p) * 0.5f;
-    integrated.q = RATE_FLOAT_OF_BFP(gyro->scaled.q + scaled_rot.q) * 0.5f;
-    integrated.r = RATE_FLOAT_OF_BFP(gyro->scaled.r + scaled_rot.r) * 0.5f;
-
-    // Only perform multiple integrations in sensor frame if needed
-    if(samples > 1) {
-      struct FloatRates integrated_sensor;
-      struct FloatRMat body_to_sensor;
-      // Rotate back to sensor frame
-      RMAT_FLOAT_OF_BFP(body_to_sensor, gyro->body_to_sensor);
-      float_rmat_ratemult(&integrated_sensor, &body_to_sensor, &integrated);
-
-      // Add all the other samples
-      for(uint8_t i = 0; i < samples-1; i++) {
-        struct FloatRates f_sample;
-        f_sample.p = RATE_FLOAT_OF_BFP((data[i].p - gyro->neutral.p) * gyro->scale_f.p);
-        f_sample.q = RATE_FLOAT_OF_BFP((data[i].q - gyro->neutral.q) * gyro->scale_f.q);
-        f_sample.r = RATE_FLOAT_OF_BFP((data[i].r - gyro->neutral.r) * gyro->scale_f.r);
-
+  // Integrate in the sensor frame (coning is independent of a fixed rotation), rotate to body frame at the end
+  struct FloatVect3 alpha = {0.f, 0.f, 0.f}, beta = {0.f, 0.f, 0.f};
+  const float sample_dt = integrate ? 1.f / int_rate : 0.f;
+  for(uint8_t i = 0; i < samples; i++) {
+    struct FloatVect3 f_sample;
+    f_sample.x = RATE_FLOAT_OF_BFP((data[i].p - gyro->neutral.p) * gyro->scale_f.p);
+    f_sample.y = RATE_FLOAT_OF_BFP((data[i].q - gyro->neutral.q) * gyro->scale_f.q);
+    f_sample.z = RATE_FLOAT_OF_BFP((data[i].r - gyro->neutral.r) * gyro->scale_f.r);
 
 #if IMU_LOG_HIGHSPEED
-        pprz_msg_send_IMU_GYRO(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.p, &f_sample.q, &f_sample.r);
+    // Scaled values in the sensor frame (not rotated to body frame), unlike the IMU_GYRO telemetry
+    // The last sample is logged below
+    if(i < samples - 1) {
+      pprz_msg_send_IMU_GYRO(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.x, &f_sample.y, &f_sample.z);
+    }
 #endif
 
-        integrated_sensor.p += f_sample.p;
-        integrated_sensor.q += f_sample.q;
-        integrated_sensor.r += f_sample.r;
-      }
-
-      // Rotate to body frame
-      float_rmat_transp_ratemult(&integrated, &body_to_sensor, &integrated_sensor);
+    if(integrate) {
+      imu_integrate_sample(&alpha, &beta, &gyro->last_sample, &gyro->last_delta_alpha, &f_sample, sample_dt);
+    } else {
+      gyro->last_sample = f_sample;
     }
+  }
 
-    // Divide by the time of the collected samples
-    integrated.p = integrated.p * (1.f / rate);
-    integrated.q = integrated.q * (1.f / rate);
-    integrated.r = integrated.r * (1.f / rate);
+  if(integrate) {
+    // Coning corrected delta angle rotated to the body frame
+    struct FloatRMat body_to_sensor;
+    struct FloatRates integrated, integrated_sensor;
+    RMAT_FLOAT_OF_BFP(body_to_sensor, gyro->body_to_sensor);
+    RATES_ASSIGN(integrated_sensor, alpha.x + beta.x, alpha.y + beta.y, alpha.z + beta.z);
+    float_rmat_transp_ratemult(&integrated, &body_to_sensor, &integrated_sensor);
 
     // Send the integrated values
-    uint16_t dt = (1e6 / rate) * samples;
-    AbiSendMsgIMU_GYRO_INT(sender_id, stamp, &integrated, dt);
+    // Only if dt (rounded to us) fits in the uint16_t of the ABI message (up to 65.5ms)
+    float dt = (1e6f / int_rate) * samples + 0.5f;
+    if(dt < UINT16_MAX + 1.f) {
+      AbiSendMsgIMU_GYRO_INT(sender_id, stamp, &integrated, (uint16_t)dt);
+    }
   }
 #else
   (void)rate; // Surpress compile warning not used
 #endif
 
 #if IMU_LOG_HIGHSPEED
+  // Scaled values in the sensor frame (not rotated to body frame), unlike the IMU_GYRO telemetry
   struct FloatRates f_sample;
   RATES_FLOAT_OF_BFP(f_sample, scaled);
   pprz_msg_send_IMU_GYRO(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.p, &f_sample.q, &f_sample.r);
@@ -854,8 +967,20 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
   if(accel == NULL || samples < 1)
     return;
 
-  // Filter the accel
-  struct Int32Vect3 data_filtered[samples];
+  // Reference rate for the filter and the measured integration rate:
+  // the calibrated sample frequency (e.g. measured from a log) instead of the nominal one of the driver
+  if(accel->sample_freq > 0.f) {
+    rate = accel->sample_freq;
+  }
+
+  // Initialize the filter on the first sample, it is disabled without a valid cutoff and sample frequency
+  if(accel->calibrated.filter && accel->last_stamp == 0) {
+    const float init[3] = {data[0].x, data[0].y, data[0].z};
+    accel->calibrated.filter = imu_filter_init(accel->filter, accel->filter_freq, rate, init);
+  }
+
+  // Filter the accel (data points to the filtered samples after the block, only allocate them if needed)
+  struct Int32Vect3 data_filtered[accel->calibrated.filter ? samples : 1];
   if(accel->calibrated.filter) {
     for(uint8_t i = 0; i < samples; i++) {
       data_filtered[i].x = update_butterworth_2_low_pass(&accel->filter[0], data[i].x);
@@ -880,57 +1005,55 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
 
 #if IMU_INTEGRATION
   // Only integrate if we have gotten a previous measurement and didn't overflow the timer
-  if(!isnan(rate) && accel->last_stamp > 0 && stamp > accel->last_stamp) {
-    struct FloatVect3 integrated;
+  // and the rate is valid (positive and finite, NaN if unknown)
+  // The measured sample rate is used if it is within IMU_RATE_EST_BOUND of the calibrated or driver rate
+  const float int_rate = imu_rate_est_update(&accel->rate_est, rate, stamp, accel->last_stamp, samples);
+  const bool integrate = isfinite(int_rate) && int_rate > 0.f && accel->last_stamp > 0 && stamp > accel->last_stamp;
 
-    // Trapezoidal integration
-    integrated.x = ACCEL_FLOAT_OF_BFP(accel->scaled.x + scaled_rot.x) * 0.5f;
-    integrated.y = ACCEL_FLOAT_OF_BFP(accel->scaled.y + scaled_rot.y) * 0.5f;
-    integrated.z = ACCEL_FLOAT_OF_BFP(accel->scaled.z + scaled_rot.z) * 0.5f;
-
-    // Only perform multiple integrations in sensor frame if needed
-    if(samples > 1) {
-      struct FloatVect3 integrated_sensor;
-      struct FloatRMat body_to_sensor;
-      // Rotate back to sensor frame
-      RMAT_FLOAT_OF_BFP(body_to_sensor, accel->body_to_sensor);
-      float_rmat_vmult(&integrated_sensor, &body_to_sensor, &integrated);
-
-      // Add all the other samples
-      for(uint8_t i = 0; i < samples-1; i++) {
-        struct FloatVect3 f_sample;
-        f_sample.x = ACCEL_FLOAT_OF_BFP((data[i].x - accel->neutral.x) * accel->scale_f.x);
-        f_sample.y = ACCEL_FLOAT_OF_BFP((data[i].y - accel->neutral.y) * accel->scale_f.y);
-        f_sample.z = ACCEL_FLOAT_OF_BFP((data[i].z - accel->neutral.z) * accel->scale_f.z);
-
+  // Integrate in the sensor frame, rotate to body frame at the end
+  struct FloatVect3 alpha = {0.f, 0.f, 0.f};
+  const float sample_dt = integrate ? 1.f / int_rate : 0.f;
+  for(uint8_t i = 0; i < samples; i++) {
+    struct FloatVect3 f_sample;
+    f_sample.x = ACCEL_FLOAT_OF_BFP((data[i].x - accel->neutral.x) * accel->scale_f.x);
+    f_sample.y = ACCEL_FLOAT_OF_BFP((data[i].y - accel->neutral.y) * accel->scale_f.y);
+    f_sample.z = ACCEL_FLOAT_OF_BFP((data[i].z - accel->neutral.z) * accel->scale_f.z);
 
 #if IMU_LOG_HIGHSPEED
-        pprz_msg_send_IMU_ACCEL(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.x, &f_sample.y, &f_sample.z);
+    // Scaled values in the sensor frame (not rotated to body frame), unlike the IMU_ACCEL telemetry
+    // The last sample is logged below
+    if(i < samples - 1) {
+      pprz_msg_send_IMU_ACCEL(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.x, &f_sample.y, &f_sample.z);
+    }
 #endif
 
-        integrated_sensor.x += f_sample.x;
-        integrated_sensor.y += f_sample.y;
-        integrated_sensor.z += f_sample.z;
-      }
-
-      // Rotate to body frame
-      float_rmat_transp_vmult(&integrated, &body_to_sensor, &integrated_sensor);
+    if(integrate) {
+      imu_integrate_sample(&alpha, NULL, &accel->last_sample, NULL, &f_sample, sample_dt);
+    } else {
+      accel->last_sample = f_sample;
     }
+  }
 
-    // Divide by the time of the collected samples
-    integrated.x = integrated.x * (1.f / rate);
-    integrated.y = integrated.y * (1.f / rate);
-    integrated.z = integrated.z * (1.f / rate);
+  if(integrate) {
+    // Delta velocity rotated to the body frame
+    struct FloatRMat body_to_sensor;
+    struct FloatVect3 integrated;
+    RMAT_FLOAT_OF_BFP(body_to_sensor, accel->body_to_sensor);
+    float_rmat_transp_vmult(&integrated, &body_to_sensor, &alpha);
 
     // Send the integrated values
-    uint16_t dt = (1e6 / rate) * samples;
-    AbiSendMsgIMU_ACCEL_INT(sender_id, stamp, &integrated, dt);
+    // Only if dt (rounded to us) fits in the uint16_t of the ABI message (up to 65.5ms)
+    float dt = (1e6f / int_rate) * samples + 0.5f;
+    if(dt < UINT16_MAX + 1.f) {
+      AbiSendMsgIMU_ACCEL_INT(sender_id, stamp, &integrated, (uint16_t)dt);
+    }
   }
 #else
   (void)rate; // Surpress compile warning not used
 #endif
 
 #if IMU_LOG_HIGHSPEED
+  // Scaled values in the sensor frame (not rotated to body frame), unlike the IMU_ACCEL telemetry
   struct FloatVect3 f_sample;
   ACCELS_FLOAT_OF_BFP(f_sample, scaled);
   pprz_msg_send_IMU_ACCEL(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.x, &f_sample.y, &f_sample.z);
@@ -1100,7 +1223,7 @@ void imu_SetBodyToImuPsi(float psi)
   imu_set_body_to_imu_eulers(&body_to_imu_eulers);
 }
 
-void imu_SetBodyToImuCurrent(float set)
+void imu_SetBodyToImuCurrent(bool set)
 {
   imu.b2i_set_current = set;
 

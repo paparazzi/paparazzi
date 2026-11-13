@@ -312,7 +312,7 @@
                 </field>
                 <field name="neutral" value="-11,3,11" type="int[]"/>
                 <field name="scale" value="{{50419,55252,41671},{5160,5649,4295}}"/>
-                <field name="filter_sample_freq" value="1133"/>
+                <field name="sample_freq" value="1133"/>
                 <field name="filter_freq" value="30"/>
             </field>
             <field type="struct">
@@ -324,7 +324,7 @@
                 </field>
                 <field name="neutral" value="-1,1,56" type="int[]"/>
                 <field name="scale" value="{{2198,45197,29046},{449,9226,5929}}"/>
-                <field name="filter_sample_freq" value="4050"/>
+                <field name="sample_freq" value="4050"/>
                 <field name="filter_freq" value="30"/>
             </field>
             <field type="struct">
@@ -336,7 +336,7 @@
                 </field>
                 <field name="neutral" value="-57,-10,-7" type="int[]"/>
                 <field name="scale" value="{{13689,45399,32650},{2797,9280,6691}}"/>
-                <field name="filter_sample_freq" value="1138"/>
+                <field name="sample_freq" value="1138"/>
                 <field name="filter_freq" value="30"/>
             </field>
         </define>
@@ -344,7 +344,7 @@
         <!-- Magnetometer calibration (NOT DONE!) -->
         
         <!-- Gyrometer calibration (NOT DONE!) -->
-        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1133, .filter_freq=30},{.abi_id=21, .calibrated={.filter=true}, .filter_sample_freq=4050, .filter_freq=30},{.abi_id=22, .calibrated={.filter=true}, .filter_sample_freq=1138, .filter_freq=30}}"/>
+        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .sample_freq=1133, .filter_freq=30},{.abi_id=21, .calibrated={.filter=true}, .sample_freq=4050, .filter_freq=30},{.abi_id=22, .calibrated={.filter=true}, .sample_freq=1138, .filter_freq=30}}"/>
 
 
         <!-- Define axis in hover frame -->
