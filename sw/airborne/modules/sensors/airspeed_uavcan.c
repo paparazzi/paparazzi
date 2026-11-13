@@ -27,11 +27,17 @@
 #include "uavcan/uavcan.h"
 #include "core/abi.h"
 #include "mcu_periph/sys_time.h"
+#include "math/pprz_isa.h"
 #include "uavcan.equipment.air_data.RawAirData.h"
 
 /* Default pressure scaling */
 #ifndef AIRSPEED_UAVCAN_DIFF_P_SCALE
 #define AIRSPEED_UAVCAN_DIFF_P_SCALE 1.0f
+#endif
+
+/* The UAVCAN temperature is in Kelvin, but some nodes send Celsius: above this it is Kelvin (no air is this hot in Celsius or this cold in Kelvin) */
+#ifndef AIRSPEED_UAVCAN_KELVIN_MIN
+#define AIRSPEED_UAVCAN_KELVIN_MIN 150.f
 #endif
 
 /* Local variables */
@@ -59,6 +65,10 @@ static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unuse
   }
 
   if(!isnan(static_air_temp)) {
+    // Kelvin to Celsius, if the node sends Kelvin
+    if (static_air_temp > AIRSPEED_UAVCAN_KELVIN_MIN) {
+      static_air_temp += PPRZ_ISA_ABS_NULL;
+    }
     airspeed_uavcan.temperature = static_air_temp;
     AbiSendMsgTEMPERATURE_RAW(UAVCAN_SENDER_ID, now_ts, airspeed_uavcan.temperature, TEMPERATURE_TYPE_AIR);
   }
