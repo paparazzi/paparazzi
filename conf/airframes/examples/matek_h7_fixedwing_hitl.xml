@@ -39,7 +39,6 @@
     </module>
 
     <module name="sys_mon"/>
-    <module name="air_data"/>
   </firmware>
 
   <firmware name="generic_hitl">

@@ -59,7 +59,6 @@
         <define name="AGL_DIST_FILTER"                  value="0.07"/>
 
         <!-- Air data -->
-        <define name="AIR_DATA_CALC_AMSL_BARO"          value="TRUE"/>   
 
         <!-- SD logger -->
         <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>

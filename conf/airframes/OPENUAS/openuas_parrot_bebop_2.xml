@@ -90,7 +90,6 @@
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/> <!-- unit="s/10, thus  tenth of seconds for engine kill or in ELECTRICAL_PERIODIC_FREQ-->
     <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
     <configure name="AHRS_MAG_CORRECT_FREQUENCY" value="50"/><!-- HZ-->
-    <configure name="USE_BARO_BOARD" value="TRUE"/>
 
     <!-- USE_SONAR means the device can read values. It does not mean we want to use those values in AHRS yet
     For that you have a setting <define name="AHRS_USE_SONAR" value="TRUE"/>
@@ -159,16 +158,10 @@
     </module>
     <module name="stabilization" type="indi_simple"/>
     <!-- for later if simple works
-    <module name="stabilization" type="indi">
-    </module>-->
+    <module name="stabilization" type="indi"/>-->
     <!--<module name="guidance" type="indi"/>--><!-- for later if classic works-->
 
     <!-- Also used if QNH needed -->
-    <module name="air_data">
-     <define name="CALC_AIRSPEED" value="FALSE"/>
-     <define name="CALC_TAS_FACTOR" value="FALSE"/>
-     <define name="CALC_AMSL_BARO" value="TRUE"/>
-    </module>
 
     <module name="geo_mag"/>
 
@@ -225,19 +218,16 @@
     -->
 
     <!-- Embed State data in your Photo file, e.g. Position of photo when taken  -->
-    <module name="video_exif">
-    </module>
+    <module name="video_exif"/>
 
     <module name="digital_cam_video">
       <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5.0"/> <!-- unit="s"/> -->
     </module>
 
     <!-- When flying multiple airframes over eg a mesh they can have info of eachothers position etc. -->
-    <module name="traffic_info">
-    </module>
+    <module name="traffic_info"/>
 <!--
-    <module name="tcas">
-    </module>
+    <module name="tcas"/>
 -->
 
     <module name="sys_mon"/><!-- for MCU load debugging -->
@@ -300,12 +290,6 @@
     <define name="CENTER_X" value="0.51015"/>
     <define name="CENTER_Y" value="0.51015"/>
     <define name="DHANE_K" value="1.25"/>
-  </section>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
 <!-- ************************* IMU ************************* -->
