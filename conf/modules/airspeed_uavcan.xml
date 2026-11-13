@@ -3,10 +3,9 @@
 <module name="airspeed_uavcan" dir="sensors" task="sensors">
   <doc>
     <description>
-      Airspeed sensor over the uavcan protocol and optionally publishes over ABI.
+      Airspeed sensor over the uavcan protocol.
       Sends the differential pressure and static air temperature to air_data, which zeroes the pressure (at boot and with its Calibrate setting) and computes the airspeed.
     </description>
-    <define name="AIRSPEED_UAVCAN_SEND_ABI" value="true" description="Send the uavcan airspeed sensor over ABI"/>
     <define name="AIRSPEED_UAVCAN_DIFF_P_SCALE" value="1.0" description="Pressure scaling correcting factor"/>
   </doc>
   <settings>

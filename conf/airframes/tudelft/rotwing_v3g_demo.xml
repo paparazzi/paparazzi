@@ -58,7 +58,6 @@
         <module name="airspeed" type="ms45xx_i2c">
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
             <define name="MS45XX_PRESSURE_SCALE"        value="1.90"/>
-            <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
         </module>
         <module name="airspeed" type="uavcan"/>
 
