@@ -6,7 +6,7 @@
       New Paparazzi Simulator (NPS)
 
       Bindings between embedded autopilot code and a flight dynamic model (FDM).
-      Possible FDM are: JSBSim, CRRCSIM, GAZEBO or PYBULLET, see corresponding modules.
+      Possible FDM are: JSBSim, GAZEBO or PYBULLET, see corresponding modules.
       Can run Software In The Loop (SITL) simulations.
     </description>
   </doc>
