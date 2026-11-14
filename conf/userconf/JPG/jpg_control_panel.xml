@@ -4,9 +4,8 @@
     <!--program name="Server" command="sw/ground_segment/tmtc/server">
       <arg flag="-b" constant="192.168.1.255:2010"/>
     </program>
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs" icon="gcs.svg" favorite="True">
-      <arg flag="-layout" constant="large_left_col.xml"/>
-      <arg flag="-osm"/>
+    <program name="PprzGCS" command="$pprzgcs" icon="gcs.svg" favorite="True">
+      <arg flag="-b" constant="192.168.1.255:2010"/>
     </program-->
   </section>
   <section name="sessions">
@@ -65,19 +64,6 @@
       <program name="Server"/>
       <program name="PprzGCS"/>
     </session>
-    <session name="HITL demo">
-      <program name="Hardware in the Loop">
-        <arg flag="-a" constant="@AIRCRAFT"/>
-        <arg flag="-t" constant="hitl"/>
-      </program>
-      <program name="Data Link">
-        <arg flag="-d" constant="/dev/ttyACM1"/>
-      </program>
-      <program name="Server">
-        <arg flag="-n"/>
-      </program>
-      <program name="GCS"/>
-    </session>
     <session name="Messages and Settings">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
@@ -87,9 +73,6 @@
         <arg flag="-n"/>
       </program>
       <program name="Messages"/>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-      </program>
     </session>
     <session name="Raw Sensors">
       <program name="Data Link">
@@ -101,10 +84,6 @@
       </program>
       <program name="Messages">
         <arg flag="-g" constant="300x400+0-220"/>
-      </program>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="-g" constant="800x200+0-0"/>
       </program>
       <program name="Real-time Plotter">
         <arg flag="-g" constant="1000x250-0+0"/>
@@ -148,10 +127,6 @@
       </program>
       <program name="Messages">
         <arg flag="-g" constant="300x400+0-220"/>
-      </program>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="-g" constant="800x200+0-0"/>
       </program>
       <program name="Real-time Plotter">
         <arg flag="-g" constant="1000x250-0+0"/>
