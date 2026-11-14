@@ -1,2 +1,16 @@
-<program command="sw/ground_segment/tmtc/gpsd2ivy" name="GPSd position display" />
+<program command="sw/ground_segment/tmtc/gpsd2ivy" name="GPSd position display">
+  <doc>
+    <description>
+            Reads the position of a GPS receiver through gpsd and moves a waypoint of an aircraft to it (MOVE_WP).
+
+    </description>
+    <usage>Usage: gpsd2ivy [options]</usage>
+    <option flag="-v --verbose" description="Print verbose information"/>
+    <option flag="--server &lt;gpsd server&gt;" description="e.g. localhost"/>
+    <option flag="--port &lt;gpsd port&gt;" description="e.g. 2947"/>
+    <option flag="--ivy_bus &lt;ivy bus&gt;" description="e.g. 127.255.255.255"/>
+    <option flag="--ac &lt;ac_id&gt;" description="e.g. 17"/>
+    <option flag="--wp &lt;wp_id&gt;" description="e.g. 2"/>
+  </doc>
+</program>
 

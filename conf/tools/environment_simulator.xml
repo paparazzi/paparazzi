@@ -1,2 +1,8 @@
-<program command="sw/simulator/gaia.py" name="Environment Simulator" />
+<program command="sw/simulator/gaia.py" name="Environment Simulator">
+  <doc>
+    <description>
+      World environment (time, wind, ...) for multi-aircraft simulation.
+    </description>
+  </doc>
+</program>
 

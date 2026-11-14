@@ -1,1 +1,12 @@
-<program command="sw/ground_segment/tmtc/messages" name="Messages (Legacy)" />
+<program command="sw/ground_segment/tmtc/messages" name="Messages (Legacy)">
+  <doc>
+    <description>
+      Shows the last value of every message on the Ivy bus (OCaml version).
+    </description>
+    <option flag="-b &lt;ivy bus&gt;" description="Default is 127.255.255.255:2099"/>
+    <option flag="-c" description="class name"/>
+    <option flag="-timestamp" description="Bind to timestampped messages"/>
+    <option flag="-force" description="Force waiting on all messages, not only ALIVE for telemetry class (increase network load)"/>
+    <option flag="-g &lt;geometry&gt;" description="Set the window geometry ( '500x500+100+100' )"/>
+  </doc>
+</program>
