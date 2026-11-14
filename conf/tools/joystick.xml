@@ -3,7 +3,7 @@
     <description>
       Forwards the events of a USB input device (joystick, gamepad) to the Ivy bus, as described in an xml file of actions.
     </description>
-    <option flag="-b &lt;ivy bus&gt;" description="Default is 127.255.255.255:2099"/>
+    <option flag="-b &lt;ivy bus&gt;" description="Default is 127.255.255.255:2010"/>
     <option flag="-ac &lt;A/C name&gt;" description=""/>
     <option flag="-d &lt;device index&gt;" description=""/>
     <option flag="-v" description="Verbose mode (useful to identify the channels of an input device)"/>

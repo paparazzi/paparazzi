@@ -79,6 +79,8 @@ def description_nodes(text: str) -> List[nodes.Node]:
             result.append(nodes.literal_block(text=block))
         else:
             result.append(nodes.paragraph(text=" ".join(l.strip() for l in lines)))
+    for n in result:
+        n["support_smartquotes"] = False  # keep "--help" instead of an en dash
     return result
 
 
@@ -107,7 +109,8 @@ class ToolsDirective(Directive):
             rows = []
             for t in group:
                 ref = nodes.reference("", t.name, refid=t.anchor)
-                rows.append([nodes.paragraph("", "", ref), nodes.paragraph(text=t.summary())])
+                rows.append([nodes.paragraph("", "", ref),
+                             nodes.paragraph(text=t.summary(), support_smartquotes=False)])
             section += make_table(["Tool", "Description"], rows, [1, 3])
             for t in group:
                 section += self.tool_section(t)
@@ -132,8 +135,8 @@ class ToolsDirective(Directive):
         if t.usage:
             section += nodes.literal_block(text=t.usage)
         if t.options:
-            rows = [[nodes.paragraph("", "", nodes.literal(text=f)), nodes.paragraph(text=d)]
-                    for f, d in t.options]
+            rows = [[nodes.paragraph("", "", nodes.literal(text=f)),
+                     nodes.paragraph(text=d, support_smartquotes=False)] for f, d in t.options]
             section += make_table(["Option", "Description"], rows, [2, 3])
         if not (t.description or t.usage or t.options):
             section += nodes.paragraph(text="No description yet." if t.external else

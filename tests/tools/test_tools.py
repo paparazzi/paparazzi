@@ -56,8 +56,10 @@ import TAP  # noqa: E402
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), "../../")))
 PPRZ_SRC = os.getenv("PAPARAZZI_SRC", PPRZ_HOME)
 TOOLS_DIR = path.join(PPRZ_HOME, "conf", "tools")
-# private Ivy bus, so a tool that ignores --help does not talk to running programs
-IVY_BUS = "127.255.255.255:2099"
+# private Ivy bus, so a tool that ignores --help does not talk to running programs;
+# tools that print the bus from IVY_BUS as their default get the normal default in the doc
+IVY_BUS = "127.255.255.255:2077"
+DEFAULT_IVY_BUS = "127.255.255.255:2010"
 
 OPTION_RE = re.compile(r"^\s{0,12}(-{1,2}[A-Za-z0-9?])")
 HEADING_RE = re.compile(r"^\S.*:\s*$")
@@ -268,7 +270,7 @@ class Tool:
         # programs that print their argv[0]: keep the name only, not the local path
         exe = path.join(PPRZ_SRC, self.command.split()[0])
         out, err = [t.replace(exe, path.basename(exe)).replace(PPRZ_HOME, "$PAPARAZZI_HOME")
-                    for t in (out, err)]
+                    .replace(IVY_BUS, DEFAULT_IVY_BUS) for t in (out, err)]
         parsed = parse_help(out if out.strip() else err)
         self.result.update(returncode=returncode, timed_out=timed_out, stdout=out, stderr=err, **parsed)
         lines = ["command: %s" % self.command]

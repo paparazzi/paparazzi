@@ -3,7 +3,7 @@
     <description>
       Connects a hardware modem (usually USB/serial) or a UDP link with the Ivy bus: telemetry from the aircraft to the ground tools, and the uplink messages back.
     </description>
-    <option flag="-b &lt;ivy bus&gt;" description="Default is 127.255.255.255:2099"/>
+    <option flag="-b &lt;ivy bus&gt;" description="Default is 127.255.255.255:2010"/>
     <option flag="-d &lt;port&gt;" description="Default is /dev/ttyUSB0"/>
     <option flag="-fg" description="Enable trafic statistics on standard output"/>
     <option flag="-noac_info" description="Disables AC traffic info (uplink)."/>

@@ -3,7 +3,7 @@
     <description>
       Plots message fields from the Ivy bus in real time.
     </description>
-    <option flag="-b &lt;ivy bus&gt;" description="Default is 127.255.255.255:2099"/>
+    <option flag="-b &lt;ivy bus&gt;" description="Default is 127.255.255.255:2010"/>
     <option flag="-c &lt;curve&gt;" description="Add a curve (e.g. '*:telemetry:BAT:voltage') or constant (e.g. '1.5'). The curve is inserted into the last open window (cf -n option)"/>
     <option flag="-t &lt;title&gt;" description="Set the last opened window title (cf -n option)"/>
     <option flag="-g &lt;geometry&gt;" description="Set the last opened window geometry ( '500x500+100+100' )"/>

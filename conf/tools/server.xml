@@ -3,7 +3,7 @@
     <description>
       Receives the telemetry of all aircraft from the links, writes the log files and sends the state of each aircraft to the GCS and the other tools.
     </description>
-    <option flag="-b Bus" description="Default is 127.255.255.255:2099"/>
+    <option flag="-b Bus" description="Default is 127.255.255.255:2010"/>
     <option flag="-http" description="Send http: URLs (default is file:)"/>
     <option flag="-hostname &lt;hostname&gt;" description="Set the address for the http server"/>
     <option flag="-port &lt;port&gt;" description="Set http port for serving XML and KML files (default is 8889)"/>
