@@ -14,15 +14,7 @@
       <program name="Server">
         <arg flag="-n"/>
       </program>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-maximize"/>
-        <arg flag="-center_ac"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="200"/>
-        <arg flag="-zoom" constant="40."/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Gazebo"/>
     </session>
     <session name="Simulation - Gazebo + Joystick">
@@ -37,15 +29,7 @@
       <program name="Server">
         <arg flag="-n"/>
       </program>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-maximize"/>
-        <arg flag="-center_ac"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="200"/>
-        <arg flag="-zoom" constant="40."/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Joystick">
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="sm600.xml"/>
@@ -58,16 +42,21 @@
         <arg flag="-udp"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Joystick">
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="sm600.xml"/>
         <arg flag="-d 0"/>
       </program>
-      <program name="NatNet">
-        <arg flag="-ac 9999" constant="@AC_ID"/>
+      <program name="UnifiedMoCap">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="10"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="1"/>
+        <arg flag="--ac_id" constant="@AC_ID"/>
       </program>
     </session>
     <session name="Distance Counter">
@@ -78,16 +67,21 @@
         <arg flag="-udp"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Joystick">
         <arg flag="-ac" constant="Bebop2_opticflow"/>
         <arg flag="sm600.xml"/>
         <arg flag="-d" constant="0"/>
       </program>
-      <program name="NatNet">
-        <arg flag="-ac 9999" constant="5"/>
+      <program name="UnifiedMoCap">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="10"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="1"/>
+        <arg flag="--ac_id" constant="5"/>
       </program>
       <program name="Messages (Python)"/>
       <program name="Real-time Plotter">

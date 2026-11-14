@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi.  If not, see <https://www.gnu.org/licenses/>.
 
+import argparse
 import os
 import sys
 import math
@@ -201,6 +202,10 @@ class GaiaWindow(QMainWindow):
         e.accept()
         
 if __name__ == "__main__":
+    argparse.ArgumentParser(description="World environment for the simulation of one or more aircraft: "
+                            "time scale, wind speed and direction, updraft and GPS on/off, set with "
+                            "sliders and sent on the Ivy bus (WORLD_ENV message) on every change "
+                            "and every 5 s.").parse_known_args()
     app = QApplication([])
     window = GaiaWindow(flags=QtCore.Qt.WindowType.Window)
     window.show()

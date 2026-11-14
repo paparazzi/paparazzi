@@ -1,2 +1,11 @@
-<program command="sw/logalizer/logplotter" name="Log Plotter" icon="plotter.svg"/>
+<program command="sw/logalizer/logplotter" name="Log Plotter" icon="plotter.svg">
+  <doc>
+    <description>
+      Plots the messages of recorded log files.
+    </description>
+    <usage>Usage: logplotter &lt;log files&gt;</usage>
+    <option flag="-export_csv" description="Export in CSV in batch mode according to saved preferences (conf/%gconf.xml)"/>
+    <option flag="-v" description="Verbose"/>
+  </doc>
+</program>
 

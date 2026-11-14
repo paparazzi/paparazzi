@@ -1,2 +1,10 @@
-<program command="sw/ground_segment/python/wind/wind.py" name="Wind" />
+<program command="sw/ground_segment/python/wind/wind.py" name="Wind">
+  <doc>
+    <description>
+      Wind Tool: estimate the wind from ground speed and airspeed
+    </description>
+    <usage>usage: wind.py [-h] [-b IVY_BUS]</usage>
+    <option flag="-b IVY_BUS, --ivy_bus IVY_BUS" description="Ivy bus address and port (default: $IVY_BUS or the pprzlink default)"/>
+  </doc>
+</program>
 

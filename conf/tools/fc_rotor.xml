@@ -1,2 +1,13 @@
-<program name="FC Rotorcraft" command="sw/ground_segment/python/multi/fc_rotor/fc_rotor.py"/>
+<program name="FC Rotorcraft" command="sw/ground_segment/python/multi/fc_rotor/fc_rotor.py">
+  <doc>
+    <description>
+      Formation Control for Rotorcrafts
+    </description>
+    <usage>usage: fc_rotor.py [-h] [-f FREQ] [-gr] [-igf] [-v] config_file</usage>
+    <option flag="-f FREQ, --freq FREQ" description="control frequency"/>
+    <option flag="-gr, --use_ground_ref" description="use GROUND_REF messages instead of INS messages"/>
+    <option flag="-igf, --ignore_geo_fence" description="ignore the geo fence limits"/>
+    <option flag="-v, --verbose" description="display debug messages"/>
+  </doc>
+</program>
 

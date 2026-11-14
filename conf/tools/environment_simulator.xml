@@ -1,2 +1,9 @@
-<program command="sw/simulator/gaia.py" name="Environment Simulator" />
+<program command="sw/simulator/gaia.py" name="Environment Simulator">
+  <doc>
+    <description>
+      World environment for the simulation of one or more aircraft: time scale, wind speed and direction, updraft and GPS on/off, set with sliders and sent on the Ivy bus (WORLD_ENV message) on every change and every 5 s.
+    </description>
+    <usage>usage: gaia.py [-h]</usage>
+  </doc>
+</program>
 
