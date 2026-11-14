@@ -64,6 +64,10 @@
     <define name="INS_EKF2_LOG_DEVICE" value="flightrecorder_sdlog" description="SD log device for the EKF inputs (flightrecorder_sdlog or chibios_sdlog)"/>
     <define name="INS_EKF2_LOG_WAIT" value="60" description="Maximum time to wait for the log before the EKF starts without logging the inputs [s]"/>
     <define name="INS_EKF2_LOG_OUTPUT_DIV" value="10" description="Also log the EKF output every this number of updates, to check the replay (0 to disable)"/>
+    <define name="INS_EKF2_AT_REST_GYRO" value="0.3" unit="deg/s" description="At rest detection (disarmed, on the ground and still, as the PX4 land detector: GNSS drift checks, zero velocity and zero gyro fusion on the ground): gyro threshold on its deviation from a 2 s average (default: 0.3 deg/s)"/>
+    <define name="INS_EKF2_AT_REST_ACCEL" value="0.1" unit="m/s2" description="At rest detection: accelerometer threshold on its deviation from a 2 s average (default: 0.1 m/s2)"/>
+    <define name="INS_EKF2_AT_REST_RATE" value="1.0" unit="deg/s" description="At rest detection: threshold on the 2 s average rotation rate without the estimated gyro bias, so a slow rotation isn't fused as gyro bias (default: 1 deg/s)"/>
+    <define name="INS_EKF2_AT_REST_TIME" value="1.0" unit="s" description="At rest detection: time below all thresholds before the vehicle is at rest (default: 1 s)"/>
     <define name="INS_EKF2_FORCE_NAV_REF" value="FALSE|TRUE" description="force to use the reference defined in the flight plan and not the one computed by the filter after first good GPS position"/>
 
     <configure name="USE_ALT_LLA_WAYPOINTS" value="FALSE|TRUE" description="Use LLA altitude instead of LTP z for long distance flight (default=TRUE)"/>

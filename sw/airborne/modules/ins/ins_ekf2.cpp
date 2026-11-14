@@ -175,6 +175,27 @@ PRINT_CONFIG_VAR(INS_EKF2_GNSS_CHECK)
 #define INS_EKF2_HGT_REF EKF2_HGT_REF_BARO
 #endif
 
+/** At rest detection, as the PX4 land detector (at rest when landed and not moving for 1 s): the EKF then
+ *  runs the GNSS drift checks on the ground, fuses zero velocity without other velocity aiding (so a drifting
+ *  GNSS, e.g. indoors, doesn't tilt it) and fuses the gyro as its bias.
+ *  At rest when disarmed, on the ground, the gyro and accelerometer deviation from their 2 s average (low-passed
+ *  over 0.5 s) stay below the thresholds and the average rotation rate (without the gyro bias) below
+ *  INS_EKF2_AT_REST_RATE, for INS_EKF2_AT_REST_TIME.
+ *  Stricter than the PX4 vibration metric, which doesn't see the vehicle being turned by hand (and would then
+ *  fuse that rotation as gyro bias) */
+#ifndef INS_EKF2_AT_REST_GYRO
+#define INS_EKF2_AT_REST_GYRO 0.3f    ///< gyro threshold (deg/s), noise at rest about 0.15
+#endif
+#ifndef INS_EKF2_AT_REST_ACCEL
+#define INS_EKF2_AT_REST_ACCEL 0.1f   ///< accelerometer threshold (m/s2), noise at rest about 0.04
+#endif
+#ifndef INS_EKF2_AT_REST_RATE
+#define INS_EKF2_AT_REST_RATE 1.f     ///< average rotation rate threshold (deg/s), above the gyro bias before it is estimated
+#endif
+#ifndef INS_EKF2_AT_REST_TIME
+#define INS_EKF2_AT_REST_TIME 1.f     ///< time below the thresholds before at rest (s)
+#endif
+
 /* Vehicle specific defaults, as PX4 (rc.fw_defaults and rc.mc_defaults) */
 #if defined(FIXEDWING_FIRMWARE)
 #ifndef INS_EKF2_ARSP_THR
@@ -1283,7 +1304,52 @@ static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
   }
 }
 
-/** Give the arming and in-air state to the EKF when it changes, and every second
+/** At rest detection from the IMU samples given to the EKF */
+static struct {
+  Vector3f gyro_avg;      ///< 2 s average of the gyro (rad/s)
+  Vector3f accel_avg;     ///< 2 s average of the accelerometer (m/s2)
+  float gyro_metric;      ///< Low-passed deviation of the gyro from its average (rad/s)
+  float accel_metric;     ///< Low-passed deviation of the accelerometer from its average (m/s2)
+  float still_time;       ///< Time below the thresholds (s)
+  bool init;
+  volatile bool still;    ///< Below the thresholds for INS_EKF2_AT_REST_TIME
+  bool at_rest;           ///< Last at rest flag given to the EKF
+} ekf2_rest;
+
+static void ins_ekf2_at_rest_update(const imuSample &imu, const Vector3f &gyro_bias)
+{
+  if (!(imu.delta_ang_dt > 0.f) || !(imu.delta_vel_dt > 0.f)) {
+    return;
+  }
+  const float dt = imu.delta_ang_dt;
+  const Vector3f gyro = imu.delta_ang / imu.delta_ang_dt;
+  const Vector3f accel = imu.delta_vel / imu.delta_vel_dt;
+  const float gyro_thr = INS_EKF2_AT_REST_GYRO * (float)M_PI / 180.f;
+  if (!ekf2_rest.init) {
+    ekf2_rest.gyro_avg = gyro;
+    ekf2_rest.accel_avg = accel;
+    ekf2_rest.gyro_metric = 10.f * gyro_thr;
+    ekf2_rest.accel_metric = 10.f * INS_EKF2_AT_REST_ACCEL;
+    ekf2_rest.init = true;
+    return;
+  }
+  const float alpha_avg = fminf(dt / 2.f, 1.f);
+  const float alpha = fminf(dt / 0.5f, 1.f);
+  ekf2_rest.gyro_avg += (gyro - ekf2_rest.gyro_avg) * alpha_avg;
+  ekf2_rest.accel_avg += (accel - ekf2_rest.accel_avg) * alpha_avg;
+  ekf2_rest.gyro_metric += ((gyro - ekf2_rest.gyro_avg).norm() - ekf2_rest.gyro_metric) * alpha;
+  ekf2_rest.accel_metric += ((accel - ekf2_rest.accel_avg).norm() - ekf2_rest.accel_metric) * alpha;
+  const float rate = (ekf2_rest.gyro_avg - gyro_bias).norm();
+  if (ekf2_rest.gyro_metric < gyro_thr && ekf2_rest.accel_metric < INS_EKF2_AT_REST_ACCEL
+      && rate < INS_EKF2_AT_REST_RATE * (float)M_PI / 180.f) {
+    ekf2_rest.still_time = fminf(ekf2_rest.still_time + dt, INS_EKF2_AT_REST_TIME);
+  } else {
+    ekf2_rest.still_time = 0.f;
+  }
+  ekf2_rest.still = (ekf2_rest.still_time >= INS_EKF2_AT_REST_TIME);
+}
+
+/** Give the arming, in-air and at rest state to the EKF when it changes, and every second
  *  (the EKF ignores them until it is initialised by the first IMU data) */
 static void ins_ekf2_update_system_flags(void)
 {
@@ -1292,8 +1358,9 @@ static void ins_ekf2_update_system_flags(void)
   // airspeed and sideslip fusion, no ground effect, airspeed for the yaw estimator: always for the fixedwing
   // firmware, in forward flight for hybrids flown with the rotorcraft firmware (e.g. rotwing_state)
   bool fixed_wing = stateIsFixedWingFlight();
+  bool at_rest = !armed && !in_air && ekf2_rest.still;
   uint64_t now = ekf2_time_us(get_sys_time_usec());
-  if (in_air == ekf2.in_air && armed == ekf2.armed && fixed_wing == ekf2.fixed_wing
+  if (in_air == ekf2.in_air && armed == ekf2.armed && fixed_wing == ekf2.fixed_wing && at_rest == ekf2_rest.at_rest
       && now < ekf2.system_flags_time + 1000000) {
     return;
   }
@@ -1302,6 +1369,7 @@ static void ins_ekf2_update_system_flags(void)
   flags.time_us = now;
   flags.armed = armed;
   flags.in_air = in_air;
+  flags.at_rest = at_rest;
   flags.is_fixed_wing = fixed_wing;
   {
     int32_t bits = (flags.armed << 0) | (flags.at_rest << 1) | (flags.in_air << 2) | (flags.is_fixed_wing << 3)
@@ -1313,6 +1381,7 @@ static void ins_ekf2_update_system_flags(void)
   ekf2.in_air = in_air;
   ekf2.armed = armed;
   ekf2.fixed_wing = fixed_wing;
+  ekf2_rest.at_rest = at_rest;
   ekf2.system_flags_time = now;
 }
 
@@ -1546,6 +1615,7 @@ static void ins_ekf2_publish_attitude(uint64_t time_us)
                        imu_sample.delta_vel(0), imu_sample.delta_vel(1), imu_sample.delta_vel(2)};
     ekf2_log(EKF2_IN_IMU, imu_sample.time_us, 2, ints, 6, values);
   }
+  ins_ekf2_at_rest_update(imu_sample, ekf.getGyroBias());
   ekf.setIMUData(imu_sample);
 
   if (ekf.attitude_valid()) {
