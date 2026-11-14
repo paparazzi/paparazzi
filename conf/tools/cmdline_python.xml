@@ -1,3 +1,8 @@
 <program command="pprzEnv/bin/python" name="Command line (Python)" icon="terminal-python.svg">
+  <doc>
+    <description>
+      Runs Python from the Paparazzi Python environment (pprzEnv); the example prints Hello, World!
+    </description>
+  </doc>
     <arg flag="-c" constant="&quot;print('Hello, World!')&quot;" />
 </program>

@@ -1,2 +1,12 @@
-<program command="sw/ground_segment/python/redundant_link/link_combiner.py" name="Link Combiner" />
+<program command="sw/ground_segment/python/redundant_link/link_combiner.py" name="Link Combiner">
+  <doc>
+    <description>
+      Link_Combiner listens to the ivy messages received from multiple Link agents
+      (set each of their -id options to a unique number), and sends a combined
+      stream of messages to the other agents.
+    </description>
+    <usage>usage: link_combiner.py [-h] [-b BUFFER_SIZE]</usage>
+    <option flag="-b BUFFER_SIZE, -buffer_size BUFFER_SIZE, --buffer_size BUFFER_SIZE" description="The number of elements messages to be stored in the circular buffer for each link"/>
+  </doc>
+</program>
 
