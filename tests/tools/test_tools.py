@@ -45,6 +45,7 @@ import re
 import signal
 import subprocess
 import sys
+import textwrap
 import xml.etree.ElementTree as ET
 from os import path
 from xml.sax.saxutils import escape, quoteattr
@@ -167,7 +168,7 @@ def read_doc(root):
     if edoc is None:
         return None
     desc = edoc.findtext("description")
-    return {"description": desc.strip("\n") if desc else None,
+    return {"description": textwrap.dedent(desc).strip("\n").rstrip() if desc else None,
             "usage": (edoc.findtext("usage") or "").strip(),
             "options": [[o.get("flag", ""), o.get("description", "")] for o in edoc.findall("option")]}
 

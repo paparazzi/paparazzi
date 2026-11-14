@@ -1,8 +1,7 @@
 <program command="sw/ground_segment/misc/davis2ivy" name="Weather Station">
   <doc>
     <description>
-            Reads a Davis VantagePro weather station on a serial port and sends ambient pressure, temperature, wind speed and direction to the Ivy bus.
-
+      Reads a Davis VantagePro weather station on a serial port and sends ambient pressure, temperature, wind speed and direction to the Ivy bus.
     </description>
     <usage>Usage: davis2ivy [-a] [-b &lt;bus&gt;] [-d &lt;device&gt;] [-i &lt;aircraft_id&gt;] [-s &lt;delay time in seconds&gt;]</usage>
   </doc>
