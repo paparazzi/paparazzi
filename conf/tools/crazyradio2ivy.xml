@@ -1,2 +1,10 @@
-<program command="sw/ground_segment/python/bitcraze/crazyradio2ivy.py" name="Crazyradio/IVY bridge" />
+<program command="sw/ground_segment/python/bitcraze/crazyradio2ivy.py" name="Crazyradio/IVY bridge">
+  <doc>
+    <description>
+      Bridge between a Crazyflie connected to a Crazyradio and the Ivy bus, with PPRZLINK messages.
+
+      Needs cflib (pip3 install cflib) and the Crazyflie firmware 2019.09; firmwares from 2024 on do not work.
+    </description>
+  </doc>
+</program>
 

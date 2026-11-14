@@ -1,4 +1,33 @@
 <program command="sw/ground_segment/tmtc/link" name="Data Link">
+  <doc>
+    <description>
+      Connects a hardware modem (usually USB/serial) or a UDP link with the Ivy bus: telemetry from the aircraft to the ground tools, and the uplink messages back.
+    </description>
+    <option flag="-b &lt;ivy bus&gt;" description="Default is 127.255.255.255:2099"/>
+    <option flag="-d &lt;port&gt;" description="Default is /dev/ttyUSB0"/>
+    <option flag="-fg" description="Enable trafic statistics on standard output"/>
+    <option flag="-noac_info" description="Disables AC traffic info (uplink)."/>
+    <option flag="-nouplink" description="Disables the uplink (from the ground to the aircraft)."/>
+    <option flag="-s &lt;baudrate&gt;" description="Default is 9600"/>
+    <option flag="-ch &lt;channel&gt;" description="Default does not change configuration."/>
+    <option flag="-hfc" description="Enable UART hardware flow control (CTS/RTS)"/>
+    <option flag="-local_timestamp" description="Add local timestamp to messages sent over ivy"/>
+    <option flag="-transport &lt;transport&gt;" description="Available protocols are modem,pprz,pprz2 and xbee. Default is pprz"/>
+    <option flag="-udp" description="Listen a UDP connection on &lt;udp_port&gt;"/>
+    <option flag="-udp_port &lt;UDP port&gt;" description="Default is 4242"/>
+    <option flag="-udp_uplink_port &lt;UDP uplink port&gt;" description="Default is 4243"/>
+    <option flag="-udp_broadcast" description="Broadcast on &lt;udp_broadcast_addr&gt;, e.g. for multiple simulated aircrafts"/>
+    <option flag="-udp_broadcast_addr &lt;addr&gt;" description="Broadcast address. Default is 127.255.255.255"/>
+    <option flag="-uplink" description="Deprecated (now default)"/>
+    <option flag="-xbee_addr &lt;my_addr&gt;" description="(256)"/>
+    <option flag="-xbee_retries &lt;nb retries&gt;" description="(10)"/>
+    <option flag="-xbee_868" description="Enables the 868 protocol"/>
+    <option flag="-redlink" description="Sets whether the link is a redundant link. Set this flag and the id flag to use multiple links"/>
+    <option flag="-id &lt;id&gt;" description="Sets the link id. If multiple links are used, each must have a unique id. Default is -1"/>
+    <option flag="-status_period &lt;period&gt;" description="Sets the period (in ms) of the LINK_REPORT status message. Default is 1000"/>
+    <option flag="-ping_period &lt;period&gt;" description="Sets the period (in ms) of the PING message sent to aircrafs. Default is 5000"/>
+    <option flag="-ac_timeout &lt;time&gt;" description="Sets the time (in ms) after which an aircraft is regarded as dead/off if no messages are received. Default is 5000ms, set to zero to disable."/>
+  </doc>
   <arg constant="/dev/ttyUSB0" flag="-d" />
 </program>
 

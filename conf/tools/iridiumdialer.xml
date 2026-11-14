@@ -1,2 +1,17 @@
-<program command="sw/tools/iridium/iridium_link.py" name="IridiumDialer" />
+<program command="sw/tools/iridium/iridium_link.py" name="IridiumDialer">
+  <doc>
+    <description>
+      Iridium Link Controller: call the air modem and bridge the call data to the
+      Paparazzi UDP link.
+    </description>
+    <usage>usage: iridium_link.py [-h] [-d DEVICE] [-b BAUD] [-n NUMBER] [--pin1 PIN1] [--pin2 PIN2] [--udp_in UDP_IN] [--udp_out UDP_OUT]</usage>
+    <option flag="-d DEVICE, --device DEVICE" description="serial device of the ground modem (default /dev/ttyUSB0)"/>
+    <option flag="-b BAUD, --baud BAUD" description="baud rate (default 19200)"/>
+    <option flag="-n NUMBER, --number NUMBER" description="phone number of the air modem (default 00881234567890)"/>
+    <option flag="--pin1 PIN1" description="SIM PIN1 code (default 1111)"/>
+    <option flag="--pin2 PIN2" description="SIM PIN2 code (default 2222)"/>
+    <option flag="--udp_in UDP_IN" description="UDP port receiving data for the aircraft (default 4243)"/>
+    <option flag="--udp_out UDP_OUT" description="UDP port the aircraft data is broadcast to (default 4242)"/>
+  </doc>
+</program>
 

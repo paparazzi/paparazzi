@@ -1,4 +1,25 @@
 <program command="sw/simulator/pprzsim-launch" name="Simulator" icon="simulator.png">
+  <doc>
+    <description>
+      Starts the simulation of an aircraft: nps, or sim (basic fixed-wing simulator).
+    </description>
+    <usage>Usage: pprzsim-launch -a &lt;ac_name&gt; -t &lt;sim_type&gt; [sim arguments]</usage>
+    <option flag="-a NAME, --aircraft=NAME" description="Aircraft name to use"/>
+    <option flag="-t SIMTYPE, --type=SIMTYPE" description="Simulator type to start: sim or nps"/>
+    <option flag="-b BUS, --ivy_bus=BUS" description="Ivy Bus broadcast address (127.255.255.255)"/>
+    <option flag="-f HOST, --fg_host=HOST" description="Host for FlightGear visualization (e.g. 127.0.0.1)"/>
+    <option flag="-v," description="--verbose"/>
+    <option flag="--norc" description="Hide the simulated RC"/>
+    <option flag="-p PORT, --fg_port=PORT" description="Port on FlightGear host to connect to (Default: 5501)"/>
+    <option flag="-P PORT_IN, --fg_port_in=PORT_IN" description="Port to receive from FlightGear host (Default: 5502)"/>
+    <option flag="--fg_time_offset=SEC" description="FlightGear time offset in seconds (e.g. 21600 for 6h)"/>
+    <option flag="-j IDX, --js_dev=IDX" description="Use joystick with specified index (e.g. 0)"/>
+    <option flag="--spektrum_dev=DEV" description="Spektrum device to use (e.g. /dev/ttyUSB0)"/>
+    <option flag="--rc_script=NO" description="Number of RC script to use"/>
+    <option flag="--time_factor=factor" description="Time factor (default 1.0)"/>
+    <option flag="--fg_fdm" description="Use FlightGear native-fdm protocol instead of native- gui"/>
+    <option flag="--nodisplay" description="Don't send NPS Ivy messages"/>
+  </doc>
   <arg constant="@AIRCRAFT" flag="-a" />
 </program>
 
