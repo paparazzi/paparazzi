@@ -15,15 +15,7 @@
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
-      <arg flag="-speech"/>
-      <arg flag="-b" variable="ivy_bus"/>
-    </program>
-    <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs -edit"/>
     <program name="Messages" command="sw/ground_segment/tmtc/messages">
-      <arg flag="-b" variable="ivy_bus"/>
-    </program>
-    <program name="Settings" command="sw/ground_segment/tmtc/settings">
       <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
@@ -37,10 +29,6 @@
     </program>
     <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
       <arg flag="-b" variable="ivy_bus"/>
-    </program>
-    <program name="Hardware in the Loop" command="sw/simulator/simhitl">
-      <arg flag="-fbw" variable="fbw_serial_port"/>
-      <arg flag="-ap" variable="ap_serial_port"/>
     </program>
     <program name="Environment Simulator" command="sw/simulator/gaia">
       <arg flag="-b" variable="ivy_bus"/>
@@ -59,14 +47,7 @@
   </section>
   <section name="sessions">
     <session name="OBC2014 Simulation FG">
-      <program name="GCS">
-        <arg flag="-layout" constant="./OPENUAS/openuas_obc2014_kingaroy.xml"/>
-        <arg flag="-maps_fill"/>
-        <arg flag="-zoom" constant=".5"/>
-        <arg flag="-track_size" constant="200"/>
-        <arg flag="-speech"/>
-        <arg flag="-maps_no_http"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Server">
         <arg flag="-n"/>
       </program>
@@ -87,14 +68,7 @@
         <arg flag="-s" constant="9600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-maps_fill"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="300"/>
-        <arg flag="-zoom" constant="0.5"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Messages"/>
     </session>
     <session name="OpenUAS OBC2014">
@@ -104,24 +78,11 @@
         <arg flag="-s" constant="9600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="300"/>
-        <arg flag="-zoom" constant="0.5"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Messages"/>
     </session>
     <session name="OpenUAS Simulation with OBC 2014 GUI">
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-layout" constant="./OPENUAS/openuas_searchandrescue2014.xml"/>
-        <arg flag="-center" constant="'WGS84"/>
-        <arg flag="51.990" constant="4.378'"/>
-        <arg flag="-ref" constant="'WGS84"/>
-        <arg flag="51.990" constant="4.378'"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Server">
         <arg flag="-n"/>
       </program>

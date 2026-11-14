@@ -14,15 +14,7 @@
       <program name="Server">
         <arg flag="-n"/>
       </program>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-maximize"/>
-        <arg flag="-center_ac"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="200"/>
-        <arg flag="-zoom" constant="40."/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Gazebo"/>
     </session>
     <session name="Simulation - Gazebo + Joystick">
@@ -37,15 +29,7 @@
       <program name="Server">
         <arg flag="-n"/>
       </program>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-maximize"/>
-        <arg flag="-center_ac"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="200"/>
-        <arg flag="-zoom" constant="40."/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Joystick">
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="sm600.xml"/>
@@ -58,9 +42,7 @@
         <arg flag="-udp"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Joystick">
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="sm600.xml"/>
@@ -78,9 +60,7 @@
         <arg flag="-udp"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Joystick">
         <arg flag="-ac" constant="Bebop2_opticflow"/>
         <arg flag="sm600.xml"/>

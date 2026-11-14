@@ -13,16 +13,7 @@
       <arg flag="-d" constant="downlink_serial_port"/>
     </program>
     <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
-      <arg flag="-speech"/>
-    </program>
-    <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs">
-      <arg flag="-edit"/>
-    </program>
     <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
-    <program name="Settings" command="sw/ground_segment/tmtc/settings">
-      <arg flag="-ac" constant="@AIRCRAFT"/>
-    </program>
     <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
     <program name="Log Plotter" command="sw/logalizer/logplotter"/>
     <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
@@ -33,7 +24,6 @@
       <arg flag="-ac" constant="@AIRCRAFT"/>
       <arg flag="xbox_gamepad.xml"/>
     </program>
-    <program name="Hardware in the Loop" command="sw/simulator/simhitl"/>
     <program name="Environment Simulator" command="sw/simulator/gaia"/>
     <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
     <program name="Ivy2Nmea" command="sw/ground_segment/tmtc/ivy2nmea">
@@ -48,10 +38,6 @@
       <arg flag="-s" constant="9600"/>
     </program>
     <program name="Http Server" command="sw/ground_segment/tmtc/boa"/>
-    <program name="HITL classic" command="sw/simulator/simhitl">
-      <arg flag="-fbw" variable="fbw_serial_port"/>
-      <arg flag="-ap" variable="ap_serial_port"/>
-    </program>
     <program name="Herelink Check" command="sw/misc/link/herelink_check.sh"/>
     <program name="Herelink USB" command="sw/misc/link/herelink_usb.sh"/>
     <program name="Herelink WiFi" command="sw/misc/link/herelink_wifi.sh"/>
@@ -777,14 +763,7 @@
     </session>
     <session name="Disco Test Flight WiFi">
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-maps_fill"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="200"/>
-        <arg flag="-zoom" constant="0.6"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Messages"/>
       <program name="Data Link">
         <arg flag="-udp"/>
@@ -822,11 +801,11 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="PprzGCS"/>
     </session>
     <session name="Flight USB-serial Redundant">
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="PprzGCS"/>
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
         <arg flag="-id" constant="1"/>
@@ -845,14 +824,14 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="PprzGCS"/>
     </session>
     <session name="Flight USB-serial@9600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="PprzGCS"/>
     </session>
     <session name="Flight_optitrack_udp_rw3c">
       <program name="PprzGCS"/>
@@ -1050,37 +1029,7 @@
       </program>
     </session>
     <session name="GCS Video">
-      <program name="GCS">
-        <arg flag="-layout" constant="../TUDelft/video.xml"/>
-        <arg flag="-mplayer" constant="tv:// -tv device=/dev/video0:input=1:norm=ntsc"/>
-        <arg flag="-fullscreen"/>
-        <arg flag="-srtm"/>
-        <arg flag="-track_size" constant="200"/>
-      </program>
-    </session>
-    <session name="HITL">
-      <program name="Hardware in the Loop">
-        <arg flag="-a" constant="HITL"/>
-        <arg flag="-noground"/>
-        <arg flag="-boot"/>
-      </program>
-      <program name="GCS"/>
-      <program name="Data Link">
-        <arg flag="-s" constant="57600"/>
-      </program>
-      <program name="Server"/>
-    </session>
-    <session name="HITL">
-      <program name="Hardware in the Loop">
-        <arg flag="-a" constant="HITL"/>
-        <arg flag="-noground"/>
-        <arg flag="-boot"/>
-      </program>
-      <program name="GCS"/>
-      <program name="Data Link">
-        <arg flag="-s" constant="57600"/>
-      </program>
-      <program name="Server"/>
+      <program name="PprzGCS"/>
     </session>
     <session name="Messages and Settings">
       <program name="Data Link">
@@ -1091,9 +1040,6 @@
         <arg flag="-n"/>
       </program>
       <program name="Messages"/>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-      </program>
     </session>
     <session name="OU Simulation">
       <program name="Simulator">
@@ -1102,7 +1048,7 @@
         <arg flag="--boot"/>
         <arg flag="--norc"/>
       </program>
-      <program name="GCS"/>
+      <program name="PprzGCS"/>
       <program name="Server">
         <arg flag="-n"/>
       </program>
@@ -1119,14 +1065,7 @@
       </program>
     </session>
     <session name="OpenUAS Simulation with OBC GUI">
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-layout" constant="./OPENUAS/openuas_searchandrescue2014.xml"/>
-        <arg flag="-center" constant="'WGS84"/>
-        <arg flag="51.990" constant="4.378'"/>
-        <arg flag="-ref" constant="'WGS84"/>
-        <arg flag="51.990" constant="4.378'"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Server">
         <arg flag="-n"/>
       </program>
@@ -1138,19 +1077,7 @@
       <program name="Environment Simulator"/>
     </session>
     <session name="OpenUAS testflights 2020">
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-layout" constant="OPENUAS/openuas_bottom_settings.xml"/>
-        <arg flag="-maximize"/>
-        <arg flag="-maps_fill"/>
-        <arg flag="-center_ac"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="200"/>
-        <arg flag="-zoom" constant="0.5"/>
-        <arg flag="-no_confirm_kill"/>
-        <arg flag="-srtm"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
         <arg flag="-s" constant="57600"/>
@@ -1469,10 +1396,6 @@
       <program name="Messages">
         <arg flag="-g" constant="300x400+0-220"/>
       </program>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="-g" constant="800x200+0-0"/>
-      </program>
       <program name="Real-time Plotter">
         <arg flag="-g" constant="1000x250-0+0"/>
         <arg flag="-t" constant="ACC"/>
@@ -1516,10 +1439,6 @@
       <program name="Messages">
         <arg flag="-g" constant="300x400+0-220"/>
       </program>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="-g" constant="800x200+0-0"/>
-      </program>
       <program name="Real-time Plotter">
         <arg flag="-g" constant="1000x250-0+0"/>
         <arg flag="-t" constant="ACC"/>
@@ -1553,7 +1472,7 @@
         <arg flag="-d" constant="/dev/ttyACM0"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="PprzGCS"/>
       <program name="Messages"/>
     </session>
     <session name="SupperBitRF cable telemetry">
@@ -1562,7 +1481,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="PprzGCS"/>
       <program name="Messages"/>
       <program name="Messages"/>
     </session>
@@ -1573,9 +1492,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-layout" constant="./OPENUAS/gcsHeering.xml"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Messages">
         <arg flag="-c" constant="telemetry"/>
       </program>

@@ -27,15 +27,8 @@
       <arg flag="-v" constant="2.0"/>
     </program>
     <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs"/>
-    <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs">
-      <arg flag="-edit"/>
-    </program>
     <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
     <program name="Messages (Python)" command="sw/ground_segment/python/messages_app/messagesapp.py"/>
-    <program name="Settings" command="sw/ground_segment/tmtc/settings">
-      <arg flag="-ac" constant="@AIRCRAFT"/>
-    </program>
     <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
     <program name="Log Plotter" command="sw/logalizer/logplotter"/>
     <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
@@ -74,7 +67,7 @@
         <arg flag="-d" constant="/dev/ttyUSB0"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="PprzGCS"/>
     </session>
 
    <session name="Flight USB-serial@57600">
@@ -83,9 +76,7 @@
        <arg flag="-s" constant="57600"/>
      </program>
      <program name="Server"/>
-     <program name="GCS">
-      <arg flag="-layout" constant="AGGIEAIR/vertical.xml"/>
-     </program>
+     <program name="PprzGCS"/>
      <program name="Messages"/>
      <program name="Real-time Plotter">
        <arg flag="-c" constant="*:telemetry:CAMERA_SNAPSHOT:array_temp"/>
@@ -105,9 +96,7 @@
        <arg flag="--ping_period" constant="1000"/>
      </program>
      <program name="Server"/>
-     <program name="GCS">
-       <arg flag="-layout" constant="AGGIEAIR/vertical.xml"/>
-     </program>
+     <program name="PprzGCS"/>
      <program name="Messages">
        <arg flag="-c" constant="telemetry:*"/>
      </program>
@@ -128,9 +117,7 @@
        <arg flag="-v" constant="2.0"/>
      </program>
      <program name="Server"/>
-     <program name="GCS">
-      <arg flag="-layout" constant="AGGIEAIR/vertical.xml"/>
-     </program>
+     <program name="PprzGCS"/>
      <program name="Messages"/>
      <program name="Real-time Plotter"/>
      <program name="AggieCap3 Sidekick"/>
@@ -147,9 +134,7 @@
      <program name="Server">
       <arg flag="-n"/>
      </program>
-     <program name="GCS">
-      <arg flag="-layout" constant="AGGIEAIR/vertical.xml"/>
-     </program>
+     <program name="PprzGCS"/>
      <program name="Simulator">
       <arg flag="-a" constant="@AIRCRAFT"/>
       <arg flag="-f" constant="127.0.0.1"/>
@@ -171,7 +156,7 @@
        <arg flag="-s" constant="115200"/>
      </program>
      <program name="Server"/>
-     <program name="GCS"/>
+     <program name="PprzGCS"/>
      <program name="Messages"/>
      <program name="Real-time Plotter"/>
    </session>
@@ -184,9 +169,7 @@
      <program name="Server">
       <arg flag="-n"/>
      </program>
-     <program name="GCS">
-      <arg flag="-layout" constant="AGGIEAIR/vertical.xml"/>
-     </program>
+     <program name="PprzGCS"/>
      <program name="Simulator">
       <arg flag="-a" constant="@AIRCRAFT"/>
       <arg flag="-f" constant="127.0.0.1"/>
@@ -205,7 +188,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="PprzGCS"/>
     </session>
 
     <session name="Messages and Settings">
@@ -217,9 +200,6 @@
         <arg flag="-n"/>
       </program>
       <program name="Messages"/>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-      </program>
     </session>
 
     <session name="Raw Sensors">
@@ -232,10 +212,6 @@
       </program>
       <program name="Messages">
         <arg flag="-g" constant="300x400+0-220"/>
-      </program>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="-g" constant="800x200+0-0"/>
       </program>
       <program name="Real-time Plotter">
         <arg flag="-g" constant="1000x250-0+0"/>
@@ -275,7 +251,7 @@
       <program name="Server">
         <arg flag="-n"/>
       </program>
-      <program name="GCS"/>
+      <program name="PprzGCS"/>
       <program name="Messages">
         <arg flag="-g" constant="300x400+0-220"/>
       </program>
@@ -294,10 +270,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-layout" constant="AGGIEAIR/CSOIS_minions_osu.xml"/>
-        <arg flag="-srtm"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Messages">
         <arg flag="-c" constant="telemetry:*"/>
       </program>
@@ -314,10 +287,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-layout" constant="AGGIEAIR/CSOIS_minions_osu.xml"/>
-        <arg flag="-srtm"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Messages">
         <arg flag="-c" constant="telemetry:*"/>
       </program>
@@ -333,10 +303,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-layout" constant="AGGIEAIR/CSOIS_minions.xml"/>
-        <arg flag="-srtm"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Messages">
         <arg flag="-c" constant="telemetry:*"/>
       </program>
@@ -353,10 +320,7 @@
       <program name="Server">
         <arg flag="-no_md5_check" constant="option"/>
       </program>
-      <program name="GCS">
-        <arg flag="-layout" constant="AGGIEAIR/CSOIS_flyingwings.xml"/>
-        <arg flag="-srtm"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Messages">
         <arg flag="-c" constant="telemetry:*"/>
       </program>
