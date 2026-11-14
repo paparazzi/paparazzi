@@ -90,7 +90,7 @@ class TankPlotter(object):
 
 if __name__ == '__main__':
     argparse.ArgumentParser(description="Plot the hydrogen tank pressure from the PAYLOAD messages "
-                            "of the fuel cell and predict when the tank is empty.").parse_args()
+                            "of the fuel cell and predict when the tank is empty.").parse_known_args()
     plotter = TankPlotter()
     plt.ion()
     figure = plt.figure('Fuel tank plotter')

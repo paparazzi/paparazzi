@@ -3,5 +3,6 @@
     <description>
       Shows the messages on the Ivy bus with their fields and values.
     </description>
+    <usage>usage: messages.py [-h]</usage>
   </doc>
 </program>
