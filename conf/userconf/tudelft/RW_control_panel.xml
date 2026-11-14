@@ -32,11 +32,6 @@
     </program>
     <program name="IvySerialBridge" command="sw/ground_segment/tmtc/ivy_serial_bridge"/>
     <program name="Photolist" command="sw/tools/photolist/build/photolist | tee photolist.log -a"/>
-    <program name="Ivy2NMEAout" command="sw/ground_segment/misc/ivy2nmeaout">
-      <arg flag="-b" variable="ivy_bus"/>
-      <arg flag="-d" constant="/dev/ttyUSB1"/>
-      <arg flag="-s" constant="9600"/>
-    </program>
     <program name="Http Server" command="sw/ground_segment/tmtc/boa"/>
     <program name="Herelink Check" command="sw/misc/link/herelink_check.sh"/>
     <program name="Herelink USB" command="sw/misc/link/herelink_usb.sh"/>

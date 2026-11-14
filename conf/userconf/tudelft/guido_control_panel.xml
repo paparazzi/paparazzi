@@ -48,8 +48,15 @@
         <arg flag="sm600.xml"/>
         <arg flag="-d 0"/>
       </program>
-      <program name="NatNet">
-        <arg flag="-ac 9999" constant="@AC_ID"/>
+      <program name="UnifiedMoCap">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="10"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="1"/>
+        <arg flag="--ac_id" constant="@AC_ID"/>
       </program>
     </session>
     <session name="Distance Counter">
@@ -66,8 +73,15 @@
         <arg flag="sm600.xml"/>
         <arg flag="-d" constant="0"/>
       </program>
-      <program name="NatNet">
-        <arg flag="-ac 9999" constant="5"/>
+      <program name="UnifiedMoCap">
+        <arg flag="optitrack"/>
+        <arg flag="ivy"/>
+        <arg flag="--publish_frequency" constant="10"/>
+        <arg flag="--coordinate_system" constant="enu"/>
+        <arg flag="--coordinate_north" constant="far"/>
+        <arg flag="--craft_noses" constant="right"/>
+        <arg flag="--streaming_ids" constant="1"/>
+        <arg flag="--ac_id" constant="5"/>
       </program>
       <program name="Messages (Python)"/>
       <program name="Real-time Plotter">

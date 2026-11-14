@@ -178,7 +178,6 @@
       <program name="Attitude Visualizer"/>
       <program name="HydrogenStatus"/>
       <program name="NederdroneStatus"/>
-      <program name="ATC"/>
     </session>
 
     <session name="Joystick Hobbyking">

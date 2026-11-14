@@ -39,10 +39,9 @@
     </program>
     <program name="IvySerialBridge" command="sw/ground_segment/tmtc/ivy_serial_bridge"/>
     <program name="Photolist" command="sw/tools/photolist/build/photolist | tee photolist.log -a"/>
-    <program name="Ivy2NMEAout" command="sw/ground_segment/misc/ivy2nmeaout">
-      <arg flag="-b" variable="ivy_bus"/>
-      <arg flag="-d" constant="/dev/ttyUSB1"/>
-      <arg flag="-s" constant="9600"/>
+    <program name="Ivy2Nmea" command="sw/ground_segment/tmtc/ivy2nmea">
+      <arg flag="--ivy_bus" variable="ivy_bus"/>
+      <arg flag="--port" constant="/dev/ttyUSB1"/>
     </program>
   </section>
   <section name="sessions">
