@@ -1,4 +1,19 @@
 <program command="sw/tools/video/video_to_gcs.sh" name="Video to GCS">
+  <doc>
+    <description>
+      Show the RTP/JPEG video of an aircraft (module video_rtp_stream) in the PprzGCS video panel,
+      or in a GStreamer window of its own.
+
+      examples:
+        video_to_gcs.sh -i 5000 -o 5600 -r counterclockwise   front camera of the course Bebop to PprzGCS
+        video_to_gcs.sh -i 6000 -w                             bottom camera in a window
+    </description>
+    <usage>usage: video_to_gcs.sh [-i rtp_port] [-o gcs_port] [-r rotation] [-w] [-h]</usage>
+    <option flag="-i rtp_port" description="RTP port of the stream (default 5000; the second camera of video_rtp_stream is 6000)"/>
+    <option flag="-o gcs_port" description='UDP port of the PprzGCS video panel (default 5600, layout: &lt;widget name="video"&gt;&lt;configure source="udp://:5600"/&gt;&lt;/widget&gt;)'/>
+    <option flag="-r rotation" description="none, clockwise, counterclockwise, rotate-180 (default none)"/>
+    <option flag="-w" description="show the video in a GStreamer window instead of sending it to PprzGCS"/>
+  </doc>
   <arg flag="-i" constant="5000"/>
   <arg flag="-o" constant="5600"/>
 </program>

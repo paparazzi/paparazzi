@@ -1,2 +1,22 @@
-<program command="sw/ground_segment/tmtc/server" name="Server" />
+<program command="sw/ground_segment/tmtc/server" name="Server">
+  <doc>
+    <description>
+      Receives the telemetry of all aircraft from the links, writes the log files and sends the state of each aircraft to the GCS and the other tools.
+    </description>
+    <option flag="-b Bus" description="Default is 127.255.255.255:2099"/>
+    <option flag="-http" description="Send http: URLs (default is file:)"/>
+    <option flag="-hostname &lt;hostname&gt;" description="Set the address for the http server"/>
+    <option flag="-port &lt;port&gt;" description="Set http port for serving XML and KML files (default is 8889)"/>
+    <option flag="-kml" description="Enable KML file updating"/>
+    <option flag="-kml_no_http" description="KML without web server (local files only)"/>
+    <option flag="-n" description="Disable log"/>
+    <option flag="-timestamp" description="Bind on timestampped messages"/>
+    <option flag="-no_md5_check" description="Disable safety matching of live and current configurations"/>
+    <option flag="-log_name" description="Name for output log (Time stamp will be"/>
+    <option flag="-udp_json_stream_addr" description="Address of the server to stream udp JSON telemetry messages (default is localhost)"/>
+    <option flag="-udp_json_stream_port" description="Port of the server to stream udp JSON telemetry messages (default is 9870)"/>
+    <option flag="-udp_json_stream_disable" description="Disable udp JSON stream"/>
+    <option flag="-replay_old_log" description="Enable aircraft registering on PPRZ_MODE messages"/>
+  </doc>
+</program>
 

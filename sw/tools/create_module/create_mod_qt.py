@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import sys
 from PyQt5 import QtWidgets
 from create_module_ui import Ui_CreateModule_Window
@@ -181,6 +182,8 @@ class CreateModGUI(Ui_CreateModule_Window):
 
 
 def main():
+    argparse.ArgumentParser(description="Create a new module: its xml file in conf/modules and "
+                            "its C source and header in sw/airborne/modules.").parse_known_args()
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     create_mod = CreateModGUI()
