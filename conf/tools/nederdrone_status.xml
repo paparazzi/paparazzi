@@ -1,2 +1,10 @@
-<program command="sw/ground_segment/python/fuelcell/fuel_cell.py" name="NederdroneStatus" />
+<program command="sw/ground_segment/python/fuelcell/fuel_cell.py" name="NederdroneStatus">
+  <doc>
+    <description>
+      Nederdrone fuel cell, battery and ESC status
+    </description>
+    <usage>usage: fuel_cell.py [-h] [-b IVY_BUS]</usage>
+    <option flag="-b IVY_BUS, --ivy_bus IVY_BUS" description="Ivy bus address:port (default: $IVY_BUS or the system default)"/>
+  </doc>
+</program>
 

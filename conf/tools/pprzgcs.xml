@@ -1,1 +1,7 @@
-<program command="$pprzgcs" name="PprzGCS" icon="gcs.svg" favorite="true"/>
+<program command="$pprzgcs" name="PprzGCS" icon="gcs.svg" favorite="true">
+  <doc>
+    <description>
+      PprzGCS, the ground control station.
+    </description>
+  </doc>
+</program>

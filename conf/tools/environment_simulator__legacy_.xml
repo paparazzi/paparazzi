@@ -1,2 +1,14 @@
-<program command="sw/simulator/gaia" name="Environment Simulator (Legacy)" />
+<program command="sw/simulator/gaia" name="Environment Simulator (Legacy)">
+  <doc>
+    <description>
+      World environment (time, wind, ...) for multi-aircraft simulation (OCaml version).
+    </description>
+    <option flag="-b Bus" description="Default is 127.255.255.255:2099"/>
+    <option flag="-t" description="Set time scale (default: 1.0)"/>
+    <option flag="-w" description="Set wind speed (0-30m/s)"/>
+    <option flag="-d" description="Set wind direction 0-359 deg"/>
+    <option flag="-u" description="Set wind updraft (-10 to 10m/s)"/>
+    <option flag="-g" description="Turn off GPS"/>
+  </doc>
+</program>
 

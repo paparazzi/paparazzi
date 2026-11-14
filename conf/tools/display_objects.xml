@@ -1,2 +1,26 @@
-<program command="sw/ground_segment/python/natnet3.x/display_objects.py" name="Display Objects from Natnet" icon="natnet3.svg" />
+<program command="sw/ground_segment/python/natnet3.x/display_objects.py" name="Display Objects from Natnet" icon="natnet3.svg">
+  <doc>
+    <description>
+      Receives marker sets from an OptiTrack system (NatNet) and shows a convex hull of each selected object in the GCS (SHAPE message).
+    </description>
+    <usage>usage: display_objects.py [-h] -n NAME -r REF [-c COLOR] [-sn] [-t TIMEOUT] [-th THRESHOLD] [-b IVY_BUS] [-s SERVER] [-m MULTICAST] [-dp DATA_PORT] [-cp COMMAND_PORT] [-v] [-vv] [-f FREQ] [-rp REFRESH_PERIOD] [-up {y_up,z_up}] [-o]</usage>
+    <option flag="-n NAME, --name NAME" description="Regular expression of the names of the object to display"/>
+    <option flag="-r REF, --ref REF" description="Reference position in lat,long format in degrees"/>
+    <option flag="-c COLOR, --color COLOR" description="Display color"/>
+    <option flag="-sn, --show_name" description="Display the name of the object"/>
+    <option flag="-t TIMEOUT, --timeout TIMEOUT" description="Timeout for removing object from scene"/>
+    <option flag="-th THRESHOLD, --threshold THRESHOLD" description="Threshold distance to consider a moving object in meter"/>
+    <option flag="-b IVY_BUS, --ivy_bus IVY_BUS" description="Ivy bus address and port"/>
+    <option flag="-s SERVER, --server SERVER" description="NatNet server IP address"/>
+    <option flag="-m MULTICAST, --multicast_addr MULTICAST" description="NatNet server multicast address"/>
+    <option flag="-dp DATA_PORT, --data_port DATA_PORT" description="NatNet server data socket UDP port"/>
+    <option flag="-cp COMMAND_PORT, --command_port COMMAND_PORT" description="NatNet server command socket UDP port"/>
+    <option flag="-v, --verbose" description="display debug messages"/>
+    <option flag="-vv, --very_verbose" description="display debug messages and optitrack debug messages"/>
+    <option flag="-f FREQ, --freq FREQ" description="transmit frequency"/>
+    <option flag="-rp REFRESH_PERIOD, --refresh_period REFRESH_PERIOD" description="refresh period at which message is sent event if the object is not moving"/>
+    <option flag="-up {y_up,z_up}, --up_axis {y_up,z_up}" description="Optitrack Up axis: y_up or z_up."/>
+    <option flag="-o, --old_natnet" description="Change the NatNet version to 2.9"/>
+  </doc>
+</program>
 
