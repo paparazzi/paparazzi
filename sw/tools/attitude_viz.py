@@ -10,11 +10,12 @@ import math
 from ivy.std_api import *
 import logging
 import getopt
+import os
 
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")  # no banner in the --help output
 import pygame
 import time
 import platform
-import os
 
 _NAME = 'attitude_viz'
 
@@ -339,19 +340,27 @@ def run():
     BAR_VALUES = [["ROTORCRAFT_RADIO_CONTROL", 5, "Throttle (%%) %i", 0, 100, 100]]
     window_title = "Attitude_Viz"
     rotate_theta = 0
+    usage = """usage: attitude_viz.py [-t title] [-r rotate_theta] [-h]
+Show the attitude of an aircraft as a rotating cube (OpenGL): estimate and reference from AHRS_REF_QUAT,
+throttle from ROTORCRAFT_RADIO_CONTROL.
+
+-t, --title                   set window title
+-r, --rotate_theta           rotate the quaternion by n degrees over the pitch axis (default: 0)
+-h, --help                    show this help
+"""
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "t:r:", ["title", "rotate_theta"])
+        opts, args = getopt.getopt(sys.argv[1:], "t:r:h", ["title=", "rotate_theta=", "help"])
         for o, a in opts:
+            if o in ("-h", "--help"):
+                print(usage)
+                sys.exit(0)
             if o in ("-t", "--title"):
                 window_title = a
             if o in ("-r", "--rotate_theta"):
                 rotate_theta = int(a)
     except getopt.error as msg:
         print(msg)
-        print("""usage:
--t, --title                   set window title
--r, --rotate_theta           rotate the quaternion by n degrees over the pitch axis (default: 0)
-""")
+        print(usage)
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE, pygame.OPENGL | pygame.DOUBLEBUF)
     #resize(*SCREEN_SIZE)
