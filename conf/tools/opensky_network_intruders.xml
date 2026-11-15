@@ -3,6 +3,11 @@
     <description>
       Gets the air traffic around the aircraft from the OpenSky Network and sends INTRUDER messages to the Ivy bus for display in the GCS. Needs the opensky_api Python package.
     </description>
+    <usage>usage: opensky.py [-h] [-p PERIOD] [-m MARGIN] [-t TIMEOUT] [-v]</usage>
+    <option flag="-p PERIOD, --period PERIOD" description="update period"/>
+    <option flag="-m MARGIN, --margin MARGIN" description="margin in degree to define the bounding box"/>
+    <option flag="-t TIMEOUT, --timeout TIMEOUT" description="timeout to remove A/C"/>
+    <option flag="-v, --verbose" description="display debug messages"/>
   </doc>
 </program>
 

@@ -3,6 +3,9 @@
     <description>
       Shows the attitude of an aircraft as a rotating cube (OpenGL).
     </description>
+    <usage>usage: attitude_viz.py [-t title] [-r rotate_theta] [-h]</usage>
+    <option flag="-t, --title" description="set window title"/>
+    <option flag="-r, --rotate_theta" description="rotate the quaternion by n degrees over the pitch axis (default: 0)"/>
   </doc>
 </program>
 
