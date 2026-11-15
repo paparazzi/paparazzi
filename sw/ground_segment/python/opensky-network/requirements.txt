@@ -1,1 +1,1 @@
-opensky-api @ git+https://github.com/openskynetwork/opensky-api.git#subdirectory=python
+opensky-api @ git+https://github.com/openskynetwork/opensky-api.git#subdirectory=python ; python_version >= "3.10"  # needs Python 3.10 (not Ubuntu 20.04)
