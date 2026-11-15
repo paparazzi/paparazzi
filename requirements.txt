@@ -15,5 +15,5 @@ dronecan
 -r sw/supervision/python/requirements.txt
 -r sw/logalizer/requirements.txt
 -r sw/tools/create_module/requirements.txt
-# Optional tools (install when needed): the requirements.txt next to the tool, e.g.
-# pip install -r sw/ground_segment/python/bitcraze/requirements.txt
+-r sw/tools/parrot/requirements.txt
+# All tools of the Paparazzi Center: pip install -r requirements.tools.txt
