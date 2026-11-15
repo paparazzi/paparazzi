@@ -1,4 +1,9 @@
 <program command="$pprzgcs" name="Flight Plan Editor">
+  <doc>
+    <description>
+      PprzGCS in flight plan editor mode.
+    </description>
+  </doc>
   <arg flag="-f" />
 </program>
 

@@ -1,2 +1,8 @@
-<program command="sw/ground_segment/misc/ntrip2ivy.py" name="NTRIP2ivy" />
+<program command="sw/ground_segment/misc/ntrip2ivy.py" name="NTRIP2ivy">
+  <doc>
+    <description>
+      Forwards RTCM3 corrections from an NTRIP caster or from a mixed UBX/RTCM serial input to the aircraft over Ivy.
+    </description>
+  </doc>
+</program>
 

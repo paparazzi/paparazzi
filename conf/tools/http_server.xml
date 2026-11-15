@@ -1,4 +1,9 @@
 <program command="$python" name="Http Server">
+  <doc>
+    <description>
+      Serves the files of the current folder over HTTP on port 8889 (python -m http.server).
+    </description>
+  </doc>
   <arg constant="http.server" flag="-m" />
   <arg flag="8889" />
 </program>

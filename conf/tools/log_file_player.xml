@@ -1,2 +1,13 @@
-<program command="sw/logalizer/play" name="Log File Player" />
+<program command="sw/logalizer/play" name="Log File Player">
+  <doc>
+    <description>
+      Replays a recorded log on the Ivy bus, or as binary messages on a serial port.
+    </description>
+    <option flag="-b &lt;ivy bus&gt;" description="Default is 127.255.255.255:2010"/>
+    <option flag="-d &lt;port&gt;" description="Default is /dev/ttyUSB0"/>
+    <option flag="-o" description="Output binary messages on serial port"/>
+    <option flag="-s &lt;baudrate&gt;" description="Default is 9600"/>
+    <option flag="-shfc" description="Enable UART hardware flow control (CTS/RTS)"/>
+  </doc>
+</program>
 

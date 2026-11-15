@@ -1,4 +1,9 @@
 <program name="Herelink PprzLink Router" command="$adb shell /oem/bin/pprzlink_router_cc">
+  <doc>
+    <description>
+      Starts the PprzLink router on a Herelink ground unit through adb, to route the telemetry between the Herelink and the GCS over UDP.
+    </description>
+  </doc>
   <arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
   <arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
 </program>
