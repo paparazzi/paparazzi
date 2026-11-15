@@ -183,6 +183,16 @@ def missing_package(output, script):
     return name
 
 
+def requirements_file(script):
+    """The requirements.txt nearest to a tool: in its folder or a parent folder, else the root one"""
+    d = path.dirname(script)
+    while d.startswith(path.join(PPRZ_SRC, "sw")):
+        if path.isfile(path.join(d, "requirements.txt")):
+            return path.relpath(path.join(d, "requirements.txt"), PPRZ_SRC)
+        d = path.dirname(d)
+    return "requirements.txt"
+
+
 def option_key(options):
     """Options without the formatting that changes between Python versions (argparse 3.13 prints
     '-p, --port PORT' where 3.12 prints '-p PORT, --port PORT'): flag names and description words only"""
@@ -309,7 +319,8 @@ class Tool:
             if package is not None:
                 # not an error of the tool: the package is not installed here
                 self.result["status"] = "warning"
-                self.result["reason"] = "missing Python package '%s'" % package
+                self.result["reason"] = "missing Python package '%s' (pip install -r %s)" % (
+                    package, requirements_file(path.join(PPRZ_SRC, self.command.split()[0])))
                 return True, "WARNING " + self.result["reason"], tail
             self.result["reason"] = failure_reason(out + "\n" + err, returncode, timed_out)
             self.result["status"] = "failed"
