@@ -1,0 +1,4 @@
+# ntrip2ivy.py (pyrtcm and pyubx2 need Python 3.10: not on Ubuntu 20.04)
+pyrtcm; python_version >= "3.10"
+pyubx2; python_version >= "3.10"
+pyserial

@@ -1,18 +1,19 @@
+# Basic Python packages of Paparazzi (installed by setup.py: pip install -r requirements.txt)
 lxml
 numpy
 scipy
+matplotlib
 ivy-python
 pyserial
-pyubx2
-PyQt5
-PyQtWebEngine
-pyqtgraph
-PyOpenGL
-unidecode
-matplotlib
 distro
+# Build of the submodules in sw/ext (dronecan)
 empy<=3.3.4
 pexpect
-setuptools==81.0.0
+setuptools<82  # dronecan needs pkg_resources, removed in setuptools 82
 dronecan
-
+# Programs with a requirements.txt of their own
+-r sw/supervision/python/requirements.txt
+-r sw/logalizer/requirements.txt
+-r sw/tools/create_module/requirements.txt
+-r sw/tools/parrot/requirements.txt
+# All tools of the Paparazzi Center: pip install -r requirements.tools.txt
