@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with messages_python.  If not, see <https://www.gnu.org/licenses/>.
 
+import argparse
 import typing
 import sys
 from os import path, getenv
@@ -89,6 +90,7 @@ QSplitter::handle {
         
 
 def main():
+    argparse.ArgumentParser(description="Show the messages on the Ivy bus with their fields and values.").parse_known_args()
     app = QApplication([])
     app.setApplicationName("messages")
     

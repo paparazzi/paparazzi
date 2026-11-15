@@ -1,2 +1,10 @@
-<program command="sw/ground_segment/python/energy_mon/energy_mon.py" name="EnergyManager" />
+<program command="sw/ground_segment/python/energy_mon/energy_mon.py" name="EnergyManager">
+  <doc>
+    <description>
+      Energy monitor: battery state and flight time left
+    </description>
+    <usage>usage: energy_mon.py [-h] [-b IVY_BUS]</usage>
+    <option flag="-b IVY_BUS, --ivy_bus IVY_BUS" description="Ivy bus address:port (default: IVY_BUS environment variable or the Ivy default)"/>
+  </doc>
+</program>
 

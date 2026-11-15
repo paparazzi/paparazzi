@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     parser = ArgumentParser(description="Crazyradio link for paparazzi")
     parser.add_argument('-a','--address', default=None, help="URI address of Crazyflie")
-    parser.add_argument('-c','--chanel', default='80', help="URI chanel of Crazyflie (full URI will be 'radio://0/%(default)/2M'")
+    parser.add_argument('-c','--chanel', default='80', help="URI chanel of Crazyflie (full URI will be 'radio://0/%(default)s/2M'")
     parser.add_argument('-u','--uri', default=None, help="URI of Crazyflie (chanel option will not be effective)")
     parser.add_argument('-b','--bus', default=None, help="Ivy bus [default to system IVY bus]")
     parser.add_argument('-s','--scan', action='store_true', help="Scan available Crazyflie at startup")
