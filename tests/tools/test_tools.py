@@ -164,18 +164,33 @@ def failure_reason(output, returncode, timed_out):
     return "exit code %d" % returncode
 
 
-def missing_package(output):
+def missing_package(output, script):
     """Name of a missing Python package (not installed), None if the error is something else.
-    A module of the paparazzi tree that is not found (e.g. pprzlink not built) is an error, not a package."""
+    A top-level module of the paparazzi tree that is not found (e.g. pprzlink not built in var/lib/python,
+    or a module next to the tool) is an error, not a package."""
     m = re.search(r"ModuleNotFoundError: No module named '([^'.]+)", output)
     if m is None:
         return None
     name = m.group(1)
-    for d in (path.join(PPRZ_HOME, "var", "lib", "python"), path.join(PPRZ_SRC, "sw")):
-        for root, dirs, files in os.walk(d):
-            if name in dirs or name + ".py" in files:
-                return None
+    roots = [path.join(PPRZ_HOME, "var", "lib", "python"), path.join(PPRZ_SRC, "sw", "lib", "python")]
+    d = path.dirname(script)
+    while d.startswith(path.join(PPRZ_SRC, "sw")):
+        roots.append(d)
+        d = path.dirname(d)
+    for r in roots:
+        if path.isdir(path.join(r, name)) or path.isfile(path.join(r, name + ".py")):
+            return None
     return name
+
+
+def option_key(options):
+    """Options without the formatting that changes between Python versions (argparse 3.13 prints
+    '-p, --port PORT' where 3.12 prints '-p PORT, --port PORT'): flag names and description words only"""
+    key = []
+    for flags, desc in options:
+        names = sorted(set(re.findall(r"(?:^|[\s,])(-{1,2}[\w?][\w-]*)", flags)))
+        key.append((tuple(names), " ".join(desc.split())))
+    return key
 
 
 def read_doc(root):
@@ -290,7 +305,7 @@ class Tool:
         lines = ["command: %s" % self.command]
         if timed_out or returncode < 0 or not (parsed["options"] or parsed["usage"]):
             tail = ["  | " + l for l in (out + "\n" + err).splitlines() if l.strip()][-8:]
-            package = missing_package(out + "\n" + err)
+            package = missing_package(out + "\n" + err, path.join(PPRZ_SRC, self.command.split()[0]))
             if package is not None:
                 # not an error of the tool: the package is not installed here
                 self.result["status"] = "warning"
@@ -311,7 +326,8 @@ class Tool:
             lines.append("  option   %-28s %s" % (flags, desc))
 
         doc = self.doc or {"description": None, "usage": "", "options": []}
-        up_to_date = doc["usage"] == parsed["usage"] and doc["options"] == parsed["options"]
+        up_to_date = (" ".join(doc["usage"].split()) == " ".join(parsed["usage"].split())
+                      and option_key(doc["options"]) == option_key(parsed["options"]))
         if update and not up_to_date:
             description = doc["description"] if doc["description"] else parsed["description"]
             write_doc(self.xml_file, doc_block(description, parsed["usage"], parsed["options"]))
