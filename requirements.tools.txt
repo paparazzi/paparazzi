@@ -1,0 +1,12 @@
+# All tools of the Paparazzi Center (conf/tools), on top of the basic packages:
+# pip install -r requirements.tools.txt
+-r requirements.txt
+-r sw/tools/requirements.txt
+-r sw/tools/rtp_viewer/requirements.txt
+-r sw/tools/iridium/requirements.txt
+-r sw/ground_segment/misc/requirements.txt
+-r sw/ground_segment/python/bitcraze/requirements.txt
+-r sw/ground_segment/python/moving_base/requirements.txt
+-r sw/ground_segment/python/opensky-network/requirements.txt
+-r sw/ground_segment/python/rotwing_mon/requirements.txt
+-r sw/ground_segment/python/rotwing_visualizer/requirements.txt
