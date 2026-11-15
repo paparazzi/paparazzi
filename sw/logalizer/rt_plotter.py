@@ -299,7 +299,8 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Real-time plotter")
+    parser = argparse.ArgumentParser(description="Real-time plotter: plot message fields from the Ivy bus.")
+    parser.parse_known_args()  # Qt options and old session arguments are ignored
 
     try:
         app = QtWidgets.QApplication(sys.argv)

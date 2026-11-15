@@ -1,10 +1,6 @@
 <control_panel name="paparazzi control panel">
 
   <section name="programs">
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
-      <arg flag="-layout" constant="bottom_settings.xml"/>
-    </program>
-    <program name="Plot Meteo Profile" command="sw/logalizer/plotprofile"/>
   </section>
 
   <section name="sessions">
@@ -14,10 +10,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-layout" constant="bottom_settings.xml"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Messages"/>
       <program name="Real-time Plotter">
         <arg flag="-g" constant="800x250-0+0"/>
@@ -87,9 +80,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
+      <program name="PprzGCS"/>
     </session>
 
     <session name="Flight /dev/paparazzi/xbee XBeeAPI @57600">
@@ -99,10 +90,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-layout" constant="bottom_settings.xml"/>
-      </program>
+      <program name="PprzGCS"/>
     </session>
 
     <session name="Flight ACM0 Transparent @57600">
@@ -111,9 +99,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
+      <program name="PprzGCS"/>
     </session>
 
     <session name="Flight ACM1 Transparent @57600">
@@ -122,9 +108,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
+      <program name="PprzGCS"/>
     </session>
 
     <session name="Flight UDP">
@@ -145,9 +129,7 @@
         <arg flag="-udp"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Joystick">
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="hobbyking.xml"/>
@@ -162,7 +144,7 @@
 
     <session name="Flight UDP/WiFi">
       <program name="Server"/>
-      <program name="GCS"/>
+      <program name="PprzGCS"/>
       <program name="Data Link">
         <arg flag="-udp"/>
       </program>
@@ -179,10 +161,7 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-layout" constant="bottom_settings.xml"/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Messages"/>
     </session>
 
@@ -192,16 +171,13 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
+      <program name="PprzGCS"/>
     </session>
 
     <session name="Hydrogen">
       <program name="Attitude Visualizer"/>
       <program name="HydrogenStatus"/>
       <program name="NederdroneStatus"/>
-      <program name="ATC"/>
     </session>
 
     <session name="Joystick Hobbyking">
@@ -220,9 +196,6 @@
 
     <session name="Messages and Settings">
       <program name="Messages"/>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-      </program>
     </session>
 
     <session name="PythonTools">
@@ -355,15 +328,7 @@
       <program name="Server">
         <arg flag="-n"/>
       </program>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-maximize"/>
-        <arg flag="-center_ac"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="200"/>
-        <arg flag="-zoom" constant="40."/>
-      </program>
+      <program name="PprzGCS"/>
       <program name="Gazebo"/>
     </session>
 
@@ -378,15 +343,7 @@
       <program name="Server">
         <arg flag="-n"/>
       </program>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-maximize"/>
-        <arg flag="-center_ac"/>
-        <arg flag="-mercator"/>
-        <arg flag="-maps_no_http"/>
-        <arg flag="-track_size" constant="200"/>
-        <arg flag="-zoom" constant="40."/>
-      </program>
+      <program name="PprzGCS"/>
 
       <program name="Joystick">
         <arg flag="-ac" constant="@AIRCRAFT"/>
@@ -404,9 +361,6 @@
       <program name="Herelink PprzLink Router">
 	<arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
 	<arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
-      </program>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
       </program>
       <program name="RotWingStatus"/>
     </session>

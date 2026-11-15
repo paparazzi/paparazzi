@@ -1,1 +1,9 @@
-<program command="sw/ground_segment/python/rotwing_mon/rotwing_mon.py" name="RotWingStatus" />
+<program command="sw/ground_segment/python/rotwing_mon/rotwing_mon.py" name="RotWingStatus">
+  <doc>
+    <description>
+      Rotwing Status Monitor
+    </description>
+    <usage>usage: rotwing_mon.py [-h] [-s SPEECH]</usage>
+    <option flag="-s SPEECH, --speech SPEECH" description="Rotwing status viewer speech"/>
+  </doc>
+</program>

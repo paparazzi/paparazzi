@@ -1,2 +1,8 @@
-<program command="sw/ground_segment/python/opensky-network/opensky.py" name="OpenSky-Network Intruders" />
+<program command="sw/ground_segment/python/opensky-network/opensky.py" name="OpenSky-Network Intruders">
+  <doc>
+    <description>
+      Gets the air traffic around the aircraft from the OpenSky Network and sends INTRUDER messages to the Ivy bus for display in the GCS. Needs the opensky_api Python package.
+    </description>
+  </doc>
+</program>
 
