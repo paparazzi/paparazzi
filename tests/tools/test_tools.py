@@ -34,8 +34,9 @@ is kept; when there is none, the description of the help text is used.
 
 Test results:
  - ok: the tool printed its help and its <doc> block matches it
- - not ok: the tool did not stop with a help text, or its <doc> block is out of date
- - skip: external program (command starting with '$'), or a Python module is missing
+ - not ok: the tool did not stop with a help text (e.g. a Python error), or its <doc> block is out of date
+ - skip: external program (command starting with '$')
+ - skip with a WARNING: a Python package the tool needs is not installed
 """
 
 import argparse
@@ -140,9 +141,11 @@ def parse_help(text):
 
 def failure_reason(output, returncode, timed_out):
     """Short reason why a tool did not print its help."""
+    # a Python error (also a SyntaxError, which has no traceback): its last error line
+    errors = re.findall(r"^(\w+(?:Error|Exception)\b.*)$", output, flags=re.M)
+    if errors:
+        return "Python error: " + errors[-1].strip()
     patterns = [
-        r"(ModuleNotFoundError: No module named '[^']+')",
-        r"(ImportError: .*)",
         r"(error while loading shared libraries: .*)",
         r"([Cc]annot open display.*)",
         r"(No such file or directory.*)",
@@ -152,9 +155,6 @@ def failure_reason(output, returncode, timed_out):
         m = re.search(p, output)
         if m:
             return m.group(1).strip()
-    if "Traceback" in output:
-        last = [l for l in output.splitlines() if l.strip()][-1]
-        return "Python exception: " + last.strip()
     if timed_out:
         return "still running after the timeout (ignores --help?)"
     if returncode < 0:
@@ -162,6 +162,20 @@ def failure_reason(output, returncode, timed_out):
     if not output.strip():
         return "no output, exit code %d" % returncode
     return "exit code %d" % returncode
+
+
+def missing_package(output):
+    """Name of a missing Python package (not installed), None if the error is something else.
+    A module of the paparazzi tree that is not found (e.g. pprzlink not built) is an error, not a package."""
+    m = re.search(r"ModuleNotFoundError: No module named '([^'.]+)", output)
+    if m is None:
+        return None
+    name = m.group(1)
+    for d in (path.join(PPRZ_HOME, "var", "lib", "python"), path.join(PPRZ_SRC, "sw")):
+        for root, dirs, files in os.walk(d):
+            if name in dirs or name + ".py" in files:
+                return None
+    return name
 
 
 def read_doc(root):
@@ -275,14 +289,16 @@ class Tool:
         self.result.update(returncode=returncode, timed_out=timed_out, stdout=out, stderr=err, **parsed)
         lines = ["command: %s" % self.command]
         if timed_out or returncode < 0 or not (parsed["options"] or parsed["usage"]):
-            reason = failure_reason(out + "\n" + err, returncode, timed_out)
-            self.result["reason"] = reason
             tail = ["  | " + l for l in (out + "\n" + err).splitlines() if l.strip()][-8:]
-            if reason.startswith("ModuleNotFoundError"):
-                self.result["status"] = "skipped"
-                return True, "missing Python module: " + reason.split("named ")[-1], tail
+            package = missing_package(out + "\n" + err)
+            if package is not None:
+                # not an error of the tool: the package is not installed here
+                self.result["status"] = "warning"
+                self.result["reason"] = "missing Python package '%s'" % package
+                return True, "WARNING " + self.result["reason"], tail
+            self.result["reason"] = failure_reason(out + "\n" + err, returncode, timed_out)
             self.result["status"] = "failed"
-            return False, None, ["FAILED: %s" % reason] + tail
+            return False, None, ["FAILED: %s" % self.result["reason"]] + tail
 
         if returncode != 0:
             lines.append("note: help printed, exit code %d" % returncode)
