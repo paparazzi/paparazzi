@@ -89,6 +89,9 @@ class ToolsDirective(Directive):
 
     def run(self) -> List[nodes.Node]:
         env = self.state.document.settings.env
+        if not hasattr(env, "pprz_tools_docs"):
+            env.pprz_tools_docs = set()
+        env.pprz_tools_docs.add(env.docname)
         tools_dir = os.path.normpath(os.path.join(env.app.confdir, "..", "..", "..", "conf", "tools"))
         tools = []
         for f in sorted(os.listdir(tools_dir)):
@@ -144,6 +147,24 @@ class ToolsDirective(Directive):
         return section
 
 
+def outdated_tools_docs(app, env, added, changed, removed):
+    """Read the tools page again on every build: a tool xml may have been added or removed"""
+    return list(getattr(env, "pprz_tools_docs", set()))
+
+
+def merge_tools_docs(app, env, docnames, other):
+    if not hasattr(env, "pprz_tools_docs"):
+        env.pprz_tools_docs = set()
+    env.pprz_tools_docs |= getattr(other, "pprz_tools_docs", set())
+
+
+def purge_tools_docs(app, env, docname):
+    getattr(env, "pprz_tools_docs", set()).discard(docname)
+
+
 def setup(app: Sphinx) -> Dict[str, Any]:
     app.add_directive("paparazzi-tools", ToolsDirective)
+    app.connect("env-get-outdated", outdated_tools_docs)
+    app.connect("env-merge-info", merge_tools_docs)
+    app.connect("env-purge-doc", purge_tools_docs)
     return {"parallel_read_safe": True, "parallel_write_safe": True}
