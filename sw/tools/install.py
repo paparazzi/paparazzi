@@ -220,10 +220,13 @@ class InstallWindow(QWidget):
 
     def cmd_doc(self):
         self.step('Step 10 — Building and viewing the documentation')
-        if in_venv:
-            self.execute(f'"{sys.executable}" -m pip install -r doc/sphinx/requirements.txt')
-        else:
-            self.execute('sudo -E apt-get -f -y install python3-sphinx python3-sphinx-rtd-theme python3-myst-parser')
+        if not in_venv:
+            # Sphinx is installed with pip only (as on the documentation server): the online documentation
+            self.view(docs)
+            self.done('Online documentation opened (to build it here: ./install.sh --venv)', '')
+            return
+        # Sphinx is also in requirements.tools.txt (step 9b)
+        self.execute(f'"{sys.executable}" -m pip install -r doc/sphinx/requirements.txt')
         if self._ok:
             self.execute('make doc')
         index = os.path.abspath('doc/sphinx/build/html/index.html')

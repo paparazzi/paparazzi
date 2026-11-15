@@ -1,6 +1,8 @@
 # All tools of the Paparazzi Center (conf/tools), on top of the basic packages:
 # pip install -r requirements.tools.txt
 -r requirements.txt
+# Sphinx, to build the documentation (make doc), also used alone by the documentation server
+-r doc/sphinx/requirements.txt
 -r sw/tools/requirements.txt
 -r sw/tools/rtp_viewer/requirements.txt
 -r sw/tools/iridium/requirements.txt
