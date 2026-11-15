@@ -1,1 +1,8 @@
-<program command="sw/ground_segment/messages-gui/messages.py" name="Messages" />
+<program command="sw/ground_segment/messages-gui/messages.py" name="Messages">
+  <doc>
+    <description>
+      Shows the messages on the Ivy bus with their fields and values.
+    </description>
+    <usage>usage: messages.py [-h]</usage>
+  </doc>
+</program>

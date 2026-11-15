@@ -1,4 +1,14 @@
 <program command="sw/ground_segment/tmtc/ivy2nmea" name="Ivy2Nmea">
+  <doc>
+    <description>
+      Sends the position of an aircraft from the Ivy bus as NMEA GPRMC and GPGGA sentences on a serial port.
+    </description>
+    <usage>Usage: ivy2nmea [options]</usage>
+    <option flag="-v --verbose" description="Print verbose information"/>
+    <option flag="--id &lt;ac_id&gt;" description="e.g. 1"/>
+    <option flag="--port &lt;gps out port&gt;" description="e.g. /dev/ttyS0"/>
+    <option flag="--ivy_bus &lt;ivy bus&gt;" description="e.g. 127.255.255.255"/>
+  </doc>
   <arg constant="/dev/ttyUSB1" flag="--port" />
   <arg constant="1" flag="--id" />
 </program>

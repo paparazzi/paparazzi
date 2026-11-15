@@ -1,1 +1,13 @@
-<program command="sw/ground_segment/tmtc/pprzlink_proxy.py" name="PprzLink Proxy"/>
+<program command="sw/ground_segment/tmtc/pprzlink_proxy.py" name="PprzLink Proxy">
+  <doc>
+    <description>
+      Lets several simulated aircraft talk to each other and to the GCS with PPRZLINK v2 over UDP: maps the ports of each agent to its aircraft id.
+    </description>
+    <usage>usage: pprzlink_proxy.py [-h] [--gcs GCS_CONF] [--ac ACS_CONF] [--addr ADDRESS] [--script SCRIPT] [-v]</usage>
+    <option flag="--gcs GCS_CONF" description="GCS configuration with format [ID:][IP:][PORT_OUT:PORT_IN]"/>
+    <option flag="--ac ACS_CONF" description="AC configuration with format ID:[IP:]PORT_OUT:PORT_IN (multiple possible)"/>
+    <option flag="--addr ADDRESS" description="Set default IP address"/>
+    <option flag="--script" description="SCRIPT"/>
+    <option flag="-v, --verbose" description="display debug messages"/>
+  </doc>
+</program>

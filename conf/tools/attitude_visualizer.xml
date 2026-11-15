@@ -1,2 +1,8 @@
-<program command="sw/tools/attitude_viz.py" name="Attitude Visualizer" />
+<program command="sw/tools/attitude_viz.py" name="Attitude Visualizer">
+  <doc>
+    <description>
+      Shows the attitude of an aircraft as a rotating cube (OpenGL).
+    </description>
+  </doc>
+</program>
 

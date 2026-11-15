@@ -42,6 +42,7 @@ extensions = [
     'sphinx.ext.githubpages',
     'myst_parser',
     'modules_parser',
+    'tools_doc',
 ]
 
 myst_enable_extensions = [
