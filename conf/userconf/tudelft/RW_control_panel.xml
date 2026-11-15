@@ -1026,6 +1026,17 @@
     <session name="GCS Video">
       <program name="PprzGCS"/>
     </session>
+    <session name="HITL">
+      <program name="Hardware in the Loop">
+        <arg flag="-a" constant="@AIRCRAFT"/>
+        <arg flag="-t" constant="hitl"/>
+      </program>
+      <program name="PprzGCS"/>
+      <program name="Data Link">
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+    </session>
     <session name="Messages and Settings">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
