@@ -11,6 +11,9 @@ import subprocess
 import webbrowser
 
 distro_version = float(distro.version())
+# started from the Python virtual environment of install.sh --venv: pip may install there
+# (outside a venv, pip refuses to install in the system Python from Ubuntu 24.04 on)
+in_venv = sys.prefix != sys.base_prefix
 docs = 'https://paparazzi-uav.readthedocs.io'
 
 # Terminal colors
@@ -210,8 +213,26 @@ class InstallWindow(QWidget):
         self.done('VLC / Joystick / NatNet installed successfully', 'Some packages failed to install')
 
 
+    def cmd_tools(self):
+        self.step('Step 9b — Installing the Python packages of all Paparazzi Center tools')
+        self.execute(f'"{sys.executable}" -m pip install -r requirements.tools.txt')
+        self.done('Python packages of the tools installed successfully', 'Some Python packages failed to install')
+
     def cmd_doc(self):
-        self.view('https://paparazzi-uav.readthedocs.io')
+        self.step('Step 10 — Building and viewing the documentation')
+        if in_venv:
+            self.execute(f'"{sys.executable}" -m pip install -r doc/sphinx/requirements.txt')
+        else:
+            self.execute('sudo -E apt-get -f -y install python3-sphinx python3-sphinx-rtd-theme python3-myst-parser')
+        if self._ok:
+            self.execute('make doc')
+        index = os.path.abspath('doc/sphinx/build/html/index.html')
+        if self._ok and os.path.isfile(index):
+            self.view('file://' + index)
+        else:
+            self.view(docs)  # the online documentation instead
+        self.done('Documentation built in doc/sphinx/build/html',
+                  'Building the documentation failed, the online documentation is opened instead')
 
 
     def cmd_go(self):
@@ -237,6 +258,8 @@ class InstallWindow(QWidget):
         if distro_version >= 22.04:
             steps.append(self.cmd_gazebo)
         steps += [self.cmd_bebopcv, self.cmd_vlc]
+        if in_venv:
+            steps.append(self.cmd_tools)
         failed = []
         self._everything = True
         self.buttonlist.setEnabled(False)
@@ -335,8 +358,16 @@ class InstallWindow(QWidget):
         self.add_step(button9, self.cmd_vlc)
         btn_layout.addWidget(button9)
 
-        button10 = QPushButton('10) View Documentation')
-        button10.clicked.connect(self.cmd_doc)
+        button9b = QPushButton('9b) Python packages of all tools')
+        if in_venv:
+            self.add_step(button9b, self.cmd_tools)
+        else:
+            button9b.setDisabled(True)
+            button9b.setToolTip('Only in a Python virtual environment: ./install.sh --venv')
+        btn_layout.addWidget(button9b)
+
+        button10 = QPushButton('10) Build and view the documentation')
+        self.add_step(button10, self.cmd_doc)
         btn_layout.addWidget(button10)
 
         button11 = QPushButton('11) Make and start Pprz Center')

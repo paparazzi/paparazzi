@@ -1,0 +1,3 @@
+# attitude_viz.py
+pygame
+PyOpenGL

@@ -1,0 +1,4 @@
+# ntrip2ivy.py
+pyrtcm
+pyubx2
+pyserial
