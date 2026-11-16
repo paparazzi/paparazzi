@@ -134,7 +134,14 @@ fi
 
 print_header "Step 2/3 — Setting up Python environment"
 
-if [ "$USE_VENV" = true ]
+# conda: python3 is conda's, so the Python packages go into the active conda environment
+# (a separate one keeps them apart from the rest: conda create -n paparazzi python && conda activate paparazzi)
+if [ -n "$CONDA_DEFAULT_ENV" ]
+then
+  run_step "Installing the Python packages in conda environment '$CONDA_DEFAULT_ENV'" python3 -m pip install -r requirements.txt
+  print_success "Python packages installed in conda environment '$CONDA_DEFAULT_ENV' (activate it before ./paparazzi)"
+
+elif [ "$USE_VENV" = true ]
 then
   run_step "Installing python3 and python3-venv" sudo apt install -y python3 python3-venv
   run_step "Creating virtual environment" python3 setup.py
