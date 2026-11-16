@@ -57,7 +57,6 @@
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <!-- <define name="AHRS_USE_GPS_HEADING" value="FALSE"/> -->
     </module>
-    <module name="air_data"/>
 
     <module name="tag_tracking">
       <configure name="JEVOIS_UART" value="UART4" description="dummy uart in this config"/>

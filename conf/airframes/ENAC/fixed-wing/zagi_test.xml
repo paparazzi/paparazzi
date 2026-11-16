@@ -9,7 +9,7 @@
       <module name="ins" type="float_invariant">
         <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
         <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
-        <define name="BARO_BOARD_APOGEE_FREQ" value="50"/>
+        <configure name="BARO_APOGEE_FREQ" value="50"/>
         <define name="MPL3115_OVERSAMPLING" value="2"/>
       </module>
     </target>
@@ -26,7 +26,7 @@
       <module name="ins" type="float_invariant">
         <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
         <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
-        <define name="BARO_BOARD_APOGEE_FREQ" value="50"/>
+        <configure name="BARO_APOGEE_FREQ" value="50"/>
         <define name="MPL3115_OVERSAMPLING" value="2"/>
         <define name="SEND_INVARIANT_FILTER"/>
       </module>

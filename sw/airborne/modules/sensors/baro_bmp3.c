@@ -30,9 +30,7 @@
 #include "baro_bmp3.h"
 
 #include "modules/core/abi.h"
-#include "mcu_periph/uart.h"
-#include "pprzlink/messages.h"
-#include "modules/datalink/downlink.h"
+#include "mcu_periph/sys_time.h"
 
 /** default slave address */
 #ifndef BMP3_SLAVE_ADDR
@@ -58,17 +56,9 @@ void baro_bmp3_event(void)
   if (baro_bmp3.data_available) {
     uint32_t now_ts = get_sys_time_usec();
     // send ABI message
-    AbiSendMsgBARO_ABS(BARO_BMP3_SENDER_ID, now_ts, baro_bmp3.pressure);
-    AbiSendMsgTEMPERATURE(BARO_BMP3_SENDER_ID, baro_bmp3.temperature);
+    AbiSendMsgBARO_ABS_RAW(BARO_BMP3_SENDER_ID, now_ts, baro_bmp3.pressure);
+    AbiSendMsgTEMPERATURE_RAW(BARO_BMP3_SENDER_ID, now_ts, baro_bmp3.temperature, TEMPERATURE_TYPE_BARO);
     baro_bmp3.data_available = false;
-
-#ifdef BMP3_SYNC_SEND
-    int32_t up = (int32_t) baro_bmp3.raw_pressure;
-    int32_t ut = (int32_t) baro_bmp3.raw_temperature;
-    int32_t p = (int32_t) baro_bmp3.pressure;
-    int32_t t = (int32_t) (10.f * baro_bmp3.temperature);
-    DOWNLINK_SEND_BMP_STATUS(DefaultChannel, DefaultDevice, &up, &ut, &p, &t);
-#endif
   }
 }
 

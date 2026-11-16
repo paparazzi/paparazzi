@@ -8,6 +8,7 @@
     </description>
   </doc>
   <dep>
+    <depends>air_data</depends>
     <provides>baro</provides>
   </dep>
 
@@ -19,7 +20,6 @@
 
   <makefile target="sim">
     <file name="baro_sim.c"/>
-    <define name="USE_BARO_BOARD" value="FALSE"/>
   </makefile>
 
 </module>

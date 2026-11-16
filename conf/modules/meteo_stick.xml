@@ -47,7 +47,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>pwm_meas</depends>
+    <depends>pwm_meas,air_data</depends>
   </dep>
   <header>
     <file name="meteo_stick.h"/>

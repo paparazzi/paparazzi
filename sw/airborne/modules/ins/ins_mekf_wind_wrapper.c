@@ -157,7 +157,7 @@ static void send_inv_filter(struct transport_tx *trans, struct link_device *dev)
 
 /** airspeed (Pitot tube) */
 #ifndef INS_MEKF_WIND_AIRSPEED_ID
-#define INS_MEKF_WIND_AIRSPEED_ID ABI_BROADCAST
+#define INS_MEKF_WIND_AIRSPEED_ID AIR_DATA_SENDER_ID
 #endif
 PRINT_CONFIG_VAR(INS_MEKF_WIND_AIRSPEED_ID)
 
@@ -169,11 +169,7 @@ PRINT_CONFIG_VAR(INS_MEKF_WIND_INCIDENCE_ID)
 
 /** baro */
 #ifndef INS_MEKF_WIND_BARO_ID
-#if USE_BARO_BOARD
-#define INS_MEKF_WIND_BARO_ID BARO_BOARD_SENDER_ID
-#else
-#define INS_MEKF_WIND_BARO_ID ABI_BROADCAST
-#endif
+#define INS_MEKF_WIND_BARO_ID AIR_DATA_SENDER_ID
 #endif
 PRINT_CONFIG_VAR(INS_MEKF_WIND_BARO_ID)
 

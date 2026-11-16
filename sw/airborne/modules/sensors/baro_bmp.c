@@ -35,10 +35,7 @@
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
-#include "mcu_periph/uart.h"
 #include "modules/core/abi.h"
-#include "pprzlink/messages.h"
-#include "modules/datalink/downlink.h"
 
 
 #ifndef BMP_I2C_DEV
@@ -90,20 +87,9 @@ void baro_bmp_event(void)
     baro_bmp_alt = 44330 * (1.0 - tmp);
 
     float pressure = (float)baro_bmp.pressure;
-    AbiSendMsgBARO_ABS(BARO_BMP_SENDER_ID, now_ts, pressure);
+    AbiSendMsgBARO_ABS_RAW(BARO_BMP_SENDER_ID, now_ts, pressure);
     float temp = baro_bmp.temperature / 10.0f;
-    AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
+    AbiSendMsgTEMPERATURE_RAW(BARO_BMP_SENDER_ID, now_ts, temp, TEMPERATURE_TYPE_BARO);
     baro_bmp.data_available = false;
-
-#ifdef SENSOR_SYNC_SEND
-    DOWNLINK_SEND_BMP_STATUS(DefaultChannel, DefaultDevice, &baro_bmp.up,
-                             &baro_bmp.ut, &baro_bmp.pressure,
-                             &baro_bmp.temperature);
-#else
-    RunOnceEvery(10, DOWNLINK_SEND_BMP_STATUS(DefaultChannel, DefaultDevice,
-                 &baro_bmp.up, &baro_bmp.ut,
-                 &baro_bmp.pressure,
-                 &baro_bmp.temperature));
-#endif
   }
 }

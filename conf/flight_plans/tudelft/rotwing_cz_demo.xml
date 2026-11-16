@@ -2,6 +2,7 @@
 <flight_plan alt="1.5" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="60" name="Safe TU Delft Cyberzoo" security_height="0.4">
   <header>
 #include "autopilot_rc_helpers.h"
+#include "modules/air_data/air_data.h"
 #include "modules/radio_control/radio_control.h"
 #include "modules/rotwing_drone/rotwing_state.h"
 #include "modules/checks/preflight_checks.h"
@@ -31,7 +32,7 @@ static inline void rotwing_rc_set_skew(void) {
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid() || !state.ned_initialized_i"/>
     </block>
-    <block name="Geo init" on_enter="ms45xx.autoset_offset=true">
+    <block name="Geo init" on_enter="air_data_Calibrate(true)">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call_once fun="NavSetAltitudeReferenceHere()"/>

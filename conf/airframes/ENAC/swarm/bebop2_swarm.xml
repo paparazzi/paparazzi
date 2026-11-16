@@ -47,7 +47,6 @@
       <define name="GPS_UBX_UCENTER_PVT_ONLY" value="TRUE"/>
       <define name="GPS_UBX_UCENTER_ENABLE_NMEA" value="FALSE"/>
     </module>
-    <module name="air_data"/>
     <module name="ins" type="ekf2">
       <configure name="USE_ALT_LLA_WAYPOINTS" value="TRUE"/>
       <define name="INS_EKF2_FORCE_NAV_REF" value="TRUE"/>

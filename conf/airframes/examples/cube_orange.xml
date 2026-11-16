@@ -88,7 +88,6 @@
     <module name="ins"           type="ekf2"/>
     <module name="nav"           type="hybrid"/>
 
-    <module name="air_data"/>
 
     <!-- Internal MAG -->
     <!--module name="mag_ist8310">

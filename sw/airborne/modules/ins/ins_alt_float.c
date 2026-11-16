@@ -54,18 +54,13 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 struct InsAltFloat ins_altf;
 
 #if USE_BAROMETER
-#include "modules/sensors/baro.h"
 #include "math/pprz_isa.h"
 
 PRINT_CONFIG_MSG("USE_BAROMETER is TRUE: Using baro for altitude estimation.")
 
 // Baro event on ABI
 #ifndef INS_ALT_BARO_ID
-#if USE_BARO_BOARD
-#define INS_ALT_BARO_ID BARO_BOARD_SENDER_ID
-#else
-#define INS_ALT_BARO_ID ABI_BROADCAST
-#endif
+#define INS_ALT_BARO_ID AIR_DATA_SENDER_ID
 #endif
 PRINT_CONFIG_VAR(INS_ALT_BARO_ID)
 
