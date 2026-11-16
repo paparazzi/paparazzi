@@ -303,7 +303,7 @@
                 </field>
                 <field name="neutral" value="-3,-3,-18" type="int[]"/>
                 <field name="scale_f" value="{ 4.9047, 4.9219, 4.9307 }"/>
-                <field name="filter_sample_freq" value="4042"/>
+                <field name="sample_freq" value="4042"/>
                 <field name="filter_freq" value="30"/>
             </field>
         </define>
@@ -318,7 +318,7 @@
                     <field name="rotation" value="false"/>
                     <field name="filter" value="true"/>
                 </field>
-                <field name="filter_sample_freq" value="4042"/>
+                <field name="sample_freq" value="4042"/>
                 <field name="filter_freq" value="30"/>
             </field>
         </define>

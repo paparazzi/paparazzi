@@ -396,7 +396,7 @@
                     <field name="rotation" value="false"/>
                     <field name="filter" value="true"/>
                 </field>
-                <field name="filter_sample_freq" value="4042"/>
+                <field name="sample_freq" value="4042"/>
                 <field name="filter_freq" value="30"/>
             </field>
         </define>

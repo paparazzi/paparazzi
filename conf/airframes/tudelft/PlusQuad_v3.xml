@@ -219,7 +219,7 @@
                 </field>
                 <field name="neutral" value="-26,-33,-51" type="int[]"/>
                 <field name="scale_f" value="{ 0.6135, 0.6111, 0.6119 }"/>
-                <field name="filter_sample_freq" value="6380"/>
+                <field name="sample_freq" value="6380"/>
                 <field name="filter_freq" value="30"/>
             </field>
             <!-- IMU 2 -->
@@ -232,7 +232,7 @@
                 </field>
                 <field name="neutral" value="16,7,-13" type="int[]"/>
                 <field name="scale_f" value="{ 0.6119, 0.6119, 0.6113 }"/>
-                <field name="filter_sample_freq" value="6318"/>
+                <field name="sample_freq" value="6318"/>
                 <field name="filter_freq" value="30"/>
             </field>
 
@@ -246,13 +246,13 @@
                 </field>
                 <field name="neutral" value="-8,-34,14" type="int[]"/>
                 <field name="scale_f" value="{ 0.6115, 0.6104, 0.6125 }"/>
-                <field name="filter_sample_freq" value="6305"/>
+                <field name="sample_freq" value="6305"/>
                 <field name="filter_freq" value="30"/>
             </field>
 
         </define>
         <!-- <define name="MAG_CALIB"   value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true},.neutral={785,-2641,40}, .scale={{7727,22807,32483},{13208,38799,54820}}}}"/> -->
-        <define name="GYRO_CALIB" value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=6319, .filter_freq=30},{.abi_id=21, .calibrated={.filter=true}, .filter_sample_freq=6358, .filter_freq=30},{.abi_id=22, .calibrated={.filter=true}, .filter_sample_freq=6304, .filter_freq=30}}"/>
+        <define name="GYRO_CALIB" value="{{.abi_id=20, .calibrated={.filter=true}, .sample_freq=6319, .filter_freq=30},{.abi_id=21, .calibrated={.filter=true}, .sample_freq=6358, .filter_freq=30},{.abi_id=22, .calibrated={.filter=true}, .sample_freq=6304, .filter_freq=30}}"/>
         <!-- Define axis in hover frame -->
         <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
         <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
