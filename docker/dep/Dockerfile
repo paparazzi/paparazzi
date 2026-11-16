@@ -31,8 +31,6 @@ RUN apt-get update && apt-get install -y \
     x11-apps \
     gedit \
     gcc-arm-none-eabi \
-    python3-future \
-    python3-zombie-imp \
     curl \
     lsb-release \
     && rm -rf /var/lib/apt/lists/*
