@@ -179,7 +179,6 @@ Safety
         <configure name="SDP3X_I2C_DEV" value="i2c2"/>
         <!-- <define name="SDP3X_I2C_ADDR" value=""/> --> <!-- 0x50 is the deafault address -->
         <!-- <define name="SDP3X_PRESSURE_SCALE" value="1.0"/> --> <!-- pressure scaling factor to convert raw output to Pa (default: set according to pressure range and output type according to datasheet) -->
-        <!-- <define name="SDP3X_PRESSURE_OFFSET" value="0.0"/>--> <!-- pressure offset in Pa (default: set according to pressure range and output type according to datasheet) -->
         <!-- <define name="SDP3X_AIRSPEED_SCALE" value="1.6327"/> --> <!-- quadratic scale factor to convert differential pressure to airspeed" -->
         <define name="USE_AIRSPEED" value="TRUE"/>
         <define name="SDP3X_PRESSURE_SCALE" value="SDP3X_SCALE_PRESSURE_SDP33"/>

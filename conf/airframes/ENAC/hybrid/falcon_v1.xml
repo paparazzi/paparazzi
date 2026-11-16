@@ -59,7 +59,6 @@
     <module name="airspeed" type="sdp3x">
       <define name="SDP3X_i2C_DEV" value="i2c2"/>
       <define name="SDP3X_PRESSURE_SCALE" value="8.0"/>
-      <define name="SDP3X_PRESSURE_OFFSET" value="0.0"/>
     </module>
 
     <module name="board" type="tawaki">
