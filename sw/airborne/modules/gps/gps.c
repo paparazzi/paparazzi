@@ -72,7 +72,6 @@ PRINT_CONFIG_VAR(SECONDARY_GPS)
 #define TIME_TO_SWITCH 5000 //ten s in ms
 
 struct GpsState gps = {0};
-struct GpsTimeSync gps_time_sync;
 static struct RelPosNED gps_relposned[GPS_RELPOS_MAX];
 
 #ifdef SECONDARY_GPS
@@ -352,11 +351,6 @@ static void gps_cb(uint8_t sender_id,
   AbiSendMsgGPS(GPS_MULTI_ID, now_ts, gps_s);
   gps_s->fix = old_fix;
 #endif
-  if (gps.tow != gps_time_sync.t0_tow) {
-    gps_time_sync.t0_ticks = sys_time.nb_tick;
-    gps_time_sync.t0_tow = gps.tow;
-  }
-
   // Sync the system time of week with the selected GPS (only with a valid time from a fix)
   if (gps.comp_id == gps_s->comp_id && gps.fix >= GPS_FIX_3D && gps.tow != 0) {
     sys_time_sync_tow(gps.tow, stamp);
@@ -426,24 +420,10 @@ void gps_init(void)
 
 uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)
 {
-  uint32_t clock_delta;
-  uint32_t time_delta;
-  uint32_t itow_now;
-
-  if (sys_ticks < gps_time_sync.t0_ticks) {
-    clock_delta = (0xFFFFFFFF - sys_ticks) + gps_time_sync.t0_ticks + 1;
-  } else {
-    clock_delta = sys_ticks - gps_time_sync.t0_ticks;
-  }
-
-  time_delta = msec_of_sys_time_ticks(clock_delta);
-
-  itow_now = gps_time_sync.t0_tow + time_delta;
-  if (itow_now > MSEC_PER_WEEK) {
-    itow_now %= MSEC_PER_WEEK;
-  }
-
-  return itow_now;
+  // signed difference handles both timestamps in the past/future and tick counter wrap
+  int32_t dt_ticks = (int32_t)(sys_time.nb_tick - sys_ticks);
+  int32_t dt_ms = (int32_t)((int64_t)dt_ticks * 1000 / (int64_t)sys_time.ticks_per_sec);
+  return (get_sys_time_tow() + MSEC_PER_WEEK - dt_ms % MSEC_PER_WEEK) % MSEC_PER_WEEK;
 }
 
 /**
