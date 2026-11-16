@@ -40,6 +40,21 @@ PRINT_CONFIG_VAR(SYS_TIME_FREQUENCY)
 
 struct sys_time sys_time;
 
+#define SYS_TIME_MSEC_PER_WEEK (1000UL * 60 * 60 * 24 * 7)
+
+uint32_t get_sys_time_tow(void)
+{
+  return (sys_time.tow_offset + get_sys_time_msec() % SYS_TIME_MSEC_PER_WEEK) % SYS_TIME_MSEC_PER_WEEK;
+}
+
+void sys_time_sync_tow(uint32_t tow, uint32_t stamp)
+{
+  // stamp in usec wraps after ~71 min, so only use its age with respect to now
+  uint32_t age_ms = (get_sys_time_usec() - stamp) / 1000;
+  uint32_t msec_at_stamp = (get_sys_time_msec() - age_ms) % SYS_TIME_MSEC_PER_WEEK;
+  sys_time.tow_offset = (tow % SYS_TIME_MSEC_PER_WEEK + SYS_TIME_MSEC_PER_WEEK - msec_at_stamp) % SYS_TIME_MSEC_PER_WEEK;
+}
+
 tid_t sys_time_register_timer(float duration, sys_time_cb cb)
 {
   uint32_t start_time = sys_time.nb_tick;
@@ -106,6 +121,7 @@ static void cmd_sys_time(shell_stream_t *sh, int argc, const char * const argv[]
   chprintf(sh, "  nb_sec: %lu\r\n", sys_time.nb_sec);
   chprintf(sh, "  nb_sec_rem: %lu\r\n", sys_time.nb_sec_rem);
   chprintf(sh, "  nb_tick: %lu\r\n", sys_time.nb_tick);
+  chprintf(sh, "  tow: %lu\r\n", get_sys_time_tow());
 
   uint32_t rtc_ms = sys_time_rtc_millisecond();
   uint32_t rtc_h = rtc_ms / 3600000;
@@ -128,6 +144,7 @@ void sys_time_init(void)
   sys_time.nb_sec     = 0;
   sys_time.nb_sec_rem = 0;
   sys_time.nb_tick    = 0;
+  sys_time.tow_offset = 0;
 
   sys_time.ticks_per_sec = SYS_TIME_FREQUENCY;
   sys_time.resolution = 1.0 / sys_time.ticks_per_sec;
