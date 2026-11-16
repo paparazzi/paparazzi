@@ -182,7 +182,11 @@ PRINT_CONFIG_VAR(INS_EKF2_GNSS_CHECK)
  *  over 0.5 s) stay below the thresholds and the average rotation rate (without the gyro bias) below
  *  INS_EKF2_AT_REST_RATE, for INS_EKF2_AT_REST_TIME.
  *  Stricter than the PX4 vibration metric, which doesn't see the vehicle being turned by hand (and would then
- *  fuse that rotation as gyro bias) */
+ *  fuse that rotation as gyro bias).
+ *  Disable it (FALSE) on a moving platform (e.g. a ship or car deck), where the IMU can look still while moving */
+#ifndef INS_EKF2_AT_REST_DETECTION
+#define INS_EKF2_AT_REST_DETECTION TRUE
+#endif
 #ifndef INS_EKF2_AT_REST_GYRO
 #define INS_EKF2_AT_REST_GYRO 0.3f    ///< gyro threshold (deg/s), noise at rest about 0.15
 #endif
@@ -1358,7 +1362,7 @@ static void ins_ekf2_update_system_flags(void)
   // airspeed and sideslip fusion, no ground effect, airspeed for the yaw estimator: always for the fixedwing
   // firmware, in forward flight for hybrids flown with the rotorcraft firmware (e.g. rotwing_state)
   bool fixed_wing = stateIsFixedWingFlight();
-  bool at_rest = !armed && !in_air && ekf2_rest.still;
+  bool at_rest = INS_EKF2_AT_REST_DETECTION && !armed && !in_air && ekf2_rest.still;
   uint64_t now = ekf2_time_us(get_sys_time_usec());
   if (in_air == ekf2.in_air && armed == ekf2.armed && fixed_wing == ekf2.fixed_wing && at_rest == ekf2_rest.at_rest
       && now < ekf2.system_flags_time + 1000000) {
