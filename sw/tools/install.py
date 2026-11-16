@@ -11,9 +11,9 @@ import subprocess
 import webbrowser
 
 distro_version = float(distro.version())
-# started from the Python virtual environment of install.sh --venv: pip may install there
-# (outside a venv, pip refuses to install in the system Python from Ubuntu 24.04 on)
-in_venv = sys.prefix != sys.base_prefix
+# started from the Python virtual environment of install.sh --venv, or from a conda environment: pip may
+# install there (outside one, pip refuses to install in the system Python from Ubuntu 24.04 on)
+in_venv = sys.prefix != sys.base_prefix or os.environ.get('CONDA_PREFIX') == sys.prefix
 # install.py --all (install.sh --all): run the Everything button without showing the window
 no_window = '--all' in sys.argv
 docs = 'https://paparazzi-uav.readthedocs.io'
