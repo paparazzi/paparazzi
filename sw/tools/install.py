@@ -96,6 +96,7 @@ class InstallWindow(QWidget):
 
     def cmd_repo(self):
         self.step('Step 1 — Adding Paparazzi PPA repository')
+        self.execute('sudo -E apt-get install -y software-properties-common')  # add-apt-repository, not on minimal installs
         self.execute('sudo -E add-apt-repository -y ppa:paparazzi-uav/ppa && sudo -E apt-get update')
         self.done('Repository added successfully', 'Failed to add the repository')
 
