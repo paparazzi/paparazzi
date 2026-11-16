@@ -10,6 +10,7 @@ NC='\033[0m' # No Color
 
 USE_VENV=false
 BASHRC_SOURCE_VENV=false
+INSTALL_ALL=false
 
 # ── Helper functions ──────────────────────────────────────────────────────────
 
@@ -58,7 +59,8 @@ for arg in "$@"
 do
   if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]
   then
-    echo "Usage: ./install.sh [-n|--no-venv] [-h|---help]"
+    echo "Usage: ./install.sh [-a|--all] [-v|--venv] [-s|--source] [-h|--help]"
+    echo "  -a, --all       Install everything without the window (the Everything button), then build"
     echo "  -v, --venv      Use python virtual environment: pprzEnv"
     echo "  -s, --source    Add venv source in ~/.bashrc"
     echo "  -h, --help      Print this help"
@@ -76,13 +78,18 @@ do
     BASHRC_SOURCE_VENV=true
   fi
 
+  if [ "$arg" = "-a" ] || [ "$arg" = "--all" ]
+  then
+    INSTALL_ALL=true
+  fi
+
 done
 
 
 if [ $VIRTUAL_ENV ]
 then
   echo -e "${YELLOW}  ⚠ Cannot create venv from itself! Run 'deactivate' first if you want to recreate the venv.${NC}"
-  USE_VENV = false
+  USE_VENV=false
   BASHRC_SOURCE_VENV=false
 fi
 
@@ -141,10 +148,18 @@ then
   fi
 
 else
-  run_step "Installing python3 and PyQt5 (system-wide)" sudo apt-get install -f -y python3 python3-pyqt5
+  run_step "Installing python3 and PyQt5 (system-wide)" sudo apt-get install -f -y python3 python3-pyqt5 python3-distro
   print_success "Python packages installed system-wide"
 fi
 
+
+# ── Install everything without the window ────────────────────────────────────
+
+if [ "$INSTALL_ALL" = true ]
+then
+  print_header "Step 3/3 — Installing everything"
+  exec python3 ./sw/tools/install.py --all
+fi
 
 # ── Launch the graphical installer ───────────────────────────────────────────
 
