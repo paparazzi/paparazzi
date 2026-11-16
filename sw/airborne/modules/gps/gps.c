@@ -320,7 +320,7 @@ bool gps_fix_valid(void)
 
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id,
-                   uint32_t stamp __attribute__((unused)),
+                   uint32_t stamp,
                    struct GpsState *gps_s)
 {
   /* ignore callback from own AbiSendMsgGPS */
@@ -355,6 +355,11 @@ static void gps_cb(uint8_t sender_id,
   if (gps.tow != gps_time_sync.t0_tow) {
     gps_time_sync.t0_ticks = sys_time.nb_tick;
     gps_time_sync.t0_tow = gps.tow;
+  }
+
+  // Sync the system time of week with the selected GPS (only with a valid time from a fix)
+  if (gps.comp_id == gps_s->comp_id && gps.fix >= GPS_FIX_3D && gps.tow != 0) {
+    sys_time_sync_tow(gps.tow, stamp);
   }
 }
 
