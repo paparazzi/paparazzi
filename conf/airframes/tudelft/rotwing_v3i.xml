@@ -387,7 +387,7 @@
                 </field>
                 <field name="neutral" value="-2,-6,17" type="int[]"/>
                 <field name="scale" value="{{49193,49317,33972},{10058,10072,6937}}"/>
-                <field name="filter_sample_freq" value="3876"/>
+                <field name="sample_freq" value="3876"/>
                 <field name="filter_freq" value="30"/>
             </field>
         </define>
@@ -418,7 +418,7 @@
                     <field name="rotation" value="false"/>
                     <field name="filter" value="true"/>
                 </field>
-                <field name="filter_sample_freq" value="3876"/>
+                <field name="sample_freq" value="3876"/>
                 <field name="filter_freq" value="30"/>
             </field>
         </define>
