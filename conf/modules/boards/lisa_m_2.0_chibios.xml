@@ -7,8 +7,11 @@
     </description>
   </doc>
   <dep>
-    <depends>spi_master,i2c,baro_board</depends>
+    <depends>spi_master,i2c,baro_ms5611_spi</depends>
   </dep>
-  <makefile target="!sim|nps|fbw"/>
+  <makefile target="!sim|nps|fbw">
+    <configure name="MS5611_SPI_DEV" value="spi2"/>
+    <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
+  </makefile>
 </module>
 

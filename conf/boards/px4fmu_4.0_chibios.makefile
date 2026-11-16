@@ -51,7 +51,6 @@ PX4_BL_PORT ?= "/dev/serial/by-id/usb-3D_Robotics_PX4_BL_FMU_v4.x_0-if00"
 #
 SDLOG_LED          ?= 3
 RADIO_CONTROL_LED  ?= none
-BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= 1
 GPS_LED            ?= none
 SYS_TIME_LED       ?= 2

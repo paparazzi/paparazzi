@@ -100,7 +100,6 @@
       <define name="GUIDANCE_INDI_THRUST_DYNAMICS_FREQ" value="18.0"/>
     </module>
 
-    <module name="air_data"/>
 
 
     <!-- Internal MAG -->

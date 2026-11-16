@@ -7,9 +7,11 @@
     </description>
   </doc>
   <dep>
-    <depends>spi_master,baro_board</depends>
+    <depends>spi_master,baro_ms5611_spi</depends>
   </dep>
   <makefile target="!sim|nps|fbw">
+    <configure name="MS5611_SPI_DEV" value="spi4"/>
+    <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE4"/>
     <define name="USE_RTC_BACKUP" value="TRUE"/>
     <configure name="SDLOG_USE_RTC" value="FALSE"/>
   </makefile>

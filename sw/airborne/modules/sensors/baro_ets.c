@@ -188,10 +188,7 @@ void baro_ets_read_event(void)
       // New value available
       uint32_t now_ts = get_sys_time_usec();
       float pressure = BARO_ETS_SCALE * (float) baro_ets_adc + BARO_ETS_PRESSURE_OFFSET;
-      AbiSendMsgBARO_ABS(BARO_ETS_SENDER_ID, now_ts, pressure);
-#ifdef BARO_ETS_SYNC_SEND
-      DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
-#endif
+      AbiSendMsgBARO_ABS_RAW(BARO_ETS_SENDER_ID, now_ts, pressure);
     } else {
       baro_ets_altitude = 0.0;
     }

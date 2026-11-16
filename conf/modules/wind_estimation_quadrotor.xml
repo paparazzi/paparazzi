@@ -29,6 +29,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>air_data</depends>
+  </dep>
   <header>
     <file name="wind_estimation_quadrotor.h"/>
   </header>

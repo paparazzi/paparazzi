@@ -104,11 +104,7 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 /** default barometer to use in INS */
 #define INS_BARO_MAX_INIT_VAR 1.f  // variance threshold to set initial baro measurement
 #ifndef INS_INT_BARO_ID
-#if USE_BARO_BOARD
-#define INS_INT_BARO_ID BARO_BOARD_SENDER_ID
-#else
-#define INS_INT_BARO_ID ABI_BROADCAST
-#endif
+#define INS_INT_BARO_ID AIR_DATA_SENDER_ID
 #endif
 PRINT_CONFIG_VAR(INS_INT_BARO_ID)
 abi_event baro_ev;

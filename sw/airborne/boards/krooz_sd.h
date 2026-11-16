@@ -185,11 +185,6 @@
 #endif
 
 
-/* by default activate onboard baro */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 1
-#endif
-
 
 /* PWM */
 #define PWM_USE_TIM3 1

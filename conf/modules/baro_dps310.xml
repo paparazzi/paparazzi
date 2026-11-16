@@ -10,7 +10,7 @@
     <define name="DPS310_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
   <dep>
-    <depends>i2c</depends>
+    <depends>i2c,air_data</depends>
     <provides>baro</provides>
   </dep>
   <header>

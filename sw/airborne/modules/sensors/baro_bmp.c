@@ -90,9 +90,9 @@ void baro_bmp_event(void)
     baro_bmp_alt = 44330 * (1.0 - tmp);
 
     float pressure = (float)baro_bmp.pressure;
-    AbiSendMsgBARO_ABS(BARO_BMP_SENDER_ID, now_ts, pressure);
+    AbiSendMsgBARO_ABS_RAW(BARO_BMP_SENDER_ID, now_ts, pressure);
     float temp = baro_bmp.temperature / 10.0f;
-    AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
+    AbiSendMsgTEMPERATURE_RAW(BARO_BMP_SENDER_ID, now_ts, temp, TEMPERATURE_TYPE_BARO);
     baro_bmp.data_available = false;
 
 #ifdef SENSOR_SYNC_SEND

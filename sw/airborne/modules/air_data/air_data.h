@@ -22,7 +22,7 @@
 /**
  * @file modules/air_data/air_data.h
  * Air Data interface
- *  - pressures
+ *  - pressures (several barometers and differential pressure sensors)
  *  - airspeed
  *  - angle of attack and sideslip
  *  - wind
@@ -32,25 +32,75 @@
 #define AIR_DATA_H
 
 #include "std.h"
+#include "filters/low_pass_filter.h"
 #include "pprzlink/pprzlink_device.h"
 #include "pprzlink/pprzlink_transport.h"
 
-/** Air Data strucute */
+/** Maximum number of sensors of each kind (barometers, differential pressure, airspeed, temperature) */
+#ifndef AIR_DATA_MAX_SENSORS
+#define AIR_DATA_MAX_SENSORS 4
+#endif
+
+/** Calibration bitmask of a sensor */
+struct air_data_calib_t {
+  bool offset: 1;   ///< Offset calibrated (airframe or calibration)
+  bool scale: 1;    ///< Scale calibrated (airframe)
+};
+
+/** One air data sensor: barometer, differential pressure, airspeed or temperature.
+ * The drivers send the raw values (BARO_ABS_RAW, BARO_DIFF_RAW, AIRSPEED_RAW, TEMPERATURE_RAW)
+ * and the calibrated value is (raw - offset) * scale.
+ */
+struct air_data_sensor_t {
+  uint8_t abi_id;                     ///< ABI sender id of the driver, ABI_DISABLE when unused
+  uint8_t type;                       ///< Temperature type (TEMPERATURE_TYPE_*), only for the temperatures
+  struct air_data_calib_t calibrated; ///< Calibration bitmask
+  float offset;                       ///< Offset, in the raw unit
+  float scale;                        ///< Scale
+  float raw;                          ///< Last raw value (Pa, m/s or deg Celcius)
+  float value;                        ///< Last calibrated value (Pa, m/s or deg Celcius)
+  uint32_t stamp;                     ///< Driver timestamp of the last value (us)
+  float time;                         ///< System time of the last valid value (s), 0 if never
+  float dt;                           ///< Filtered interval between the values (s), for the health check
+  float calib_sum;                    ///< Sum of the raw values while calibrating
+  uint16_t calib_cnt;                 ///< Number of raw values while calibrating
+  float filter_freq;                  ///< Low-pass filter cut-off frequency (Hz), 0 for no filter
+  float filter_dt;                    ///< Interval the filter is set up for (s), 0 if not running
+  Butterworth2LowPass filter;         ///< Low-pass filter of the raw value
+};
+
+/** Air Data structure */
 struct AirData {
+  struct air_data_sensor_t baros[AIR_DATA_MAX_SENSORS];     ///< Barometers (static pressure)
+  struct air_data_sensor_t diffs[AIR_DATA_MAX_SENSORS];     ///< Differential pressure sensors
+  struct air_data_sensor_t airspeeds[AIR_DATA_MAX_SENSORS]; ///< Sensors that only give an airspeed
+  struct air_data_sensor_t temps[AIR_DATA_MAX_SENSORS];     ///< Temperatures
+
+  uint8_t baro_id;      ///< Barometer to use (ABI id), ABI_BROADCAST for the first healthy one
+  uint8_t airspeed_id;  ///< Differential pressure or airspeed sensor to use (ABI id), ABI_BROADCAST for automatic
+  uint8_t temp_id;      ///< Temperature to use (ABI id), ABI_BROADCAST for automatic (air, then pitot, then baro)
+  uint8_t baro_used;    ///< Barometer in use (ABI id), ABI_DISABLE if none
+  uint8_t airspeed_used;///< Airspeed sensor in use (ABI id), ABI_DISABLE if none
+  uint8_t temp_used;    ///< Temperature in use (ABI id), ABI_DISABLE if none
+  uint8_t baro_send_id;     ///< Barometer in the BARO_RAW telemetry (ABI id), ABI_BROADCAST for all in turn, ABI_DISABLE for none
+  uint8_t airspeed_send_id; ///< Airspeed sensor in the AIRSPEED_RAW telemetry (ABI id), ABI_BROADCAST for all in turn, ABI_DISABLE for none
+  float airspeed_filter;    ///< Low-pass filter cut-off frequency (Hz) of the airspeed sensor in use, 0 for no filter
+
+  bool calibrate;       ///< Calibrate all sensors (zero the differential pressures, line up the barometers), true while running
+  bool calib_armed;     ///< Allow the calibration while the motors are armed
+  float qfe;            ///< Static pressure at the last calibration (Pa), -1 if unknown
+
   float pressure;     ///< Static atmospheric pressure (Pa), -1 if unknown
   float differential; ///< Differential pressure (total - static pressure) (Pa)
   float temperature;  ///< temperature in degrees Celcius, -1000 if unknown
 
   float airspeed;     ///< Equivalent Air Speed (equals to Calibrated Air Speed at low speed/altitude) (in m/s, -1 if unknown
   float tas;          ///< True Air Speed (TAS) in m/s, -1 if unknown
-  float tas_factor;   ///< factor to convert equivalent airspeed (EAS) to true airspeed (TAS)
+  float tas_factor;   ///< factor to convert equivalent airspeed (EAS) to true airspeed (TAS), from pressure and temperature (or ISA at the altitude)
   float qnh;              ///< Barometric pressure adjusted to sea level in hPa, -1 if unknown
   float amsl_baro;        ///< altitude above sea level in m from pressure and QNH
   bool amsl_baro_valid; ///< TRUE if #amsl_baro is currently valid
-  bool calc_airspeed;   ///< if TRUE, calculate airspeed from differential pressure
   bool calc_qnh_once;   ///< flag to calculate QNH with next pressure measurement
-  bool calc_amsl_baro;  ///< if TRUE, calculate #amsl_baro
-  bool calc_tas_factor; ///< if TRUE, calculate #tas_factor when getting a temp measurement
 
   float aoa;          ///< angle of attack (rad)
   float sideslip;     ///< sideslip angle (rad)
@@ -69,6 +119,22 @@ extern void air_data_init(void);
 /** Check health. Needs to be called periodically.
  */
 extern void air_data_periodic(void);
+
+/** Start the calibration of all sensors (setting handler).
+ * Zeroes the differential pressures and lines up the barometers with the one in use.
+ * Refused while the motors are armed, unless #AirData.calib_armed.
+ */
+extern void air_data_Calibrate(bool calibrate);
+
+extern void air_data_SetAirspeedFilter(float freq);
+
+/** Find (or create) the sensor of an ABI id.
+ * @param sensors The sensors (air_data.baros, diffs, airspeeds or temps)
+ * @param abi_id The ABI sender id
+ * @param create Take a free slot if not found
+ * @return The sensor, NULL if not found or full
+ */
+extern struct air_data_sensor_t *air_data_get_sensor(struct air_data_sensor_t *sensors, uint8_t abi_id, bool create);
 
 /** Parse datalink wind info message
  */

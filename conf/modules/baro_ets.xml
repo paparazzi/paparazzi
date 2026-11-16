@@ -23,10 +23,9 @@
     <define name="BARO_ETS_ALT_SCALE" value="scale" description="scale factor to convert raw ADC measurement to altitude change in meters (default: 0.32)"/>
     <define name="BARO_ETS_ALT_SCALE" value="scale" description="pressure offset in Pascal when converting raw adc to real pressure (default: 101325.0="/>
     <define name="BARO_ETS_START_DELAY" value="delay" description="set initial start delay in seconds"/>
-    <define name="BARO_ETS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
   <dep>
-    <depends>i2c</depends>
+    <depends>i2c,air_data</depends>
     <provides>baro</provides>
   </dep>
 

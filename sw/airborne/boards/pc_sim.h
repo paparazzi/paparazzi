@@ -19,14 +19,6 @@
 
 #define DefaultVoltageOfAdc(adc) (1.0*adc)
 
-#ifndef USE_BARO_BOARD
-#if USE_NPS
-#define USE_BARO_BOARD 1
-#else
-#define USE_BARO_BOARD 0
-#endif
-#endif
-
 #include "peripherals/video_device.h"
 
 extern struct video_config_t webcam;

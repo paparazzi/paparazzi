@@ -34,7 +34,7 @@
     <define name="INS_EKF2_IMU_CTRL" value="7" description="IMU bitmask: 1 gyro bias, 2 accel bias, 4 gravity vector fusion"/>
     <define name="INS_EKF2_ARSP_THR" value="0" description="Airspeed fusion above this true airspeed [m/s], 0 disables it (fixedwing default 8, 10 for hybrids as PX4 for VTOL)"/>
     <define name="INS_EKF2_FUSE_BETA" value="0" description="Synthetic sideslip fusion in fixed wing flight (fixedwing default 1, also 1 for hybrids)"/>
-    <define name="INS_EKF2_AIRSPEED_ID" value="ABI_BROADCAST" description="ABI sender ID of the airspeed: any sensor, or AIRSPEED_AIR_DATA_ID computed by air_data from a differential pressure sensor (the airspeed estimated from the wind is never used). Choose one when a sensor gives both."/>
+    <define name="INS_EKF2_AIRSPEED_ID" value="AIR_DATA_SENDER_ID" description="ABI sender ID of the airspeed (default: AIR_DATA_SENDER_ID, the sensor selected by air_data; the airspeed estimated from the wind is never used)"/>
     <define name="INS_EKF2_GNSS_CHECK" value="(GNSS_CHECK_NSATS|GNSS_CHECK_EPH|GNSS_CHECK_SACC|GNSS_CHECK_FIX)" description="GNSS checks before the GNSS data is used (GNSS_CHECK_*), PX4 uses all except jamming (2047)"/>
     <define name="INS_EKF2_GNSS_REQ_EPH" value="5.0" description="Maximum horizontal position accuracy [m] (PX4 3.0)"/>
     <define name="INS_EKF2_GNSS_REQ_EPV" value="5.0" description="Maximum vertical position accuracy [m]"/>
@@ -49,7 +49,7 @@
     <define name="INS_EKF2_RNG_MAX_DIST" value="4" description="Maximum distance the range finder measures [m]"/>
     <define name="INS_EKF2_OF_MAX_RATE" value="200" description="Maximum flow rate the optical flow sensor measures [rad/s]"/>
     <define name="INS_EKF2_AGL_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for AGL measurements"/>
-    <define name="INS_EKF2_BARO_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for Barometric measurements"/>
+    <define name="INS_EKF2_BARO_ID" value="AIR_DATA_SENDER_ID" description="ABI sensor ID used ad input for Barometric measurements (default: AIR_DATA_SENDER_ID, the barometer selected by air_data)"/>
     <define name="INS_EKF2_GYRO_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for gyro measurements"/>
     <define name="INS_EKF2_ACCEL_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for acceleration measurements"/>
     <define name="INS_EKF2_MAG_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for magnetic measurements"/>
@@ -76,7 +76,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>@gps,@mag,@imu</depends>
+    <depends>@gps,@mag,@imu,air_data</depends>
     <provides>ins,ahrs</provides>
   </dep>
   <header>

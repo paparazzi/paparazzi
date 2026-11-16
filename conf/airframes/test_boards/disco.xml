@@ -29,7 +29,6 @@
     <module name="airspeed" type="ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c1"/>
     </module>
-    <module name="air_data"/>
     <module name="actuators" type="disco"/>
     <module name="control" type="new"/>
     <module name="navigation"/>
@@ -56,6 +55,16 @@
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
   </rc_commands>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <!-- Low-pass cut-off (Hz) of the pitot, the old 0.15 s time constant of the driver -->
+    <define name="DIFF_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="MS45XX_SENDER_ID"/>
+        <field name="filter_freq" value="1.06"/>
+      </field>
+    </define>
+  </section>
 
   <section name="MIXER">
     <define name="AILEVON_AILERON_RATE" value="0.75"/>

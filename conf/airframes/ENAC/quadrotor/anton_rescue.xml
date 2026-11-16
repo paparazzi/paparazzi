@@ -51,7 +51,6 @@
       <define name="INS_EKF2_FORCE_NAV_REF" value="TRUE"/>
       <define name="INS_EKF2_HGT_REF" value="EKF2_HGT_REF_GNSS"/>
     </module>
-    <module name="air_data"/>
 
     <module name="actuators" type="pwm"/>
     <module name="switch" type="servo"/>
