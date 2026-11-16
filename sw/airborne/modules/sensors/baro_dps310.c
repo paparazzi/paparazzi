@@ -30,11 +30,6 @@
 #include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
 
-#ifdef DPS310_SYNC_SEND
-#include "mcu_periph/uart.h"
-#include "pprzlink/messages.h"
-#include "modules/datalink/downlink.h"
-#endif
 
 /** default slave address */
 #ifndef DPS310_SLAVE_ADDR
@@ -63,10 +58,5 @@ void baro_dps310_event(void)
     AbiSendMsgBARO_ABS_RAW(BARO_DPS310_SENDER_ID, now_ts, baro_dps310.pressure);
     AbiSendMsgTEMPERATURE_RAW(BARO_DPS310_SENDER_ID, now_ts, baro_dps310.temperature, TEMPERATURE_TYPE_BARO);
     baro_dps310.data_available = false;
-
-#ifdef DPS310_SYNC_SEND
-    float payload[4] = {(float)baro_dps310.raw_pressure, (float)baro_dps310.raw_temperature, baro_dps310.pressure, baro_dps310.temperature};
-    DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 4, payload);
-#endif
   }
 }

@@ -28,14 +28,6 @@
 #include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
 
-#include "mcu_periph/uart.h"
-#include "pprzlink/messages.h"
-#include "modules/datalink/downlink.h"
-
-#if PERIODIC_TELEMETRY
-#include "modules/datalink/telemetry.h"
-#endif
-
 /** Commands and scales
  */
 #define SDP3X_SCALE_TEMPERATURE   200.0f
@@ -69,22 +61,6 @@
 
 PRINT_CONFIG_VAR(SDP3X_PRESSURE_SCALE)
 
-/** Send a AIRSPEED_MS45XX message with every new measurement. FIXME
- * Mainly for debugging, use with caution, sends message at ~100Hz.
- */
-#ifndef SDP3X_SYNC_SEND
-#define SDP3X_SYNC_SEND FALSE
-#endif
-
-/** Quadratic scale factor for indicated airspeed.
- * airspeed = sqrt(2*p_diff/density)
- * With p_diff in Pa and standard air density of 1.225 kg/m^3,
- * default airspeed scale is 2/1.225
- */
-#ifndef SDP3X_AIRSPEED_SCALE
-#define SDP3X_AIRSPEED_SCALE 1.6327
-#endif
-
 struct AirspeedSdp3x sdp3x;
 static struct i2c_transaction sdp3x_trans;
 
@@ -110,27 +86,11 @@ static bool sdp3x_crc(const uint8_t data[], unsigned size, uint8_t checksum)
   return (crc_value == checksum);
 }
 
-static void sdp3x_downlink(struct transport_tx *trans, struct link_device *dev)
-{
-  uint8_t dev_id = SDP3X_SENDER_ID;
-  float offset = 0.f; // the offset is in air_data
-  pprz_msg_send_AIRSPEED_RAW(trans,dev,AC_ID,
-                                &dev_id,
-                                &sdp3x.raw_p,
-                                &offset,
-                                &sdp3x.pressure,
-                                &sdp3x.temperature,
-                                &sdp3x.airspeed);
-}
-
 void sdp3x_init(void)
 {
   sdp3x.pressure = 0.f;
   sdp3x.temperature = 0.f;
-  sdp3x.airspeed = 0.f;
   sdp3x.pressure_scale = SDP3X_PRESSURE_SCALE;
-  sdp3x.airspeed_scale = SDP3X_AIRSPEED_SCALE;
-  sdp3x.sync_send = SDP3X_SYNC_SEND;
   sdp3x.initialized = false;
 
   sdp3x_trans.status = I2CTransDone;
@@ -174,7 +134,6 @@ void sdp3x_event(void)
       }
 
       int16_t p_raw = ((int16_t)(buf[0]) << 8) | (int16_t)(buf[1]);
-      sdp3x.raw_p = (uint16_t) p_raw;
 
       float p_out = (float)p_raw / sdp3x.pressure_scale;
 
@@ -188,12 +147,6 @@ void sdp3x_event(void)
       AbiSendMsgBARO_DIFF_RAW(SDP3X_SENDER_ID, now_ts, sdp3x.pressure);
       // Send temperature as float in deg Celcius via ABI
       AbiSendMsgTEMPERATURE_RAW(SDP3X_SENDER_ID, now_ts, sdp3x.temperature, TEMPERATURE_TYPE_DIFF);
-      // Compute airspeed
-      sdp3x.airspeed = sqrtf(Max(sdp3x.pressure * sdp3x.airspeed_scale, 0));
-
-      if (sdp3x.sync_send) {
-        sdp3x_downlink(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
-      }
     }
 
     // Set to done

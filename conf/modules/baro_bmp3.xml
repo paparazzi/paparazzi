@@ -7,7 +7,6 @@
     </description>
     <configure name="BMP3_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c1)"/>
     <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR|BMP3_I2C_ADDR_ALT" description="i2c slave address (default BMP3_I2C_ADDR)"/>
-    <define name="BMP3_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
     <define name="BMP3_COMPENSATION" value="BMP3_SINGLE_PRECISION_COMPENSATION" description="select precision for compensation (single precision, double precision, or integer)"/>
   </doc>
   <dep>

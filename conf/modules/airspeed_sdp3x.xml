@@ -8,17 +8,13 @@
     </description>
     <define name="SDP3X_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c2)"/>
     <define name="SDP3X_I2C_ADDR" value="0x50" description="i2c slave address (default: 0x50)"/>
-    <define name="SDP3X_SYNC_SEND" value="TRUE|FALSE" description="flag to enable sending every new measurement via telemetry (default:FALSE)"/>
     <define name="SDP3X_PRESSURE_SCALE" value="1.0" description="pressure scaling factor to convert raw output to Pa (default: set according to pressure range and output type according to datasheet)"/>
-    <define name="SDP3X_AIRSPEED_SCALE" value="1.6327" description="quadratic scale factor to convert differential pressure to airspeed, only for SDP3X_SYNC_SEND"/>
   </doc>
 
   <settings>
     <dl_settings>
       <dl_settings NAME="SDP3X">
-        <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="sdp3x.sync_send" type="bool" shortname="sync_send" module="modules/sensors/airspeed_sdp3x" param="SDP3X_SYNC_SEND" persistent="true"/>
         <dl_setting min="1.0" max="300." step="1." var="sdp3x.pressure_scale" type="float" shortname="PressScale" module="modules/sensors/airspeed_sdp3x" param="SDP3X_PRESSURE_SCALE" persistent="true"/>
-        <dl_setting min="1.0" max="2.0" step="0.01" var="sdp3x.airspeed_scale" type="float" shortname="AirScale" module="modules/sensors/airspeed_sdp3x" param="SDP3X_AIRSPEED_SCALE" persistent="true"/>
       </dl_settings>
     </dl_settings>
   </settings>

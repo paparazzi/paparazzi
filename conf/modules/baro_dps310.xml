@@ -7,7 +7,6 @@
     </description>
     <configure name="DPS310_I2C_PORT" value="i2cX" description="Select which i2c port the sensor is connected to (default i2c1)"/>
     <define name="DPS310_SLAVE_ADDR" value="DPS310_I2C_ADDR|DPS310_I2C_ADDR_ALT" description="i2c slave address (default DPS310_I2C_ADDR)"/>
-    <define name="DPS310_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
   <dep>
     <depends>i2c,air_data</depends>
