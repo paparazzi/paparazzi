@@ -21,6 +21,8 @@
     <target name="nps" board="pc">
       <module name="radio_control" type="ppm"/>
       <module name="fdm" type="jsbsim"/>
+      <define name="TAWAKIV2_IMU_ROT" value=""/>
+      <define name="TAWAKIV2_MAG_ROT" value=""/>
 
       <!-- to use real panache board in simulation, remove target="ap" from extra_dl.xml -->
       <module name="uart"/>
