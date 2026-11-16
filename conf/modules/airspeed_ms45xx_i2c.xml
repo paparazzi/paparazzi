@@ -9,7 +9,7 @@
 
       If the airspeed reading is badly calibrated, use the MS45XX_PRESSURE_SCALE to compensate.
       Use the MS45XX_AIRSPEED_SCALE only to change air density.
-      Sends the differential pressure to air_data, which zeroes it (at boot and with its Calibrate setting) and computes the airspeed.
+      Sends the differential pressure to air_data, which applies the offset (AIR_DATA_DIFF_CALIB or its Calibrate setting) and computes the airspeed.
     </description>
     <define name="MS45XX_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c2)"/>
     <define name="MS45XX_I2C_ADDR" value="0x50" description="i2c slave address (default: 0x50)"/>

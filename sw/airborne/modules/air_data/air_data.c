@@ -39,6 +39,7 @@
 #include "pprzlink/dl_protocol.h"
 #include "modules/datalink/downlink.h"
 #include <string.h>
+#include <stdio.h>
 
 /** Calibration of the sensors in the airframe, in a section with prefix AIR_DATA_, for example
  * <define name="DIFF_CALIB" type="array">
@@ -116,12 +117,22 @@
 #define AIR_DATA_CALIB_TIME 2.f
 #endif
 
-/** Calibrate at boot the sensors without an offset in the airframe, after AIR_DATA_CALIB_BOOT_DELAY (s) */
+/** Calibrate at boot after AIR_DATA_CALIB_BOOT_DELAY (s): line up the barometers without an offset in the airframe.
+ * The differential pressures are not zeroed at boot (it could be a reboot in flight, or wind),
+ * they keep the offset of the airframe and are only checked at rest, zero them with the Calibrate setting.
+ */
 #ifndef AIR_DATA_CALIB_AT_BOOT
 #define AIR_DATA_CALIB_AT_BOOT TRUE
 #endif
 #ifndef AIR_DATA_CALIB_BOOT_DELAY
 #define AIR_DATA_CALIB_BOOT_DELAY 3.f
+#endif
+
+/** Maximum differential pressure at rest (Pa), above it a warning is sent at boot and in the preflight checks.
+ * 20 Pa is about 5.7 m/s.
+ */
+#ifndef AIR_DATA_DIFF_REST_MAX
+#define AIR_DATA_DIFF_REST_MAX 20.f
 #endif
 
 /** Allow the calibration while the motors are armed */
@@ -160,7 +171,7 @@ static uint8_t baro_health_counter;
 
 /** Calibration state */
 static bool calib_running = false;  ///< Collecting the raw values
-static bool calib_boot = false;     ///< Calibration at boot: keep the offsets from the airframe
+static bool calib_boot = false;     ///< Calibration at boot: keep the offsets from the airframe, don't zero the differential pressures
 static float calib_start = 0.f;     ///< Start time of the calibration (s)
 
 /*
@@ -245,80 +256,72 @@ static bool air_data_sensor_healthy(struct air_data_sensor_t *s, float now)
          (now - s->time) < Max(AIR_DATA_TIMEOUT, AIR_DATA_TIMEOUT_FACTOR * s->dt);
 }
 
-/** Select a sensor: the one of the setting if healthy, otherwise the first healthy calibrated one,
- * otherwise the first healthy one (a barometer that starts late is lined up before it is used)
+/** Select a sensor: the one of the setting (id) if healthy, otherwise the healthy one with the lowest rank,
+ * the first one in the order of the airframe calibration if equal (a rank of UINT8_MAX is never selected)
  */
-static struct air_data_sensor_t *air_data_select(struct air_data_sensor_t *sensors, uint8_t id, float now)
+static struct air_data_sensor_t *air_data_select(struct air_data_sensor_t *sensors[], uint8_t nb, uint8_t id,
+    uint8_t (*rank)(struct air_data_sensor_t *s), float now)
 {
-  struct air_data_sensor_t *first = NULL, *first_calib = NULL;
-  for (uint8_t i = 0; i < AIR_DATA_MAX_SENSORS; i++) {
-    struct air_data_sensor_t *s = &sensors[i];
-    if (!air_data_sensor_healthy(s, now)) {
-      continue;
-    }
-    if (s->abi_id == id) {
-      return s;
-    }
-    if (first == NULL) {
-      first = s;
-    }
-    if (first_calib == NULL && s->calibrated.offset) {
-      first_calib = s;
-    }
-  }
-  return (first_calib != NULL) ? first_calib : first;
-}
-
-/** Select the airspeed: the sensor of the setting if healthy, otherwise the first healthy differential pressure,
- * then airspeed sensor, then an airspeed estimate
- */
-static struct air_data_sensor_t *air_data_select_airspeed(float now)
-{
-  struct air_data_sensor_t *first = NULL, *estimate = NULL;
-  for (uint8_t i = 0; i < 2 * AIR_DATA_MAX_SENSORS; i++) {
-    struct air_data_sensor_t *s = (i < AIR_DATA_MAX_SENSORS) ? &air_data.diffs[i] : &air_data.airspeeds[i - AIR_DATA_MAX_SENSORS];
-    if (!air_data_sensor_healthy(s, now)) {
-      continue;
-    }
-    if (s->abi_id == air_data.airspeed_id) {
-      return s;
-    }
-    if (AIR_DATA_IS_ESTIMATE(s->abi_id)) {
-      if (estimate == NULL) {
-        estimate = s;
-      }
-    } else if (first == NULL) {
-      first = s;
-    }
-  }
-  return (first != NULL) ? first : estimate;
-}
-
-/** Select the temperature: the one of the setting if healthy, otherwise an air temperature probe,
- * then a differential pressure sensor, then a barometer (never an IMU)
- */
-static struct air_data_sensor_t *air_data_select_temp(float now)
-{
-  static const uint8_t order[] = {TEMPERATURE_TYPE_AIR, TEMPERATURE_TYPE_DIFF, TEMPERATURE_TYPE_BARO};
   struct air_data_sensor_t *best = NULL;
-  uint8_t best_rank = sizeof(order);
-  for (uint8_t i = 0; i < AIR_DATA_MAX_SENSORS; i++) {
-    struct air_data_sensor_t *s = &air_data.temps[i];
-    if (!air_data_sensor_healthy(s, now)) {
-      continue;
-    }
-    if (s->abi_id == air_data.temp_id) {
-      return s;
-    }
-    for (uint8_t r = 0; r < best_rank; r++) {
-      if (s->type == order[r]) {
+  uint8_t best_rank = UINT8_MAX;
+  for (uint8_t k = 0; k < nb; k++) {
+    for (uint8_t i = 0; i < AIR_DATA_MAX_SENSORS; i++) {
+      struct air_data_sensor_t *s = &sensors[k][i];
+      if (!air_data_sensor_healthy(s, now)) {
+        continue;
+      }
+      if (s->abi_id == id) {
+        return s;
+      }
+      uint8_t r = rank(s);
+      if (r < best_rank) {
         best = s;
         best_rank = r;
-        break;
       }
     }
   }
   return best;
+}
+
+/** Barometers: first the calibrated ones (a barometer that starts late is lined up before it is used) */
+static uint8_t air_data_rank_baro(struct air_data_sensor_t *s)
+{
+  return s->calibrated.offset ? 0 : 1;
+}
+
+/** Airspeed: first the differential pressures, then the airspeed sensors, then an airspeed estimate */
+static uint8_t air_data_rank_airspeed(struct air_data_sensor_t *s)
+{
+  return AIR_DATA_IS_ESTIMATE(s->abi_id) ? 1 : 0;
+}
+
+/** Temperature: first an air temperature probe, then a differential pressure sensor, then a barometer */
+static uint8_t air_data_rank_temp(struct air_data_sensor_t *s)
+{
+  switch (s->type) {
+    case TEMPERATURE_TYPE_AIR: return 0;
+    case TEMPERATURE_TYPE_DIFF: return 1;
+    case TEMPERATURE_TYPE_BARO: return 2;
+    default: return UINT8_MAX;
+  }
+}
+
+static struct air_data_sensor_t *air_data_select_baro(float now)
+{
+  struct air_data_sensor_t *sensors[] = {air_data.baros};
+  return air_data_select(sensors, 1, air_data.baro_id, air_data_rank_baro, now);
+}
+
+static struct air_data_sensor_t *air_data_select_airspeed(float now)
+{
+  struct air_data_sensor_t *sensors[] = {air_data.diffs, air_data.airspeeds};
+  return air_data_select(sensors, 2, air_data.airspeed_id, air_data_rank_airspeed, now);
+}
+
+static struct air_data_sensor_t *air_data_select_temp(float now)
+{
+  struct air_data_sensor_t *sensors[] = {air_data.temps};
+  return air_data_select(sensors, 1, air_data.temp_id, air_data_rank_temp, now);
 }
 
 
@@ -387,7 +390,7 @@ static void baro_raw_cb(uint8_t sender_id, uint32_t stamp, float pressure)
   AbiSendMsgBARO_ABS(sender_id, stamp, s->value);
 #endif
 
-  struct air_data_sensor_t *sel = air_data_select(air_data.baros, air_data.baro_id, now);
+  struct air_data_sensor_t *sel = air_data_select_baro(now);
   air_data.baro_used = (sel != NULL) ? sel->abi_id : ABI_DISABLE;
   if (sel == s) {
     air_data_set_pressure(stamp, s->value);
@@ -459,8 +462,8 @@ static void temp_raw_cb(uint8_t sender_id, uint32_t stamp, float temp, uint8_t t
   if (!isfinite(temp) || temp < -100.f || temp > 150.f) {
     return;
   }
-  // the IMU and other temperatures don't take a slot, unless selected
-  if ((type == TEMPERATURE_TYPE_IMU || type == TEMPERATURE_TYPE_OTHER) && sender_id != air_data.temp_id) {
+  // only air temperatures: not the IMU and other ones (their ids also overlap with the baro ids)
+  if (type == TEMPERATURE_TYPE_IMU || type == TEMPERATURE_TYPE_OTHER) {
     return;
   }
   struct air_data_sensor_t *s = air_data_get_sensor(air_data.temps, sender_id, true);
@@ -521,7 +524,9 @@ static void air_data_start_calibration(bool boot)
   air_data.calibrate = true;
 }
 
-/** Zero the differential pressures and line up the barometers with the one in use */
+/** Zero the differential pressures (not at boot, then only check them at rest)
+ * and line up the barometers with the one in use
+ */
 static void air_data_finish_calibration(void)
 {
   calib_running = false;
@@ -529,13 +534,26 @@ static void air_data_finish_calibration(void)
 
   for (uint8_t i = 0; i < AIR_DATA_MAX_SENSORS; i++) {
     struct air_data_sensor_t *s = &air_data.diffs[i];
-    if (s->calib_cnt > 0 && !(calib_boot && s->calibrated.offset)) {
-      s->offset = s->calib_sum / s->calib_cnt;
+    if (s->calib_cnt == 0) {
+      continue;
+    }
+    float mean = s->calib_sum / s->calib_cnt;
+    if (!calib_boot) {
+      s->offset = mean;
       s->calibrated.offset = true;
+    } else if (s->calibrated.offset && fabsf((mean - s->offset) * s->scale) > AIR_DATA_DIFF_REST_MAX) {
+#if DOWNLINK
+      char msg[64];
+      int len = snprintf(msg, sizeof(msg), "Airspeed sensor %d: %d Pa at rest, check it or Calibrate",
+                         s->abi_id, (int)((mean - s->offset) * s->scale));
+      if (len > 0) {
+        DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, Min(len, (int)sizeof(msg) - 1), msg);
+      }
+#endif
     }
   }
 
-  struct air_data_sensor_t *ref = air_data_select(air_data.baros, air_data.baro_id, get_sys_time_float());
+  struct air_data_sensor_t *ref = air_data_select_baro(get_sys_time_float());
   if (ref != NULL && ref->calib_cnt > 0) {
     float p_ref = (ref->calib_sum / ref->calib_cnt - ref->offset) * ref->scale;
     air_data.qfe = p_ref;
@@ -586,16 +604,23 @@ static struct preflight_check_t air_data_pfc;
 static void air_data_preflight(struct preflight_result_t *result)
 {
   uint16_t fail_cnt = result->fail_cnt;
+  uint16_t warning_cnt = result->warning_cnt;
   if (calib_running) {
     preflight_error(result, "Air data calibrating");
   }
+  // Not zeroed (no offset in the airframe, also a sensor that started late): Calibrate before arming
+  // At rest before arming: warn on a large differential pressure (wrong offset, broken sensor or wind), don't block
+  float now = get_sys_time_float();
   for (uint8_t i = 0; i < AIR_DATA_MAX_SENSORS; i++) {
-    if (air_data.diffs[i].abi_id != ABI_DISABLE && !air_data.diffs[i].calibrated.offset) {
-      preflight_error(result, "Airspeed sensor %d not zeroed", air_data.diffs[i].abi_id);
+    struct air_data_sensor_t *s = &air_data.diffs[i];
+    if (s->abi_id != ABI_DISABLE && !s->calibrated.offset) {
+      preflight_error(result, "Airspeed sensor %d not zeroed, Calibrate", s->abi_id);
+    } else if (air_data_sensor_healthy(s, now) && fabsf(s->value) > AIR_DATA_DIFF_REST_MAX) {
+      preflight_warning(result, "Airspeed sensor %d: %d Pa at rest", s->abi_id, (int)s->value);
     }
   }
-  if (result->fail_cnt == fail_cnt) {
-    preflight_success(result, "Air data calibrated");
+  if (result->fail_cnt == fail_cnt && result->warning_cnt == warning_cnt) {
+    preflight_success(result, "Air data ok");
   }
 }
 #endif
@@ -766,7 +791,7 @@ void air_data_periodic(void)
 
   // Sensors in use, also when they stop sending
   float now = get_sys_time_float();
-  struct air_data_sensor_t *s = air_data_select(air_data.baros, air_data.baro_id, now);
+  struct air_data_sensor_t *s = air_data_select_baro(now);
   air_data.baro_used = (s != NULL) ? s->abi_id : ABI_DISABLE;
   s = air_data_select_airspeed(now);
   air_data.airspeed_used = (s != NULL) ? s->abi_id : ABI_DISABLE;

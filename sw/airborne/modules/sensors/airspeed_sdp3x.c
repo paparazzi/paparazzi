@@ -67,14 +67,7 @@
 #define SDP3X_PRESSURE_SCALE SDP3X_SCALE_PRESSURE_SDP31
 #endif
 
-/* Default offset
- */
-#ifndef SDP3X_PRESSURE_OFFSET
-#define SDP3X_PRESSURE_OFFSET 0.f
-#endif
-
 PRINT_CONFIG_VAR(SDP3X_PRESSURE_SCALE)
-PRINT_CONFIG_VAR(SDP3X_PRESSURE_OFFSET)
 
 /** Send a AIRSPEED_MS45XX message with every new measurement. FIXME
  * Mainly for debugging, use with caution, sends message at ~100Hz.
@@ -120,10 +113,11 @@ static bool sdp3x_crc(const uint8_t data[], unsigned size, uint8_t checksum)
 static void sdp3x_downlink(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t dev_id = SDP3X_SENDER_ID;
+  float offset = 0.f; // the offset is in air_data
   pprz_msg_send_AIRSPEED_RAW(trans,dev,AC_ID,
                                 &dev_id,
                                 &sdp3x.raw_p,
-                                &sdp3x.pressure_offset,
+                                &offset,
                                 &sdp3x.pressure,
                                 &sdp3x.temperature,
                                 &sdp3x.airspeed);
@@ -135,7 +129,6 @@ void sdp3x_init(void)
   sdp3x.temperature = 0.f;
   sdp3x.airspeed = 0.f;
   sdp3x.pressure_scale = SDP3X_PRESSURE_SCALE;
-  sdp3x.pressure_offset = SDP3X_PRESSURE_OFFSET;
   sdp3x.airspeed_scale = SDP3X_AIRSPEED_SCALE;
   sdp3x.sync_send = SDP3X_SYNC_SEND;
   sdp3x.initialized = false;
@@ -183,7 +176,7 @@ void sdp3x_event(void)
       int16_t p_raw = ((int16_t)(buf[0]) << 8) | (int16_t)(buf[1]);
       sdp3x.raw_p = (uint16_t) p_raw;
 
-      float p_out = ((float)p_raw / sdp3x.pressure_scale) - sdp3x.pressure_offset;
+      float p_out = (float)p_raw / sdp3x.pressure_scale;
 
       sdp3x.pressure = p_out;
 

@@ -12,9 +12,13 @@
     with AIR_DATA_SENDER_ID as BARO_ABS, BARO_DIFF, AIRSPEED and TEMPERATURE. It falls back to the next healthy sensor
     when one stops sending. It also calculates QNH, true airspeed and AMSL (AltitudeAboveSeaLevel) to fly on "flight levels".
 
-    The calibration (at boot and with the Calibrate setting) zeroes the differential pressures and lines up the barometers
-    with the one in use, so switching barometers gives no altitude step. It is refused while the motors are armed, unless calib_armed.
-    At boot the sensors with an offset in the airframe keep it.
+    The Calibrate setting zeroes the differential pressures and lines up the barometers with the one in use,
+    so switching barometers gives no altitude step. It is refused while the motors are armed, unless calib_armed.
+    The calibration at boot only lines up the barometers without an offset in the airframe. The differential pressures
+    are not zeroed at boot (it could be a reboot in flight, or wind would give a wrong offset), they use the offset of the
+    airframe (DIFF_CALIB). Without it (or for a sensor that starts late) the preflight checks give an error until
+    Calibrate is pressed. When the differential pressure at rest is above AIR_DATA_DIFF_REST_MAX a warning is sent
+    at boot and in the preflight checks (it doesn't block arming): check the sensor or press Calibrate.
 
     It is loaded automatically (by the barometers, pitots, INS and the ap and simulation targets), like the IMU it is not
     added to the airframe. The configuration goes in a section with prefix AIR_DATA_, for example:
@@ -53,9 +57,10 @@
     <define name="AIR_DATA_TIMEOUT_FACTOR" value="5." description="a sensor is unhealthy without a valid value for this times its interval"/>
     <define name="AIR_DATA_ALIGN_NB" value="20" description="number of values to line up a barometer that starts after the calibration"/>
     <define name="AIR_DATA_DIFF_MAX" value="10000." description="differential pressures above this (Pa) are ignored"/>
-    <define name="AIR_DATA_CALIB_AT_BOOT" value="TRUE|FALSE" description="calibrate at boot (default: TRUE)"/>
+    <define name="AIR_DATA_CALIB_AT_BOOT" value="TRUE|FALSE" description="line up the barometers and check the differential pressures at rest at boot (default: TRUE)"/>
     <define name="AIR_DATA_CALIB_BOOT_DELAY" value="3." description="time after boot of the calibration in s"/>
     <define name="AIR_DATA_CALIB_TIME" value="2." description="calibration time in s"/>
+    <define name="AIR_DATA_DIFF_REST_MAX" value="20." description="maximum differential pressure at rest in Pa, above it a warning is sent at boot and in the preflight checks"/>
     <define name="AIR_DATA_CALIB_ARMED" value="FALSE|TRUE" description="allow the calibration while armed (default: FALSE)"/>
     <define name="USE_AIRSPEED_AIR_DATA" value="TRUE|FALSE" description="set airspeed in state interface (default: TRUE)"/>
   </doc>

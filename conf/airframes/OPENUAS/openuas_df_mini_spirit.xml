@@ -119,7 +119,6 @@
         <define name="SDP3X_I2C_ADDR" value="0x50"/>
         <define name="SDP3X_SYNC_SEND" value="FALSE"/>
         <define name="SDP3X_PRESSURE_SCALE" value="SDP3X_SCALE_PRESSURE_SDP33"/>
-        <define name="SDP3X_PRESSURE_OFFSET" value="0.0"/>
         <define name="SDP3X_AIRSPEED_SCALE" value="1.6327"/>
       </module>
 

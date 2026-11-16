@@ -124,14 +124,16 @@ void nps_autopilot_run_step(double time)
   }
 
   if (nps_sensors_temperature_available()) {
-    AbiSendMsgTEMPERATURE_RAW(BARO_SIM_SENDER_ID, get_sys_time_usec(), (float)sensors.temp.value, TEMPERATURE_TYPE_AIR);
+    uint32_t now_ts = get_sys_time_usec();
+    AbiSendMsgTEMPERATURE_RAW(BARO_SIM_SENDER_ID, now_ts, (float)sensors.temp.value, TEMPERATURE_TYPE_AIR);
     main_ap_event();
   }
 
 #if USE_AIRSPEED
   if (nps_sensors_airspeed_available()) {
     stateSetAirspeed_f(MODULE_NPS_ID, (float)sensors.airspeed.value);
-    AbiSendMsgAIRSPEED_RAW(AIRSPEED_NPS_ID, get_sys_time_usec(), (float)sensors.airspeed.value);
+    uint32_t now_ts = get_sys_time_usec();
+    AbiSendMsgAIRSPEED_RAW(AIRSPEED_NPS_ID, now_ts, (float)sensors.airspeed.value);
     main_ap_event();
   }
 #endif
