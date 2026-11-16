@@ -11,6 +11,9 @@ empy<=3.3.4
 pexpect
 setuptools<82  # dronecan needs pkg_resources, removed in setuptools 82
 dronecan
+# Build of the submodules in sw/ext (mavlink): its generator imports imp, removed from Python 3.12
+future
+zombie-imp; python_version >= "3.12"
 # Programs with a requirements.txt of their own
 -r sw/supervision/python/requirements.txt
 -r sw/logalizer/requirements.txt
