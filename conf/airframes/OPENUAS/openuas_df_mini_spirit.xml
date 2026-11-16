@@ -117,9 +117,7 @@
       <module name="airspeed" type="sdp3x">
         <configure name="SDP3X_I2C_DEV" value="i2c1"/>
         <define name="SDP3X_I2C_ADDR" value="0x50"/>
-        <define name="SDP3X_SYNC_SEND" value="FALSE"/>
         <define name="SDP3X_PRESSURE_SCALE" value="SDP3X_SCALE_PRESSURE_SDP33"/>
-        <define name="SDP3X_AIRSPEED_SCALE" value="1.6327"/>
       </module>
 
       <module name="actuators" type="pwm"/>

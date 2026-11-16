@@ -31,15 +31,8 @@
 
 #include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
-#include "mcu_periph/uart.h"
-#include "pprzlink/messages.h"
-#include "modules/datalink/downlink.h"
 #include "math/pprz_isa.h"
 
-#if DOWNLINK && !defined(BMP280_SYNC_SEND)
-#include "modules/datalink/telemetry.h"
-#endif
-PRINT_CONFIG_VAR(BMP280_SYNC_SEND)
 
 #ifndef BMP280_USE_SPI
 #define BMP280_USE_SPI FALSE
@@ -65,19 +58,6 @@ bool baro_alt_valid = 0;
 
 struct bmp280_t baro_bmp280;
 
-#if DOWNLINK && !defined(BMP280_SYNC_SEND)
-static void send_baro_bmp_data(struct transport_tx *trans, struct link_device *dev)
-{
-  int32_t baro_altitude = (int32_t)(baro_alt * 100);
-  int32_t baro_pressure = (int32_t)(baro_press);
-  int32_t baro_temperature = (int32_t)(baro_temp * 100);
-
-  pprz_msg_send_BMP_STATUS(trans, dev, AC_ID, &baro_altitude, &baro_altitude , &baro_pressure, & baro_temperature);
-
-  return;
-}
-#endif
-
 
 void baro_bmp280_init(void)
 {
@@ -91,9 +71,6 @@ void baro_bmp280_init(void)
     baro_bmp280.i2c.slave_addr = BMP280_SLAVE_ADDR;
   #endif
   bmp280_init(&baro_bmp280);
-#if DOWNLINK && !defined(BMP280_SYNC_SEND)
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BMP_STATUS, send_baro_bmp_data);
-#endif
 }
 
 void baro_bmp280_periodic(void)
@@ -115,13 +92,5 @@ void baro_bmp280_event(void)
     baro_alt_valid = true;
     baro_press = (float)baro_bmp280.pressure;
     baro_temp = ((float)baro_bmp280.temperature) / 100;
-
-#if defined(BMP280_SYNC_SEND)
-    int32_t up = (int32_t)(baro_bmp280.raw_pressure);
-    int32_t ut = (int32_t)(baro_bmp280.raw_temperature);
-    int32_t p = (int32_t) baro_bmp280.pressure;
-    int32_t t = (int32_t)(baro_bmp280.temperature);
-    DOWNLINK_SEND_BMP_STATUS(DefaultChannel, DefaultDevice, &up, &ut, &p, &t);
-#endif
   }
 }

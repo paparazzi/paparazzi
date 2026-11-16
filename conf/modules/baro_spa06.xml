@@ -9,7 +9,6 @@
     <configure name="SPA06_DEV" value="i2cX/spiX" description="select which i2c/spi peripheral to use (default i2c1/spi1)"/>
     <configure name="SPA06_SLAVE_IDX" value="spi_slave0" description="select which slave peripheral to use when bus is spi (default spi_slave0)"/>
     <define name="SPA06_SLAVE_ADDR" value="SPA06_I2C_ADDR|SPA06_I2C_ADDR_ALT" description="i2c slave address (default SPA06_I2C_ADDR)"/>
-    <define name="SPA06_SYNC_SEND" description="flag to transmit the data as it is acquired, good for debugging only"/>
   </doc>
   <dep>
     <depends>i2c|spi_master,air_data</depends>

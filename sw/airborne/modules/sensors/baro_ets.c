@@ -48,13 +48,6 @@
 
 #include "firmwares/fixedwing/nav.h"
 
-#ifdef BARO_ETS_SYNC_SEND
-
-#include "mcu_periph/uart.h"
-#include "pprzlink/messages.h"
-#include "modules/datalink/downlink.h"
-#endif //BARO_ETS_SYNC_SEND
-
 #define BARO_ETS_ADDR 0xE8
 #define BARO_ETS_REG 0x07
 #define BARO_ETS_OFFSET_MAX 30000
