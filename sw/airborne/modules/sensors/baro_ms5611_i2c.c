@@ -32,9 +32,6 @@
 #include "math/pprz_isa.h"
 #include "mcu_periph/sys_time.h"
 #include "modules/core/abi.h"
-#include "mcu_periph/uart.h"
-#include "pprzlink/messages.h"
-#include "modules/datalink/downlink.h"
 
 
 #ifndef MS5611_I2C_DEV
@@ -78,11 +75,6 @@ void baro_ms5611_periodic_check(void)
 {
 
   ms5611_i2c_periodic_check(&baro_ms5611);
-
-#if SENSOR_SYNC_SEND
-  // send coeff every 30s
-  RunOnceEvery((30 * BARO_MS5611_PERIODIC_CHECK_FREQ), baro_ms5611_send_coeff());
-#endif
 }
 
 /// trigger new measurement or initialize if needed
@@ -109,20 +101,5 @@ void baro_ms5611_event(void)
     baro_ms5611_alt = pprz_isa_altitude_of_pressure(pressure);
     baro_ms5611_alt_valid = true;
 
-  }
-}
-
-void baro_ms5611_send_coeff(void)
-{
-  if (baro_ms5611.initialized) {
-    DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
-                               &baro_ms5611.data.c[0],
-                               &baro_ms5611.data.c[1],
-                               &baro_ms5611.data.c[2],
-                               &baro_ms5611.data.c[3],
-                               &baro_ms5611.data.c[4],
-                               &baro_ms5611.data.c[5],
-                               &baro_ms5611.data.c[6],
-                               &baro_ms5611.data.c[7]);
   }
 }
