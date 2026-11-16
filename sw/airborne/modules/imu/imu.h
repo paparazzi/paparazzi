@@ -57,6 +57,8 @@ struct imu_rate_est_t {
   uint32_t start;                     ///< Timestamp of the current window start (us)
   uint32_t samples;                   ///< Samples received since the window start
   float rate;                         ///< Filtered measured sample rate (Hz), 0 until the first window
+  uint16_t windows;                   ///< Accepted windows, up to IMU_RATE_EST_REPORT when the rate is reported
+  bool rejected;                      ///< A window was rejected (out of bounds), only warned once
 };
 
 struct imu_gyro_t {

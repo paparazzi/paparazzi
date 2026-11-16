@@ -59,6 +59,11 @@
 #define IMU_RATE_EST_JITTER 2000
 #endif
 
+/** Number of accepted windows after which the measured sample rate is reported once (INFO_MSG) */
+#ifndef IMU_RATE_EST_REPORT
+#define IMU_RATE_EST_REPORT 30
+#endif
+
 /** By default gyro signs are positive for single IMU with old format or defaults */
 #if defined(IMU_GYRO_CALIB) && (defined(IMU_GYRO_P_SIGN) || defined(IMU_GYRO_Q_SIGN) || defined(IMU_GYRO_R_SIGN))
 #warning "The IMU_GYRO_?_SIGN's aren't compatible with the IMU_GYRO_CALIB define in the airframe"
@@ -403,7 +408,11 @@ static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
   chprintf(sh, "GYRO IMU data\r\n");
   for (i = 0; i < IMU_MAX_SENSORS; i++) {
     if (imu.gyros[i].abi_id != 0) {
-      chprintf(sh, " Gyro id: %u, time %lu, measured rate %.2f Hz\r\n", imu.gyros[i].abi_id, imu.gyros[i].last_stamp, imu.gyros[i].rate_est.rate);
+#if IMU_INTEGRATION
+      chprintf(sh, " Gyro id: %u, time %lu, measured rate %.2f Hz (0: not measured yet)\r\n", imu.gyros[i].abi_id, imu.gyros[i].last_stamp, imu.gyros[i].rate_est.rate);
+#else
+      chprintf(sh, " Gyro id: %u, time %lu\r\n", imu.gyros[i].abi_id, imu.gyros[i].last_stamp);
+#endif
       show_calibrated(sh, &imu.gyros[i].calibrated);
       show_rates(sh, "neutral", &imu.gyros[i].neutral);
       show_ratesf(sh, "scale", &imu.gyros[i].scale_f);
@@ -418,7 +427,11 @@ static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
   chprintf(sh, "ACCEL IMU data\r\n");
   for (i = 0; i < IMU_MAX_SENSORS; i++) {
     if (imu.accels[i].abi_id != 0) {
-      chprintf(sh, " Accel id: %u, time %lu, measured rate %.2f Hz\r\n", imu.accels[i].abi_id, imu.accels[i].last_stamp, imu.accels[i].rate_est.rate);
+#if IMU_INTEGRATION
+      chprintf(sh, " Accel id: %u, time %lu, measured rate %.2f Hz (0: not measured yet)\r\n", imu.accels[i].abi_id, imu.accels[i].last_stamp, imu.accels[i].rate_est.rate);
+#else
+      chprintf(sh, " Accel id: %u, time %lu\r\n", imu.accels[i].abi_id, imu.accels[i].last_stamp);
+#endif
       show_calibrated(sh, &imu.accels[i].calibrated);
       show_vect3(sh, "neutral", &imu.accels[i].neutral);
       show_vect3f(sh, "scale", &imu.accels[i].scale_f);
@@ -478,27 +491,72 @@ static bool imu_filter_init(Butterworth2LowPass filter[3], float freq, float sam
 }
 
 #if IMU_INTEGRATION
+#include "modules/datalink/downlink.h"
+#include "modules/loggers/flight_recorder.h"
+#include <stdio.h>
+
+/**
+ * @brief Send a message about the measured sample rate to the GCS (and the flight recorder log)
+ * @param name The sensor type
+ * @param id The ABI id of the sensor
+ * @param rate The measured rate (Hz)
+ * @param ref The reference rate (Hz)
+ * @param rejected The measured rate is rejected (warning), else it is reported
+ */
+static void imu_rate_est_info(const char *name, uint8_t id, float rate, float ref, bool rejected)
+{
+  char msg[100];
+  int len;
+  if(rejected) {
+    len = snprintf(msg, sizeof(msg), "IMU %s %u: measured rate %.2f Hz rejected, too far from %.2f Hz (check sample_freq)",
+                   name, id, rate, ref);
+  } else {
+    len = snprintf(msg, sizeof(msg), "IMU %s %u: measured rate %.2f Hz (ref %.2f Hz)", name, id, rate, ref);
+  }
+  if(len <= 0) {
+    return;
+  }
+  len = Min(len, (int)sizeof(msg) - 1);
+  DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, len, msg);
+#if FLIGHTRECORDER_SDLOG
+  pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, len, msg);
+#endif
+}
+
 /**
  * @brief Measure the sample rate from the number of samples against the timestamps
  * The timestamps (us, MCU crystal) jitter with the scheduling, but only the window ends count, so the error
  * is about 2 * jitter / window, further averaged by the low-pass over the windows (consecutive windows share
  * their ends). Windows with a gap (lost samples, e.g. a FIFO overflow) or out of bounds are discarded.
+ * The measured rate is reported once after IMU_RATE_EST_REPORT windows, and a warning is sent once
+ * if a window is rejected for being out of bounds (e.g. a wrong calibrated sample_freq).
  * @param est The rate estimator of the sensor
+ * @param name The sensor type for the messages
+ * @param id The ABI id of the sensor for the messages
  * @param ref The reference rate (Hz), the calibrated sample_freq or the driver rate
  * @param stamp The timestamp of this callback (us)
  * @param last_stamp The timestamp of the previous callback (us), 0 if none
  * @param samples The number of samples in this callback
- * @return The measured rate if it is within IMU_RATE_EST_BOUND of the reference, else the reference
+ * @return The measured rate if it is within IMU_RATE_EST_BOUND of the reference, else the reference,
+ *         0 if there is no valid previous timestamp (nothing to integrate)
  */
-static float imu_rate_est_update(struct imu_rate_est_t *est, float ref, uint32_t stamp, uint32_t last_stamp, uint8_t samples)
+static float imu_rate_est_update(struct imu_rate_est_t *est, const char *name, uint8_t id, float ref,
+                                 uint32_t stamp, uint32_t last_stamp, uint8_t samples)
 {
   if(!isfinite(ref) || !(ref > 0.f)) {
     return ref;
   }
 
+  // No previous timestamp or the timer overflowed
+  if(last_stamp == 0 || stamp <= last_stamp) {
+    est->start = stamp;
+    est->samples = 0;
+    return 0.f;
+  }
+
   const float bound = IMU_RATE_EST_BOUND * ref;
   const float max_interval = samples * (1e6f / ref) * (1.f + IMU_RATE_EST_BOUND) + IMU_RATE_EST_JITTER;
-  if(last_stamp == 0 || stamp <= last_stamp || (float)(stamp - last_stamp) > max_interval) {
+  if((float)(stamp - last_stamp) > max_interval) {
     // Start a new window from this callback (its samples are from before the timestamp)
     est->start = stamp;
     est->samples = 0;
@@ -509,6 +567,12 @@ static float imu_rate_est_update(struct imu_rate_est_t *est, float ref, uint32_t
       const float window_rate = (float)est->samples * 1e6f / (float)window;
       if(fabsf(window_rate - ref) <= bound) {
         est->rate = (est->rate > 0.f) ? est->rate + IMU_RATE_EST_ALPHA * (window_rate - est->rate) : window_rate;
+        if(est->windows < IMU_RATE_EST_REPORT && ++est->windows == IMU_RATE_EST_REPORT) {
+          imu_rate_est_info(name, id, est->rate, ref, false);
+        }
+      } else if(!est->rejected) {
+        est->rejected = true;
+        imu_rate_est_info(name, id, window_rate, ref, true);
       }
       est->start = stamp;
       est->samples = 0;
@@ -897,11 +961,11 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
   int32_rmat_transp_ratemult(&scaled_rot, &gyro->body_to_sensor, &scaled);
 
 #if IMU_INTEGRATION
-  // Only integrate if we have gotten a previous measurement and didn't overflow the timer
+  // Only integrate if we have gotten a previous measurement and didn't overflow the timer (rate 0)
   // and the rate is valid (positive and finite, NaN if unknown)
   // The measured sample rate is used if it is within IMU_RATE_EST_BOUND of the calibrated or driver rate
-  const float int_rate = imu_rate_est_update(&gyro->rate_est, rate, stamp, gyro->last_stamp, samples);
-  const bool integrate = isfinite(int_rate) && int_rate > 0.f && gyro->last_stamp > 0 && stamp > gyro->last_stamp;
+  const float int_rate = imu_rate_est_update(&gyro->rate_est, "gyro", sender_id, rate, stamp, gyro->last_stamp, samples);
+  const bool integrate = isfinite(int_rate) && int_rate > 0.f;
 
   // Integrate in the sensor frame (coning is independent of a fixed rotation), rotate to body frame at the end
   struct FloatVect3 alpha = {0.f, 0.f, 0.f}, beta = {0.f, 0.f, 0.f};
@@ -923,7 +987,9 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
     if(integrate) {
       imu_integrate_sample(&alpha, &beta, &gyro->last_sample, &gyro->last_delta_alpha, &f_sample, sample_dt);
     } else {
+      // Restart the integration and the coning correction from this sample
       gyro->last_sample = f_sample;
+      FLOAT_VECT3_ZERO(gyro->last_delta_alpha);
     }
   }
 
@@ -1004,11 +1070,11 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
   int32_rmat_transp_vmult(&scaled_rot, &accel->body_to_sensor, &scaled);
 
 #if IMU_INTEGRATION
-  // Only integrate if we have gotten a previous measurement and didn't overflow the timer
+  // Only integrate if we have gotten a previous measurement and didn't overflow the timer (rate 0)
   // and the rate is valid (positive and finite, NaN if unknown)
   // The measured sample rate is used if it is within IMU_RATE_EST_BOUND of the calibrated or driver rate
-  const float int_rate = imu_rate_est_update(&accel->rate_est, rate, stamp, accel->last_stamp, samples);
-  const bool integrate = isfinite(int_rate) && int_rate > 0.f && accel->last_stamp > 0 && stamp > accel->last_stamp;
+  const float int_rate = imu_rate_est_update(&accel->rate_est, "accel", sender_id, rate, stamp, accel->last_stamp, samples);
+  const bool integrate = isfinite(int_rate) && int_rate > 0.f;
 
   // Integrate in the sensor frame, rotate to body frame at the end
   struct FloatVect3 alpha = {0.f, 0.f, 0.f};
