@@ -97,7 +97,7 @@ dronecan:
 ifneq ($(findstring ModuleNotFoundError, $(MY_DRONECANTOOLS)),ModuleNotFoundError)
 	$(Q)$(MAKE) -C dronecan
 else
-	@echo dronecan not installed, missing package 'em'
+	@echo dronecan code not generated, missing Python package empy (Ubuntu: sudo apt install python3-empy python3-pexpect)
 endif
 
 unifiedmocaprouter: unifiedmocaprouter.update unifiedmocaprouter.build

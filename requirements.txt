@@ -7,9 +7,8 @@ ivy-python
 pyserial
 distro
 # Build of the submodules in sw/ext (dronecan)
-empy<=3.3.4
+empy
 pexpect
-setuptools<82  # dronecan needs pkg_resources, removed in setuptools 82
 dronecan
 # Programs with a requirements.txt of their own
 -r sw/supervision/python/requirements.txt
