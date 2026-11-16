@@ -110,6 +110,18 @@ else
   exit 1
 fi
 
+# Libraries of the pip packages of the tools, present on an Ubuntu desktop but not on a minimal install:
+#  - libasound2 (ALSA sound) and libxfixes3 (X11): the Qt WebEngine of the Paparazzi Center (documentation tab)
+#  - libusb-1.0-0 (USB): Open3D of the RotWing 3D visualizer
+# libasound2 is called libasound2t64 from Ubuntu 24.04 on
+if apt-cache show libasound2t64 >/dev/null 2>&1; then LIBASOUND=libasound2t64; else LIBASOUND=libasound2; fi
+if run_step "Installing libraries of the Center documentation (sound, X11) and the 3D visualizer (USB)" \
+     sudo apt install -y $LIBASOUND libxfixes3 libusb-1.0-0; then
+  print_success "Libraries of the Python tools installed successfully"
+else
+  exit 1
+fi
+
 
 # ── Set up Python environment ────────────────────────────────────────────────
 

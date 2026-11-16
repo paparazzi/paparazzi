@@ -1,0 +1,3 @@
+pymap3d
+scipy
+numpy
