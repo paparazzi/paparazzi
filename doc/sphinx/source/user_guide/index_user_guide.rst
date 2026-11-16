@@ -12,6 +12,7 @@ Start conquering the wolrd, by making incredible :doc:`flight_plans`!
     :maxdepth: 1
     
     more_on_paparazzi_center
+    tools
     airframe
     flight_plans
     mission_mode

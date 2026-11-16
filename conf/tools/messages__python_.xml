@@ -1,2 +1,14 @@
-<program command="sw/ground_segment/python/messages_app/messagesapp.py" name="Messages (Python)" />
+<program command="sw/ground_segment/python/messages_app/messagesapp.py" name="Messages (Python)">
+  <doc>
+    <description>
+      Show the last value of every message on the Ivy bus
+    </description>
+    <usage>usage: messagesapp.py [-h] [-b IVY_BUS] [-c CLASSES] [-force] [-timestamp] [-g GEOMETRY]</usage>
+    <option flag="-b IVY_BUS, --ivy_bus IVY_BUS" description="Ivy bus address and port [default to system IVY bus]"/>
+    <option flag="-c CLASSES, --class CLASSES" description="class[:sender] to show, can be repeated (telemetry:* is always shown, sender * = one tab per sender)"/>
+    <option flag="-force, --force" description="show every telemetry sender, not only those that sent ALIVE"/>
+    <option flag="-timestamp, --timestamp" description="ignored, for compatibility"/>
+    <option flag="-g GEOMETRY, --geometry GEOMETRY" description="window geometry, e.g. 500x500+100+100"/>
+  </doc>
+</program>
 

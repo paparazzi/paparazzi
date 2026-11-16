@@ -1,2 +1,9 @@
-<program command="sw/tools/gzclient_launcher.sh" name="Gazebo" />
+<program command="sw/tools/gzclient_launcher.sh" name="Gazebo">
+  <doc>
+    <description>
+      Starts the Gazebo GUI with the Paparazzi model paths (gzclient for Gazebo Classic, otherwise the gz-sim GUI). It connects to the Gazebo server running in the NPS simulator.
+    </description>
+    <usage>usage: gzclient_launcher.sh</usage>
+  </doc>
+</program>
 

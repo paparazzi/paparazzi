@@ -1,2 +1,25 @@
-<program command="sw/ground_segment/misc/ntrip2ivy.py" name="NTRIP2ivy" />
+<program command="sw/ground_segment/misc/ntrip2ivy.py" name="NTRIP2ivy">
+  <doc>
+    <description>
+      Forwards RTCM3 corrections from an NTRIP caster or from a mixed UBX/RTCM serial input to the aircraft over Ivy.
+    </description>
+    <usage>usage: ntrip2ivy.py [-h] [-m MOUNTPOINT] [--url URL] [--username USERNAME] [--password PASSWORD] [-d RTK_BASE] [-b RTK_BASE_BAUDRATE] [--no-ivy] [--bus BUS] [--serial-output SERIAL_OUTPUT] [--serial-output-baudrate SERIAL_OUTPUT_BAUDRATE] [-p PACKET_SIZE] [--chunk-size CHUNK_SIZE] [--reconnect-delay RECONNECT_DELAY] [--fragment-delay FRAGMENT_DELAY] [--zero-df393 [MSG_ID ...]] [-v]</usage>
+    <option flag="-m MOUNTPOINT, --mountpoint MOUNTPOINT" description="NTRIP mountpoint (default: ENFA)"/>
+    <option flag="--url URL" description="NTRIP caster URL (default: https://crtk.net:443)"/>
+    <option flag="--username USERNAME" description="NTRIP username (default: centipede)"/>
+    <option flag="--password PASSWORD" description="NTRIP password"/>
+    <option flag="-d RTK_BASE" description="Read mixed UBX/RTCM input from this RTK base serial port instead of NTRIP"/>
+    <option flag="-b RTK_BASE_BAUDRATE" description="RTK base baudrate (default: 9600)"/>
+    <option flag="--no-ivy" description="Do not forward RTCM messages to Ivy"/>
+    <option flag="--bus BUS" description="Ivy bus address"/>
+    <option flag="--serial-output SERIAL_OUTPUT" description="Optional serial output receiving raw RTCM frames"/>
+    <option flag="--serial-output-baudrate SERIAL_OUTPUT_BAUDRATE" description="Serial output baudrate (default: 9600)"/>
+    <option flag="-p PACKET_SIZE, --packet-size PACKET_SIZE" description="Paparazzi payload size"/>
+    <option flag="--chunk-size CHUNK_SIZE" description="GNSS parser read buffer size"/>
+    <option flag="--reconnect-delay RECONNECT_DELAY" description="Delay before reconnecting"/>
+    <option flag="--fragment-delay FRAGMENT_DELAY" description="Delay between Ivy fragments"/>
+    <option flag="--zero-df393 [MSG_ID ...]" description="Set the MSM DF393 multiple-message bit to 0 for these message IDs and recompute the RTCM CRC before forwarding (default: 1097; use --zero-df393 with no IDs to disable)"/>
+    <option flag="-v, --verbose" description="Print forwarded/skipped RTCM messages"/>
+  </doc>
+</program>
 

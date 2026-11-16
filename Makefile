@@ -343,6 +343,10 @@ test_examples: all
 test_modules: all
 	prove -v tests/modules/test_modules.py
 
+# start every Paparazzi Center tool (conf/tools) with --help
+test_tools: all
+	prove -v tests/tools/test_tools.py
+
 test_all_confs: all opencv_bebop
 	$(Q)$(eval $CONFS:=$(shell ./find_confs.py))
 	@echo "************\nFound $(words $($CONFS)) config files: $($CONFS)"
@@ -362,4 +366,4 @@ test_full:
 subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install tmtc tmtc.opt generators\
 static sim_static opencv_bebop mocap \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
-test test_examples test_math test_all_confs
+test test_examples test_math test_modules test_tools test_all_confs

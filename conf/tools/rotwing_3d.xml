@@ -1,1 +1,8 @@
-<program command="sw/ground_segment/python/rotwing_visualizer/rotwing_vis_o3d_app.py" name="RotWing3D" />
+<program command="sw/ground_segment/python/rotwing_visualizer/rotwing_vis_o3d_app.py" name="RotWing3D">
+  <doc>
+    <description>
+      3D view (Open3D) of a rotating wing aircraft from its attitude, controller and actuator telemetry.
+    </description>
+    <usage>usage: rotwing_vis_o3d_app.py [-h]</usage>
+  </doc>
+</program>
