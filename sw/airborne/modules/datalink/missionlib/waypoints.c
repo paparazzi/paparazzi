@@ -109,7 +109,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
             mission_mgr.rem_sysid = msg->sysid;
             mission_mgr.rem_compid = msg->compid;
           }
-          mavlink_msg_mission_count_send(MAVLINK_COMM_0, msg->sysid, msg->compid, NB_WAYPOINT, MAV_MISSION_TYPE_MISSION);
+          mavlink_msg_mission_count_send(MAVLINK_COMM_0, msg->sysid, msg->compid, NB_WAYPOINT, MAV_MISSION_TYPE_MISSION, 0);  // 0: no opaque_id (plan id)
           MAVLinkSendMessage();
 
           // Register the timeout timer (it is continuous so it needs to be cancelled after triggering)
