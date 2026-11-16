@@ -14,6 +14,8 @@ distro_version = float(distro.version())
 # started from the Python virtual environment of install.sh --venv: pip may install there
 # (outside a venv, pip refuses to install in the system Python from Ubuntu 24.04 on)
 in_venv = sys.prefix != sys.base_prefix
+# install.py --all (install.sh --all): run the Everything button without showing the window
+no_window = '--all' in sys.argv
 docs = 'https://paparazzi-uav.readthedocs.io'
 
 # Terminal colors
@@ -245,7 +247,9 @@ class InstallWindow(QWidget):
             self.execute('make clean')
         self.execute('make -j1')
         self.done('Build succeeded', 'Build failed — not starting Paparazzi Center')
-        if self._ok:
+        if self._ok and no_window:
+            print(f'{GREEN}  Start the Paparazzi Center with: ./paparazzi{NC}\n')
+        elif self._ok:
             self.execute('./paparazzi &')
             if self.close_after_make.isChecked():
                 self.close()
@@ -277,6 +281,7 @@ class InstallWindow(QWidget):
                     print(f'{RED}    {title}{NC}')
                 print(f'{RED}    Check documentation: {docs}{NC}\n')
             self.run(self.cmd_go)
+            return not failed and self._ok
         finally:
             self._everything = False
             self.buttonlist.setEnabled(True)
@@ -387,6 +392,10 @@ class InstallWindow(QWidget):
         self.setWindowTitle("Install Paparazzi-UAV")
 
 if __name__ == '__main__':
+    if no_window:
+        os.environ['QT_QPA_PLATFORM'] = 'offscreen'  # no display needed
+        app = QApplication([])
+        sys.exit(0 if InstallWindow().cmd_everything() else 1)
     app = QApplication([])
     w = InstallWindow()
     w.show()
