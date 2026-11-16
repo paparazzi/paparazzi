@@ -220,6 +220,7 @@ def extract_filtered_data(conf:Configuration, data:np.ndarray, start:int, end:in
     raw_inputs = np.zeros((end-start, nb_in))
     commands = np.zeros((end-start, nb_out))
     raw_commands = np.zeros((end-start, nb_out))
+    rpms = np.zeros((end-start, nb_out))
     for el in conf.data_descr:
         t = el['type']
         idx = el['index']
@@ -242,7 +243,11 @@ def extract_filtered_data(conf:Configuration, data:np.ndarray, start:int, end:in
             commands[:, idx] = apply_format(el, data[start:end, col])
             for (filt_name, params) in el['filters']:
                 commands[:,idx] = apply_filter(filt_name, params, commands[:, idx].copy(), conf.variables)    
-    return inputs, raw_inputs, commands, raw_commands
+        if t == 'rpm' and idx >= 0:
+            if idx >= nb_out:
+                raise IndexError("Invalid rpm index {} for {} (max is {})".format(idx,el['name'],nb_out)) # Again, exception rather than exit code 1
+            rpms[:, idx] = apply_format(el, data[start:end, col])
+    return inputs, raw_inputs, commands, raw_commands, rpms
 
 def extract_virtual_cmd(conf_dict:dict) -> np.ndarray:
     """Get virtual commands from the configuration
@@ -266,7 +271,7 @@ def extract_virtual_cmd(conf_dict:dict) -> np.ndarray:
 # Display functions
 #
 
-def plot_results(x, y, y_raw, z, t, freq, label, show=False, spec=False):
+def plot_results(x, y, y_raw, z, t, freq, label, show=False, spec=False, rpms=None):
     '''
     Plot two curves for comparison
     
@@ -308,6 +313,8 @@ def plot_results(x, y, y_raw, z, t, freq, label, show=False, spec=False):
         ax_fft.specgram(y_raw.reshape(N), Fs=freq)
         ax_fft.set_xlabel('Time (s)')
         ax_fft.set_ylabel('Freq (Hz)')
+        if rpms is not None:
+            ax_fft.plot(t-t[0], rpms / 60.,'r', linestyle='-', linewidth='0.3', label='rpm')
 
     if show:
         plt.show()

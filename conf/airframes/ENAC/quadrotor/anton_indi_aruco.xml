@@ -87,6 +87,7 @@
     <module name="flight_recorder"/>
     <module name="logger_control_effectiveness">
       <define name="LOGGER_CONTROL_EFFECTIVENESS_ACTUATORS" value="TRUE"/>
+      <define name="LOGGER_CONTROL_EFFECTIVENESS_RPM" value="TRUE"/>
     </module>
   </firmware>
 
