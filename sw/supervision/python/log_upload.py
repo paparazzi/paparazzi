@@ -9,7 +9,8 @@ POST /api/logs/check, POST /api/upload-reservations and POST /api/upload.
 Uploads only run while no session is running in the Paparazzi Center. Logs recorded
 during a session of this Paparazzi Center are uploaded when the session stops, logs
 extracted from an SD card right after extraction; other logs (e.g. from a server
-started elsewhere) only after they were unchanged for QUIET_TIME.
+started elsewhere) only after they were unchanged for QUIET_TIME, or right away when
+selected and uploaded with "Upload selected".
 Uploaded, skipped, rejected and ignored ("Don't upload") pairs are remembered in
 $PAPARAZZI_HOME/var/log_upload_state.json so they are not hashed or sent again.
 The tab lists the pending logs and why they wait, and uploading can be paused.
@@ -23,6 +24,7 @@ import time
 import uuid
 from urllib.parse import urlsplit
 from PyQt5 import QtCore
+from PyQt5.QtGui import QBrush, QColor
 from PyQt5.QtWidgets import QWidget, QTableWidgetItem, QHeaderView
 import utils
 from generated.ui_log_upload import Ui_LogUpload
@@ -34,6 +36,8 @@ QUIET_TIME = 60 * 60            # seconds without changes before a log from outs
 RETRY_INTERVAL = 60 * 60        # seconds between automatic runs, to retry when the server was not reachable
 SESSION_STOP_DELAY = 5          # seconds after a session stopped before uploading its logs
 HISTORY_SIZE = 200
+STATE_COLORS = {"Ready": "#2e7d32", "Failed": "#c62828"}    # other states in grey
+STATE_GREY = "#757575"
 CAPACITY_WAIT = 60 * 60         # seconds to wait for server capacity before retrying in a later run
 RETRY_STATUS = (401, 403, 408, 409, 429)    # HTTP errors on upload which are not about the log itself
 
@@ -386,7 +390,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
         self.setupUi(self)
-        for table, stretch in ((self.history_table, 3), (self.pending_table, 3)):
+        for table, stretch in ((self.history_table, 3), (self.pending_table, 4)):
             header = table.horizontalHeader()
             for col in range(stretch):
                 header.setSectionResizeMode(col, QHeaderView.ResizeToContents)
@@ -399,7 +403,13 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         self.finished = set()
         self.pending = []
         self.problem = ""
+        self.connection = ""    # result of the last server check: "" (not checked yet), "ok" or the problem
         self.last_status = ""
+        self.help_label.setStyleSheet(f"color: {STATE_GREY}")
+        self.help_label.setText(
+            f"Logs recorded in a session of this Center are uploaded when the session stops, SD logs after the "
+            f"extraction; other logs after {QUIET_TIME // 60} min without changes. Select logs and press "
+            f"\"Upload selected\" to upload them earlier.")
         self.status.connect(self.handle_status)
         self.recorded.connect(self.handle_recorded)
         self.blocked.connect(self.handle_blocked)
@@ -411,6 +421,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         self.pause_button.toggled.connect(self.set_paused)
         self.pending_button.toggled.connect(self.show_view)
         self.history_button.toggled.connect(self.show_view)
+        self.force_button.clicked.connect(self.force_selected)
         self.ignore_button.clicked.connect(self.ignore_selected)
         self.ignore_all_button.clicked.connect(self.ignore_all)
         self.requeue_button.clicked.connect(self.requeue_selected)
@@ -427,6 +438,9 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.start)
         self.timer.start(RETRY_INTERVAL * 1000)
+        self.ready_timer = QtCore.QTimer(self)    # run when a waiting log becomes unchanged for QUIET_TIME
+        self.ready_timer.setSingleShot(True)
+        self.ready_timer.timeout.connect(self.start)
         QtCore.QTimer.singleShot(10000, self.start)
         self.show_view()
         self.refresh_pending()
@@ -480,6 +494,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         settings.setValue("log_upload/api_key", self.key_edit.text().strip())
         settings.sync()
         self.problem = ""
+        self.connection = ""
         self.refresh_pending()
         self.start()
 
@@ -514,11 +529,15 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         try:
             key = resolve_key(key)
         except OSError as e:
-            self.status.emit(f"Log upload: cannot read the API key file ({e.strerror})")
+            self.connection = f"API key file not readable: {e.strerror}"
+            self.update_summary()
             return
         if not key:
-            self.status.emit("Log upload: the API key file is empty")
+            self.connection = "API key file empty"
+            self.update_summary()
             return
+        if "API key file" in self.connection:
+            self.connection = ""    # readable again
         self.cancel.clear()
         self.rerun = False
         kwargs = {"sessions": list(self.sessions), "finished": set(self.finished), "cancel": self.cancel,
@@ -544,6 +563,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
 
     def handle_blocked(self, problem):
         self.problem = problem
+        self.connection = problem or "ok"
         self.update_pending_status()
 
     def handle_recorded(self, entry):
@@ -559,26 +579,50 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         server, _ = self.settings()
         self.pending = scan_pending(server, self.sessions, self.finished) if server else []
         self.fill_pending()
+        waiting = [p["mtime"] + QUIET_TIME for p in self.pending if not p["complete"]]
+        if waiting:
+            delay = max(min(waiting) - time.time(), 0) + 5
+            self.ready_timer.start(int(min(delay, RETRY_INTERVAL) * 1000))
+        else:
+            self.ready_timer.stop()
+        self.update_summary()
+
+    def next_check(self):
+        """Time of the next automatic check, None when it doesn't run (not configured or paused)."""
+        if not self.configured() or self.pause_button.isChecked():
+            return None
+        timers = (getattr(self, "timer", None), getattr(self, "ready_timer", None))    # None during __init__
+        remaining = [t.remainingTime() for t in timers if t is not None and t.isActive()]
+        return time.time() + min(remaining) / 1000 if remaining else None
+
+    def uploading(self):
+        return self.thread is not None and self.thread.is_alive()
 
     def pending_status(self, p):
-        """Why this pending log is not uploaded yet."""
+        """State, when it is uploaded and why, for a pending log."""
         if not p["complete"]:
             if self.session_running() and self.session_start is not None and p["mtime"] >= self.session_start:
-                return "Recording (session running)"
+                return "Recording", "after the session", "Recorded by the running session, uploaded when it stops"
             ready = time.strftime("%H:%M", time.localtime(p["mtime"] + QUIET_TIME))
-            return f"Still changing, waits until unchanged for {QUIET_TIME // 60} min (about {ready})"
+            return ("Waiting", f"at {ready} (no changes)",
+                    f"Still changing: uploaded when unchanged for {QUIET_TIME // 60} min (about {ready}), "
+                    f"or select it and press Upload selected")
         if p["sig"][0][0] == 0:
-            return "Empty, will be skipped"
+            return "Empty", "skipped", "Empty .data file (no telemetry received), it will be skipped"
         if self.pause_button.isChecked():
-            return "Paused"
+            return "Paused", "after Resume", "Uploading is paused"
         if self.session_running():
-            return "Waiting for the session to stop"
+            return "Ready", "after the session", "Uploaded when the running session stops"
+        next_check = self.next_check()
+        retry = f"retry at {time.strftime('%H:%M', time.localtime(next_check))}" if next_check else "retried later"
         failed = self.last_failure.get(p["name"])
         if failed:
-            return f"Failed, retried later: {failed}"
+            return "Failed", retry, f"Failed: {failed}"
         if self.problem:
-            return f"Waiting: {self.problem}"
-        return "Queued"
+            return "Ready", retry, f"Not uploaded: {self.problem}"
+        if self.uploading():
+            return "Ready", "uploading now", "Uploaded in the running check"
+        return "Ready", "next check", "Uploaded in the next check, or press Check now"
 
     @property
     def last_failure(self):
@@ -599,7 +643,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
             row = self.pending_table.rowCount()
             self.pending_table.insertRow(row)
             values = (p["name"], human_size(p["size"]),
-                      time.strftime("%Y-%m-%d %H:%M", time.localtime(p["mtime"])), "")
+                      time.strftime("%Y-%m-%d %H:%M", time.localtime(p["mtime"])), "", "")
             for col, value in enumerate(values):
                 item = QTableWidgetItem(value)
                 item.setToolTip(value)
@@ -614,10 +658,13 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         by_name = {p["name"]: p for p in self.pending}
         for row in range(self.pending_table.rowCount()):
             p = by_name[self.pending_table.item(row, 0).text()]
-            text = self.pending_status(p)
-            item = QTableWidgetItem(text)
-            item.setToolTip(text)
-            self.pending_table.setItem(row, 3, item)
+            state, when, why = self.pending_status(p)
+            for col, text in ((3, state), (4, when)):
+                item = QTableWidgetItem(text)
+                item.setToolTip(why)
+                if col == 3:
+                    item.setForeground(QBrush(QColor(STATE_COLORS.get(state, STATE_GREY))))
+                self.pending_table.setItem(row, col, item)
         n = len(self.pending)
         self.pending_button.setText(f"Pending ({n})" if n else "Pending")
         self.update_summary()
@@ -636,6 +683,15 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         names = {log["name"] for log in logs}
         self.pending = [p for p in self.pending if p["name"] not in names]
         self.fill_pending()
+
+    def force_selected(self):
+        """Upload the selected pending logs without waiting for QUIET_TIME, as if they were complete."""
+        names = set(self.selected_names(self.pending_table))
+        for p in self.pending:
+            if p["name"] in names:
+                self.finished.add(os.path.realpath(p["data"]))
+        self.refresh_pending()
+        self.start()
 
     def ignore_selected(self):
         names = set(self.selected_names(self.pending_table))
@@ -661,10 +717,16 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
     def update_buttons(self):
         pending_view = self.pending_button.isChecked()
         configured = self.configured()
+        self.force_button.setVisible(pending_view)
         self.ignore_button.setVisible(pending_view)
         self.ignore_all_button.setVisible(pending_view)
         self.requeue_button.setVisible(not pending_view)
-        self.ignore_button.setEnabled(configured and bool(self.pending_table.selectionModel().selectedRows()))
+        table = self.pending_table if pending_view else self.history_table
+        n = len(table.selectionModel().selectedRows())
+        self.selection_label.setText(f"{n} selected:" if n else "")
+        selected = bool(self.pending_table.selectionModel().selectedRows())
+        self.force_button.setEnabled(configured and selected and not self.pause_button.isChecked())
+        self.ignore_button.setEnabled(configured and selected)
         self.ignore_all_button.setEnabled(configured and bool(self.pending))
         ignored = [i for i in self.history_table.selectionModel().selectedRows()
                    if self.history_table.item(i.row(), 2).text() == "Ignored"]
@@ -676,20 +738,40 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         server, key = self.settings()
         if not server or not key:
             text = "Enter the log server URL and API key and press Save to upload logs automatically."
+            self.connection_label.setText("")
         else:
+            last = self.last_status.replace("Log upload: ", "")
+            if self.pause_button.isChecked():
+                state = "Paused"
+            elif self.uploading():
+                state = "Checking"
+            elif self.session_running():
+                state = "Waiting for the session to stop"
+            else:
+                state = "Idle"
+            parts = [f"<b>● {state}</b>"]
+            if last and last != "paused" and not last.startswith("waiting for the session"):
+                parts.append(last)
             n = len(self.pending)
-            size = sum(p["size"] for p in self.pending)
-            queue = f"{n} pending ({human_size(size)})" if n else "nothing pending"
-            text = f"{self.last_status or 'Log upload'} — {queue}"
-            if (self.problem and not self.pause_button.isChecked()
-                    and "not reachable" not in text and "refused" not in text):
-                text += f", {self.problem}"
+            parts.append(f"{n} pending ({human_size(sum(p['size'] for p in self.pending))})" if n
+                         else "nothing pending")
+            next_check = self.next_check()
+            if next_check and not self.uploading():
+                parts.append(f"next check {time.strftime('%H:%M', time.localtime(next_check))}")
+            text = " · ".join(parts)
+            if self.connection == "ok":
+                self.connection_label.setText(f"<span style='color:{STATE_COLORS['Ready']}'>✔ connected</span>")
+            elif self.connection:
+                short = self.connection.split(":")[0]
+                self.connection_label.setText(f"<span style='color:{STATE_COLORS['Failed']}'>✖ {short}</span>")
+            else:
+                self.connection_label.setText("")
+            self.connection_label.setToolTip(self.connection if self.connection != "ok" else f"Connected to {server}")
         self.summary_label.setText(text)
         self.summary_label.setToolTip(
             f"Server: {server or '-'}\nLogs folder: {LOGS_DIR}\n"
-            f"Logs are uploaded when a session stops, after an SD log extraction, at start-up and every "
-            f"{RETRY_INTERVAL // 60} minutes.\n"
-            f"Logs not recorded by this Paparazzi Center are uploaded after {QUIET_TIME // 60} minutes without changes.")
+            f"Checks run when a session stops, after an SD log extraction, at start-up, when a waiting log "
+            f"becomes ready and every {RETRY_INTERVAL // 60} minutes.")
         self.update_buttons()
 
     def add_entry(self, entry):
