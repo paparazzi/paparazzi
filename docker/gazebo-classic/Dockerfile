@@ -45,7 +45,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     python-is-python3 \
-    python3-future \
     python3-lxml \
     python3-numpy \
     python3-opencv \
