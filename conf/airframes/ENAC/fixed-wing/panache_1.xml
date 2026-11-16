@@ -194,6 +194,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="JSBSIM_LAUNCHSPEED" value="15"/>
+    <define name="JSBSIM_LAUNCH_RPM" value="10000"/>
     <define name="JSBSIM_MODEL" value="easystar" type="string"/>
   </section>
 </airframe>
