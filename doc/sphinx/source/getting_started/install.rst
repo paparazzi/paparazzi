@@ -23,7 +23,9 @@ Add paparazzi apt-repository and install dependencies:
     sudo apt-get -f -y install paparazzi-dev paparazzi-jsbsim dfu-util pprzgcs
     sudo apt-get install python-is-python3 gcc-arm-none-eabi gdb-multiarch cmake
 
-.. note:: Alternatively, for more packages or in case of missing packages; first `Clone the repository`_ and then run: ``./install.sh``
+.. note:: Alternatively, for more packages or in case of missing packages; first `Clone the repository`_ and then run: ``./install.sh``.
+    It opens a window to choose what to install; ``./install.sh --all`` installs everything without the window.
+    In an active conda environment the Python packages are installed there; ``./install.sh --help`` shows the other options.
 
 .. note:: If you are on Ubuntu 24.04, please also install ``liblablgtk2-ocaml-dev`` in order to use the plot and messages tools.
 

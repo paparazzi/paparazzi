@@ -61,7 +61,8 @@ do
   then
     echo "Usage: ./install.sh [-a|--all] [-v|--venv] [-s|--source] [-h|--help]"
     echo "  -a, --all       Install everything without the window (the Everything button), then build"
-    echo "  -v, --venv      Use python virtual environment: pprzEnv"
+    echo "  -v, --venv      Use python virtual environment: pprzEnv (not in an active conda environment:"
+    echo "                  the Python packages are then installed in that conda environment)"
     echo "  -s, --source    Add venv source in ~/.bashrc"
     echo "  -h, --help      Print this help"
     exit 0
