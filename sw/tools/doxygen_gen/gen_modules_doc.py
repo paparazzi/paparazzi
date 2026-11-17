@@ -119,7 +119,7 @@ def get_xml_example(filename, module):
             e = copy.deepcopy(o)
             if 'description' in e.attrib:
                 del e.attrib['description']
-            s += "  " + str(ET.tostring(e)).strip() + "\n"
+            s += "  " + ET.tostring(e, encoding="unicode").strip() + "\n"
         s += "</module>\n"
     else:
         s += '<module name="{0}"/>\n'.format(module_name)
