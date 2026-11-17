@@ -35,14 +35,14 @@ ifeq ($(USE_LABELGTK),lablgtk2)
 ifeq ($(LABLGTK2GLADE),)
 XPKG = -package lablgtk2,pprz.xlib
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
-all : play plotter sd2log openlog2tlm
+all : play plotter sd2log
 else
 XPKG = -package lablgtk2,pprz.xlib,lablgtk2.glade
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
-all : play plotter logplotter sd2log openlog2tlm
+all : play plotter logplotter sd2log
 endif
 else # no gtk2
-all: sd2log openlog2tlm
+all: sd2log
 endif
 
 
@@ -103,13 +103,8 @@ gtk_export.ml : export.glade
 CC = gcc
 CFLAGS=-g -O2 -Wall
 
-openlog2tlm: openlog2tlm.c
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -o $@ $^
-
-
 clean:
-	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play logplotter plotter gtk_export.ml openlog2tlm sd2log
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play logplotter plotter gtk_export.ml sd2log
 
 .PHONY: all clean
 
