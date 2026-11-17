@@ -3,10 +3,12 @@
 <module name="nav_gls" dir="nav" task="control">
   <doc>
     <description>
-      gps landing system
- * -automatic calculation of top of decent for const app angle
- * -smooth intercept posible
- * -landing direction is set by app fix / also possible in flight!!!
+      GPS landing system
+
+      - automatic calculation of top of decent for const app angle
+      - smooth intercept posible
+      - landing direction is set by app fix / also possible in flight!!!
+
     </description>
   </doc>
   <header>
