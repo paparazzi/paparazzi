@@ -16,7 +16,7 @@
       (EPH 5 m, speed accuracy 1.0 m/s, PX4 uses 3 m and 0.5 m/s) and of PX4 for the rest (EPV 5 m,
       10 s healthy before use).
       See sw/ext/px4_ekf2/generated/ekf2_params.h and https://docs.px4.io/main/en/advanced_config/parameter_reference.html
-      Sensors are only used when their data arrives, so a sensor enabled in a *_CTRL parameter
+      Sensors are only used when their data arrives, so a sensor enabled in a ``*_CTRL`` parameter
       without that sensor does nothing.
 
       Airspeed and sideslip are only fused in fixed wing flight: always for the fixedwing firmware,
