@@ -353,7 +353,7 @@ static void gps_cb(uint8_t sender_id,
 #endif
   // Sync the system time of week with the selected GPS (only with a valid time from a fix)
   if (gps.comp_id == gps_s->comp_id && gps.fix >= GPS_FIX_3D && gps.tow != 0) {
-    sys_time_sync_tow(gps.tow, stamp);
+    sys_time_sync_gps(gps.week, gps.tow, stamp);
   }
 }
 

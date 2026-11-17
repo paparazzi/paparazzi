@@ -505,7 +505,20 @@ let send_ping = fun device ac_id status ->
   send ac_id device s High;
   status.last_ping <- Unix.gettimeofday ()
 
+(* ground time for the aircraft, corrected with half the last round trip *)
+let send_time_sync = fun device ac_id status ->
+  let msg_id, _ = Dl_Pprz.message_of_name "TIME_SYNC" in
+  let rtt = status.last_pong -. status.last_ping in
+  let t = Unix.gettimeofday () +. (if rtt > 0. && rtt < 2. then rtt /. 2. else 0.) in
+  let sec = floor t in
+  let values = [ "unix_time", PprzLink.Int64 (Int64.of_float sec);
+                 "unix_ms", PprzLink.Int (truncate ((t -. sec) *. 1000.)) ] in
+  let s = Dl_Pprz.payload_of_values msg_id my_id ac_id values in
+  send ac_id device s Normal
+
 let send_ping_msg = fun device ->
+  (* time sync before the new ping, with the round trip of the previous one *)
+  Hashtbl.iter (send_time_sync device) statuss;
   Hashtbl.iter (send_ping device) statuss
 
 

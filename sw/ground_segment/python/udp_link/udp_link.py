@@ -128,11 +128,20 @@ class UDPLink:
 
     def sendPing(self):
         for (ac_id, value) in self.ac_downlink_status.items():
-            if messages_xml_map.PROTOCOL_VERSION=="2.0":
-                # For pprzlink V2.0 set the receiver id
-                self.udp.send(message.PprzMessage('datalink','PING'), 0, self.ac_downlink_status[int(ac_id)].address, ac_id)
-            else:
-                self.udp.send(message.PprzMessage('datalink','PING'),0,self.ac_downlink_status[int(ac_id)].address)
+            # ground time for the aircraft, corrected with half the last round trip
+            rtt = value.last_pong_time
+            t = time.time() + (rtt / 2. if 0. < rtt < 2. else 0.)
+            time_sync = message.PprzMessage('datalink', 'TIME_SYNC')
+            time_sync['unix_time'] = int(t)
+            time_sync['unix_ms'] = int((t - int(t)) * 1000)
+            ping = message.PprzMessage('datalink', 'PING')
+            address = self.ac_downlink_status[int(ac_id)].address
+            for msg in (time_sync, ping):
+                if messages_xml_map.PROTOCOL_VERSION=="2.0":
+                    # For pprzlink V2.0 set the receiver id
+                    self.udp.send(msg, 0, address, ac_id)
+                else:
+                    self.udp.send(msg, 0, address)
             value.last_ping_time = time.time()
         self.ping_timer = threading.Timer(PING_PERIOD, self.sendPing)
         self.ping_timer.start()

@@ -67,6 +67,7 @@ extern void datalink_init(void);
 extern void datalink_periodic(void);
 
 extern void datalink_parse_PING(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
+extern void datalink_parse_TIME_SYNC(uint8_t *buf);
 
 /** Check for new message and parse */
 static inline void DlCheckAndParse(struct link_device *dev, struct transport_tx *trans, uint8_t *buf, bool *msg_available, bool update_dl)

@@ -16,6 +16,7 @@
   <periodic fun="telemetry_reporting_task()"/>
   <periodic fun="datalink_periodic()" freq="1"/>
   <datalink message="PING" fun="datalink_parse_PING(dev, trans, buf)"/>
+  <datalink message="TIME_SYNC" fun="datalink_parse_TIME_SYNC(buf)"/>
   <makefile>
     <define name="DOWNLINK"/>
     <define name="PERIODIC_TELEMETRY"/>
