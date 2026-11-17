@@ -21,6 +21,8 @@
     <target name="nps" board="pc">
       <module name="radio_control" type="ppm"/>
       <module name="fdm" type="jsbsim"/>
+      <define name="TAWAKIV2_IMU_ROT" value=""/>
+      <define name="TAWAKIV2_MAG_ROT" value=""/>
 
       <!-- to use real panache board in simulation, remove target="ap" from extra_dl.xml -->
       <module name="uart"/>
@@ -226,6 +228,8 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="JSBSIM_LAUNCHSPEED" value="15"/>
+    <!-- Start the hand launch with the propeller already spinning. -->
+    <define name="JSBSIM_LAUNCH_RPM" value="10000"/>
     <define name="JSBSIM_MODEL" value="easystar" type="string"/>
   </section>
 </airframe>

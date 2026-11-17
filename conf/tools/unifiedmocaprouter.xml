@@ -1,4 +1,10 @@
 <program name="UnifiedMoCap" command="sw/ext/unifiedmocaprouter/build/mocap-router" icon="natnet.svg">
+  <doc>
+    <description>
+      Routes the data of a motion capture system (OptiTrack) to the aircraft over Ivy, or to the console. A general --help is not available: give MOCAP and AGENT (e.g. optitrack ivy) followed by -h for their options.
+    </description>
+    <usage>Usage: mocap-router MOCAP AGENT [-h|--help] [options]</usage>
+  </doc>
   <arg flag="optitrack"/>
   <arg flag="ivy"/>
   <arg flag="--publish_frequency" constant="10"/>
