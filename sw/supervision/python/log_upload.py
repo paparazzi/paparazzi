@@ -168,11 +168,13 @@ def find_pairs(root):
                 continue
 
 
-def is_complete(data, data_stat, log_stat, sessions, finished, now):
+def is_complete(data, sig, data_stat, log_stat, sessions, finished, now):
     """A pair is complete when it was recorded during a finished session of this Paparazzi Center
     (the server writes the .log at start and the .data until it stops), when it was extracted from
-    an SD card (data path in finished), or when it was not changed for QUIET_TIME."""
-    if os.path.realpath(data) in finished:
+    an SD card or selected for upload (data path in finished, while its signature is unchanged when
+    one was given), or when it was not changed for QUIET_TIME."""
+    path = os.path.realpath(data)
+    if path in finished and finished[path] in (None, sig):
         return True
     last_change = max(data_stat.st_mtime, log_stat.st_mtime)
     if now - last_change >= QUIET_TIME:
@@ -219,7 +221,7 @@ def signature(data_stat, log_stat):
     return [[data_stat.st_size, data_stat.st_mtime_ns], [log_stat.st_size, log_stat.st_mtime_ns]]
 
 
-def scan_pending(server, sessions=(), finished=(), folder=LOGS_DIR):
+def scan_pending(server, sessions=(), finished={}, folder=LOGS_DIR):
     """The pairs below folder which were not handled for this server yet, as dicts with
     name, data, log, sig, size, mtime and complete (finished recording)."""
     with STATE_LOCK:
@@ -232,7 +234,7 @@ def scan_pending(server, sessions=(), finished=(), folder=LOGS_DIR):
             continue
         pending.append({"name": name, "data": data, "log": log, "sig": sig, "size": ds.st_size + ls.st_size,
                         "mtime": max(ds.st_mtime, ls.st_mtime),
-                        "complete": is_complete(data, ds, ls, sessions, finished, now)})
+                        "complete": is_complete(data, sig, ds, ls, sessions, finished, now)})
     return pending
 
 
@@ -283,11 +285,11 @@ def still_pending(server, name, sig):
         return load_state()["servers"].get(server_key(server), {}).get(name, {}).get("sig") != sig
 
 
-def upload_new_logs(server, key, sessions=(), finished=(), cancel=None, report=print, record=None,
+def upload_new_logs(server, key, sessions=(), finished={}, cancel=None, report=print, record=None,
                     blocked=None, folder=LOGS_DIR):
     """Upload the complete pairs below folder which were not handled for this server yet.
-    sessions: list of (start, stop) times of finished sessions; finished: real paths of .data files
-    known to be complete; cancel: threading.Event to stop early.
+    sessions: list of (start, stop) times of finished sessions; finished: {real path of a .data file:
+    signature it is complete with, or None for any}; cancel: threading.Event to stop early.
     report(str) gets a short status, record(entry) every history entry [time, log, result, details],
     blocked(str) why the server cannot be used now ("" once it can)."""
     pending = scan_pending(server, sessions, finished, folder)
@@ -300,18 +302,18 @@ def upload_new_logs(server, key, sessions=(), finished=(), cancel=None, report=p
         if record:
             record(entry)
 
-    if not todo:
-        report(f"Log upload: up to date{waiting_txt}")
-        return
     client = Client(server, key)
     try:
         client.request("GET", "/api/me", timeout=10)
     except (OSError, http.client.HTTPException, RuntimeError) as e:
         refused = isinstance(e, HTTPError) and e.status in (401, 403)
         problem = "API key refused" if refused else "server not reachable"
-        report(f"Log upload: {len(todo)} waiting, {problem}")
         if blocked:
             blocked(problem)
+        if not todo:
+            report(f"Log upload: up to date{waiting_txt}, {problem}")
+            return
+        report(f"Log upload: {len(todo)} waiting, {problem}")
         with STATE_LOCK:
             history = load_state()["history"]
         result = "Key refused" if refused else "Not reachable"
@@ -320,6 +322,9 @@ def upload_new_logs(server, key, sessions=(), finished=(), cancel=None, report=p
         return
     if blocked:
         blocked("")
+    if not todo:
+        report(f"Log upload: up to date{waiting_txt}")
+        return
     counts = {"uploaded": 0, "on_server": 0, "skipped": 0, "failed": 0}
     for i, p in enumerate(todo):
         name, data, log, sig = p["name"], p["data"], p["log"], p["sig"]
@@ -390,6 +395,9 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
         self.setupUi(self)
+        self.timer = QtCore.QTimer(self)
+        self.ready_timer = QtCore.QTimer(self)    # run when a waiting log becomes unchanged for QUIET_TIME
+        self.ready_timer.setSingleShot(True)
         for table, stretch in ((self.history_table, 3), (self.pending_table, 4)):
             header = table.horizontalHeader()
             for col in range(stretch):
@@ -400,7 +408,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         self.session = None
         self.session_start = None
         self.sessions = []
-        self.finished = set()
+        self.finished = {}     # real .data path: signature it is complete with (None: any)
         self.pending = []
         self.problem = ""
         self.connection = ""    # result of the last server check: "" (not checked yet), "ok" or the problem
@@ -435,11 +443,8 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
             history = load_state()["history"]
         for entry in history:
             self.add_entry(entry)
-        self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.start)
         self.timer.start(RETRY_INTERVAL * 1000)
-        self.ready_timer = QtCore.QTimer(self)    # run when a waiting log becomes unchanged for QUIET_TIME
-        self.ready_timer.setSingleShot(True)
         self.ready_timer.timeout.connect(self.start)
         QtCore.QTimer.singleShot(10000, self.start)
         self.show_view()
@@ -473,7 +478,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
 
     def add_finished_log(self, data_path):
         """A log which is complete, e.g. just extracted from an SD card: upload it now."""
-        self.finished.add(os.path.realpath(data_path))
+        self.finished[os.path.realpath(data_path)] = None
         self.refresh_pending()
         self.start()
 
@@ -530,17 +535,17 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
             key = resolve_key(key)
         except OSError as e:
             self.connection = f"API key file not readable: {e.strerror}"
-            self.update_summary()
+            self.status.emit("Log upload: cannot read the API key file")
             return
         if not key:
             self.connection = "API key file empty"
-            self.update_summary()
+            self.status.emit("Log upload: API key file empty")
             return
         if "API key file" in self.connection:
             self.connection = ""    # readable again
         self.cancel.clear()
         self.rerun = False
-        kwargs = {"sessions": list(self.sessions), "finished": set(self.finished), "cancel": self.cancel,
+        kwargs = {"sessions": list(self.sessions), "finished": dict(self.finished), "cancel": self.cancel,
                   "report": self.status.emit, "record": self.recorded.emit, "blocked": self.blocked.emit}
 
         def run():
@@ -551,6 +556,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
 
         self.thread = threading.Thread(target=run, daemon=True)
         self.thread.start()
+        self.update_pending_status()
 
     def handle_done(self):
         self.refresh_pending()
@@ -591,14 +597,13 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         """Time of the next automatic check, None when it doesn't run (not configured or paused)."""
         if not self.configured() or self.pause_button.isChecked():
             return None
-        timers = (getattr(self, "timer", None), getattr(self, "ready_timer", None))    # None during __init__
-        remaining = [t.remainingTime() for t in timers if t is not None and t.isActive()]
+        remaining = [t.remainingTime() for t in (self.timer, self.ready_timer) if t.isActive()]
         return time.time() + min(remaining) / 1000 if remaining else None
 
     def uploading(self):
         return self.thread is not None and self.thread.is_alive()
 
-    def pending_status(self, p):
+    def pending_status(self, p, next_check, failures):
         """State, when it is uploaded and why, for a pending log."""
         if not p["complete"]:
             if self.session_running() and self.session_start is not None and p["mtime"] >= self.session_start:
@@ -613,9 +618,8 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
             return "Paused", "after Resume", "Uploading is paused"
         if self.session_running():
             return "Ready", "after the session", "Uploaded when the running session stops"
-        next_check = self.next_check()
         retry = f"retry at {time.strftime('%H:%M', time.localtime(next_check))}" if next_check else "retried later"
-        failed = self.last_failure.get(p["name"])
+        failed = failures.get(p["name"])
         if failed:
             return "Failed", retry, f"Failed: {failed}"
         if self.problem:
@@ -656,9 +660,10 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
 
     def update_pending_status(self):
         by_name = {p["name"]: p for p in self.pending}
+        next_check, failures = self.next_check(), self.last_failure
         for row in range(self.pending_table.rowCount()):
             p = by_name[self.pending_table.item(row, 0).text()]
-            state, when, why = self.pending_status(p)
+            state, when, why = self.pending_status(p, next_check, failures)
             for col, text in ((3, state), (4, when)):
                 item = QTableWidgetItem(text)
                 item.setToolTip(why)
@@ -689,7 +694,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         names = set(self.selected_names(self.pending_table))
         for p in self.pending:
             if p["name"] in names:
-                self.finished.add(os.path.realpath(p["data"]))
+                self.finished[os.path.realpath(p["data"])] = p["sig"]    # until it changes
         self.refresh_pending()
         self.start()
 
