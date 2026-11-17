@@ -138,7 +138,7 @@ def find_eff_matrix(conf:Configuration, start:int, end:int, data:np.ndarray, ver
     Returns:
         (np.ndarray,np.ndarray): Efficiency matrix and estimation residuals
     """
-    inputs, raw_inputs, commands, raw_commands = ut.extract_filtered_data(conf, data, start, end)
+    inputs, raw_inputs, commands, raw_commands, _ = ut.extract_filtered_data(conf, data, start, end)
     print(f"Handling {commands.shape} input datapoints...")
     if conf.virtual_cmd is not None:
         commands = make_virtual_cmd(conf.virtual_cmd, commands)
@@ -167,7 +167,7 @@ def find_eff_matrix_with_meta_opt(conf:Configuration, start:int, end:int, data:n
     rranges = [slice(conf.ranges[k][0],conf.ranges[k][1]+conf.ranges[k][2],conf.ranges[k][2]) for k in param_names]
     
     ## Parse for printing problem size
-    _, _, commands_print, _ = ut.extract_filtered_data(
+    _, _, commands_print, _, _ = ut.extract_filtered_data(
                     conf, data, start, end)
     print(f"Handling {commands_print.shape} input datapoints with optimized parameters: {param_names}...")
     ## End parse
@@ -179,7 +179,7 @@ def find_eff_matrix_with_meta_opt(conf:Configuration, start:int, end:int, data:n
         else:
             conf.variables[param_names[0]] = xs
                 
-        inputs, raw_inputs, commands, raw_commands = ut.extract_filtered_data(
+        inputs, raw_inputs, commands, raw_commands, _ = ut.extract_filtered_data(
                     conf, data, start, end)
         if conf.virtual_cmd is not None:
             commands = make_virtual_cmd(conf.virtual_cmd, commands)
@@ -204,7 +204,7 @@ def find_eff_matrix_with_meta_opt(conf:Configuration, start:int, end:int, data:n
     for i,x in enumerate(x):
         conf.variables[param_names[i]] = x
             
-    inputs, raw_inputs, commands, raw_commands = ut.extract_filtered_data(
+    inputs, raw_inputs, commands, raw_commands, _ = ut.extract_filtered_data(
                 conf, data, start, end)
     if conf.virtual_cmd is not None:
         commands = make_virtual_cmd(conf.virtual_cmd, commands)
@@ -288,12 +288,12 @@ def main():
         output,residuals = find_eff_matrix(configuration, start, end, data, verbose)
 
     if plot:
-        inputs, raw_inputs, commands, raw_commands = ut.extract_filtered_data(configuration, data, start, end)
+        inputs, raw_inputs, commands, raw_commands, rpms = ut.extract_filtered_data(configuration, data, start, end)
         for i in range(configuration.nb_in):
             name = ut.get_name_by_index(conf, 'input', i)
             estimated_accel = commands @ output[i]
             lin_fit = ut.fit_lin(estimated_accel, inputs[:,[i]][:,0], name, verbose)
-            fig = ut.plot_results(estimated_accel, inputs[:,[i]], raw_inputs[:,[i]], lin_fit, time, freq, name, spec=args.spec)
+            fig = ut.plot_results(estimated_accel, inputs[:,[i]], raw_inputs[:,[i]], lin_fit, time, freq, name, spec=args.spec, rpms=rpms)
             fig.suptitle(f"Residual: {residuals[i]}")
         plt.show()
         
