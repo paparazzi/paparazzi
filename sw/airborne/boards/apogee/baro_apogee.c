@@ -21,20 +21,19 @@
 */
 
 /**
- * @file boards/apogee/baro_board.c
- *
- * integrated barometer for Apogee boards (mpl3115)
+ * @file boards/apogee/baro_apogee.c
+ * MPL3115 barometer of the Apogee board, an i2c slave of the MPU6050:
+ * only read once the MPU is configured.
  */
 
-#include "std.h"
-#include "modules/sensors/baro.h"
+#include "boards/apogee/baro_apogee.h"
 #include "peripherals/mpl3115.h"
 
 // to get MPU status
 #include "boards/apogee/imu_apogee.h"
 
 #include "modules/core/abi.h"
-#include "led.h"
+#include "mcu_periph/sys_time.h"
 
 // sd-log
 #if APOGEE_BARO_SDLOG
@@ -43,81 +42,45 @@
 bool log_apogee_baro_started;
 #endif
 
-
-/** Normal frequency with the default settings
- *
- * the baro read function should be called at 5 Hz
- */
-#ifndef BARO_BOARD_APOGEE_FREQ
-#define BARO_BOARD_APOGEE_FREQ 5
-#endif
-
-/** Baro periodic prescaler
- *
- * different for fixedwing and rotorcraft...
- */
-#ifdef BARO_PERIODIC_FREQUENCY
-#define MPL_PRESCALER ((BARO_PERIODIC_FREQUENCY)/BARO_BOARD_APOGEE_FREQ)
-#else
-#ifdef PERIODIC_FREQUENCY
-#define MPL_PRESCALER ((PERIODIC_FREQUENCY)/BARO_BOARD_APOGEE_FREQ)
-#else
-// default: assuming 60Hz for a 5Hz baro update
-#define MPL_PRESCALER 12
-#endif
-#endif
-
-/** Counter to init ads1114 at startup */
-#define BARO_STARTUP_COUNTER (200/(MPL_PRESCALER))
+/** Number of readings skipped at startup, about 4 s */
+#define BARO_STARTUP_COUNTER (4 * BARO_APOGEE_FREQ)
 uint16_t startup_cnt;
 
 struct Mpl3115 apogee_baro;
 
-void baro_init(void)
+void baro_apogee_init(void)
 {
   mpl3115_init(&apogee_baro, &i2c1, MPL3115_I2C_ADDR);
-#ifdef BARO_LED
-  LED_OFF(BARO_LED);
-#endif
   startup_cnt = BARO_STARTUP_COUNTER;
 
 #if APOGEE_BARO_SDLOG
   log_apogee_baro_started = false;
 #endif
-
 }
 
-void baro_periodic(void)
+void baro_apogee_periodic(void)
 {
-
   // Baro is slave of the MPU, only start reading it after MPU is configured
   if (imu_apogee.mpu.config.initialized) {
-
     if (startup_cnt > 0 && apogee_baro.data_available) {
       // Run some loops to get correct readings from the adc
       --startup_cnt;
       apogee_baro.data_available = false;
-#ifdef BARO_LED
-      LED_TOGGLE(BARO_LED);
-      if (startup_cnt == 0) {
-        LED_ON(BARO_LED);
-      }
-#endif
     }
     // Read the sensor
-    RunOnceEvery(MPL_PRESCALER, mpl3115_periodic(&apogee_baro));
+    mpl3115_periodic(&apogee_baro);
   }
 }
 
-void apogee_baro_event(void)
+void baro_apogee_event(void)
 {
   mpl3115_event(&apogee_baro);
   if (apogee_baro.data_available && startup_cnt == 0) {
     uint32_t now_ts = get_sys_time_usec();
     float pressure = ((float)apogee_baro.pressure / (1 << 2));
-    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, pressure);
+    AbiSendMsgBARO_ABS_RAW(BARO_MPL3115_SENDER_ID, now_ts, pressure);
     float temp = apogee_baro.temperature / 16.0f;
-    AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
+    AbiSendMsgTEMPERATURE_RAW(BARO_MPL3115_SENDER_ID, now_ts, temp, TEMPERATURE_TYPE_BARO);
     apogee_baro.data_available = false;
 
 #if APOGEE_BARO_SDLOG

@@ -169,12 +169,6 @@
     <define name="N_TEXTONS" value="20"/>
   </section>
 
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="FALSE"/>
-  </section>
-
   <!-- Magnetometer still needs to be calibrated -->
   <section name="IMU" prefix="IMU_">
     <define name="MAG_X_NEUTRAL" value="0"/>

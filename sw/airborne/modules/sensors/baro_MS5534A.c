@@ -29,11 +29,8 @@
 
 #include "modules/sensors/baro_MS5534A.h"
 #include "mcu_periph/spi.h"
-#include "mcu_periph/uart.h"
-#ifndef BARO_NO_DOWNLINK
-#include "modules/datalink/downlink.h"
-#endif
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "firmwares/fixedwing/nav.h"
 #include "state.h"
 
@@ -214,14 +211,6 @@ static void calibration(void)
   c6 = words[1] & 0x3f;
 
   ut1 = (c5 << 3) + 20224;
-
-#ifndef BARO_NO_DOWNLINK
-  float debug[4];
-  for (int i=0; i<4; i++){
-    debug[i] = words[i];
-  }
-  DOWNLINK_SEND_DEBUG_VECT(DefaultChannel, DefaultDevice, "baro_calib", 4, debug);
-#endif
 }
 
 
@@ -274,11 +263,8 @@ void baro_MS5534A_event(void)
       uint32_t now_ts = get_sys_time_usec();
       baro_MS5534A_available = false;
       baro_MS5534A_z = ground_alt + ((float)baro_MS5534A_ground_pressure - baro_MS5534A_pressure) * 0.084;
-#if SENSO_SYNC_SEND
-      DOWNLINK_SEND_BARO_MS5534A(DefaultChannel, DefaultDevice, &baro_MS5534A_pressure, &baro_MS5534A_temp, &baro_MS5534A_z);
-#endif
       float pressure = (float)baro_MS5534A_pressure;
-      AbiSendMsgBARO_ABS(BARO_MS5534A_SENDER_ID, now_ts, pressure);
+      AbiSendMsgBARO_ABS_RAW(BARO_MS5534A_SENDER_ID, now_ts, pressure);
     }
   }
 }

@@ -397,16 +397,6 @@
 #define SPI_SELECT_SLAVE2_PORT  PAL_PORT(LINE_OSD_CS)
 #define SPI_SELECT_SLAVE2_PIN   PAL_PAD(LINE_OSD_CS)
 
-/**
- * Baro
- *
- * Apparently needed for backwards compatibility
- * with the ancient onboard baro boards
- */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 0
-#endif
-
 /*
  * Actuators for fixedwing
  */

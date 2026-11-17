@@ -66,13 +66,6 @@
         <property name="size" value="25."/>
         <property name="color" value="yellow"/>
       </papget>
-      <papget type="message_field" display="text" x="1164" y="264">
-        <property name="scale" value=".01"/>
-        <property name="field" value="BMP_STATUS:temp"/>
-        <property name="format" value="%.1f  C"/>
-        <property name="size" value="15."/>
-        <property name="color" value="#00ff00"/>
-      </papget>
       <papget type="message_field" display="text" x="21" y="323">
         <property name="scale" value="0.01"/>
         <property name="field" value="BAT:amps"/>
@@ -85,20 +78,6 @@
         <property name="field" value="ENERGY:current"/>
         <property name="format" value="%.1f Amps"/>
         <property name="size" value="25."/>
-        <property name="color" value="#00ff00"/>
-      </papget>
-      <papget type="message_field" display="text" x="1161" y="215">
-        <property name="scale" value=".01"/>
-        <property name="field" value="BMP_STATUS:UP"/>
-        <property name="format" value="%.1f Baro Alt m"/>
-        <property name="size" value="15."/>
-        <property name="color" value="#00ff00"/>
-      </papget>
-      <papget type="message_field" display="text" x="1163" y="239">
-        <property name="scale" value="1."/>
-        <property name="field" value="BMP_STATUS:press"/>
-        <property name="format" value="%.0f pascal"/>
-        <property name="size" value="15."/>
         <property name="color" value="#00ff00"/>
       </papget>
       <papget type="message_field" display="text" x="1156" y="57">

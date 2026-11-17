@@ -26,6 +26,7 @@
 #include "sensors/baro_amsys.h"
 #include "mcu_periph/i2c.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "state.h"
 #include <math.h>
 #include "generated/flight_plan.h" // for ground alt
@@ -68,7 +69,7 @@
 
 
 // Global variables
-uint16_t pBaroRaw;
+static uint16_t pBaroRaw;
 uint16_t tBaroRaw;
 uint16_t baro_amsys_adc;
 float baro_amsys_offset;
@@ -126,13 +127,6 @@ void baro_amsys_read_periodic(void)
 #endif
   }
 
-#ifdef BARO_AMSYS_SYNC_SEND
-  DOWNLINK_SEND_AMSYS_BARO(DefaultChannel, DefaultDevice, &pBaroRaw, &baro_amsys_p, &baro_amsys_offset, &ref_alt_init,
-                           &baro_amsys_abs_altitude, &baro_amsys_altitude, &baro_amsys_temp);
-#else
-  RunOnceEvery(10, DOWNLINK_SEND_AMSYS_BARO(DefaultChannel, DefaultDevice, &pBaroRaw, &baro_amsys_p, &baro_amsys_offset,
-               &ref_alt_init, &baro_amsys_abs_altitude, &baro_amsys_altitude, &baro_amsys_temp));
-#endif
 }
 
 void baro_amsys_read_event(void)
@@ -174,7 +168,7 @@ void baro_amsys_read_event(void)
     baro_amsys_p = (float)(pBaroRaw - BARO_AMSYS_OFFSET_MIN) * BARO_AMSYS_MAX_PRESSURE / (float)(
                      BARO_AMSYS_OFFSET_MAX - BARO_AMSYS_OFFSET_MIN);
     // Send pressure over ABI
-    AbiSendMsgBARO_ABS(BARO_AMSYS_SENDER_ID, now_ts, baro_amsys_p);
+    AbiSendMsgBARO_ABS_RAW(BARO_AMSYS_SENDER_ID, now_ts, baro_amsys_p);
     // compute altitude localy
     if (!baro_amsys_offset_init) {
       --baro_amsys_cnt;

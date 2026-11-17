@@ -34,7 +34,6 @@
     <module name="ins" type="extended"/>
 
     <module name="geo_mag"/>
-    <module name="air_data"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
@@ -61,12 +60,6 @@
     <set servo="BOTTOM_RIGHT" value="autopilot_get_motors_on() ? actuators_pprz[2] : -MAX_PPRZ"/>
     <set servo="BOTTOM_LEFT"  value="autopilot_get_motors_on() ? actuators_pprz[3] : -MAX_PPRZ"/>
   </command_laws>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
-  </section>
 
   <!-- Magnetometer still needs to be calibrated -->
   <section name="IMU" prefix="IMU_">

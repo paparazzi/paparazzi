@@ -20,7 +20,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>adc</depends>
+    <depends>adc,air_data</depends>
     <provides>airspeed</provides>
   </dep>
   <header>
