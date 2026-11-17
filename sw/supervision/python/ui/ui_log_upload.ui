@@ -15,57 +15,89 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="settings_layout">
+    <widget class="QGroupBox" name="server_box">
+     <property name="title">
+      <string>Log server</string>
+     </property>
+     <layout class="QHBoxLayout" name="settings_layout">
+       <item>
+        <widget class="QLabel" name="server_label">
+         <property name="text">
+          <string>URL</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="server_edit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>2</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="placeholderText">
+          <string>https://logs.example.org</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="key_label">
+         <property name="text">
+          <string>API key</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="key_edit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Create an API key on your account page of the log server. Enter the key, or the path of a file holding it (starting with / or ~)</string>
+         </property>
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="save_button">
+         <property name="toolTip">
+          <string>Save the server URL and API key and check for logs to upload. Clear both to stop uploading.</string>
+         </property>
+         <property name="text">
+          <string>Save</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="connection_label">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="status_layout">
      <item>
-      <widget class="QLabel" name="server_label">
-       <property name="text">
-        <string>Log server URL</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="server_edit">
+      <widget class="QLabel" name="summary_label">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>2</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="placeholderText">
-        <string>https://logs.example.org</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="key_label">
-       <property name="text">
-        <string>API key</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="key_edit">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+        <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
          <horstretch>1</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="toolTip">
-        <string>Create an API key on your account page of the log server. Enter the key, or the path of a file holding it (starting with / or ~)</string>
-       </property>
-       <property name="echoMode">
-        <enum>QLineEdit::Password</enum>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="save_button">
-       <property name="toolTip">
-        <string>Save the server URL and API key and check for logs to upload. Clear both to stop uploading.</string>
-       </property>
        <property name="text">
-        <string>Save</string>
+        <string/>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -85,25 +117,22 @@
      <item>
       <widget class="QPushButton" name="upload_button">
        <property name="toolTip">
-        <string>Upload finished logs now instead of waiting for the next automatic run</string>
+        <string>Look for logs which are ready (see the State column) and upload them now, instead of waiting for the next automatic check</string>
        </property>
        <property name="text">
-        <string>Upload now</string>
+        <string>Check now</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QLabel" name="summary_label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-       <horstretch>1</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <widget class="QLabel" name="help_label">
      <property name="text">
       <string/>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -157,36 +186,6 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QPushButton" name="ignore_button">
-       <property name="toolTip">
-        <string>Never upload the selected logs (unless they change). The files are not deleted.</string>
-       </property>
-       <property name="text">
-        <string>Don't upload</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="ignore_all_button">
-       <property name="toolTip">
-        <string>Never upload any of the pending logs (unless they change). The files are not deleted.</string>
-       </property>
-       <property name="text">
-        <string>Don't upload all</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="requeue_button">
-       <property name="toolTip">
-        <string>Put the selected logs which were marked Don't upload back in the queue</string>
-       </property>
-       <property name="text">
-        <string>Upload anyway</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>
@@ -239,7 +238,12 @@
          </column>
          <column>
           <property name="text">
-           <string>Status</string>
+           <string>State</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Uploads</string>
           </property>
          </column>
         </widget>
@@ -302,6 +306,70 @@
       </layout>
      </widget>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="actions_layout">
+     <item>
+      <widget class="QLabel" name="selection_label">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="actions_spacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="force_button">
+       <property name="toolTip">
+        <string>Upload the selected logs now, also the ones still waiting until they are unchanged for an hour. Only for logs which are no longer being recorded.</string>
+       </property>
+       <property name="text">
+        <string>Upload selected</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ignore_button">
+       <property name="toolTip">
+        <string>Never upload the selected logs (unless they change). The files are not deleted.</string>
+       </property>
+       <property name="text">
+        <string>Don't upload</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ignore_all_button">
+       <property name="toolTip">
+        <string>Never upload any of the pending logs (unless they change). The files are not deleted.</string>
+       </property>
+       <property name="text">
+        <string>Don't upload all</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="requeue_button">
+       <property name="toolTip">
+        <string>Put the selected logs which were marked Don't upload back in the queue</string>
+       </property>
+       <property name="text">
+        <string>Upload anyway</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
