@@ -61,8 +61,7 @@ endif
 
 COMMON_DEMO_CFLAGS += -DUSE_LED
 
-ifeq ($(ARCH), stm32)
-COMMON_DEMO_SRCS += $(SRC_ARCH)/led_hw.c
+ifeq ($(ARCH), chibios)
 COMMON_DEMO_SRCS += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
 
