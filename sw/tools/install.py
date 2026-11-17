@@ -11,9 +11,11 @@ import subprocess
 import webbrowser
 
 distro_version = float(distro.version())
-# started from the Python virtual environment of install.sh --venv: pip may install there
-# (outside a venv, pip refuses to install in the system Python from Ubuntu 24.04 on)
-in_venv = sys.prefix != sys.base_prefix
+# started from the Python virtual environment of install.sh --venv, or from a conda environment: pip may
+# install there (outside one, pip refuses to install in the system Python from Ubuntu 24.04 on)
+in_venv = sys.prefix != sys.base_prefix or os.environ.get('CONDA_PREFIX') == sys.prefix
+# install.py --all (install.sh --all): run the Everything button without showing the window
+no_window = '--all' in sys.argv
 docs = 'https://paparazzi-uav.readthedocs.io'
 
 # Terminal colors
@@ -23,6 +25,11 @@ YELLOW = '\033[1;33m'
 CYAN = '\033[0;36m'
 BOLD = '\033[1m'
 NC = '\033[0m'
+
+
+def installed(package):
+    status = subprocess.run(['dpkg-query', '-W', '-f=${Status}', package], capture_output=True, text=True).stdout
+    return status == 'install ok installed'
 
 
 def mark(symbol, color):
@@ -94,6 +101,7 @@ class InstallWindow(QWidget):
 
     def cmd_repo(self):
         self.step('Step 1 — Adding Paparazzi PPA repository')
+        self.execute('sudo -E apt-get install -y software-properties-common')  # add-apt-repository, not on minimal installs
         self.execute('sudo -E add-apt-repository -y ppa:paparazzi-uav/ppa && sudo -E apt-get update')
         self.done('Repository added successfully', 'Failed to add the repository')
 
@@ -116,6 +124,8 @@ class InstallWindow(QWidget):
         self.execute('sudo -E apt-get install -y libboost-program-options-dev libboost-filesystem-dev')
         # SDL 1.2 for the joystick (sw/ground_segment/joystick, NPS joystick): not pulled in by paparazzi-dev on 26.04
         self.execute('sudo -E apt-get install -y libsdl1.2-dev')
+        # pyserial: upload to Cube Orange / Pixhawk (PX4 bootloader) and serial bootloader (not pulled in by paparazzi-dev)
+        self.execute('sudo -E apt-get install -y python3-serial')
         # the Bebop upload tools use telnetlib, removed from Python 3.13 (26.04): a copy of it from apt
         if distro_version >= 26.04:
             self.execute('sudo -E apt-get install -y python3-zombie-telnetlib')
@@ -166,9 +176,20 @@ class InstallWindow(QWidget):
             if not self.execute('sudo -E apt-get -f -y install gazebo11 libgazebo11-dev'):
                 print(f'{YELLOW}  ℹ gazebo11 not available, trying fallback gazebo package...{NC}')
                 self._ok = True  # Reset and try fallback
-                self.execute('sudo -E apt-get -f -y install gazebo libgazebo-dev')
+                if installed('gz-tools2'):  # Gazebo Harmonic (step 7b) is there
+                    self.execute('sudo -E apt-get -f -y install libgazebo-dev')
+                    self.gazebo_classic_programs()
+                else:
+                    self.execute('sudo -E apt-get -f -y install gazebo libgazebo-dev')
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
         self.done('Gazebo Classic installed successfully', 'Gazebo Classic installation failed')
+
+    def gazebo_classic_programs(self):
+        # Ubuntu 22.04: the gazebo package of Gazebo Classic and gz-tools2 of Gazebo Harmonic both have /usr/bin/gz,
+        # so apt removes one to install the other. To have both, keep Harmonic and the Classic libraries, and copy
+        # the Classic programs (gazebo, gzserver, gzclient) from the gazebo package to /usr/local/bin.
+        self.execute('d=$(mktemp -d) && cd $d && apt-get download gazebo && dpkg-deb -x gazebo_*.deb . '
+                     '&& sudo cp -P usr/bin/gazebo* usr/bin/gzserver* usr/bin/gzclient* /usr/local/bin/ && rm -rf $d')
 
     def cmd_gazebo(self):
         self.step('Step 7b — Installing Gazebo (Harmonic, Jetty on 26.04)')
@@ -185,6 +206,8 @@ class InstallWindow(QWidget):
                 self.execute('sudo sed -i "s/Qt6QuickControls2 = 6.4/Qt6QuickControls2/" /usr/lib/x86_64-linux-gnu/pkgconfig/gz-sim.pc')
             else:
                 self.execute('sudo -E apt-get -f -y install gz-harmonic')
+                if installed('libgazebo-dev'):  # Gazebo Classic (step 7a) is there
+                    self.gazebo_classic_programs()
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
         self.done('Gazebo installed successfully', 'Gazebo installation failed')
 
@@ -245,7 +268,9 @@ class InstallWindow(QWidget):
             self.execute('make clean')
         self.execute('make -j1')
         self.done('Build succeeded', 'Build failed — not starting Paparazzi Center')
-        if self._ok:
+        if self._ok and no_window:
+            print(f'{GREEN}  Start the Paparazzi Center with: ./paparazzi{NC}\n')
+        elif self._ok:
             self.execute('./paparazzi &')
             if self.close_after_make.isChecked():
                 self.close()
@@ -277,6 +302,7 @@ class InstallWindow(QWidget):
                     print(f'{RED}    {title}{NC}')
                 print(f'{RED}    Check documentation: {docs}{NC}\n')
             self.run(self.cmd_go)
+            return not failed and self._ok
         finally:
             self._everything = False
             self.buttonlist.setEnabled(True)
@@ -387,6 +413,10 @@ class InstallWindow(QWidget):
         self.setWindowTitle("Install Paparazzi-UAV")
 
 if __name__ == '__main__':
+    if no_window:
+        os.environ['QT_QPA_PLATFORM'] = 'offscreen'  # no display needed
+        app = QApplication([])
+        sys.exit(0 if InstallWindow().cmd_everything() else 1)
     app = QApplication([])
     w = InstallWindow()
     w.show()

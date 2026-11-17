@@ -10,6 +10,7 @@ NC='\033[0m' # No Color
 
 USE_VENV=false
 BASHRC_SOURCE_VENV=false
+INSTALL_ALL=false
 
 # ── Helper functions ──────────────────────────────────────────────────────────
 
@@ -58,7 +59,8 @@ for arg in "$@"
 do
   if [ "$arg" = "-h" ] || [ "$arg" = "--help" ]
   then
-    echo "Usage: ./install.sh [-n|--no-venv] [-h|---help]"
+    echo "Usage: ./install.sh [-a|--all] [-v|--venv] [-s|--source] [-h|--help]"
+    echo "  -a, --all       Install everything without the window (the Everything button), then build"
     echo "  -v, --venv      Use python virtual environment: pprzEnv"
     echo "  -s, --source    Add venv source in ~/.bashrc"
     echo "  -h, --help      Print this help"
@@ -76,13 +78,18 @@ do
     BASHRC_SOURCE_VENV=true
   fi
 
+  if [ "$arg" = "-a" ] || [ "$arg" = "--all" ]
+  then
+    INSTALL_ALL=true
+  fi
+
 done
 
 
 if [ $VIRTUAL_ENV ]
 then
   echo -e "${YELLOW}  ⚠ Cannot create venv from itself! Run 'deactivate' first if you want to recreate the venv.${NC}"
-  USE_VENV = false
+  USE_VENV=false
   BASHRC_SOURCE_VENV=false
 fi
 
@@ -127,7 +134,14 @@ fi
 
 print_header "Step 2/3 — Setting up Python environment"
 
-if [ "$USE_VENV" = true ]
+# conda: python3 is conda's, so the Python packages go into the active conda environment
+# (a separate one keeps them apart from the rest: conda create -n paparazzi python && conda activate paparazzi)
+if [ -n "$CONDA_DEFAULT_ENV" ]
+then
+  run_step "Installing the Python packages in conda environment '$CONDA_DEFAULT_ENV'" python3 -m pip install -r requirements.txt
+  print_success "Python packages installed in conda environment '$CONDA_DEFAULT_ENV' (activate it before ./paparazzi)"
+
+elif [ "$USE_VENV" = true ]
 then
   run_step "Installing python3 and python3-venv" sudo apt install -y python3 python3-venv
   run_step "Creating virtual environment" python3 setup.py
@@ -141,10 +155,18 @@ then
   fi
 
 else
-  run_step "Installing python3 and PyQt5 (system-wide)" sudo apt-get install -f -y python3 python3-pyqt5
+  run_step "Installing python3 and PyQt5 (system-wide)" sudo apt-get install -f -y python3 python3-pyqt5 python3-distro
   print_success "Python packages installed system-wide"
 fi
 
+
+# ── Install everything without the window ────────────────────────────────────
+
+if [ "$INSTALL_ALL" = true ]
+then
+  print_header "Step 3/3 — Installing everything"
+  exec python3 ./sw/tools/install.py --all
+fi
 
 # ── Launch the graphical installer ───────────────────────────────────────────
 
