@@ -90,7 +90,6 @@ The Paparazzi system, like many other autopilot, is built on top of embedded MCU
 
 To access to the low level peripherals, several options are possible:
 
-- *libopencm3* basic library used for the legacy bare-metal implementation. It is only used for old design and doesn't support threads.
 - *ChibiOS* [*]_ is a Real-Time Operating System, providing a light real-time kernel and an hardware abstraction layer to access the peripherals.
 - *Linux* is used on desktop simulation and with some drones like the Bebop from Parrot.
 
