@@ -91,7 +91,7 @@ static int32_t act_rpm[ACTUATORS_NB];
 static void rpm_feedback_cb(uint8_t sender_id UNUSED, struct act_feedback_t *feedback, uint8_t num_act)
 {
   for (int i = 0; i < num_act; i++) {
-    if (feedback[i].set.rpm && feedback[î].idx < ACTUATORS_NB) {
+    if (feedback[i].set.rpm && feedback[i].idx < ACTUATORS_NB) {
       act_rpm[feedback[i].idx] = feedback[i].rpm;
     }
   }
