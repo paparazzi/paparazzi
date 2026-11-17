@@ -196,3 +196,18 @@ uint32_t sys_time_rtc_millisecond() {
   return 0;
 #endif
 }
+
+void sys_time_rtc_set(uint32_t unix_time, uint16_t unix_ms)
+{
+#if HAL_USE_RTC
+  time_t t = unix_time;
+  struct tm time_tm;
+  gmtime_r(&t, &time_tm);
+  RTCDateTime date;
+  rtcConvertStructTmToDateTime(&time_tm, unix_ms, &date);
+  rtcSetTime(&RTCD1, &date);
+#else
+  (void) unix_time;
+  (void) unix_ms;
+#endif
+}
