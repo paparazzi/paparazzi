@@ -224,7 +224,6 @@
     </module>
     <module name="logger" type="sd_chibios"/>
     <!--<module name="flight_recorder"/>-->
-    <!--<module name="logger_spi_link"/>-->
 
     <!--Use an airspeed sensor and get the measured airspeed in the messages-->
     <module name="airspeed" type="ms45xx_i2c">
