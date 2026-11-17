@@ -13,6 +13,7 @@
       <define name="POS" value="FALSE|TRUE" description="log position (ENU frame, integer representation)"/>
       <define name="SPEED" value="FALSE|TRUE" description="log speed (ENU frame, integer representation)"/>
       <define name="AIRSPEED" value="FALSE|TRUE" description="log airspeed (float)"/>
+      <define name="RPM" value="FALSE|TRUE" description="log motor RPM (float)"/>
     </section>
   </doc>
   <dep>
@@ -21,6 +22,7 @@
   <header>
     <file name="logger_control_effectiveness.h" />
   </header>
+  <init fun="logger_control_effectiveness_init()"/>
   <periodic fun="logger_control_effectiveness_periodic()" start="logger_control_effectiveness_start()" stop="logger_control_effectiveness_stop()" autorun="FALSE" />
   <makefile target="ap">
     <file name="logger_control_effectiveness.c"/>
