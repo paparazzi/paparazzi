@@ -6,8 +6,9 @@ from sphinx.parsers import RSTParser
 from docutils import nodes
 from lxml import etree as ET
 from dataclasses import dataclass
-from docutils.frontend import OptionParser
+from docutils.frontend import get_default_settings
 from docutils.utils import new_document
+import inspect
 
 
 class Define:
@@ -117,7 +118,7 @@ class ModuleDoc(Parser):
         root = self.make_section(m.name)
 
         # description
-        for n in self.parse_rst(m.description):
+        for n in self.parse_rst(m.description, document):
             root.append(n)
 
         if len(m.configures) > 0:
@@ -151,17 +152,16 @@ class ModuleDoc(Parser):
         document.append(root)
         self.finish_parse()
 
-    def parse_rst(self, text):
+    def parse_rst(self, text, document):
+        """Parse the module description as reStructuredText.
+        The XML indentation is removed first, warnings point to the module file."""
         parser = RSTParser()
         parser.set_application(self.env.app)
-        settings = OptionParser(
-            defaults=self.env.settings,
-            components=(RSTParser,),
-            read_config_files=True,
-        ).get_default_values()
-        document = new_document("<rst-doc>", settings=settings)
-        parser.parse(text, document)
-        return document.children
+        settings = get_default_settings(RSTParser)
+        settings.__dict__.update(document.settings.__dict__)    # Sphinx environment and options
+        sub = new_document(document["source"], settings)
+        parser.parse(inspect.cleandoc(text or ""), sub)
+        return sub.children
 
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
