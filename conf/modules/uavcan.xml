@@ -36,7 +36,12 @@
     <include name="$(PAPARAZZI_SRC)/sw/ext/dronecan/libcanard"/>
     <file name="canard.c" dir="$(PAPARAZZI_SRC)/sw/ext/dronecan/libcanard"/>
 
-    <!-- Load DSDL generated files-->
+    <!-- Load DSDL generated files (by make in sw/ext/dronecan, which needs the Python packages empy and pexpect) -->
+    <raw>
+ifeq ($(wildcard $(PAPARAZZI_HOME)/var/include/DSDLcode/include),)
+$(error DroneCAN code not generated: install the Python packages empy and pexpect (Ubuntu: sudo apt install python3-empy python3-pexpect), then run make in the Paparazzi folder)
+endif
+    </raw>
     <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
     <file name="uavcan.protocol.NodeStatus.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
     <file name="uavcan.protocol.GetNodeInfo_req.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>

@@ -34,7 +34,7 @@ include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 MY_PYTHON := $(shell echo `which python3`)
 MY_MAVLINKTOOLS := $(shell $(MY_PYTHON) -c 'import future' 2>&1)
-MY_DRONECANTOOLS := $(shell $(MY_PYTHON) -c 'import em' 2>&1)
+MY_DRONECANTOOLS := $(shell $(MY_PYTHON) -c 'import em, pexpect' 2>&1)
 BOOST_INSTALLED := $(shell dpkg -s libboost-program-options-dev >/dev/null 2>&1 && echo yes)
 CMAKE_INSTALLED := $(shell command -v cmake 2>/dev/null)
 
@@ -97,7 +97,7 @@ dronecan:
 ifneq ($(findstring ModuleNotFoundError, $(MY_DRONECANTOOLS)),ModuleNotFoundError)
 	$(Q)$(MAKE) -C dronecan
 else
-	@echo dronecan not installed, missing package 'em'
+	@echo "dronecan code not generated, missing Python package empy or pexpect (Ubuntu: sudo apt install python3-empy python3-pexpect)"
 endif
 
 unifiedmocaprouter: unifiedmocaprouter.update unifiedmocaprouter.build
