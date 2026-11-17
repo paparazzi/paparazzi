@@ -240,3 +240,6 @@ uint32_t sys_time_rtc_millisecond(void)
                 + now.tv_nsec / 1000000;
   return ms;
 }
+
+/** The system clock is not changed */
+void sys_time_rtc_set(uint32_t unix_time __attribute__((unused)), uint16_t unix_ms __attribute__((unused))) {}
