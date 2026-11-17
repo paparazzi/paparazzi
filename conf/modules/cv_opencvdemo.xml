@@ -2,51 +2,59 @@
 
 <module name="cv_opencvdemo" dir="computer_vision">
   <doc>
-    <description>This example shows how OpenCV can be used on (for example) the Bebop drone.
-    Important to know is that sw/ext/opencv_bebop must be downloaded, and compiled.
-    After this is done the folder sw/ext/opencv_bebop/install has an opencv.xml file.
-    The LDFLAGS in this file should be the same as in this conf file.
+    <description>
+      This example shows how OpenCV can be used on (for example) the Bebop drone.
+      Important to know is that sw/ext/opencv_bebop must be downloaded, and compiled.
+      After this is done the folder sw/ext/opencv_bebop/install has an opencv.xml file.
+      The LDFLAGS in this file should be the same as in this conf file.
 
-// Install OpenCV:
-WARNING! During simulation, a native version of OpenCV is needed, while for AP you need a cross-compiled version included in ./sw/ext/opencv_bebop.
+      Install OpenCV:
 
-The following instructions are for the AP (ARM) version:
+      WARNING! During simulation, a native version of OpenCV is needed, while for AP you need a cross-compiled version included in ./sw/ext/opencv_bebop.
 
-1) For OpenCV on the bebop, make sure to use Ubuntu 20.4: This solution was only tested for this version of Ubuntu.
-In NPS, newer versions of OpenCV also work. Then do not follow the instructions below but install (sudo apt-get install) corresponding opencv-dev packages instead, and then skip to step 7) 
+      The following instructions are for the AP (ARM) version:
 
-2) Navigate to paparazzi/sw/ext/opencv_bebop:
-cd ~/paparazzi/sw/ext/opencv_bebop
+      1) For OpenCV on the bebop, make sure to use Ubuntu 20.4: This solution was only tested for this version of Ubuntu.
+      In NPS, newer versions of OpenCV also work. Then do not follow the instructions below but install (sudo apt-get install) corresponding opencv-dev packages instead, and then skip to step 7) 
 
-3) Install the required OpenCV Libraries:
-sudo apt install libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-22-dev
+      2) Navigate to paparazzi/sw/ext/opencv_bebop::
 
-4) Do make (inside the current directory): 
-make
+           cd ~/paparazzi/sw/ext/opencv_bebop
 
-5) Then go to the build files for the drone : (will configure the files for OpenCV on the drone)
-command: cd /home/username/paparazzi/sw/ext/opencv_bebop/install_arm 
-command: make install
+      3) Install the required OpenCV Libraries::
 
-6) Then go to the build files for the computer: (will configure the files for OpenCV on your on computer)
-command: cd  /home/username/paparazzi/sw/ext/opencv_bebop/install_pc 
-command: make install
+           sudo apt install libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-22-dev
 
-7) finally update the paths in this module file (XML file) for your drone (AP) and for your computer (NPS):
+      4) Do make (inside the current directory)::
 
-For the Bebop, check the paths are: $(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_arm/include and lib.
+           make
 
-Example for NPS, if you followed the steps 2 to 6 above, your opencv will normally be in $(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_pc/include
+      5) Then go to the build files for the drone : (will configure the files for OpenCV on the drone)::
 
-But if you did: sudo apt-get install of opencv-dev, then you will need to update all paths to where opencv-dev is on your machine: /usr/bin/...
+           cd /home/username/paparazzi/sw/ext/opencv_bebop/install_arm
+           make install
 
-8) USEFUL BACKGROUND INFORMATION
-OpenCv only works on C++ code, therefore you need to use a special trick to call a C++ function from C:
+      6) Then go to the build files for the computer: (will configure the files for OpenCV on your own computer)::
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-      
+           cd /home/username/paparazzi/sw/ext/opencv_bebop/install_pc
+           make install
+
+      7) finally update the paths in this module file (XML file) for your drone (AP) and for your computer (NPS):
+
+      For the Bebop, check the paths are: $(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_arm/include and lib.
+
+      Example for NPS, if you followed the steps 2 to 6 above, your opencv will normally be in $(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_pc/include
+
+      But if you did: sudo apt-get install of opencv-dev, then you will need to update all paths to where opencv-dev is on your machine: /usr/bin/...
+
+      8) USEFUL BACKGROUND INFORMATION
+      OpenCv only works on C++ code, therefore you need to use a special trick to call a C++ function from C:
+
+      .. code-block:: c
+
+        #ifdef __cplusplus
+        extern "C" {
+        #endif
     </description>
 
     <define name="OPENCVDEMO_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>

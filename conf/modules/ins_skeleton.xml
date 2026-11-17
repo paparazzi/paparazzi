@@ -4,12 +4,13 @@
   <doc>
     <description>
       INS module skeleton.
-      This module is meant to be used with an additional module which implements any of the following
-        - ins_module_init()
-        - ins_module_propagate(struct Int32Vect3 *accel, float dt)
-        - ins_module_update_gps(struct GpsState *gps_s, float dt)
-        - ins_module_update_baro(float pressure)
-        - ins_module_reset_local_origin(void)
+      This module is meant to be used with an additional module which implements any of the following:
+
+      - ``ins_module_init()``
+      - ``ins_module_propagate(struct Int32Vect3 *accel, float dt)``
+      - ``ins_module_update_gps(struct GpsState *gps_s, float dt)``
+      - ``ins_module_update_baro(float pressure)``
+      - ``ins_module_reset_local_origin(void)``
 
       In each of those functions the updated estimate has to be written to the ins_module struct,
       which is then used to update the state interface.
