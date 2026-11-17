@@ -45,14 +45,12 @@
  * <define name="DIFF_CALIB" type="array">
  *   <field type="struct">
  *     <field name="abi_id" value="MS45XX_SENDER_ID"/>
- *     <field name="calibrated" type="struct">
- *       <field name="offset" value="true"/>
- *     </field>
  *     <field name="offset" value="12.3"/>
  *     <field name="filter_freq" value="2"/>
  *   </field>
  * </define>
- * The order sets the priority of the automatic selection.
+ * The order sets the priority of the automatic selection. A barometer with calibrated.offset true keeps the offset
+ * of the airframe at boot, otherwise it is lined up; a differential pressure always uses the offset of the airframe.
  * A sensor is low-pass filtered with a cut-off of filter_freq (Hz), without filter_freq it isn't filtered.
  */
 #ifndef AIR_DATA_BARO_CALIB
@@ -118,8 +116,9 @@
 #endif
 
 /** Calibrate at boot after AIR_DATA_CALIB_BOOT_DELAY (s): line up the barometers without an offset in the airframe.
- * The differential pressures are not zeroed at boot (it could be a reboot in flight, or wind),
- * they keep the offset of the airframe and are only checked at rest, zero them with the Calibrate setting.
+ * The differential pressures are not zeroed at boot (it could be a reboot in flight, or wind):
+ * the ones in DIFF_CALIB use the offset of the airframe (0 by default) and are checked at rest,
+ * the others are not zeroed until the ZeroAirspeed setting.
  */
 #ifndef AIR_DATA_CALIB_AT_BOOT
 #define AIR_DATA_CALIB_AT_BOOT TRUE
@@ -171,7 +170,9 @@ static uint8_t baro_health_counter;
 
 /** Calibration state */
 static bool calib_running = false;  ///< Collecting the raw values
-static bool calib_boot = false;     ///< Calibration at boot: keep the offsets from the airframe, don't zero the differential pressures
+static bool calib_boot = false;     ///< Calibration at boot: keep the barometer offsets from the airframe
+static bool calib_baro = false;     ///< Line up the barometers
+static bool calib_diff = false;     ///< Zero the differential pressures (otherwise only check them at rest)
 static float calib_start = 0.f;     ///< Start time of the calibration (s)
 
 /*
@@ -500,9 +501,10 @@ static void incidence_cb(uint8_t __attribute__((unused)) sender_id, uint8_t flag
  * Calibration
  */
 
-static void air_data_start_calibration(bool boot)
+static void air_data_start_calibration(bool boot, bool baro, bool diff)
 {
-  air_data.calibrate = false;
+  air_data.calibrate_baro = false;
+  air_data.zero_airspeed = false;
   if (autopilot_get_motors_on() && !air_data.calib_armed) {
     // refused while armed
 #if DOWNLINK
@@ -519,18 +521,22 @@ static void air_data_start_calibration(bool boot)
     }
   }
   calib_boot = boot;
+  calib_baro = baro;
+  calib_diff = diff;
   calib_start = get_sys_time_float();
   calib_running = true;
-  air_data.calibrate = true;
+  air_data.calibrate_baro = baro;
+  air_data.zero_airspeed = diff;
 }
 
-/** Zero the differential pressures (not at boot, then only check them at rest)
- * and line up the barometers with the one in use
+/** Zero the differential pressures (otherwise only check the ones with an offset at rest)
+ * and/or line up the barometers with the one in use
  */
 static void air_data_finish_calibration(void)
 {
   calib_running = false;
-  air_data.calibrate = false;
+  air_data.calibrate_baro = false;
+  air_data.zero_airspeed = false;
 
   for (uint8_t i = 0; i < AIR_DATA_MAX_SENSORS; i++) {
     struct air_data_sensor_t *s = &air_data.diffs[i];
@@ -538,13 +544,13 @@ static void air_data_finish_calibration(void)
       continue;
     }
     float mean = s->calib_sum / s->calib_cnt;
-    if (!calib_boot) {
+    if (calib_diff) {
       s->offset = mean;
       s->calibrated.offset = true;
     } else if (s->calibrated.offset && fabsf((mean - s->offset) * s->scale) > AIR_DATA_DIFF_REST_MAX) {
 #if DOWNLINK
       char msg[64];
-      int len = snprintf(msg, sizeof(msg), "Airspeed sensor %d: %d Pa at rest, check it or Calibrate",
+      int len = snprintf(msg, sizeof(msg), "Airspeed sensor %d: %d Pa at rest, check it or ZeroAirspeed",
                          s->abi_id, (int)((mean - s->offset) * s->scale));
       if (len > 0) {
         DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, Min(len, (int)sizeof(msg) - 1), msg);
@@ -553,6 +559,9 @@ static void air_data_finish_calibration(void)
     }
   }
 
+  if (!calib_baro) {
+    return;
+  }
   struct air_data_sensor_t *ref = air_data_select_baro(get_sys_time_float());
   if (ref != NULL && ref->calib_cnt > 0) {
     float p_ref = (ref->calib_sum / ref->calib_cnt - ref->offset) * ref->scale;
@@ -569,10 +578,17 @@ static void air_data_finish_calibration(void)
   }
 }
 
-void air_data_Calibrate(bool calibrate)
+void air_data_CalibrateBaro(bool calibrate)
 {
   if (calibrate && !calib_running) {
-    air_data_start_calibration(false);
+    air_data_start_calibration(false, true, false);
+  }
+}
+
+void air_data_ZeroAirspeed(bool zero)
+{
+  if (zero && !calib_running) {
+    air_data_start_calibration(false, false, true);
   }
 }
 
@@ -608,13 +624,13 @@ static void air_data_preflight(struct preflight_result_t *result)
   if (calib_running) {
     preflight_error(result, "Air data calibrating");
   }
-  // Not zeroed (no offset in the airframe, also a sensor that started late): Calibrate before arming
+  // Not zeroed (not in DIFF_CALIB): ZeroAirspeed before arming
   // At rest before arming: warn on a large differential pressure (wrong offset, broken sensor or wind), don't block
   float now = get_sys_time_float();
   for (uint8_t i = 0; i < AIR_DATA_MAX_SENSORS; i++) {
     struct air_data_sensor_t *s = &air_data.diffs[i];
     if (s->abi_id != ABI_DISABLE && !s->calibrated.offset) {
-      preflight_error(result, "Airspeed sensor %d not zeroed, Calibrate", s->abi_id);
+      preflight_error(result, "Airspeed sensor %d not zeroed, ZeroAirspeed", s->abi_id);
     } else if (air_data_sensor_healthy(s, now) && fabsf(s->value) > AIR_DATA_DIFF_REST_MAX) {
       preflight_warning(result, "Airspeed sensor %d: %d Pa at rest", s->abi_id, (int)s->value);
     }
@@ -724,10 +740,17 @@ void air_data_init(void)
       }
     }
   }
+  /* the differential pressures in the airframe use its offset (0: the driver offset), the others are not zeroed */
+  for (uint8_t i = 0; i < AIR_DATA_MAX_SENSORS; i++) {
+    if (air_data.diffs[i].abi_id != ABI_DISABLE) {
+      air_data.diffs[i].calibrated.offset = true;
+    }
+  }
   air_data.baro_used = ABI_DISABLE;
   air_data.airspeed_used = ABI_DISABLE;
   air_data.temp_used = ABI_DISABLE;
-  air_data.calibrate = false;
+  air_data.calibrate_baro = false;
+  air_data.zero_airspeed = false;
   air_data.qfe = -1.f;
   air_data.tas_factor = 1.f;
   air_data.calc_qnh_once = true;
@@ -804,7 +827,7 @@ void air_data_periodic(void)
   if (!boot_calib_done && now > AIR_DATA_CALIB_BOOT_DELAY) {
     boot_calib_done = true;
     if (!calib_running) {
-      air_data_start_calibration(true);
+      air_data_start_calibration(true, true, false);
     }
   }
 #endif

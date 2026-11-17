@@ -86,7 +86,8 @@ struct AirData {
   uint8_t airspeed_send_id; ///< Airspeed sensor in the AIRSPEED_RAW telemetry (ABI id), ABI_BROADCAST for all in turn, ABI_DISABLE for none
   float airspeed_filter;    ///< Low-pass filter cut-off frequency (Hz) of the airspeed sensor in use, 0 for no filter
 
-  bool calibrate;       ///< Calibrate all sensors (zero the differential pressures, line up the barometers), true while running
+  bool calibrate_baro;  ///< Line up the barometers with the one in use, true while running
+  bool zero_airspeed;   ///< Zero the differential pressures, true while running
   bool calib_armed;     ///< Allow the calibration while the motors are armed
   float qfe;            ///< Static pressure at the last calibration (Pa), -1 if unknown
 
@@ -120,11 +121,15 @@ extern void air_data_init(void);
  */
 extern void air_data_periodic(void);
 
-/** Start the calibration of all sensors (setting handler).
- * Zeroes the differential pressures and lines up the barometers with the one in use.
+/** Line up the barometers with the one in use and reset the QFE (setting handler).
  * Refused while the motors are armed, unless #AirData.calib_armed.
  */
-extern void air_data_Calibrate(bool calibrate);
+extern void air_data_CalibrateBaro(bool calibrate);
+
+/** Zero the differential pressures (setting handler).
+ * Refused while the motors are armed, unless #AirData.calib_armed.
+ */
+extern void air_data_ZeroAirspeed(bool zero);
 
 extern void air_data_SetAirspeedFilter(float freq);
 

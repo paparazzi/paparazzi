@@ -32,7 +32,7 @@ static inline void rotwing_rc_set_skew(void) {
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid() || !state.ned_initialized_i"/>
     </block>
-    <block name="Geo init" on_enter="air_data_Calibrate(true)">
+    <block name="Geo init" on_enter="air_data_ZeroAirspeed(true)">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call_once fun="NavSetAltitudeReferenceHere()"/>
