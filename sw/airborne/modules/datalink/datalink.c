@@ -68,13 +68,6 @@ void datalink_parse_PING(struct link_device *dev, struct transport_tx *trans, ui
   pprzlink_msg_send_PONG(&msg);
 }
 
-void datalink_parse_TIME_SYNC(uint8_t *buf)
-{
-  // Sync the time with the ground (only used without GPS)
-  sys_time_sync_unix(pprzlink_get_DL_TIME_SYNC_unix_time(buf), pprzlink_get_DL_TIME_SYNC_unix_ms(buf),
-                     get_sys_time_usec());
-}
-
 uint8_t* datalink_get_buffer(void)
 {
   return dl_buffer;

@@ -15,9 +15,11 @@
   <header>
     <file name="commands.h"/>
     <file name="led.h" dir="."/>
+    <file name="sys_time.h" dir="mcu_periph"/>
   </header>
   <init fun="commands_init()"/>
   <periodic fun="LED_PERIODIC()" freq="50"/>
+  <datalink message="TIME_SYNC" fun="sys_time_parse_TIME_SYNC(buf)"/>
   <makefile>
     <configure name="SRC_BOARD" value="boards/$(BOARD)"/>
     <configure name="SRC_MODULES" value="modules"/>
