@@ -115,8 +115,6 @@ class InstallWindow(QWidget):
             self.execute('sudo -E apt-get install -y python3-lxml python3-numpy')
         elif distro_version == 24.04:
             self.execute('sudo -E apt-get install -y liblablgtk2-ocaml-dev')
-            # the MAVLink generator uses future 0.18, which imports imp: removed from Python 3.12
-            self.execute('sudo -E apt-get install -y python3-zombie-imp')
         if distro_version == 18.04:
             self.execute('wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -')
             self.execute('sudo apt-add-repository -y \'deb https://apt.kitware.com/ubuntu/ bionic main\'')
@@ -235,8 +233,6 @@ class InstallWindow(QWidget):
             self.execute('python3 -m pip install pymap3d') # Moving-Base
         else:
             self.execute('sudo -E apt-get -f -y install python3-pymap3d') # Moving-Base
-        if distro_version < 26.04:
-            self.execute('sudo -E apt-get -f -y install python3-future') # MAVLink generator (no apt package on 26.04)
         self.done('VLC / Joystick / NatNet installed successfully', 'Some packages failed to install')
 
 
