@@ -29,6 +29,7 @@
 
 #include "mcu_periph/sys_time.h"
 #include "mcu.h"
+#include "pprzlink/dl_protocol.h"
 
 // check the number of timers against max tid_t value
 #include "limits.h"
@@ -215,6 +216,12 @@ void sys_time_update_timer(tid_t id, float duration)
 {
   sys_time.timer[id].end_time -= (sys_time.timer[id].duration - sys_time_ticks_of_sec(duration));
   sys_time.timer[id].duration = sys_time_ticks_of_sec(duration);
+}
+
+void sys_time_parse_TIME_SYNC(uint8_t *buf)
+{
+  sys_time_sync_unix(pprzlink_get_DL_TIME_SYNC_unix_time(buf), pprzlink_get_DL_TIME_SYNC_unix_ms(buf),
+                     get_sys_time_usec());
 }
 
 #if USE_SHELL

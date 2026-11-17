@@ -177,6 +177,11 @@ void sys_time_sync_gps(uint16_t week, uint32_t tow, uint32_t stamp);
 void sys_time_sync_unix(uint32_t unix_time, uint16_t unix_ms, uint32_t stamp);
 
 /**
+ * Parse the TIME_SYNC datalink message (ground time).
+ */
+void sys_time_parse_TIME_SYNC(uint8_t *buf);
+
+/**
  * Set the RTC to the UTC unix time (architecture specific, may do nothing).
  * @param unix_time UTC unix time in seconds
  * @param unix_ms milliseconds part of the unix time
