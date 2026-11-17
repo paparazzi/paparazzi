@@ -27,6 +27,11 @@ BOLD = '\033[1m'
 NC = '\033[0m'
 
 
+def installed(package):
+    status = subprocess.run(['dpkg-query', '-W', '-f=${Status}', package], capture_output=True, text=True).stdout
+    return status == 'install ok installed'
+
+
 def mark(symbol, color):
     # a small icon with a colored symbol, for the buttons
     pixmap = QPixmap(16, 16)
@@ -171,9 +176,20 @@ class InstallWindow(QWidget):
             if not self.execute('sudo -E apt-get -f -y install gazebo11 libgazebo11-dev'):
                 print(f'{YELLOW}  ℹ gazebo11 not available, trying fallback gazebo package...{NC}')
                 self._ok = True  # Reset and try fallback
-                self.execute('sudo -E apt-get -f -y install gazebo libgazebo-dev')
+                if installed('gz-tools2'):  # Gazebo Harmonic (step 7b) is there
+                    self.execute('sudo -E apt-get -f -y install libgazebo-dev')
+                    self.gazebo_classic_programs()
+                else:
+                    self.execute('sudo -E apt-get -f -y install gazebo libgazebo-dev')
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
         self.done('Gazebo Classic installed successfully', 'Gazebo Classic installation failed')
+
+    def gazebo_classic_programs(self):
+        # Ubuntu 22.04: the gazebo package of Gazebo Classic and gz-tools2 of Gazebo Harmonic both have /usr/bin/gz,
+        # so apt removes one to install the other. To have both, keep Harmonic and the Classic libraries, and copy
+        # the Classic programs (gazebo, gzserver, gzclient) from the gazebo package to /usr/local/bin.
+        self.execute('d=$(mktemp -d) && cd $d && apt-get download gazebo && dpkg-deb -x gazebo_*.deb . '
+                     '&& sudo cp -P usr/bin/gazebo* usr/bin/gzserver* usr/bin/gzclient* /usr/local/bin/ && rm -rf $d')
 
     def cmd_gazebo(self):
         self.step('Step 7b — Installing Gazebo (Harmonic, Jetty on 26.04)')
@@ -190,6 +206,8 @@ class InstallWindow(QWidget):
                 self.execute('sudo sed -i "s/Qt6QuickControls2 = 6.4/Qt6QuickControls2/" /usr/lib/x86_64-linux-gnu/pkgconfig/gz-sim.pc')
             else:
                 self.execute('sudo -E apt-get -f -y install gz-harmonic')
+                if installed('libgazebo-dev'):  # Gazebo Classic (step 7a) is there
+                    self.gazebo_classic_programs()
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
         self.done('Gazebo installed successfully', 'Gazebo installation failed')
 
