@@ -13,6 +13,7 @@
       <define name="POS" value="FALSE|TRUE" description="log position (ENU frame, integer representation)"/>
       <define name="SPEED" value="FALSE|TRUE" description="log speed (ENU frame, integer representation)"/>
       <define name="AIRSPEED" value="FALSE|TRUE" description="log airspeed (float)"/>
+      <define name="RPM" value="FALSE|TRUE" description="log motor RPM (float)"/>
     </section>
   </doc>
   <dep>
