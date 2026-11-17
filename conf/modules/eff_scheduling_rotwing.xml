@@ -1,9 +1,10 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 <module name="eff_scheduling_rotwing" dir="ctrl">
   <doc>
-    <description>T
-      he control effectiveness scheduler for the rotating wing quadplane drone type
-     - it requires a servo called ROTATION_MECH
+    <description>
+      The control effectiveness scheduler for the rotating wing quadplane drone type
+
+      - it requires a servo called ROTATION_MECH
     </description>
     <section name="ROTWING" prefix="ROTWING_EFF_SCHED_">
       <define name="IXX_BODY" value="0"  description=""/>
