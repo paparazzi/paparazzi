@@ -19,6 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#include <time.h>
 #include "modules/gps/gps_sim_nps.h"
 #include "modules/gps/gps.h"
 #include "modules/core/abi.h"
@@ -56,9 +57,18 @@ bool gps_has_fix;
 
 void gps_feed_value(void)
 {
-  // FIXME, set proper time instead of hardcoded to May 2014
-  gps_nps.week = 1794;
-  gps_nps.tow = fdm.time * 1000;
+  // GPS time from the host clock at the start of the simulation
+  static uint64_t gps_start_ms = 0;
+  if (gps_start_ms == 0) {
+    struct timespec now;
+    clock_gettime(CLOCK_REALTIME, &now);
+    uint64_t unix_ms = (uint64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000;
+    gps_start_ms = unix_ms - SYS_TIME_UNIX_GPS_EPOCH_MS + SYS_TIME_GPS_LEAP_SECONDS * 1000ULL
+                   - (uint64_t)(fdm.time * 1000);
+  }
+  uint64_t gps_ms = gps_start_ms + (uint64_t)(fdm.time * 1000);
+  gps_nps.week = gps_ms / SYS_TIME_MSEC_PER_WEEK;
+  gps_nps.tow = gps_ms % SYS_TIME_MSEC_PER_WEEK;
 
   gps_nps.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;
   gps_nps.ecef_pos.y = sensors.gps.ecef_pos.y * 100.;
