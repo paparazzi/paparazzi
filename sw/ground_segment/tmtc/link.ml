@@ -71,6 +71,7 @@ let add_timestamp = ref None
 
 let status_msg_period = ref 1000 (** ms *)
 let ping_msg_period = ref 5000 (** ms  *)
+let time_sync_period = ref 10000 (** ms, 0 to disable *)
 
 (* Time (in ms) after which an aircraft is regarded as dead/off if no messages are received.
    If an aircraft is not live anymore, no uplink messages are sent.
@@ -505,8 +506,22 @@ let send_ping = fun device ac_id status ->
   send ac_id device s High;
   status.last_ping <- Unix.gettimeofday ()
 
+(* ground time for the aircraft, corrected with half the last round trip *)
+let send_time_sync = fun device ac_id status ->
+  let msg_id, _ = Dl_Pprz.message_of_name "TIME_SYNC" in
+  let rtt = status.last_pong -. status.last_ping in
+  let t = Unix.gettimeofday () +. (if rtt > 0. && rtt < 2. then rtt /. 2. else 0.) in
+  let sec = floor t in
+  let values = [ "unix_time", PprzLink.Int64 (Int64.of_float sec);
+                 "unix_ms", PprzLink.Int (truncate ((t -. sec) *. 1000.)) ] in
+  let s = Dl_Pprz.payload_of_values msg_id my_id ac_id values in
+  send ac_id device s Normal
+
 let send_ping_msg = fun device ->
   Hashtbl.iter (send_ping device) statuss
+
+let send_time_sync_msg = fun device ->
+  Hashtbl.iter (send_time_sync device) statuss
 
 
 (** Main *********************************************************************)
@@ -545,6 +560,8 @@ let () =
       "-id", Arg.Set_int link_id, (sprintf "<id> Sets the link id. If multiple links are used, each must have a unique id. Default is %i" !link_id);
       "-status_period", Arg.Set_int status_msg_period, (sprintf "<period> Sets the period (in ms) of the LINK_REPORT status message. Default is %i" !status_msg_period);
       "-ping_period", Arg.Set_int ping_msg_period, (sprintf "<period> Sets the period (in ms) of the PING message sent to aircrafs. Default is %i" !ping_msg_period);
+      "-time_sync_period", Arg.Set_int time_sync_period, (sprintf "<period> Sets the period (in ms) of the TIME_SYNC message sent to aircrafts, 0 to disable. Default is %i" !time_sync_period);
+      "-no_time_sync", Arg.Unit (fun () -> time_sync_period := 0), "Disables the TIME_SYNC message (ground time) sent to aircrafts";
       "-ac_timeout", Arg.Set_int dead_aircraft_time_ms, (sprintf "<time> Sets the time (in ms) after which an aircraft is regarded as dead/off if no messages are received. Default is %ims, set to zero to disable." !ping_msg_period)
     ] in
   Arg.parse options (fun _x -> ()) "Usage: ";
@@ -617,6 +634,13 @@ let () =
           ignore (Glib.Timeout.add ~ms:!ping_msg_period ~callback:(fun () -> send_ping_msg device; true));
           false in
         ignore (Glib.Timeout.add ~ms:status_ping_diff ~callback:start_ping);
+        if !time_sync_period > 0 then begin
+          (* half a ping period after the pings, to not burst the uplink *)
+          let start_time_sync = fun () ->
+            ignore (Glib.Timeout.add ~ms:!time_sync_period ~callback:(fun () -> send_time_sync_msg device; true));
+            false in
+          ignore (Glib.Timeout.add ~ms:(status_ping_diff + !ping_msg_period / 2) ~callback:start_time_sync)
+        end
       end;
       match transport with
         | XBee ->

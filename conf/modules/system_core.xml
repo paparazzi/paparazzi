@@ -9,7 +9,7 @@
     </description>
   </doc>
   <dep>
-    <depends>mcu,threads,math,state_interface,@actuators|@intermcu,settings|@no_settings,@datalink,@telemetry</depends>
+    <depends>mcu,sys_time,threads,math,state_interface,@actuators|@intermcu,settings|@no_settings,@datalink,@telemetry</depends>
     <provides>core</provides>
   </dep>
   <header>
@@ -23,15 +23,11 @@
     <configure name="SRC_MODULES" value="modules"/>
     <configure name="SRC_ARCH" value="arch/$(ARCH)"/>
     <define name="BOARD_CONFIG" value="$(BOARD_CFG)"/>
-    <define name="SYS_TIME_LED" value="$(SYS_TIME_LED)" cond="ifneq ($(SYS_TIME_LED),none)"/>
     <include name="$(SRC_BOARD)"/>
     <include name="$(SRC_MODULES)"/>
-    <file name="sys_time.c" dir="mcu_periph"/>
     <file name="commands.c"/>
     <define name="USE_COMMANDS"/>
-    <file_arch name="sys_time_arch.c" dir="mcu_periph"/>
     <file_arch name="led_hw.c" dir="." cond="ifeq ($(ARCH), stm32)"/>
-    <flag name="LDFLAGS" value="lrt" cond="ifeq ($(ARCH), linux)"/>
     <raw>
 VPATH += $(PAPARAZZI_HOME)/var/share
 VPATH += $(PAPARAZZI_HOME)/sw/ext

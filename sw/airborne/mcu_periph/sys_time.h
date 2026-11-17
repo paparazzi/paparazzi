@@ -57,6 +57,14 @@ extern "C" {
 #endif
 #endif
 
+#define SYS_TIME_MSEC_PER_WEEK (1000UL * 60 * 60 * 24 * 7)
+#define SYS_TIME_UNIX_GPS_EPOCH_MS 315964800000ULL  ///< unix time of the GPS epoch (1980-01-06) in ms
+
+/** Difference between GPS time and UTC */
+#ifndef SYS_TIME_GPS_LEAP_SECONDS
+#define SYS_TIME_GPS_LEAP_SECONDS 18
+#endif
+
 typedef int8_t tid_t; ///< sys_time timer id type
 typedef void (*sys_time_cb)(uint8_t id);
 
@@ -79,6 +87,15 @@ struct sys_time {
   uint32_t resolution_cpu_ticks;  ///< sys_time_timer resolution in cpu ticks
   uint32_t cpu_ticks_per_sec;     ///< cpu ticks per second
   uint32_t tow_offset;            ///< GPS time of week at startup in ms (0 until synced)
+  uint64_t unix_offset;           ///< UTC unix time at startup in ms
+  uint64_t ground_offset;         ///< last applied ground UTC unix time at startup in ms
+  uint32_t gps_tow_sync;          ///< uptime in ms of the last GPS time of week sync
+  uint32_t gps_unix_sync;         ///< uptime in ms of the last GPS unix time sync
+  uint32_t rtc_sync;              ///< uptime in ms of the last RTC update
+  bool gps_tow_synced;            ///< time of week synced with a GPS
+  bool gps_unix_synced;           ///< unix time synced with a GPS
+  bool unix_synced;               ///< unix time synced (GPS or ground)
+  bool ground_synced;             ///< a ground time was applied
 };
 
 extern struct sys_time sys_time;
@@ -124,17 +141,52 @@ uint32_t sys_time_rtc_millisecond(void);
 
 /**
  * Get the GPS time of week in milliseconds.
- * Until synced with a GPS (see sys_time_sync_tow) this is the time since startup.
+ * Synced from the GPS, or from the ground (TIME_SYNC) without GPS.
+ * Until synced this is the time since startup.
  * @return GPS time of week in milliseconds
  */
 uint32_t get_sys_time_tow(void);
 
 /**
- * Synchronize the time of week with a GPS measurement.
+ * Get the UTC unix time in seconds.
+ * Synced from the GPS, or from the ground (TIME_SYNC) without GPS.
+ * @return unix time in seconds, 0 until synced
+ */
+uint32_t get_sys_time_unix(void);
+
+/**
+ * Get the UTC unix time in milliseconds.
+ * @return unix time in milliseconds, 0 until synced
+ */
+uint64_t get_sys_time_unix_msec(void);
+
+/**
+ * Synchronize the time with a GPS measurement (has priority over the ground).
+ * @param week GPS week, 0 if unknown (only syncs the time of week)
  * @param tow GPS time of week in milliseconds
  * @param stamp get_sys_time_usec() timestamp at which tow was valid
  */
-void sys_time_sync_tow(uint32_t tow, uint32_t stamp);
+void sys_time_sync_gps(uint16_t week, uint32_t tow, uint32_t stamp);
+
+/**
+ * Synchronize the time with the ground, only used without recent GPS sync.
+ * @param unix_time UTC unix time in seconds
+ * @param unix_ms milliseconds part of the unix time
+ * @param stamp get_sys_time_usec() timestamp at which the time was valid
+ */
+void sys_time_sync_unix(uint32_t unix_time, uint16_t unix_ms, uint32_t stamp);
+
+/**
+ * Parse the TIME_SYNC datalink message (ground time).
+ */
+void sys_time_parse_TIME_SYNC(uint8_t *buf);
+
+/**
+ * Set the RTC to the UTC unix time (architecture specific, may do nothing).
+ * @param unix_time UTC unix time in seconds
+ * @param unix_ms milliseconds part of the unix time
+ */
+void sys_time_rtc_set(uint32_t unix_time, uint16_t unix_ms);
 
 /**
  * Register a new system timer.
