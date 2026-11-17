@@ -114,6 +114,8 @@ class InstallWindow(QWidget):
         self.execute('sudo -E apt-get install -y libboost-program-options-dev libboost-filesystem-dev')
         # SDL 1.2 for the joystick (sw/ground_segment/joystick, NPS joystick): not pulled in by paparazzi-dev on 26.04
         self.execute('sudo -E apt-get install -y libsdl1.2-dev')
+        # code generator of the DroneCAN messages (sw/ext/dronecan) for the CAN airframes
+        self.execute('sudo -E apt-get install -y python3-empy python3-pexpect')
         # the Bebop upload tools use telnetlib, removed from Python 3.13 (26.04): a copy of it from apt
         if distro_version >= 26.04:
             self.execute('sudo -E apt-get install -y python3-zombie-telnetlib')
