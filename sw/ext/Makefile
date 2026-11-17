@@ -80,6 +80,7 @@ ifeq ($(MY_MAVLINKTOOLS),True)
 	$(Q)PYTHONPATH=$(EXT_DIR)/mavlink $(MY_PYTHON) $(EXT_DIR)/mavlink/pymavlink/tools/mavgen.py --output $(PAPARAZZI_SRC)/var/include/mavlink --lang C $(EXT_DIR)/mavlink/message_definitions/v1.0/paparazzi.xml --wire-protocol 2.0 --no-validate > /dev/null
 else
 	@echo MAVLink code not generated: the generator needs Python 3.10 or newer \(Ubuntu 22.04 or newer\)
+	$(Q)rm -rf $(PAPARAZZI_SRC)/var/include/mavlink # old generated code does not match the airborne code
 endif
 
 libsbp: libsbp.update
