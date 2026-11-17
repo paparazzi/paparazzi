@@ -93,6 +93,19 @@ then
   BASHRC_SOURCE_VENV=false
 fi
 
+# conda: an active conda environment with its own python3 (the same test as install.py)
+IN_CONDA=false
+if [ -n "$CONDA_PREFIX" ] && [ "$(python3 -c 'import sys; print(sys.prefix)' 2>/dev/null)" = "$CONDA_PREFIX" ]
+then
+  IN_CONDA=true
+  if [ "$USE_VENV" = true ]
+  then
+    echo -e "${YELLOW}  ⚠ Conda environment '$CONDA_DEFAULT_ENV' is active: the Python packages go there, no venv. Run 'conda deactivate' first if you want the venv.${NC}"
+    USE_VENV=false
+    BASHRC_SOURCE_VENV=false
+  fi
+fi
+
 # ── Update packages list ──────────────────────────────────────────────────
 
 print_header "Step 0/3 — Update packages list"
@@ -136,7 +149,7 @@ print_header "Step 2/3 — Setting up Python environment"
 
 # conda: python3 is conda's, so the Python packages go into the active conda environment
 # (a separate one keeps them apart from the rest: conda create -n paparazzi python && conda activate paparazzi)
-if [ -n "$CONDA_DEFAULT_ENV" ]
+if [ "$IN_CONDA" = true ]
 then
   run_step "Installing the Python packages in conda environment '$CONDA_DEFAULT_ENV'" python3 -m pip install -r requirements.txt
   print_success "Python packages installed in conda environment '$CONDA_DEFAULT_ENV' (activate it before ./paparazzi)"
