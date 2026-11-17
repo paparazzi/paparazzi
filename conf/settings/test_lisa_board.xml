@@ -1,9 +1,0 @@
-<!DOCTYPE settings SYSTEM "settings.dtd">
-
-<settings>
-  <dl_settings>
-    <dl_setting var="cur_test" min="0" step="1" max="4" shortname="test" values="None|Baro|Bldc|Servos|Uarts" module="lisa/test/test_board" handler="SetCurTest">
-      <!--         <key_press key="d" value="0"/> -->
-    </dl_setting>
-  </dl_settings>
-</settings>
