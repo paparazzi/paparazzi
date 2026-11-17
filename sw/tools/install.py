@@ -161,7 +161,9 @@ class InstallWindow(QWidget):
     def cmd_mcu(self):
         self.step('Step 6 — Setting up MCU flash & debug tools')
         self.execute('sudo -E apt-get -f -y install dfu-util')
-        self.execute('sudo -E cp conf/system/udev/rules/*.rules /etc/udev/rules.d/ && sudo -E udevadm control --reload-rules')
+        self.execute('sudo -E cp conf/system/udev/rules/*.rules /etc/udev/rules.d/')
+        if os.path.exists('/run/udev/control'):    # no udev running (Docker, CI): the rules load at the next start
+            self.execute('sudo -E udevadm control --reload-rules')
         self.done('MCU tools installed successfully', 'MCU tools installation failed')
 
     def cmd_gazebo_classic(self):
