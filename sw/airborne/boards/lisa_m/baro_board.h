@@ -9,7 +9,7 @@
 
 // only for printing the baro type during compilation
 #ifndef BARO_BOARD
-#define BARO_BOARD BARO_BOARD_BMP085
+#define BARO_BOARD BARO_MS5611_SPI
 #endif
 
 // for right now we abuse this file for the ms5611 baro on aspirin as well

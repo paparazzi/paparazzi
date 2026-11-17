@@ -164,7 +164,7 @@ void send_softi2c1_err(struct transport_tx *trans, struct link_device *dev)
 
 
 static void softi2c_gpio_highz(gpio_port_t port, uint16_t pin) {
-#if defined(CHIBIOS_MCU_ARCH_H) || defined(STM32_MCU_ARCH_H)
+#if defined(CHIBIOS_MCU_ARCH_H)
   /* Arch's with input_pullup */
   gpio_setup_input_pullup(port, pin);
 #else
@@ -194,10 +194,6 @@ static void softi2c_setup_gpio(
 static void softi2c_setup_gpio(
     gpio_port_t sda_port, uint16_t sda_pin,
     gpio_port_t scl_port, uint16_t scl_pin) {
-#ifdef STM32_MCU_ARCH_H
-  gpio_enable_clock(sda_port);
-  gpio_enable_clock(scl_port);
-#endif /* STM32F1/F4 */
   softi2c_gpio_highz(sda_port, sda_pin);
   softi2c_gpio_highz(scl_port, scl_pin);
 }

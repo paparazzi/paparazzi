@@ -40,14 +40,6 @@
 #include "modules/spektrum_soft_bind/spektrum_soft_bind_fbw.h"
 
 #include BOARD_CONFIG
-#ifdef BOARD_PX4IO
-#include "libopencm3/cm3/scb.h"
-#include "led.h"
-#include "mcu_periph/sys_time.h"
-static uint8_t px4RebootSequence[] = {0x41, 0xd7, 0x32, 0x0a, 0x46, 0x39};
-static uint8_t px4RebootSequenceCount = 0;
-tid_t px4bl_tid; ///< id for time out of the px4 bootloader reset
-#endif
 
 #if RADIO_CONTROL_NB_CHANNEL > 8
 //#undef RADIO_CONTROL_NB_CHANNEL
@@ -66,10 +58,6 @@ uint8_t imcu_msg_buf[256] __attribute__((aligned));  ///< The InterMCU message b
 pprz_t intermcu_commands[COMMANDS_NB];
 bool intermcu_ap_motors_on = false;
 
-
-#ifdef BOARD_PX4IO
-static void checkPx4RebootCommand(unsigned char b);
-#endif
 
 // ABI callback for radio control
 #ifndef IMCU_RADIO_CONTROL_ID
@@ -96,10 +84,6 @@ void intermcu_init(void)
 #if USE_GPS
   AbiBindMsgGPS(IMCU_GPS_ID, &gps_ev, gps_cb);
 #endif
-
-#ifdef BOARD_PX4IO
-  px4bl_tid = sys_time_register_timer(20.0, NULL); //bootloader time out. After this intermcu will be set to slow baud.
-#endif
 }
 
 void intermcu_periodic(void)
@@ -121,11 +105,6 @@ void intermcu_event(void)
     while (intermcu.device->char_available(intermcu.device->periph) && !intermcu.transport.trans_rx.msg_received) {
       c = intermcu.device->get_byte(intermcu.device->periph);
       parse_pprz(&intermcu.transport, c);
-
-#ifdef BOARD_PX4IO
-      // TODO: create a hook
-      checkPx4RebootCommand(c);
-#endif
     }
 
     // If we have a message copy it
@@ -260,66 +239,5 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     &gps_s->sacc,
     &gps_s->num_sv,
     &gps_s->fix);
-}
-#endif
-
-/* SOME STUFF FOR PX4IO BOOTLOADER (TODO: move this code) */
-#ifdef BOARD_PX4IO
-static void checkPx4RebootCommand(uint8_t b)
-{
-  if (intermcu.stable_px4_baud == CHANGING_BAUD && sys_time_check_and_ack_timer(px4bl_tid)) {
-    //to prevent a short intermcu comm loss, give some time to changing the baud
-    sys_time_cancel_timer(px4bl_tid);
-    intermcu.stable_px4_baud = PPRZ_BAUD;
-  } else if (intermcu.stable_px4_baud == PX4_BAUD) {
-
-    if (sys_time_check_and_ack_timer(px4bl_tid)) {
-      //time out the possibility to reboot to the px4 bootloader, to prevent unwanted restarts during flight
-      sys_time_cancel_timer(px4bl_tid);
-      //for unknown reasons, 1500000 baud does not work reliably after prolonged times.
-      //I suspect a temperature related issue, combined with the fbw f1 crystal which is out of specs
-      //After an initial period on 1500000, revert to 230400
-      //We still start at 1500000 to remain compatible with original PX4 firmware. (which always runs at 1500000)
-      uart_periph_set_baudrate(intermcu.device->periph, B230400);
-      intermcu.stable_px4_baud = CHANGING_BAUD;
-      px4bl_tid = sys_time_register_timer(1.0, NULL);
-      return;
-    }
-
-#ifdef SYS_TIME_LED
-    LED_ON(SYS_TIME_LED);
-#endif
-
-    if (b == px4RebootSequence[px4RebootSequenceCount]) {
-      px4RebootSequenceCount++;
-    } else {
-      px4RebootSequenceCount = 0;
-    }
-
-    if (px4RebootSequenceCount >= 6) { // 6 = length of rebootSequence + 1
-      px4RebootSequenceCount = 0; // should not be necessary...
-
-      //send some magic back
-      //this is the same as the Pixhawk IO code would send
-      intermcu.device->put_byte(intermcu.device->periph, 0, 0x00);
-      intermcu.device->put_byte(intermcu.device->periph, 0, 0xe5);
-      intermcu.device->put_byte(intermcu.device->periph, 0, 0x32);
-      intermcu.device->put_byte(intermcu.device->periph, 0, 0x0a);
-      intermcu.device->put_byte(intermcu.device->periph, 0,
-                                0x66); // dummy byte, seems to be necessary otherwise one byte is missing at the fmu side...
-
-      while (((struct uart_periph *)(intermcu.device->periph))->tx_running) {
-        // tx_running is volatile now, so LED_TOGGLE not necessary anymore
-#ifdef SYS_TIME_LED
-        LED_TOGGLE(SYS_TIME_LED);
-#endif
-      }
-
-#ifdef SYS_TIME_LED
-      LED_OFF(SYS_TIME_LED);
-#endif
-      scb_reset_system();
-    }
-  }
 }
 #endif
