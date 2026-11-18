@@ -31,14 +31,24 @@
 #include "std.h"
 #include "generated/airframe.h"
 
-/** low battery level in Volts (for 3S LiPo) */
-#ifndef LOW_BAT_LEVEL
-#define LOW_BAT_LEVEL 10.5
+/** number of battery cells in series (default 3S) */
+#ifndef BAT_NB_CELLS
+#define BAT_NB_CELLS 3
 #endif
 
-/** critical battery level in Volts (for 3S LiPo) */
+/** low battery level in Volts (default 3.5 V per cell) */
+#ifndef LOW_BAT_LEVEL
+#define LOW_BAT_LEVEL (3.5f * BAT_NB_CELLS)
+#endif
+
+/** critical battery level in Volts (default 3.25 V per cell) */
 #ifndef CRITIC_BAT_LEVEL
-#define CRITIC_BAT_LEVEL 9.8
+#define CRITIC_BAT_LEVEL (3.25f * BAT_NB_CELLS)
+#endif
+
+/** catastrophic battery level in Volts (default 3.0 V per cell) */
+#ifndef CATASTROPHIC_BAT_LEVEL
+#define CATASTROPHIC_BAT_LEVEL (3.0f * BAT_NB_CELLS)
 #endif
 
 struct Electrical {
