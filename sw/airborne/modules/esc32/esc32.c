@@ -31,9 +31,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#if PERIODIC_TELEMETRY
-#include "modules/datalink/telemetry.h"
-#endif
+#include "modules/core/abi.h"
+#include "modules/actuators/actuators.h"
 
 struct esc32 esc32;
 
@@ -221,23 +220,6 @@ static void parse_esc32(struct esc32_private *esc, uint8_t c) {
   }
 }
 
-static void esc32_msg_send(struct transport_tx *trans, struct link_device *dev) {
-  float temp = 0;
-  float temp_dev = 0;
-  uint8_t id0 = 0;
-
-  pprz_msg_send_ESC(trans, dev, AC_ID,
-      &esc32.params.amps,
-      &esc32.params.volts_bat,
-      &esc32.power,
-      &esc32.params.rpm,
-      &esc32.params.volts_motor,
-      &esc32.energy,
-      &temp,
-      &temp_dev,
-      &id0,
-      &id0); // only one motor handled for now
-}
 
 void esc32_init(void) {
   memset(&esc32, 0, sizeof(struct esc32));
@@ -249,9 +231,6 @@ void esc32_init(void) {
   // set command sequence id to 1
   esc32_priv.cmd_seq_id = 1;
 
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ESC, esc32_msg_send);
-#endif
 
 };
 
@@ -341,6 +320,18 @@ static void esc32_parse_msg(struct esc32_private *esc_priv, struct esc32 *esc) {
       esc->energy += esc->power * ESC32_PARAMS_LEN / ESC32_TELEMETRY_RATE / 3600.f;
       // new data available
       esc->data_available = true;
+#ifdef ESC32_ACTUATOR_IDX
+      // actuator feedback (ESC_TELEMETRY)
+      struct act_feedback_t feedback = {0};
+      feedback.idx = ESC32_ACTUATOR_IDX;
+      feedback.rpm = esc->params.rpm;
+      feedback.set.rpm = true;
+      feedback.current = esc->params.amps;
+      feedback.set.current = true;
+      feedback.voltage = esc->params.volts_bat;
+      feedback.set.voltage = true;
+      AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_ESC32_ID, &feedback, 1);
+#endif
       // reset input array
       esc_priv->params_idx = 0;
     }
