@@ -175,6 +175,23 @@ PRINT_CONFIG_VAR(INS_EKF2_GNSS_CHECK)
 #define INS_EKF2_HGT_REF EKF2_HGT_REF_BARO
 #endif
 
+/** Align the altitude to GNSS on the ground when the barometer is the height reference.
+ *  The barometer gives a pressure altitude (standard atmosphere, 1013.25 hPa), which is off by
+ *  about 8 m per hPa of the actual sea level pressure (e.g. 200 m at 989 hPa). Once, while disarmed on
+ *  the ground with an accurate GNSS height (vertical accuracy below INS_EKF2_GNSS_ALT_ALIGN_VACC, so not
+ *  indoors) that differs more than INS_EKF2_GNSS_ALT_ALIGN_THR, the altitude and the origin altitude are
+ *  set to the GNSS height. The barometer offset follows, so the barometer stays the height reference with
+ *  the GNSS altitude. It is done again only after another height reset of the EKF. */
+#ifndef INS_EKF2_GNSS_ALT_ALIGN
+#define INS_EKF2_GNSS_ALT_ALIGN TRUE
+#endif
+#ifndef INS_EKF2_GNSS_ALT_ALIGN_THR
+#define INS_EKF2_GNSS_ALT_ALIGN_THR 5.f   ///< GNSS height difference (m) before the altitude is aligned
+#endif
+#ifndef INS_EKF2_GNSS_ALT_ALIGN_VACC
+#define INS_EKF2_GNSS_ALT_ALIGN_VACC 2.f  ///< maximum GNSS vertical accuracy (m) to align the altitude
+#endif
+
 /* Vehicle specific defaults, as PX4 (rc.fw_defaults and rc.mc_defaults) */
 #if defined(FIXEDWING_FIRMWARE)
 #ifndef INS_EKF2_ARSP_THR
@@ -399,7 +416,7 @@ static uint64_t ekf2_delayed_time_us(uint32_t stamp, uint32_t delay_ms)
 enum ekf2_input_type {
   EKF2_IN_IMU, EKF2_IN_UPDATE, EKF2_IN_MAG, EKF2_IN_BARO, EKF2_IN_GNSS, EKF2_IN_GNSS_YAW,
   EKF2_IN_AIRSPEED, EKF2_IN_RANGE, EKF2_IN_FLOW, EKF2_IN_EV, EKF2_IN_FLAGS, EKF2_IN_ORIGIN,
-  EKF2_IN_PARAMS, EKF2_IN_CONFIG, EKF2_IN_OUTPUT
+  EKF2_IN_PARAMS, EKF2_IN_CONFIG, EKF2_IN_OUTPUT, EKF2_IN_ALT_RESET
 };
 
 #if INS_EKF2_LOG_INPUTS
@@ -1152,6 +1169,7 @@ void ins_ekf2_init(void)
   ekf2.quat_reset_counter = 0;
   ekf2.temp = 20.0f; // Default temperature of 20 degrees celcius
   ekf2.in_air = false;
+  ekf2.gnss_vacc = INFINITY;
   ekf2.armed = false;
   ekf2.fixed_wing = false;
   ekf2.air_density = PPRZ_ISA_AIR_DENSITY;
@@ -1364,6 +1382,50 @@ static void ins_ekf2_airspeed_update(void)
 }
 
 /* Update the INS state */
+/** Align the altitude to the GNSS height (see INS_EKF2_GNSS_ALT_ALIGN), logged for the replay */
+static void ins_ekf2_gnss_alt_align(uint64_t time_us)
+{
+#if INS_EKF2_GNSS_ALT_ALIGN
+  const auto &flags = ekf.control_status_flags();
+  if (ekf_params->ekf2_hgt_ref != EKF2_HGT_REF_BARO || !flags.baro_hgt || !flags.gps_hgt || ekf2.armed || ekf2.in_air) {
+    return;
+  }
+  // Once, until another height reset of the EKF (e.g. the barometer restarted, or a new origin)
+  static bool aligned = false;
+  static uint8_t aligned_reset_count = 0;
+  if (aligned && ekf.get_posD_reset_count() == aligned_reset_count) {
+    return;
+  }
+  aligned = false;
+  // GNSS height bias (GNSS height - altitude), updated by each fused GNSS sample, with an accurate GNSS height
+  const float bias = ekf.getGpsHgtBiasEstimatorStatus().bias;
+  if (!(ekf2.gnss_vacc < INS_EKF2_GNSS_ALT_ALIGN_VACC) || !(fabsf(bias) > INS_EKF2_GNSS_ALT_ALIGN_THR)) {
+    return;
+  }
+  const LatLonAlt lla = ekf.getLatLonAlt();
+  int32_t ints[2] = {(int32_t)lround(lla.latitude_deg() * 1e7), (int32_t)lround(lla.longitude_deg() * 1e7)};
+  float alt = lla.altitude() + bias;
+  ekf2_log(EKF2_IN_ALT_RESET, time_us, 2, ints, 1, &alt);
+  ekf.resetGlobalPositionTo(ints[0] * 1e-7, ints[1] * 1e-7, alt);
+  // The origin altitude at the aligned altitude, so the local height starts at 0 (as a vertical reference reset)
+  uint64_t origin_time;
+  double origin_lat, origin_lon;
+  float origin_alt;
+  ekf.getEkfGlobalOrigin(origin_time, origin_lat, origin_lon, origin_alt);
+  ekf2_log_origin_set(time_us, origin_lat, origin_lon, alt);
+  ekf.setEkfGlobalOrigin(origin_lat, origin_lon, alt);
+  aligned = true;
+  aligned_reset_count = ekf.get_posD_reset_count();
+#if INS_EKF2_EVENT_MSGS
+  char text[48];
+  snprintf(text, sizeof(text), "altitude aligned to GNSS (%+.1f m)", (double)bias);
+  ekf2_event_add(text, true);
+#endif
+#else
+  (void)time_us;
+#endif
+}
+
 void ins_ekf2_update(void)
 {
   ekf2_log_check_start();
@@ -1379,6 +1441,7 @@ void ins_ekf2_update(void)
     uint64_t update_time = ekf2_time_us(get_sys_time_usec());
     ekf2_log(EKF2_IN_UPDATE, update_time, 0, NULL, 0, NULL);
     ekf.update();
+    ins_ekf2_gnss_alt_align(update_time);
     ekf2_log_output(update_time);
     ins_ekf2_check_events();
     ins_ekf2_preflight_filter();
@@ -1433,7 +1496,8 @@ void ins_ekf2_update(void)
       } else {
         origin_time = 0;
       }
-      if (origin_time > ekf2.ltp_stamp) {
+      // Also when only the origin altitude changed (it has no timestamp of its own)
+      if (origin_time > ekf2.ltp_stamp || (origin_time > 0 && fabsf(ref_alt * 1e3f - ekf2.ltp_def.hmsl) > 10.f)) {
 #if INS_EKF2_FORCE_NAV_REF && USE_INS_NAV_INIT
         ekf2_log_origin_set(ekf2_time_us(get_sys_time_usec()), NAV_LAT0 * 1e-7, NAV_LON0 * 1e-7, (NAV_ALT0) * 1e-3);
         if (ekf.setEkfGlobalOrigin(NAV_LAT0 * 1e-7, NAV_LON0 * 1e-7, (NAV_ALT0) * 1e-3)) {
@@ -1744,6 +1808,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   checks_sample.vel = Vector3f{ned_vel.x, ned_vel.y, ned_vel.z};
   checks_sample.hacc = gps_s->hacc / 100.0f;
   checks_sample.vacc = gps_s->vacc / 100.0f;
+  ekf2.gnss_vacc = checks_sample.vacc;
   checks_sample.sacc = gps_s->sacc / 100.0f;
   checks_sample.fix_type = gps_s->fix;
   checks_sample.nsats = gps_s->num_sv;
