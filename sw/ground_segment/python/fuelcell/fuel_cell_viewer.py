@@ -21,7 +21,7 @@
 Nederdrone status window (PyQt5).
 
 Draws a top view of the Nederdrone with coloured status bars for the fuel cell
-(PAYLOAD message), the battery (ENERGY, TEMP_ADC) and every CAN ESC (ESC).
+(PAYLOAD message), the battery (ENERGY, TEMP_ADC) and every ESC (ESC_TELEMETRY).
 The data classes below turn the Ivy messages into texts, bar lengths (0..1)
 and colours (below 0.2 red, below 0.6 orange, else green).
 """
@@ -67,17 +67,31 @@ class TempMessage(object):
         self.battery = float(msg['temp2'])
 
 class EscMessage(object):
-    """ ESC message of one CAN ESC, with texts, bars and colours for its status box """
-    def __init__(self, msg):
-        self.id = int(msg['node_id']) # motor_id
-        self.amp = float(msg['amps'])
-        self.rpm = float(msg['rpm'])
-        self.volt_b = float(msg['bat_volts'])
-        self.volt_m = float(msg['motor_volts'])
-        self.temperature = float(msg['temperature']) - 273.5
-        self.energy = float(msg['amps']) * float(msg['motor_volts'])
-        self.errors = float(msg['energy'])
+    """ Telemetry of one ESC, with texts, bars and colours for its status box.
+        id is the actuator index + 1 (place on the drawing) """
+    def __init__(self, idx, amp, rpm, volt, temperature, errors):
+        self.id = idx + 1
+        self.amp = amp
+        self.rpm = rpm
+        self.volt_b = volt
+        self.volt_m = volt
+        self.temperature = temperature
+        self.energy = amp * volt
+        self.errors = errors
         self.msgtime = datetime.now()
+
+
+def esc_telemetry(msg):
+    """ ESC_TELEMETRY: one EscMessage per ESC """
+    def array(name, nb):
+        # nb zeros when the array is empty (value not reported)
+        v = msg[name]
+        v = [float(x) for x in (v if isinstance(v, (list, tuple)) else str(v).split(',')) if str(x) != '']
+        return v if len(v) == nb else [0.] * nb
+    nb = len(msg['idx'])
+    idx, rpm, cur, volt, temp, err = (array(n, nb) for n in ('idx', 'rpm', 'current', 'voltage', 'temperature', 'errors'))
+    return [EscMessage(int(idx[i]), cur[i] * 0.01, rpm[i] * 10., volt[i] * 0.01, temp[i], int(err[i]))
+            for i in range(nb)]
     
     def get_current(self):
         return str(round(self.amp ,1)) + "A"
@@ -430,9 +444,10 @@ class FuelCellWidget(QtWidgets.QWidget):
                 self.cell.fill_from_temp_msg(self.temp)
             elif msg.name == "AIR_DATA":
                 self.air_data = AirDataMessage(msg)
-            elif msg.name == "ESC":
-                self.esc = EscMessage(msg)
-                self.motors.fill_from_esc_msg(self.esc)
+            elif msg.name == "ESC_TELEMETRY":
+                for esc in esc_telemetry(msg):
+                    self.esc = esc
+                    self.motors.fill_from_esc_msg(esc)
             elif msg.name == "PAYLOAD":
                 self.payload = PayloadMessage(msg)
                 self.fuelcell.update(self.payload.values)
@@ -534,7 +549,7 @@ class FuelCellWidget(QtWidgets.QWidget):
             self.status_box(p, dx, dy, i, 0, self.fuelcell.get_error_nr(i*2), 1, self.fuelcell.get_error_nr_color(i*2))
             self.status_box(p, int(0.5*w), dy, i, 0, self.fuelcell.get_error_nr(i*2+1), 1, self.fuelcell.get_error_nr_color(i*2+1))
 
-        # Motors: position of ESC node id 1..20 on the drawing (-100: not drawn)
+        # Motors: position of ESC actuator index 0..19 on the drawing (-100: not drawn)
         self.stat = int(0.10*w)
 
         p.setPen(QtGui.QColor(0, 0, 0))
