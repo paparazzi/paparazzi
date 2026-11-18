@@ -249,9 +249,6 @@
   </section>
 
   <section name="BAT">
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.0" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="9.6" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/>
     <define name="BAT_NB_CELLS" value="3"/>
   </section>
