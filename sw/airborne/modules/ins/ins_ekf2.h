@@ -59,6 +59,7 @@ struct ekf2_t {
   float mag_scale;                ///< Field strength the normalized magnetometer is scaled to without calibration strength (gauss)
   uint64_t system_flags_time;     ///< Last time the system flags were given to the EKF (us)
   struct FloatVect3 accel_ned;    ///< Latest NED acceleration from the EKF (m/s^2)
+  float gnss_vacc;                ///< Vertical accuracy of the last GNSS sample (m)
 };
 
 extern void ins_ekf2_init(void);
