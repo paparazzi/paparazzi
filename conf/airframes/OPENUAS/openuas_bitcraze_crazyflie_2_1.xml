@@ -312,8 +312,8 @@
   </section>
 
   <section name="BAT">
-    <define name="MAX_BAT_CAPACITY" value="240" unit="mAh"/><!-- Default battery-->
-    <!-- <define name="MAX_BAT_CAPACITY" value="350" unit="mAh"/>--> <!-- 3rd party battery -->
+    <define name="BAT_CAPACITY" value="240" unit="mAh"/><!-- Default battery-->
+    <!-- <define name="BAT_CAPACITY" value="350" unit="mAh"/>--> <!-- 3rd party battery -->
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="300" unit="mA"/>
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="40" unit="mA"/>
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
@@ -321,7 +321,7 @@
     <define name="LOW_BAT_LEVEL" value="3.5" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="3.3" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
-    <define name="MIN_BAT_LEVEL" value="2.9" unit="V"/>
+    <define name="MIN_MEASURABLE_BAT_LEVEL" value="2.9" unit="V"/>
   </section>
 
   <section name="MISC">

@@ -381,7 +381,7 @@ NOTES:
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="160" unit="mA"/>
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="18000" unit="mA"/>
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.01"/>
-    <define name="MAX_BAT_CAPACITY" value="5500" unit="mAh"/>
+    <define name="BAT_CAPACITY" value="5500" unit="mAh"/>
     <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="10.4" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10.0" unit="V"/>

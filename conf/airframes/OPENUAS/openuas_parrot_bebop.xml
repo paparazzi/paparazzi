@@ -545,8 +545,8 @@ second order filter parameters -->
 
 <!-- **************************** BAT ****************************** -->
   <section name="BAT">
-    <define name="MAX_BAT_CAPACITY" value="1600" unit="mAh"/> <!-- Original Parrot battery -->
-    <!-- <define name="MAX_BAT_CAPACITY" value="2150" unit="mAh"/>--> <!-- 3rd party battery -->
+    <define name="BAT_CAPACITY" value="1600" unit="mAh"/> <!-- Original Parrot battery -->
+    <!-- <define name="BAT_CAPACITY" value="2150" unit="mAh"/>--> <!-- 3rd party battery -->
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="11000" unit="mA"/>  <!-- At 11.7 10.6 A at 12.2v 11.0A rounded then to 11000 to be at safe side-->
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="500" unit="mA"/> <!-- 500mA, with additional device on must remeasure -->
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
@@ -554,7 +554,7 @@ second order filter parameters -->
     <define name="LOW_BAT_LEVEL" value="10.8" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10.4" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/> <!-- TODO: test when AP board switches off -->
-    <define name="MIN_BAT_LEVEL" value="9.0" unit="V"/>
+    <define name="MIN_MEASURABLE_BAT_LEVEL" value="9.0" unit="V"/>
   </section>
 
 <!-- ********************** GCS SPECIFICS ************************** -->
