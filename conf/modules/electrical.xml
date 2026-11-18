@@ -5,6 +5,22 @@
     <description>
       General electrical interface
     </description>
+    <section name="BAT">
+      <define name="MAX_BAT_LEVEL" value="12.4" unit="V" description="voltage of a full battery in V (NPS and HITL start voltage, GCS)"/>
+      <define name="LOW_BAT_LEVEL" value="10.5" unit="V" description="low battery warning level in V"/>
+      <define name="CRITIC_BAT_LEVEL" value="9.8" unit="V" description="critical battery level in V"/>
+      <define name="CATASTROPHIC_BAT_LEVEL" value="9.0" unit="V" description="catastrophic battery level in V (fixedwing: kills the throttle)"/>
+      <define name="TAKEOFF_BAT_LEVEL" value="LOW_BAT_LEVEL" unit="V" description="minimum voltage for takeoff in V (preflight check)"/>
+      <define name="MIN_BAT_LEVEL" value="3" unit="V" description="the battery checks start once the voltage is above this level in V"/>
+      <define name="BAT_NB_CELLS" value="4" description="number of cells in series (GCS energy panel)"/>
+      <define name="BAT_CAPACITY" value="5000" unit="mAh" description="battery capacity in mAh (GCS energy panel)"/>
+      <define name="BAT_CHEMISTRY" value="LIPO" description="battery chemistry: LIPO, LIHV, LIION or LIFE (GCS energy panel)"/>
+      <define name="BAT_CELL_RESISTANCE" value="2.0" unit="mOhm" description="internal resistance per cell in mOhm (GCS energy panel)"/>
+      <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000" unit="mA" description="current at full throttle in mA, to estimate the current without a sensor"/>
+      <define name="MILLIAMP_AT_IDLE_THROTTLE" value="0" unit="mA" description="current at idle throttle in mA, to estimate the current without a sensor"/>
+      <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.2" description="nonlinearity of the estimated current (1 = linear)"/>
+      <define name="BAT_CHECKER_DELAY" value="5" unit="s" description="time in s below a level before the low or critical flag is set"/>
+    </section>
   </doc>
   <settings>
     <dl_settings>
