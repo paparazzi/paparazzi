@@ -187,6 +187,7 @@
     <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>
+    <define name="BAT_NB_CELLS" value="3"/>
   </section>
 
   <section name="MISC">

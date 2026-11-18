@@ -7,12 +7,12 @@
     </description>
     <section name="BAT">
       <define name="MAX_BAT_LEVEL" value="12.4" unit="V" description="voltage of a full battery in V (NPS and HITL start voltage, GCS)"/>
-      <define name="LOW_BAT_LEVEL" value="10.5" unit="V" description="low battery warning level in V"/>
-      <define name="CRITIC_BAT_LEVEL" value="9.8" unit="V" description="critical battery level in V"/>
-      <define name="CATASTROPHIC_BAT_LEVEL" value="9.0" unit="V" description="catastrophic battery level in V (fixedwing: kills the throttle)"/>
+      <define name="LOW_BAT_LEVEL" value="3.5*BAT_NB_CELLS" unit="V" description="low battery warning level in V (default 3.5 V per cell)"/>
+      <define name="CRITIC_BAT_LEVEL" value="3.25*BAT_NB_CELLS" unit="V" description="critical battery level in V (default 3.25 V per cell)"/>
+      <define name="CATASTROPHIC_BAT_LEVEL" value="3.0*BAT_NB_CELLS" unit="V" description="catastrophic battery level in V (default 3.0 V per cell; fixedwing: kills the throttle)"/>
       <define name="TAKEOFF_BAT_LEVEL" value="LOW_BAT_LEVEL" unit="V" description="minimum voltage for takeoff in V (preflight check)"/>
       <define name="MIN_MEASURABLE_BAT_LEVEL" value="3" unit="V" description="the battery checks start once the voltage is above this level in V"/>
-      <define name="BAT_NB_CELLS" value="4" description="number of cells in series (GCS energy panel)"/>
+      <define name="BAT_NB_CELLS" value="3" description="number of cells in series (default 3), sets the default levels (also in the server and the GCS)"/>
       <define name="BAT_CAPACITY" value="5000" unit="mAh" description="battery capacity in mAh (GCS energy panel)"/>
       <define name="BAT_CHEMISTRY" value="LIPO" description="battery chemistry: LIPO (default), LIHV, LIION or LIFE (GCS energy panel)"/>
       <define name="BAT_CELL_RESISTANCE" value="2.0" unit="mOhm" description="internal resistance per cell in mOhm (GCS energy panel)"/>

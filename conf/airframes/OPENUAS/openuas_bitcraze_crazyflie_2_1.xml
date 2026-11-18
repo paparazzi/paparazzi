@@ -322,6 +322,7 @@
     <define name="CRITIC_BAT_LEVEL" value="3.3" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
     <define name="MIN_MEASURABLE_BAT_LEVEL" value="2.9" unit="V"/>
+    <define name="BAT_NB_CELLS" value="1"/>
   </section>
 
   <section name="MISC">

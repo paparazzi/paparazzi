@@ -555,6 +555,7 @@ second order filter parameters -->
     <define name="CRITIC_BAT_LEVEL" value="10.4" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/> <!-- TODO: test when AP board switches off -->
     <define name="MIN_MEASURABLE_BAT_LEVEL" value="9.0" unit="V"/>
+    <define name="BAT_NB_CELLS" value="3"/>
   </section>
 
 <!-- ********************** GCS SPECIFICS ************************** -->

@@ -200,6 +200,7 @@
     <define name="LOW_BAT_LEVEL" value="10" unit="V"/> <!-- Used to display battery warning in GCS -->
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>  <!-- Warning: Kill mode is engaged in case this battery level is reached -->
     <define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/>
+    <define name="BAT_NB_CELLS" value="3"/>
   </section>
 
   <!-- ************************************************
