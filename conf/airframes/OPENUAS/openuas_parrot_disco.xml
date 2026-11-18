@@ -790,8 +790,8 @@ The most crucial part for the magnetometer calibration:
 
 <!-- **************************** BAT ****************************** -->
   <section name="BAT">
-    <!-- <define name="MAX_BAT_CAPACITY" value="2700" unit="mAh"/> --> <!-- The Default Parrot Disco 2700mAh battery -->
-    <define name="MAX_BAT_CAPACITY" value="5200" unit="mAh"/> <!-- 3rd party battery, needs enlarged battery bay -->
+    <!-- <define name="BAT_CAPACITY" value="2700" unit="mAh"/> --> <!-- The Default Parrot Disco 2700mAh battery -->
+    <define name="BAT_CAPACITY" value="5200" unit="mAh"/> <!-- 3rd party battery, needs enlarged battery bay -->
     <define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/> <!-- TODO: calibrate even better -->
     <!-- tested at V 11.7 the avg -->  <!-- 1idel RPM then 1.0A half throttle 4A-->
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="600" unit="mA"/>  <!-- 500mA, with additional RC receiver ~600mA -->
