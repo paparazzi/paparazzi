@@ -15,7 +15,7 @@
 
       <define name="BAT_CHECKER_DELAY" value="80" />
 
-      <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
+      <define name="CATASTROPHIC_BAT_KILL_DELAY" value="80" unit="s"/>
 
       <configure name="PERIODIC_FREQUENCY" value="500"/>
 
@@ -304,5 +304,6 @@
     <define name="CRITIC_BAT_LEVEL" value="9.9" unit="V" />
     <define name="LOW_BAT_LEVEL" value="10.2" unit="V" />
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V" />
+    <define name="BAT_NB_CELLS" value="3"/>
   </section>
 </airframe>

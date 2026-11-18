@@ -730,9 +730,11 @@ let check_alerts = fun a ->
   let fvalue = fun name default ->
     try ExtXml.float_attrib (ExtXml.child bat_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
 
-  let catastrophic_level = fvalue "CATASTROPHIC_BAT_LEVEL" 9.
-  and critic_level = fvalue "CRITIC_BAT_LEVEL" 10.
-  and warning_level = fvalue "LOW_BAT_LEVEL" 10.5 in
+  (* default levels per cell, as in electrical.h (default 3S) *)
+  let nb_cells = fvalue "BAT_NB_CELLS" 3. in
+  let catastrophic_level = fvalue "CATASTROPHIC_BAT_LEVEL" (3.0 *. nb_cells)
+  and critic_level = fvalue "CRITIC_BAT_LEVEL" (3.25 *. nb_cells)
+  and warning_level = fvalue "LOW_BAT_LEVEL" (3.5 *. nb_cells) in
 
   let send = fun level ->
     let vs = [ "ac_id", PprzLink.String a.id;
