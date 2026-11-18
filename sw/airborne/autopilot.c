@@ -252,7 +252,8 @@ void autopilot_force_motors_on(bool motors_on)
 }
 
 /** turn motors on/off, eventually depending of the current mode
- *  set kill_throttle accordingly FIXME is it true for FW firmware ?
+ *  set kill_throttle accordingly: kill_throttle == !motors_on
+ *  (fixedwing and rover cut the throttle with kill_throttle, rotorcraft uses motors_on)
  */
 bool autopilot_set_motors_on(bool motors_on)
 {
@@ -305,13 +306,16 @@ bool autopilot_get_motors_on(void)
 }
 
 /** set kill throttle
+ *  Kill always kills, also when motors_on is already false (fixedwing in flight).
+ *  Resurrect only clears the kill when the motors may run (preflight checks, KILL mode).
  */
 void autopilot_set_kill_throttle(bool kill)
 {
   if (kill) {
     autopilot_set_motors_on(false);
-  } else {
-    autopilot_set_motors_on(true);
+    autopilot.kill_throttle = true;
+  } else if (autopilot_set_motors_on(true)) {
+    autopilot.kill_throttle = !autopilot.motors_on;
   }
 }
 
