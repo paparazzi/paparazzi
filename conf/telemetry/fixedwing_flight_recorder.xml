@@ -32,7 +32,8 @@
       <message name="COMMANDS"            period="5"/>
       <message name="FBW_STATUS"          period="2"/>
       <message name="AIR_DATA"            period="1.3"/>
-      <message name="ESC"                 period="0.9"/>
+      <message name="ESC_TELEMETRY"       period="0.9"/>
+      <message name="SERVO_TELEMETRY"     period="0.9"/>
       <message name="LOGGER_STATUS"       period="5.1"/>
       <message name="WIND_INFO_RET"       period="0.1"/>
     </mode>
@@ -135,7 +136,8 @@
       <message name="FBW_STATUS"          period="1.0"/>
       <message name="NAVIGATION"          period="1.0"/>
       <message name="DATALINK_REPORT"     period="1.0"/>
-      <message name="ESC"                 period="0.1"/>
+      <message name="ESC_TELEMETRY"       period="0.1"/>
+      <message name="SERVO_TELEMETRY"     period="0.1"/>
       <message name="ADC_GENERIC"         period="0.05"/>
       <message name="WIND_INFO_RET"       period="0.1"/>
       <message name="AUTOPILOT_VERSION"   period="11.1"/>
