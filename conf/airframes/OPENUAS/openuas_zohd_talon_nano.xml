@@ -110,7 +110,7 @@ NOTES:
     <configure name="USE_BARO_BOARD" value="FALSE"/>
 
     <define name="BAT_CHECKER_DELAY" value="80"/>
-    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/>
+    <define name="CATASTROPHIC_BAT_KILL_DELAY" value="41" unit="s"/>
 
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
     <define name="USE_AHRS_GPS_ACCELERATIONS" value="TRUE"/> 
@@ -381,7 +381,7 @@ NOTES:
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="160" unit="mA"/>
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="18000" unit="mA"/>
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.01"/>
-    <define name="MAX_BAT_CAPACITY" value="5500" unit="mAh"/>
+    <define name="BAT_CAPACITY" value="5500" unit="mAh"/>
     <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="10.4" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10.0" unit="V"/>

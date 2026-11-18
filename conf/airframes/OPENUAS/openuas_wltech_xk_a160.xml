@@ -200,7 +200,7 @@ NOTES:
     <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
 
     <define name="BAT_CHECKER_DELAY" value="80"/><!--unit="s/10" in tenth of seconds per default use ELECTRICAL_PERIODIC_FREQ if you for some reason want it differently-->
-    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/><!--unit="s/10" in tenth of seconds for engine kill or in ELECTRICAL_PERIODIC_FREQ-->
+    <define name="CATASTROPHIC_BAT_KILL_DELAY" value="41" unit="s"/>
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
     <define name="USE_AHRS_GPS_ACCELERATIONS" value="TRUE"/> <!-- forward acceleration compensation from GPS speed -->
     <define name="USE_MAGNETOMETER_ONGROUND" value="TRUE"/> <!--DEFINE only used if float_dcm Use magnetic compensation before takeoff only while GPS course not good -->
@@ -521,7 +521,7 @@ NOTES:
     Or place a reistor on top. We only had a 7k0 lying around at the time, so our multiplication factor is now ~0.0023872f
     -->
     <define name="VoltageOfAdc(adc)" value="(adc)*0.0023872f" />
-    <define name="MAX_BAT_CAPACITY" value="650" unit="mAh"/>
+    <define name="BAT_CAPACITY" value="650" unit="mAh"/>
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="260" unit="mA"/><!-- The amps by AP+RX+ESC+Telemetry+Servos is not MOTOR power this substracted-->
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="4000" unit="mA"/><!-- Motor amp draw at full Power static test at 7.7v -->
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/><!--TODO: validate and set-->

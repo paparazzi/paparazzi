@@ -5,15 +5,15 @@
     <description>
       Battery checker module
 
-      When the battery voltage goes below the BAT_LOW level, this will toggle a GPIO/LED.
-      If the battery voltage is lower than BAT_CRITICAL level, the LED/GPIO stays ON.
-      The output signal can be connected to an actaul LED or a buzzer to indicated the end of battery to the user.
+      When the battery is low (electrical.bat_low, LOW_BAT_LEVEL), this will toggle a GPIO/LED.
+      When the battery is critical (electrical.bat_critical, CRITIC_BAT_LEVEL), the LED/GPIO stays ON.
+      The output signal can be connected to an actual LED or a buzzer to indicated the end of battery to the user.
 
       When a LED is used, define the LED number in your airframe with BAT_CHECKER_LED.
       When a GPIO is used, define the GPIO port and pin in your airframe with BAT_CHECKER_GPIO.
       You should at least use one of these two options.
     </description>
-    <define name="BAT_CHECKER_DELAY" value="delay" description="number of seconds the battery voltage has to below LOW_BAT_LEVEL before warning signal is activated"/>
+    <define name="BAT_CHECKER_DELAY" value="delay" description="(electrical module, BAT section) number of seconds the battery voltage has to stay below LOW_BAT_LEVEL or CRITIC_BAT_LEVEL before the low or critical flag is set"/>
     <define name="BAT_CHECKER_LED" value="X" description="led number to use for the warning signal"/>
     <define name="BAT_CHECKER_GPIO" value="GPIOX,GPIOY" description="alternatively, a GPIO can be set instead of a LED (ex: GPIOA,GPIO5)"/>
     <define name="BAT_CHECKER_GPIO_ON" value="gpio_set" description="tells if output signal is ON when GPIO is high or low"/>

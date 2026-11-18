@@ -420,6 +420,10 @@
         <define name="MAX_BAT_LEVEL"            value="25.2" unit="V"/>
         <define name="TAKEOFF_BAT_LEVEL"        value="24.2" unit="V"/>
         <define name="BAT_NB_CELLS"             value="6"/>
+        <!-- estimated from a 20 min hover flight log (2025-01-24) -->
+        <define name="BAT_CAPACITY"             value="29000" unit="mAh"/>
+        <define name="BAT_CHEMISTRY"            value="LIION"/>
+        <define name="BAT_CELL_RESISTANCE"      value="2.0" unit="mOhm"/>
     </section>
 
     <include href="conf/airframes/tudelft/rotwing_7kg_common.xml" />
