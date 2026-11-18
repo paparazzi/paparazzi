@@ -49,6 +49,12 @@ struct act_feedback_t {
     bool force: 1;                  ///< Force is set
     bool speed: 1;                  ///< Speed is set
     bool power: 1;                  ///< Power rating is set
+    bool current: 1;                ///< Current is set
+    bool voltage: 1;                ///< Voltage is set
+    bool temperature: 1;            ///< Temperature is set
+    bool motor_temperature: 1;      ///< Motor temperature is set
+    bool output: 1;                 ///< Output duty cycle is set
+    bool errors: 1;                 ///< Errors are set
   } set;                            ///< Bitset registering what is set as feedback
 
   int32_t rpm;                      ///< RPM
@@ -56,6 +62,12 @@ struct act_feedback_t {
   float force;                      ///< In Newton or Newton metre
   float speed;                      ///< In meter per second or radian per second
   uint8_t power_pct;                ///< Power rating in percent
+  float current;                    ///< Current (A)
+  float voltage;                    ///< Voltage (V)
+  float temperature;                ///< Temperature of the actuator or ESC (deg celsius)
+  float motor_temperature;          ///< Temperature of the motor (deg celsius)
+  uint8_t output_pct;               ///< Output duty cycle of the ESC to the motor (percent)
+  uint32_t errors;                  ///< Error count or error flags (vendor specific)
 };
 
 // Actuator configuration
@@ -92,6 +104,8 @@ struct actuator_t {
 /** Actuators array.
  * */
 extern struct actuator_t actuators[ACTUATORS_NB];
+extern struct act_feedback_t actuators_feedback[ACTUATORS_NB]; ///< Latest feedback of each actuator (all values received, set bits of the ones received)
+extern float actuators_feedback_time[ACTUATORS_NB];         ///< Time of the latest feedback of each actuator (s), 0 when none
 
 /** Set actuators.
  * @param pprz_idx general actuators index
