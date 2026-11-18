@@ -110,7 +110,7 @@ NOTES:
     <configure name="USE_BARO_BOARD" value="FALSE"/>
 
     <define name="BAT_CHECKER_DELAY" value="80"/>
-    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/>
+    <define name="CATASTROPHIC_BAT_KILL_DELAY" value="41" unit="s"/>
 
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
     <define name="USE_AHRS_GPS_ACCELERATIONS" value="TRUE"/> 

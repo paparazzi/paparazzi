@@ -269,7 +269,7 @@
     <define name="BAT_CHECKER_DELAY" value="80"/> <!--unit="s/10" in tenth of seconds per default use ELECTRICAL_PERIODIC_FREQ if you for some reason want it differently-->
 
     <!-- Only one main battery so CATASTROPHIC_BATTERY kill should be somewhat delayed -->
-    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/> <!--unit="s/10" in tenth of seconds for engine kill or in ELECTRICAL_PERIODIC_FREQ-->
+    <define name="CATASTROPHIC_BAT_KILL_DELAY" value="41" unit="s"/>
 
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
     <define name="USE_AHRS_GPS_ACCELERATIONS" value="TRUE"/> <!-- forward acceleration compensation from GPS speed -->

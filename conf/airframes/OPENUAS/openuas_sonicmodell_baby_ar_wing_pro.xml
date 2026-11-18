@@ -819,7 +819,7 @@ Safety
     <define name="CATASTROPHIC_BAT_LEVEL" value="5.4" unit="V"/>
 
     <define name="BAT_CHECKER_DELAY" value="60"/>
-    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/> 
+    <define name="CATASTROPHIC_BAT_KILL_DELAY" value="41" unit="s"/>
   </section>
 
   <section name="PHOTOGRAMMETRY" prefix="PHOTOGRAMMETRY_">
