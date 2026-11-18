@@ -224,6 +224,7 @@ bool nav_approaching_xy(float x, float y, float from_x, float from_y, float appr
 #define nav_SetNavRadius(x) { if (x==1) nav_radius = DEFAULT_CIRCLE_RADIUS; else if (x==-1) nav_radius = -DEFAULT_CIRCLE_RADIUS; else nav_radius = x; }
 
 #define NavKillThrottle() { autopilot_set_kill_throttle(true); }
+#define NavResurrect() { autopilot_set_kill_throttle(false); }
 
 /// Get current x (east) position in local coordinates
 #define GetPosX() (stateGetPositionEnu_f()->x)
