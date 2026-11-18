@@ -28,6 +28,8 @@
 #include "modules/actuators/actuators.h"
 #include "modules/core/commands.h"
 #include "mcu_periph/sys_time.h"
+#include "modules/core/abi.h"
+#include <math.h>
 #ifdef INTERMCU_AP
 #include "modules/intermcu/intermcu_ap.h"
 #endif
@@ -36,6 +38,14 @@
 #endif
 
 #if ACTUATORS_NB
+
+/** Maximum number of ESCs in ESC_TELEMETRY and of servos in SERVO_TELEMETRY (17 bytes each) */
+#ifndef ACTUATORS_TELEMETRY_ESC_MAX
+#define ACTUATORS_TELEMETRY_ESC_MAX 12
+#endif
+#ifndef ACTUATORS_TELEMETRY_SERVO_MAX
+#define ACTUATORS_TELEMETRY_SERVO_MAX 12
+#endif
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -59,9 +69,189 @@ static void send_actuators(struct transport_tx *trans, struct link_device *dev)
   }
   pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, v);
 }
+
+/** Value scaled to an integer type, limited to its range */
+#define ACT_TELEM_SCALE(_v, _s, _min, _max) ((isfinite(_v)) ? (int32_t)Clip(lroundf((_v) * (_s)), _min, _max) : 0)
+
+/** Send the latest values of all ESCs (in the ACTUATORS_TELEMETRY_ESC_IDX order if defined, else in the actuator order) */
+static void send_esc_telemetry(struct transport_tx *trans, struct link_device *dev)
+{
+  uint8_t idx[ACTUATORS_TELEMETRY_ESC_MAX], age[ACTUATORS_TELEMETRY_ESC_MAX], valid[ACTUATORS_TELEMETRY_ESC_MAX];
+  int32_t rpm[ACTUATORS_TELEMETRY_ESC_MAX];
+  int16_t current[ACTUATORS_TELEMETRY_ESC_MAX], temp[ACTUATORS_TELEMETRY_ESC_MAX], motor_temp[ACTUATORS_TELEMETRY_ESC_MAX];
+  uint16_t voltage[ACTUATORS_TELEMETRY_ESC_MAX], errors[ACTUATORS_TELEMETRY_ESC_MAX];
+  uint8_t output[ACTUATORS_TELEMETRY_ESC_MAX];
+  uint8_t nb = 0;
+  float now = get_sys_time_float();
+
+#ifdef ACTUATORS_TELEMETRY_ESC_IDX
+  static const uint8_t esc_idx[] = ACTUATORS_TELEMETRY_ESC_IDX;
+  const uint8_t nb_idx = sizeof(esc_idx) / sizeof(esc_idx[0]);
+#else
+  const uint8_t nb_idx = ACTUATORS_NB;
+#endif
+
+  for (uint8_t i = 0; i < nb_idx && nb < ACTUATORS_TELEMETRY_ESC_MAX; i++) {
+#ifdef ACTUATORS_TELEMETRY_ESC_IDX
+    const uint8_t a = esc_idx[i];
+    if (a >= ACTUATORS_NB) {
+      continue;
+    }
+#else
+    const uint8_t a = i;
+    if (!actuators_telemetry[a].esc) {
+      continue;
+    }
+#endif
+    const struct actuator_telemetry_t *t = &actuators_telemetry[a];
+    idx[nb] = a;
+    age[nb] = (t->time > 0.f) ? (uint8_t)Min((now - t->time) * 100.f, 255.f) : 255;
+    valid[nb] = t->valid & 0x7F;
+    rpm[nb] = t->rpm;
+    current[nb] = ACT_TELEM_SCALE(t->current, 100.f, INT16_MIN, INT16_MAX);
+    voltage[nb] = ACT_TELEM_SCALE(t->voltage, 100.f, 0, UINT16_MAX);
+    temp[nb] = ACT_TELEM_SCALE(t->temperature, 10.f, INT16_MIN, INT16_MAX);
+    motor_temp[nb] = ACT_TELEM_SCALE(t->motor_temperature, 10.f, INT16_MIN, INT16_MAX);
+    output[nb] = t->output_pct;
+    errors[nb] = (uint16_t)Min(t->errors, UINT16_MAX);
+    nb++;
+  }
+
+  if (nb == 0) {
+    return;
+  }
+  pprz_msg_send_ESC_TELEMETRY(trans, dev, AC_ID, nb, idx, nb, age, nb, valid, nb, rpm, nb, current, nb, voltage,
+                              nb, temp, nb, motor_temp, nb, output, nb, errors);
+}
+
+/** Send the latest values of all servos (in the ACTUATORS_TELEMETRY_SERVO_IDX order if defined, else in the actuator order) */
+static void send_servo_telemetry(struct transport_tx *trans, struct link_device *dev)
+{
+  uint8_t idx[ACTUATORS_TELEMETRY_SERVO_MAX], age[ACTUATORS_TELEMETRY_SERVO_MAX], valid[ACTUATORS_TELEMETRY_SERVO_MAX];
+  int16_t position[ACTUATORS_TELEMETRY_SERVO_MAX], speed[ACTUATORS_TELEMETRY_SERVO_MAX], force[ACTUATORS_TELEMETRY_SERVO_MAX];
+  int16_t current[ACTUATORS_TELEMETRY_SERVO_MAX], temp[ACTUATORS_TELEMETRY_SERVO_MAX];
+  uint16_t voltage[ACTUATORS_TELEMETRY_SERVO_MAX], errors[ACTUATORS_TELEMETRY_SERVO_MAX];
+  uint8_t nb = 0;
+  float now = get_sys_time_float();
+
+#ifdef ACTUATORS_TELEMETRY_SERVO_IDX
+  static const uint8_t servo_idx[] = ACTUATORS_TELEMETRY_SERVO_IDX;
+  const uint8_t nb_idx = sizeof(servo_idx) / sizeof(servo_idx[0]);
+#else
+  const uint8_t nb_idx = ACTUATORS_NB;
+#endif
+
+  for (uint8_t i = 0; i < nb_idx && nb < ACTUATORS_TELEMETRY_SERVO_MAX; i++) {
+#ifdef ACTUATORS_TELEMETRY_SERVO_IDX
+    const uint8_t a = servo_idx[i];
+    if (a >= ACTUATORS_NB) {
+      continue;
+    }
+#else
+    const uint8_t a = i;
+    if (!actuators_telemetry[a].servo) {
+      continue;
+    }
+#endif
+    const struct actuator_telemetry_t *t = &actuators_telemetry[a];
+    idx[nb] = a;
+    age[nb] = (t->time > 0.f) ? (uint8_t)Min((now - t->time) * 100.f, 255.f) : 255;
+    // position, speed, force, current, voltage, temperature, errors
+    valid[nb] = ((t->valid & ACT_TELEM_POSITION) ? (1 << 0) : 0) | ((t->valid & ACT_TELEM_SPEED) ? (1 << 1) : 0)
+                | ((t->valid & ACT_TELEM_FORCE) ? (1 << 2) : 0) | ((t->valid & ACT_TELEM_CURRENT) ? (1 << 3) : 0)
+                | ((t->valid & ACT_TELEM_VOLTAGE) ? (1 << 4) : 0) | ((t->valid & ACT_TELEM_TEMP) ? (1 << 5) : 0)
+                | ((t->valid & ACT_TELEM_ERRORS) ? (1 << 6) : 0);
+    position[nb] = ACT_TELEM_SCALE(t->position, 1000.f, INT16_MIN, INT16_MAX);
+    speed[nb] = ACT_TELEM_SCALE(t->speed, 100.f, INT16_MIN, INT16_MAX);
+    force[nb] = ACT_TELEM_SCALE(t->force, 100.f, INT16_MIN, INT16_MAX);
+    current[nb] = ACT_TELEM_SCALE(t->current, 100.f, INT16_MIN, INT16_MAX);
+    voltage[nb] = ACT_TELEM_SCALE(t->voltage, 100.f, 0, UINT16_MAX);
+    temp[nb] = ACT_TELEM_SCALE(t->temperature, 10.f, INT16_MIN, INT16_MAX);
+    errors[nb] = (uint16_t)Min(t->errors, UINT16_MAX);
+    nb++;
+  }
+
+  if (nb == 0) {
+    return;
+  }
+  pprz_msg_send_SERVO_TELEMETRY(trans, dev, AC_ID, nb, idx, nb, age, nb, valid, nb, position, nb, speed, nb, force,
+                                nb, current, nb, voltage, nb, temp, nb, errors);
+}
 #endif
 
 struct actuator_t actuators[ACTUATORS_NB] = ACTUATORS_CONFIG;
+struct actuator_telemetry_t actuators_telemetry[ACTUATORS_NB];
+
+static abi_event act_feedback_ev;
+
+/** Store the values of the feedback */
+static void act_feedback_cb(uint8_t sender_id UNUSED, struct act_feedback_t *feedback, uint8_t num_act)
+{
+  float now = get_sys_time_float();
+  for (uint8_t i = 0; i < num_act; i++) {
+    if (feedback[i].idx >= ACTUATORS_NB) {
+      continue;
+    }
+    struct actuator_telemetry_t *t = &actuators_telemetry[feedback[i].idx];
+    bool updated = false;
+    if (feedback[i].set.rpm) {
+      t->rpm = feedback[i].rpm;
+      t->valid |= ACT_TELEM_RPM;
+      updated = true;
+    }
+    if (feedback[i].set.current) {
+      t->current = feedback[i].current;
+      t->valid |= ACT_TELEM_CURRENT;
+      updated = true;
+    }
+    if (feedback[i].set.voltage) {
+      t->voltage = feedback[i].voltage;
+      t->valid |= ACT_TELEM_VOLTAGE;
+      updated = true;
+    }
+    if (feedback[i].set.temperature) {
+      t->temperature = feedback[i].temperature;
+      t->valid |= ACT_TELEM_TEMP;
+      updated = true;
+    }
+    if (feedback[i].set.motor_temperature) {
+      t->motor_temperature = feedback[i].motor_temperature;
+      t->valid |= ACT_TELEM_MOTOR_TEMP;
+      updated = true;
+    }
+    if (feedback[i].set.output) {
+      t->output_pct = feedback[i].output_pct;
+      t->valid |= ACT_TELEM_OUTPUT;
+      updated = true;
+    }
+    if (feedback[i].set.errors) {
+      t->errors = feedback[i].errors;
+      t->valid |= ACT_TELEM_ERRORS;
+      updated = true;
+    }
+    if (feedback[i].set.position) {
+      t->position = feedback[i].position;
+      t->valid |= ACT_TELEM_POSITION;
+      updated = true;
+    }
+    if (feedback[i].set.speed) {
+      t->speed = feedback[i].speed;
+      t->valid |= ACT_TELEM_SPEED;
+      updated = true;
+    }
+    if (feedback[i].set.force) {
+      t->force = feedback[i].force;
+      t->valid |= ACT_TELEM_FORCE;
+      updated = true;
+    }
+    if (updated) {
+      // An actuator with RPM, output or motor temperature is an ESC, else one with position, speed or force a servo
+      t->esc |= (t->valid & (ACT_TELEM_RPM | ACT_TELEM_OUTPUT | ACT_TELEM_MOTOR_TEMP)) != 0;
+      t->servo = !t->esc && (t->valid & (ACT_TELEM_POSITION | ACT_TELEM_SPEED | ACT_TELEM_FORCE)) != 0;
+      t->time = now;
+    }
+  }
+}
 
 uint32_t actuators_delay_time;
 bool   actuators_delay_done;
@@ -180,7 +370,12 @@ void actuators_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACTUATORS_RAW, send_actuators_raw);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACTUATORS, send_actuators);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ESC_TELEMETRY, send_esc_telemetry);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SERVO_TELEMETRY, send_servo_telemetry);
 #endif
+
+  // Latest feedback of each actuator (ESC_TELEMETRY and SERVO_TELEMETRY)
+  AbiBindMsgACT_FEEDBACK(ABI_BROADCAST, &act_feedback_ev, act_feedback_cb);
 
 #if USE_SHELL
   shell_add_entry("actuator", cmd_actuator);
