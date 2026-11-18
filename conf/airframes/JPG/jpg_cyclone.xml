@@ -222,7 +222,7 @@
     </section>
 
     <section name="BAT">
-        <define name="MAX_BAT_CAPACITY" value="2300" unit="mAh"/>
+        <define name="BAT_CAPACITY" value="2300" unit="mAh"/>
         <!--<define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/>-->
         <define name="VoltageOfAdc(_adc)" value="(0.000611456 * _adc)"/>
         <define name="MILLIAMP_AT_IDLE_THROTTLE" value="280" unit="mA"/>
