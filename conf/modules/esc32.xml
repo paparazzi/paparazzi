@@ -19,6 +19,7 @@
         - https://github.com/svn2github/esc32
     </description>
     <configure name="ESC32_PORT" value="UARTX" description="UART use to get ESC data"/>
+    <define name="ESC32_ACTUATOR_IDX" value="SERVO_MOTOR_IDX" description="Actuator index of the ESC, for its feedback (RPM, current and voltage in ESC_TELEMETRY)"/>
   </doc>
   <header>
     <file name="esc32.h"/>

@@ -4,7 +4,19 @@
   <doc>
     <description>
       Common actuators interface
+
+      Also keeps the latest feedback of each actuator (ACT_FEEDBACK: RPM, current, voltage, temperatures,
+      output duty cycle and errors, e.g. from UAVCAN or DShot ESCs). ESC_TELEMETRY sends the latest
+      values of all ESCs in one message (element i of each array is the same ESC) with the age of its
+      telemetry. SERVO_TELEMETRY does the same for the servos (position, speed, force, current, voltage,
+      temperature and errors). The ESCs are the actuators with RPM, output or motor temperature feedback,
+      the servos the other ones with position, speed or force feedback, in the actuator order, or the ones
+      in ACTUATORS_TELEMETRY_ESC_IDX and ACTUATORS_TELEMETRY_SERVO_IDX.
     </description>
+    <define name="ACTUATORS_TELEMETRY_ESC_IDX" value="{SERVO_MOTOR_1_IDX, SERVO_MOTOR_2_IDX}" description="Actuator indices of the ESCs in ESC_TELEMETRY, in this order (default: the actuators with ESC feedback)"/>
+    <define name="ACTUATORS_TELEMETRY_ESC_MAX" value="12" description="Maximum number of ESCs in ESC_TELEMETRY (13 bytes per ESC)"/>
+    <define name="ACTUATORS_TELEMETRY_SERVO_IDX" value="{SERVO_AIL_1_IDX, SERVO_AIL_2_IDX}" description="Actuator indices of the servos in SERVO_TELEMETRY, in this order (default: the actuators with servo feedback)"/>
+    <define name="ACTUATORS_TELEMETRY_SERVO_MAX" value="12" description="Maximum number of servos in SERVO_TELEMETRY (15 bytes per servo)"/>
   </doc>
   <dep>
   </dep>
