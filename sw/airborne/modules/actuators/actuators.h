@@ -49,6 +49,12 @@ struct act_feedback_t {
     bool force: 1;                  ///< Force is set
     bool speed: 1;                  ///< Speed is set
     bool power: 1;                  ///< Power rating is set
+    bool current: 1;                ///< Current is set
+    bool voltage: 1;                ///< Voltage is set
+    bool temperature: 1;            ///< Temperature is set
+    bool motor_temperature: 1;      ///< Motor temperature is set
+    bool output: 1;                 ///< Output duty cycle is set
+    bool errors: 1;                 ///< Errors are set
   } set;                            ///< Bitset registering what is set as feedback
 
   int32_t rpm;                      ///< RPM
@@ -56,6 +62,12 @@ struct act_feedback_t {
   float force;                      ///< In Newton or Newton metre
   float speed;                      ///< In meter per second or radian per second
   uint8_t power_pct;                ///< Power rating in percent
+  float current;                    ///< Current (A)
+  float voltage;                    ///< Voltage (V)
+  float temperature;                ///< Temperature of the actuator or ESC (deg celsius)
+  float motor_temperature;          ///< Temperature of the motor (deg celsius)
+  uint8_t output_pct;               ///< Output duty cycle of the ESC to the motor (percent)
+  uint32_t errors;                  ///< Error count or error flags (vendor specific)
 };
 
 // Actuator configuration
@@ -76,6 +88,36 @@ struct act_config_t {
  */
 typedef void (*act_set_t)(uint8_t driver_idx, int16_t driver_value);
 
+/** Valid bits of the actuator telemetry (as the valid field of ESC_TELEMETRY) */
+#define ACT_TELEM_RPM         (1 << 0)
+#define ACT_TELEM_CURRENT     (1 << 1)
+#define ACT_TELEM_VOLTAGE     (1 << 2)
+#define ACT_TELEM_TEMP        (1 << 3)
+#define ACT_TELEM_MOTOR_TEMP  (1 << 4)
+#define ACT_TELEM_OUTPUT      (1 << 5)
+#define ACT_TELEM_ERRORS      (1 << 6)
+#define ACT_TELEM_POSITION    (1 << 7)
+#define ACT_TELEM_SPEED       (1 << 8)
+#define ACT_TELEM_FORCE       (1 << 9)
+
+/** Latest feedback of an actuator */
+struct actuator_telemetry_t {
+  float time;                 ///< Time of the latest feedback (s), 0 when none
+  uint16_t valid;             ///< Values received (ACT_TELEM_* bits)
+  bool esc;                   ///< The actuator sends ESC telemetry (RPM, output or motor temperature)
+  bool servo;                 ///< The actuator sends servo telemetry (position, speed or force), and is not an ESC
+  int32_t rpm;                ///< RPM
+  float current;              ///< Current (A)
+  float voltage;              ///< Voltage (V)
+  float temperature;          ///< ESC temperature (deg celsius)
+  float motor_temperature;    ///< Motor temperature (deg celsius)
+  uint8_t output_pct;         ///< Output duty cycle (percent)
+  uint32_t errors;            ///< Error count or error flags (vendor specific)
+  float position;             ///< Position (rad)
+  float speed;                ///< Speed (rad/s or m/s)
+  float force;                ///< Force or torque (N or Nm)
+};
+
 #if ACTUATORS_NB
 
 extern uint32_t actuators_delay_time;
@@ -92,6 +134,7 @@ struct actuator_t {
 /** Actuators array.
  * */
 extern struct actuator_t actuators[ACTUATORS_NB];
+extern struct actuator_telemetry_t actuators_telemetry[ACTUATORS_NB]; ///< Latest feedback of each actuator
 
 /** Set actuators.
  * @param pprz_idx general actuators index
