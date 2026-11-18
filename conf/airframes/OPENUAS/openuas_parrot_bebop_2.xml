@@ -571,7 +571,7 @@ The most crucial part for the magnetometer calibration:
     <define name="LOW_BAT_LEVEL" value="10.8" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10.4" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.6" unit="V"/> <!-- TODO: test when AP board switches off -->
-    <define name="MIN_BAT_LEVEL" value="9.0" unit="V"/> <!-- TODO: test when AP board switches off -->
+    <define name="MIN_MEASURABLE_BAT_LEVEL" value="9.0" unit="V"/> <!-- TODO: test when AP board switches off -->
   </section>
 
 <!-- ********************** GCS SPECIFICS ************************** -->
