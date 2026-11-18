@@ -45,7 +45,8 @@
       <message name="GUIDANCE_H_REF_INT"       period="0.31"/>
       <message name="GUIDANCE_INDI_HYBRID"     period="0.05"/>
       <message name="HYBRID_GUIDANCE"          period="0.4"/>
-      <message name="ESC"                      period="0.5"/>
+      <message name="ESC_TELEMETRY"            period="0.5"/>
+      <message name="SERVO_TELEMETRY"          period="0.5"/>
       <message name="AHRS_REF_QUAT"            period="0.1"/>
       <message name="INS_FLOW_INFO"            period="0.1"/>
       <message name="GPS_RELPOS"               period="0.1"/>
@@ -109,7 +110,8 @@
       <message name="GUIDANCE_H_REF_INT"       period="0.31"/>
       <message name="GUIDANCE_INDI_HYBRID"     period="0.4"/>             
       <message name="HYBRID_GUIDANCE"          period="0.4"/>
-      <message name="ESC"                      period="0.5"/>
+      <message name="ESC_TELEMETRY"            period="0.5"/>
+      <message name="SERVO_TELEMETRY"          period="0.5"/>
       <message name="AHRS_REF_QUAT"            period="0.2"/>
       <message name="INS_FLOW_INFO"            period="0.2"/>
       <message name="GPS_RELPOS"               period="0.2"/>
@@ -295,7 +297,8 @@
       <message name="INS_EKF2_EXT"             period="4.25"/>
       <message name="GUIDANCE_H_REF_INT"       period="0.9"/>
       <message name="GUIDANCE_INDI_HYBRID"     period="0.1"/>
-      <message name="ESC"                      period="0.1"/>
+      <message name="ESC_TELEMETRY"            period="0.1"/>
+      <message name="SERVO_TELEMETRY"          period="0.1"/>
       <message name="AHRS_REF_QUAT"            period="0.07"/>
       <message name="GPS_RELPOS"               period="0.9"/>
       <message name="APPROACH_MOVING_TARGET"   period="2.1"/>
@@ -317,7 +320,8 @@
       <message name="ALIVE"                    period="2.1"/>
       <message name="DATALINK_REPORT"          period="11.1"/>
       <message name="ENERGY"                   period="3.3"/>
-      <message name="ESC"                      period="0.4"/>
+      <message name="ESC_TELEMETRY"            period="0.4"/>
+      <message name="SERVO_TELEMETRY"          period="0.4"/>
       <message name="GPS_INT"                  period="1.7"/>
       <message name="IMU_HEATER"               period="15.1"/>
       <message name="INS"                      period="1.7"/>
@@ -370,7 +374,8 @@
       <message name="GUIDANCE_H_REF_INT"       period="0.02"/>
       <message name="GUIDANCE_INDI_HYBRID"     period="0.002"/>
       <message name="HYBRID_GUIDANCE"          period="0.02"/>
-      <message name="ESC"                      period="0.02"/>
+      <message name="ESC_TELEMETRY"            period="0.02"/>
+      <message name="SERVO_TELEMETRY"          period="0.02"/>
       <message name="STAB_ATTITUDE"            period="0.002"/>
       <message name="ACTUATORS"                period="0.002"/>
       <message name="GPS_RELPOS"               period="0.05"/>
