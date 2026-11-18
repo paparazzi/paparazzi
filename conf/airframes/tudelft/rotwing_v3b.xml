@@ -226,7 +226,6 @@
         <set SERVO="BMOTOR_RIGHT"   VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(8, -9600)) : @MOTOR_RIGHT)"/>
         <set SERVO="BMOTOR_BACK"    VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(9, -9600)) : @MOTOR_BACK)"/>
         <set SERVO="BMOTOR_LEFT"    VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(10, -9600)) : @MOTOR_LEFT)"/>
-        <set SERVO="BROTATION_MECH" VALUE="pfc_actuators_value(6, @ROT_MECH)"/>
     </command_laws>
 
     <section PREFIX="SYS_ID_" NAME="SYS_ID">
