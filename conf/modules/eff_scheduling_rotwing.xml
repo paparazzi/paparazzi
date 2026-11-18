@@ -71,6 +71,15 @@
       <define name="ROTWING_EFF_SCHED_K_LIFT_WING" value="{1,1}"/>
       <define name="ROTWING_EFF_SCHED_K_LIFT_FUSELAGE" value="1"/>
       <define name="ROTWING_EFF_SCHED_K_LIFT_TAIL" value="1"/>
+      <define name="COMMAND_MOTOR_FRONT" value="0"/>
+      <define name="COMMAND_MOTOR_RIGHT" value="1"/>
+      <define name="COMMAND_MOTOR_BACK" value="2"/>
+      <define name="COMMAND_MOTOR_LEFT" value="3"/>
+      <define name="COMMAND_RUDDER" value="4"/>
+      <define name="COMMAND_ELEVATOR" value="5"/>
+      <define name="COMMAND_AILERONS" value="6"/>
+      <define name="COMMAND_FLAPS" value="7"/>
+      <define name="COMMAND_THRUST_X" value="8"/>
       <define name="GUIDANCE_INDI_HYBRID_USE_WLS" value="1"/>
       <define name="GUIDANCE_INDI_HYBRID_U" value="9"/>
       <define name="GUIDANCE_INDI_HYBRID_V" value="5"/>
