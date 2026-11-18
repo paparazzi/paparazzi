@@ -28,6 +28,7 @@
 #include "modules/energy/electrical.h"
 #include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
+#include "generated/modules.h"
 
 static struct FirstOrderLowPass rpm_lp;
 uint16_t rpm;
@@ -41,24 +42,12 @@ uint16_t rpm;
 #endif
 
 
-#if PERIODIC_TELEMETRY
-#include "modules/datalink/telemetry.h"
-
-static void rpm_sensor_send_motor(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_MOTOR(trans, dev, AC_ID, &rpm, &electrical.current);
-}
-#endif
 
 /* Initialize the RPM measurement by configuring the telemetry */
 void rpm_sensor_init(void)
 {
   rpm = 0;
   init_first_order_low_pass(&rpm_lp, RPM_FILTER_TAU, RPM_SENSOR_PERIODIC_PERIOD, 0);
-
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_MOTOR, rpm_sensor_send_motor);
-#endif
 }
 
 /* RPM periodic */
