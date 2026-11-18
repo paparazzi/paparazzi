@@ -76,18 +76,43 @@ class Speech(object):
 
 
 class EscMessage(object):
-    """ESC message of one motor or servo, with the texts, bar fractions and colours to draw."""
+    """Telemetry of one motor or servo (actuator index id), with the texts, bar fractions and colours to draw."""
+
+    def __init__(self, idx, amp=0., rpm=0., volt=0., temperature=0., temperature_dev=0., errors=0):
+        self.id = idx
+        self.node_id = idx
+        self.amp = amp
+        self.rpm = rpm
+        self.volt_b = volt
+        self.volt_m = volt
+        self.temperature = temperature
+        self.temperature_dev = temperature_dev
+        self.energy = errors
+
+
+def _array(msg, name):
+    """Values of an array field"""
+    v = msg[name]
+    return [float(x) for x in (v if isinstance(v, (list, tuple)) else str(v).split(','))]
+
+
+class ActuatorTelemetry(object):
+    """ESC_TELEMETRY or SERVO_TELEMETRY: the telemetry of all ESCs or servos (one EscMessage each)."""
 
     def __init__(self, msg):
-        self.id = int(msg['motor_id'])
-        self.node_id = int(msg['node_id'])
-        self.amp = float(msg['amps'])
-        self.rpm = float(msg['rpm'])
-        self.volt_b = float(msg['bat_volts'])
-        self.volt_m = float(msg['motor_volts'])
-        self.temperature = float(msg['temperature'])
-        self.temperature_dev = float(msg['temperature_dev'])
-        self.energy = float(msg['energy'])
+        idx = _array(msg, 'idx')
+        current = _array(msg, 'current')
+        voltage = _array(msg, 'voltage')
+        temp = _array(msg, 'temperature')
+        errors = _array(msg, 'errors')
+        if msg.name == "ESC_TELEMETRY":
+            rpm = _array(msg, 'rpm')
+            temp_dev = _array(msg, 'motor_temperature')
+        else:
+            rpm = [0.] * len(idx)
+            temp_dev = temp
+        self.escs = [EscMessage(int(idx[i]), current[i] * 0.01, rpm[i], voltage[i] * 0.01, temp[i] * 0.1,
+                                temp_dev[i] * 0.1, int(errors[i])) for i in range(len(idx))]
 
     def get_current(self):
         return str(round(self.amp, 1)) + "A"
@@ -348,7 +373,8 @@ class MotorList(object):
 
 # Ivy message name -> class that decodes it
 MESSAGE_CLASSES = {
-    "ESC": EscMessage,
+    "ESC_TELEMETRY": ActuatorTelemetry,
+    "SERVO_TELEMETRY": ActuatorTelemetry,
     "STAB_ATTITUDE": INDIMessage,
     "ROTATING_WING_STATE": RWStatusMessage,
     "AIR_DATA": AIRDATAMessage,
@@ -432,8 +458,9 @@ class RotWingWindow(QtWidgets.QWidget):
 
     def store_message(self, name, data):
         """GUI thread: keep the new message and repaint."""
-        if name == "ESC":
-            self.motors.fill_from_esc_msg(data)
+        if name in ("ESC_TELEMETRY", "SERVO_TELEMETRY"):
+            for esc in data.escs:
+                self.motors.fill_from_esc_msg(esc)
         elif name == "POWER_DEVICE":
             self.powers.fill_from_power_msg(data)
         elif name == "STAB_ATTITUDE":

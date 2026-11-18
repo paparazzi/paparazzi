@@ -108,28 +108,6 @@ static IN_DMA_SECTION_NOINIT(DshotRpmCaptureDmaBuffer dshot9DmaCaptureBuffer);
 static DSHOTConfig dshotcfg9 = DSHOT_CONF9_DEF;
 #endif
 
-#if PERIODIC_TELEMETRY
-static void esc_msg_send(struct transport_tx *trans, struct link_device *dev) {
-  for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
-    if (actuators_dshot_values[i].activated) {
-      float bat_voltage = electrical.vsupply;
-      float power = actuators_dshot_values[i].current * bat_voltage;
-      float temp_dev = 0;
-      pprz_msg_send_ESC(trans, dev, AC_ID,
-          &actuators_dshot_values[i].current,
-          &bat_voltage,
-          &power,
-          &actuators_dshot_values[i].rpm,
-          &actuators_dshot_values[i].voltage,
-          &actuators_dshot_values[i].energy,
-          &actuators_dshot_values[i].temp,
-          &temp_dev,
-          &i,
-          &i);
-    }
-  }
-}
-#endif
 
 static void dshot_init_struct(struct dshot * ds)
 {
@@ -282,9 +260,6 @@ void actuators_dshot_arch_init(void)
   dshotStart(&DSHOTD9, &dshotcfg9);
 #endif
 
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ESC, esc_msg_send);
-#endif
 }
 
 
@@ -366,6 +341,12 @@ void actuators_dshot_arch_commit(void)
       actuators_dshot_values[i].voltage = (float)dtelem.frame.voltage * 0.01f;
       actuators_dshot_values[i].energy = (float)dtelem.frame.consumption;
       actuators_dshot_values[i].temp = (float)dtelem.frame.temp;
+      feedback[i].current = actuators_dshot_values[i].current;
+      feedback[i].set.current = true;
+      feedback[i].voltage = actuators_dshot_values[i].voltage;
+      feedback[i].set.voltage = true;
+      feedback[i].temperature = actuators_dshot_values[i].temp;
+      feedback[i].set.temperature = true;
 #if DSHOT_BIDIR
       // overwrite RPM if DSHOT_BIDIR is used as it provides faster update
       const uint32_t erpm = dshotGetRpm(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
