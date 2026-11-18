@@ -610,7 +610,7 @@
     Our multiplication factor is now ~0.0024123f
     -->
     <define name="VoltageOfAdc(adc)" value="(adc)*0.0024123f"/>
-    <define name="MAX_BAT_CAPACITY" value="460" unit="mAh"/>
+    <define name="BAT_CAPACITY" value="460" unit="mAh"/>
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="220" unit="mA"/><!-- The amps by AP+RX+ESC+Telemetry+Servos is not MOTOR power this substracted-->
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="6100" unit="mA"/><!-- 4 blade prop Motor amp draw at full Power static test at 7.6v -->
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.05"/>
