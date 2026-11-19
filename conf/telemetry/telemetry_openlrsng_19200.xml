@@ -14,7 +14,7 @@
       <message name="GPS"              period="1.15"/>
       <message name="ENERGY"           period="1.25"/>
       <message name="SEGMENT"          period="1.35"/>
-      <message name="BMP_STATUS"       period="1.55"/> <!-- BARO BMP280 DATA -->
+      <message name="BARO_RAW"         period="1.55"/> <!-- BARO DATA (air_data) -->
       <message name="CIRCLE"           period="2.05"/>
       <message name="WEATHER"          period="2.15"/>
       <message name="DESIRED"          period="2.25"/>

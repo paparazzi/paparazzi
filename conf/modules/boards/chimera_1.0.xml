@@ -7,8 +7,11 @@
     </description>
   </doc>
   <dep>
-    <depends>i2c,baro_board,hard_fault_recovery</depends>
+    <depends>i2c,baro_ms5611_i2c,hard_fault_recovery</depends>
   </dep>
-  <makefile target="!sim|nps|fbw"/>
+  <makefile target="!sim|nps|fbw">
+    <configure name="MS5611_I2C_DEV" value="i2c1"/>
+    <define name="MS5611_SLAVE_ADDR" value="MS5611_I2C_SLAVE_ADDR_ALT"/>
+  </makefile>
 </module>
 

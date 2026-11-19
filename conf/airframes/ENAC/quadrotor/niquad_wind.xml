@@ -62,7 +62,6 @@
     <module name="ahrs" type="int_cmpl_quat"/>
 
     <module name="stabilization" type="int_quat"/>
-    <module name="air_data"/>
 
     <module name="wind_estimation_quadrotor"/>
 

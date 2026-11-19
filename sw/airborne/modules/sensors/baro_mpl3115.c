@@ -29,6 +29,7 @@
 #include "modules/sensors/baro_mpl3115.h"
 #include "peripherals/mpl3115.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 
 //Messages
 #include "mcu_periph/uart.h"
@@ -65,12 +66,9 @@ void baro_mpl3115_read_event(void)
   if (baro_mpl.data_available) {
     uint32_t now_ts = get_sys_time_usec();
     float pressure = (float)baro_mpl.pressure / (1 << 2);
-    AbiSendMsgBARO_ABS(BARO_MPL3115_SENDER_ID, pressure);
-    float temp = (float)baro_mpl.pressure / 16.0f;
-    AbiSendMsgTEMPERATURE(BARO_MPL3115_SENDER_ID, now_ts, temp);
-#ifdef SENSOR_SYNC_SEND
-    DOWNLINK_SEND_MPL3115_BARO(DefaultChannel, DefaultDevice, &baro_mpl.pressure, &baro_mpl.temperature, &baro_mpl.alt);
-#endif
+    AbiSendMsgBARO_ABS_RAW(BARO_MPL3115_SENDER_ID, now_ts, pressure);
+    float temp = (float)baro_mpl.temperature / 16.0f;
+    AbiSendMsgTEMPERATURE_RAW(BARO_MPL3115_SENDER_ID, now_ts, temp, TEMPERATURE_TYPE_BARO);
     baro_mpl.data_available = false;
   }
 }

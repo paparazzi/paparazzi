@@ -54,7 +54,6 @@ PX4_BL_PORT ?= "/dev/serial/by-id/*-BL_*,/dev/serial/by-id/*_BL_*"
 #
 SDLOG_LED          ?= 3
 RADIO_CONTROL_LED  ?= none
-BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= 1
 GPS_LED            ?= none
 SYS_TIME_LED       ?= 2

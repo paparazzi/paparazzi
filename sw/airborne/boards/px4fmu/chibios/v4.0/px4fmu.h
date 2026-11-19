@@ -398,16 +398,6 @@
 #define SPI_SELECT_SLAVE4_PIN GPIO10
 
 /**
- * Baro
- *
- * Apparently needed for backwards compatibility
- * with the ancient onboard baro boards
- */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 1
-#endif
-
-/**
  * SDIO
  */
 #define SDIO_D0_PORT GPIOC

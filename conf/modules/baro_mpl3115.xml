@@ -6,10 +6,9 @@
     <define name="BARO_MPL3115_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
     <define name="BARO_MPL3115_I2C_SLAVE_ADDR" value="0xC0" description="i2c address (default factory: 0xC0)"/>
     <define name="BARO_MPL3115_SENDER_ID" value="20" description="ABI sender id"/>
-    <define name="SENSOR_SYNC_SEND" description="flag to enable sending BARO_MPL3115 message on every new measurement"/>
   </doc>
   <dep>
-    <depends>i2c</depends>
+    <depends>i2c,air_data</depends>
     <provides>baro</provides>
   </dep>
 
