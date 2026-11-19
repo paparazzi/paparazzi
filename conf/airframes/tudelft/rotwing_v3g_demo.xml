@@ -185,7 +185,7 @@
         <let VAR="ail_limit_hit"    VALUE="LessThan(rotwing_state.meas_skew_angle_deg, 30)"/>
         <let VAR="flap_limit_hit"   VALUE="LessThan(rotwing_state.meas_skew_angle_deg, 60)"/>
 
-        <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
+        <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,values)"/>
         <call fun="pfc_actuators_run()"/>
         <set SERVO="MOTOR_FRONT"    VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(7, -9600)) : @MOTOR_FRONT)"/>
         <set SERVO="MOTOR_RIGHT"    VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(8, -9600)) : @MOTOR_RIGHT)"/>
