@@ -10,9 +10,9 @@
   </fileheader>
 
   <metrics>
-    <wingarea unit="IN2"> 78.53 </wingarea>
-    <wingspan unit="IN"> 10 </wingspan>
-    <chord unit="IN"> 6.89 </chord>
+    <wingarea unit="FT2"> 10.0 </wingarea>
+    <wingspan unit="FT"> 10.0 </wingspan>
+    <chord unit="FT"> 1.0 </chord>
     <htailarea unit="FT2"> 0 </htailarea>
     <htailarm unit="FT"> 0 </htailarm>
     <vtailarea unit="FT2"> 0.686 </vtailarea>
@@ -36,8 +36,8 @@
 
   <mass_balance>
     <ixx unit="SLUG*FT2"> 0.670741277</ixx>
-    <iyy unit="SLUG*FT2"> 4.953005118</iyy>
-    <izz unit="SLUG*FT2"> 2.181137393</izz>
+    <iyy unit="SLUG*FT2"> 7.48</iyy>
+    <izz unit="SLUG*FT2"> 7.508</izz>
     <ixy unit="SLUG*FT2"> 0. </ixy>
     <ixz unit="SLUG*FT2"> 0. </ixz>
     <iyz unit="SLUG*FT2"> 0. </iyz>
@@ -116,14 +116,45 @@
   </ground_reactions>
 
   <flight_control name="actuator_dynamics">
-    <channel name="filtering">
+    <channel name="skew_control">
+      <fcs_function name="cosskew">
+        <function>
+          <cos>
+            <product>
+              <property>fcs/ROT_MECH</property>
+              <value>0.5</value>
+              <pi/>
+            </product>
+          </cos>
+        </function>
+      <output> fcs/cosskew </output>
+      </fcs_function>
 
-    <!-- Note: skew angle is normalized -->
+      <fcs_function name="cos2skew">
+        <function>
+          <pow>
+            <p> fcs/cosskew </p>
+            <v> 2.0 </v>
+          </pow>
+        </function>
+      <output> fcs/cos2skew </output>
+      </fcs_function>
+
+      <fcs_function name="cos3skew">
+        <function>
+          <pow>
+            <p> fcs/cosskew </p>
+            <v> 3.0 </v>
+          </pow>
+        </function>
+      <output> fcs/cos3skew </output>
+      </fcs_function>
+
       <fcs_function name="sinskew">
         <function>
           <sin>
             <product>
-              <property>fcs/skew</property>
+              <property>fcs/ROT_MECH</property>
               <value>0.5</value>
               <pi/>
             </product>
@@ -132,78 +163,128 @@
         <output> fcs/sinskew </output>
       </fcs_function>
 
-    <!-- Note: skew angle is normalized -->
-      <fcs_function name="cosskew">
+      <fcs_function name="sin2skew">
         <function>
-          <cos>
-            <product>
-              <property>fcs/skew</property>
-              <value>0.5</value>
-              <pi/>
-            </product>
-          </cos>
+          <pow>
+            <p> fcs/sinskew </p>
+            <v> 2.0 </v>
+          </pow>
         </function>
-        <output> fcs/cosskew </output>
+        <output> fcs/sin2skew </output>
       </fcs_function>
 
+      <fcs_function name="sin3skew">
+        <function>
+          <pow>
+            <p> fcs/sinskew </p>
+            <v> 3.0 </v>
+          </pow>
+        </function>
+        <output> fcs/sin3skew </output>
+      </fcs_function>
+
+      <fcs_function name="coscos3skew">
+        <function>
+          <sum>
+            <property>fcs/cosskew</property>
+            <product>
+              <property>fcs/cos3skew</property>
+              <value>-1</value>
+            </product>
+          </sum>
+        </function>
+        <output> fcs/coscos3skew </output>
+      </fcs_function>
+    </channel> 
+    <channel name="filtering">
       <!--First order filter represents actuator dynamics-->
-      <lag_filter name="front_motor_lag">
-        <input> fcs/front_motor </input>
-        <c1> 18 </c1>
-        <output> fcs/front_motor_lag</output>
+      <lag_filter name="MOTOR_FRONT_lag">
+        <input> fcs/MOTOR_FRONT </input>
+        <c1> 13.68 </c1>
+        <output> fcs/MOTOR_FRONT_lag</output>
       </lag_filter>
-      <lag_filter name="right_motor_lag">
-        <input> fcs/right_motor </input>
-        <c1> 18 </c1>
-        <output> fcs/right_motor_lag</output>
+      <lag_filter name="MOTOR_RIGHT_lag">
+        <input> fcs/MOTOR_RIGHT </input>
+        <c1> 13.68 </c1>
+        <output> fcs/MOTOR_RIGHT_lag</output>
       </lag_filter>
-      <lag_filter name="back_motor_lag">
-        <input> fcs/back_motor </input>
-        <c1> 18 </c1>
-        <output> fcs/back_motor_lag</output>
+      <lag_filter name="MOTOR_BACK_lag">
+        <input> fcs/MOTOR_BACK </input>
+        <c1> 13.68 </c1>
+        <output> fcs/MOTOR_BACK_lag</output>
       </lag_filter>
-      <lag_filter name="left_motor_lag">
-        <input> fcs/left_motor </input>
-        <c1> 18 </c1>
-        <output> fcs/left_motor_lag</output>
+      <lag_filter name="MOTOR_LEFT_lag">
+        <input> fcs/MOTOR_LEFT </input>
+        <c1> 13.68 </c1>
+        <output> fcs/MOTOR_LEFT_lag</output>
       </lag_filter>
-      <lag_filter name="pusher_lag">
-        <input> fcs/pusher </input>
-        <c1> 18 </c1>
-        <output> fcs/pusher_lag</output>
+      <lag_filter name="THRUST_X_lag">
+        <input> fcs/THRUST_X </input>
+        <c1> 24.1 </c1>
+        <output> fcs/THRUST_X_lag</output>
       </lag_filter>
     </channel>
+    <channel name="misc">
+      <fcs_function name="airspeed2_ms">
+        <function>
+          <product>
+            <property>aero/qbar-psf</property>
+            <value>47.880259</value>  <!--Pound Per Square Foot to N/m² (Pascal)-->
+            <value>1.6327</value>     <!-- 2/rho-->
+          </product>
+        </function>
+        <output>fcs/airspeed2_ms</output>
+      </fcs_function>
+
+      <fcs_function name="airspeed_ms">
+        <function>
+          <sqrt>
+            <property>fcs/airspeed2_ms</property>
+          </sqrt>
+        </function>
+        <output>fcs/airspeed_ms</output>
+      </fcs_function>
+    </channel>  
   </flight_control>
 
   <external_reactions>
-
-    <property>fcs/front_motor</property>
-    <property>fcs/front_motor_lag</property>
-    <property>fcs/right_motor</property>
-    <property>fcs/right_motor_lag</property>
-    <property>fcs/back_motor</property>
-    <property>fcs/back_motor_lag</property>
-    <property>fcs/left_motor</property>
-    <property>fcs/left_motor_lag</property>
-    <property>fcs/rudder</property>
-    <property>fcs/elevator</property>
-    <property>fcs/aileron</property>
-    <property>fcs/flaperon</property>
-    <property>fcs/pusher</property>
-    <property>fcs/pusher_lag</property>
-    <property>fcs/skew</property>
+    <property>fcs/MOTOR_FRONT</property>
+    <property>fcs/MOTOR_FRONT_lag</property>
+    <property>fcs/MOTOR_RIGHT</property>
+    <property>fcs/MOTOR_RIGHT_lag</property>
+    <property>fcs/MOTOR_BACK</property>
+    <property>fcs/MOTOR_BACK_lag</property>
+    <property>fcs/MOTOR_LEFT</property>
+    <property>fcs/MOTOR_LEFT_lag</property>
+    <property>fcs/THRUST_X</property>
+    <property>fcs/THRUST_X_lag</property>
+    <property>fcs/ELEVATOR</property>
+    <property>fcs/RUDDER</property>
+    <property>fcs/AILERONS</property> 
+    <property>fcs/FLAPS</property> 
+    <property>fcs/ELEVATOR_lag</property>
+    <property>fcs/RUDDER_lag</property>
+    <property>fcs/AILERONS_lag</property> 
+    <property>fcs/FLAPS_lag</property>       
+    <property>fcs/ROLL</property>
+    <property>fcs/PITCH</property>
+    <property>fcs/YAW</property>
+    <property>fcs/THRUST</property>
+    <property>fcs/ROT_MECH</property>
+    <property>fcs/de_lag</property>
+    <property>fcs/airspeed2_ms</property>
 
     <!-- First the lift forces produced by each propeller -->
 
-    <force name="front_motor" frame="BODY" unit="LBS">
+    <force name="MOTOR_FRONT" frame="BODY" unit="LBS">
       <function>
       <sum>
         <product>
-          <property>fcs/front_motor_lag</property>
+          <property>fcs/MOTOR_FRONT_lag</property>
           <value> 26.06 </value>
         </product>
         <product>
-          <property>fcs/right_motor_lag</property>
+          <property>fcs/MOTOR_RIGHT_lag</property>
           <property>fcs/sinskew</property>
           <value> 26.06 </value>
         </product>
@@ -221,10 +302,10 @@
       </direction>
     </force>
 
-    <force name="right_motor" frame="BODY" unit="LBS">
+    <force name="MOTOR_RIGHT" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/right_motor_lag</property>
+          <property>fcs/MOTOR_RIGHT_lag</property>
           <property>fcs/cosskew</property>
           <value> 26.06 </value>
         </product>
@@ -241,15 +322,15 @@
       </direction>
     </force>
 
-    <force name="back_motor" frame="BODY" unit="LBS">
+    <force name="MOTOR_BACK" frame="BODY" unit="LBS">
       <function>
         <sum>
           <product>
-            <property>fcs/back_motor_lag</property>
+            <property>fcs/MOTOR_BACK_lag</property>
             <value> 26.06 </value>
           </product>
           <product>
-              <property>fcs/left_motor_lag</property>
+              <property>fcs/MOTOR_LEFT_lag</property>
               <property>fcs/sinskew</property>
               <value> 26.06 </value>
           </product>
@@ -267,10 +348,10 @@
       </direction>
     </force>
 
-    <force name="left_motor" frame="BODY" unit="LBS">
+    <force name="MOTOR_LEFT" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/left_motor_lag</property>
+          <property>fcs/MOTOR_LEFT_lag</property>
           <property>fcs/cosskew</property>
           <value> 26.06 </value>
         </product>
@@ -287,11 +368,11 @@
       </direction>
     </force>
 
-    <force name="pusher_motor" frame="BODY" unit="LBS">
+    <force name="THRUST_X" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/pusher_lag</property>
-          <value> 25.77 </value>
+          <property>fcs/THRUST_X_lag</property>
+          <value> 35.77 </value>
         </product>
       </function>
       <location unit="IN">
@@ -307,10 +388,10 @@
     </force>
 
     <!-- Now the moment couples -->
-    <force name="front_motor_couple1" frame="BODY" unit="LBS">
+    <force name="MOTOR_FRONT_couple1" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/front_motor_lag</property>
+          <property>fcs/MOTOR_FRONT_lag</property>
           <value> 3.19 </value>
         </product>
       </function>
@@ -326,10 +407,10 @@
       </direction>
     </force>
 
-    <force name="front_motor_couple2" frame="BODY" unit="LBS">
+    <force name="MOTOR_FRONT_couple2" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/front_motor_lag</property>
+          <property>fcs/MOTOR_FRONT_lag</property>
           <value> 3.19 </value>
         </product>
       </function>
@@ -345,10 +426,10 @@
       </direction>
     </force>
 
-    <force name="right_motor_couple1" frame="BODY" unit="LBS">
+    <force name="MOTOR_RIGHT_couple1" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/right_motor_lag</property>
+          <property>fcs/MOTOR_RIGHT_lag</property>
           <value> 3.57 </value>
         </product>
       </function>
@@ -364,10 +445,10 @@
       </direction>
     </force>
 
-    <force name="right_motor_couple2" frame="BODY" unit="LBS">
+    <force name="MOTOR_RIGHT_couple2" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/right_motor_lag</property>
+          <property>fcs/MOTOR_RIGHT_lag</property>
           <value> 3.57 </value>
         </product>
       </function>
@@ -383,10 +464,10 @@
       </direction>
     </force>
 
-    <force name="back_motor_couple1" frame="BODY" unit="LBS">
+    <force name="MOTOR_BACK_couple1" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/back_motor_lag</property>
+          <property>fcs/MOTOR_BACK_lag</property>
           <value> 3.19 </value>
         </product>
       </function>
@@ -402,10 +483,10 @@
       </direction>
     </force>
 
-    <force name="back_motor_couple2" frame="BODY" unit="LBS">
+    <force name="MOTOR_BACK_couple2" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/back_motor_lag</property>
+          <property>fcs/MOTOR_BACK_lag</property>
           <value> 3.19 </value>
         </product>
       </function>
@@ -421,10 +502,10 @@
       </direction>
     </force>
 
-    <force name="left_motor_couple1" frame="BODY" unit="LBS">
+    <force name="MOTOR_LEFT_couple1" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/left_motor_lag</property>
+          <property>fcs/MOTOR_LEFT_lag</property>
           <value> 3.57 </value>
         </product>
       </function>
@@ -440,10 +521,10 @@
       </direction>
     </force>
 
-    <force name="left_motor_couple2" frame="BODY" unit="LBS">
+    <force name="MOTOR_LEFT_couple2" frame="BODY" unit="LBS">
       <function>
         <product>
-          <property>fcs/left_motor_lag</property>
+          <property>fcs/MOTOR_LEFT_lag</property>
           <value> 3.57 </value>
         </product>
       </function>
@@ -479,6 +560,28 @@
       </function>
     </axis>
 
+  <axis name="LIFT">
+    <function name="aero/force/Lift_alpha"> 
+      <product>
+        <product> 
+          <property>metrics/Sw-sqft</property> 
+          <value> 0.0929 </value> <!-- FT^2 to M^2 -->
+          <sum>
+            <product>
+              <value> 5.48 </value> <!-- CL_a -->
+              <property>aero/alpha-rad</property> 
+            </product>
+            <value> 0.3 </value> <!-- CL_0 -->
+          </sum>
+        </product>  
+      <property>aero/qbar-psf</property>
+      <value>47.9</value> <!-- Conversion to pascals -->
+      <property>fcs/sin2skew</property>
+      <value> 0.2248</value> <!-- N to LBS -->  
+      </product>
+    </function>
+   </axis>
+
     <axis name="SIDE">
     <function name="aero/force/Side_beta">
        <description>Side force due to beta</description>
@@ -506,8 +609,8 @@
     <function name="ailerons" frame="BODY" unit="FT*LBS">
        <product>
            <property>aero/qbar-psf</property>
-           <property>fcs/aileron</property>
-           <value>15</value>
+           <property>fcs/AILERONS</property>
+           <value>15.0</value>
        </product>
     </function>
   </axis>

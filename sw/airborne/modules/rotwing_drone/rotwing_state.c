@@ -28,7 +28,24 @@
 #include "modules/core/commands.h"
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
+#include "generated/airframe.h"
 
+#define ASSERT_EQUIVALENCE(primary, backup) \
+  _Static_assert(SERVO_##primary##_MIN == SERVO_##backup##_MIN, \
+                 #primary " and " #backup " must have same MIN value"); \
+  _Static_assert(SERVO_##primary##_NEUTRAL == SERVO_##backup##_NEUTRAL, \
+                 #primary " and " #backup " must have same NEUTRAL value"); \
+  _Static_assert(SERVO_##primary##_MAX == SERVO_##backup##_MAX, \
+                 #primary " and " #backup " must have same MAX value")
+
+ASSERT_EQUIVALENCE(MOTOR_FRONT, BMOTOR_FRONT);
+ASSERT_EQUIVALENCE(MOTOR_RIGHT, BMOTOR_RIGHT);
+ASSERT_EQUIVALENCE(MOTOR_BACK, BMOTOR_BACK);
+ASSERT_EQUIVALENCE(MOTOR_LEFT, BMOTOR_LEFT);
+
+#ifdef SERVO_BROTATION_MECH_IDX
+ASSERT_EQUIVALENCE(ROTATION_MECH, BROTATION_MECH);
+#endif
 
 /* Minimum measured RPM to consider the hover motors running (RPM) */
 #ifndef ROTWING_QUAD_MIN_RPM
