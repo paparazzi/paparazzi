@@ -123,6 +123,7 @@
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="1800" unit="mA"/>
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" unit="mA"/>
     <!--define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/-->
+    <define name="BAT_NB_CELLS" value="2"/>
   </section>
 
   <section name="GCS">
