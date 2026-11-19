@@ -7,13 +7,13 @@
       For fixedwings.
     </description>
     <define name="USE_INS_NAV_INIT" value="TRUE|FALSE" description="Initialize the origin of the local coordinate system from flight plan. (Default: TRUE)"/>
-    <define name="INS_ALT_BARO_ID" value="BARO_BOARD_SENDER_ID" description="The ABI sender id of the baro to use"/>
+    <define name="INS_ALT_BARO_ID" value="AIR_DATA_SENDER_ID" description="The ABI sender id of the baro to use (default: AIR_DATA_SENDER_ID, the barometer selected by air_data)"/>
     <define name="INS_ALT_GPS_ID" value="GPS_MULTI_ID" description="The ABI sender id of the GPS to use"/>
     <define name="INS_ALT_IMU_ID" value="ABI_BROADCAST" description="The ABI sender id of the IMU to use"/>
     <define name="DEBUG_ALT_KALMAN" description="if defined, send the debug ALT_KALMAN telemetry message"/>
   </doc>
   <dep>
-    <depends>@imu,@gps</depends>
+    <depends>@imu,@gps,air_data</depends>
     <provides>ins</provides>
   </dep>
   <header>

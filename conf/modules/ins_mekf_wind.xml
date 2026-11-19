@@ -60,7 +60,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>@imu,@gps,@airspeed</depends>
+    <depends>@imu,@gps,@airspeed,air_data</depends>
     <provides>ahrs,ins</provides>
   </dep>
   <header>

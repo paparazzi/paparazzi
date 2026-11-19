@@ -30,7 +30,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>@imu,@gps</depends>
+    <depends>@imu,@gps,air_data</depends>
     <provides>ins,ahrs</provides>
   </dep>
   <header>

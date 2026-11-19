@@ -85,6 +85,13 @@ typedef void (*abi_callback)(void);
  */
 #define ABI_DISABLE 0
 
+/** Types of the TEMPERATURE_RAW message, what the temperature measures */
+#define TEMPERATURE_TYPE_AIR    0 ///< outside air temperature probe
+#define TEMPERATURE_TYPE_DIFF   1 ///< differential pressure (pitot) sensor
+#define TEMPERATURE_TYPE_BARO   2 ///< barometer die
+#define TEMPERATURE_TYPE_IMU    3 ///< IMU die
+#define TEMPERATURE_TYPE_OTHER  4 ///< anything else
+
 /** Event structure to store callbacks in a linked list */
 struct abi_struct {
   uint8_t id;

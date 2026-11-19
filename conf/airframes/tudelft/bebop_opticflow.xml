@@ -33,7 +33,6 @@
     <module name="ins" type="hff_extended"/>
     
     <module name="geo_mag"/>
-    <module name="air_data"/>
     <module name="pose_history"/>
     <module name="bebop_cam"/>
 
@@ -82,12 +81,6 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
-  </section>
 
   <include href="conf/airframes/tudelft/calibrations/bebopTUBB17.xml"/>
 

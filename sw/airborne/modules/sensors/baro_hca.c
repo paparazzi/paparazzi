@@ -23,6 +23,7 @@
 #include "sensors/baro_hca.h"
 #include "mcu_periph/i2c.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include <math.h>
 
 //Messages
@@ -52,7 +53,7 @@
 #endif
 
 // Global variables
-uint16_t pBaroRaw;
+static uint16_t pBaroRaw;
 bool baro_hca_valid;
 float baro_hca_p;
 
@@ -99,17 +100,10 @@ void baro_hca_read_event(void)
 
     uint32_t now_ts = get_sys_time_usec();
     float pressure = BARO_HCA_SCALE * (float)pBaroRaw + BARO_HCA_PRESSURE_OFFSET;
-    AbiSendMsgBARO_ABS(BARO_HCA_SENDER_ID, now_ts, pressure);
+    AbiSendMsgBARO_ABS_RAW(BARO_HCA_SENDER_ID, now_ts, pressure);
   }
   baro_hca_i2c_trans.status = I2CTransDone;
 
-  uint16_t foo = 0;
-  float bar = 0;
-#ifdef SENSOR_SYNC_SEND
-  DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &pBaroRaw, &foo, &bar)
-#else
-  RunOnceEvery(10, DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &pBaroRaw, &foo, &bar));
-#endif
 
 }
 
