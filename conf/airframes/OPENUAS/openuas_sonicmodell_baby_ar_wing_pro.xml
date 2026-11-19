@@ -806,7 +806,7 @@ Safety
     <define name="CALIB_AMP_B" value="2.8136"/> -->
     <!--<define name="MilliAmpereOfAdc(adc)" value="(adc)*4.14"/--><!-- NA should come from ESC KISS telemetry UART5-->
     <!--<define name="VoltageOfAdc(adc)" value="(adc)*0.0024123f"/>-->
-    <define name="MAX_BAT_CAPACITY" value="16900" unit="mAh"/>
+    <define name="BAT_CAPACITY" value="16900" unit="mAh"/>
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="245" unit="mA"/>
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="11000" unit="mA"/>
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.01"/>
@@ -819,7 +819,7 @@ Safety
     <define name="CATASTROPHIC_BAT_LEVEL" value="5.4" unit="V"/>
 
     <define name="BAT_CHECKER_DELAY" value="60"/>
-    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/> 
+    <define name="CATASTROPHIC_BAT_KILL_DELAY" value="41" unit="s"/>
   </section>
 
   <section name="PHOTOGRAMMETRY" prefix="PHOTOGRAMMETRY_">

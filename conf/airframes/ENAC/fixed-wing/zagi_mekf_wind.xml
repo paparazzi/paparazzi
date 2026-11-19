@@ -183,6 +183,7 @@
     <define name="LOW_BAT_LEVEL" value="9.9" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.5" unit="V"/>
     <define name="MilliAmpereOfAdc(_adc)" value="(_adc-620)*4.536"/>
+    <define name="BAT_NB_CELLS" value="3"/>
   </section>
 
   <section name="MISC">

@@ -215,10 +215,8 @@
   </section>
 
   <section name="BAT">
-    <define name="CATASTROPHIC_BAT_LEVEL" value="12.4" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="12.8" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="13.5" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="17.2" unit="V"/>
+    <define name="BAT_NB_CELLS" value="4"/>
   </section>
 
 </airframe>

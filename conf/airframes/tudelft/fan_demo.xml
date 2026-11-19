@@ -197,5 +197,6 @@
     <define name="CRITIC_BAT_LEVEL" value="11.0" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="11.1" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+    <define name="BAT_NB_CELLS" value="3"/>
   </section>
 </airframe>

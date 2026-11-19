@@ -87,7 +87,7 @@
     <!-- TODO: specificaly test for Disco see if needed or which value -->
     <define name="BAT_CHECKER_DELAY" value="60"/><!-- unit="s/10", thus tenth of seconds per default use ELECTRICAL_PERIODIC_FREQ if you for some reason want it differently-->
     <!-- Only one main battery so CATASTROPHIC_BATTERY kill should be somewhat delayed -->
-    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/> <!-- unit="s/10, thus  tenth of seconds for engine kill or in ELECTRICAL_PERIODIC_FREQ-->
+    <define name="CATASTROPHIC_BAT_KILL_DELAY" value="41" unit="s"/>
     <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
     <configure name="AHRS_MAG_CORRECT_FREQUENCY" value="50"/><!-- HZ-->
     <configure name="USE_BARO_BOARD" value="TRUE"/>
@@ -562,8 +562,8 @@ The most crucial part for the magnetometer calibration:
 
 <!-- **************************** BAT ****************************** -->
   <section name="BAT">
-    <define name="MAX_BAT_CAPACITY" value="2700" unit="mAh"/> <!-- Original Parrot battery -->
-    <!-- <define name="MAX_BAT_CAPACITY" value="4150" unit="mAh"/>--> <!-- 3rd party battery -->
+    <define name="BAT_CAPACITY" value="2700" unit="mAh"/> <!-- Original Parrot battery -->
+    <!-- <define name="BAT_CAPACITY" value="4150" unit="mAh"/>--> <!-- 3rd party battery -->
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="11000" unit="mA"/>  <!-- At 11.7 10.6 A at 12.2v 11.0A rounded then to 11000 to be at safe side-->
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="600" unit="mA"/> <!-- 500mA, with additional RC receiver ~600mA -->
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
@@ -571,7 +571,8 @@ The most crucial part for the magnetometer calibration:
     <define name="LOW_BAT_LEVEL" value="10.8" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10.4" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.6" unit="V"/> <!-- TODO: test when AP board switches off -->
-    <define name="MIN_BAT_LEVEL" value="9.0" unit="V"/> <!-- TODO: test when AP board switches off -->
+    <define name="MIN_MEASURABLE_BAT_LEVEL" value="9.0" unit="V"/> <!-- TODO: test when AP board switches off -->
+    <define name="BAT_NB_CELLS" value="3"/>
   </section>
 
 <!-- ********************** GCS SPECIFICS ************************** -->

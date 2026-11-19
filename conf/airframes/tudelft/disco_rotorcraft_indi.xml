@@ -256,6 +256,7 @@
     <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/>
 
     <define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/>
+    <define name="BAT_NB_CELLS" value="3"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
