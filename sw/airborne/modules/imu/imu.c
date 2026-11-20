@@ -33,6 +33,51 @@
 #include "state.h"
 #include "modules/core/abi.h"
 #include "modules/energy/electrical.h"
+#include "mcu_periph/sys_time.h"
+#include "filters/notch_filter_tpt.h"
+
+/** Cutoff of each motor's RPM estimate (Hz). Zero disables smoothing. */
+#ifndef IMU_RPM_LPF_HZ
+#define IMU_RPM_LPF_HZ 150.0f
+#endif
+
+/** Reinitialize the estimate after this gap in valid feedback (us). */
+#ifndef IMU_RPM_TIMEOUT_US
+#define IMU_RPM_TIMEOUT_US 100000U
+#endif
+
+/** Select one RPM feedback source, or accept all global actuator indices. */
+#ifndef IMU_RPM_FEEDBACK_ID
+#define IMU_RPM_FEEDBACK_ID ABI_BROADCAST
+#endif
+
+/** Independently disable either sensor bank by setting its harmonic count to zero. */
+#ifndef IMU_GYRO_RPM_HARMONICS
+#define IMU_GYRO_RPM_HARMONICS 3
+#endif
+#ifndef IMU_ACCEL_RPM_HARMONICS
+#define IMU_ACCEL_RPM_HARMONICS 3
+#endif
+#if IMU_GYRO_RPM_HARMONICS < 0 || IMU_GYRO_RPM_HARMONICS > 3 || \
+    IMU_ACCEL_RPM_HARMONICS < 0 || IMU_ACCEL_RPM_HARMONICS > 3
+#error "IMU RPM harmonic counts must be between zero and three"
+#endif
+#ifndef IMU_RPM_NOTCH_Q
+#define IMU_RPM_NOTCH_Q 5.0f
+#endif
+#ifndef IMU_RPM_NOTCH_MIN_HZ
+#define IMU_RPM_NOTCH_MIN_HZ 100.0f
+#endif
+#ifndef IMU_RPM_NOTCH_FADE_HZ
+#define IMU_RPM_NOTCH_FADE_HZ 50.0f
+#endif
+
+#define IMU_RPM_NOTCH_ENABLED (ACTUATORS_NB > 0 && (IMU_GYRO_RPM_HARMONICS > 0 || IMU_ACCEL_RPM_HARMONICS > 0))
+#if IMU_GYRO_RPM_HARMONICS > IMU_ACCEL_RPM_HARMONICS
+#define IMU_RPM_NOTCH_HARMONICS IMU_GYRO_RPM_HARMONICS
+#else
+#define IMU_RPM_NOTCH_HARMONICS IMU_ACCEL_RPM_HARMONICS
+#endif
 
 /** By default disable IMU integration calculations */
 #ifndef IMU_INTEGRATION
@@ -463,11 +508,103 @@ static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
 #endif
 
 struct Imu imu = {0};
-static abi_event imu_gyro_raw_ev, imu_accel_raw_ev, imu_mag_raw_ev;
+static abi_event imu_gyro_raw_ev, imu_accel_raw_ev, imu_mag_raw_ev, act_feedback_ev;
 static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *data, uint8_t samples, float rate, float temp);
 static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data, uint8_t samples, float rate, float temp);
 static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data);
+static void act_feedback_cb(uint8_t sender_id, struct act_feedback_t *feedback, uint8_t num_act);
 static void imu_set_body_to_imu_eulers(struct FloatEulers *body_to_imu_eulers);
+
+#if IMU_RPM_NOTCH_ENABLED
+struct imu_rpm_notch_t {
+  struct TptNotchCoefficients coeff;
+  struct TptNotchState state[3];
+  float frequency;                     ///< Cached parameters, to avoid redundant trigonometry
+  float weight;
+  bool enabled;
+  bool initialized;
+};
+
+struct imu_rpm_notch_bank_t {
+  struct imu_rpm_notch_t notch[ACTUATORS_NB][IMU_RPM_NOTCH_HARMONICS];
+  float sample_freq;
+  uint32_t last_update;
+};
+
+#if IMU_GYRO_RPM_HARMONICS > 0
+static struct imu_rpm_notch_bank_t gyro_rpm_notches[IMU_MAX_SENSORS];
+#endif
+#if IMU_ACCEL_RPM_HARMONICS > 0
+static struct imu_rpm_notch_bank_t accel_rpm_notches[IMU_MAX_SENSORS];
+#endif
+
+/** Retune once per sensor batch. Each sensor uses its own rate and state.
+ * A zero weight keeps state tracking for smooth fading. Stale telemetry and
+ * invalid rates bypass the bank; returning streams restart from their first sample.
+ */
+static bool imu_rpm_notch_prepare(struct imu_rpm_notch_bank_t *bank, float rate, unsigned harmonics, uint8_t samples)
+{
+  const uint32_t now = get_sys_time_usec();
+  const float max_hz = 0.48f * rate;
+  const bool valid_rate = isfinite(rate) && max_hz > IMU_RPM_NOTCH_MIN_HZ && IMU_RPM_NOTCH_MIN_HZ > 0.0f;
+  // A normal FIFO batch can span more than the timeout; only reset on extra delay.
+  const float batch_us = valid_rate ? samples * (1e6f / rate) : 0.0f;
+  const bool reset = rate != bank->sample_freq || now - bank->last_update > batch_us + IMU_RPM_TIMEOUT_US;
+  bool enabled = false;
+  for (unsigned motor = 0; motor < ACTUATORS_NB; motor++) {
+    const struct imu_rpm_t *rpm = &imu.motor_rpm[motor];
+    const bool fresh = rpm->initialized && now - rpm->last_stamp <= IMU_RPM_TIMEOUT_US;
+    for (unsigned h = 0; h < IMU_RPM_NOTCH_HARMONICS; h++) {
+      struct imu_rpm_notch_t *notch = &bank->notch[motor][h];
+      if (!valid_rate || !fresh || h >= harmonics) {
+        notch->enabled = false;
+        notch->initialized = false;
+        continue;
+      }
+      const float frequency = (h + 1) * rpm->rpm / 60.0f;
+      const float centre = fminf(fmaxf(frequency, IMU_RPM_NOTCH_MIN_HZ), max_hz);
+      // Fade at both ends of this sensor's usable frequency band.
+      float weight = frequency > IMU_RPM_NOTCH_MIN_HZ && frequency < max_hz ? 1.0f : 0.0f;
+      if (IMU_RPM_NOTCH_FADE_HZ > 0.0f) {
+        const float margin = fminf(frequency - IMU_RPM_NOTCH_MIN_HZ, max_hz - frequency);
+        weight = fminf(fmaxf(margin / IMU_RPM_NOTCH_FADE_HZ, 0.0f), 1.0f);
+      }
+      if (reset || !notch->enabled || centre != notch->frequency || weight != notch->weight) {
+        notch->enabled = tpt_notch_set_parameters(&notch->coeff, centre, IMU_RPM_NOTCH_Q, rate, weight);
+        notch->frequency = centre;
+        notch->weight = weight;
+      }
+      if (reset || !notch->enabled) {
+        notch->initialized = false;
+      }
+      enabled |= notch->enabled;
+    }
+  }
+  bank->sample_freq = rate;
+  bank->last_update = now;
+  return enabled;
+}
+
+/** Cascade all motor/harmonic notches in float, sharing coefficients across axes. */
+static void imu_rpm_notch_apply(struct imu_rpm_notch_bank_t *bank, float sample[3])
+{
+  for (unsigned motor = 0; motor < ACTUATORS_NB; motor++) {
+    for (unsigned h = 0; h < IMU_RPM_NOTCH_HARMONICS; h++) {
+      struct imu_rpm_notch_t *notch = &bank->notch[motor][h];
+      if (!notch->enabled) {
+        continue;
+      }
+      for (unsigned axis = 0; axis < 3; axis++) {
+        if (!notch->initialized) {
+          tpt_notch_reset(&notch->state[axis], sample[axis]);
+        }
+        sample[axis] = tpt_notch_apply(&notch->coeff, &notch->state[axis], sample[axis]);
+      }
+      notch->initialized = true;
+    }
+  }
+}
+#endif
 
 /**
  * @brief Initialize the lowpass filters of a sensor on its first sample
@@ -644,6 +781,21 @@ static void imu_preflight(struct preflight_result_t *result)
 
 void imu_init(void)
 {
+#if IMU_RPM_NOTCH_ENABLED
+  for (unsigned i = 0; i < IMU_MAX_SENSORS; i++) {
+#if IMU_GYRO_RPM_HARMONICS > 0
+    gyro_rpm_notches[i] = (struct imu_rpm_notch_bank_t) {0};
+#endif
+#if IMU_ACCEL_RPM_HARMONICS > 0
+    accel_rpm_notches[i] = (struct imu_rpm_notch_bank_t) {0};
+#endif
+  }
+#endif
+#if ACTUATORS_NB > 0
+  for (unsigned i = 0; i < ACTUATORS_NB; i++) {
+    imu.motor_rpm[i] = (struct imu_rpm_t) {0};
+  }
+#endif
   // Set the Body to IMU rotation
   struct FloatEulers body_to_imu_eulers = {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
@@ -802,6 +954,7 @@ void imu_init(void)
   AbiBindMsgIMU_GYRO_RAW(ABI_BROADCAST, &imu_gyro_raw_ev, imu_gyro_raw_cb);
   AbiBindMsgIMU_ACCEL_RAW(ABI_BROADCAST, &imu_accel_raw_ev, imu_accel_raw_cb);
   AbiBindMsgIMU_MAG_RAW(ABI_BROADCAST, &imu_mag_raw_ev, imu_mag_raw_cb);
+  AbiBindMsgACT_FEEDBACK(IMU_RPM_FEEDBACK_ID, &act_feedback_ev, act_feedback_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_ACCEL_RAW, send_accel_raw);
@@ -937,13 +1090,31 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
     gyro->calibrated.filter = imu_filter_init(gyro->filter, gyro->filter_freq, rate, init);
   }
 
-  // Filter the gyro (data points to the filtered samples after the block, only allocate them if needed)
-  struct Int32Rates data_filtered[gyro->calibrated.filter ? samples : 1];
-  if(gyro->calibrated.filter) {
-    for(uint8_t i = 0; i < samples; i++) {
-      data_filtered[i].p = update_butterworth_2_low_pass(&gyro->filter[0], data[i].p);
-      data_filtered[i].q = update_butterworth_2_low_pass(&gyro->filter[1], data[i].q);
-      data_filtered[i].r = update_butterworth_2_low_pass(&gyro->filter[2], data[i].r);
+  bool rpm_filter = false;
+#if ACTUATORS_NB > 0 && IMU_GYRO_RPM_HARMONICS > 0
+  struct imu_rpm_notch_bank_t *notches = &gyro_rpm_notches[gyro - imu.gyros];
+  rpm_filter = imu_rpm_notch_prepare(notches, rate, IMU_GYRO_RPM_HARMONICS, samples);
+#endif
+
+  // Notch every raw sample before the existing lowpass, scaling and integration.
+  const bool filter_samples = gyro->calibrated.filter || rpm_filter;
+  struct Int32Rates data_filtered[filter_samples ? samples : 1];
+  if (filter_samples) {
+    for (uint8_t i = 0; i < samples; i++) {
+      float sample[3] = {data[i].p, data[i].q, data[i].r};
+#if ACTUATORS_NB > 0 && IMU_GYRO_RPM_HARMONICS > 0
+      if (rpm_filter) {
+        imu_rpm_notch_apply(notches, sample);
+      }
+#endif
+      if (gyro->calibrated.filter) {
+        for (unsigned axis = 0; axis < 3; axis++) {
+          sample[axis] = update_butterworth_2_low_pass(&gyro->filter[axis], sample[axis]);
+        }
+      }
+      data_filtered[i].p = sample[0];
+      data_filtered[i].q = sample[1];
+      data_filtered[i].r = sample[2];
     }
     data = data_filtered;
   }
@@ -1045,13 +1216,31 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
     accel->calibrated.filter = imu_filter_init(accel->filter, accel->filter_freq, rate, init);
   }
 
-  // Filter the accel (data points to the filtered samples after the block, only allocate them if needed)
-  struct Int32Vect3 data_filtered[accel->calibrated.filter ? samples : 1];
-  if(accel->calibrated.filter) {
-    for(uint8_t i = 0; i < samples; i++) {
-      data_filtered[i].x = update_butterworth_2_low_pass(&accel->filter[0], data[i].x);
-      data_filtered[i].y = update_butterworth_2_low_pass(&accel->filter[1], data[i].y);
-      data_filtered[i].z = update_butterworth_2_low_pass(&accel->filter[2], data[i].z);
+  bool rpm_filter = false;
+#if ACTUATORS_NB > 0 && IMU_ACCEL_RPM_HARMONICS > 0
+  struct imu_rpm_notch_bank_t *notches = &accel_rpm_notches[accel - imu.accels];
+  rpm_filter = imu_rpm_notch_prepare(notches, rate, IMU_ACCEL_RPM_HARMONICS, samples);
+#endif
+
+  // Notch every raw sample before the existing lowpass, scaling and integration.
+  const bool filter_samples = accel->calibrated.filter || rpm_filter;
+  struct Int32Vect3 data_filtered[filter_samples ? samples : 1];
+  if (filter_samples) {
+    for (uint8_t i = 0; i < samples; i++) {
+      float sample[3] = {data[i].x, data[i].y, data[i].z};
+#if ACTUATORS_NB > 0 && IMU_ACCEL_RPM_HARMONICS > 0
+      if (rpm_filter) {
+        imu_rpm_notch_apply(notches, sample);
+      }
+#endif
+      if (accel->calibrated.filter) {
+        for (unsigned axis = 0; axis < 3; axis++) {
+          sample[axis] = update_butterworth_2_low_pass(&accel->filter[axis], sample[axis]);
+        }
+      }
+      data_filtered[i].x = sample[0];
+      data_filtered[i].y = sample[1];
+      data_filtered[i].z = sample[2];
     }
     data = data_filtered;
   }
@@ -1158,6 +1347,35 @@ static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 
   // Rotate the sensor
   int32_rmat_transp_vmult(&mag->scaled, &mag->body_to_sensor, &scaled);
   AbiSendMsgIMU_MAG(sender_id, stamp, &mag->scaled);
+}
+
+static void act_feedback_cb(uint8_t sender_id UNUSED, struct act_feedback_t *feedback, uint8_t num_act)
+{
+#if ACTUATORS_NB > 0
+  const uint32_t now = get_sys_time_usec();
+  for (uint8_t i = 0; i < num_act; i++) {
+    if (!feedback[i].set.rpm || feedback[i].idx >= ACTUATORS_NB) {
+      continue;
+    }
+    struct imu_rpm_t *motor = &imu.motor_rpm[feedback[i].idx];
+    // Vibration frequency depends on speed magnitude, including reverse rotation.
+    const float rpm = fabsf((float)feedback[i].rpm);
+    const uint32_t elapsed = now - motor->last_stamp;
+    if (!motor->initialized || elapsed > IMU_RPM_TIMEOUT_US || IMU_RPM_LPF_HZ <= 0.0f) {
+      motor->rpm = rpm;
+      motor->initialized = true;
+    } else if (elapsed > 0) {
+      // Backward-Euler PT1, using this motor's actual feedback interval.
+      const float dt = elapsed * 1e-6f;
+      const float tau = 1.0f / (2.0f * M_PI * IMU_RPM_LPF_HZ);
+      motor->rpm += dt / (tau + dt) * (rpm - motor->rpm);
+    }
+    motor->last_stamp = now;
+  }
+#else
+  (void)feedback;
+  (void)num_act;
+#endif
 }
 
 /**
