@@ -28,6 +28,7 @@
 #ifndef NAVIGATION_H
 #define NAVIGATION_H
 
+#include <stdio.h>
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_geodetic_float.h"
