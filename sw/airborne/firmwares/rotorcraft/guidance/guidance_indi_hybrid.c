@@ -606,7 +606,7 @@ static struct FloatVect3 compute_accel_from_speed_sp(struct FloatVect3 *speed_sp
     airspeed = guidance_indi_airspeed_filt.o[0];
   }
 #endif
-  struct NedCoor_f *groundspeed = stateGetSpeedNed_f();
+  struct NedCoor_f *groundspeed = stateGetSpeedLtp_f();
   struct FloatVect2 airspeed_v = { cpsi * airspeed, spsi * airspeed };
   struct FloatVect2 windspeed;
   VECT2_DIFF(windspeed, *groundspeed, airspeed_v);
@@ -671,13 +671,13 @@ static struct FloatVect3 compute_accel_from_speed_sp(struct FloatVect3 *speed_sp
 
     accel_sp.x = cpsi * sp_accel_b.x - spsi * sp_accel_b.y;
     accel_sp.y = spsi * sp_accel_b.x + cpsi * sp_accel_b.y;
-    accel_sp.z = (speed_sp->z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
+    accel_sp.z = (speed_sp->z - stateGetSpeedLtp_f()->z) * gih_params.speed_gainz;
   }
   else { // Go somewhere in the shortest way
 
     if (airspeed > 10.f) {
       // Groundspeed vector in body frame
-      float groundspeed_x = cpsi * stateGetSpeedNed_f()->x + spsi * stateGetSpeedNed_f()->y;
+      float groundspeed_x = cpsi * stateGetSpeedLtp_f()->x + spsi * stateGetSpeedLtp_f()->y;
       float speed_increment = speed_sp_b_x - groundspeed_x;
 
       // limit groundspeed setpoint to max_airspeed + (diff gs and airspeed)
@@ -689,9 +689,9 @@ static struct FloatVect3 compute_accel_from_speed_sp(struct FloatVect3 *speed_sp
     float speed_sp_x = cpsi * speed_sp_b_x - spsi * speed_sp_b_y;
     float speed_sp_y = spsi * speed_sp_b_x + cpsi * speed_sp_b_y;
 
-    accel_sp.x = (speed_sp_x - stateGetSpeedNed_f()->x) * gih_params.speed_gain;
-    accel_sp.y = (speed_sp_y - stateGetSpeedNed_f()->y) * gih_params.speed_gain;
-    accel_sp.z = (speed_sp->z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
+    accel_sp.x = (speed_sp_x - stateGetSpeedLtp_f()->x) * gih_params.speed_gain;
+    accel_sp.y = (speed_sp_y - stateGetSpeedLtp_f()->y) * gih_params.speed_gain;
+    accel_sp.z = (speed_sp->z - stateGetSpeedLtp_f()->z) * gih_params.speed_gainz;
   }
 
   // Bound the acceleration setpoint
@@ -735,29 +735,32 @@ struct FloatVect3 WEAK guidance_indi_controller(bool in_flight UNUSED, struct Ho
       pos_err.z = POS_FLOAT_OF_BFP(gv->z_ref) - stateGetPositionNed_f()->z;
       gi_speed_sp.z = bound_vz_sp(pos_err.z * gih_params.pos_gainz + SPEED_FLOAT_OF_BFP(gv->zd_ref));
     } else if (v_mode == GUIDANCE_INDI_HYBRID_V_SPEED) {
-      gi_speed_sp.z = SPEED_FLOAT_OF_BFP(gv->zd_ref);
+      gi_speed_sp.z = -SPEED_FLOAT_OF_BFP(gv->zd_ref);
     } else {
       gi_speed_sp.z = 0.f;
     }
     accel_sp = compute_accel_from_speed_sp(&gi_speed_sp); // compute accel sp
     if (v_mode == GUIDANCE_INDI_HYBRID_V_ACCEL) {
-      accel_sp.z = (gi_speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz + ACCEL_FLOAT_OF_BFP(gv->zdd_ref); // overwrite accel
+      accel_sp.z = (gi_speed_sp.z - stateGetSpeedLtp_f()->z) * gih_params.speed_gainz + ACCEL_FLOAT_OF_BFP(gv->zdd_ref); // overwrite accel
     }
   }
   else if (h_mode == GUIDANCE_INDI_HYBRID_H_SPEED) {
     gi_speed_sp.x = SPEED_FLOAT_OF_BFP(gh->ref.speed.x);
     gi_speed_sp.y = SPEED_FLOAT_OF_BFP(gh->ref.speed.y);
     if (v_mode == GUIDANCE_INDI_HYBRID_V_POS) {
-      pos_err.z = POS_FLOAT_OF_BFP(gv->z_ref) - stateGetPositionNed_f()->z;
+      // pos_err.z = POS_FLOAT_OF_BFP(gv->z_ref) - stateGetPositionNed_f()->z;
+      float hmsl_alt = state.ned_origin_f.hmsl - state.ned_origin_f.lla.alt;
+      pos_err.z = POS_FLOAT_OF_BFP(gv->z_ref) - stateGetPositionLla_f()->alt;
+      pos_err.z = -pos_err.z;
       gi_speed_sp.z = bound_vz_sp(pos_err.z * gih_params.pos_gainz + SPEED_FLOAT_OF_BFP(gv->zd_ref));
     } else if (v_mode == GUIDANCE_INDI_HYBRID_V_SPEED) {
-      gi_speed_sp.z = SPEED_FLOAT_OF_BFP(gv->zd_ref);
+      gi_speed_sp.z = -SPEED_FLOAT_OF_BFP(gv->zd_ref);
     } else {
       gi_speed_sp.z = 0.f;
     }
     accel_sp = compute_accel_from_speed_sp(&gi_speed_sp); // compute accel sp
     if (v_mode == GUIDANCE_INDI_HYBRID_V_ACCEL) {
-      accel_sp.z = (gi_speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz + ACCEL_FLOAT_OF_BFP(gv->zdd_ref); // overwrite accel
+      accel_sp.z = (gi_speed_sp.z - stateGetSpeedLtp_f()->z) * gih_params.speed_gainz + ACCEL_FLOAT_OF_BFP(gv->zdd_ref); // overwrite accel
     }
   }
   else { // H_ACCEL
@@ -773,10 +776,10 @@ struct FloatVect3 WEAK guidance_indi_controller(bool in_flight UNUSED, struct Ho
     }
     accel_sp = compute_accel_from_speed_sp(&gi_speed_sp); // compute accel sp in case z control is required
     // overwrite accel X and Y
-    accel_sp.x = (gi_speed_sp.x - stateGetSpeedNed_f()->x) * gih_params.speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.x);
-    accel_sp.y = (gi_speed_sp.y - stateGetSpeedNed_f()->y) * gih_params.speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.y);
+    accel_sp.x = (gi_speed_sp.x - stateGetSpeedLtp_f()->x) * gih_params.speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.x);
+    accel_sp.y = (gi_speed_sp.y - stateGetSpeedLtp_f()->y) * gih_params.speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.y);
     if (v_mode == GUIDANCE_INDI_HYBRID_V_ACCEL) {
-      accel_sp.z = (gi_speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz + ACCEL_FLOAT_OF_BFP(gv->zdd_ref); // overwrite accel
+      accel_sp.z = (gi_speed_sp.z - stateGetSpeedLtp_f()->z) * gih_params.speed_gainz + ACCEL_FLOAT_OF_BFP(gv->zdd_ref); // overwrite accel
     }
   }
   return accel_sp;
