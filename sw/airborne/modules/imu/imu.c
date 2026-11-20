@@ -463,10 +463,11 @@ static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
 #endif
 
 struct Imu imu = {0};
-static abi_event imu_gyro_raw_ev, imu_accel_raw_ev, imu_mag_raw_ev;
+static abi_event imu_gyro_raw_ev, imu_accel_raw_ev, imu_mag_raw_ev, act_feedback_ev;
 static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *data, uint8_t samples, float rate, float temp);
 static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data, uint8_t samples, float rate, float temp);
 static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data);
+static void act_feedback_cb(uint8_t sender_id, struct act_feedback_t* feedback, uint8_t num_act);
 static void imu_set_body_to_imu_eulers(struct FloatEulers *body_to_imu_eulers);
 
 /**
@@ -802,6 +803,7 @@ void imu_init(void)
   AbiBindMsgIMU_GYRO_RAW(ABI_BROADCAST, &imu_gyro_raw_ev, imu_gyro_raw_cb);
   AbiBindMsgIMU_ACCEL_RAW(ABI_BROADCAST, &imu_accel_raw_ev, imu_accel_raw_cb);
   AbiBindMsgIMU_MAG_RAW(ABI_BROADCAST, &imu_mag_raw_ev, imu_mag_raw_cb);
+  AbiBindMsgACT_FEEDBACK(ABI_BROADCAST, &act_feedback_ev, act_feedback_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_ACCEL_RAW, send_accel_raw);
@@ -1158,6 +1160,10 @@ static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 
   // Rotate the sensor
   int32_rmat_transp_vmult(&mag->scaled, &mag->body_to_sensor, &scaled);
   AbiSendMsgIMU_MAG(sender_id, stamp, &mag->scaled);
+}
+
+static void act_feedback_cb(uint8_t sender_id, struct act_feedback_t* feedback, uint8_t num_act) {
+
 }
 
 /**
