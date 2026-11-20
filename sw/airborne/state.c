@@ -1137,7 +1137,7 @@ void stateCalcSpeedEcef_f(void)
   }
 
   if (bit_is_set(state.speed_status, SPEED_ECEF_I)) {
-    SPEEDS_FLOAT_OF_BFP(state.ecef_speed_f, state.ned_speed_i);
+    SPEEDS_FLOAT_OF_BFP(state.ecef_speed_f, state.ecef_speed_i);
   } else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
     ecef_of_ned_vect_f(&state.ecef_speed_f, &state.ned_origin_f, &state.ned_speed_f);
   } else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
