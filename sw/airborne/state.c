@@ -1326,7 +1326,7 @@ void stateCalcAccelEcef_f(void)
 
   int errno = 0;
   if (bit_is_set(state.accel_status, ACCEL_ECEF_I)) {
-    ACCELS_FLOAT_OF_BFP(state.ecef_accel_f, state.ned_accel_i);
+    ACCELS_FLOAT_OF_BFP(state.ecef_accel_f, state.ecef_accel_i);
   }
   else if (state.ned_initialized_f) {
     if (bit_is_set(state.accel_status, ACCEL_NED_F)) {
