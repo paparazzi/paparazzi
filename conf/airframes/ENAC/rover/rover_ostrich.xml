@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
 <airframe name="Ostrich">
 
@@ -23,7 +23,7 @@
       <configure name="ACTUATORS_OSTRICH_PORT" value="uart1"/>
     </module>
 
-    <module name="telemetry"     type="transparent">
+    <module name="telemetry"     type="xbee_api">
       <configure name="MODEM_BAUD" value="B57600"/>
       <!--configure name="MODEM_BAUD" value="UART3"/-->
     </module>

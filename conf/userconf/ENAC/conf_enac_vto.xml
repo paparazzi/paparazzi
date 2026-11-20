@@ -1,0 +1,134 @@
+<conf>
+  <aircraft
+   name="Ostrich_51"
+   ac_id="51"
+   airframe="airframes/ENAC/rover/rover_ostrich.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rover.xml"
+   flight_plan="flight_plans/ENAC/rover_optitrack.xml"
+   settings=""
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml modules/gps.xml modules/guidance_rover_holonomic.xml modules/imu_common.xml modules/light_scheduler.xml modules/nav_rover_base.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Hoops_110"
+   ac_id="110"
+   airframe="airframes/ENAC/quadrotor/hoops_110_indoor.xml"
+   radio="radios/FrSky_X-Lite.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_survey_vto.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/guidance_indi_base.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ext_pose.xml modules/nav_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Hoops_111"
+   ac_id="111"
+   airframe="airframes/ENAC/quadrotor/hoops_111_indoor.xml"
+   radio="radios/FrSky_X-Lite.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_survey_vto.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/guidance_indi_base.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ext_pose.xml modules/nav_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Hoops_112"
+   ac_id="112"
+   airframe="airframes/ENAC/quadrotor/hoops_112_indoor.xml"
+   radio="radios/T10CG_SBUS.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_survey_vto.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/guidance_indi_base.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ext_pose.xml modules/logger_sd_chibios.xml modules/nav_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml modules/sys_id_auto_doublets.xml modules/sys_id_doublet.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Octave_101"
+   ac_id="101"
+   airframe="airframes/ENAC/quadrotor/octave_101_indoor.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/ENAC/vto_wfb.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_survey_vto.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/guidance_indi_base.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ext_pose.xml modules/logger_sd_chibios.xml modules/nav_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Octave_102"
+   ac_id="102"
+   airframe="airframes/ENAC/quadrotor/octave_102_indoor.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/ENAC/vto_wfb.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_survey_vto.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/guidance_indi_base.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ext_pose.xml modules/logger_sd_chibios.xml modules/nav_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Octave_103"
+   ac_id="103"
+   airframe="airframes/ENAC/quadrotor/octave_103_indoor.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/ENAC/vto_wfb.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_survey_vto.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/guidance_indi_base.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ext_pose.xml modules/logger_sd_chibios.xml modules/nav_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Octave_104"
+   ac_id="104"
+   airframe="airframes/ENAC/quadrotor/octave_104_indoor.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/ENAC/vto_wfb.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_survey_vto.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/guidance_indi_base.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ext_pose.xml modules/logger_sd_chibios.xml modules/nav_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Octave_109"
+   ac_id="109"
+   airframe="airframes/ENAC/quadrotor/octave_109_indoor.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/ENAC/vto_wfb.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_survey_vto.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/guidance_indi_base.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ext_pose.xml modules/logger_sd_chibios.xml modules/nav_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Hoops_113"
+   ac_id="113"
+   airframe="airframes/ENAC/quadrotor/hoops_113_indoor.xml"
+   radio="radios/FrSky_X-Lite.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_survey_vto.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/buzzer_tunes.xml modules/electrical.xml modules/gps.xml modules/guidance_indi_base.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/logger_sd_chibios.xml modules/nav_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="Bebop_215"
+   ac_id="215"
+   airframe="airframes/ENAC/quadrotor/bebop2_indoor.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_survey_vto.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/bebop_ae_awb.xml modules/bebop_cam.xml modules/electrical.xml modules/gps.xml modules/guidance_indi_base.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ext_pose.xml modules/nav_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml modules/video_rtp_stream.xml"
+   gui_color="#b000df000500"
+  />
+  <aircraft
+   name="Hexaris"
+   ac_id="4"
+   airframe="airframes/ENAC/quadrotor/hexaris.xml"
+   radio="radios/FrSky_X-Lite.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_survey_vto.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/guidance_indi_base.xml modules/guidance_pid_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ext_pose.xml modules/logger_sd_chibios.xml modules/nav_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/sonar_vl53l1x.xml modules/stabilization_indi.xml modules/sys_id_auto_doublets.xml modules/sys_id_doublet.xml"
+   gui_color="red"
+  />
+</conf>

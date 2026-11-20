@@ -1,0 +1,235 @@
+<control_panel name="paparazzi control panel">
+  <section name="programs">
+    <program name="Gstreamer" command="/usr/bin/gst-launch-1.0"/>
+  </section>
+  <section name="sessions">
+    <session name="Flight Bebop2_215">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server"/>
+      <program name="PprzGCS"/>
+      <program name="NatNet3">
+        <arg flag="--up_axis" constant="z_up"/>
+        <arg flag="--long_edge" constant="near"/>
+        <arg flag="--x_side" constant="right"/>
+        <arg flag="--ac_nose" constant="far"/>
+        <arg flag="-ac" constant="215"/>
+        <arg flag="215"/>
+        <arg flag="-s" constant="192.168.1.240"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-ac" constant="Bebop_215"/>
+        <arg flag="T1600M.xml"/>
+      </program>
+      <program name="Messages (Legacy)"/>
+      <program name="Command line (CMD)">
+        <arg flag="udpsrc"/>
+        <arg flag="port=5000"/>
+        <arg flag="caps=application/x-rtp,payload=26"/>
+        <arg flag="!"/>
+        <arg flag="rtpjpegdepay"/>
+        <arg flag="!"/>
+        <arg flag="jpegdec"/>
+        <arg flag="!"/>
+        <arg flag="videoflip"/>
+        <arg flag="method=counterclockwise"/>
+        <arg flag="!"/>
+        <arg flag="jpegenc"/>
+        <arg flag="!"/>
+        <arg flag="udpsink"/>
+        <arg flag="host=127.0.0.1"/>
+        <arg flag="port=5600"/>
+      </program>
+    </session>
+    <session name="Flight Demo OSTRICH ANTON">
+      <program name="Server"/>
+      <program name="PprzGCS"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="NatNet3">
+        <arg flag="--up_axis" constant="z_up"/>
+        <arg flag="--long_edge" constant="near"/>
+        <arg flag="--x_side" constant="right"/>
+        <arg flag="--ac_nose" constant="far"/>
+        <arg flag="-ac" constant="217"/>
+        <arg flag="217"/>
+        <arg flag="-ac" constant="51"/>
+        <arg flag="51"/>
+        <arg flag="-s" constant="192.168.1.240"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-ac" constant="Ostrich_51"/>
+        <arg flag="T1600M.xml"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+    </session>
+    <session name="Flight Hexaris">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="PprzGCS"/>
+      <program name="NatNet3">
+        <arg flag="--up_axis" constant="z_up"/>
+        <arg flag="--long_edge" constant="near"/>
+        <arg flag="--x_side" constant="right"/>
+        <arg flag="--ac_nose" constant="far"/>
+        <arg flag="-ac" constant="4"/>
+        <arg flag="4"/>
+        <arg flag="-s" constant="192.168.1.240"/>
+      </program>
+    </session>
+    <session name="Flight Hoops_110 ">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="PprzGCS"/>
+      <program name="NatNet3">
+        <arg flag="--up_axis" constant="z_up"/>
+        <arg flag="--long_edge" constant="near"/>
+        <arg flag="--x_side" constant="right"/>
+        <arg flag="--ac_nose" constant="far"/>
+        <arg flag="-ac" constant="110"/>
+        <arg flag="110"/>
+        <arg flag="-s" constant="192.168.1.240"/>
+      </program>
+    </session>
+    <session name="Flight Hoops_110_111_112">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+        <arg flag="-ch" constant="0x0D"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB1"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+        <arg flag="-ch" constant="0x0E"/>
+      </program>
+      <program name="NatNet3">
+        <arg flag="--up_axis" constant="z_up"/>
+        <arg flag="--long_edge" constant="near"/>
+        <arg flag="--x_side" constant="right"/>
+        <arg flag="--ac_nose" constant="far"/>
+        <arg flag="-ac" constant="110"/>
+        <arg flag="110"/>
+        <arg flag="-ac" constant="111"/>
+        <arg flag="111"/>
+        <arg flag="-ac" constant="112"/>
+        <arg flag="112"/>
+        <arg flag="-f" constant="10"/>
+        <arg flag="-s" constant="192.168.1.240"/>
+      </program>
+      <program name="Server"/>
+      <program name="PprzGCS"/>
+    </session>
+    <session name="Flight Hoops_111">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="PprzGCS"/>
+      <program name="NatNet3">
+        <arg flag="--up_axis" constant="z_up"/>
+        <arg flag="--long_edge" constant="near"/>
+        <arg flag="--x_side" constant="right"/>
+        <arg flag="--ac_nose" constant="far"/>
+        <arg flag="-ac" constant="111"/>
+        <arg flag="111"/>
+        <arg flag="-s" constant="192.168.1.240"/>
+      </program>
+    </session>
+    <session name="Flight Hoops_111_112">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="PprzGCS"/>
+      <program name="NatNet3">
+        <arg flag="--up_axis" constant="z_up"/>
+        <arg flag="--long_edge" constant="near"/>
+        <arg flag="--x_side" constant="right"/>
+        <arg flag="--ac_nose" constant="far"/>
+        <arg flag="-ac" constant="110"/>
+        <arg flag="110"/>
+        <arg flag="-ac" constant="111"/>
+        <arg flag="111"/>
+        <arg flag="-s" constant="192.168.1.240"/>
+      </program>
+    </session>
+    <session name="Flight Hoops_112">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="PprzGCS"/>
+      <program name="NatNet3">
+        <arg flag="--up_axis" constant="z_up"/>
+        <arg flag="--long_edge" constant="near"/>
+        <arg flag="--x_side" constant="right"/>
+        <arg flag="--ac_nose" constant="far"/>
+        <arg flag="-ac" constant="112"/>
+        <arg flag="112"/>
+        <arg flag="-s" constant="192.168.1.240"/>
+      </program>
+    </session>
+    <session name="Flight Hoops_113">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="PprzGCS"/>
+      <program name="NatNet3">
+        <arg flag="--up_axis" constant="z_up"/>
+        <arg flag="--long_edge" constant="near"/>
+        <arg flag="--x_side" constant="right"/>
+        <arg flag="--ac_nose" constant="far"/>
+        <arg flag="-ac" constant="113"/>
+        <arg flag="113"/>
+        <arg flag="-s" constant="192.168.1.240"/>
+      </program>
+    </session>
+    <session name="Flight Octave_102 indoor">
+      <program name="Server"/>
+      <program name="PprzGCS"/>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="NatNet3">
+        <arg flag="--up_axis" constant="z_up"/>
+        <arg flag="--long_edge" constant="near"/>
+        <arg flag="--x_side" constant="right"/>
+        <arg flag="--ac_nose" constant="far"/>
+        <arg flag="-ac" constant="102"/>
+        <arg flag="102"/>
+        <arg flag="-s" constant="192.168.1.240"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-ac" constant="Octave_102"/>
+        <arg flag="xbox_gamepad.xml"/>
+      </program>
+    </session>
+  </section>
+</control_panel>
