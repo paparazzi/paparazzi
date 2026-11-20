@@ -238,12 +238,12 @@ struct ThrustSetpoint guidance_v_run(bool in_flight)
 
     case GUIDANCE_V_MODE_RC_CLIMB:
       guidance_v.zd_sp = guidance_v.rc_zd_sp;
-      gv_update_ref_from_zd_sp(guidance_v.zd_sp, stateGetPositionNed_i()->z);
+      gv_update_ref_from_zd_sp(guidance_v.zd_sp, POS_BFP_OF_REAL(stateGetPositionLla_f()->alt));
       guidance_v.thrust = guidance_v_run_speed(in_flight, &guidance_v);
       break;
 
     case GUIDANCE_V_MODE_CLIMB:
-      gv_update_ref_from_zd_sp(guidance_v.zd_sp, stateGetPositionNed_i()->z);
+      gv_update_ref_from_zd_sp(guidance_v.zd_sp, POS_BFP_OF_REAL(stateGetPositionLla_f()->alt));
       guidance_v.thrust = guidance_v_run_speed(in_flight, &guidance_v);
       break;
 
@@ -305,22 +305,23 @@ struct ThrustSetpoint guidance_v_from_nav(bool in_flight)
   struct ThrustSetpoint sp;
   THRUST_SP_SET_ZERO(sp);
   if (nav.vertical_mode == NAV_VERTICAL_MODE_ALT) {
-    guidance_v.z_sp = -POS_BFP_OF_REAL(nav.nav_altitude);
+    RunOnceEvery(30, printf("nav alt: %f\n", POS_BFP_OF_REAL(nav.nav_altitude)));
+    guidance_v.z_sp = POS_BFP_OF_REAL(nav.nav_altitude);
     guidance_v.zd_sp = 0;
     guidance_v.zdd_sp = 0;
     gv_update_ref_from_z_sp(guidance_v.z_sp);
     guidance_v_update_ref();
     sp = guidance_v_run_pos(in_flight, &guidance_v);
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB) {
-    guidance_v.z_sp = stateGetPositionNed_i()->z;
-    guidance_v.zd_sp = -SPEED_BFP_OF_REAL(nav.climb);
+    guidance_v.z_sp = POS_BFP_OF_REAL(stateGetPositionLla_f()->alt);
+    guidance_v.zd_sp = SPEED_BFP_OF_REAL(nav.climb);
     guidance_v.zdd_sp = 0;
-    gv_update_ref_from_zd_sp(guidance_v.zd_sp, stateGetPositionNed_i()->z);
+    gv_update_ref_from_zd_sp(guidance_v.zd_sp, POS_BFP_OF_REAL(stateGetPositionLla_f()->alt));
     guidance_v_update_ref();
     sp = guidance_v_run_speed(in_flight, &guidance_v);
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_MANUAL) {
-    guidance_v.z_sp = stateGetPositionNed_i()->z;
-    guidance_v.zd_sp = stateGetSpeedNed_i()->z;
+    guidance_v.z_sp = POS_BFP_OF_REAL(stateGetPositionLla_f()->alt);
+    guidance_v.zd_sp = SPEED_BFP_OF_REAL(stateGetSpeedLtp_f()->z);
     guidance_v.zdd_sp = 0;
     GuidanceVSetRef(guidance_v.z_sp, guidance_v.zd_sp, 0);
     guidance_v_run_enter();
@@ -356,7 +357,7 @@ struct ThrustSetpoint guidance_v_guided_run(bool in_flight)
       break;
     case GUIDANCE_V_GUIDED_MODE_CLIMB:
       // Climb
-      gv_update_ref_from_zd_sp(guidance_v.zd_sp, stateGetPositionNed_i()->z);
+      gv_update_ref_from_zd_sp(guidance_v.zd_sp, POS_BFP_OF_REAL(stateGetPositionLla_f()->alt));
       guidance_v_update_ref();
       sp = guidance_v_run_speed(in_flight, &guidance_v);
       break;
