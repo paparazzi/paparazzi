@@ -18,7 +18,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <provides>navigation</provides>
+    <provides>navigation_base</provides>
   </dep>
   <header>
     <file name="navigation.h" dir="firmwares/rotorcraft"/>
