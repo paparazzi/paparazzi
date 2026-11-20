@@ -114,6 +114,13 @@ struct imu_mag_t {
   float strength;                     ///< Earth field strength where it was calibrated (gauss), the scaled values are 1 there; 0 if unknown
 };
 
+/** RPM estimate indexed by the global actuator index in ACT_FEEDBACK. */
+struct imu_rpm_t {
+  float rpm;                         ///< Low-pass filtered mechanical speed (RPM magnitude)
+  uint32_t last_stamp;                ///< Last accepted feedback time (us), also used to detect stale estimates
+  bool initialized;                  ///< At least one valid RPM measurement received
+};
+
 
 /** abstract IMU interface providing fixed point interface  */
 struct Imu {
@@ -121,6 +128,9 @@ struct Imu {
   struct imu_gyro_t gyros[IMU_MAX_SENSORS];   ///< The gyro sensors
   struct imu_accel_t accels[IMU_MAX_SENSORS]; ///< The accelerometer sensors
   struct imu_mag_t mags[IMU_MAX_SENSORS];     ///< The magnetometer sensors
+#if ACTUATORS_NB > 0
+  struct imu_rpm_t motor_rpm[ACTUATORS_NB];  ///< Independent PT1 estimates, including timestamps for freshness checks
+#endif
   struct OrientationReps body_to_imu;         ///< Rotation from body to imu (all sensors) frame
   uint8_t gyro_abi_send_id;                   ///< Filter out and send only a specific ABI id in telemetry for the gyro
   uint8_t accel_abi_send_id;                  ///< Filter out and send only a specific ABI id in telemetry for the accelerometer

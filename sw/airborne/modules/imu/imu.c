@@ -33,6 +33,22 @@
 #include "state.h"
 #include "modules/core/abi.h"
 #include "modules/energy/electrical.h"
+#include "mcu_periph/sys_time.h"
+
+/** Cutoff of each motor's RPM estimate (Hz). Zero disables smoothing. */
+#ifndef IMU_RPM_LPF_HZ
+#define IMU_RPM_LPF_HZ 150.0f
+#endif
+
+/** Reinitialize the estimate after this gap in valid feedback (us). */
+#ifndef IMU_RPM_TIMEOUT_US
+#define IMU_RPM_TIMEOUT_US 100000U
+#endif
+
+/** Select one RPM feedback source, or accept all global actuator indices. */
+#ifndef IMU_RPM_FEEDBACK_ID
+#define IMU_RPM_FEEDBACK_ID ABI_BROADCAST
+#endif
 
 /** By default disable IMU integration calculations */
 #ifndef IMU_INTEGRATION
@@ -467,7 +483,7 @@ static abi_event imu_gyro_raw_ev, imu_accel_raw_ev, imu_mag_raw_ev, act_feedback
 static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *data, uint8_t samples, float rate, float temp);
 static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data, uint8_t samples, float rate, float temp);
 static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data);
-static void act_feedback_cb(uint8_t sender_id, struct act_feedback_t* feedback, uint8_t num_act);
+static void act_feedback_cb(uint8_t sender_id, struct act_feedback_t *feedback, uint8_t num_act);
 static void imu_set_body_to_imu_eulers(struct FloatEulers *body_to_imu_eulers);
 
 /**
@@ -645,6 +661,11 @@ static void imu_preflight(struct preflight_result_t *result)
 
 void imu_init(void)
 {
+#if ACTUATORS_NB > 0
+  for (unsigned i = 0; i < ACTUATORS_NB; i++) {
+    imu.motor_rpm[i] = (struct imu_rpm_t) {0};
+  }
+#endif
   // Set the Body to IMU rotation
   struct FloatEulers body_to_imu_eulers = {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
@@ -803,7 +824,7 @@ void imu_init(void)
   AbiBindMsgIMU_GYRO_RAW(ABI_BROADCAST, &imu_gyro_raw_ev, imu_gyro_raw_cb);
   AbiBindMsgIMU_ACCEL_RAW(ABI_BROADCAST, &imu_accel_raw_ev, imu_accel_raw_cb);
   AbiBindMsgIMU_MAG_RAW(ABI_BROADCAST, &imu_mag_raw_ev, imu_mag_raw_cb);
-  AbiBindMsgACT_FEEDBACK(ABI_BROADCAST, &act_feedback_ev, act_feedback_cb);
+  AbiBindMsgACT_FEEDBACK(IMU_RPM_FEEDBACK_ID, &act_feedback_ev, act_feedback_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_ACCEL_RAW, send_accel_raw);
@@ -1162,8 +1183,33 @@ static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 
   AbiSendMsgIMU_MAG(sender_id, stamp, &mag->scaled);
 }
 
-static void act_feedback_cb(uint8_t sender_id, struct act_feedback_t* feedback, uint8_t num_act) {
-
+static void act_feedback_cb(uint8_t sender_id UNUSED, struct act_feedback_t *feedback, uint8_t num_act)
+{
+#if ACTUATORS_NB > 0
+  const uint32_t now = get_sys_time_usec();
+  for (uint8_t i = 0; i < num_act; i++) {
+    if (!feedback[i].set.rpm || feedback[i].idx >= ACTUATORS_NB) {
+      continue;
+    }
+    struct imu_rpm_t *motor = &imu.motor_rpm[feedback[i].idx];
+    // Vibration frequency depends on speed magnitude, including reverse rotation.
+    const float rpm = fabsf((float)feedback[i].rpm);
+    const uint32_t elapsed = now - motor->last_stamp;
+    if (!motor->initialized || elapsed > IMU_RPM_TIMEOUT_US || IMU_RPM_LPF_HZ <= 0.0f) {
+      motor->rpm = rpm;
+      motor->initialized = true;
+    } else if (elapsed > 0) {
+      // Backward-Euler PT1, using this motor's actual feedback interval.
+      const float dt = elapsed * 1e-6f;
+      const float tau = 1.0f / (2.0f * M_PI * IMU_RPM_LPF_HZ);
+      motor->rpm += dt / (tau + dt) * (rpm - motor->rpm);
+    }
+    motor->last_stamp = now;
+  }
+#else
+  (void)feedback;
+  (void)num_act;
+#endif
 }
 
 /**

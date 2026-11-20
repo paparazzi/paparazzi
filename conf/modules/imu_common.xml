@@ -17,6 +17,9 @@
       <define name="MAG_ABI_SEND_ID" value="ABI_BROADCAST" description="The mag ABI ID which is send over telemetry/logging"/>
       <define name="LOG_HIGHSPEED" value="FALSE" description="Log all the accel/gyro measurements at the IMU sampling rates in floats"/>
       <define name="LOG_HIGHSPEED_DEVICE" value="flightrecorder_sdlog" description="The device to log all the highspeeds measurements"/>
+      <define name="RPM_LPF_HZ" value="150.0" description="Per-motor RPM PT1 cutoff (Hz); zero disables smoothing. Updates use actual feedback intervals."/>
+      <define name="RPM_TIMEOUT_US" value="100000" description="Reinitialize a motor RPM estimate after this gap in valid feedback (us). Consumers must check last_stamp for freshness."/>
+      <define name="RPM_FEEDBACK_ID" value="ABI_BROADCAST" description="ACT_FEEDBACK sender used for RPM estimates; estimates are indexed by the global actuator index."/>
     </section>
   </doc>
   <settings>
