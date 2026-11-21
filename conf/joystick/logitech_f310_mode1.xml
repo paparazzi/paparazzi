@@ -79,13 +79,13 @@ The "mode" button swaps the axes on the left stick and the d pad.
 
     <!-- Button "6" / "BACK" for kill -->
     <message class="ground" name="DL_SETTING" on_event="b6">
-      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
       <field name="value" value="1"/>
     </message>
 
     <!-- Button "7" / "START" for resurrect -->
     <message class="ground" name="DL_SETTING" on_event="b7">
-      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
       <field name="value" value="0"/>
     </message>
 

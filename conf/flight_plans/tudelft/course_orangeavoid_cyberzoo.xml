@@ -56,35 +56,40 @@
       !(IndexOfBlock('Holding point') @GT nav_block) @AND
       !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="Standby"/-->
-    <!-- Datalink lost (constant RPM descent) -->
+    <!-- GPS (OptiTrack) lost: descend level without position control -->
+    <exception cond="((GpsIsLost() == true) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('Emergency Landing no GPS')) @AND
+      (autopilot_in_flight() == true) )" deroute="Emergency Landing no GPS"/>
+    <!-- Datalink lost for more than 5 s: emergency landing -->
     <exception cond="((datalink_time @GT 5) @AND
       !(IndexOfBlock('Holding point') @GT nav_block) @AND
-      !(nav_block >= IndexOfBlock('land here')) @AND
-      (autopilot_in_flight() == true) )" deroute="land here"/>
+      !(nav_block >= IndexOfBlock('Emergency Landing')) @AND
+      (autopilot_in_flight() == true) )" deroute="Emergency Landing"/>
     <!-- Geofencing XY -->
     <exception cond="(!InsideCyberZoo(GetPosX(), GetPosY()) @AND
       !(IndexOfBlock('Holding point') @GT nav_block) @AND
-      !(nav_block >= IndexOfBlock('land here')) @AND
-      (autopilot_in_flight() == true) )" deroute="land here"/>
+      !(nav_block >= IndexOfBlock('Emergency Landing')) @AND
+      (autopilot_in_flight() == true) )" deroute="Emergency Landing"/>
     <!-- Geofencing Z 3.5 -->
     <exception cond="((GetPosAlt() @GT 3.5) @AND
       !(IndexOfBlock('Holding point') @GT nav_block) @AND
-      !(nav_block >= IndexOfBlock('land here')) @AND
-      (autopilot_in_flight() == true) )" deroute="land here"/>
-    <!-- Geofencing Z 4.5 (constant RPM descent)-->
+      !(nav_block >= IndexOfBlock('Emergency Landing')) @AND
+      (autopilot_in_flight() == true) )" deroute="Emergency Landing"/>
+    <!-- Geofencing Z 4.5 (hard limit): emergency landing -->
     <exception cond="((GetPosAlt() @GT 4.5) @AND
       !(IndexOfBlock('Holding point') @GT nav_block) @AND
-      (autopilot_in_flight() == true) )" deroute="Landed"/>
+      (autopilot_in_flight() == true) )" deroute="Emergency Landing"/>
     <!-- Bat low -->
     <exception cond="(electrical.bat_low @AND
       !(IndexOfBlock('Holding point') @GT nav_block) @AND
-      !(nav_block >= IndexOfBlock('land here')) @AND
-      (autopilot_in_flight() == true) )" deroute="land here"/>
-    <!-- Bat critical (constant RPM no stabilization)-->
+      !(nav_block >= IndexOfBlock('Emergency Landing')) @AND
+      (autopilot_in_flight() == true) )" deroute="Emergency Landing"/>
+    <!-- Bat critical: emergency landing -->
     <exception cond="(electrical.bat_critical @AND
       !(IndexOfBlock('Holding point') @GT nav_block) @AND
-      !(nav_block >= IndexOfBlock('land here')) @AND
-      (autopilot_in_flight() == true) )" deroute="land here"/>
+      !(nav_block >= IndexOfBlock('Emergency Landing')) @AND
+      (autopilot_in_flight() == true) )" deroute="Emergency Landing"/>
   </exceptions>
 
   <!--=== Blocks: define mission workflow ===-->
@@ -144,6 +149,13 @@
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
       <call_once fun="NavStartDetectGround()"/>
       <stay climb="-1.25" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Emergency Landing no GPS">
+      <exception cond="!nav_is_in_flight()" deroute="KILL"/>
+      <exception cond="NavDetectGround()" deroute="KILL"/>
+      <exception cond="block_time @GT 8" deroute="KILL"/>
+      <call_once fun="NavStartDetectGround()"/>
+      <attitude pitch="0" roll="0" climb="-1.0" vmode="climb" until="FALSE"/>
     </block>
 
     <block key="l" name="land here" strip_button="land here" strip_icon="land-right.png">
