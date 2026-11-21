@@ -2,7 +2,7 @@
 
 <airframe name="bebop2_opticflow">
   <description>
-    BEBOP2 airframe:
+    Bebop 1 or Bebop 2 airframe (BEBOP_VERSION2 in the ap target):
      - requires fixed dampers
      - uses bottom camera for hovering (no GPS and no Optitrack)
      - uses the flow from the front camera to navigate
@@ -12,6 +12,9 @@
     <autopilot name="rotorcraft_control_loop"/>
 
     <target name="ap" board="bebop">
+      <!-- Bebop 1: 0. Bebop 2: 1.
+           1 is the same as board="bebop2" and also reverses the yaw mixing (MOTOR_MIXING_REVERSE). -->
+      <define name="BEBOP_VERSION2" value="0"/>
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/log"/>
       <define name="TEXTONS_DICTIONARY_PATH" value="/data/ftp/internal_000"/>
@@ -91,7 +94,7 @@
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
-    <define name="REVERSE" value="TRUE"/>
+    <define name="REVERSE" value="BEBOP_VERSION2"/>
     <define name="TYPE" value="QUAD_X"/>
   </section>
 
