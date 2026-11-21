@@ -22,6 +22,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     # Paparazzi PPA
     && add-apt-repository -y ppa:paparazzi-uav/ppa \
+    # For newer Intel GPUs (Intel Arc, Meteor Lake, xe driver) the Mesa of Ubuntu 22.04 is too old: use
+    #   && add-apt-repository -y ppa:kisak/turtle
+    # (Mesa 25.x backport) and remove --env="LIBGL_DRI3_DISABLE=1" in run_gazebo_sim.sh (tudelft/paparazzi#116)
     # OSRF: Gazebo Classic 11
     && curl -sSL https://packages.osrfoundation.org/gazebo.gpg \
          -o /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
