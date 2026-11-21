@@ -214,7 +214,7 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
               (stateGetPositionEnu_f()->x > nav_survey_west && SurveyGoingWest())) {
       */
       /* Continue ... */
-      if (!nav.nav_approaching(&survey_to, NULL, 0)) {
+      if (!nav.nav_approaching(&survey_to, &survey_from, 0)) {
         nav.nav_route(&survey_from, &survey_to);
 
       } else {
@@ -353,7 +353,7 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
                (stateGetPositionEnu_f()->x > waypoints[0].enu_f.x && ((survey_orientation == NS) && (turn_from.x < waypoints[0].enu_f.x)) ) ) {
       */
 
-      if (nav.nav_approaching(&waypoints[0].enu_f, NULL, 0)) {
+      if (nav.nav_approaching(&waypoints[0].enu_f, &turn_from, 0)) {
         survey_uturn = false;
         nav_in_circle = false;
         LINE_START_FUNCTION;
