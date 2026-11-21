@@ -132,19 +132,16 @@ inline void setGuided(void){
       <stay wp="STDBY"/>
     </block>
 
-    <block key="g" name="START" strip_button="Go" strip_icon="lookfore.png">
-      <call_once fun="setGuided()"/>
+    <block key="g" name="START" strip_button="Go" strip_icon="lookfore.png" on_enter="setGuided()" on_exit="setNav()">
       <stay wp="STDBY"/>
     </block>
 
     <block name="STOP">
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
-      <call_once fun="setNav()"/>
       <stay wp="STDBY"/>
     </block>
 
-    <block name="RETREAT">
-      <call_once fun="setGuided()"/>
+    <block name="RETREAT" on_enter="setGuided()" on_exit="setNav()">
       <call_once fun="orange_avoider_guided_retreat()"/>
       <exception cond="block_time @GT 2.0" deroute="STOP"/>
       <stay wp="STDBY"/>
@@ -153,7 +150,6 @@ inline void setGuided(void){
     <block key="e" name="Emergency Landing">
       <exception cond="!nav_is_in_flight()" deroute="KILL"/>
       <exception cond="0.10 @GT GetPosAlt()" deroute="KILL"/>
-      <call_once fun="setNav()"/>
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
       <call_once fun="NavStartDetectGround()"/>
       <stay climb="-1.25" vmode="climb" wp="TD"/>
@@ -162,13 +158,11 @@ inline void setGuided(void){
       <exception cond="!nav_is_in_flight()" deroute="KILL"/>
       <exception cond="NavDetectGround()" deroute="KILL"/>
       <exception cond="block_time @GT 8" deroute="KILL"/>
-      <call_once fun="setNav()"/>
       <call_once fun="NavStartDetectGround()"/>
       <attitude pitch="0" roll="0" climb="-1.0" vmode="climb" until="FALSE"/>
     </block>
 
     <block key="l" name="land here" strip_button="Land Here" strip_icon="land-right.png">
-      <call_once fun="setNav()"/>
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
       <go wp="TD"/>
       <deroute block="Flare"/>
@@ -176,7 +170,6 @@ inline void setGuided(void){
     <block name="Land">
       <exception cond="0.55 @GEQ GetPosAlt()" deroute="Flare"/>
       <exception cond="block_time @GT 5" deroute="Flare"/>
-      <call_once fun="setNav()"/>
       <go wp="TD"/>
       <deroute block="Flare"/>
     </block>
