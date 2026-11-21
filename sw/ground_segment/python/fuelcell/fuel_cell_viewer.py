@@ -387,7 +387,7 @@ class FuelCellWidget(QtWidgets.QWidget):
     def __init__(self, ivy_bus=None):
         super().__init__()
         self.setWindowTitle('Fuel Cell Monitoring')
-        self.setWindowIcon(QtGui.QIcon(PPRZ_SRC + "/sw/ground_segment/python/energy_mon/energy_mon.ico"))
+        self.setWindowIcon(QtGui.QIcon(PPRZ_SRC + "/sw/ground_segment/python/fuelcell/fuel_cell.ico"))
 
         # restore the last window size and position
         self.settings = QtCore.QSettings('paparazzi', 'fuel_cell')
