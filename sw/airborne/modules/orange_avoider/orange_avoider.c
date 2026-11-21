@@ -13,8 +13,16 @@
  * The avoidance strategy is to simply count the total number of orange pixels. When above a certain percentage threshold,
  * (given by color_count_frac) we assume that there is an obstacle and we turn.
  *
+ * To reduce the effect of noise, obstacle_free_confidence counts how sure we are that the way ahead is clear.
+ * A small state machine (SAFE, OBSTACLE_FOUND, SEARCH_FOR_SAFE_HEADING, OUT_OF_BOUNDS) moves the GOAL, TRAJECTORY
+ * and RETREAT waypoints of the flight plan or changes the heading, depending on this confidence.
+ *
  * The color filter settings are set using the cv_detect_color_object. This module can run multiple filters simultaneously
  * so you have to define which filter to use with the ORANGE_AVOIDER_VISUAL_DETECTION_ID setting.
+ * Both are set in the airframe file, for example:
+ *
+ *    <define name="COLOR_OBJECT_DETECTOR_LUM_MIN1" value="30"/>
+ *    <define name="ORANGE_AVOIDER_VISUAL_DETECTION_ID" value="COLOR_OBJECT_DETECTION1_ID"/>
  */
 
 #include "modules/orange_avoider/orange_avoider.h"
@@ -112,7 +120,7 @@ void orange_avoider_periodic(void)
   if(color_count < color_count_threshold){
     obstacle_free_confidence++;
   } else {
-    obstacle_free_confidence -= 2;  // be more cautious with positive obstacle detections
+    obstacle_free_confidence -= 2;  // be more cautious with positive obstacle detections (a larger step makes it more sensitive)
   }
 
   // bound obstacle_free_confidence
@@ -122,26 +130,31 @@ void orange_avoider_periodic(void)
 
   switch (navigation_state){
     case SAFE:
-      // Move waypoint forward
+      // Move the trajectory waypoint forward, further when more confident
       moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
       if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
+        // the trajectory would leave the obstacle zone: turn back
         navigation_state = OUT_OF_BOUNDS;
       } else if (obstacle_free_confidence == 0){
+        // obstacle ahead: stop and avoid
         navigation_state = OBSTACLE_FOUND;
       } else {
+        // way ahead is clear: move the goal forward (and the retreat point backward)
         moveWaypointForward(WP_GOAL, moveDistance);
         moveWaypointForward(WP_RETREAT, -1.0f * moveDistance);
       }
 
       break;
     case OBSTACLE_FOUND:
-      // stop
+      // stop: put all navigation waypoints at the current position
       waypoint_move_here_2d(WP_GOAL);
       waypoint_move_here_2d(WP_RETREAT);
       waypoint_move_here_2d(WP_TRAJECTORY);
 
-      // randomly select new search direction
+      // randomly select new search direction (clockwise or counter-clockwise)
       chooseRandomIncrementAvoidance();
+
+      // turn on the spot until a safe heading is found
 
       navigation_state = SEARCH_FOR_SAFE_HEADING;
 
@@ -155,6 +168,7 @@ void orange_avoider_periodic(void)
       }
       break;
     case OUT_OF_BOUNDS:
+      // keep turning and moving the waypoints until the trajectory points back into the obstacle zone
       increase_nav_heading(heading_increment);
       moveWaypointForward(WP_TRAJECTORY, 1.5f);
       moveWaypointForward(WP_RETREAT, -1.0f);
@@ -163,7 +177,7 @@ void orange_avoider_periodic(void)
         // add offset to head back into arena
         increase_nav_heading(heading_increment);
 
-        // reset safe counter
+        // reset safe counter: the way ahead in the new direction is not known yet
         obstacle_free_confidence = 0;
 
         // ensure direction is safe before continuing
