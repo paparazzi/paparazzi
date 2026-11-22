@@ -359,14 +359,14 @@ static void air_data_set_pressure(uint32_t stamp, float pressure)
   AbiSendMsgBARO_ABS(AIR_DATA_SENDER_ID, stamp, pressure);
 }
 
-static void air_data_set_airspeed(float eas, bool send)
+static void air_data_set_airspeed(float eas, bool send_abi)
 {
   air_data.airspeed = eas;
   air_data.tas = tas_from_eas(air_data.airspeed);
 #if USE_AIRSPEED_AIR_DATA
   stateSetAirspeed_f(MODULE_AIR_DATA_ID, air_data.airspeed);
 #endif
-  if (send) {
+  if (send_abi) {
     AbiSendMsgAIRSPEED(AIR_DATA_SENDER_ID, air_data.airspeed);
   }
 }
