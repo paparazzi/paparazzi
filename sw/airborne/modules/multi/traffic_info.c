@@ -196,7 +196,7 @@ bool parse_acinfo_dl(uint8_t *buf)
       }
       break;
       case DL_GPS_INT: {
-        struct LtpDef_i def = {0};
+        struct LtpDef_i def = {{0}};
         struct EcefCoor_i ecef_pos = {
           .x = DL_GPS_INT_ecef_x(buf),
           .y = DL_GPS_INT_ecef_y(buf),
