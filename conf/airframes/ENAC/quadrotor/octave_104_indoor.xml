@@ -25,7 +25,7 @@
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
-      <module name="radio_control" type="ppm"/>
+      <module name="radio_control" type="datalink"/>
       <define name="TAWAKIV2_IMU_ROT" value=""/>
       <define name="TAWAKIV2_MAG_ROT" value=""/>
     </target>
