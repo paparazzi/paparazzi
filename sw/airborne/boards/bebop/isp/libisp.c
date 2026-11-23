@@ -90,7 +90,7 @@ static const unsigned isp_bases[] = {
 static int avi_isp_get_offsets_fd(int fd, struct avi_isp_offsets *off)
 {
   if (ioctl(fd, AVI_ISP_IOGET_OFFSETS, off) < 0) {
-    VERBOSE_PRINT("sizeof: %d, %X\n", sizeof(struct avi_isp_offsets), AVI_ISP_IOGET_OFFSETS);
+    VERBOSE_PRINT("sizeof: %zu, %lX\n", sizeof(struct avi_isp_offsets), (unsigned long)AVI_ISP_IOGET_OFFSETS);
     perror("ioctl(AVI_ISP_IOGET_OFFSETS) failed");
     return -1;
   }
