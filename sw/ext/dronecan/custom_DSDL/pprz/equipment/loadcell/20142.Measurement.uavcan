@@ -1,0 +1,9 @@
+#
+# Load cell (strain gauge bridge) measurements of one node
+#
+
+# Id of the first load cell, the following ones are numbered consecutively
+uint8 sensor_id
+
+# Filtered ADC readings in counts (signed 24-bit range, sub-count resolution after filtering)
+float32[<=4] raw
