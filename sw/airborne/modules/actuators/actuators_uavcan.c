@@ -52,6 +52,7 @@
 /* uavcan ESC status telemetry structure */
 struct actuators_uavcan_telem_t {
   bool set;
+  bool esc_status;      ///< ESC Status received, its temperature has priority over the device temperature
   float voltage;
   float current;
   float temperature;
@@ -233,6 +234,7 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
 
   // Set the telemetry (FIXME: copy over fully)
   telem->set = true;
+  telem->esc_status = true;
   telem->voltage = msg.voltage;
   telem->current = msg.current;
   telem->temperature = msg.temperature;
@@ -337,6 +339,11 @@ static void actuators_uavcan_device_temperature_cb(struct uavcan_iface_t *iface,
   }
 
   telem->set = true;
+
+  // The ESC Status temperature of an ESC has priority, both would alternate in the same field
+  if (telem->esc_status) {
+    return;
+  }
 
   // Feedback ABI message (e.g. the temperature of a servo)
   struct act_feedback_t feedback = {0};
