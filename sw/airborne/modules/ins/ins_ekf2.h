@@ -60,6 +60,7 @@ struct ekf2_t {
   uint64_t system_flags_time;     ///< Last time the system flags were given to the EKF (us)
   struct FloatVect3 accel_ned;    ///< Latest NED acceleration from the EKF (m/s^2)
   float gnss_vacc;                ///< Vertical accuracy of the last GNSS sample (m)
+  uint64_t gnss_vacc_ok_time;     ///< Time since the GNSS vertical accuracy is below INS_EKF2_GNSS_ALT_ALIGN_VACC (EKF time, us), 0 when not
 };
 
 extern void ins_ekf2_init(void);
