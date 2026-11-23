@@ -345,14 +345,6 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
         turn_from.x = waypoints[0].enu_f.x - survey_radius;
       }
 
-      //detect when segment has done
-      /*  if you like to use position croos instead of approaching uncoment this line
-          if ( (stateGetPositionEnu_f()->y > waypoints[0].enu_f.y && ((survey_orientation == WE) && (turn_from.y < waypoints[0].enu_f.y)) )||
-               (stateGetPositionEnu_f()->y < waypoints[0].enu_f.y && ((survey_orientation == WE) && (turn_from.y > waypoints[0].enu_f.y)) )||
-               (stateGetPositionEnu_f()->x < waypoints[0].enu_f.x && ((survey_orientation == NS) && (turn_from.x > waypoints[0].enu_f.x)) )||
-               (stateGetPositionEnu_f()->x > waypoints[0].enu_f.x && ((survey_orientation == NS) && (turn_from.x < waypoints[0].enu_f.x)) ) ) {
-      */
-
       if (nav.nav_approaching(&waypoints[0].enu_f, &turn_from, 0)) {
         survey_uturn = false;
         nav_in_circle = false;
