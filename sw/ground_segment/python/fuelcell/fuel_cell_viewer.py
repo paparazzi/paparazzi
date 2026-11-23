@@ -81,18 +81,6 @@ class EscMessage(object):
         self.msgtime = datetime.now()
 
 
-def esc_telemetry(msg):
-    """ ESC_TELEMETRY: one EscMessage per ESC """
-    def array(name, nb):
-        # nb zeros when the array is empty (value not reported)
-        v = msg[name]
-        v = [float(x) for x in (v if isinstance(v, (list, tuple)) else str(v).split(',')) if str(x) != '']
-        return v if len(v) == nb else [0.] * nb
-    nb = len(msg['idx'])
-    idx, rpm, cur, volt, temp, err = (array(n, nb) for n in ('idx', 'rpm', 'current', 'voltage', 'temperature', 'errors'))
-    return [EscMessage(int(idx[i]), cur[i] * 0.01, rpm[i] * 10., volt[i] * 0.01, temp[i], int(err[i]))
-            for i in range(nb)]
-    
     def get_current(self):
         return str(round(self.amp ,1)) + "A"
     def get_current_perc(self):
@@ -152,6 +140,20 @@ def esc_telemetry(msg):
         if ((now - self.msgtime).total_seconds()) > 30:
             return 0
         return 1
+
+
+def esc_telemetry(msg):
+    """ ESC_TELEMETRY: one EscMessage per ESC """
+    def array(name, nb):
+        # nb zeros when the array is empty (value not reported)
+        v = msg[name]
+        v = [float(x) for x in (v if isinstance(v, (list, tuple)) else str(v).split(',')) if str(x) != '']
+        return v if len(v) == nb else [0.] * nb
+    nb = len(msg['idx'])
+    idx, rpm, cur, volt, temp, err = (array(n, nb) for n in ('idx', 'rpm', 'current', 'voltage', 'temperature', 'errors'))
+    return [EscMessage(int(idx[i]), cur[i] * 0.01, rpm[i] * 10., volt[i] * 0.01, temp[i], int(err[i]))
+            for i in range(nb)]
+
 
 class MotorList(object):
     """ Last ESC message of every ESC, by node id """

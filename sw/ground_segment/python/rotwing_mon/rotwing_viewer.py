@@ -87,34 +87,8 @@ class EscMessage(object):
         self.volt_m = volt
         self.temperature = temperature
         self.temperature_dev = temperature_dev
-        self.energy = errors
+        self.errors = errors
 
-
-def _array(msg, name, nb):
-    """Values of an array field, nb zeros when the array is empty (value not reported)"""
-    v = msg[name]
-    v = [float(x) for x in (v if isinstance(v, (list, tuple)) else str(v).split(',')) if str(x) != '']
-    return v if len(v) == nb else [0.] * nb
-
-
-class ActuatorTelemetry(object):
-    """ESC_TELEMETRY or SERVO_TELEMETRY: the telemetry of all ESCs or servos (one EscMessage each)."""
-
-    def __init__(self, msg):
-        idx = _array(msg, 'idx', len(msg['idx']))
-        nb = len(idx)
-        current = _array(msg, 'current', nb)
-        voltage = _array(msg, 'voltage', nb)
-        temp = _array(msg, 'temperature', nb)
-        errors = _array(msg, 'errors', nb)
-        if msg.name == "ESC_TELEMETRY":
-            rpm = [r * 10. for r in _array(msg, 'rpm', nb)]
-            temp_dev = _array(msg, 'motor_temperature', nb)
-        else:
-            rpm = [0.] * nb
-            temp_dev = temp
-        self.escs = [EscMessage(int(idx[i]), current[i] * 0.01, rpm[i], voltage[i] * 0.01, temp[i],
-                                temp_dev[i], int(errors[i])) for i in range(nb)]
 
     def get_current(self):
         return str(round(self.amp, 1)) + "A"
@@ -169,6 +143,33 @@ class ActuatorTelemetry(object):
             return 1
         else:
             return 0.5
+
+
+def _array(msg, name, nb):
+    """Values of an array field, nb zeros when the array is empty (value not reported)"""
+    v = msg[name]
+    v = [float(x) for x in (v if isinstance(v, (list, tuple)) else str(v).split(',')) if str(x) != '']
+    return v if len(v) == nb else [0.] * nb
+
+
+class ActuatorTelemetry(object):
+    """ESC_TELEMETRY or SERVO_TELEMETRY: the telemetry of all ESCs or servos (one EscMessage each)."""
+
+    def __init__(self, msg):
+        idx = _array(msg, 'idx', len(msg['idx']))
+        nb = len(idx)
+        current = _array(msg, 'current', nb)
+        voltage = _array(msg, 'voltage', nb)
+        temp = _array(msg, 'temperature', nb)
+        errors = _array(msg, 'errors', nb)
+        if msg.name == "ESC_TELEMETRY":
+            rpm = [r * 10. for r in _array(msg, 'rpm', nb)]
+            temp_dev = _array(msg, 'motor_temperature', nb)
+        else:
+            rpm = [0.] * nb
+            temp_dev = temp
+        self.escs = [EscMessage(int(idx[i]), current[i] * 0.01, rpm[i], voltage[i] * 0.01, temp[i],
+                                temp_dev[i], int(errors[i])) for i in range(nb)]
 
 
 class INDIMessage(object):
