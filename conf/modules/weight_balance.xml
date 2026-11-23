@@ -1,0 +1,77 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="weight_balance" dir="sensors" task="sensors">
+  <doc>
+    <description>
+      Weight and center of gravity from load cells in the landing gear.
+      Load cells are received over uavcan (pprz.equipment.loadcell.Measurement) and optionally
+      from one ADS1220 connected to an SPI bus of the autopilot (configure WEIGHT_BALANCE_SPI_DEV).
+      Each wheel is mapped to a load cell id, from the wheel forces the total mass and the CG
+      position in the body frame are computed. The PAYLOAD_FLOAT telemetry message contains:
+      mass [kg], cg_x [m], cg_y [m], valid, followed by the force [N] and raw reading [counts] of every wheel.
+      Calibrate by setting the offsets with the wheels unloaded (tare) and then placing a known mass
+      on each wheel (calibrate), and copy the resulting values to the airframe file.
+    </description>
+    <configure name="WEIGHT_BALANCE_SPI_DEV" value="spi6" description="SPI bus of a local ADS1220 (optional)"/>
+    <configure name="WEIGHT_BALANCE_SPI_SLAVE_IDX" value="6" description="SPI slave select of a local ADS1220"/>
+    <section name="WEIGHT_BALANCE" prefix="WEIGHT_BALANCE_">
+      <define name="NB_WHEELS" value="3" description="Number of wheels with a load cell (max 4)"/>
+      <define name="WHEEL_IDS" value="{0, 1, 2}" description="Load cell id per wheel"/>
+      <define name="WHEEL_X" value="{0., 0., 0.}" unit="m" description="Wheel contact point in body frame, forward"/>
+      <define name="WHEEL_Y" value="{0., 0., 0.}" unit="m" description="Wheel contact point in body frame, right"/>
+      <define name="WHEEL_OFFSET" value="{0., 0., 0.}" description="Load cell reading without load per wheel [counts]"/>
+      <define name="WHEEL_SCALE" value="{0., 0., 0.}" description="Load cell scale per wheel [N/count]"/>
+      <define name="CG_HEIGHT" value="0." unit="m" description="Height of the CG above the wheel contact plane, for attitude correction"/>
+      <define name="TIMEOUT" value="0.5" unit="s" description="Maximum age of a load cell reading"/>
+      <define name="MIN_FORCE" value="5." unit="N" description="Minimum total force to compute the CG"/>
+      <define name="MASS_MAX" value="25." unit="kg" description="Preflight check: maximum mass (optional)"/>
+      <define name="CG_X_MIN" value="0.1" unit="m" description="Preflight check: minimum CG x (optional, with CG_X_MAX)"/>
+      <define name="CG_X_MAX" value="0.2" unit="m" description="Preflight check: maximum CG x (optional, with CG_X_MIN)"/>
+      <define name="CG_Y_MAX" value="0.05" unit="m" description="Preflight check: maximum absolute CG y (optional)"/>
+      <define name="ADS1220_ID" value="0" description="Load cell id of the local ADS1220"/>
+      <define name="ADS1220_MUX" value="ADS1220_MUX_AIN0_AIN1" description="Bridge input of the local ADS1220"/>
+      <define name="ADS1220_GAIN" value="ADS1220_GAIN_128" description="Gain of the local ADS1220"/>
+      <define name="ADS1220_CUTOFF" value="5." unit="Hz" description="Low-pass cutoff of the local ADS1220, 0 to disable"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="WB">
+        <dl_setting var="weight_balance.wheels[0].offset" min="-8388608" step="1" max="8388607" shortname="offset0"/>
+        <dl_setting var="weight_balance.wheels[0].scale" min="-1" step="0.000001" max="1" shortname="scale0"/>
+        <dl_setting var="weight_balance.wheels[1].offset" min="-8388608" step="1" max="8388607" shortname="offset1"/>
+        <dl_setting var="weight_balance.wheels[1].scale" min="-1" step="0.000001" max="1" shortname="scale1"/>
+        <dl_setting var="weight_balance.wheels[2].offset" min="-8388608" step="1" max="8388607" shortname="offset2"/>
+        <dl_setting var="weight_balance.wheels[2].scale" min="-1" step="0.000001" max="1" shortname="scale2"/>
+        <dl_setting var="weight_balance.cg_height" min="0" step="0.01" max="2" shortname="cg_height" param="WEIGHT_BALANCE_CG_HEIGHT"/>
+        <dl_setting var="tare" min="0" step="1" max="1" values="NONE|TARE" shortname="tare" module="modules/sensors/weight_balance" handler="tare" type="fun"/>
+        <dl_setting var="weight_balance.cal_wheel" min="0" step="1" max="3" shortname="cal_wheel"/>
+        <dl_setting var="cal_mass" min="0" step="0.01" max="50" shortname="cal_mass" unit="kg" module="modules/sensors/weight_balance" handler="calibrate" type="fun"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>uavcan</depends>
+  </dep>
+  <header>
+    <file name="weight_balance.h"/>
+  </header>
+  <init fun="weight_balance_init()"/>
+  <periodic fun="weight_balance_periodic()" freq="100" autorun="TRUE"/>
+  <event fun="weight_balance_event()"/>
+  <makefile target="ap">
+    <file name="weight_balance.c"/>
+
+    <!-- Optional ADS1220 on a local SPI bus -->
+    <configure name="WEIGHT_BALANCE_SPI_DEV" case="upper|lower"/>
+    <file name="ads1220.c" dir="peripherals" cond="ifdef WEIGHT_BALANCE_SPI_DEV"/>
+    <define name="USE_$(WEIGHT_BALANCE_SPI_DEV_UPPER)" cond="ifdef WEIGHT_BALANCE_SPI_DEV"/>
+    <define name="WEIGHT_BALANCE_SPI_DEV" value="$(WEIGHT_BALANCE_SPI_DEV_LOWER)" cond="ifdef WEIGHT_BALANCE_SPI_DEV"/>
+    <define name="USE_SPI_SLAVE$(WEIGHT_BALANCE_SPI_SLAVE_IDX)" cond="ifdef WEIGHT_BALANCE_SPI_SLAVE_IDX"/>
+    <define name="WEIGHT_BALANCE_SPI_SLAVE_IDX" value="$(WEIGHT_BALANCE_SPI_SLAVE_IDX)" cond="ifdef WEIGHT_BALANCE_SPI_SLAVE_IDX"/>
+
+    <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="pprz.equipment.loadcell.Measurement.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+  </makefile>
+</module>
