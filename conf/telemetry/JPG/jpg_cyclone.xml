@@ -224,7 +224,8 @@
       <message name="GUIDANCE_H_REF_INT"       period="0.02"/>
       <message name="GUIDANCE_INDI_HYBRID"     period="0.2"/>
       <message name="HYBRID_GUIDANCE"          period="0.02"/>
-      <message name="ESC"                      period="0.02"/>
+      <message name="ESC_TELEMETRY"            period="0.02"/>
+      <message name="SERVO_TELEMETRY"          period="0.02"/>
       <message name="STAB_ATTITUDE"            period="0.01"/>
       <!-- <message name="STAB_THRUST"              period="0.01"/> -->
       <!-- <message name="STAB_PSEUDO_COMMAND"      period="0.01"/> -->
