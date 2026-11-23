@@ -216,6 +216,9 @@ PRINT_CONFIG_VAR(INS_EKF2_GNSS_CHECK)
 #ifndef INS_EKF2_GNSS_ALT_ALIGN_VACC
 #define INS_EKF2_GNSS_ALT_ALIGN_VACC 2.f  ///< maximum GNSS vertical accuracy (m) to align the altitude
 #endif
+#ifndef INS_EKF2_GNSS_ALT_ALIGN_TIME
+#define INS_EKF2_GNSS_ALT_ALIGN_TIME 10.f ///< time (s) the GNSS vertical accuracy stays below INS_EKF2_GNSS_ALT_ALIGN_VACC before aligning, so the GNSS height bias has converged
+#endif
 
 /* Vehicle specific defaults, as PX4 (rc.fw_defaults and rc.mc_defaults) */
 #if defined(FIXEDWING_FIRMWARE)
@@ -1191,6 +1194,7 @@ void ins_ekf2_init(void)
   ekf2.temp = 20.0f; // Default temperature of 20 degrees celcius
   ekf2.in_air = false;
   ekf2.gnss_vacc = INFINITY;
+  ekf2.gnss_vacc_ok_time = 0;
   ekf2.armed = false;
   ekf2.fixed_wing = false;
   ekf2.air_density = PPRZ_ISA_AIR_DENSITY;
@@ -1467,8 +1471,14 @@ static void ins_ekf2_gnss_alt_align(uint64_t time_us)
   }
   aligned = false;
   // GNSS height bias (GNSS height - altitude), updated by each fused GNSS sample, with an accurate GNSS height
-  const float bias = ekf.getGpsHgtBiasEstimatorStatus().bias;
-  if (!(ekf2.gnss_vacc < INS_EKF2_GNSS_ALT_ALIGN_VACC) || !(fabsf(bias) > INS_EKF2_GNSS_ALT_ALIGN_THR)) {
+  // The bias follows the GNSS height with a time constant of a few seconds: only use it after the GNSS
+  // vertical accuracy stayed good for INS_EKF2_GNSS_ALT_ALIGN_TIME (not a bias from earlier inaccurate samples)
+  // and when the latest GNSS height agrees with it (innovation test passed)
+  const auto &bias_status = ekf.getGpsHgtBiasEstimatorStatus();
+  const float bias = bias_status.bias;
+  if (!(ekf2.gnss_vacc < INS_EKF2_GNSS_ALT_ALIGN_VACC) || ekf2.gnss_vacc_ok_time == 0 ||
+      time_us < ekf2.gnss_vacc_ok_time + (uint64_t)(INS_EKF2_GNSS_ALT_ALIGN_TIME * 1e6f) ||
+      !(bias_status.innov_test_ratio < 1.f) || !(fabsf(bias) > INS_EKF2_GNSS_ALT_ALIGN_THR)) {
     return;
   }
   const LatLonAlt lla = ekf.getLatLonAlt();
@@ -1879,6 +1889,11 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   checks_sample.hacc = gps_s->hacc / 100.0f;
   checks_sample.vacc = gps_s->vacc / 100.0f;
   ekf2.gnss_vacc = checks_sample.vacc;
+  if (!(ekf2.gnss_vacc < INS_EKF2_GNSS_ALT_ALIGN_VACC)) {
+    ekf2.gnss_vacc_ok_time = 0;
+  } else if (ekf2.gnss_vacc_ok_time == 0) {
+    ekf2.gnss_vacc_ok_time = ekf2_time_us(get_sys_time_usec()) + 1;  // never 0
+  }
   checks_sample.sacc = gps_s->sacc / 100.0f;
   checks_sample.fix_type = gps_s->fix;
   checks_sample.nsats = gps_s->num_sv;
