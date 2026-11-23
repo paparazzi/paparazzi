@@ -67,16 +67,18 @@
     </module>
     <module name="agl_dist"/-->
 
-    <module name="digital_cam" type="pprzlink"/>
+    <!-- digital_cam and extra_dl commented out: RAM (DTCM) is full on tawaki 1.1 (ram3 overflow);
+         the flight plan doesn't trigger the camera -->
+    <!--module name="digital_cam" type="pprzlink"/-->
     <module name="power_switch"/>
     <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_8"/>
     </module>
 
-    <module name="extra_dl">
+    <!--module name="extra_dl">
       <configure name="EXTRA_DL_PORT" value="uart4"/>
       <configure name="EXTRA_DL_BAUD" value="B115200"/>
-    </module>
+    </module-->
 
     <module name="tag_tracking">
       <configure name="JEVOIS_UART" value="UART3" description="UART on which Jevois camera is connected"/>
