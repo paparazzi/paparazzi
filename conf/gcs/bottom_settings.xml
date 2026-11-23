@@ -18,7 +18,7 @@
         </papget>
         <papget type="message_field" display="text" x="251" y="46">
           <property name="scale" value="1."/>
-          <property name="field" value="MOTOR:rpm"/>
+          <property name="field" value="ESC_TELEMETRY:rpm[0]"/>
           <property name="format" value="RPM %.0f"/>
           <property name="size" value="15."/>
           <property name="color" value="#00ff00"/>
