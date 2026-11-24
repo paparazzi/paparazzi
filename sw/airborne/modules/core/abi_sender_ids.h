@@ -137,6 +137,33 @@
 #define AIRSPEED_AMSYS_ID 7
 #endif
 
+/*
+ * IDs of wind sources (WIND_RAW)
+ */
+#ifndef WIND_EKF2_ID
+#define WIND_EKF2_ID 1
+#endif
+
+#ifndef WIND_MEKF_ID
+#define WIND_MEKF_ID 2
+#endif
+
+#ifndef WIND_ESTIMATOR_ID
+#define WIND_ESTIMATOR_ID 3
+#endif
+
+#ifndef WIND_WE_QUAD_ID
+#define WIND_WE_QUAD_ID 4
+#endif
+
+/*
+ * ID of the WIND_INFO datalink message (ground wind estimator or wind sensor):
+ * a wind source (WIND_RAW), an airspeed estimate (AIRSPEED_RAW) and the ground temperature (TEMPERATURE_RAW)
+ */
+#ifndef WIND_INFO_SENDER_ID
+#define WIND_INFO_SENDER_ID 60
+#endif
+
 
 /*
  * IDs of Incidence angles (message 25)

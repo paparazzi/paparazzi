@@ -749,18 +749,6 @@ static void send_filter_status(struct transport_tx *trans, struct link_device *d
   pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_ekf2_id, &mde, &filter_fault_status_16);
 }
 
-static void send_wind_info_ret(struct transport_tx *trans, struct link_device *dev)
-{
-  Vector2f wind = ekf.getWindVelocity();
-  const Vector3f vel = ekf.getVelocity();
-  // True airspeed from the velocity and the wind estimate
-  float tas = Vector3f(vel(0) - wind(0), vel(1) - wind(1), vel(2)).norm();
-  uint8_t flags = 0x5;
-  float f_zero = 0;
-
-  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags, &wind(1), &wind(0), &f_zero, &tas);
-}
-
 static void send_ahrs_bias(struct transport_tx *trans, struct link_device *dev)
 {
   Vector3f accel_bias = ekf.getAccelBias();
@@ -1247,7 +1235,6 @@ void ins_ekf2_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_EKF2, send_ins_ekf2);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_EKF2_EXT, send_ins_ekf2_ext);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STATE_FILTER_STATUS, send_filter_status);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind_info_ret);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_BIAS, send_ahrs_bias);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_QUAT_INT, send_ahrs_quat);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EXTERNAL_POSE_DOWN, send_external_pose_down);
@@ -1561,6 +1548,13 @@ void ins_ekf2_update(void)
       accel.y = ekf2.accel_ned.y;
       accel.z = ekf2.accel_ned.z;
       stateSetAccelNed_f(MODULE_INS_EKF2_ID, &accel);
+
+      /* Wind to air_data (which selects the wind of the state), only while it is estimated (airspeed or drag fusion) */
+      if (ekf.control_status_flags().wind) {
+        const Vector2f wind_f = ekf.getWindVelocity();
+        struct FloatVect3 wind = { wind_f(0), wind_f(1), NAN };
+        AbiSendMsgWIND_RAW(WIND_EKF2_ID, get_sys_time_usec(), &wind);
+      }
 
       /* Get local origin */
       // Position of local NED origin in GPS / WGS84 frame

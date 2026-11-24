@@ -38,7 +38,6 @@
       <message name="INS_EKF2"                 period=".25"/>
       <message name="INS_EKF2_EXT"             period="4.25"/>
       <message name="FBW_STATUS"               period="2.1"/>
-      <message name="WIND_INFO_RET"            period="9.2"/>
       <message name="AHRS_BIAS"                period="7.5"/>
       <message name="HOVER_LOOP"               period="0.3"/>
       <message name="GUIDANCE_H_REF_INT"       period="0.31"/>
@@ -102,7 +101,6 @@
       <message name="INS_EKF2"                 period=".25"/>
       <message name="INS_EKF2_EXT"             period="4.25"/>
       <message name="FBW_STATUS"               period="2.1"/>
-      <message name="WIND_INFO_RET"            period="9.2"/>
       <message name="AHRS_BIAS"                period="7.5"/>
       <message name="HOVER_LOOP"               period="0.3"/>
       <message name="GUIDANCE_H_REF_INT"       period="0.31"/>
@@ -314,7 +312,6 @@
       <message name="LIDAR"                    period="0.05"/>
       <message name="INS_EKF2"                 period="0.05"/>
       <message name="INS_EKF2_EXT"             period="0.1"/>
-      <message name="WIND_INFO_RET"            period="0.2"/>
       <message name="AHRS_BIAS"                period="0.5"/>
       <message name="AHRS_REF_QUAT"            period="0.01"/>
       <message name="GUIDANCE_H_REF_INT"       period="0.02"/>
