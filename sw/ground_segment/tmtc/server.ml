@@ -26,6 +26,7 @@ let my_id = "ground"
 let gps_mode_3D = 3
 let no_md5_check = ref false
 let replay_old_log = ref false
+let wind_info = ref false
 let log_name_arg = ref ""
 let udp_json_stream_addr = ref "127.0.0.1"
 let udp_json_stream_port = ref 9870
@@ -415,7 +416,19 @@ let send_wind = fun a ->
        "wspeed", PprzLink.Float wind_polar;
        "mean_aspeed", PprzLink.Float mean;
        "stddev", PprzLink.Float stddev] in
-    Ground_Pprz.message_send my_id "WIND" vs
+    Ground_Pprz.message_send my_id "WIND" vs;
+    if !wind_info then begin
+      (* WIND_INFO is the vector the wind blows to, north/east/down, NaN unknown *)
+      let to_dir = wind_cap_rad +. Latlong.pi in
+      let vs =
+        ["ac_id", PprzLink.String id;
+         "wind", PprzLink.Array [| PprzLink.Float (wind_polar *. cos to_dir);
+                                   PprzLink.Float (wind_polar *. sin to_dir);
+                                   PprzLink.Float nan |];
+         "airspeed", PprzLink.Float nan;
+         "temp", PprzLink.Float nan] in
+      Dl_Pprz.message_send dl_id "WIND_INFO" vs
+    end
   with
       _exc -> ()
 
@@ -1102,6 +1115,7 @@ let () =
       "-udp_json_stream_addr", Arg.Set_string udp_json_stream_addr, "Address of the server to stream udp JSON telemetry messages (default is localhost)";
       "-udp_json_stream_port", Arg.Set_int udp_json_stream_port, "Port of the server to stream udp JSON telemetry messages (default is 9870)";
       "-udp_json_stream_disable", Arg.Set udp_json_stream_disable, "Disable udp JSON stream";
+      "-wind_info", Arg.Set wind_info, "Send the wind estimated from the tracks to the aircraft (WIND_INFO)";
       "-replay_old_log", Arg.Set replay_old_log, "Enable aircraft registering on PPRZ_MODE messages"] in
 
   Arg.parse

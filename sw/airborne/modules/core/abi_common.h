@@ -91,6 +91,7 @@ typedef void (*abi_callback)(void);
 #define TEMPERATURE_TYPE_BARO   2 ///< barometer die
 #define TEMPERATURE_TYPE_IMU    3 ///< IMU die
 #define TEMPERATURE_TYPE_OTHER  4 ///< anything else
+#define TEMPERATURE_TYPE_GROUND 5 ///< air temperature at the ground station (WIND_INFO)
 
 /** Event structure to store callbacks in a linked list */
 struct abi_struct {

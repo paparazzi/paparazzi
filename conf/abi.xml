@@ -314,7 +314,12 @@
     <message name="TEMPERATURE_RAW" id="48">
       <field name="stamp" type="uint32_t" unit="us">Timestamp in micro-seconds</field>
       <field name="temp" type="float" unit="deg Celcius">Temperature, sent with the sender id of the sensor it belongs to</field>
-      <field name="type" type="uint8_t">What is measured: TEMPERATURE_TYPE_AIR, _DIFF, _BARO, _IMU or _OTHER (abi_common.h). air_data sends the selected air temperature as TEMPERATURE</field>
+      <field name="type" type="uint8_t">What is measured: TEMPERATURE_TYPE_AIR, _DIFF, _BARO, _IMU, _OTHER or _GROUND (abi_common.h). air_data sends the selected air temperature as TEMPERATURE</field>
+    </message>
+
+    <message name="WIND_RAW" id="49">
+      <field name="stamp" type="uint32_t" unit="us">Timestamp in micro-seconds</field>
+      <field name="wind" type="struct FloatVect3 *" unit="m/s">Wind north/east/down (the direction it blows to) of an estimator or WIND_INFO, down NaN if not estimated. air_data selects one and sets the state</field>
     </message>
 
   </msg_class>
