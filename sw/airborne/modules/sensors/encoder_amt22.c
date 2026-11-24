@@ -26,6 +26,7 @@
 #include "modules/sensors/encoder_amt22.h"
 #include "peripherals/amt22.h"
 #include "modules/datalink/downlink.h"
+#include "generated/modules_msgs.h"
 
 static amt22_t amt22;
 static amt22_config_t amt22_conf = {
@@ -42,6 +43,6 @@ void encoder_amt22_init(void)
 void encoder_amt22_periodic(void)
 {
   amt22_periodic(&amt22);
-  float f[2] = {amt22_get_position(&amt22), amt22_get_turns(&amt22)};
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 2, f);
+  DOWNLINK_SEND_MODULE_MSG_ENCODER_AMT22_STATUS(DefaultChannel, DefaultDevice,
+      amt22_get_position(&amt22), amt22_get_turns(&amt22));
 }
