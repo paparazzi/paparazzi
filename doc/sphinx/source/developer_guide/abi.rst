@@ -21,7 +21,7 @@ General Idea
 Message definition
 ------------------
 
-The messages are described in ``conf/abi.xml`` analoguous to other messages in paparazzi. Names are unique, IDs starts from 0.
+The messages are described in ``conf/abi.xml`` analogous to other messages in paparazzi. Names are unique, IDs starts from 0.
 ``"type"`` field should be a valid C type or pointer.
 When adding a new message, make sure that the ``"id"`` is not used by any other message. After changing the XML file, you need to
 run ``make clean`` and ``make`` in the ``paparazzi`` folder to generate the corresponding .c and .h files (for more information
@@ -105,7 +105,7 @@ You must declare one abi_event per bind.
 
 The last parameter is your callback.
 
-.. note:: When creating your module with the Module Creator (in the Paparazzi Center : Tools -> Module Creator), you can add subcriptions to ABI messages.
+.. note:: When creating your module with the Module Creator (in the Paparazzi Center : Tools -> Module Creator), you can add subscriptions to ABI messages.
 
 
 Airborne code for publisher
