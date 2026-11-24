@@ -1549,11 +1549,11 @@ void ins_ekf2_update(void)
       accel.z = ekf2.accel_ned.z;
       stateSetAccelNed_f(MODULE_INS_EKF2_ID, &accel);
 
-      /* Wind, only while it is estimated (airspeed or drag fusion) */
+      /* Wind to air_data (which selects the wind of the state), only while it is estimated (airspeed or drag fusion) */
       if (ekf.control_status_flags().wind) {
         const Vector2f wind_f = ekf.getWindVelocity();
-        struct FloatVect2 wind = { wind_f(0), wind_f(1) };
-        stateSetHorizontalWindspeed_f(MODULE_INS_EKF2_ID, &wind);
+        struct FloatVect3 wind = { wind_f(0), wind_f(1), NAN };
+        AbiSendMsgWIND_RAW(WIND_EKF2_ID, get_sys_time_usec(), &wind);
       }
 
       /* Get local origin */

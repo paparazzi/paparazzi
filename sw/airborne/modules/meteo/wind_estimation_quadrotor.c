@@ -66,7 +66,7 @@
 #define WE_QUAD_R     .5f
 #endif
 
-// update wind in state interface directly
+// send the wind to air_data, which selects the wind of the state
 #ifndef WE_QUAD_UPDATE_STATE
 #define WE_QUAD_UPDATE_STATE TRUE
 #endif
@@ -148,23 +148,21 @@ void wind_estimation_quadrotor_periodic(void)
   struct FloatVect2 tas = { we_quad.filter.X[WE_QUAD_VA_X], we_quad.filter.X[WE_QUAD_VA_Y] };
   float eas = eas_from_tas(float_vect2_norm(&tas));
   AbiSendMsgAIRSPEED_RAW(AIRSPEED_WE_QUAD_ID, get_sys_time_usec(), eas);
-  // update wind in state interface only if enabled
+  // wind to air_data (which selects the wind of the state) only if enabled
 #if WE_QUAD_UPDATE_STATE
-  struct FloatVect2 wind_ne = {
+  struct FloatVect3 wind = {
     we_quad.filter.X[WE_QUAD_W_X],
-    we_quad.filter.X[WE_QUAD_W_Y]
+    we_quad.filter.X[WE_QUAD_W_Y],
+    NAN
   };
-  stateSetHorizontalWindspeed_f(MODULE_WIND_ESTIMATION_QUADROTOR_ID, &wind_ne);
+  AbiSendMsgWIND_RAW(WIND_WE_QUAD_ID, get_sys_time_usec(), &wind);
 #endif
 }
 
 void wind_estimation_quadrotor_stop(void)
 {
+  // the wind isn't sent anymore, air_data drops it after its timeout
   we_quad.status = WE_QUAD_STATUS_IDLE;
-#if WE_QUAD_UPDATE_STATE
-  struct FloatVect2 zero_wind_ne = { 0.f, 0.f };
-  stateSetHorizontalWindspeed_f(MODULE_WIND_ESTIMATION_QUADROTOR_ID, &zero_wind_ne);
-#endif
 }
 
 void wind_estimation_quadrotor_start(void)

@@ -500,10 +500,10 @@ static void set_state_from_ins(void)
   stateSetAccelNed_f(MODULE_INS_MEKF_WIND_ID, &accel);
 
   if (!ins_mekf_wind_params.disable_wind) {
-    struct NedCoor_f wind = ins_mekf_wind_get_wind_ned();
-    struct FloatVect2 wind_ne = { wind.x, wind.y };
-    stateSetHorizontalWindspeed_f(MODULE_INS_MEKF_WIND_ID, &wind_ne);
-    stateSetVerticalWindspeed_f(MODULE_INS_MEKF_WIND_ID, wind.z);
+    // wind to air_data, which selects the wind of the state
+    struct NedCoor_f wind_ned = ins_mekf_wind_get_wind_ned();
+    struct FloatVect3 wind = { wind_ned.x, wind_ned.y, wind_ned.z };
+    AbiSendMsgWIND_RAW(WIND_MEKF_ID, get_sys_time_usec(), &wind);
   }
 }
 
