@@ -17,6 +17,10 @@
 #include "stdint.h"
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 typedef struct pprzMutex pprz_mutex_t;
 typedef struct pprzBSem pprz_bsem_t;
@@ -105,3 +109,7 @@ int pprz_thread_join(pprz_thread_t* thread, void** retval) THREADS_ATTRIBUTES;
  * @return        0 if the thread successfully joined.
  */
 int pprz_thread_tryjoin(pprz_thread_t* thread, void** retval) THREADS_ATTRIBUTES;
+
+#ifdef __cplusplus
+}
+#endif
