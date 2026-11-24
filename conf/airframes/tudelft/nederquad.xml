@@ -15,7 +15,7 @@
 
       <define name="BAT_CHECKER_DELAY" value="80" />
 
-      <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
+      <define name="CATASTROPHIC_BAT_KILL_DELAY" value="80" unit="s"/>
 
       <configure name="PERIODIC_FREQUENCY" value="500"/>
 
@@ -24,10 +24,6 @@
         <configure name="MODEM_BAUD" value="B115200"/>
       </module>
     
-      <module name="baro_ms5611_spi" >
-        <configure name="MS5611_SPI_DEV" value="spi1"/>
-        <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
-      </module>
 
       <module name="optical_flow_mateksys_3901_l0x.xml">
         <configure name="MATEKSYS_3901_L0X_PORT" value="UART3"/>
@@ -80,7 +76,6 @@
       </module>
 
       <module name="geo_mag" />
-      <module name="air_data" />
   
       <module name="mag" type="hmc58xx">
         <define name="HMC58XX_STARTUP_DELAY" value="1.4"/>
@@ -106,10 +101,15 @@
 
   <section name="MISC">
     <define name="BAT_CHECKER_DELAY" value="80" />
-    <define name="INS_EKF2_FUSION_MODE" value="MASK_USE_GPS | MASK_USE_OF"/>
-    <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_RANGE"/>
-    <define name="INS_EKF2_GPS_CHECK_MASK" value="0"/>
-    <define name="INS_EKF2_GPS_COURSE_YAW" value="FALSE"/>
+    <define name="INS_EKF2_HGT_REF" value="EKF2_HGT_REF_RANGE"/>
+    <define name="INS_EKF2_GNSS_CHECK" value="GNSS_CHECK_FIX"/>
+    <!-- optical flow and range finder tuning of the previous EKF2 version -->
+    <define name="INS_EKF2_OF_QMIN" value="100"/>
+    <define name="INS_EKF2_OF_N_MIN" value="0.03"/>
+    <define name="INS_EKF2_OF_N_MAX" value="0.05"/>
+    <define name="INS_EKF2_OF_GATE" value="4"/>
+    <define name="INS_EKF2_OF_DELAY" value="15"/>
+    <define name="INS_EKF2_RNG_DELAY" value="15"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -176,12 +176,6 @@
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]" />
     <set servo="RELEASE_SERVO" value="@RELEASE" />
   </command_laws>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE" />
-    <define name="CALC_TAS_FACTOR" value="FALSE" />
-    <define name="CALC_AMSL_BARO" value="TRUE" />
-  </section>
 
   <section name="AHRS" prefix="AHRS_">
     <define name="H_X" value="0.3892503" />

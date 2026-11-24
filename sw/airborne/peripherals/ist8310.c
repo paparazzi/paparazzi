@@ -101,10 +101,19 @@ void ist8310_read(struct IST8310 *ist)
     return;
   }
 
-  // Start a single read
+  // Read the status and the measurement triggered at the previous call (the conversion takes several ms)
+  ist->i2c_trans.buf[0] = IST8310_REG_STAT1;
+  i2c_transceive(ist->i2c_p, &(ist->i2c_trans), ist->i2c_trans.slave_addr, 1, 7);
+  ist->status = IST_STATUS_READ;
+}
+
+/** Trigger a single measurement, read at the next ist8310_read */
+static void ist8310_trigger(struct IST8310 *ist)
+{
   ist->i2c_trans.buf[0] = IST8310_REG_CNTL1;
   ist->i2c_trans.buf[1] = IST8310_CNTL1_ODR_SINGLE;
-  i2c_transceive(ist->i2c_p, &(ist->i2c_trans), ist->i2c_trans.slave_addr, 2, 0);
+  i2c_transmit(ist->i2c_p, &(ist->i2c_trans), ist->i2c_trans.slave_addr, 2);
+  ist->status = IST_STATUS_DONE;
 }
 
 #define Int16FromBuf(_buf,_idx) ((int16_t)(_buf[_idx] | (_buf[_idx+1] << 8)))
@@ -116,34 +125,29 @@ void ist8310_event(struct IST8310 *ist)
 
   switch (ist->status) {
     case IST_STATUS_IDLE:
-      // When succesfully send single read
-      if (ist->i2c_trans.status == I2CTransSuccess) {
-        ist->i2c_trans.buf[0] = IST8310_REG_DATA_XL;
-        i2c_transceive(ist->i2c_p, &(ist->i2c_trans), ist->i2c_trans.slave_addr, 1, 6);
-        ist->status++;
-      }
       break;
 
     case IST_STATUS_READ:
       if (ist->i2c_trans.status == I2CTransSuccess) {
-        // Copy the data
-        ist->data.vect.x = Int16FromBuf(ist->i2c_trans.buf, 0);
-        ist->data.vect.y = Int16FromBuf(ist->i2c_trans.buf, 2);
-        ist->data.vect.z = Int16FromBuf(ist->i2c_trans.buf, 4);
-        ist->data_available = true;
-
-        ist->i2c_trans.status = I2CTransDone;
-        ist->status = IST_STATUS_IDLE;
+        // Copy the data when the measurement is ready
+        if (ist->i2c_trans.buf[0] & IST8310_STAT1_DRDY) {
+          ist->data.vect.x = Int16FromBuf(ist->i2c_trans.buf, 1);
+          ist->data.vect.y = Int16FromBuf(ist->i2c_trans.buf, 3);
+          ist->data.vect.z = Int16FromBuf(ist->i2c_trans.buf, 5);
+          ist->data_available = true;
+        }
+        ist8310_trigger(ist);
       } else if(ist->i2c_trans.status == I2CTransFailed) {
-        ist->i2c_trans.status = I2CTransDone;
-        ist->status = IST_STATUS_IDLE;
+        ist8310_trigger(ist);
       }
       break;
 
     default:
-      // Goto idle
-      ist->i2c_trans.status = I2CTransDone;
-      ist->status = IST_STATUS_IDLE;
+      // Measurement triggered, goto idle
+      if (ist->i2c_trans.status == I2CTransSuccess || ist->i2c_trans.status == I2CTransFailed) {
+        ist->i2c_trans.status = I2CTransDone;
+        ist->status = IST_STATUS_IDLE;
+      }
       break;
   }
 }

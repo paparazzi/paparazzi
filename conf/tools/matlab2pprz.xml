@@ -1,2 +1,18 @@
-<program command="sw/ground_segment/python/matlab2pprz/matlab2pprz.py" name="Matlab/PPRZ/Natnet bridge" />
+<program command="sw/ground_segment/python/matlab2pprz/matlab2pprz.py" name="Matlab/PPRZ/Natnet bridge">
+  <doc>
+    <description>
+      Forwards rigid body positions and orientations from NatNet to Matlab/Simulink over UDP, and forwards the commands received from Simulink over Ivy.
+    </description>
+    <usage>usage: matlab2pprz.py [-h] [-ac rigid_id ac_id udp_out] [-b IVY_BUS] [-ns NATNET_SERVER] [-m MULTICAST] [-dp DATA_PORT] [-cp COMMAND_PORT] [-ss SIMULINK_SERVER] [-sp SIMULINK_IN_PORT] [-v]</usage>
+    <option flag="-ac rigid_id ac_id udp_out" description="tuple of rigid body, A/C id and UDP output port to Simulink (multiple possible) (default: None)"/>
+    <option flag="-b IVY_BUS, --ivy_bus IVY_BUS" description="Ivy bus address and port (default: None)"/>
+    <option flag="-ns NATNET_SERVER, --natnet_server NATNET_SERVER" description="NatNet server IP address (default: 127.0.0.1)"/>
+    <option flag="-m MULTICAST, --multicast_addr MULTICAST" description="NatNet server multicast address (default: 239.255.42.99)"/>
+    <option flag="-dp DATA_PORT, --data_port DATA_PORT" description="NatNet server data socket UDP port (default: 1511)"/>
+    <option flag="-cp COMMAND_PORT, --command_port COMMAND_PORT" description="NatNet server command socket UDP port (default: 1510)"/>
+    <option flag="-ss SIMULINK_SERVER, --simulink_server SIMULINK_SERVER" description="Simulink server IP address (default: 127.0.0.1)"/>
+    <option flag="-sp SIMULINK_IN_PORT, --simulink_in_port SIMULINK_IN_PORT" description="Simulink input port (default: 9090)"/>
+    <option flag="-v, --verbose" description="display debug messages (default: False)"/>
+  </doc>
+</program>
 

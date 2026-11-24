@@ -73,6 +73,12 @@ void stateInit(void)
   state.rates_input_filter = STATE_INPUT_ANY;
   state.wind_air_input_filter = STATE_INPUT_ANY;
 
+#ifdef FIXEDWING_FIRMWARE
+  state.fixed_wing_flight = true;
+#else
+  state.fixed_wing_flight = false;
+#endif
+
   /* setting to zero forces recomputation of zone using lla when utm uninitialised*/
   state.utm_origin_f.zone = 0;
 
@@ -1131,7 +1137,7 @@ void stateCalcSpeedEcef_f(void)
   }
 
   if (bit_is_set(state.speed_status, SPEED_ECEF_I)) {
-    SPEEDS_FLOAT_OF_BFP(state.ecef_speed_f, state.ned_speed_i);
+    SPEEDS_FLOAT_OF_BFP(state.ecef_speed_f, state.ecef_speed_i);
   } else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
     ecef_of_ned_vect_f(&state.ecef_speed_f, &state.ned_origin_f, &state.ned_speed_f);
   } else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
@@ -1320,7 +1326,7 @@ void stateCalcAccelEcef_f(void)
 
   int errno = 0;
   if (bit_is_set(state.accel_status, ACCEL_ECEF_I)) {
-    ACCELS_FLOAT_OF_BFP(state.ecef_accel_f, state.ned_accel_i);
+    ACCELS_FLOAT_OF_BFP(state.ecef_accel_f, state.ecef_accel_i);
   }
   else if (state.ned_initialized_f) {
     if (bit_is_set(state.accel_status, ACCEL_NED_F)) {

@@ -2,7 +2,9 @@
 
 <module name="i2c_abuse_test" dir="benchmark">
   <doc>
-    <description></description>
+    <description>Stress test of an I2C bus</description>
+    <define name="I2C_ABUSE_PORT" value="i2c2" description="I2C port to abuse"/>
+    <define name="I2C_ABUSE_LED" value="7" description="LED toggled while running"/>
   </doc>
   <header>
     <file name="i2c_abuse_test.h"/>
@@ -12,13 +14,6 @@
   <event fun="event_i2c_abuse_test()" />
   <makefile>
     <file name="i2c_abuse_test.c"/>
-    <raw>
-ifeq ($(ARCH), stm32)
-$(TARGET).CFLAGS += -DI2C_ABUSE_LED=7
-$(TARGET).CFLAGS += -DI2C_ABUSE_PORT=i2c2
-endif
-
-    </raw>
   </makefile>
 </module>
 

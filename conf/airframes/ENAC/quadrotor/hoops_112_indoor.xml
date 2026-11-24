@@ -59,6 +59,7 @@
     <module name="logger_control_effectiveness">
       <define name="LOGGER_CONTROL_EFFECTIVENESS_ACTUATORS" value="TRUE"/>
       <define name="LOGGER_CONTROL_EFFECTIVENESS_COMMANDS" value="TRUE"/>
+      <define name="LOGGER_CONTROL_EFFECTIVENESS_RPM" value="TRUE"/>
     </module>
     <module name="sys_id_doublet"/>
     <module name="sys_id_auto_doublets"/>

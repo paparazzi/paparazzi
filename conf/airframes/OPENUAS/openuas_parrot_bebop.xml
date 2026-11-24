@@ -75,8 +75,7 @@
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
       <!-- INDI RPM feedback not implemented in sim, will it be YOU who adds this? TIA! -->
-      <module name="stabilization" type="indi">
-      </module>
+      <module name="stabilization" type="indi"/>
       <define name="STABILIZATION_INDI_G2_R" value="0.0"/><!-- for jsbsim (rotor inertia is not modelled) or if one wants to use Gazebo sim -->
       <!--<module name="uart"/>--><!-- TODO: Exteral HITL PC debugging e.g test external device triggering while mission flying in sim -->
     </target>
@@ -91,10 +90,9 @@
     <!-- TODO: specificaly test for Disco see if needed or which value -->
     <define name="BAT_CHECKER_DELAY" value="60"/><!-- unit="s/10", thus tenth of seconds per default use ELECTRICAL_PERIODIC_FREQ if you for some reason want it differently-->
     <!-- Only one main battery so CATASTROPHIC_BATTERY kill should be somewhat delayed -->
-    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/> <!-- unit="s/10, thus  tenth of seconds for engine kill or in ELECTRICAL_PERIODIC_FREQ-->
+    <define name="CATASTROPHIC_BAT_KILL_DELAY" value="41" unit="s"/>
     <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
     <configure name="AHRS_MAG_CORRECT_FREQUENCY" value="50"/><!-- HZ-->
-    <configure name="USE_BARO_BOARD" value="TRUE"/>
 
     <!-- USE_SONAR means the device can read values. It does not mean we want to use those values in AHRS yet
     For that you have a setting <define name="AHRS_USE_SONAR" value="TRUE"/>
@@ -151,11 +149,6 @@
     </module>
 
     <!-- Also used if QNH needed -->
-    <module name="air_data">
-     <define name="CALC_AIRSPEED" value="FALSE"/>
-     <define name="CALC_TAS_FACTOR" value="FALSE"/>
-     <define name="CALC_AMSL_BARO" value="TRUE"/>
-    </module>
 
     <module name="geo_mag"/>
 
@@ -199,19 +192,16 @@
     -->
 
     <!-- Embed State data in your Photo file, e.g. Position of photo when taken  -->
-    <module name="video_exif">
-    </module>
+    <module name="video_exif"/>
 
     <module name="digital_cam_video">
       <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5.0"/> <!-- unit="s"/> -->
     </module>
 
     <!-- When flying multiple airframes over eg a mesh they can have info of eachothers position etc. -->
-    <module name="traffic_info">
-    </module>
+    <module name="traffic_info"/>
 <!--
-    <module name="tcas">
-    </module>
+    <module name="tcas"/>
 -->
 
     <module name="sys_mon"/><!-- for MCU load debugging -->
@@ -286,12 +276,6 @@
     <define name="CENTER_X" value="0.51015"/>
     <define name="CENTER_Y" value="0.51015"/>
     <define name="DHANE_K" value="1.25"/>-->
-  </section>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
 <!-- ************************* IMU ************************* -->
@@ -545,8 +529,8 @@ second order filter parameters -->
 
 <!-- **************************** BAT ****************************** -->
   <section name="BAT">
-    <define name="MAX_BAT_CAPACITY" value="1600" unit="mAh"/> <!-- Original Parrot battery -->
-    <!-- <define name="MAX_BAT_CAPACITY" value="2150" unit="mAh"/>--> <!-- 3rd party battery -->
+    <define name="BAT_CAPACITY" value="1600" unit="mAh"/> <!-- Original Parrot battery -->
+    <!-- <define name="BAT_CAPACITY" value="2150" unit="mAh"/>--> <!-- 3rd party battery -->
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="11000" unit="mA"/>  <!-- At 11.7 10.6 A at 12.2v 11.0A rounded then to 11000 to be at safe side-->
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="500" unit="mA"/> <!-- 500mA, with additional device on must remeasure -->
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
@@ -554,7 +538,7 @@ second order filter parameters -->
     <define name="LOW_BAT_LEVEL" value="10.8" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10.4" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/> <!-- TODO: test when AP board switches off -->
-    <define name="MIN_BAT_LEVEL" value="9.0" unit="V"/>
+    <define name="MIN_MEASURABLE_BAT_LEVEL" value="9.0" unit="V"/>
   </section>
 
 <!-- ********************** GCS SPECIFICS ************************** -->

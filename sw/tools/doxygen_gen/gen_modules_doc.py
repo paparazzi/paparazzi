@@ -11,6 +11,7 @@ import re
 import copy
 import string
 import inspect
+import textwrap
 
 
 def dox_new_page(name, title):
@@ -118,7 +119,7 @@ def get_xml_example(filename, module):
             e = copy.deepcopy(o)
             if 'description' in e.attrib:
                 del e.attrib['description']
-            s += "  " + str(ET.tostring(e)).strip() + "\n"
+            s += "  " + ET.tostring(e, encoding="unicode").strip() + "\n"
         s += "</module>\n"
     else:
         s += '<module name="{0}"/>\n'.format(module_name)
@@ -231,6 +232,44 @@ def get_module_name(module):
     return module.get('name')
 
 
+def rst_to_doxygen(text):
+    """Convert the reStructuredText blocks Doxygen does not understand (code and literal
+    blocks, images); bold, italic, inline code and lists are the same with Markdown."""
+    lines = text.split('\n')
+    out = []
+    i = 0
+    while i < len(lines):
+        directive = re.match(r'(\s*)\.\. (code-block|code|image|figure)::\s*(.*)$', lines[i])
+        literal = None if directive else re.match(r'(\s*)(.*?)::\s*$', lines[i])
+        if not (directive or literal):
+            out.append(lines[i])
+            i += 1
+            continue
+        pad = (directive or literal).group(1)
+        j = i + 1    # the block: blank lines and lines indented more than the directive
+        while j < len(lines) and (not lines[j].strip() or len(lines[j]) - len(lines[j].lstrip()) > len(pad)):
+            j += 1
+        block = textwrap.dedent('\n'.join(lines[i + 1:j])).strip('\n').split('\n')
+        if directive and directive.group(2) in ('image', 'figure'):
+            path = re.sub(r'^/?(\.\./)*images/', '', directive.group(3).strip())    # Doxygen IMAGE_PATH is doc/images
+            caption = ' '.join(l.strip() for l in block if l.strip() and not l.strip().startswith(':'))
+            out.append(pad + '@image html ' + path + (' "' + caption + '"' if caption else ''))
+        else:
+            if directive:
+                lang = directive.group(3).strip()
+                begin, end = '@code{.' + lang + '}' if lang else '@code', '@endcode'
+            else:
+                text_before = literal.group(2)    # "text::" -> "text:", "text ::" -> "text"
+                if text_before.strip():
+                    out += [pad + (text_before.rstrip() if text_before.endswith(' ') else text_before + ':'), '']
+                begin, end = '@verbatim', '@endverbatim'
+            out += [pad + begin] + [pad + l if l.strip() else '' for l in block] + [pad + end]
+        if j > i + 1 and not lines[j - 1].strip():
+            out.append('')
+        i = j
+    return '\n'.join(out)
+
+
 def get_module_description(module):
     desc = module.find("./doc/description")
     details = "No detailed description...\n"
@@ -241,7 +280,7 @@ def get_module_description(module):
         d = re.split(r'\. |\n', desc.text.strip(), 1)
         brief = d[0].strip()
         if len(d) > 1:
-            details = inspect.cleandoc(d[1]) + "\n"
+            details = rst_to_doxygen(inspect.cleandoc(d[1])) + "\n"
     return brief, details
 
 

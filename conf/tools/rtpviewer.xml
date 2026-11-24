@@ -1,4 +1,13 @@
 <program command="sw/tools/rtp_viewer/rtp_viewer.py" name="RtpViewer">
+  <doc>
+    <description>
+      Shows the RTP/JPEG video stream of an aircraft (module video_rtp_stream) in a window.
+    </description>
+    <usage>usage: rtp_viewer.py [-h] [-p PORT] [-s SCALE] [-r ROTATE]</usage>
+    <option flag="-p PORT, --port PORT" description="The port number to open for the RTP stream (5000 or 6000)"/>
+    <option flag="-s SCALE, --scale SCALE" description="The scaling factor to apply to the incoming video stream (default: 1)"/>
+    <option flag="-r ROTATE, --rotate ROTATE" description="The number of clockwise 90deg rotations to apply to the stream [0-3] (default: 0)"/>
+  </doc>
   <arg constant="5000" flag="-p" />
   <arg constant="0.75" flag="-s" />
   <arg constant="3" flag="-r" />

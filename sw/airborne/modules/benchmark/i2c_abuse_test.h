@@ -35,6 +35,14 @@
 #ifndef I2C_ABUSE_TEST_MODULE_H
 #define I2C_ABUSE_TEST_MODULE_H
 
+#ifndef I2C_ABUSE_PORT
+#define I2C_ABUSE_PORT i2c2
+#endif
+
+#ifndef I2C_ABUSE_LED
+#define I2C_ABUSE_LED 7
+#endif
+
 #ifndef I2C_ABUSE_SHORT_SCL_LED
 #define I2C_ABUSE_SHORT_SCL_LED 2
 #endif

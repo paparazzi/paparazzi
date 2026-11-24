@@ -4,14 +4,21 @@
   <doc>
     <description>
       Provide threads and synchronization primitives.
+      ABI messages must be sent from the main thread (the one running the periodic and event functions):
+      their receivers are not thread-safe. With ABI_CHECK_MAIN_THREAD every ABI message checks it, and one
+      sent from another thread stops the program at that call (abort in NPS/SITL, halt on ChibiOS).
     </description>
+    <define name="ABI_CHECK_MAIN_THREAD" value="TRUE|FALSE" description="Stop the program when an ABI message is sent outside the main thread (default TRUE in NPS/SITL, FALSE otherwise)"/>
   </doc>
   <dep>
   </dep>
   <header>
     <file name="threads.h"/>
   </header>
+  <periodic fun="pprz_thread_periodic()" freq="1."/>
   <makefile>
+    <define name="PPRZ_THREADS" value="TRUE"/>
+    <file name="threads.c"/>
     <file_arch name="threads_arch.c"/>
     <test>
     </test>

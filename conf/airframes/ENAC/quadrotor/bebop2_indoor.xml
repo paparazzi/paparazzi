@@ -1,0 +1,180 @@
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+
+<airframe name="Bebop2 Dronisos">
+  <description>
+    Bebop2 modified by Dronisos
+    Ublox F9P
+    No camera
+    Front RGB light
+  </description>
+
+  <firmware name="rotorcraft">
+
+    <configure name="PERIODIC_FREQUENCY" value="500"/>
+    <configure name="AHRS_PROPAGATE_FREQUENCY" value="$(PERIODIC_FREQUENCY)"/>
+
+    <target name="ap" board="bebop2">
+      <configure name="HOST" value="192.168.1.$(AC_ID)"/>
+      <configure name="MODEM_HOST" value="auto"/>
+    </target>
+
+    <target name="nps" board="pc">
+      <module name="fdm" type="jsbsim"/>
+    </target>
+
+    <module name="telemetry" type="transparent_udp"/>
+    <define name="PPRZLINK_ENABLE_FD"/>
+    <module name="radio_control" type="datalink"/>
+
+    <module name="imu" type="bebop">
+      <define name="BEBOP_LOWPASS_FILTER" value="MPU60X0_DLPF_98HZ"/>
+      <define name="BEBOP_SMPLRT_DIV" value="0"/>
+    </module>
+    <module name="gps" type="optitrack">
+    </module>
+
+    <module name="air_data"/>
+
+    <module name="ins" type="ext_pose"/>
+
+    <module name="actuators" type="bebop"/>
+    <module name="stabilization" type="indi">
+    </module>
+    <module name="guidance" type="indi"/>
+
+
+    <!-- Video/Camera modules -->
+    <module name="bebop_cam">
+      <define name="MT9F002_RESOLUTION" value="0"/>
+      <define name="MT9F002_VERBOSE" value="1"/>
+    </module>
+    <module name="bebop_ae_awb"/>
+    <!--module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
+      <define name="VIDEO_CAPTURE_FPS" value="10"/>
+    </module-->
+
+    <module name="video_rtp_stream">
+      <configure name="VIEWVIDEO_HOST" value="auto"/>
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="2"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
+      <define name="VIEWVIDEO_FPS" value="5"/>
+    </module>
+
+
+  </firmware>
+
+  <commands>
+    <axis name="MOTOR_FL" failsafe_value="MOTOR_STOP"/>
+    <axis name="MOTOR_FR" failsafe_value="MOTOR_STOP"/>
+    <axis name="MOTOR_BR" failsafe_value="MOTOR_STOP"/>
+    <axis name="MOTOR_BL" failsafe_value="MOTOR_STOP"/>
+    <axis name="THRUST"   failsafe_value="0"/>
+  </commands>
+
+  <servos driver="Default">
+    <servo name="FL" no="0" min="3000" neutral="3000" max="11000"/>
+    <servo name="FR" no="1" min="3000" neutral="3000" max="11000"/>
+    <servo name="BR" no="2" min="3000" neutral="3000" max="11000"/>
+    <servo name="BL" no="3" min="3000" neutral="3000" max="11000"/>
+  </servos>
+
+  <command_laws>
+    <set servo="FL" value="@MOTOR_FL"/>
+    <set servo="FR" value="@MOTOR_FR"/>
+    <set servo="BR" value="@MOTOR_BR"/>
+    <set servo="BL" value="@MOTOR_BL"/>
+  </command_laws>
+
+  <include href="conf/airframes/ENAC/swarm/calibrations/bebop2_$AC_ID.xml"/>
+
+  <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoint limits for attitude stabilization rc flight -->
+    <define name="SP_MAX_PHI" value="45" unit="deg"/>
+    <define name="SP_MAX_THETA" value="45" unit="deg"/>
+    <define name="SP_MAX_R" value="60" unit="deg/s"/>
+    <define name="DEADBAND_A" value="0"/>
+    <define name="DEADBAND_E" value="0"/>
+    <define name="DEADBAND_R" value="50"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="200.f"/>
+    <define name="REF_ERR_Q" value="200.f"/>
+    <define name="REF_ERR_R" value="200.f"/>
+    <define name="REF_RATE_P" value="16.f"/>
+    <define name="REF_RATE_Q" value="16.f"/>
+    <define name="REF_RATE_R" value="16.f"/>
+
+    <!-- control effectiveness -->
+    <define name="G1" type="matrix">
+      <field value="12.0, -12.0, -12.0, 12.0" type="float[]"/>
+      <field value="10.5, 10.5, -10.5, -10.5" type="float[]"/>
+      <field value="0.8, -0.8, 0.8, -0.8" type="float[]"/>
+      <field value="-0.6, -0.6, -0.4, -0.4" type="float[]"/>
+    </define>
+    <!--Counter torque effect of spinning up a rotor-->
+    <define name="G2" value="{110., -110., 110., -110.}"/>
+    <!-- second order filter parameters -->
+    <define name="FILT_CUTOFF" value="3.2"/>
+    <define name="ESTIMATION_FILT_CUTOFF" value="3.2"/>
+    <!-- first order actuator dynamics -->
+    <define name="ACT_FREQ" value="{68.40, 68.40, 68.40, 68.40}"/>
+
+    <!-- INDI outputs to commands association -->
+    <define name="COMMANDS" value="{COMMAND_MOTOR_FL, COMMAND_MOTOR_FR, COMMAND_MOTOR_BR, COMMAND_MOTOR_BL}"/>
+
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.0001f"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="REF_MIN_ZD" value="-2."/>
+    <define name="REF_MAX_ZD" value=" 2."/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.655"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="30" unit="deg"/>
+    <define name="REF_MAX_SPEED" value="1." unit="m/s"/>
+    <define name="REF_MAX_ACCEL" value="2." unit="m/s²"/>
+  </section>
+
+  <section name="GUIDANCE_INDI" prefix="GUIDANCE_INDI_">
+    <define name="FILTER_CUTOFF" value="2."/>
+  </section>
+
+  <section name="NAVIGATION">
+    <define name="ARRIVED_AT_WAYPOINT" value="0.8"/>
+    <define name="NAV_CARROT_DIST" value="3."/>
+    <define name="NAV_CLIMB_VSPEED" value="0.8"/>
+    <define name="NAV_DESCEND_VSPEED" value="-0.6"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+
+  </section>
+
+  <section name="BAT">
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="11.0" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="11.1" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES" value="fl_motor, fr_motor, br_motor, bl_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="bebop2_dronisos" type="string"/>
+    <define name="COMMANDS_NB" value="4"/>
+    <define name="NO_MOTOR_MIXING" value="TRUE"/>
+  </section>
+
+</airframe>

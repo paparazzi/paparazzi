@@ -72,8 +72,7 @@ PRINT_CONFIG_VAR(SECONDARY_GPS)
 #define TIME_TO_SWITCH 5000 //ten s in ms
 
 struct GpsState gps = {0};
-struct GpsTimeSync gps_time_sync;
-static struct RelPosNED gps_relposned[GPS_RELPOS_MAX] = {0};
+static struct RelPosNED gps_relposned[GPS_RELPOS_MAX];
 
 #ifdef SECONDARY_GPS
 static uint8_t current_gps_id = GpsId(PRIMARY_GPS);
@@ -200,6 +199,9 @@ static void send_gps_relpos(struct transport_tx *trans, struct link_device *dev)
 
 static void send_gps_int(struct transport_tx *trans, struct link_device *dev)
 {
+  // ECEF from the LLA position and NED velocity when the receiver doesn't send it
+  struct EcefCoor_i ecef_pos = ecef_int_from_gps(&gps);
+  struct EcefCoor_i ecef_vel = ecef_vel_int_from_gps(&gps);
 #if PPRZLINK_DEFAULT_VER == 2 && GPS_POS_BROADCAST
   // broadcast GPS message
   struct pprzlink_msg msg;
@@ -212,10 +214,10 @@ static void send_gps_int(struct transport_tx *trans, struct link_device *dev)
 #else
   pprz_msg_send_GPS_INT(trans, dev, AC_ID,
 #endif
-                        &gps.ecef_pos.x, &gps.ecef_pos.y, &gps.ecef_pos.z,
+                        &ecef_pos.x, &ecef_pos.y, &ecef_pos.z,
                         &gps.lla_pos.lat, &gps.lla_pos.lon, &gps.lla_pos.alt,
                         &gps.hmsl,
-                        &gps.ecef_vel.x, &gps.ecef_vel.y, &gps.ecef_vel.z,
+                        &ecef_vel.x, &ecef_vel.y, &ecef_vel.z,
                         &gps.pacc, &gps.sacc,
                         &gps.tow,
                         &gps.pdop,
@@ -317,7 +319,7 @@ bool gps_fix_valid(void)
 
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id,
-                   uint32_t stamp __attribute__((unused)),
+                   uint32_t stamp,
                    struct GpsState *gps_s)
 {
   /* ignore callback from own AbiSendMsgGPS */
@@ -349,9 +351,9 @@ static void gps_cb(uint8_t sender_id,
   AbiSendMsgGPS(GPS_MULTI_ID, now_ts, gps_s);
   gps_s->fix = old_fix;
 #endif
-  if (gps.tow != gps_time_sync.t0_tow) {
-    gps_time_sync.t0_ticks = sys_time.nb_tick;
-    gps_time_sync.t0_tow = gps.tow;
+  // Sync the system time of week with the selected GPS (only with a valid time from a fix)
+  if (gps.comp_id == gps_s->comp_id && gps.fix >= GPS_FIX_3D && gps.tow != 0) {
+    sys_time_sync_gps(gps.week, gps.tow, stamp);
   }
 }
 
@@ -418,24 +420,10 @@ void gps_init(void)
 
 uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)
 {
-  uint32_t clock_delta;
-  uint32_t time_delta;
-  uint32_t itow_now;
-
-  if (sys_ticks < gps_time_sync.t0_ticks) {
-    clock_delta = (0xFFFFFFFF - sys_ticks) + gps_time_sync.t0_ticks + 1;
-  } else {
-    clock_delta = sys_ticks - gps_time_sync.t0_ticks;
-  }
-
-  time_delta = msec_of_sys_time_ticks(clock_delta);
-
-  itow_now = gps_time_sync.t0_tow + time_delta;
-  if (itow_now > MSEC_PER_WEEK) {
-    itow_now %= MSEC_PER_WEEK;
-  }
-
-  return itow_now;
+  // signed difference handles both timestamps in the past/future and tick counter wrap
+  int32_t dt_ticks = (int32_t)(sys_time.nb_tick - sys_ticks);
+  int32_t dt_ms = (int32_t)((int64_t)dt_ticks * 1000 / (int64_t)sys_time.ticks_per_sec);
+  return (get_sys_time_tow() + MSEC_PER_WEEK - dt_ms % MSEC_PER_WEEK) % MSEC_PER_WEEK;
 }
 
 /**

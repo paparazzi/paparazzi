@@ -17,6 +17,19 @@
    <item>
     <layout class="QHBoxLayout" name="source_layout">
      <item>
+      <widget class="QCheckBox" name="all_check">
+       <property name="toolTip">
+        <string>Tick or untick all logs</string>
+       </property>
+       <property name="text">
+        <string>All</string>
+       </property>
+       <property name="tristate">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="count_label">
        <property name="text">
         <string>No logs</string>

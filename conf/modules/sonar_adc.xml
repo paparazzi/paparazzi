@@ -3,34 +3,36 @@
 <module name="sonar_adc" dir="sonar" task="sensors">
   <doc>
     <description>
-    A Sonar with an ADC output signal can be used as unidirectional rangefinder. Examples of devices are e.g. Maxbotix MB1210 or MB1010
-    The sensor can be used as a control or measuring tool to detect the range (distance) to a surfaces, used for example in AGL hold, terrain following or landing assist.
+      A Sonar with an ADC output signal can be used as unidirectional rangefinder. Examples of devices are e.g. Maxbotix MB1210 or MB1010
+      The sensor can be used as a control or measuring tool to detect the range (distance) to a surfaces, used for example in AGL hold, terrain following or landing assist.
 
-    To be able to use the Sonar connected to an ADC input, just add this module in your airframe and set needed parameters.
+      To be able to use the Sonar connected to an ADC input, just add this module in your airframe and set needed parameters.
 
-    Notes:
-    + The maximum useful detection distance is 4m for common simple sonar based small sized sensors, even if datasheet e.g. states 7m.
-    For most ADC sonar rangefinder sensor devices, a sampling rate of at least 15Hz is supported. However, if measurements are taken at longer distances, 
-    the time required for the ultrasonic pulse to return increases, which may limit the maximum achievable sampling rate. 
-    It is recommended to adjust the SONAR_ADC_PERIODIC_FREQUENCY parameter according to the sensor's capabilities and the expected measurement range to ensure reliable readings.
+      Notes:
 
-    + If the distance is read but the scale is incorrect, adjust the SONAR_ADC_SCALE parameter to match the sensor's specifications.
-    The scale factor can also be determined experimentally by measuring a known distance and adjusting the scale until the output matches the expected value. 
-    This Scale value adjustment can be performed real-time via the setting panel which make it a little more user friendly.
-    After the correct value is determined, save setting or manually add the value to the airframe file.
+      - The maximum useful detection distance is 4m for common simple sonar based small sized sensors, even if datasheet e.g. states 7m.
+        For most ADC sonar rangefinder sensor devices, a sampling rate of at least 15Hz is supported. However, if measurements are taken at longer distances, 
+        the time required for the ultrasonic pulse to return increases, which may limit the maximum achievable sampling rate. 
+        It is recommended to adjust the SONAR_ADC_PERIODIC_FREQUENCY parameter according to the sensor's capabilities and the expected measurement range to ensure reliable readings.
 
-    SONAR_ADC_SCALE for common sensors:
-    Maxbotix XL-MaxSonar part MB1210 where sensor VCC is 5v: 0.001855
-    Maxbotix LV-MaxSonar part MB1010 where sensor VCC is 5v: 0.002315
+      - If the distance is read but the scale is incorrect, adjust the SONAR_ADC_SCALE parameter to match the sensor's specifications.
+        The scale factor can also be determined experimentally by measuring a known distance and adjusting the scale until the output matches the expected value. 
+        This Scale value adjustment can be performed real-time via the setting panel which make it a little more user friendly.
+        After the correct value is determined, save setting or manually add the value to the airframe file.
 
-    + If the sensor is used in an airframe with landing gear, it is recommended to set the SONAR_ADC_OFFSET to the height of the landing gear, so that the AGL zero value is correct to the ground. 
-    Keep in mind that most sonar sensors have a deadzone of 0.15m to 0.25m, so the AGL cannot be measured if landinggear shorter than the deadzone range.
+      SONAR_ADC_SCALE for common sensors:
 
-    + There is an option to compensate the AGL value for body rotation, which is useful if e.g. a roll maneuver, the sensor is not pointing straight down it compensates the AGL value for the body rotation.
-    
-    + Also an option to filter the sensor output is available, which is useful if the sensor is noisy or has a lot of outliers, in case of a sonar, almost always the case.
-    
-    + Distance compensation for pressure and temperature are not implemented, keep in mind that sonar sensors are susceptible to temperature and pressure changes.
+      - Maxbotix XL-MaxSonar part MB1210 where sensor VCC is 5v: 0.001855
+      - Maxbotix LV-MaxSonar part MB1010 where sensor VCC is 5v: 0.002315
+
+      - If the sensor is used in an airframe with landing gear, it is recommended to set the SONAR_ADC_OFFSET to the height of the landing gear, so that the AGL zero value is correct to the ground. 
+        Keep in mind that most sonar sensors have a deadzone of 0.15m to 0.25m, so the AGL cannot be measured if landinggear shorter than the deadzone range.
+
+      - There is an option to compensate the AGL value for body rotation, which is useful if e.g. a roll maneuver, the sensor is not pointing straight down it compensates the AGL value for the body rotation.
+
+      - Also an option to filter the sensor output is available, which is useful if the sensor is noisy or has a lot of outliers, in case of a sonar, almost always the case.
+
+      - Distance compensation for pressure and temperature are not implemented, keep in mind that sonar sensors are susceptible to temperature and pressure changes.
     </description>
     <configure name="SONAR_ADC_PORT" value="ADC_X" description="Set the ADC port the sonar sensor is connected to on your flightcontroller, defaults to ADC_3"/>
     <configure name="USE_SONAR_ADC_AGL" value="TRUE|FALSE" description="Updates the AGL value in state,if not defined, defaults to FALSE"/>

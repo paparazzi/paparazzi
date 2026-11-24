@@ -31,6 +31,9 @@
 #if (defined DATALINK) || PERIODIC_TELEMETRY
 #include "modules/datalink/datalink.h"
 #endif
+#if defined DATALINK && (DATALINK == PPRZ)
+#include "modules/datalink/pprz_dl.h"
+#endif
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -58,8 +61,21 @@ static void send_downlink(struct transport_tx *trans, struct link_device *dev)
     last_up_nb_msgs = 0;
 #endif
 
+    // errors of the uplink parser of this link, known when it is a pprz transport (e.g. the main or an
+    // extra pprz datalink, not the flight recorder): those share their functions and keep the rx and tx
+    // parts in one struct pprz_transport (impl)
+    uint8_t up_err = 0;
+    uint8_t up_ovrn = 0;
+#if defined DATALINK && (DATALINK == PPRZ)
+    if (trans->start_message == pprz_tp.trans_tx.start_message) {
+      struct pprz_transport *tp = (struct pprz_transport *) trans->impl;
+      up_err = tp->trans_rx.error;
+      up_ovrn = tp->trans_rx.ovrn;
+    }
+#endif
+
     pprz_msg_send_DATALINK_REPORT(trans, dev, AC_ID, &datalink_time, &datalink_nb_msgs, &dev->nb_msgs, &down_rate,
-                                  &up_rate, &dev->nb_ovrn);
+                                  &up_rate, &dev->nb_ovrn, &up_err, &up_ovrn);
   }
 }
 #endif

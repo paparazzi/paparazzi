@@ -182,6 +182,7 @@ struct invensense3_t {
   int sample_numbers;                           ///< expected FIFO packet number, assuming reading at PERIODIC_FREQUENCY
   float gyro_samplerate;                        ///< Sample rate in Hz from the gyro_odr
   float accel_samplerate;                       ///< Sample rate in Hz from the accel_odr
+  uint32_t fifo_cnt;                            ///< FIFO packet counter to decimate the slower sensor (modulo the faster rate)
 };
 
 /* External functions */

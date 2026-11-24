@@ -1,3 +1,8 @@
 <program name="VLC" command="$vlc">
+  <doc>
+    <description>
+      VLC media player, here showing the RTP video stream on port 5000 (sw/tools/rtp_viewer/rtp_5000.sdp).
+    </description>
+  </doc>
   <arg flag="./sw/tools/rtp_viewer/rtp_5000.sdp"/>
 </program>

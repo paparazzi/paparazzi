@@ -119,18 +119,21 @@ void ak8963_event(struct Ak8963 *ak)
         ak->i2c_trans.buf[0] = AK8963_REG_ST2; // Data overflow bit 3 and data read error status bit 2
         i2c_transceive(ak->i2c_p, &(ak->i2c_trans), ak->i2c_trans.slave_addr, 1, 1);
         ak->status++;
-        break;
+      } else if (ak->i2c_trans.status == I2CTransFailed) {
+        // Failed reading, back to idle to try again
+        ak->i2c_trans.status = I2CTransDone;
+        ak->status = AK_STATUS_IDLE;
       }
-
       break;
 
     default:
       if (ak->i2c_trans.status == I2CTransSuccess || ak->i2c_trans.status == I2CTransFailed) {
         // Goto idle
+        const bool failed = (ak->i2c_trans.status == I2CTransFailed);
         ak->i2c_trans.status = I2CTransDone;
         ak->status = AK_STATUS_IDLE;
-        // check overrun
-        if ((bit_is_set(ak->i2c_trans.buf[0], 3)) || (bit_is_set(ak->i2c_trans.buf[0], 2))) {
+        // check overrun (ST2 not read on failure, discard the data)
+        if (failed || (bit_is_set(ak->i2c_trans.buf[0], 3)) || (bit_is_set(ak->i2c_trans.buf[0], 2))) {
         //if (bit_is_set(ak->i2c_trans.buf[0], 3)) {
           ak->data_available = false;
         } else {

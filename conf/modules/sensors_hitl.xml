@@ -10,7 +10,7 @@
     <define name="USE_BATTERY_MONITOR" value="FALSE|TRUE" description="If the board is not powered from a real battery, set this flag to TRUE to override the battery voltage reading"/>
   </doc>
   <dep>
-    <depends>imu_common,gps</depends>
+    <depends>imu_common,gps,air_data</depends>
     <provides>imu,mag,gps,baro,airspeed</provides>
   </dep>
   <header>

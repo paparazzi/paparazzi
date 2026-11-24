@@ -248,6 +248,13 @@ sim: sim_static
 
 
 #
+# user documentation (Sphinx), shown by the Paparazzi Center (Doc tab, source Local)
+#
+doc:
+	$(Q)$(MAKE) -C doc/sphinx html
+	@echo "Done. Open doc/sphinx/build/html/index.html in your browser or the Paparazzi Center (Doc, Local)."
+
+#
 # doxygen html documentation
 #
 dox:
@@ -261,16 +268,20 @@ dox:
 # Cleaning
 #
 
+# skip sw/ext (cleaned by its own Makefile), hidden folders (e.g. .git, .claude
+# with other worktrees) and Python virtual environments
+CLEAN_PRUNE = \( -path ./sw/ext -o -path './.*' -o -name venv \) -prune -o
+
 clean:
 	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml
 	$(Q)rm -f  $(GEN_HEADERS)
 	$(Q)MESSAGES_INSTALL=$(MESSAGES_INSTALL) $(MAKE) -C $(PPRZLINK_DIR) uninstall
 	$(Q)rm -fr $(MAVLINK_DIR)
-	$(Q)find . -mindepth 2 -name Makefile -a ! -path "./sw/ext/*" -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
+	$(Q)find . $(CLEAN_PRUNE) -name Makefile ! -path ./Makefile -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)$(MAKE) -C $(EXT) clean
-	$(Q)find . -name '*~' -exec rm -f {} \;
-	$(Q)find . -name '*.pyc' -exec rm -f {} \;
-	$(Q)find . -name 'Cargo.lock' -exec rm -f {} \;
+	$(Q)find . $(CLEAN_PRUNE) -name '*~' -exec rm -f {} \;
+	$(Q)find . $(CLEAN_PRUNE) -name '*.pyc' -exec rm -f {} \;
+	$(Q)find . $(CLEAN_PRUNE) -name 'Cargo.lock' -exec rm -f {} \;
 
 cleanspaces:
 	find sw -path sw/ext -prune -o -type f -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
@@ -332,6 +343,10 @@ test_examples: all
 test_modules: all
 	prove -v tests/modules/test_modules.py
 
+# start every Paparazzi Center tool (conf/tools) with --help
+test_tools: all
+	prove -v tests/tools/test_tools.py
+
 test_all_confs: all opencv_bebop
 	$(Q)$(eval $CONFS:=$(shell ./find_confs.py))
 	@echo "************\nFound $(words $($CONFS)) config files: $($CONFS)"
@@ -347,8 +362,8 @@ test_full:
 
 
 
-.PHONY: all print_build_version _print_building _save_build_version init dox ground_segment ground_segment.opt \
+.PHONY: all print_build_version _print_building _save_build_version init doc dox ground_segment ground_segment.opt \
 subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install tmtc tmtc.opt generators\
 static sim_static opencv_bebop mocap \
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
-test test_examples test_math test_all_confs
+test test_examples test_math test_modules test_tools test_all_confs

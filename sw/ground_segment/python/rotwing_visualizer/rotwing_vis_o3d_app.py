@@ -18,6 +18,7 @@
 # along with paparazzi.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import argparse
 import sys
 
 import os
@@ -487,6 +488,8 @@ class Viewer3D(object):
         
 
 def main():
+    argparse.ArgumentParser(description="3D view (Open3D) of a rotating wing aircraft from its attitude, "
+                            "rotation controller and actuator telemetry.").parse_known_args()
     o3d.visualization.gui.Application.instance.initialize()
     Viewer3D("Rot wing visualizer")
     o3d.visualization.gui.Application.instance.run()

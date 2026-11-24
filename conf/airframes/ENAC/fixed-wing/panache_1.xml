@@ -30,7 +30,6 @@
     <module name="board" type="tawaki"/>
     <module name="ahrs" type="float_dcm"/> <!--Attitude and heading reference system-->
     <module name="ins" type="alt_float"/><!--Inertial navigation system-->
-    <module name="air_data"/>
     <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
@@ -194,6 +193,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="JSBSIM_LAUNCHSPEED" value="15"/>
+    <define name="JSBSIM_LAUNCH_RPM" value="10000"/>
     <define name="JSBSIM_MODEL" value="easystar" type="string"/>
   </section>
 </airframe>

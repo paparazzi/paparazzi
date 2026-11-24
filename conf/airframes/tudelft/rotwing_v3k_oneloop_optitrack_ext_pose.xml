@@ -72,17 +72,8 @@
         <module name="airspeed" type="ms45xx_i2c">
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
             <define name="MS45XX_PRESSURE_SCALE"        value="1.90"/>
-            <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
-            <define name="MS45XX_LOWPASS_TAU"           value="0.25"/>
-            <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
         </module>
-        <module name="airspeed" type="uavcan">
-            <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER"   value="TRUE" />
-            <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD"   value="0.1" />
-            <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
-            <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
-        </module>
-        <module name="air_data"/>
+        <module name="airspeed" type="uavcan"/>
         <module name="gps" type="datalink"/>   
 
         <!-- IMU / INS -->
@@ -192,6 +183,20 @@
         <axis name="YAW"          group ="OTHER" failsafe_value="0"/>
         <axis name="THRUST"       group ="OTHER" failsafe_value="0"/>
     </commands>
+
+    <section name="AIR_DATA" prefix="AIR_DATA_">
+        <!-- Low-pass cut-off (Hz) per pitot (was a time constant of 0.25 s and 0.15 s), the order is the priority: uavcan only when the MS45XX fails -->
+        <define name="DIFF_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="MS45XX_SENDER_ID"/>
+                <field name="filter_freq" value="0.64"/>
+            </field>
+            <field type="struct">
+                <field name="abi_id" value="UAVCAN_SENDER_ID"/>
+                <field name="filter_freq" value="1.06"/>
+            </field>
+        </define>
+    </section>
 
     <section name="MIXING" prefix="MOTOR_MIXING_">
       <define name="TRIM_ROLL"  value="0"/>
@@ -312,7 +317,7 @@
                 </field>
                 <field name="neutral" value="-11,3,11" type="int[]"/>
                 <field name="scale" value="{{50419,55252,41671},{5160,5649,4295}}"/>
-                <field name="filter_sample_freq" value="1133"/>
+                <field name="sample_freq" value="1133"/>
                 <field name="filter_freq" value="30"/>
             </field>
             <field type="struct">
@@ -324,7 +329,7 @@
                 </field>
                 <field name="neutral" value="-1,1,56" type="int[]"/>
                 <field name="scale" value="{{2198,45197,29046},{449,9226,5929}}"/>
-                <field name="filter_sample_freq" value="4050"/>
+                <field name="sample_freq" value="4050"/>
                 <field name="filter_freq" value="30"/>
             </field>
             <field type="struct">
@@ -336,7 +341,7 @@
                 </field>
                 <field name="neutral" value="-57,-10,-7" type="int[]"/>
                 <field name="scale" value="{{13689,45399,32650},{2797,9280,6691}}"/>
-                <field name="filter_sample_freq" value="1138"/>
+                <field name="sample_freq" value="1138"/>
                 <field name="filter_freq" value="30"/>
             </field>
         </define>
@@ -344,7 +349,7 @@
         <!-- Magnetometer calibration (NOT DONE!) -->
         
         <!-- Gyrometer calibration (NOT DONE!) -->
-        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1133, .filter_freq=30},{.abi_id=21, .calibrated={.filter=true}, .filter_sample_freq=4050, .filter_freq=30},{.abi_id=22, .calibrated={.filter=true}, .filter_sample_freq=1138, .filter_freq=30}}"/>
+        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .sample_freq=1133, .filter_freq=30},{.abi_id=21, .calibrated={.filter=true}, .sample_freq=4050, .filter_freq=30},{.abi_id=22, .calibrated={.filter=true}, .sample_freq=1138, .filter_freq=30}}"/>
 
 
         <!-- Define axis in hover frame -->
@@ -519,7 +524,6 @@
 
     <section name="EKF2" prefix="INS_EKF2_">
         <define name="GPS_YAW_OFFSET" value="0"/>
-        <define name="GPS_ANTENNA_DISTANCE" value="1.02"/>
 
         <define name="IMU_POS_X" value="0.0"/>
         <define name="IMU_POS_Y" value="0.0"/>

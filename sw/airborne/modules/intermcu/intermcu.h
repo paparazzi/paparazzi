@@ -43,15 +43,6 @@ enum intermcu_status {
   INTERMCU_LOST                     ///< No interMCU communication anymore
 };
 
-#ifdef BOARD_PX4IO
-/* InterMCU baudrate protection for PX4 */
-enum intermcu_PX4_baud_status {
-  PX4_BAUD,
-  CHANGING_BAUD,
-  PPRZ_BAUD
-};
-#endif
-
 /* InterMCU command status bits */
 enum intermcu_cmd_status {
   INTERMCU_CMD_MOTORS_ON,           ///< The status of intermcu_ap_motors_on
@@ -74,10 +65,6 @@ struct intermcu_t {
   bool enabled;                     ///< If the InterMCU communication is enabled
   bool msg_available;               ///< If we have an InterMCU message
   uint8_t cmd_status;               ///< Command status information that is transfered (intermcu_cmd_status)
-
-#ifdef BOARD_PX4IO
-  enum intermcu_PX4_baud_status stable_px4_baud;
-#endif
 };
 
 extern struct intermcu_t intermcu;

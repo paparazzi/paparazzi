@@ -229,6 +229,17 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
     printf("Launching with speed of %.1f m/s!\n", (float)NPS_JSBSIM_LAUNCHSPEED);
     FDMExec->GetIC()->SetUBodyFpsIC(FeetOfMeters(NPS_JSBSIM_LAUNCHSPEED));
     FDMExec->RunIC();
+#ifdef NPS_JSBSIM_LAUNCH_RPM
+    // Model a motor already running at hand launch. Starting an electric
+    // propeller from rest at full power can produce a large torque transient.
+    FGPropulsion *propulsion = FDMExec->GetPropulsion();
+    for (uint32_t i = 0; i < propulsion->GetNumEngines(); i++) {
+      FGThruster *thruster = propulsion->GetEngine(i)->GetThruster();
+      if (thruster->GetRPM() < NPS_JSBSIM_LAUNCH_RPM) {
+        thruster->SetRPM(NPS_JSBSIM_LAUNCH_RPM);
+      }
+    }
+#endif
     already_launched = TRUE;
   }
 #endif

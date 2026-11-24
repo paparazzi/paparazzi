@@ -3,6 +3,7 @@
 # bebop2.makefile
 #
 # http://wiki.paparazziuav.org/wiki/Bebop
+# Cross-compilers: sw/airborne/boards/bebop/README.md
 #
 
 BOARD=bebop
@@ -22,7 +23,7 @@ TARGET_DIR=$(FTP_DIR)/$(SUB_DIR)
 # -----------------------------------------------------------------------
 
 # The datalink default uses UDP
-MODEM_HOST         ?= 192.168.42.255
+MODEM_HOST         ?= auto
 
 # The GPS sensor is connected internally
 GPS_PORT           ?= UART1
@@ -44,6 +45,9 @@ $(TARGET).srcs +=  $(SRC_BOARD)/board.c
 $(TARGET).CFLAGS += -DLINUX_LINK_STATIC
 $(TARGET).LDFLAGS += -static
 
+# 32-bit time_t like the Parrot firmware (from Ubuntu 24.04 on the cross-compiler defaults to 64-bit)
+$(TARGET).CFLAGS += -U_TIME_BITS
+
 # limit main loop to 1kHz so ap doesn't need 100% cpu
 #$(TARGET).CFLAGS += -DLIMIT_EVENT_POLLING
 
@@ -51,7 +55,6 @@ $(TARGET).LDFLAGS += -static
 
 # default LED configuration
 RADIO_CONTROL_LED   ?= none
-BARO_LED            ?= none
 AHRS_ALIGNER_LED    ?= 1
 GPS_LED             ?= none
 SYS_TIME_LED        ?= 0

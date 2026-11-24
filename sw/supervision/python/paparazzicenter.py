@@ -5,6 +5,23 @@ import os
 import sys
 import utils
 
+# Mag calibration 3D view: some drivers (e.g. in a VM) don't report the current OpenGL context, so PyOpenGL
+# can't store the arrays per context and every draw fails. The view has a single context: store them under
+# one key instead. (STORE_POINTERS=False would need ERROR_ON_COPY=True, which breaks the newer pyqtgraph.)
+try:
+    import OpenGL.contextdata
+    import OpenGL.error
+    _gl_get_context = OpenGL.contextdata.getContext
+
+    def _gl_get_context_or_default(context=None):
+        try:
+            return _gl_get_context(context)
+        except OpenGL.error.Error:
+            return 1
+    OpenGL.contextdata.getContext = _gl_get_context_or_default
+except ImportError:
+    pass
+
 lib_path = os.path.normpath(os.path.join(utils.PAPARAZZI_SRC, 'sw', 'lib', 'python'))
 sys.path.append(lib_path)
 

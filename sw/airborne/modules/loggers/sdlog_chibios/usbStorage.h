@@ -25,12 +25,16 @@
  */
 #pragma once
 
+#include "std.h"
+
+#if USE_CHIBIOS_RTOS
 #include <ch.h>
 
 void usbStorageStartPolling(void);
 void usbStorageStop(void);
 void usbStorageWaitForDeconnexion(void);
 bool usbStorageIsItRunning(void);
+#endif
 
 extern float usb_storage_status;
 extern void usbStorage_enable_usb_storage(float e);

@@ -86,6 +86,10 @@ uint32_t DshotErpsGetEperiod(const DshotErps *derpsp)
  */
 uint32_t DshotErpsGetRpm(const DshotErps *derpsp)
 {
+  // The all-ones 12-bit payload indicates a stopped motor (exclude CRC).
+  if ((derpsp->ep.rawFrame >> 4) == 0x0FFFU) {
+    return 0;
+  }
   return ((uint32_t) 60e6f) / DshotErpsGetEperiod(derpsp);
 }
 

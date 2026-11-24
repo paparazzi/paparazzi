@@ -36,7 +36,7 @@
  *
  */
 
-inline void BayerToYUV(struct image_t *in, struct image_t *out,
+static inline void BayerToYUV(struct image_t *in, struct image_t *out,
                  int RedX, int RedY)
 {
   uint16_t *ii = (uint16_t *) in->buf;

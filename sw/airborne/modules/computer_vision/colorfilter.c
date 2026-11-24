@@ -55,7 +55,10 @@ volatile int color_count = 0;
 
 #include "modules/core/abi.h"
 
-// Function
+/** A new color count from the video thread, sent as ABI message by colorfilter_event() in the main thread */
+static volatile bool colorfilter_new_count = false;
+
+// Function (in the video thread)
 static struct image_t *colorfilter_func(struct image_t *img, uint8_t camera_id __attribute__((unused)))
 {
   // Filter
@@ -64,6 +67,18 @@ static struct image_t *colorfilter_func(struct image_t *img, uint8_t camera_id _
                                        color_cb_min, color_cb_max,
                                        color_cr_min, color_cr_max
                                       );
+
+  colorfilter_new_count = true;
+
+  return img; // Colorfilter did not make a new image
+}
+
+void colorfilter_event(void)
+{
+  if (!colorfilter_new_count) {
+    return;
+  }
+  colorfilter_new_count = false;
 
   if (COLORFILTER_SEND_OBSTACLE) {
     if (color_count > 20)
@@ -75,8 +90,6 @@ static struct image_t *colorfilter_func(struct image_t *img, uint8_t camera_id _
       AbiSendMsgOBSTACLE_DETECTION(OBS_DETECTION_COLOR_ID, 10.f, 0.f, 0.f);
     }
   }
-
-  return img; // Colorfilter did not make a new image
 }
 
 void colorfilter_init(void)

@@ -2,11 +2,12 @@
 <module name="dc_ctrl_parrot_mykonos" dir="digital_cam">
   <doc>
     <description>
-    Control the Parrot Bebop, Bebop2 and Disco cameras via native Parrot IMaging Process(PIMP).
-    It can trigger photos based on distance, time or circle radius in both fixedwings and rotorcraft.
-    One can start to record onboard videos and start and stop streaming of live video.
-    Show it in your GCS via mplayer plugin or e.g. 
-     gst-launch-1.0 udpsrc port=55004 ! "application/x-rtp, payload=96" ! rtph264depay ! avdec_h264 ! autovideosink
+      Control the Parrot Bebop, Bebop2 and Disco cameras via native Parrot IMaging Process(PIMP).
+      It can trigger photos based on distance, time or circle radius in both fixedwings and rotorcraft.
+      One can start to record onboard videos and start and stop streaming of live video.
+      Show it in your GCS via mplayer plugin or e.g.::
+
+        gst-launch-1.0 udpsrc port=55004 ! "application/x-rtp, payload=96" ! rtph264depay ! avdec_h264 ! autovideosink
     </description>
     <define name="DC_AUTOSHOOT_PERIOD" value="3.0" description="Period for DC_AUTOSHOOT_PERIODIC in seconds"/>
     <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="Photo distance in meters"/>

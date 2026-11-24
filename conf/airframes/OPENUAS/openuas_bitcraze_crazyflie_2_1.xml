@@ -67,11 +67,9 @@
 
     <module name="ins" type="extended"/>
     <!--<module name="sys_mon"/>-->
-    <module name="air_data"/>
 
     <module name="baro_bmp3">
       <configure name="BMP3_I2C_DEV" value="i2c3"/>
-      <define name="AIR_DATA_BARO_ABS_ID" value="BARO_BMP3_SENDER_ID"/>
       <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR_ALT"/>
     </module>
 
@@ -312,8 +310,8 @@
   </section>
 
   <section name="BAT">
-    <define name="MAX_BAT_CAPACITY" value="240" unit="mAh"/><!-- Default battery-->
-    <!-- <define name="MAX_BAT_CAPACITY" value="350" unit="mAh"/>--> <!-- 3rd party battery -->
+    <define name="BAT_CAPACITY" value="240" unit="mAh"/><!-- Default battery-->
+    <!-- <define name="BAT_CAPACITY" value="350" unit="mAh"/>--> <!-- 3rd party battery -->
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="300" unit="mA"/>
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="40" unit="mA"/>
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
@@ -321,7 +319,8 @@
     <define name="LOW_BAT_LEVEL" value="3.5" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="3.3" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
-    <define name="MIN_BAT_LEVEL" value="2.9" unit="V"/>
+    <define name="MIN_MEASURABLE_BAT_LEVEL" value="2.9" unit="V"/>
+    <define name="BAT_NB_CELLS" value="1"/>
   </section>
 
   <section name="MISC">

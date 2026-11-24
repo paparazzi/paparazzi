@@ -1,2 +1,13 @@
-<program command="sw/ground_segment/python/moving_base/moving_base.py" name="Moving Base Sim" />
+<program command="sw/ground_segment/python/moving_base/moving_base.py" name="Moving Base Sim">
+  <doc>
+    <description>
+      Moving base simulator
+    </description>
+    <usage>usage: moving_base.py [-h] [-s SPEED] [-he HEADING] [-t TURN_RATE] [-i ID]</usage>
+    <option flag="-s SPEED, --speed SPEED" description="Speed of the ship (m/s)."/>
+    <option flag="-he HEADING, --heading HEADING" description="Heading of the ship (deg)."/>
+    <option flag="-t TURN_RATE, --turn_rate TURN_RATE" description="Turn rate of the ship (deg/s)."/>
+    <option flag="-i ID, --id ID" description="Aircraft ID."/>
+  </doc>
+</program>
 

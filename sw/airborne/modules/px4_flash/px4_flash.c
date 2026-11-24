@@ -37,10 +37,6 @@
 #include "led.h"
 #include "mcu_arch.h"
 
-#ifdef STM32_MCU_ARCH_H // scb_reset_system from OpenCM3
-#include <libopencm3/cm3/scb.h>
-#endif
-
 #include "mcu_periph/sys_time.h"
 #ifdef INTER_MCU_AP
 tid_t px4iobl_tid; ///< id for time out of the px4 bootloader reset
@@ -141,8 +137,6 @@ void px4flash_event(void)
       //the target is the ap, so reboot to PX4 bootloader
 #if defined(CHIBIOS_MCU_ARCH_H)
       mcu_reboot(MCU_REBOOT_BOOTLOADER);
-#elif defined(STM32_MCU_ARCH_H) 
-      scb_reset_system();
 #endif
     } else { // target fbw
 #ifdef INTER_MCU_AP

@@ -202,14 +202,9 @@ static inline float gps_time_since_last_3dfix(void)
 }
 
 
-/*
- * For GPS time synchronizaiton...
- */
-extern struct GpsTimeSync gps_time_sync;
-
 /**
  * Convert time in sys_time ticks to GPS time of week.
- * The resolution is sys_time.resolution
+ * The resolution is sys_time.resolution, see also get_sys_time_tow()
  * @return GPS tow in ms
  */
 extern uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks);

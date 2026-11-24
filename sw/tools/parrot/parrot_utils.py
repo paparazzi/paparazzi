@@ -258,6 +258,12 @@ class ParrotUtils:
 
     # Upload a new file
     def upload_file(self, name, folder="", kill_prog=True):
+        # the scripts of the tools (e.g. bebop/pprz.conf) are next to this file, the tools can be started
+        # from any folder (e.g. by the Paparazzi Center from PAPARAZZI_HOME)
+        if not os.path.isfile(name):
+            local = os.path.join(os.path.dirname(os.path.abspath(__file__)), name)
+            if os.path.isfile(local):
+                name = local
         f = self.split_into_path_and_file(name)
 
         if kill_prog:

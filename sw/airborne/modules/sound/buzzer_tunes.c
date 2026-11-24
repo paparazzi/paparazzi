@@ -462,12 +462,14 @@ void buzzer_tunes_play(uint8_t tune)
   tune_start(tune);
 }
 
+#if defined(BUZZER_TUNES_ALERT) || defined(BUZZER_TUNES_ARMED_TUNE)
 /** Start a tune from an event */
 static void event_start(uint8_t tune)
 {
   tune_start(tune);
   event_tune = (buzzer_tunes_tune != BUZZER_TUNES_NONE);
 }
+#endif
 
 void buzzer_tunes_set_events(uint8_t on)
 {

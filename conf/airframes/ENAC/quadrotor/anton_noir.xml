@@ -20,7 +20,7 @@
       <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
 
       <configure name="BARO_PERIODIC_FREQUENCY" value="50"/>
-      <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_GPS"/>
+      <define name="INS_EKF2_HGT_REF" value="EKF2_HGT_REF_GNSS"/>
     </target>
 
     <target name="nps" board="pc">

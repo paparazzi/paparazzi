@@ -26,9 +26,10 @@
  * Usage: sd2log <SD log> [<output directory>] [--tlm]
  *
  * The SD log (PPRZLOG frames) is decoded with the message definitions the
- * firmware was built with, found in var/conf through the configuration md5 of
- * the ALIVE message, or else with var/messages.xml. The output files are named
- * after the GPS time of the flight.
+ * firmware was built with, found through the configuration md5 of the ALIVE
+ * message next to the SD log (written by the SD logger) or in var/conf, or
+ * else with var/messages.xml. The output files are named after the GPS time
+ * of the flight.
  */
 
 #define _GNU_SOURCE // nftw, fmemopen, mkdtemp
@@ -1279,6 +1280,7 @@ static bool find_conf_by_md5(const char *conf_dir, const char *md5, char *out_pa
   DIR *d = opendir(conf_dir);
   if (!d) return false;
 
+  // <md5>_<aircraft>.conf.gz on the SD card, <date>_<md5>_<aircraft>.conf.gz in var/conf (and older SD cards)
   const size_t md5_ofs = 3 * 6 + 1;
   const size_t md5_len = 32;
   bool found = false;
@@ -1286,7 +1288,11 @@ static bool find_conf_by_md5(const char *conf_dir, const char *md5, char *out_pa
   struct dirent *ent;
   while ((ent = readdir(d)) != NULL) {
     size_t n = strlen(ent->d_name);
-    if (n > md5_ofs + md5_len && !strncmp(ent->d_name + md5_ofs, md5, md5_len)) {
+    // skip a file the SD logger was still writing (power cut)
+    bool tmp = n > 4 && !strcmp(ent->d_name + n - 4, ".tmp");
+    bool at_start = n > md5_len && ent->d_name[md5_len] == '_' && !strncmp(ent->d_name, md5, md5_len);
+    bool after_date = n > md5_ofs + md5_len && !strncmp(ent->d_name + md5_ofs, md5, md5_len);
+    if (!tmp && (at_start || after_date)) {
       path_join(out_path, out_sz, conf_dir, ent->d_name);
       found = true;
       break;
@@ -1295,6 +1301,33 @@ static bool find_conf_by_md5(const char *conf_dir, const char *md5, char *out_pa
 
   closedir(d);
   return found;
+}
+
+/* The configuration of the build: written by the SD logger next to the logs
+ * (PPRZ/<md5>_<aircraft>.conf.gz), else saved in var/conf at the build */
+static bool find_build_conf(const char *input, const char *var_dir, const char *md5,
+                            char *out_path, size_t out_sz)
+{
+  char log_dir[PATH_MAX];
+  snprintf(log_dir, sizeof(log_dir), "%s", input);
+  char *slash = strrchr(log_dir, '/');
+  if (slash) {
+    *slash = '\0';
+  } else {
+    snprintf(log_dir, sizeof(log_dir), ".");
+  }
+  if (find_conf_by_md5(log_dir, md5, out_path, out_sz)) {
+    return true;
+  }
+  // a flight recorder log (FLIGHT_RECORDER/fr_0001.LOG): the configuration is in PPRZ
+  char pprz_dir[PATH_MAX + 16];
+  snprintf(pprz_dir, sizeof(pprz_dir), "%s/../PPRZ", log_dir);
+  if (find_conf_by_md5(pprz_dir, md5, out_path, out_sz)) {
+    return true;
+  }
+  char conf_dir[PATH_MAX];
+  path_join(conf_dir, sizeof(conf_dir), var_dir, "conf");
+  return find_conf_by_md5(conf_dir, md5, out_path, out_sz);
 }
 
 static void handle_message(FILE *out, msg_db_t *db, conv_state_t *st,
@@ -1512,15 +1545,14 @@ static bool convert_file(const char *input, const char *out_dir, bool write_tlm)
     return false;
   }
 
-  /* Decode with the message definitions the firmware was built with, saved in
-   * var/conf with the configuration md5, so logs of older or newer firmware decode
-   * correctly. Without that file, var/messages.xml is used. */
+  /* Decode with the message definitions the firmware was built with, written next
+   * to the log by the SD logger or saved in var/conf, found by the configuration md5,
+   * so logs of older or newer firmware decode correctly. Without that file,
+   * var/messages.xml is used. */
   char build_md5[33] = {0};
   char build_conf[PATH_MAX] = {0};
-  char build_conf_dir[PATH_MAX];
-  path_join(build_conf_dir, sizeof(build_conf_dir), var_dir, "conf");
   if (find_md5_in_log(input, db, build_md5)
-      && find_conf_by_md5(build_conf_dir, build_md5, build_conf, sizeof(build_conf))) {
+      && find_build_conf(input, var_dir, build_md5, build_conf, sizeof(build_conf))) {
     msg_db_t *build_db = calloc(1, sizeof(*build_db));
     if (build_db && load_messages_xml(build_conf, build_db)) {
       free(db);
@@ -1628,18 +1660,14 @@ static bool convert_file(const char *input, const char *out_dir, bool write_tlm)
     return false;
   }
 
-  char conf_dir[PATH_MAX];
   char conf_path[PATH_MAX] = {0};
   char airframe_path[PATH_MAX] = {0};
   char conf_xml_path[PATH_MAX];
   bool conf_from_md5 = false;
   const char *conf_choice = "unknown";
   path_join(conf_xml_path, sizeof(conf_xml_path), home, "conf/conf.xml");
-  path_join(conf_dir, sizeof(conf_dir), var_dir, "conf");
-  if (st.have_md5 && dir_exists(conf_dir)) {
-    if (find_conf_by_md5(conf_dir, st.md5, conf_path, sizeof(conf_path))) {
-      conf_from_md5 = true;
-    }
+  if (st.have_md5 && find_build_conf(input, var_dir, st.md5, conf_path, sizeof(conf_path))) {
+    conf_from_md5 = true;
   }
 
   if (!conf_path[0] && st.single_ac_id >= 0) {

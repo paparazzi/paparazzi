@@ -10,7 +10,7 @@
     <define name="FAILSAFE_MODE_DISTANCE" value="MAX_DIST_FROM_HOME"/>
 
     <target name="ap" board="bebop2">
-      <configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi-"/>
+      <!-- <configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi-"/> -->
       <configure name="HOST" value="192.168.1.$(AC_ID)"/>
       <configure name="MODEM_HOST" value="192.168.1.255"/>
       <define name="CLIMB_VSPEED" value="0.2"/>
@@ -48,7 +48,6 @@
     <module name="nav" type="fish"/>
     
 
-    <module name="air_data"/>
   </firmware>
 
   <commands>
@@ -80,12 +79,6 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
-  </section>
 
   <!-- Magnetometer still needs to be calibrated -->
   <section name="IMU" prefix="IMU_">

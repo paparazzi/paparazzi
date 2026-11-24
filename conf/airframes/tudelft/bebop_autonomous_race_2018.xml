@@ -49,7 +49,6 @@
     </module-->
 
     <module name="geo_mag"/>
-    <module name="air_data"/>
     <!--module name="guidance_loop_velocity_autonomous_race"/-->
     <module name="logger_file">
       <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000"/>
@@ -135,12 +134,6 @@
     <define name="OFFSET_X" value="0.15" />
     <define name="TARGET_EXPOSURE" value="30" />
     <define name="ZOOM" value="1.25"/>
-  </section>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="FALSE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
   <include href="conf/airframes/tudelft/calibrations/bebop7.xml" />

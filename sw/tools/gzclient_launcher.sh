@@ -1,11 +1,18 @@
 #!/bin/sh
 # Start the Gazebo GUI with the Paparazzi model paths:
 # gzclient for Gazebo Classic, otherwise the gz-sim GUI (connects to the server running in NPS)
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+  echo "usage: gzclient_launcher.sh"
+  echo "Start the Gazebo GUI with the Paparazzi model paths: gzclient for Gazebo Classic,"
+  echo "otherwise the gz-sim GUI. It connects to the Gazebo server running in the NPS simulator."
+  exit 0
+fi
 if command -v gzclient > /dev/null; then
   export GAZEBO_MODEL_PATH="$PAPARAZZI_HOME/conf/simulator/gazebo/models:$GAZEBO_MODEL_PATH"
   export GAZEBO_MODEL_PATH="$PAPARAZZI_HOME/sw/ext/tudelft_gazebo_models/models:$GAZEBO_MODEL_PATH"
   exec gzclient
 else
   export GZ_SIM_RESOURCE_PATH="$PAPARAZZI_HOME/conf/simulator/gazebo/models:$PAPARAZZI_HOME/sw/ext/tudelft_gazebo_models/models:$PAPARAZZI_HOME/conf/simulator/gazebo/models_gz:$GZ_SIM_RESOURCE_PATH"
+  export QT_QPA_PLATFORM=xcb
   exec gz sim -g
 fi

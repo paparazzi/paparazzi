@@ -497,6 +497,17 @@ struct State {
 
   /** @}*/
 
+  /** @addtogroup state_flight
+   *  @{ */
+
+  /**
+   * Flying as a fixed wing: the wing gives the lift (the fixedwing firmware, or a hybrid in forward flight).
+   * Set by the firmware or the hybrid module, used by the estimators (e.g. airspeed and sideslip fusion of ins_ekf2)
+   */
+  bool fixed_wing_flight;
+
+  /** @}*/
+
 };
 
 extern struct State state;
@@ -1628,6 +1639,21 @@ static inline float stateGetSideslip_f(void)
 }
 
 /** @}*/
+
+/** @addtogroup state_flight
+ *  @{ */
+
+/// Set if flying as a fixed wing (e.g. a hybrid in forward flight).
+static inline void stateSetFixedWingFlight(bool fixed_wing)
+{
+  state.fixed_wing_flight = fixed_wing;
+}
+
+/// Flying as a fixed wing (always for the fixedwing firmware, in forward flight for hybrids).
+static inline bool stateIsFixedWingFlight(void)
+{
+  return state.fixed_wing_flight;
+}
 
 /** @}*/
 

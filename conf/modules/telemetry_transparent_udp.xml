@@ -6,7 +6,7 @@
       Telemetry using PPRZ protocol over UDP
     </description>
     <configure name="MODEM_DEV" value="UDPx" description="UDP port used for communication"/>
-    <configure name="MODEM_HOST" value="192.168.1.255" description="IP address of the ground station (can be a broadcast address)"/>
+    <configure name="MODEM_HOST" value="192.168.1.255" description="IP address of the ground station (can be a broadcast address), or auto: send to every GCS that sends to MODEM_PORT_IN (link pings every 5 s), and broadcast without a GCS and once per second, so a GCS started later finds the aircraft"/>
     <configure name="MODEM_PORT_OUT" value="4242" description="output UDP port"/>
     <configure name="MODEM_PORT_IN" value="4243" description="input UDP port"/>
     <configure name="MODEM_BROADCAST" value="TRUE|FALSE" description="UDP socket in broadcast mode"/>

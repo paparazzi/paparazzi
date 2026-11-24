@@ -19,6 +19,7 @@
 #
 
 
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -88,6 +89,8 @@ class TankPlotter(object):
             #self.generate_plot()
 
 if __name__ == '__main__':
+    argparse.ArgumentParser(description="Plot the hydrogen tank pressure from the PAYLOAD messages "
+                            "of the fuel cell and predict when the tank is empty.").parse_known_args()
     plotter = TankPlotter()
     plt.ion()
     figure = plt.figure('Fuel tank plotter')

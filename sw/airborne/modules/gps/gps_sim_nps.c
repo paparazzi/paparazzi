@@ -19,6 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#include <time.h>
 #include "modules/gps/gps_sim_nps.h"
 #include "modules/gps/gps.h"
 #include "modules/core/abi.h"
@@ -29,11 +30,45 @@
 struct GpsState gps_nps = {0};
 bool gps_has_fix;
 
+/** Simulated position accuracy (cm) */
+#ifndef GPS_NPS_PACC
+#define GPS_NPS_PACC 200
+#endif
+
+/** Simulated horizontal position accuracy (cm) */
+#ifndef GPS_NPS_HACC
+#define GPS_NPS_HACC 120
+#endif
+
+/** Simulated vertical position accuracy (cm) */
+#ifndef GPS_NPS_VACC
+#define GPS_NPS_VACC 180
+#endif
+
+/** Simulated speed accuracy (cm/s) */
+#ifndef GPS_NPS_SACC
+#define GPS_NPS_SACC 20
+#endif
+
+/** Simulated position dilution of precision (x100) */
+#ifndef GPS_NPS_PDOP
+#define GPS_NPS_PDOP 140
+#endif
+
 void gps_feed_value(void)
 {
-  // FIXME, set proper time instead of hardcoded to May 2014
-  gps_nps.week = 1794;
-  gps_nps.tow = fdm.time * 1000;
+  // GPS time from the host clock at the start of the simulation
+  static uint64_t gps_start_ms = 0;
+  if (gps_start_ms == 0) {
+    struct timespec now;
+    clock_gettime(CLOCK_REALTIME, &now);
+    uint64_t unix_ms = (uint64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000;
+    gps_start_ms = unix_ms - SYS_TIME_UNIX_GPS_EPOCH_MS + SYS_TIME_GPS_LEAP_SECONDS * 1000ULL
+                   - (uint64_t)(fdm.time * 1000);
+  }
+  uint64_t gps_ms = gps_start_ms + (uint64_t)(fdm.time * 1000);
+  gps_nps.week = gps_ms / SYS_TIME_MSEC_PER_WEEK;
+  gps_nps.tow = gps_ms % SYS_TIME_MSEC_PER_WEEK;
 
   gps_nps.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;
   gps_nps.ecef_pos.y = sensors.gps.ecef_pos.y * 100.;
@@ -76,11 +111,12 @@ void gps_feed_value(void)
 #endif
   SetBit(gps_nps.valid_fields, GPS_VALID_COURSE_BIT);
 
-  gps_nps.pacc = 650;
-  gps_nps.hacc = 450;
-  gps_nps.vacc = 200;
-  gps_nps.sacc = 100;
-  gps_nps.pdop = 650;
+  /* accuracies of a good GNSS receiver with a clear sky view */
+  gps_nps.pacc = GPS_NPS_PACC;
+  gps_nps.hacc = GPS_NPS_HACC;
+  gps_nps.vacc = GPS_NPS_VACC;
+  gps_nps.sacc = GPS_NPS_SACC;
+  gps_nps.pdop = GPS_NPS_PDOP;
 
   if (gps_has_fix) {
     gps_nps.num_sv = 11;

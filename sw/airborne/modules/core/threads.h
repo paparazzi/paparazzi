@@ -45,6 +45,30 @@ int pprz_bsem_wait_timeout(pprz_bsem_t* bsem, float timeout);
 void pprz_bsem_signal(pprz_bsem_t* bsem);
 
 /**
+ * @brief Remember the calling thread as the main thread, the one running the periodic and event functions
+ *        of the modules. Called by pprz_thread_periodic() (the init can run in another thread, e.g. in NPS).
+ */
+void pprz_thread_init_main(void);
+
+/**
+ * @brief The calling thread is the main thread (also true before pprz_thread_init_main() was called)
+ */
+bool pprz_thread_is_main(void);
+
+/**
+ * @brief Stop the program (abort on Linux/NPS, halt on ChibiOS) when not called from the main thread,
+ *        e.g. for an ABI message sent from another thread (ABI_CHECK_MAIN_THREAD)
+ * @param what  what was done outside the main thread (printed on Linux/NPS)
+ * @param id    its identifier (e.g. the ABI message ID)
+ */
+void pprz_thread_assert_main(const char *what, unsigned int id);
+
+/**
+ * @brief Set the main thread on the first call (the thread running the periodic functions)
+ */
+void pprz_thread_periodic(void);
+
+/**
  * @brief   Creates a new thread whose stack is dynamically allocated.
  * @param[in] size      size of the stack. Unused on linux at the moment.
  * @param[in] prio      the priority level for the new thread. Unused on linux at the moment. NORMALPRIO

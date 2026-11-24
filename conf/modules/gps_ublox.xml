@@ -14,10 +14,15 @@
       Dual-antenna heading receivers (e.g. ZED-X20D) report the heading from antenna 1 to antenna 2 in
       UBX-NAV-DAHEADING (enable it on the receiver with CFG-MSGOUT-UBX_NAV_DAHEADING_xxx). It is published
       as RELPOS (reference id 0xFFFF), which ins_ekf2 uses as GPS yaw with INS_EKF2_GPS_YAW_OFFSET.
+      Set GPS_UBX_HEADING_BASELINE to the distance between the antennas: a receiver can report a valid heading
+      on a wrong solution (e.g. indoors), which is then only seen in the measured antenna distance.
     </description>
     <configure name="UBX_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
     <configure name="UBX_GPS_BAUD" value="B38400" description="UART baud rate"/>
     <configure name="GPS_UBX_BOOTRESET" value="0" description="Force a hot, warm or cold reset when the system boot up"/>
+    <define name="GPS_UBX_HEADING_BASELINE" value="0." unit="m" description="Distance between the two antennas of a heading receiver (dual-antenna or moving base); the heading is dropped when the measured distance differs more than GPS_UBX_HEADING_BASELINE_TOL. With 0 (default) only a distance above GPS_UBX_HEADING_BASELINE_MAX is dropped"/>
+    <define name="GPS_UBX_HEADING_BASELINE_TOL" value="0.4" unit="m" description="Largest difference between the measured and the configured antenna distance (default 0.4 m)"/>
+    <define name="GPS_UBX_HEADING_BASELINE_MAX" value="10." unit="m" description="Without GPS_UBX_HEADING_BASELINE: longest antenna distance for which the heading is used (default 10 m, as PX4)"/>
   </doc>
 
   <settings>

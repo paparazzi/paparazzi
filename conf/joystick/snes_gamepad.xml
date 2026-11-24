@@ -105,7 +105,7 @@ TEST STICK DATA OUTPUT:
 
     <!-- go to "Start Engine" block if in AUTO2/NAV -->
     <message class="ground" name="JUMP_TO_BLOCK" on_event="start && A">
-      <field name="block_id" value="IndexOfBlock('Start Motors')"/>
+      <field name="block_id" value="IndexOfBlock('Start Engine')"/>
     </message>
 
     <!-- go to "Takeoff" block if in AUTO2/NAV -->
@@ -120,7 +120,7 @@ TEST STICK DATA OUTPUT:
 
     <!-- Set "autopilot.kill_throttle" in AUTO2/NAV -->
     <message class="ground" name="DL_SETTING" on_event="select && start">
-      <field name="index" value="IndexOfSetting(autopilot.kill_throttle)"/>
+      <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
       <field name="value" value="2"/>
     </message>
 

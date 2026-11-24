@@ -36,17 +36,17 @@
 #include "mcu.h"
 #include "led.h"
 
-#if HAL_USE_RTC
-#include <hal_rtc.h>
-#include <time.h>
-#include "modules/gps/gps.h"
-#endif
-
-#define GPS_LEAP_SECONDS 18
-
 // Delay before starting SD log
 #ifndef SDLOG_START_DELAY
+#if INS_EKF2_LOG_INPUTS
+/* the EKF2 only starts once the log is open to log all its inputs, don't wait long */
+#define SDLOG_START_DELAY 2
+#else
 #define SDLOG_START_DELAY 30
+#endif
+#endif
+#if INS_EKF2_LOG_INPUTS && SDLOG_START_DELAY > 5
+PRINT_CONFIG_MSG("INS_EKF2_LOG_INPUTS: the EKF2 only starts after the SD log is open (SDLOG_START_DELAY), set it low")
 #endif
 
 // Auto-flush period (in seconds)
@@ -71,6 +71,25 @@
 
 static const char PPRZ_LOG_NAME[] = "pprzlog_";
 static const char PPRZ_LOG_DIR[] = "PPRZ";
+
+/** Write the configuration of the firmware next to the logs (PPRZ/<md5>_<aircraft>.conf.gz),
+ * so sd2log can decode them without the var/conf of the computer that built the firmware */
+#ifndef SDLOG_CONF
+#define SDLOG_CONF TRUE
+#endif
+#if SDLOG_CONF
+#include "generated/aircraft_conf.h"
+#endif
+/** Result of writing the configuration, reported to the GCS */
+static volatile SdioError sdlog_conf_error = SDLOG_OK;
+// Error of the start step that failed, the storage status can be changed later by other calls
+static volatile SdioError sdlog_start_error = SDLOG_OK;
+static const char *sdlog_start_step = "";
+static volatile uint8_t sdlog_start_fatfs = 0;
+// Every switch into error is counted with its cause by the logger thread (it checks every second),
+// so the GCS report (every LOGGER_STATUS) misses none and gives the cause of that moment
+static volatile uint32_t sdlog_error_events = 0;
+static volatile SdioError sdlog_error_cause = SDLOG_OK;
 
 /*
  * Start log thread
@@ -110,10 +129,12 @@ static struct preflight_check_t sdlog_pfc;
 
 static void sdlog_preflight(struct preflight_result_t *result) {
   if(chibios_sdlog_status != SDLOG_RUNNING) {
+    const char *cause = (chibios_sdlog_status == SDLOG_STOPPED) ? "not started yet" :
+                        sdlog_error_string(sdlog_start_error != SDLOG_OK ? sdlog_start_error : sdLogGetStorageStatus());
 #ifdef SDLOG_PREFLIGHT_ERROR
-    preflight_error(result, "SDLogger is not running [%d:%d]", chibios_sdlog_status, sdLogGetStorageStatus());
+    preflight_error(result, "SD log not running: %s", cause);
 #else
-    preflight_warning(result, "SDLogger is not running [%d:%d]", chibios_sdlog_status, sdLogGetStorageStatus());
+    preflight_warning(result, "SD log not running: %s", cause);
 #endif
   } else {
     preflight_success(result, "SDLogger running");
@@ -123,8 +144,46 @@ static void sdlog_preflight(struct preflight_result_t *result) {
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
+/**
+ * Tell the GCS in words why the logger does not run (no SD card, card full, ...): at the start and
+ * every time it goes into error later, and when the configuration could not be written. A normal
+ * start is not reported. Sent with the LOGGER_STATUS message, from the main thread.
+ */
+static void sdlog_report_status(struct transport_tx *trans, struct link_device *dev)
+{
+  static uint32_t reported_errors = 0;
+  static bool start_reported = false;
+  char msg[120];
+  const uint32_t errors = sdlog_error_events;
+  if (errors != reported_errors) {
+    // went into error (at the start or later) since the last report
+    reported_errors = errors;
+    const SdioError start_error = sdlog_start_error;
+    if (start_error != SDLOG_OK && sdlog_start_fatfs != 0) {
+      // the start failed: the failing step and its FatFS result tell why the card could not be used
+      chsnprintf(msg, sizeof(msg), "SD log error: %s (%s, FatFS %d)", sdlog_error_string(start_error),
+                 sdlog_start_step, sdlog_start_fatfs);
+    } else if (start_error != SDLOG_OK) {
+      chsnprintf(msg, sizeof(msg), "SD log error: %s (%s)", sdlog_error_string(start_error), sdlog_start_step);
+    } else {
+      chsnprintf(msg, sizeof(msg), "SD log error: %s", sdlog_error_string(sdlog_error_cause));
+    }
+  } else if (!start_reported && chibios_sdlog_status != SDLOG_STOPPED) {
+    // started: only a configuration that could not be written is reported, a normal start is not
+    start_reported = true;
+    if (sdlog_conf_error == SDLOG_OK) {
+      return;
+    }
+    chsnprintf(msg, sizeof(msg), "SD log: configuration not written: %s", sdlog_error_string(sdlog_conf_error));
+  } else {
+    return;
+  }
+  pprz_msg_send_INFO_MSG(trans, dev, AC_ID, strlen(msg), msg);
+}
+
 static void send_sdlog_status(struct transport_tx *trans, struct link_device *dev)
 {
+  sdlog_report_status(trans, dev);
   uint8_t status = (uint8_t) chibios_sdlog_status;
   uint8_t errno = (uint8_t) sdLogGetStorageStatus();
   uint32_t used = (uint32_t) sdLogGetNbBytesWrittenToStorage();
@@ -290,6 +349,18 @@ static void thd_bat_survey(void *arg)
 #endif // SDLOG_ENABLE_LOWBAT_FLUSH
 #endif
 
+/** Keep why the start failed (the first failing step only) */
+static void sdlog_start_failed(const char *step, SdioError err)
+{
+  if (sdOk) {
+    sdlog_start_step = step;
+    sdlog_start_fatfs = sdLogGetFatfsResult();
+    sdlog_start_error = err;
+    sdlog_error_cause = err;
+  }
+  sdOk = false;
+}
+
 static void thd_startlog(void *arg)
 {
   (void) arg;
@@ -309,24 +380,31 @@ static void thd_startlog(void *arg)
   // Check for init errors
   sdOk = true;
 
-  if (sdLogInit(NULL) != SDLOG_OK) {
-    sdOk = false;
+  SdioError err = sdLogInit(NULL);
+  if (err != SDLOG_OK) {
+    sdlog_start_failed("init", err);
   } else {
     removeEmptyLogs(PPRZ_LOG_DIR, PPRZ_LOG_NAME, 50);
-    if (sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR,
-                     PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
-                     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
-      sdOk = false;
+    err = sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR,
+                       PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
+                       SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename));
+    if (err != SDLOG_OK) {
+      sdlog_start_failed("open log", err);
     }
     chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), "%s", tmpFilename);
 #if FLIGHTRECORDER_SDLOG
     removeEmptyLogs(FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, 50);
-    if (sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME,
-                     SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
-                     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
-      sdOk = false;
+    err = sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME,
+                       SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
+                       SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename));
+    if (err != SDLOG_OK) {
+      sdlog_start_failed("open flight recorder", err);
     }
     chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), "%s,%s", chibios_sdlog_filenames, tmpFilename);
+#endif
+#if SDLOG_CONF
+    // once per configuration, a failure does not stop the logging
+    sdlog_conf_error = sdLogWriteFile(PPRZ_LOG_DIR, AIRCRAFT_CONF_NAME, aircraft_conf_gz, sizeof(aircraft_conf_gz));
 #endif
   }
 
@@ -341,41 +419,34 @@ static void thd_startlog(void *arg)
     chibios_sdlog_status = SDLOG_RUNNING;
   } else {
     chibios_sdlog_status = SDLOG_ERROR;
+    sdlog_error_events++;
   }
 
+  bool in_error = !sdOk;
   while (true) {
 #ifdef SDLOG_LED
     LED_TOGGLE(SDLOG_LED);
 #endif
     // Blink faster if init has errors
     chThdSleepMilliseconds(sdOk == true ? 1000 : 200);
-    if (sdLogGetStorageStatus() != SDLOG_OK) {
+    const SdioError storage = sdLogGetStorageStatus();
+    if (storage != SDLOG_OK) {
+      if (!in_error) {
+        // a new error: keep its cause for the report
+        sdlog_error_cause = storage;
+        sdlog_error_events++;
+      }
+      in_error = true;
       chibios_sdlog_status = SDLOG_ERROR;
       sdOk = false;
     } else {
+      // running again: a later error is not the start error anymore
+      in_error = false;
+      sdlog_start_error = SDLOG_OK;
       chibios_sdlog_status = SDLOG_RUNNING;
       sdOk = true;
     }
 
-#if HAL_USE_RTC && USE_GPS
-    static uint32_t timestamp = 0;
-    // FIXME this could be done somewhere else, like in sys_time
-    // we sync gps time to rtc every 5 seconds
-    if (chVTGetSystemTime() - timestamp > TIME_S2I(5)) {
-      timestamp = chVTGetSystemTime();
-      if (gps.tow != 0 && (sys_time.nb_sec - gps.last_msg_time) < 5) {
-        // Unix timestamp of the GPS epoch 1980-01-06 00:00:00 UTC
-        const uint32_t unixToGpsEpoch = 315964800;
-        struct tm time_tm;
-        time_t univTime = ((gps.week * 7 * 24 * 3600) + (gps.tow / 1000)) + unixToGpsEpoch - GPS_LEAP_SECONDS;
-        gmtime_r(&univTime, &time_tm);
-        // Chibios date struct
-        RTCDateTime date;
-        rtcConvertStructTmToDateTime(&time_tm, 0, &date);
-        rtcSetTime(&RTCD1, &date);
-      }
-    }
-#endif
 
   }
 }

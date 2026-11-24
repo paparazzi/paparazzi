@@ -49,6 +49,27 @@
 #define ABI_EXTERN extern
 #endif
 
+/**
+ * ABI messages must be sent from the main thread (the one running the periodic and event functions):
+ * their receivers are not thread-safe. With ABI_CHECK_MAIN_THREAD every message checks it, and one sent
+ * from another thread stops the program at that call (abort in NPS/SITL, halt on ChibiOS), to find it
+ * with the debugger. Default TRUE in NPS/SITL, FALSE otherwise. Needs the threads module.
+ */
+#ifndef ABI_CHECK_MAIN_THREAD
+#ifdef SITL
+#define ABI_CHECK_MAIN_THREAD TRUE
+#else
+#define ABI_CHECK_MAIN_THREAD FALSE
+#endif
+#endif
+
+#if ABI_CHECK_MAIN_THREAD && PPRZ_THREADS
+#include "modules/core/threads.h"
+#define abi_check_thread(_msg_id) pprz_thread_assert_main("ABI message", _msg_id)
+#else
+#define abi_check_thread(_msg_id) {}
+#endif
+
 /** Generic callback definition */
 typedef void (*abi_callback)(void);
 
@@ -63,6 +84,13 @@ typedef void (*abi_callback)(void);
  * the callback is disabled.
  */
 #define ABI_DISABLE 0
+
+/** Types of the TEMPERATURE_RAW message, what the temperature measures */
+#define TEMPERATURE_TYPE_AIR    0 ///< outside air temperature probe
+#define TEMPERATURE_TYPE_DIFF   1 ///< differential pressure (pitot) sensor
+#define TEMPERATURE_TYPE_BARO   2 ///< barometer die
+#define TEMPERATURE_TYPE_IMU    3 ///< IMU die
+#define TEMPERATURE_TYPE_OTHER  4 ///< anything else
 
 /** Event structure to store callbacks in a linked list */
 struct abi_struct {

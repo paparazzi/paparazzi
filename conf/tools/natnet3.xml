@@ -1,2 +1,40 @@
-<program command="sw/ground_segment/python/natnet3.x/natnet2ivy.py" name="NatNet3" icon="natnet3.svg" />
+<program command="sw/ground_segment/python/natnet3.x/natnet2ivy.py" name="NatNet3" icon="natnet3.svg">
+  <doc>
+    <description>
+      Forwards the rigid bodies of an OptiTrack motion capture system (NatNet 3) to the aircraft over Ivy, as ENU position and attitude.
+
+      The frame is set by the side of the test area that the long edge of the calibration tool pointed at (--long_edge), the side of the x/east axis (--x_side or --x_angle_from_right) and the side the nose of the drone pointed at when the rigid body was created (--ac_nose).
+
+      Examples:
+
+        ENAC default: ./natnet2ivy.py --up_axis z_up --long_edge near --x_side right --ac_nose far -ac 0 0
+        TU Delft: ./natnet2ivy.py --long_edge right --x_side right --ac_nose far -ac 0 0
+        True ENU at TU Delft: ./natnet2ivy.py --long_edge right --x_angle_from_right -23.0 --ac_nose far -ac 0 0
+    </description>
+    <usage>usage: natnet2ivy.py [-h] -le {left,far,right,near} (-xs {left,far,right,near} | -xa X_ANGLE) [-up {y_up,z_up}] -an {left,far,right,near} -ac rigid_id ac_id [-b IVY_BUS] [-s SERVER] [-m MULTICAST] [-dp DATA_PORT] [-cp COMMAND_PORT] [-v] [-f FREQ] [-gr] [-vs VEL_SAMPLES] [-rg] [-sm] [-o]</usage>
+    <option flag="-le {left,far,right,near}, --long_edge {left,far,right,near}" description="Side of the test area that the long edge of the calibration tool was pointing at"/>
+    <option flag="-xs {left,far,right,near}, --x_side {left,far,right,near}" description="Side that the x/east axis of the resulting ENU frame should point to."/>
+    <option flag="-xa X_ANGLE, --x_angle_from_right X_ANGLE" description="Right-hand rotation in degrees of the x/east-axis around the up-axis, where 0.0 means x/east is pointing to the right"/>
+    <option flag="-up {y_up,z_up}, --up_axis {y_up,z_up}" description="Optitrack Up axis: y_up or z_up."/>
+    <option flag="-an {left,far,right,near}, --ac_nose {left,far,right,near}" description="Side of the test area that the nose of the drone was pointing at when definition the rigid body"/>
+    <option flag="-ac rigid_id ac_id" description="pair of rigid body and A/C id (multiple possible)"/>
+    <option flag="-b IVY_BUS, --ivy_bus IVY_BUS" description="Ivy bus address and port"/>
+    <option flag="-s SERVER, --server SERVER" description="NatNet server IP address"/>
+    <option flag="-m MULTICAST, --multicast_addr MULTICAST" description="NatNet server multicast address"/>
+    <option flag="-dp DATA_PORT, --data_port DATA_PORT" description="NatNet server data socket UDP port"/>
+    <option flag="-cp COMMAND_PORT, --command_port COMMAND_PORT" description="NatNet server command socket UDP port"/>
+    <option flag="-v, --verbose" description="display debug messages"/>
+    <option flag="-f FREQ, --freq FREQ" description="transmit frequency"/>
+    <option flag="-gr, --ground_ref" description="also send the GROUND_REF message"/>
+    <option flag="-vs VEL_SAMPLES, --vel_samples VEL_SAMPLES" description="amount of samples to compute velocity (should be greater than 2)"/>
+    <option flag="-rg, --remote_gps" description="use the old REMOTE_GPS_LOCAL message"/>
+    <option flag="-sm, --small" description="enable the EXTERNAL_POSE_SMALL message instead of the full"/>
+    <option flag="-o, --old_natnet" description="Change the NatNet version to 2.9"/>
+    <option flag="--up_axis {y_up,z_up}" description="no parameter is equal to y_up"/>
+    <option flag="--long_edge" description="{left,far,right,near}"/>
+    <option flag="--x_side" description="{left,far,right,near}"/>
+    <option flag="--x_angle_from_right" description="X_ANGLE_DEGREES"/>
+    <option flag="--ac_nose" description="{left,far,right,near}"/>
+  </doc>
+</program>
 

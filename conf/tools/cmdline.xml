@@ -1,3 +1,8 @@
 <program command="$echo" name="Command line (CMD)" icon="terminal-svgrepo-com.svg">
+  <doc>
+    <description>
+      Runs a shell command; the example runs echo.
+    </description>
+  </doc>
     <arg constant="&quot;Hello world&quot;"/>
 </program>

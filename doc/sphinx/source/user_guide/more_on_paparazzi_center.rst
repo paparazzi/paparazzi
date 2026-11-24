@@ -36,6 +36,7 @@ Tools
 -----
 
 The *Tools* in the Paparazzi Center come from the ``conf/tools`` directory. Each xml file produce a new entry in the *Add tool* menu. You can add you own tools by creating a new xml file in this directory, and restarting the Paparazzi Center.
+All tools and their options are listed in :doc:`tools`.
 
 There are many tools that you will probably never use. You can remove these from the menu by adding their name to the ``blacklisted`` file.
 

@@ -19,6 +19,10 @@ class Ui_LogWidget(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.source_layout = QtWidgets.QHBoxLayout()
         self.source_layout.setObjectName("source_layout")
+        self.all_check = QtWidgets.QCheckBox(LogWidget)
+        self.all_check.setTristate(True)
+        self.all_check.setObjectName("all_check")
+        self.source_layout.addWidget(self.all_check)
         self.count_label = QtWidgets.QLabel(LogWidget)
         self.count_label.setObjectName("count_label")
         self.source_layout.addWidget(self.count_label)
@@ -194,6 +198,8 @@ class Ui_LogWidget(object):
     def retranslateUi(self, LogWidget):
         _translate = QtCore.QCoreApplication.translate
         LogWidget.setWindowTitle(_translate("LogWidget", "SD log extractor"))
+        self.all_check.setToolTip(_translate("LogWidget", "Tick or untick all logs"))
+        self.all_check.setText(_translate("LogWidget", "All"))
         self.count_label.setText(_translate("LogWidget", "No logs"))
         self.source_label.setText(_translate("LogWidget", "Source"))
         self.source_combo.setToolTip(_translate("LogWidget", "SD cards are detected when they are mounted. Use Browse to read the logs from another folder."))

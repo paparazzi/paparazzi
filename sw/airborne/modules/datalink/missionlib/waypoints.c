@@ -109,7 +109,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
             mission_mgr.rem_sysid = msg->sysid;
             mission_mgr.rem_compid = msg->compid;
           }
-          mavlink_msg_mission_count_send(MAVLINK_COMM_0, msg->sysid, msg->compid, NB_WAYPOINT, MAV_MISSION_TYPE_MISSION);
+          mavlink_msg_mission_count_send(MAVLINK_COMM_0, msg->sysid, msg->compid, NB_WAYPOINT, MAV_MISSION_TYPE_MISSION, 0);  // 0: no opaque_id (plan id)
           MAVLinkSendMessage();
 
           // Register the timeout timer (it is continuous so it needs to be cancelled after triggering)
@@ -259,7 +259,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
       if (mission_mgr.state == STATE_IDLE) {
         MAVLINK_DEBUG("Acknowledge single waypoint update\n");
         mavlink_msg_mission_ack_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
-                                     MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION);
+                                     MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION, 0);
         MAVLinkSendMessage();
         mavlink_mission_cancel_timer();
       }
@@ -267,7 +267,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
       else if (mission_item.seq == NB_WAYPOINT -1) {
         MAVLINK_DEBUG("Acknowledging end of waypoint write transaction\n");
         mavlink_msg_mission_ack_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
-                                     MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION);
+                                     MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION, 0);
         MAVLinkSendMessage();
         mavlink_mission_cancel_timer();
         mission_mgr.state = STATE_IDLE;
@@ -303,7 +303,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
           lla.alt = mission_item.z * 1e3; // altitude in millimeters
           waypoint_set_lla(mission_item.seq, &lla);
           mavlink_msg_mission_ack_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
-                                     MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION);
+                                     MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION, 0);
           MAVLinkSendMessage();
         }
         else {

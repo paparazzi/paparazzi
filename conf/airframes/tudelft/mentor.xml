@@ -38,7 +38,6 @@
         <define name="USE_I2C4"/>
         <configure name="MS45XX_I2C_DEV" value="i2c4"/>
     </module-->
-    <module name="air_data"/>
 
     <module name="control" type="energy"/>
     <module name="navigation"/>
@@ -184,9 +183,6 @@
   <section name="BAT">
     <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 12.0877510901 * adc)"/>
     <!--define name="MilliAmpereOfAdc(adc)" value="((adc) - 505) * 124.0f"/-->
-    <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>
   </section>
 
   <section name="MISC">

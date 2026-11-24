@@ -5,14 +5,19 @@
     <description>
       Fixedwing navigation in a 3D spiral.
       creating a helix:
+
       - start center (X, Y)
       - start and stop altitude
       - start and stop radius
       - 3D speed of the circle
+
         - in case alt diff is too small, vz is used as expension speed at constant altitude
         - in case of radius diff too small, doing a constant radius circle
+
           - if alt diff is too small, basic circle with horizontal speed (vz as no effect)
+
       setup will fail if:
+
       - alt diff and vz are not coherent
       - vz is too small and not doing circle
     </description>

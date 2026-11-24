@@ -6,6 +6,9 @@ from sphinx.parsers import RSTParser
 from docutils import nodes
 from lxml import etree as ET
 from dataclasses import dataclass
+from docutils.frontend import get_default_settings
+from docutils.utils import new_document
+import inspect
 
 
 class Define:
@@ -39,13 +42,13 @@ class ModuleParser:
         if edep is not None:
             edepends = edep.find("depends")     # type: ET._Element
             if edepends is not None:
-                self.depends = edepends.text.split(",")
+                self.depends = [x.strip() for x in (edepends.text or "").split(",") if x.strip()]
             eprovides = edep.find("provides")
             if eprovides is not None:
-                self.provides = eprovides.text.split(",")
+                self.provides = [x.strip() for x in (eprovides.text or "").split(",") if x.strip()]
             econflicts = edep.find("conflicts")
             if econflicts is not None:
-                self.conflicts = econflicts.text.split(",")
+                self.conflicts = [x.strip() for x in (econflicts.text or "").split(",") if x.strip()]
 
 
 class ModuleDoc(Parser):
@@ -107,18 +110,16 @@ class ModuleDoc(Parser):
         self.setup_parse(inputstring, document)
         try:
             m = ModuleParser(inputstring)
-        except:
-            # print(document.source, document.current_source)
-            print(document.reporter.warning("test"))
-            # print(document.transformer)
+        except Exception as e:
+            document.reporter.warning(f"module XML not parsed: {type(e).__name__}: {e}")
             self.finish_parse()
             return
-            pass
 
         root = self.make_section(m.name)
 
         # description
-        root.append(nodes.paragraph(text=m.description))
+        for n in self.parse_rst(m.description, document):
+            root.append(n)
 
         if len(m.configures) > 0:
             root += self.define_to_table(m.configures, "Configures")
@@ -151,7 +152,20 @@ class ModuleDoc(Parser):
         document.append(root)
         self.finish_parse()
 
+    def parse_rst(self, text, document):
+        """Parse the module description as reStructuredText.
+        The XML indentation is removed first, warnings point to the module file."""
+        parser = RSTParser()
+        parser.set_application(self.env.app)
+        settings = get_default_settings(RSTParser)
+        settings.__dict__.update(document.settings.__dict__)    # Sphinx environment and options
+        sub = new_document(document["source"], settings)
+        parser.parse(inspect.cleandoc(text or ""), sub)
+        return sub.children
+
 
 def setup(app: "Sphinx") -> Dict[str, Any]:
     app.add_source_suffix(".xml", "pprz_module")
     app.add_source_parser(ModuleDoc)
+    # each module page is parsed on its own, no shared state: safe for sphinx-build -j
+    return {'parallel_read_safe': True, 'parallel_write_safe': True}

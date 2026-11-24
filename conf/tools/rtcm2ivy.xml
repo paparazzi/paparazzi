@@ -1,2 +1,14 @@
-<program command="sw/ground_segment/misc/rtcm2ivy" name="rtcm2ivy" />
+<program command="sw/ground_segment/misc/rtcm2ivy" name="rtcm2ivy">
+  <doc>
+    <description>
+      Reads RTCM3 messages from a GPS base station receiver (e.g. u-blox M8P) on a serial port and forwards them over Ivy for DGPS and RTK.
+    </description>
+    <usage>Usage: rtcm2ivy [options]</usage>
+    <option flag="-v, --verbose" description="Verbosity enabled"/>
+    <option flag="-l, --logger" description="Save RTCM3 messages to log"/>
+    <option flag="-d &lt;device&gt;" description="The GPS device(default: /dev/ttyACM0)"/>
+    <option flag="-b &lt;baud_rate&gt;" description="The device baud rate(default: B9600)"/>
+    <option flag="-p &lt;packet_size&gt;" description="The payload size (default:100, max:249))"/>
+  </doc>
+</program>
 

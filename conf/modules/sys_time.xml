@@ -13,6 +13,7 @@
   <header>
     <file name="sys_time.h" dir="mcu_periph"/>
   </header>
+  <datalink message="TIME_SYNC" fun="sys_time_parse_TIME_SYNC(buf)"/>
   <makefile>
     <configure name="SYS_TIME_LED" default="none"/>
     <define name="SYS_TIME_LED" value="$(SYS_TIME_LED)" cond="ifneq ($(SYS_TIME_LED), none)"/>

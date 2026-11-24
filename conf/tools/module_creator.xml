@@ -1,3 +1,9 @@
 <program command="sw/tools/create_module/create_mod_qt.py" name="Module Creator">
+  <doc>
+    <description>
+      Graphical helper to create a new module: its xml file and C source and header.
+    </description>
+    <usage>usage: create_mod_qt.py [-h]</usage>
+  </doc>
 </program>
 

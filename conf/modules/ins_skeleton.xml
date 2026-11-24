@@ -4,28 +4,29 @@
   <doc>
     <description>
       INS module skeleton.
-      This module is meant to be used with an additional module which implements any of the following
-        - ins_module_init()
-        - ins_module_propagate(struct Int32Vect3 *accel, float dt)
-        - ins_module_update_gps(struct GpsState *gps_s, float dt)
-        - ins_module_update_baro(float pressure)
-        - ins_module_reset_local_origin(void)
+      This module is meant to be used with an additional module which implements any of the following:
+
+      - ``ins_module_init()``
+      - ``ins_module_propagate(struct Int32Vect3 *accel, float dt)``
+      - ``ins_module_update_gps(struct GpsState *gps_s, float dt)``
+      - ``ins_module_update_baro(float pressure)``
+      - ``ins_module_reset_local_origin(void)``
 
       In each of those functions the updated estimate has to be written to the ins_module struct,
       which is then used to update the state interface.
     </description>
     <define name="INS_MODULE_IMU_ID" value="ABI_BROADCAST" description="ABI sender id of IMU messages to subscribe to"/>
-    <define name="INS_MODULE_BARO_ID" value="ABI_BROADCAST" description="ABI sender id of BARO_ABS messages to subscribe to"/>
+    <define name="INS_MODULE_BARO_ID" value="AIR_DATA_SENDER_ID" description="ABI sender id of BARO_ABS messages to subscribe to (default: AIR_DATA_SENDER_ID, the barometer selected by air_data)"/>
     <define name="INS_MODULE_GPS_ID" value="GPS_MULTI_ID" description="ABI sender id of GPS messages to subscribe to"/>
   </doc>
   <dep>
-    <depends>@imu,@gps</depends>
+    <depends>@imu,@gps,air_data</depends>
     <provides>ins</provides>
   </dep>
-  <init fun="ins_module_wrapper_init()"/>
   <header>
     <file name="ins_skeleton.h"/>
   </header>
+  <init fun="ins_module_wrapper_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="ins.c"/>
     <file name="ins_skeleton.c"/>

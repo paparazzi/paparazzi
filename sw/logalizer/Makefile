@@ -35,14 +35,14 @@ ifeq ($(USE_LABELGTK),lablgtk2)
 ifeq ($(LABLGTK2GLADE),)
 XPKG = -package lablgtk2,pprz.xlib
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
-all : play plotter sd2log openlog2tlm sdlogger_download
+all : play plotter sd2log
 else
 XPKG = -package lablgtk2,pprz.xlib,lablgtk2.glade
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
-all : play plotter logplotter sd2log openlog2tlm sdlogger_download
+all : play plotter logplotter sd2log
 endif
 else # no gtk2
-all: sd2log openlog2tlm sdlogger_download
+all: sd2log
 endif
 
 
@@ -65,10 +65,6 @@ logplotter : log_file.cmo gtk_export.cmo export.cmo logplotter.cmo $(LIBPPRZCMA)
 sd2log: sd2log.c
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -o $@ $^ -lz
-
-sdlogger_download: sdlogger_download.c
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -std=gnu99 -o $@ $^
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
@@ -107,13 +103,8 @@ gtk_export.ml : export.glade
 CC = gcc
 CFLAGS=-g -O2 -Wall
 
-openlog2tlm: openlog2tlm.c
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -o $@ $^
-
-
 clean:
-	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play logplotter plotter gtk_export.ml openlog2tlm sd2log sdlogger_download
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play logplotter plotter gtk_export.ml sd2log
 
 .PHONY: all clean
 

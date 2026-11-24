@@ -17,278 +17,301 @@
 # along with paparazzi.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import re
-import time
-from twisted.internet import protocol, reactor
+"""
+Iridium ground modem over a serial port (AT commands).
 
+The modem is in one of two modes:
+ - terminal mode: AT commands are sent one by one, each waits for OK or
+   ERROR (or a timeout) before the next one is sent;
+ - call mode (after ATD): all bytes are data for the aircraft, except
+   NO CARRIER / BUSY, which end the call.
+
+Everything runs in the Qt event loop: the serial port is read when a
+QSocketNotifier says data is waiting, the command timeout is a QTimer.
+"""
+
+import re
+
+import serial
+from PyQt5.QtCore import QObject, QSocketNotifier, QTimer, pyqtSignal
+
+DELIMITER = b'\r\n'     # Line end used by the Iridium modem
 NO_CARRIER = 'NO CARRIER'
 BUSY = 'BUSY'
 
-class IridiumProtocol(protocol.Protocol):
 
-    delimiter = '\r\n'        # Delemiter used in the iridium device
-    serial_ctrl = True        # Do we use CTS and RTS?
-    cpin1 = '1111'            # PIN code 1 for the SIM card
-    cpin2 = '2222'            # PIN code 2 for the SIM card
-    timeout = 3               # TImeout for receiving an OK or ERROR in seconds
-    show_data = True          # Show data in hex while in call
+class IridiumModem(QObject):
+    """Configure the modem, register, call and hang up; pass call data on."""
 
-    cb_console_write = None   # Console writing function
-    cb_connected = None       # Connected callback function
-    cb_configured = None      # Configured callback function
-    cb_calling = None         # Calling callback function
-    cb_registered = None      # Registered callback function
-    cb_call_data = None       # Call Data received callback function
+    connected = pyqtSignal(bool)    # Serial port opened / closed
+    configured = pyqtSignal(bool)   # Modem configuration succeeded / failed
+    calling = pyqtSignal(bool)      # Call started / ended
+    call_dropped = pyqtSignal()     # Call ended by the modem (NO CARRIER, BUSY)
+    registered = pyqtSignal(bool)   # Registered in the Iridium network
+    call_data = pyqtSignal(bytes)   # Data received from the aircraft
+    console = pyqtSignal(str)       # Text for the console
 
-    last_cmd = ''             # Last command transmitted
-    echo_enabled = True       # Whether echo is enabled
-    in_call = False           # Are we currently in call
-    recv_data = ''            # The received data until now
-    recv_ok = False           # Whether we received an OK back
-    recv_error = False        # Whether we received an ERROR back
+    serial_ctrl = True      # Do we use CTS and RTS?
+    timeout = 3             # Timeout for receiving an OK or ERROR in seconds
+    show_data = True        # Show data in hex while in call
 
-    def __init__(self, cb_connected = None, cb_configured = None, cb_calling = None, cb_registered = None, cb_call_data = None):
-        self.cb_connected = cb_connected
-        self.cb_configured = cb_configured
-        self.cb_calling = cb_calling
-        self.cb_registered = cb_registered
-        self.cb_call_data = cb_call_data
+    def __init__(self, cpin1='1111', cpin2='2222', parent=None):
+        super().__init__(parent)
+        self.cpin1 = cpin1          # PIN code 1 for the SIM card
+        self.cpin2 = cpin2          # PIN code 2 for the SIM card
+        self.serial = None
+        self.notifier = None
+        self.last_cmd = ''          # Last command transmitted
+        self.echo_enabled = True    # Whether echo is enabled
+        self.in_call = False        # Are we currently in call
+        self.recv_data = b''        # The received data until now
+        self.queue = []             # Commands waiting to be sent: (cmd, wait_ok, on_done)
+        self.waiting = None         # Callback of the command waiting for OK/ERROR
+        self.cpin_state = ''        # Last answer to AT+CPIN?
+        self.pin_sent = False       # PIN already sent since the last Register
 
-    def connectionMade(self):
-        reactor.callInThread(self.configure)
+        self.timer = QTimer(self)
+        self.timer.setSingleShot(True)
+        self.timer.timeout.connect(self.cmd_timeout)
 
-        # Report connection has been made
-        if self.cb_connected is not None:
-            self.cb_connected(True)
+    def open(self, device, baudrate):
+        """Open the serial port and configure the modem."""
+        try:
+            self.serial = serial.Serial(device, baudrate, timeout=0)
+        except (serial.SerialException, ValueError) as e:
+            self.serial = None
+            self.console.emit("[ERROR] %s\n" % e)
+            return
+        self.notifier = QSocketNotifier(self.serial.fileno(), QSocketNotifier.Read, self)
+        self.notifier.activated.connect(self.serial_readable)
+        self.echo_enabled = True
+        self.in_call = False
+        self.recv_data = b''
+        self.connected.emit(True)
+        self.configure()
 
-    def connectionLost(self, reason):
-        # Report that connection is lost and configruation also(maybe)
-        if self.cb_connected is not None:
-            self.cb_connected(False)
-        if self.cb_configured is not None:
-            self.cb_configured(False)
+    def close(self):
+        """Close the serial port and forget the pending commands."""
+        if self.serial is None:
+            return
+        self.notifier.setEnabled(False)
+        self.notifier = None
+        self.serial.close()
+        self.serial = None
+        self.timer.stop()
+        self.queue = []
+        self.waiting = None
+        if self.in_call:
+            self.in_call = False
+            self.calling.emit(False)
+        self.connected.emit(False)
+        self.configured.emit(False)
 
+    def is_open(self):
+        """True when the serial port is open."""
+        return self.serial is not None
 
     def configure(self):
-        # Send the serial and echo settings
+        """Send the serial, echo and data connection settings."""
         if self.serial_ctrl:
             cfg_cmd = "ATE0 V1 X3"
         else:
             cfg_cmd = "ATE0 V1 X3 &D0 &K0"
-        if not self.transmit_cmd_ok(cfg_cmd):
-            if self.cb_configured is not None:
-                self.cb_configured(False)
+        self.send_cmd(cfg_cmd, on_done=self.configure_echo_done)
+
+    def configure_echo_done(self, ok):
+        """After the echo settings: set the data connection settings."""
+        if not ok:
+            self.configure_failed()
             return
         self.echo_enabled = False
+        self.send_cmd("AT+CBST=7,0,1", on_done=self.configure_cbst_done)
 
-        # Set the data connection settings
-        if not self.transmit_cmd_ok("AT+CBST=7,0,1"):
-            if self.cb_configured is not None:
-                self.cb_configured(False)
+    def configure_cbst_done(self, ok):
+        """After the data connection settings: report the result."""
+        if not ok:
+            self.configure_failed()
             return
+        self.configured.emit(True)
 
-        # Report that the device has been configured
-        if self.cb_configured is not None:
-            self.cb_configured(True)
-
-    def set_console(self, console_write):
-        self.console_write = console_write
+    def configure_failed(self):
+        """Close the port: it needs to be opened (and configured) again."""
+        self.close()
 
     def register(self):
-        self.transmit_cmd("AT+CPIN?")
+        """Ask the SIM state; the answer leads to PIN entry and registration."""
+        self.pin_sent = False
+        self.send_cmd("AT+CPIN?", on_done=self.cpin_done)
+
+    def cpin_done(self, ok):
+        """After AT+CPIN?: enter the PIN or register in the network."""
+        if not ok:
+            return
+        if self.cpin_state in ('SIM PIN1', 'SIM PIN2'):
+            if self.pin_sent:
+                # Never send a wrong PIN twice: three wrong PINs block the SIM
+                self.console.emit("[ERROR] SIM still asks for a PIN, check the PIN code\n")
+                return
+            self.pin_sent = True
+            pin = self.cpin1 if self.cpin_state == 'SIM PIN1' else self.cpin2
+            self.send_cmd("AT+CPIN=\"%s\"" % pin)
+            self.send_cmd("AT+CPIN?", on_done=self.cpin_done)
+        elif self.cpin_state == 'READY':
+            self.send_cmd("AT+CREG=1")
+            self.send_cmd("AT+CREG?")
+        else:
+            self.send_cmd("AT+CPIN?", on_done=self.cpin_done)
 
     def get_csq(self):
-        self.transmit_cmd("AT+CSQ?")
-
-    def hangup(self):
-        if not self.in_call:
-            return True
-
-        reactor.callInThread(self._hangup)
-
-    # Hangup in thread
-    def _hangup(self):
-        # Go out of calling mode
-        self.last_cmd = "+++"
-        if self.console_write is not None:
-            reactor.callFromThread(self.console_write, "+++\r\n")
-        self.in_call = False
-        self.transmit("+++")
-
-        if self.cb_calling is not None:
-            self.cb_calling(False)
-
-        # Wait for OK
-        if not self.wait_for_ok():
-            return
-
-        self.transmit_cmd_ok("ATH")
+        """Ask the signal quality (answer shown in the console)."""
+        self.send_cmd("AT+CSQ?")
 
     def call(self, number):
+        """Dial the air modem; from now on received bytes are call data."""
         self.in_call = True
-        self.transmit_cmd("ATD" + number)
-        if self.cb_calling is not None:
-            self.cb_calling(True)
+        self.send_cmd("ATD" + number, wait_ok=False)
+        self.calling.emit(True)
 
-    # Wait for a OK receive
-    def wait_for_ok(self):
-        i = 0
-        while (not self.recv_ok and not self.recv_error and i < (self.timeout/0.1)):
-            time.sleep(0.1)
-            i += 1
+    def hangup(self):
+        """Leave the call mode with +++ and hang up with ATH."""
+        if not self.in_call:
+            return
+        self.in_call = False
+        self.calling.emit(False)
+        self.send_cmd("+++", on_done=self.hangup_escape_done, delimiter=False)
 
-        # Report error if timeout
-        if i >= (self.timeout/0.1) and self.console_write is not None:
-            reactor.callFromThread(self.console_write, "TIMEOUT (did not receive OK)\r\n")
+    def hangup_escape_done(self, ok):
+        """After +++ was answered with OK: hang up."""
+        if ok:
+            self.send_cmd("ATH")
 
-        retn = self.recv_ok
-        self.recv_ok = False
-        self.recv_error = False
-        return retn
-
-    # Transmit a command and do a busy waiting for OK
-    def transmit_cmd_ok(self, cmd):
-        self.recv_ok = False
-        self.recv_error = False
-        self.transmit_cmd(cmd)
-
-        return self.wait_for_ok()
-
-    # Transmit a command
-    def transmit_cmd(self, cmd):
-        self.last_cmd = cmd
-        if self.console_write is not None:
-            reactor.callFromThread(self.console_write, ">> " + cmd + "\r\n")
-        self.transmit(cmd + self.delimiter)
-
-    # Transmit data
     def transmit(self, data):
-        reactor.callFromThread(self.transport.write, data)
+        """Write raw bytes to the modem (e.g. data for the aircraft)."""
+        if self.serial is None:
+            return
+        try:
+            self.serial.write(data)
+        except serial.SerialException as e:
+            self.console.emit("[ERROR] %s\n" % e)
+            self.close()
 
-    # Handle the 'OK' message
+    def send_cmd(self, cmd, wait_ok=True, on_done=None, delimiter=True):
+        """Queue a command; it is sent once the previous one is answered."""
+        self.queue.append((cmd, wait_ok, on_done, delimiter))
+        self.send_next()
+
+    def send_next(self):
+        """Send queued commands until one has to wait for OK/ERROR."""
+        while self.waiting is None and self.queue and self.serial is not None:
+            cmd, wait_ok, on_done, delimiter = self.queue.pop(0)
+            self.last_cmd = cmd
+            if delimiter:
+                self.console.emit(">> " + cmd + "\n")
+                self.transmit(cmd.encode() + DELIMITER)
+            else:
+                self.console.emit(cmd + "\n")
+                self.transmit(cmd.encode())
+            if wait_ok:
+                self.waiting = on_done if on_done is not None else (lambda ok: None)
+                self.timer.start(self.timeout * 1000)
+
+    def cmd_done(self, ok):
+        """The command waiting for an answer got OK, ERROR or a timeout."""
+        if self.waiting is None:
+            return
+        self.timer.stop()
+        on_done = self.waiting
+        self.waiting = None
+        on_done(ok)
+        self.send_next()
+
+    def cmd_timeout(self):
+        """No OK or ERROR within the timeout."""
+        self.console.emit("TIMEOUT (did not receive OK)\n")
+        self.cmd_done(False)
+
     def handle_ok(self, data):
-        self.recv_ok = True
+        """Handle the 'OK' message."""
+        self.cmd_done(True)
 
-    # Handle the 'ERROR' message
     def handle_error(self, data):
-        self.recv_error = True
+        """Handle the 'ERROR' message."""
+        self.cmd_done(False)
 
-    # Handle the 'CREG' message
     def handle_creg(self, data):
-        reactor.callInThread(self._handle_creg, data)
+        """Handle the 'CREG' message (network registration)."""
+        self.registered.emit(data == '001,001')
 
-    # Handle the 'CREG' message in thread
-    def _handle_creg(self,data):
-        if data == '001,001' and self.cb_registered is not None:
-            self.cb_registered(True)
-        elif self.cb_registered is not None:
-            self.cb_registered(False)
-
-    # Handle the 'CPIN' message
     def handle_cpin(self, data):
-        reactor.callInThread(self._handle_cpin, data)
+        """Handle the 'CPIN' message (SIM state); acted on after the OK."""
+        self.cpin_state = data
 
-    # Handle the 'CPIN' message in thread
-    def _handle_cpin(self, data):
-        if not self.wait_for_ok():
+    def serial_readable(self):
+        """Read what the serial port has and handle it."""
+        try:
+            data = self.serial.read(self.serial.in_waiting or 1)
+        except (serial.SerialException, OSError) as e:
+            self.console.emit("[ERROR] %s\n" % e)
+            self.close()
             return
+        self.recv_data += data
+        if self.in_call:
+            self.handle_in_call()
+        else:
+            self.handle_in_terminal()
 
-        if data == 'SIM PIN1':
-            self.transmit_cmd_ok("AT+CPIN=\"%s\"" % self.cpin1)
-        elif data == 'SIM PIN2':
-            self.transmit_cmd_ok("AT+CPIN=\"%s\"" % self.cpin2)
-        elif data == 'READY':
-            self.transmit_cmd_ok("AT+CREG=1")
-            self.transmit_cmd_ok("AT+CREG?")
-            return
-        self.transmit_cmd("AT+CPIN?")
-
-    # Handle the 'CSQ' message
-    def handle_csq(self, data):
-        reactor.callInThread(self._handle_csq, data)
-
-    # Handle the 'CSQ' message in thread
-    def _handle_csq(self, data):
-        if not self.wait_for_ok():
-            return
-
-    # Hande data when we are in call (Bytes + possible Call ending)
-    def handleInCall(self):
+    def handle_in_call(self):
+        """Handle data during a call (bytes, or the end of the call)."""
+        text = self.recv_data.decode('latin-1').strip()
         # Check if we could have gotten an abort sequence
-        if self.recv_data.strip() != '' and len(self.recv_data) < 50:
-            # Check for NO Carrier or BUSY
-            if NO_CARRIER.startswith(self.recv_data.strip()) or BUSY.startswith(self.recv_data.strip()):
-                if self.recv_data[-len(self.delimiter):] == self.delimiter:
+        if text != '' and len(self.recv_data) < 50:
+            # Check for NO CARRIER or BUSY (wait for the full line)
+            if NO_CARRIER.startswith(text) or BUSY.startswith(text):
+                if self.recv_data.endswith(DELIMITER):
                     self.in_call = False
-                    self.recv_data = ''
-                    if self.console_write is not None:
-                        self.console_write("NO CARRIER\r\n")
-                    if self.cb_calling is not None:
-                        self.cb_calling(False)
+                    self.recv_data = b''
+                    self.console.emit(text + "\n")
+                    self.calling.emit(False)
+                    self.call_dropped.emit()
                 return
 
-            # Check if we got an +CR:, CONNECT and ignore
-            if self.recv_data.strip().startswith("+CR:") or self.recv_data.strip().startswith("CONNECT"):
-                if self.recv_data[-len(self.delimiter):] == self.delimiter:
-                    if self.console_write is not None:
-                        self.console_write(self.recv_data.strip() + "\r\n")
-                    self.recv_data = ''
+            # Check if we got a +CR: or CONNECT and ignore it
+            if text.startswith("+CR:") or text.startswith("CONNECT"):
+                if self.recv_data.endswith(DELIMITER):
+                    self.console.emit(text + "\n")
+                    self.recv_data = b''
                 return
 
         # Handle the in call data
-        if self.console_write is not None and self.show_data:
-            self.console_write("< %s\r\n" % self.recv_data.encode("hex"))
-        if self.cb_call_data is not None:
-            self.cb_call_data(self.recv_data)
+        if self.show_data:
+            self.console.emit("< %s\n" % self.recv_data.hex())
+        self.call_data.emit(self.recv_data)
+        self.recv_data = b''
 
-        self.recv_data = ''
+    def handle_in_terminal(self):
+        """Handle every full line received in terminal mode."""
+        while not self.in_call:
+            new_line = self.recv_data.find(DELIMITER)
+            if new_line < 0:
+                return
+            recv_line = self.recv_data[:new_line].decode('latin-1').strip()
+            self.recv_data = self.recv_data[new_line + len(DELIMITER):]
 
-    # Handle data when we are in terminal mode (String only)
-    def handleInTerminal(self):
-        # Check if we received a full line
-        new_line = self.recv_data.find(self.delimiter)
-        if new_line < 0:
-            return
+            # Skip empty lines and the echo of our own command
+            if recv_line == '':
+                continue
+            if self.echo_enabled and recv_line == self.last_cmd:
+                continue
 
-        recv_line = self.recv_data[:new_line].strip()
-        self.recv_data = self.recv_data[new_line+len(self.delimiter):]
+            # Split the information from the received line
+            self.console.emit(recv_line + "\n")
+            reg = re.match(r'([+]?)([A-Za-z0-9 ]+)[:]?[ ]?([A-Za-z0-9, ]*)', recv_line)
+            if reg is None:
+                continue
+            command = reg.group(2).lower()
+            data = reg.group(3).strip()
 
-        # Check if we did not receive an empty line
-        if recv_line == '':
-            # Handle next line if needed
-            if len(self.recv_data) > 0:
-                self.handleInTerminal()
-            return
-
-        # Check if echoing is enabled still, then ignore
-        if self.echo_enabled and recv_line == self.last_cmd:
-            # Handle next line if needed
-            if len(self.recv_data) > 0:
-                self.handleInTerminal()
-            return
-
-        # Split the information from the received line
-        if self.console_write is not None:
-            self.console_write(recv_line + "\r\n")
-        reg = re.match(r'([+]?)([A-Za-z0-9 ]+)[:]?[ ]?([A-Za-z0-9, ]*)', recv_line)
-        #plus = reg.group(1)
-        command = reg.group(2).lower()
-        data = reg.group(3).strip()
-
-        # Dispatch the handler
-        handler = getattr(self, "handle_%s" % command, None)
-        if handler:
-            handler(data)
-
-        # Handle next line if needed
-        if len(self.recv_data) > 0:
-            self.handleInTerminal()
-
-    # When we receive data over the serial device
-    def dataReceived(self, data):
-        self.recv_data += data
-
-        if self.in_call:
-            self.handleInCall() # We are currently calling
-        else:
-            self.handleInTerminal() # Not in call
+            # Dispatch the handler
+            handler = getattr(self, "handle_%s" % command, None)
+            if handler:
+                handler(data)

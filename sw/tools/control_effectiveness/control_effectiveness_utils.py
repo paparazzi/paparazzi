@@ -44,6 +44,7 @@ class Configuration:
     ranges:dict[str,tuple[float,float,float]]
     nb_in:int
     nb_out:int
+    nb_rpms:int
     mixing:np.ndarray
     data_descr:dict
     virtual_cmd:Optional[np.ndarray] = None
@@ -67,6 +68,7 @@ class Configuration:
         (nb_in, nb_out) = np.shape(mixing)
         
         data_descr = conf_dict['data']
+        nb_rpms = len([x for x in data_descr if x['type'] == "rpm"])
         
         # check virtual command
         virtual_cmd = None
@@ -74,7 +76,7 @@ class Configuration:
             virtual_cmd = extract_virtual_cmd(conf_dict)
             nb_out = virtual_cmd.shape[1]
         
-        return Configuration(var,ranges,nb_in,nb_out,mixing,data_descr,virtual_cmd)
+        return Configuration(var,ranges,nb_in,nb_out,nb_rpms,mixing,data_descr,virtual_cmd)
     
 
 
@@ -215,11 +217,15 @@ def extract_filtered_data(conf:Configuration, data:np.ndarray, start:int, end:in
     # Recover values from struct instead of putting them in function argument
     nb_in = conf.nb_in
     nb_out = conf.nb_out
+    nb_rpms = conf.nb_rpms
     
     inputs = np.zeros((end-start, nb_in))
     raw_inputs = np.zeros((end-start, nb_in))
     commands = np.zeros((end-start, nb_out))
     raw_commands = np.zeros((end-start, nb_out))
+    rpms = None
+    if nb_rpms > 0:
+        rpms = np.zeros((end-start, nb_rpms))
     for el in conf.data_descr:
         t = el['type']
         idx = el['index']
@@ -242,7 +248,11 @@ def extract_filtered_data(conf:Configuration, data:np.ndarray, start:int, end:in
             commands[:, idx] = apply_format(el, data[start:end, col])
             for (filt_name, params) in el['filters']:
                 commands[:,idx] = apply_filter(filt_name, params, commands[:, idx].copy(), conf.variables)    
-    return inputs, raw_inputs, commands, raw_commands
+        if t == 'rpm' and idx >= 0:
+            if idx >= nb_rpms:
+                raise IndexError("Invalid rpm index {} for {} (max is {})".format(idx,el['name'],nb_rpms)) # Again, exception rather than exit code 1
+            rpms[:, idx] = apply_format(el, data[start:end, col])
+    return inputs, raw_inputs, commands, raw_commands, rpms
 
 def extract_virtual_cmd(conf_dict:dict) -> np.ndarray:
     """Get virtual commands from the configuration
@@ -266,7 +276,7 @@ def extract_virtual_cmd(conf_dict:dict) -> np.ndarray:
 # Display functions
 #
 
-def plot_results(x, y, y_raw, z, t, freq, label, show=False, spec=False):
+def plot_results(x, y, y_raw, z, t, freq, label, show=False, spec=False, rpms=None):
     '''
     Plot two curves for comparison
     
@@ -308,6 +318,8 @@ def plot_results(x, y, y_raw, z, t, freq, label, show=False, spec=False):
         ax_fft.specgram(y_raw.reshape(N), Fs=freq)
         ax_fft.set_xlabel('Time (s)')
         ax_fft.set_ylabel('Freq (Hz)')
+        if rpms is not None:
+            ax_fft.plot(t-t[0], rpms / 60.,'r', linestyle='-', linewidth='0.3', label='rpm')
 
     if show:
         plt.show()

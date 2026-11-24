@@ -75,7 +75,7 @@ bool analyze_linear_flow_field(struct flow_t *vectors, int count, float error_th
 
   // fit linear flow field:
   float parameters_u[3], parameters_v[3], min_error_u, min_error_v;
-  fit_linear_flow_field(vectors, count, n_iterations, error_threshold, n_samples, parameters_u, parameters_v,
+  fit_linear_flow_field(vectors, count, error_threshold, n_iterations, n_samples, parameters_u, parameters_v,
                         &info->fit_error, &min_error_u, &min_error_v, &info->n_inliers_u, &info->n_inliers_v);
 
   // extract information from the parameters:
@@ -123,6 +123,8 @@ void fit_linear_flow_field(struct flow_t *vectors, int count, float error_thresh
   n_samples = (n_samples < MIN_SAMPLES_FIT) ? MIN_SAMPLES_FIT : n_samples;
   // n_samples should not be higher than count:
   n_samples = (n_samples < count) ? n_samples : count;
+  // at least one iteration, else the best fit below reads uninitialized results:
+  n_iterations = (n_iterations < 1) ? 1 : n_iterations;
 
   // initialize matrices and vectors for the full point set problem:
   // this is used for determining inliers

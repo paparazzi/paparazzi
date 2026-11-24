@@ -6,8 +6,6 @@
     <boards>
       <board name="lia_.*"/>
       <board name="lisa_[ms]_.*"/>
-      <board name="elle*"/>
-      <board name="naze32*"/>
     </boards>
   </mode>
   <mode name="USB DFU (stm32_mem)">
@@ -16,7 +14,6 @@
       <board name="li[s]?a_[m]?_.*"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
-      <board name="elle*"/>
       <board name="lia_.*"/>
     </boards>
   </mode>
@@ -25,11 +22,8 @@
     <boards>
       <board name="apogee_.*"/>
       <board name="li[s]?a_mx_.*"/>
-      <board name="elle*"/>
-      <board name="openpilot_revo.*"/>
       <board name="chimera_.*"/>
       <board name="tawaki_.*"/>
-      <board name="crazybee_f4_.*"/>
       <board name="crazyflie_.*"/>
       <board name="nucleo.*"/>
       <board name="matek_.*"/>
@@ -43,11 +37,8 @@
     <boards>
       <board name="apogee_.*"/>
       <board name="li[s]?a_mx_.*"/>
-      <board name="elle*"/>
-      <board name="openpilot_revo.*"/>
       <board name="chimera_.*"/>
       <board name="tawaki_.*"/>
-      <board name="crazybee_f4_.*"/>
       <board name="crazyflie_.*"/>
       <board name="nucleo.*"/>
       <board name="matek_.*"/>
@@ -61,13 +52,8 @@
     <boards>
       <board name="apogee_.*"/>
       <board name="li[s]?a_mx_.*"/>
-      <board name="cc3d"/>
-      <board name="elle*"/>
-      <board name="naze32*"/>
-      <board name="openpilot_revo.*"/>
       <board name="chimera_.*"/>
       <board name="tawaki_.*"/>
-      <board name="crazybee_f4_.*"/>
       <board name="crazyflie_.*"/>
       <board name="nucleo.*"/>
       <board name="matek_.*"/>
@@ -81,12 +67,6 @@
       <board name="li[s]?a_m_.*"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
-      <board name="px4io_.*"/>
-      <board name="cc3d"/>
-      <board name="elle*"/>
-      <board name="naze32*"/>
-      <board name="cjmcu*"/>
-      <board name="openpilot_revo.*"/>
       <board name="lia_.*"/>
       <board name="chimera_.*"/>
       <board name="tawaki_.*"/>
@@ -103,9 +83,7 @@
     <variable name="FLASH_MODE" value="SWD_NOPWR"/>
     <boards>
       <board name="li[s]?a_mxs_.*"/>
-      <board name="li[s]?a_s_.*"/>
       <board name="px4fmu_.*"/>
-      <board name="px4io_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (JTAG)">
@@ -115,14 +93,12 @@
       <board name="li[s]?a_[ms]?_.*"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
-      <board name="elle*"/>
     </boards>
   </mode>
     <mode name="Px4 bootloader">
     <variable name="FLASH_MODE" value="PX4_BOOTLOADER"/>
     <boards>
       <board name="px4fmu_.*"/>
-      <board name="px4io_.*"/>
       <board name="cube_.*"/>
       <board name="matek_.*"/>
     </boards>
@@ -131,7 +107,6 @@
     <variable name="FLASH_MODE" value="JTAG"/>
     <boards>
       <board name="li[s]?a_[lm]?_.*"/>
-      <board name="elle*"/>
     </boards>
   </mode>
 </flash_modes>

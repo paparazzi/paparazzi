@@ -31,6 +31,7 @@
 
 // Module functions
 extern void colorfilter_init(void);
+extern void colorfilter_event(void);
 
 extern uint8_t color_lum_min;
 extern uint8_t color_lum_max;

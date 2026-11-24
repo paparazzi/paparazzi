@@ -1,2 +1,17 @@
-<program command="sw/ground_segment/python/bitcraze/crazyradio2ivy.py" name="Crazyradio/IVY bridge" />
+<program command="sw/ground_segment/python/bitcraze/crazyradio2ivy.py" name="Crazyradio/IVY bridge">
+  <doc>
+    <description>
+      Bridge between a Crazyflie connected to a Crazyradio and the Ivy bus, with PPRZLINK messages.
+
+      Needs cflib (pip3 install cflib) and the Crazyflie firmware 2019.09; firmwares from 2024 on do not work.
+    </description>
+    <usage>usage: crazyradio2ivy.py [-h] [-a ADDRESS] [-c CHANEL] [-u URI] [-b BUS] [-s] [-v]</usage>
+    <option flag="-a ADDRESS, --address ADDRESS" description="URI address of Crazyflie"/>
+    <option flag="-c CHANEL, --chanel CHANEL" description="URI chanel of Crazyflie (full URI will be 'radio://0/80/2M'"/>
+    <option flag="-u URI, --uri URI" description="URI of Crazyflie (chanel option will not be effective)"/>
+    <option flag="-b BUS, --bus BUS" description="Ivy bus [default to system IVY bus]"/>
+    <option flag="-s, --scan" description="Scan available Crazyflie at startup"/>
+    <option flag="-v, --verbose" description="display debug messages"/>
+  </doc>
+</program>
 

@@ -1,4 +1,15 @@
 <program command="sw/ground_segment/tmtc/ivy2udp" name="Ivy2Udp">
+  <doc>
+    <description>
+      Forwards telemetry messages from the Ivy bus to a UDP connection.
+    </description>
+    <option flag="-b &lt;ivy bus&gt;" description="Default is 127.255.255.255:2010"/>
+    <option flag="-h &lt;remote host&gt;" description="Default is 85.214.48.162"/>
+    <option flag="-id &lt;aircraft id&gt;" description="Default is 7"/>
+    <option flag="-p &lt;remote port&gt;" description="Default is 4242"/>
+    <option flag="-dp &lt;listening port&gt;" description="Default is 4243"/>
+    <option flag="-payload_only" description="Only forward the bytes of PAYLOAD messages; UDP packets received are sent as PAYLOAD_COMMAND"/>
+  </doc>
   <arg constant="192.168.0.2" flag="-h" />
 </program>
 

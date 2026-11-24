@@ -18,30 +18,38 @@
 # along with paparazzi.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import wx
+"""
+Rotating wing status monitor (Paparazzi Center tool "RotWingStatus").
+
+Listens on the Ivy bus to the telemetry of a rotating wing drone (ESC, STAB_ATTITUDE,
+ROTATING_WING_STATE, AIR_DATA, INFO_MSG, IMU_HEATER, FUELCELL, POWER_DEVICE) and draws
+the drone with the status of every motor, the wing state, the power and the fuel cell.
+The window itself is in rotwing_viewer.py.
+
+Optional speech warnings (-s 1) need pyttsx3 (see requirements.txt).
+"""
+
+import sys
+import signal
+import argparse
+
+from PyQt5 import QtWidgets
+
 import rotwing_viewer
 
-class RotWingApp(wx.App):
 
-    def __init__(self, args):
-        self.args = args
-        wx.App.__init__(self)
-
-    def OnInit(self):
-        self.main = rotwing_viewer.RotWingFrame(self.args)
-        self.main.Show()
-        self.SetTopWindow(self.main)
-        return True
-
-def main(args):
-    application = RotWingApp(args)
-    application.MainLoop()
-
-if __name__ == '__main__':
-    import argparse
-
+def main():
+    """Parse the arguments, open the monitor window and run the Qt main loop."""
     parser = argparse.ArgumentParser(description="Rotwing Status Monitor")
     parser.add_argument('-s', '--speech', dest='speech', default=False, type=bool, help="Rotwing status viewer speech")
     args = parser.parse_args()
 
-    main(args)
+    app = QtWidgets.QApplication(sys.argv)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)  # Ctrl-C in the terminal closes the program
+    window = rotwing_viewer.RotWingWindow(args)
+    window.show()
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()

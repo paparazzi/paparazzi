@@ -1,0 +1,4 @@
+# attitude_viz.py: pygame-ce (same "import pygame") has wheels for the newer Pythons, pygame up to 3.13
+pygame; python_version < "3.10"
+pygame-ce; python_version >= "3.10"
+PyOpenGL

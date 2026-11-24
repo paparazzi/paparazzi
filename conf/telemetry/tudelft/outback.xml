@@ -29,7 +29,8 @@
       <message name="VECTORNAV_INFO"         period="0.5"/>
       <message name="TEMP_ADC"               period="3.0"/>
       <message name="FBW_STATUS"             period="2.0"/>
-      <message name="MOTOR"                  period="0.5"/>
+      <message name="ESC_TELEMETRY"          period="0.5"/>
+      <message name="SERVO_TELEMETRY"        period="0.5"/>
       <message name="THROTTLE_CURVE"         period="0.5"/>
     </mode>
 
@@ -68,7 +69,6 @@
       <message name="DL_VALUE"           period="0.5"/>
       <message name="ALIVE"              period="2.1"/>
       <message name="FILTER_ALIGNER"     period="2.2"/>
-      <message name="FILTER"             period=".5"/>
       <message name="GEO_MAG"            period="5."/>
       <message name="AHRS_GYRO_BIAS_INT" period="0.08"/>
       <message name="AHRS_QUAT_INT"      period=".25"/>

@@ -57,7 +57,6 @@
     </module>
 
     <module name="gps" type="optitrack"/>
-    <module name="air_data"/>
     <module name="ins" type="ext_pose"/>
 
     <module name="stabilization" type="indi">

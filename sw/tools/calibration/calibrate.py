@@ -49,6 +49,10 @@ def main():
     parser.add_option("--noise_threshold",
                       help="specify noise threshold instead of automatically determining it",
                       action="store", dest="noise_threshold", default=0, type="float")
+    parser.add_option("--lat", dest="lat", type="float",
+                      help="MAG: latitude of the calibration (deg), default from the GNSS fixes in the log")
+    parser.add_option("--lon", dest="lon", type="float",
+                      help="MAG: longitude of the calibration (deg), default from the GNSS fixes in the log")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
     (options, args) = parser.parse_args()
@@ -160,8 +164,22 @@ def main():
     else:
         print("optimized guess : avg "+str(np1.mean())+" std "+str(np1.std()))
 
+    # field strength where the magnetometer was calibrated, so the EKF2 can scale the normalized values
+    strength, location = None, ""
+    if options.sensor == "MAG":
+        if options.lat is not None and options.lon is not None:
+            pos, src = (options.lat, options.lon), "given"
+        else:
+            pos, src = calibration_utils.read_log_position(options.ac_id, filename), "GNSS in the log"
+        if pos is None:
+            print("Warning: no GNSS fix in the log, no calibration strength written (use --lat and --lon)")
+        else:
+            strength = calibration_utils.get_mag_strength_gauss(pos[0], pos[1])
+            location = f"{pos[0]:.4f} {pos[1]:.4f} ({src})"
+            print(f"Field strength at {location}: {strength:.4f} gauss")
+
     if not optimize_failed:
-        calibration_utils.print_xml(p1, options.sensor, options.sensor_id, sensor_res)
+        calibration_utils.print_xml(p1, options.sensor, options.sensor_id, sensor_res, strength, location)
 
     if options.plot:
         # if we are calibrating a mag, just draw first plot (non-blocking), then show the second

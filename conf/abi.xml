@@ -6,11 +6,11 @@
 
     <message name="BARO_ABS" id="0">
       <field name="stamp" type="uint32_t" unit="us"/>
-      <field name="pressure" type="float" unit="Pa"/>
+      <field name="pressure" type="float" unit="Pa">Static pressure of the barometer selected by air_data (AIR_DATA_SENDER_ID), drivers send BARO_ABS_RAW</field>
     </message>
 
     <message name="BARO_DIFF" id="1">
-      <field name="pressure" type="float" unit="Pa"/>
+      <field name="pressure" type="float" unit="Pa">Differential pressure of the sensor selected by air_data (AIR_DATA_SENDER_ID), drivers send BARO_DIFF_RAW</field>
     </message>
 
     <message name="AGL" id="2">
@@ -19,7 +19,7 @@
     </message>
 
     <message name="TEMPERATURE" id="3">
-      <field name="temp" type="float" unit="deg Celcius"/>
+      <field name="temp" type="float" unit="deg Celcius">Air temperature selected by air_data (AIR_DATA_SENDER_ID), drivers send TEMPERATURE_RAW</field>
     </message>
 
     <message name="IMU_GYRO" id="4">
@@ -80,7 +80,7 @@
     </message>
 
     <message name="AIRSPEED" id="14">
-      <field name="eas" type="float" unit="m/s"/>
+      <field name="eas" type="float" unit="m/s">Equivalent airspeed of the sensor selected by air_data (AIR_DATA_SENDER_ID), drivers send BARO_DIFF_RAW or AIRSPEED_RAW</field>
     </message>
 
     <message name="ACT_FEEDBACK" id="15">
@@ -294,6 +294,27 @@
       <field name="count" type="uint8_t">Number of beacons in the array</field>
       <field name="src_id" type="uint16_t*">Beacons ids</field>
       <field name="range_diff" type="float*" unit="m">Range difference with the closest beacon</field>
+    </message>
+
+    <message name="BARO_ABS_RAW" id="45">
+      <field name="stamp" type="uint32_t" unit="us">Timestamp in micro-seconds</field>
+      <field name="pressure" type="float" unit="Pa">Uncalibrated static pressure from a barometer driver, calibrated and selected by air_data which sends BARO_ABS</field>
+    </message>
+
+    <message name="BARO_DIFF_RAW" id="46">
+      <field name="stamp" type="uint32_t" unit="us">Timestamp in micro-seconds</field>
+      <field name="pressure" type="float" unit="Pa">Uncalibrated differential pressure from a driver, calibrated and selected by air_data which sends BARO_DIFF and AIRSPEED</field>
+    </message>
+
+    <message name="AIRSPEED_RAW" id="47">
+      <field name="stamp" type="uint32_t" unit="us">Timestamp in micro-seconds</field>
+      <field name="eas" type="float" unit="m/s">Uncalibrated equivalent airspeed from a sensor that only gives an airspeed, calibrated and selected by air_data which sends AIRSPEED</field>
+    </message>
+
+    <message name="TEMPERATURE_RAW" id="48">
+      <field name="stamp" type="uint32_t" unit="us">Timestamp in micro-seconds</field>
+      <field name="temp" type="float" unit="deg Celcius">Temperature, sent with the sender id of the sensor it belongs to</field>
+      <field name="type" type="uint8_t">What is measured: TEMPERATURE_TYPE_AIR, _DIFF, _BARO, _IMU or _OTHER (abi_common.h). air_data sends the selected air temperature as TEMPERATURE</field>
     </message>
 
   </msg_class>

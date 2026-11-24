@@ -399,6 +399,32 @@
       <field name="RES4" format="U4"/>
     </message>
 
+    <!-- Configuration interface (generation 9 and later): set one configuration item, the variant
+         depends on the size of the value (bits 28-30 of the key: 1 bit, 2 one byte, 3 two, 4 four bytes) -->
+    <message name="VALSET_U1" ID="0x8A" length="9">
+      <field name="version" format="U1"/>
+      <field name="layers" format="U1"/>
+      <field name="reserved1" format="U2"/>
+      <field name="key" format="U4"/>
+      <field name="value" format="U1"/>
+    </message>
+
+    <message name="VALSET_U2" ID="0x8A" length="10">
+      <field name="version" format="U1"/>
+      <field name="layers" format="U1"/>
+      <field name="reserved1" format="U2"/>
+      <field name="key" format="U4"/>
+      <field name="value" format="U2"/>
+    </message>
+
+    <message name="VALSET_U4" ID="0x8A" length="12">
+      <field name="version" format="U1"/>
+      <field name="layers" format="U1"/>
+      <field name="reserved1" format="U2"/>
+      <field name="key" format="U4"/>
+      <field name="value" format="U4"/>
+    </message>
+
   </msg_class>
 
   <msg_class name="ACK" ID="0x05">
@@ -474,6 +500,41 @@ supported.
     <message name="VER" ID="0x04">
       <block length="1">
         <field name="c" format="U1"/>
+      </block>
+    </message>
+
+    <message name="GET_COMMS" ID="0x36" length="0">
+    </message>
+
+    <!-- Communication port information (generation 9 and later). txErrors bits 4..2 (X20): the port
+         this message is output on, 1 I2C, 2 UART1, 3 UART2, 4 USB, 5 SPI -->
+    <message name="COMMS" ID="0x36">
+      <field name="version" format="U1"/>
+      <field name="nPorts" format="U1"/>
+      <field name="txErrors" format="U1"/>
+      <field name="reserved0" format="U1"/>
+      <field name="protIds0" format="U1"/>
+      <field name="protIds1" format="U1"/>
+      <field name="protIds2" format="U1"/>
+      <field name="protIds3" format="U1"/>
+      <block times="nPorts" length="40">
+        <field name="portId" format="U2"/>
+        <field name="txPending" format="U2" unit="bytes"/>
+        <field name="txBytes" format="U4" unit="bytes"/>
+        <field name="txUsage" format="U1" unit="%"/>
+        <field name="txPeakUsage" format="U1" unit="%"/>
+        <field name="rxPending" format="U2" unit="bytes"/>
+        <field name="rxBytes" format="U4" unit="bytes"/>
+        <field name="rxUsage" format="U1" unit="%"/>
+        <field name="rxPeakUsage" format="U1" unit="%"/>
+        <field name="overrunErrs" format="U2"/>
+        <field name="msgs0" format="U2"/>
+        <field name="msgs1" format="U2"/>
+        <field name="msgs2" format="U2"/>
+        <field name="msgs3" format="U2"/>
+        <field name="reserved1" format="U4"/>
+        <field name="reserved2" format="U4"/>
+        <field name="skipped" format="U4" unit="bytes"/>
       </block>
     </message>
 

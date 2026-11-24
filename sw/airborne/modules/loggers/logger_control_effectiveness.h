@@ -26,6 +26,7 @@
 #ifndef LOGGER_CONTROL_EFFECTIVENESS_H
 #define LOGGER_CONTROL_EFFECTIVENESS_H
 
+extern void logger_control_effectiveness_init(void);
 extern void logger_control_effectiveness_start(void);
 extern void logger_control_effectiveness_stop(void);
 extern void logger_control_effectiveness_periodic(void);

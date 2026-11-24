@@ -48,7 +48,7 @@ bool settings_clear_flag;
 
 
 static void settings_send_dl_value(struct link_device *dev, struct transport_tx *trans,
-                                   uint8_t receiver_id, uint8_t index, float value)
+                                   uint8_t receiver_id, uint8_t idx, float value)
 {
   struct pprzlink_msg msg;
   msg.trans = trans;
@@ -56,10 +56,10 @@ static void settings_send_dl_value(struct link_device *dev, struct transport_tx 
   msg.sender_id = AC_ID;
   msg.receiver_id = receiver_id;
   msg.component_id = 0;
-  pprzlink_msg_send_DL_VALUE(&msg, &index, &value);
+  pprzlink_msg_send_DL_VALUE(&msg, &idx, &value);
 
 #if FLIGHTRECORDER_SDLOG
-  pprz_msg_send_DL_VALUE(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, &index, &value);
+  pprz_msg_send_DL_VALUE(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, &idx, &value);
 #endif
 }
 

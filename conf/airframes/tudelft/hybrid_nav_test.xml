@@ -80,7 +80,6 @@
     </module>
 
     <module name="geo_mag"/>
-    <module name="air_data"/>
 
   </firmware>
 
@@ -223,12 +222,6 @@
 
     <define name="FAILSAFE_HOME_RADIUS" value="600" unit="m"/>
 
-  </section>
-
-  <section name="AIR_DATA" prefix="AIR_DATA_">
-    <define name="CALC_AIRSPEED" value="TRUE"/>
-    <define name="CALC_TAS_FACTOR" value="FALSE"/>
-    <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
   <section name="GCS">

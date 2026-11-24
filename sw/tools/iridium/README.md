@@ -12,9 +12,12 @@ The Iridium Link tool configures the ground modem and initiates a call to the ai
 - Press 'Call' to initiate a call (this can take some time)
 
 ## Prerequisites
-- pygtk 2.24.2
-- pyserial 3.1.1
-- Twisted 16.4.1
+Python 3 with PyQt5 and pyserial: `sudo apt install python3-pyqt5 python3-serial`
+(or `pip install -r requirements.txt`).
+
+## Options
+Run `iridium_link.py --help`: serial device (`-d`), baud rate (`-b`), phone number (`-n`),
+SIM PIN codes (`--pin1`, `--pin2`) and UDP ports (`--udp_in`, `--udp_out`).
 
 ## FAQ
 
@@ -25,7 +28,7 @@ Please make sure you see the 'Registered' box checked, if not make sure you pres
 This tool will output data by default on UDP port '4242' and data can be send to UDP port '4243' on the local host. This will work by default with the Paparazzi Autopilot UDP link.
 
 ### I changed the SIM pin number
-Make sure you also update the PIN number into the tool (this will be changeable in later versions). If not it won't be able to register.
+Start the tool with the new PIN (`--pin1`, `--pin2`). If not it won't be able to register. The tool sends the PIN only once per 'Register' press, so a wrong PIN does not block the SIM card.
 
 ### I cannot register to the network
 If the 'Registered' box is never checked make sure your SIM card is correctly placed in the ground modem. Also make sure that your SIM card is activated by your provider.

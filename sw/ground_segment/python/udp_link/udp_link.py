@@ -31,12 +31,14 @@ class DownLinkStatus():
         self.rx_bytes = 0
         self.rx_msgs = 0
         self.tx_msgs = 0
+        self.tx_bytes = 0
         self.run_time = 0
         self.last_rx_bytes = 0
         self.last_rx_msgs = 0
         self.last_msg_time = 0
         self.last_ping_time = 0
         self.last_pong_time = 0
+        self.max_gap = 0  # longest time without a frame since the previous status (s)
 
 class UDPLink:
     def __init__(self,opts):
@@ -50,6 +52,9 @@ class UDPLink:
         self.rx_err = 0
         self.status_timer = threading.Timer(STATUS_PERIOD, self.sendStatus)
         self.ping_timer = threading.Timer(PING_PERIOD, self.sendPing)
+        self.time_sync_period = opts.time_sync_period
+        # half a ping period after the pings, to not burst the uplink
+        self.time_sync_timer = threading.Timer(PING_PERIOD / 2., self.sendTimeSync)
         self.bcast_method = opts.broadcast_method
         self.bcast_addr = opts.broadcast_address
 
@@ -58,7 +63,11 @@ class UDPLink:
             self.ac_downlink_status[ac_id] = DownLinkStatus(ac_id, address)
         self.ac_downlink_status[ac_id].rx_msgs += 1
         self.ac_downlink_status[ac_id].rx_bytes += length
-        self.ac_downlink_status[ac_id].last_msg_time = time.time()
+        now = time.time()
+        status = self.ac_downlink_status[ac_id]
+        if status.last_msg_time > 0:
+            status.max_gap = max(status.max_gap, now - status.last_msg_time)
+        status.last_msg_time = now
         if isPong:
             self.ac_downlink_status[ac_id].last_pong_time = time.time() - self.ac_downlink_status[ac_id].last_ping_time
 
@@ -77,6 +86,7 @@ class UDPLink:
                 for dest in self.ac_downlink_status.keys():
                     self.udp.send(msg, 0, (self.ac_downlink_status[dest].address[0], self.uplink_port))
                     self.ac_downlink_status[dest].tx_msgs += 1
+                    self.ac_downlink_status[dest].tx_bytes += len(self.udp.trans.pack_pprz_msg(0, msg))
         else:
             if isinstance(ac_id,str):
                 ac_id = int(ac_id)
@@ -84,6 +94,7 @@ class UDPLink:
             if self.ac_downlink_status.has_key(ac_id):
                 self.udp.send(msg,0,(self.ac_downlink_status[ac_id].address[0],self.uplink_port),ac_id)
                 self.ac_downlink_status[ac_id].tx_msgs+=1
+                self.ac_downlink_status[ac_id].tx_bytes += len(self.udp.trans.pack_pprz_msg(0, msg, ac_id))
             else:
                 print ('Message for unknown ac %d' % ac_id)
 
@@ -102,6 +113,8 @@ class UDPLink:
 
         self.status_timer.start()
         self.ping_timer.start()
+        if self.time_sync_period > 0:
+            self.time_sync_timer.start()
 
         self.initial_ivy_binds()
 
@@ -112,26 +125,43 @@ class UDPLink:
             print ("Stopping UDPLink.")
             self.status_timer.cancel()
             self.ping_timer.cancel()
+            self.time_sync_timer.cancel()
             self.run_event.clear()
             # t.join()
             self.udp.stop()
             self.ivy.stop()
             self.udp.join()
 
+    def sendUplink(self, msg, ac_id):
+        address = self.ac_downlink_status[int(ac_id)].address
+        if messages_xml_map.PROTOCOL_VERSION=="2.0":
+            # For pprzlink V2.0 set the receiver id
+            self.udp.send(msg, 0, address, ac_id)
+        else:
+            self.udp.send(msg, 0, address)
+
     def sendPing(self):
         for (ac_id, value) in self.ac_downlink_status.items():
-            if messages_xml_map.PROTOCOL_VERSION=="2.0":
-                # For pprzlink V2.0 set the receiver id
-                self.udp.send(message.PprzMessage('datalink','PING'), 0, self.ac_downlink_status[int(ac_id)].address, ac_id)
-            else:
-                self.udp.send(message.PprzMessage('datalink','PING'),0,self.ac_downlink_status[int(ac_id)].address)
+            self.sendUplink(message.PprzMessage('datalink', 'PING'), ac_id)
             value.last_ping_time = time.time()
         self.ping_timer = threading.Timer(PING_PERIOD, self.sendPing)
         self.ping_timer.start()
 
+    def sendTimeSync(self):
+        for (ac_id, value) in self.ac_downlink_status.items():
+            # ground time for the aircraft, corrected with half the last round trip
+            rtt = value.last_pong_time
+            t = time.time() + (rtt / 2. if 0. < rtt < 2. else 0.)
+            time_sync = message.PprzMessage('datalink', 'TIME_SYNC')
+            time_sync['unix_time'] = int(t)
+            time_sync['unix_ms'] = int((t - int(t)) * 1000)
+            self.sendUplink(time_sync, ac_id)
+        self.time_sync_timer = threading.Timer(self.time_sync_period, self.sendTimeSync)
+        self.time_sync_timer.start()
+
     def sendStatus(self):
         for (key, value) in self.ac_downlink_status.items():
-            self.ivy.send("link LINK_REPORT %i %i %i %i %i %i %i %i %i %i %i" % (
+            self.ivy.send("link LINK_REPORT %i %i %i %i %i %i %i %i %i %i %i %i %s %i %i" % (
                 value.ac_id,
                 -1,
                 value.run_time,
@@ -142,7 +172,12 @@ class UDPLink:
                 value.rx_bytes - value.last_rx_bytes,
                 value.rx_msgs - value.last_rx_msgs,
                 value.tx_msgs,
-                1000 * value.last_pong_time))
+                1000 * value.last_pong_time,
+                0,
+                "%s:%d" % (value.address[0], self.uplink_port),
+                1000 * max(value.max_gap, time.time() - value.last_msg_time),
+                value.tx_bytes))
+            value.max_gap = 0
             value.last_rx_bytes = value.rx_bytes
             value.last_rx_msgs = value.rx_msgs
             value.run_time = value.run_time + 1
@@ -159,6 +194,7 @@ if __name__ == '__main__':
     parser.add_argument("--uplink_port", default=pprzlink.udp.UPLINK_PORT, help="Uplink UDP port. [default: %(default)s]")
     parser.add_argument("--downlink_port", default=pprzlink.udp.DOWNLINK_PORT, help="Downlink UDP port. [default: %(default)s]")
     parser.add_argument("--bus", default=pprzlink.ivy.IVY_BUS, help="Ivy bus. [default to system IVY bus]")
+    parser.add_argument("--time_sync_period", type=float, default=10.0, help="Period (s) of the TIME_SYNC message (ground time) sent to the aircraft, 0 to disable. [default: %(default)s]")
     args = parser.parse_args()
 
     link = UDPLink(args)

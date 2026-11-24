@@ -30,6 +30,10 @@
 #include "std.h"
 #include <stdarg.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct preflight_result_t {
   char *message;
   uint16_t max_len;
@@ -53,5 +57,9 @@ extern void preflight_error(struct preflight_result_t *result, const char *fmt, 
 extern void preflight_warning(struct preflight_result_t *result, const char *fmt, ...);
 extern void preflight_success(struct preflight_result_t *result, const char *fmt, ...);
 extern void preflight_checks_log_bypass(bool bypass);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PREFLIGHT_CHECKS_H */

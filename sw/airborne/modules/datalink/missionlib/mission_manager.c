@@ -110,7 +110,7 @@ void mavlink_mission_periodic(void)
 void mavlink_send_mission_ack(void)
 {
   mavlink_msg_mission_ack_send(MAVLINK_COMM_0,  mission_mgr.rem_sysid, mission_mgr.rem_compid,
-                               MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION);
+                               MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION, 0);  // 0: no opaque_id (plan id)
   MAVLinkSendMessage();
   MAVLINK_DEBUG("Sent MISSION_ACK message\n");
 }

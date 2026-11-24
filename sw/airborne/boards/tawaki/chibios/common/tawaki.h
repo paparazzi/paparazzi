@@ -712,16 +712,6 @@
 #define SPI_SELECT_SLAVE5_PIN   PAL_PAD(LINE_SPI4_INTERNAL_CS)
 
 /**
- * Baro
- *
- * Apparently needed for backwards compatibility
- * with the ancient onboard baro boards
- */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 0
-#endif
-
-/**
  * SDIO
  */
 #define SDIO_D0_PORT  PAL_PORT(LINE_SDMMC1_D0)
@@ -768,6 +758,16 @@
   .pwm_channel = 0, \
   .pwmp = &PWMD5 \
 }
+
+/*
+ * For the buzzer (buzzer_tunes module)
+ * ALARM pin (TIM5_CH1), BUZZER pin AUX_A1
+ */
+#define BUZZER_GPIO         PAL_PORT(LINE_AUX_A1)
+#define BUZZER_PIN          PAL_PAD(LINE_AUX_A1)
+#define BUZZER_AF           AUX_A1_TIM_AF
+#define BUZZER_PWMD         PWMD5
+#define BUZZER_PWM_CHANNEL  0
 
 #endif /* CONFIG_TAWAKI_1_00_H */
 

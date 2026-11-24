@@ -36,7 +36,6 @@
       <configure name="MODEM_PORT" value="usb_serial"/>
     </module>
 
-    <module name="air_data"/>
 
     <module name="sys_mon"/>
   </firmware>

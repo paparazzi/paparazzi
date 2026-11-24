@@ -53,8 +53,8 @@
 #define BAT_CHECKER_DELAY 5
 #endif
 
-#ifndef MIN_BAT_LEVEL
-#define MIN_BAT_LEVEL 3
+#ifndef MIN_MEASURABLE_BAT_LEVEL
+#define MIN_MEASURABLE_BAT_LEVEL 3
 #endif
 
 #ifndef TAKEOFF_BAT_LEVEL
@@ -64,7 +64,7 @@ PRINT_CONFIG_VAR(TAKEOFF_BAT_LEVEL)
 
 PRINT_CONFIG_VAR(LOW_BAT_LEVEL)
 PRINT_CONFIG_VAR(CRITIC_BAT_LEVEL)
-PRINT_CONFIG_VAR(MIN_BAT_LEVEL)
+PRINT_CONFIG_VAR(MIN_MEASURABLE_BAT_LEVEL)
 
 #ifndef VoltageOfAdc
 #define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
@@ -232,7 +232,7 @@ void electrical_periodic(void)
   electrical.energy += consumed_since_last * electrical.vsupply;
 
   /*if valid voltage is seen then start checking. Set min level to 0 to always start*/
-  if (electrical.vsupply >= MIN_BAT_LEVEL) {
+  if (electrical.vsupply >= MIN_MEASURABLE_BAT_LEVEL) {
     vsupply_check_started = true;
   }
 

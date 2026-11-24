@@ -4,12 +4,13 @@
   <doc>
     <description>
       Catapult launch timing system.
+
       - Phase 1: Zero Roll, Climb Pitch, Zero Throttle
-      - Phase 2: After detecting the Start Acceleration\n
-                 Zero Roll, Climb Pitch, Full Throttle
-      - Phase 3: After getting the GPS heading (time based)\n
-                 Place climb 300m in front of us\n
-                 GoTo(climb)\n
+      - Phase 2: After detecting the Start Acceleration:
+        Zero Roll, Climb Pitch, Full Throttle
+      - Phase 3: After getting the GPS heading (time based):
+        Place climb 300m in front of us,
+        GoTo(climb)
 <!--
 Block example:
 @verbatim

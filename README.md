@@ -31,6 +31,9 @@ cd ./paparazzi
 ./install.sh
 ```
 
+`./install.sh` opens a window to choose what to install; `./install.sh --all` installs everything without the window.
+In an active conda environment the Python packages are installed there (`./install.sh --help` for the other options).
+
 
 
 For Ubuntu users, required packages are available in the [paparazzi-uav PPA] (https://launchpad.net/~paparazzi-uav/+archive/ppa),

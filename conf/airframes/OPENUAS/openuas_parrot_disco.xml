@@ -136,10 +136,7 @@
       of nifty Galilleio setting we rather keep that, but for now, lazyness -->
       <module name="gps" type="ubx_ucenter"/>
 
-      <module name="airspeed" type="ms45xx_i2c">
-        <!--Gives cut-off freq of 1/(2*pi*tau) in 1Hz -->
-        <define name="MS45XX_LOWPASS_TAU" value="0.25"/> <!-- TODO: find optimum value for stock Disco -->
-      </module>
+      <module name="airspeed" type="ms45xx_i2c"/>
 
       <!-- SBUS out is AETR by default, our transmitter sends TAER as per standard so correct in radio file -->
       <module name="radio_control" type="sbus"> <!-- The output type of RX, over the air it can can be all kinds e.g. DSMX, FRSky-->
@@ -198,8 +195,7 @@
       <module name="ins" type="alt_float"/>-->
       <module name="baro_sim"/>
       <!-- For various parameter info here  https://wiki.paparazziuav.org/wiki/Subsystem/ahrs -->
-      <!--<module name="ahrs" type="int_cmpl_quat">
-      </module>-->
+      <!--<module name="ahrs" type="int_cmpl_quat"/>-->
       <!--<module name="uart"/>--><!-- TODO: Exteral HITL PC debugging e.g a photocam trigger etc -->
     </target>
 
@@ -222,20 +218,6 @@
       <!--<module name="radio_control" type="datalink"/>-->
       <module name="udp"/><!--FIXME-->
     </target>
-
-<!-- ********* Yet another way for simulation of the flight *********-->
-<!-- FIXME: Needs fixes in CRRC simfdm-->
-<!--
-    <target name="nps" board="pc">
-      <configure name="PERIODIC_FREQUENCY" value="512"/>
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
-      <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
-      <module name="radio_control" type="ppm"/>
-      <module name="fdm" type="crrcsim"/>
-      <module name="imu" type="nps"/>
-      <module name="telemetry" type="transparent"/>
-    </target>
--->
 
 <!-- ********************* and another one ... ********************* -->
     <!-- <target name="yasim" board="pc"> -->
@@ -275,7 +257,6 @@
     <!-- <define name="MS45XX_SENSOR_SYNC_SEND"/>--> <!-- Temp for debugging Airspeed -->
     <!-- temp fix for geomag, normally only used for rotorcraft -->
     <define name="SENSOR_SYNC_SEND"/> <!-- Temp for debugging Baro -->
-    <configure name="USE_BARO_BOARD" value="TRUE"/>
 
     <!-- amount of time it take for the bat to trigger check -->
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
@@ -283,7 +264,7 @@
     <define name="BAT_CHECKER_DELAY" value="80"/> <!--unit="s/10" in tenth of seconds per default use ELECTRICAL_PERIODIC_FREQ if you for some reason want it differently-->
 
     <!-- Only one main battery so CATASTROPHIC_BATTERY kill should be somewhat delayed -->
-    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/> <!--unit="s/10" in tenth of seconds for engine kill or in ELECTRICAL_PERIODIC_FREQ-->
+    <define name="CATASTROPHIC_BAT_KILL_DELAY" value="41" unit="s"/>
 
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
     <define name="USE_AHRS_GPS_ACCELERATIONS" value="TRUE"/> <!-- forward acceleration compensation from GPS speed -->
@@ -321,11 +302,6 @@
     <module name="auto1_commands"/> <!-- FIXME not working in JSBSim target with RC controller steering in Simulator-->
 
     <!-- Also used if QNH needed -->
-    <module name="air_data">
-     <define name="CALC_AIRSPEED" value="FALSE"/><!--  we set use airspeed elsewhere-->
-     <define name="CALC_TAS_FACTOR" value="FALSE"/>
-     <define name="CALC_AMSL_BARO" value="TRUE"/>
-    </module>
 
     <module name="geo_mag"/>
 
@@ -412,11 +388,9 @@
     </module>
 
     <!-- Nice when flying multiple airframes, Now the next step is to get the cam look at other AC_ID working between Rotor and Fixed -->
-    <module name="traffic_info">
-    </module>
+    <module name="traffic_info"/>
 
-    <module name="tcas">
-    </module>
+    <module name="tcas"/>
 
   </firmware>
 
@@ -431,6 +405,16 @@
     <servo name="S_GEAR" no="4" min="1100" neutral="1500" max="1900"/> <!-- No gear eiter Can be used for other purpose of choice -->
     <servo name="S_FLAPS" no="5" min="1100" neutral="1500" max="1900"/> <!-- No real flaps either, Can be used for other purpose of choice -->
   </servos>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <!-- Low-pass cut-off (Hz) of the pitot, was a time constant of 0.25 s -->
+    <define name="DIFF_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="MS45XX_SENDER_ID"/>
+        <field name="filter_freq" value="0.64"/>
+      </field>
+    </define>
+  </section>
 
   <section name="ServoPositions">
     <define name="SERVO_BRAKE_FULL" value="-MAX_PPRZ" />
@@ -804,8 +788,8 @@ The most crucial part for the magnetometer calibration:
 
 <!-- **************************** BAT ****************************** -->
   <section name="BAT">
-    <!-- <define name="MAX_BAT_CAPACITY" value="2700" unit="mAh"/> --> <!-- The Default Parrot Disco 2700mAh battery -->
-    <define name="MAX_BAT_CAPACITY" value="5200" unit="mAh"/> <!-- 3rd party battery, needs enlarged battery bay -->
+    <!-- <define name="BAT_CAPACITY" value="2700" unit="mAh"/> --> <!-- The Default Parrot Disco 2700mAh battery -->
+    <define name="BAT_CAPACITY" value="5200" unit="mAh"/> <!-- 3rd party battery, needs enlarged battery bay -->
     <define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/> <!-- TODO: calibrate even better -->
     <!-- tested at V 11.7 the avg -->  <!-- 1idel RPM then 1.0A half throttle 4A-->
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="600" unit="mA"/>  <!-- 500mA, with additional RC receiver ~600mA -->
@@ -814,7 +798,7 @@ The most crucial part for the magnetometer calibration:
     <define name="LOW_BAT_LEVEL" value="10.6" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10.0" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/> <!-- TODO: test when AP board switches off -->
-    <define name="MIN_BAT_LEVEL" value="9.0" unit="V"/><!-- Get rid if this one maybe? -->
+    <define name="MIN_MEASURABLE_BAT_LEVEL" value="9.0" unit="V"/><!-- Get rid if this one maybe? -->
   </section>
 
 <!-- ***************************** MISC **************************** -->

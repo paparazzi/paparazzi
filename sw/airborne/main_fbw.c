@@ -144,19 +144,6 @@ static void main_task_periodic(void)
   /* Safety check and set FBW mode */
   fbw_safety_check();
 
-#ifdef BOARD_PX4IO
-  //due to a baud rate issue on PX4, for a few seconds the baud is 1500000 however this may result in package loss, causing the motors to spin at random
-  //to prevent this situation:
-  if (intermcu.stable_px4_baud != PPRZ_BAUD) {
-    fbw_mode = FBW_MODE_FAILSAFE;
-    fbw_motors_on = false;
-    //signal to user whether fbw can be flashed:
-#ifdef FBW_MODE_LED
-    LED_OFF(FBW_MODE_LED); // causes really fast blinking
-#endif
-  }
-#endif
-
   // TODO make module out of led blink?
 #ifdef FBW_MODE_LED
   static uint16_t dv = 0;

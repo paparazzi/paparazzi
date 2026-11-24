@@ -72,7 +72,6 @@ AggieAir Minion Sim
       <define name="BATMON_TEMP_OFFSET" value="250"/>
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
     </module>
-    <module name="air_data"/>
   </firmware>
 
   <!-- commands section -->
@@ -171,6 +170,7 @@ AggieAir Minion Sim
     <define name="CRITIC_BAT_LEVEL" value="3.5" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
 -->
+    <define name="BAT_NB_CELLS" value="4"/>
   </section>
 
   <section name="MISC">

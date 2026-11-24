@@ -33,12 +33,13 @@ EXT_DIR=$(PAPARAZZI_SRC)/sw/ext
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 MY_PYTHON := $(shell echo `which python3`)
-MY_MAVLINKTOOLS := $(shell $(MY_PYTHON) -c 'import future' 2>&1)
-MY_DRONECANTOOLS := $(shell $(MY_PYTHON) -c 'import em' 2>&1)
+# the MAVLink generator (pymavlink) needs Python 3.10 or newer (Ubuntu 22.04 or newer)
+MY_MAVLINKTOOLS := $(shell $(MY_PYTHON) -c 'import sys; print(sys.version_info >= (3, 10))')
+MY_DRONECANTOOLS := $(shell $(MY_PYTHON) -c 'import em, pexpect' 2>&1)
 BOOST_INSTALLED := $(shell dpkg -s libboost-program-options-dev >/dev/null 2>&1 && echo yes)
 CMAKE_INSTALLED := $(shell command -v cmake 2>/dev/null)
 
-all: chibios fatfs libsbp TRICAL hacl-c key_generator rustlink ecl matrix mavlink dronecan unifiedmocaprouter
+all: chibios fatfs libsbp TRICAL hacl-c key_generator rustlink mavlink dronecan unifiedmocaprouter
 
 # update (and init if needed) all submodules
 update_submodules:
@@ -70,19 +71,16 @@ TRICAL: TRICAL.update
 
 fatfs: fatfs.sync fatfs.update
 
-ecl: ecl.update
-
-matrix: matrix.update
-
 mavlink: mavlink.update mavlink.build
 
 mavlink.build:
-ifneq ($(findstring ModuleNotFoundError, $(MY_MAVLINKTOOLS)),ModuleNotFoundError)
+ifeq ($(MY_MAVLINKTOOLS),True)
 	@echo GENERATE $(PAPARAZZI_SRC)/var/include/mavlink
-	$(Q)PYTHONPATH=$(EXT_DIR)/mavlink python $(EXT_DIR)/mavlink/pymavlink/tools/mavgen.py --output $(PAPARAZZI_SRC)/var/include/mavlink --lang C $(EXT_DIR)/mavlink/message_definitions/v1.0/ardupilotmega.xml --wire-protocol 2.0 --no-validate > /dev/null
-	$(Q)PYTHONPATH=$(EXT_DIR)/mavlink python $(EXT_DIR)/mavlink/pymavlink/tools/mavgen.py --output $(PAPARAZZI_SRC)/var/include/mavlink --lang C $(EXT_DIR)/mavlink/message_definitions/v1.0/paparazzi.xml --wire-protocol 2.0 --no-validate > /dev/null
+	$(Q)PYTHONPATH=$(EXT_DIR)/mavlink $(MY_PYTHON) $(EXT_DIR)/mavlink/pymavlink/tools/mavgen.py --output $(PAPARAZZI_SRC)/var/include/mavlink --lang C $(EXT_DIR)/mavlink/message_definitions/v1.0/ardupilotmega.xml --wire-protocol 2.0 --no-validate > /dev/null
+	$(Q)PYTHONPATH=$(EXT_DIR)/mavlink $(MY_PYTHON) $(EXT_DIR)/mavlink/pymavlink/tools/mavgen.py --output $(PAPARAZZI_SRC)/var/include/mavlink --lang C $(EXT_DIR)/mavlink/message_definitions/v1.0/paparazzi.xml --wire-protocol 2.0 --no-validate > /dev/null
 else
-	@echo mavlink not installed, missing packages 'imp' or 'future'
+	@echo MAVLink code not generated: the generator needs Python 3.10 or newer \(Ubuntu 22.04 or newer\)
+	$(Q)rm -rf $(PAPARAZZI_SRC)/var/include/mavlink # old generated code does not match the airborne code
 endif
 
 libsbp: libsbp.update
@@ -101,7 +99,7 @@ dronecan:
 ifneq ($(findstring ModuleNotFoundError, $(MY_DRONECANTOOLS)),ModuleNotFoundError)
 	$(Q)$(MAKE) -C dronecan
 else
-	@echo dronecan not installed, missing package 'em'
+	@echo "dronecan code not generated, missing Python package empy or pexpect (Ubuntu: sudo apt install python3-empy python3-pexpect)"
 endif
 
 unifiedmocaprouter: unifiedmocaprouter.update unifiedmocaprouter.build

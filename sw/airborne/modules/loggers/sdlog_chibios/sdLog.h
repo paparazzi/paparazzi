@@ -173,6 +173,20 @@ SdioError getFileName(const char *prefix, const char *directoryName,
  */
 SdioError removeEmptyLogs(const char *directoryName, const char *prefix,
                           const size_t sizeConsideredEmpty);
+
+/**
+ * @brief    write a whole file, if it does not exist yet
+ * @details  the file is written under a temporary name and renamed when complete,
+ *           so it is never left partially written. The status of the logs is not changed.
+ *
+ * @param[in] directoryName : directory of the file, created if needed
+ * @param[in] fileName : name of the file
+ * @param[in] data : content of the file (may be in flash)
+ * @param[in] len : length of the content
+ * @return  status (always check status)
+ */
+SdioError sdLogWriteFile(const char *directoryName, const char *fileName,
+                         const uint8_t *data, const size_t len);
 /**
  * @brief unmount filesystem
  * @details unmount filesystem, free sdio peripheral
@@ -344,6 +358,11 @@ size_t sdLogGetNbBytesWrittenToStorage(void);
  * @return  storage backend status
 */
 SdioError sdLogGetStorageStatus(void);
+
+/**
+ * @brief    FatFS result of the start step that failed (0 when none failed), to tell why the card could not be used
+ */
+uint8_t sdLogGetFatfsResult(void);
 
 
 #endif

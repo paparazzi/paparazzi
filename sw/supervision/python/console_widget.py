@@ -179,7 +179,8 @@ class ConsoleWidget(QWidget, Ui_Console):
         self.handle_program_checked()
 
     def remove_program(self, pw: ProgramWidget):
-        chk = self.p_checkboxes.pop(pw)
+        # A program only has a checkbox once it printed something, and it can be removed twice
+        chk = self.p_checkboxes.pop(pw, None)
         if chk is not None:
             for r in self.records:
                 if r.emitter == pw:

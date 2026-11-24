@@ -778,7 +778,7 @@ void image_gradient_pixel(struct image_t *img, struct point_t *loc, int method, 
 {
   // create the simple and sobel filter only once:
 
-  int gradient_x, gradient_y, index;
+  int gradient_x, gradient_y, idx;
   gradient_x = 0;
   gradient_y = 0;
 
@@ -796,15 +796,15 @@ void image_gradient_pixel(struct image_t *img, struct point_t *loc, int method, 
       // *************
 
       // dx:
-      index = loc->y * img->w * pixel_width + (loc->x - 1) * pixel_width;
-      gradient_x -= (int) img_buf[index + add_ind];
-      index = loc->y * img->w * pixel_width + (loc->x + 1) * pixel_width;
-      gradient_x += (int) img_buf[index + add_ind];
+      idx = loc->y * img->w * pixel_width + (loc->x - 1) * pixel_width;
+      gradient_x -= (int) img_buf[idx + add_ind];
+      idx = loc->y * img->w * pixel_width + (loc->x + 1) * pixel_width;
+      gradient_x += (int) img_buf[idx + add_ind];
       // dy:
-      index = (loc->y - 1) * img->w * pixel_width + loc->x * pixel_width;
-      gradient_y -= (int) img_buf[index + add_ind];
-      index = (loc->y + 1) * img->w * pixel_width + loc->x * pixel_width;
-      gradient_y += (int) img_buf[index + add_ind];
+      idx = (loc->y - 1) * img->w * pixel_width + loc->x * pixel_width;
+      gradient_y -= (int) img_buf[idx + add_ind];
+      idx = (loc->y + 1) * img->w * pixel_width + loc->x * pixel_width;
+      gradient_y += (int) img_buf[idx + add_ind];
     } else {
 
       // *****
@@ -817,13 +817,13 @@ void image_gradient_pixel(struct image_t *img, struct point_t *loc, int method, 
       int filt_ind_x;
       for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
-          index = (loc->y + y) * img->w * pixel_width + (loc->x + x) * pixel_width;
+          idx = (loc->y + y) * img->w * pixel_width + (loc->x + x) * pixel_width;
           if (x != 0) {
             filt_ind_x = (x + 1) % 3 + (y + 1) * 3;
-            gradient_x += Sobel[filt_ind_x] * (int) img_buf[index + add_ind];
+            gradient_x += Sobel[filt_ind_x] * (int) img_buf[idx + add_ind];
           }
           if (y != 0) {
-            gradient_y += Sobel[filt_ind_y] * (int) img_buf[index + add_ind];
+            gradient_y += Sobel[filt_ind_y] * (int) img_buf[idx + add_ind];
           }
           filt_ind_y++;
         }

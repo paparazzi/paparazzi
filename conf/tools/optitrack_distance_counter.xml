@@ -1,1 +1,12 @@
-<program name="Optitrack Distance Counter" command="sw/ground_segment/python/distance_counter/dist.py"/>
+<program name="Optitrack Distance Counter" command="sw/ground_segment/python/distance_counter/dist.py">
+  <doc>
+    <description>
+      Distance counter: distance flown (INS messages) and elapsed time
+      (ROTORCRAFT_STATUS) shown from the Ivy bus.
+
+      dist.py is part of the paparazzi-uav project.
+    </description>
+    <usage>usage: dist.py [-h] [-b IVY_BUS]</usage>
+    <option flag="-b IVY_BUS, --ivy_bus IVY_BUS" description="Ivy bus address and port [default: system Ivy bus]"/>
+  </doc>
+</program>

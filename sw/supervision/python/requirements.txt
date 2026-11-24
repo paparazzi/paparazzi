@@ -1,3 +1,6 @@
 PyQt5
 PyQtWebEngine
 lxml
+numpy
+pyqtgraph
+PyOpenGL

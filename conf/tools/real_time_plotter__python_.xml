@@ -1,2 +1,9 @@
-<program command="sw/logalizer/rt_plotter.py" name="Real-time Plotter (Python)" icon="plotter_python.svg"/>
+<program command="sw/logalizer/rt_plotter.py" name="Real-time Plotter (Python)" icon="plotter_python.svg">
+  <doc>
+    <description>
+      Plots message fields from the Ivy bus in real time (Python version).
+    </description>
+    <usage>usage: rt_plotter.py [-h]</usage>
+  </doc>
+</program>
 

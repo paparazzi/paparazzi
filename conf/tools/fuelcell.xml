@@ -1,2 +1,9 @@
-<program command="sw/ground_segment/python/fuelcell/fuel_tank_plotter.py" name="HydrogenStatus" />
+<program command="sw/ground_segment/python/fuelcell/fuel_tank_plotter.py" name="HydrogenStatus">
+  <doc>
+    <description>
+      Plots the hydrogen tank pressure from the PAYLOAD messages of the fuel cell.
+    </description>
+    <usage>usage: fuel_tank_plotter.py [-h]</usage>
+  </doc>
+</program>
 

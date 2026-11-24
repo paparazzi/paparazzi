@@ -146,10 +146,8 @@ Cargo.lock
 /sw/logalizer/plotprofile
 /sw/logalizer/ffjoystick
 /sw/logalizer/tmclient
-/sw/logalizer/openlog2tlm
 /sw/logalizer/ahrs2fg
 /sw/logalizer/disp3d
-/sw/logalizer/sdlogger_download
 
 # /sw/misc
 /sw/misc/link/pprzlink_router

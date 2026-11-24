@@ -33,6 +33,7 @@
 #include "math/pprz_algebra_float.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio_arch.h"
 #include "std.h"
 
@@ -257,8 +258,7 @@ static void invensense3_456_parse_fifo_data(struct invensense3_456_t *inv, uint8
     struct FIFODataHighRes *d = (struct FIFODataHighRes *)data;
 
     if ((d->header & 0xFC) != 0x78) { // ACCEL_EN | GYRO_EN | HIRES_EN | TMST_FIELD_EN
-        // no or bad data
-        return;
+        // no or bad data, skip the packet
     } else {
         // Valid FIFO packet - re-assemble the data 
         gyro[sample_idx].p = reassemble_uint20(d->gyro[1], d->gyro[0], d->gx);
@@ -280,13 +280,13 @@ static void invensense3_456_parse_fifo_data(struct invensense3_456_t *inv, uint8
 
   // ADC temp * temp sensitivity + temp zero
   // From the datasheet for high-res 16-bit: "Temperature in Degrees Centigrade = (TEMP_DATA / 128) + 25"
-  float temp_f = ((float)temp / sample_idx) / 128.f + 25.f; 
+  float temp_f = (sample_idx > 0) ? ((float)temp / sample_idx) / 128.f + 25.f : NAN;
 
   // Send the obtained samples over ABI
   uint32_t now_ts = get_sys_time_usec();
   AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, sample_idx, inv->imu_samplerate, temp_f);
   AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, sample_idx, inv->imu_samplerate, temp_f);
-  AbiSendMsgTEMPERATURE(inv->abi_id, temp_f);
+  AbiSendMsgTEMPERATURE_RAW(inv->abi_id, now_ts, temp_f, TEMPERATURE_TYPE_IMU);
 }
 
 /**
