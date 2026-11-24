@@ -16,6 +16,8 @@
 # along with messages_python.  If not, see <https://www.gnu.org/licenses/>.
 
 import typing,dataclasses
+import sys
+from os import path, getenv
 
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
@@ -23,6 +25,10 @@ from pprzlink.message import PprzMessage
 from msgRecord.messageLog import MessageLog,TimedPprzMessage,MessageIndex
 
 from PyQt5.QtCore import QObject,pyqtSignal
+
+PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
+sys.path.append(PPRZ_HOME + "/sw/lib/python")
+import module_msgs
 
 class UnknownSenderError(Exception):
     def __init__(self, sender_id:int,known_ids:list[int]) -> None:
@@ -52,6 +58,13 @@ class IvyRecorder(QObject):
         
         # Mapping : class_id -> class_name
         self.classNames:dict[int,str] = dict()
+        
+        # Decoder of the module specific messages (MODULE_SPECIFIC / MODULE_SPECIFIC_UP), from the module XML files
+        try:
+            self.moduleMsgs = module_msgs.ModuleMsgs()
+        except module_msgs.ModuleMsgsError as e:
+            print(f"Module specific messages are not decoded: {e}")
+            self.moduleMsgs = None
         
         
         # Subscribe to everything for detecting senders
@@ -96,6 +109,19 @@ class IvyRecorder(QObject):
         if isinstance(sender_id,str) and sender_id[:6] == "replay":
             sender_id = sender_id[6:]
         sender_id = int(sender_id)
+        self.__logPprzMessage(sender_id,msg)
+        
+        # also show the module specific messages decoded, as a message of the module_telemetry / module_datalink class
+        if self.moduleMsgs is not None and msg.name in ('MODULE_SPECIFIC','MODULE_SPECIFIC_UP'):
+            try:
+                decoded = self.moduleMsgs.decode(msg)
+            except module_msgs.ModuleMsgsError as e:
+                print(e)
+                decoded = None
+            if decoded is not None:
+                self.__logPprzMessage(sender_id,decoded)
+        
+    def __logPprzMessage(self,sender_id:int,msg:PprzMessage):
         timed_msg = TimedPprzMessage(msg)
         new_msg = False
         

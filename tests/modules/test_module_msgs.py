@@ -39,14 +39,19 @@ def sample_values(msg):
     for i, f in enumerate(msg.fields):
         n = f.array_len if (f.is_array and not f.is_var) else 3
         if f.base == 'char':
-            values[f.name] = 'abc'[:n] if f.is_array else 'a'
+            v = ['abcdefgh'[j % 8] for j in range(n)]
         elif f.base in ('float', 'double'):
             v = [0.5 * (i + j + 1) for j in range(n)]
-            values[f.name] = v if f.is_array else v[0]
         else:
             v = [(i + j + 1) for j in range(n)]
-            values[f.name] = v if f.is_array else v[0]
+        values[f.name] = v if f.is_array else v[0]
     return values
+
+
+def normalize(v):
+    if isinstance(v, (list, tuple)):
+        return [normalize(x) for x in v]
+    return v.decode() if isinstance(v, bytes) else v
 
 
 if __name__ == "__main__":
@@ -72,16 +77,23 @@ if __name__ == "__main__":
     try:
         mm.check_unique_ids(modules)
         T.ok(True, "module ids are unique (%d modules with messages)" % len(modules))
+        codec = mm.ModuleMsgs([m.filename for m in modules])
     except mm.ModuleMsgsError as e:
         T.ok(False, "module ids are unique")
         T.diag(str(e))
+        codec = None
 
+    # encode and decode a message with the pprzlink python lib
     for msg in messages:
+        name = "%s %s encode/decode" % (msg.module.name, msg.direction)
+        if codec is None:
+            T.ok(False, name)
+            continue
         values = sample_values(msg)
         try:
-            module_id, reserved, data = msg.encode(values)
-            ok = module_id == msg.module.id and mm.split_reserved(reserved) == (msg.id, 0)
-            T.eq_ok(ok and dict(msg.decode(data)), values, "%s.%s encode/decode" % (msg.module.name, msg.name))
-        except mm.ModuleMsgsError as e:
-            T.ok(False, "%s.%s encode/decode" % (msg.module.name, msg.name))
+            carrier = codec.encode(msg.module.name, values, ac_id=(1 if msg.direction == 'uplink' else None))
+            decoded = codec.decode(carrier)
+            T.eq_ok(dict((f, normalize(decoded[f])) for f in decoded.fieldnames), values, name)
+        except Exception as e:
+            T.ok(False, name)
             T.diag(str(e))

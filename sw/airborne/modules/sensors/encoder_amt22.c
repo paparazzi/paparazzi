@@ -43,6 +43,6 @@ void encoder_amt22_init(void)
 void encoder_amt22_periodic(void)
 {
   amt22_periodic(&amt22);
-  DOWNLINK_SEND_MODULE_MSG_ENCODER_AMT22_STATUS(DefaultChannel, DefaultDevice,
+  DOWNLINK_SEND_MODULE_MSG_ENCODER_AMT22(DefaultChannel, DefaultDevice,
       amt22_get_position(&amt22), amt22_get_turns(&amt22));
 }
