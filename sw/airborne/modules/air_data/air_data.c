@@ -25,7 +25,7 @@
  *  - pressures
  *  - airspeed
  *  - angle of attack and sideslip
- *  - wind
+ *  - wind (WIND_INFO from the ground, WIND_INFO_RET of the wind in use)
  */
 
 #include "modules/air_data/air_data.h"
@@ -140,7 +140,14 @@
 #endif
 
 /** Airspeed estimates (not sensors): only used when no sensor is healthy, and not sent as AIRSPEED */
-#define AIR_DATA_IS_ESTIMATE(_id) ((_id) == AIRSPEED_WE_QUAD_ID)
+#define AIR_DATA_IS_ESTIMATE(_id) ((_id) == AIRSPEED_WE_QUAD_ID || (_id) == WIND_INFO_SENDER_ID)
+
+/** Use the wind and airspeed of WIND_INFO in the state (ground wind estimator),
+ * FALSE to only keep them in air_data.wind_info (ground wind sensor)
+ */
+#ifndef AIR_DATA_WIND_INFO_TO_STATE
+#define AIR_DATA_WIND_INFO_TO_STATE TRUE
+#endif
 
 /** Set the airspeed in the state interface */
 #ifndef USE_AIRSPEED_AIR_DATA
@@ -161,6 +168,7 @@ struct AirData air_data = {
   .baro_send_id = AIR_DATA_BARO_SEND_ID,
   .airspeed_send_id = AIR_DATA_AIRSPEED_SEND_ID,
   .calib_armed = AIR_DATA_CALIB_ARMED,
+  .wind_info = { .to_state = AIR_DATA_WIND_INFO_TO_STATE },
 };
 
 static abi_event baro_raw_ev, diff_raw_ev, airspeed_raw_ev, temp_raw_ev, incidence_ev;
@@ -296,13 +304,16 @@ static uint8_t air_data_rank_airspeed(struct air_data_sensor_t *s)
   return AIR_DATA_IS_ESTIMATE(s->abi_id) ? 1 : 0;
 }
 
-/** Temperature: first an air temperature probe, then a differential pressure sensor, then a barometer */
+/** Temperature: first an air temperature probe, then a differential pressure sensor, then a barometer,
+ * then the ground temperature (WIND_INFO)
+ */
 static uint8_t air_data_rank_temp(struct air_data_sensor_t *s)
 {
   switch (s->type) {
     case TEMPERATURE_TYPE_AIR: return 0;
     case TEMPERATURE_TYPE_DIFF: return 1;
     case TEMPERATURE_TYPE_BARO: return 2;
+    case TEMPERATURE_TYPE_GROUND: return 3;
     default: return UINT8_MAX;
   }
 }
@@ -725,20 +736,31 @@ static void send_amsl(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_AMSL(trans, dev, AC_ID, &amsl_baro_ft, &amsl_gps_ft);
 }
 
-#ifdef WIND_INFO_RET
-/** Echo the last received WIND_INFO, only once one was received */
+/** The wind and air the aircraft uses: the wind of the state (from an estimator or WIND_INFO),
+ * the true airspeed and the temperature of air_data
+ */
 static void send_wind_info_ret(struct transport_tx *trans, struct link_device *dev)
 {
-  if (air_data.wind_last_stamp == 0) { return; }
-  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID,
-                              &air_data.wind_flags,
-                              &air_data.wind_east,
-                              &air_data.wind_north,
-                              &air_data.wind_up,
-                              &air_data.wind_airspeed,
-                              &air_data.wind_temp);
+  uint8_t flags = 0;
+  struct FloatVect2 wind = { 0.f, 0.f };
+  float up = 0.f;
+  if (stateIsWindspeedValid()) {
+    wind = *stateGetHorizontalWindspeed_f();
+    flags |= 1 << 0;
+  }
+  if (stateIsVerticalWindspeedValid()) {
+    up = -stateGetVerticalWindspeed_f();
+    flags |= 1 << 1;
+  }
+  if (air_data.tas >= 0.f) {
+    flags |= 1 << 2;
+  }
+  if (air_data.temperature > -900.f) {
+    flags |= 1 << 3;
+  }
+  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags, &wind.y, &wind.x, &up,
+                              &air_data.tas, &air_data.temperature);
 }
-#endif
 #endif
 
 /** AirData initialization. Called at startup.
@@ -784,15 +806,8 @@ void air_data_init(void)
   air_data.amsl_baro = 0.0f;
   air_data.aoa = 0.0f;
   air_data.sideslip = 0.0f;
-  air_data.wind_flags = 0;
-  air_data.wind_north = 0.0f;
-  air_data.wind_east = 0.0f;
-  air_data.wind_up = 0.0f;
-  air_data.wind_airspeed = 0.0f;
-  air_data.wind_temp = -1000.0f;
-  air_data.wind_last_stamp = 0;
-  air_data.wind_speed = 0.0f;
-  air_data.wind_dir = 0.0f;
+  air_data.wind_info.flags = 0;
+  air_data.wind_info.time = 0.f;
 
   /* internal variables */
   baro_health_counter = 0;
@@ -808,9 +823,7 @@ void air_data_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, send_airspeed_raw);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIR_DATA, send_air_data);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AMSL, send_amsl);
-#ifdef WIND_INFO_RET
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind_info_ret);
-#endif
 #endif
 
 #if PREFLIGHT_CHECKS
@@ -861,33 +874,41 @@ void air_data_periodic(void)
   }
 }
 
-void air_data_parse_WIND_INFO(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
+void air_data_parse_WIND_INFO(struct link_device *dev __attribute__((unused)),
+                              struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
 {
-  if (DL_WIND_INFO_ac_id(buf) != AC_ID) { return; }
-  air_data.wind_flags = DL_WIND_INFO_flags(buf);
-  air_data.wind_last_stamp = get_sys_time_usec();
-  if (bit_is_set(air_data.wind_flags, 0)) {
-    air_data.wind_north = DL_WIND_INFO_north(buf);
-    air_data.wind_east = DL_WIND_INFO_east(buf);
-    struct FloatVect2 wind = {air_data.wind_north, air_data.wind_east};
-    stateSetHorizontalWindspeed_f(MODULE_AIR_DATA_ID, &wind);
-    air_data.wind_speed = float_vect2_norm(&wind);
-    air_data.wind_dir = atan2f(wind.y, wind.x);
+  if (DL_WIND_INFO_ac_id(buf) != AC_ID) {
+    return;
   }
-  if (bit_is_set(air_data.wind_flags, 1)) {
-    air_data.wind_up = DL_WIND_INFO_up(buf);
-    stateSetVerticalWindspeed_f(MODULE_AIR_DATA_ID, air_data.wind_up);
+  struct air_data_wind_info_t *w = &air_data.wind_info;
+  uint32_t stamp = get_sys_time_usec();
+  w->flags = DL_WIND_INFO_flags(buf);
+  w->time = get_sys_time_float();
+  if (bit_is_set(w->flags, 0)) {
+    w->wind.x = DL_WIND_INFO_north(buf);
+    w->wind.y = DL_WIND_INFO_east(buf);
+    if (w->to_state) {
+      struct FloatVect2 wind = { w->wind.x, w->wind.y };
+      stateSetHorizontalWindspeed_f(MODULE_AIR_DATA_ID, &wind);
+    }
   }
-  if (bit_is_set(air_data.wind_flags, 2)) {
-    air_data.wind_airspeed = DL_WIND_INFO_airspeed(buf);
-#if !USE_AIRSPEED
-    air_data.tas = air_data.wind_airspeed;
-    air_data.airspeed = eas_from_tas(air_data.tas);
-    stateSetAirspeed_f(MODULE_AIR_DATA_ID, air_data.airspeed);
-#endif
+  if (bit_is_set(w->flags, 1)) {
+    w->wind.z = -DL_WIND_INFO_up(buf);
+    if (w->to_state) {
+      stateSetVerticalWindspeed_f(MODULE_AIR_DATA_ID, w->wind.z);
+    }
   }
-  if (bit_is_set(air_data.wind_flags, 3)) {
-    air_data.wind_temp = DL_WIND_INFO_temp(buf); // only logged/echoed, not used as air temperature
+  if (bit_is_set(w->flags, 2)) {
+    w->airspeed = DL_WIND_INFO_airspeed(buf);
+    if (w->to_state) {
+      // an airspeed estimate: only used without a healthy airspeed sensor
+      AbiSendMsgAIRSPEED_RAW(WIND_INFO_SENDER_ID, stamp, eas_from_tas(w->airspeed));
+    }
+  }
+  if (bit_is_set(w->flags, 3)) {
+    w->temp = DL_WIND_INFO_temp(buf);
+    // the ground temperature, only used without an air temperature on board
+    AbiSendMsgTEMPERATURE_RAW(WIND_INFO_SENDER_ID, stamp, w->temp, TEMPERATURE_TYPE_GROUND);
   }
 }
 

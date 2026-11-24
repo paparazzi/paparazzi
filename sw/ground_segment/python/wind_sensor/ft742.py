@@ -27,6 +27,10 @@ The sensor is polled over serial with `$//,WV?*//` and answers with
 `$<talker>,WVP=<speed>,<angle>,<status>*<checksum>`. Temperature is read
 with `$//,HT?*//` when --temperature is given.
 
+On the aircraft air_data keeps it in air_data.wind_info. Turn off its windInfoToState
+setting (AIR_DATA_WIND_INFO_TO_STATE) to not use this ground wind as the wind at the
+aircraft. The temperature is used as air temperature only without one on board.
+
 Usage: ./ft742.py /dev/ttyUSB0 --ac-id 2 [--temperature]
 """
 

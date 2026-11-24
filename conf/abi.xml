@@ -314,7 +314,7 @@
     <message name="TEMPERATURE_RAW" id="48">
       <field name="stamp" type="uint32_t" unit="us">Timestamp in micro-seconds</field>
       <field name="temp" type="float" unit="deg Celcius">Temperature, sent with the sender id of the sensor it belongs to</field>
-      <field name="type" type="uint8_t">What is measured: TEMPERATURE_TYPE_AIR, _DIFF, _BARO, _IMU or _OTHER (abi_common.h). air_data sends the selected air temperature as TEMPERATURE</field>
+      <field name="type" type="uint8_t">What is measured: TEMPERATURE_TYPE_AIR, _DIFF, _BARO, _IMU, _OTHER or _GROUND (abi_common.h). air_data sends the selected air temperature as TEMPERATURE</field>
     </message>
 
   </msg_class>

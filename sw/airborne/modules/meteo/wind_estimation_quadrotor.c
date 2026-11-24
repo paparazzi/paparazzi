@@ -34,10 +34,6 @@
 #include "mcu_periph/sys_time.h"
 #include "modules/air_data/air_data.h"
 
-#if PERIODIC_TELEMETRY
-#include "modules/datalink/telemetry.h"
-#endif
-
 #define WE_QUAD_STATUS_IDLE 0
 #define WE_QUAD_STATUS_RUN  1
 
@@ -77,7 +73,6 @@
 
 static const float we_dt = WIND_ESTIMATION_QUADROTOR_PERIODIC_PERIOD;
 
-static void send_wind(struct transport_tx *trans, struct link_device *dev);
 
 struct wind_estimation_quadrotor {
   struct linear_kalman_filter filter;
@@ -125,10 +120,6 @@ void wind_estimation_quadrotor_init(void)
   we_quad_params.Q_w = WE_QUAD_Q_W;
   we_quad_params.R = WE_QUAD_R;
 
-#if PERIODIC_TELEMETRY
-  // register for periodic telemetry
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind);
-#endif
 }
 
 void wind_estimation_quadrotor_periodic(void)
@@ -209,21 +200,5 @@ float wind_estimation_quadrotor_SetR(float R)
 void wind_estimation_quadrotor_report(void)
 {
   DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, WE_QUAD_STATE_SIZE, we_quad.filter.X);
-}
-
-static void send_wind(struct transport_tx *trans, struct link_device *dev)
-{
-  uint8_t flags = 5; // send horizontal wind and airspeed
-  float temp = -1000.f; // unknown
-  float upwind = 0.f;
-  struct FloatVect2 as = { we_quad.filter.X[WE_QUAD_VA_X], we_quad.filter.X[WE_QUAD_VA_Y] };
-  float airspeed = float_vect2_norm(&as);
-  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID,
-      &flags,
-      &we_quad.filter.X[WE_QUAD_W_Y], // east
-      &we_quad.filter.X[WE_QUAD_W_X], // north
-      &upwind,
-      &airspeed,
-      &temp);
 }
 
