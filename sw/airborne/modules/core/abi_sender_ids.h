@@ -137,6 +137,14 @@
 #define AIRSPEED_AMSYS_ID 7
 #endif
 
+/*
+ * ID of the WIND_INFO datalink message (ground wind estimator or wind sensor),
+ * an airspeed estimate (message 14) and the ground temperature (TEMPERATURE_RAW)
+ */
+#ifndef WIND_INFO_SENDER_ID
+#define WIND_INFO_SENDER_ID 50
+#endif
+
 
 /*
  * IDs of Incidence angles (message 25)
