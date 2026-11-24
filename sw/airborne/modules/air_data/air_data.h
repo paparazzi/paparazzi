@@ -70,18 +70,14 @@ struct air_data_sensor_t {
   Butterworth2LowPass filter;         ///< Low-pass filter of the raw value
 };
 
-/** Last WIND_INFO received from the ground (ground wind estimator or ground wind sensor).
- * With to_state the wind goes in the state and the airspeed is an airspeed estimate,
- * otherwise they are only kept here (a ground wind sensor measures the wind at the ground, not at the aircraft).
- * The temperature is always a temperature sensor (WIND_INFO_SENDER_ID, TEMPERATURE_TYPE_GROUND).
+/** One wind source: an estimator or WIND_INFO from the ground (WIND_INFO_SENDER_ID).
+ * They send WIND_RAW, air_data selects one and sets the state.
  */
-struct air_data_wind_info_t {
-  bool to_state;          ///< Use the wind and airspeed in the state, otherwise only keep them
-  uint8_t flags;          ///< Flags of the last message (bit 0: horizontal wind, 1: vertical wind, 2: airspeed, 3: temperature)
-  struct FloatVect3 wind; ///< Wind (m/s), north/east/down like the state
-  float airspeed;         ///< True airspeed (m/s)
-  float temp;             ///< Temperature (deg Celcius)
-  float time;             ///< System time of the last message (s), 0 if never
+struct air_data_wind_t {
+  uint8_t abi_id;         ///< ABI sender id of the source, ABI_DISABLE when unused
+  struct FloatVect3 wind; ///< Last wind north/east/down (m/s), down NaN if not estimated
+  float time;             ///< System time of the last value (s), 0 if never
+  float dt;               ///< Filtered interval between the values (s), for the health check
 };
 
 /** Air Data structure */
@@ -90,6 +86,7 @@ struct AirData {
   struct air_data_sensor_t diffs[AIR_DATA_MAX_SENSORS];     ///< Differential pressure sensors
   struct air_data_sensor_t airspeeds[AIR_DATA_MAX_SENSORS]; ///< Sensors that only give an airspeed
   struct air_data_sensor_t temps[AIR_DATA_MAX_SENSORS];     ///< Temperatures
+  struct air_data_wind_t winds[AIR_DATA_MAX_SENSORS];       ///< Wind sources
 
   uint8_t baro_id;      ///< Barometer to use (ABI id), ABI_BROADCAST for the first healthy one
   uint8_t airspeed_id;  ///< Differential pressure or airspeed sensor to use (ABI id), ABI_BROADCAST for automatic
@@ -97,8 +94,12 @@ struct AirData {
   uint8_t baro_used;    ///< Barometer in use (ABI id), ABI_DISABLE if none
   uint8_t airspeed_used;///< Airspeed sensor in use (ABI id), ABI_DISABLE if none
   uint8_t temp_used;    ///< Temperature in use (ABI id), ABI_DISABLE if none
+  uint8_t wind_id;      ///< Wind source to use (ABI id), ABI_BROADCAST for automatic (estimators, then WIND_INFO)
+  uint8_t wind_used;    ///< Wind source in use (ABI id), ABI_DISABLE if none
+  bool wind_info_auto;  ///< WIND_INFO (wind and airspeed) can be selected automatically, false for a ground wind sensor
   uint8_t baro_send_id;     ///< Barometer in the BARO_RAW telemetry (ABI id), ABI_BROADCAST for all in turn, ABI_DISABLE for none
   uint8_t airspeed_send_id; ///< Airspeed sensor in the AIRSPEED_RAW telemetry (ABI id), ABI_BROADCAST for all in turn, ABI_DISABLE for none
+  uint8_t wind_send_id;     ///< Wind source in the WIND_RAW telemetry (ABI id), ABI_BROADCAST for all in turn, ABI_DISABLE for none
   float airspeed_filter;    ///< Low-pass filter cut-off frequency (Hz) of the airspeed sensor in use, 0 for no filter
 
   bool calibrate_baro;  ///< Line up the barometers with the one in use, true while running
@@ -120,7 +121,7 @@ struct AirData {
 
   float aoa;          ///< angle of attack (rad)
   float sideslip;     ///< sideslip angle (rad)
-  struct air_data_wind_info_t wind_info; ///< Last WIND_INFO received from the ground
+  struct FloatVect3 wind; ///< Wind in use north/east/down (m/s), NaN if unknown
 };
 
 /** global AirData state
@@ -155,7 +156,7 @@ extern void air_data_SetAirspeedFilter(float freq);
  */
 extern struct air_data_sensor_t *air_data_get_sensor(struct air_data_sensor_t *sensors, uint8_t abi_id, bool create);
 
-/** Parse the WIND_INFO datalink message (see #air_data_wind_info_t)
+/** Parse the WIND_INFO datalink message: a wind source, an airspeed estimate and the ground temperature
  */
 extern void air_data_parse_WIND_INFO(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
 

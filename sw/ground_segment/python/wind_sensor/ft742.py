@@ -27,9 +27,10 @@ The sensor is polled over serial with `$//,WV?*//` and answers with
 `$<talker>,WVP=<speed>,<angle>,<status>*<checksum>`. Temperature is read
 with `$//,HT?*//` when --temperature is given.
 
-On the aircraft air_data keeps it in air_data.wind_info. Turn off its windInfoToState
-setting (AIR_DATA_WIND_INFO_TO_STATE) to not use this ground wind as the wind at the
-aircraft. The temperature is used as air temperature only without one on board.
+On the aircraft air_data receives it as a wind source (WIND_INFO_SENDER_ID). Turn off its
+windInfoAuto setting (AIR_DATA_WIND_INFO_AUTO) to not use this ground wind as the wind at
+the aircraft unless forced with windId. The temperature is used as air temperature only
+without one on board.
 
 Usage: ./ft742.py /dev/ttyUSB0 --ac-id 2 [--temperature]
 """
@@ -50,9 +51,6 @@ from pprzlink.message import PprzMessage
 WIND_QUERY = b"$//,WV?*//\r\n"
 TEMP_QUERY = b"$//,HT?*//\r\n"
 TEMP_TIMEOUT = 5.0  # s, temperature older than this is not sent
-
-WIND_INFO_HORIZONTAL = 0x01
-WIND_INFO_TEMPERATURE = 0x08
 
 
 def parse_frame(line):
@@ -131,14 +129,11 @@ class FT742:
         to_dir = math.radians(angle + 180.)
         msg = PprzMessage("datalink", "WIND_INFO")
         msg['ac_id'] = self.ac_id
-        msg['flags'] = WIND_INFO_HORIZONTAL
-        msg['east'] = speed * math.sin(to_dir)
-        msg['north'] = speed * math.cos(to_dir)
-        msg['up'] = 0.
-        msg['airspeed'] = 0.
-        msg['temp'] = -1000.  # unknown
+        # north/east/down, unknown values are NaN
+        msg['wind'] = [speed * math.cos(to_dir), speed * math.sin(to_dir), float('nan')]
+        msg['airspeed'] = float('nan')
+        msg['temp'] = float('nan')
         if self.temperature is not None and time.time() - self.temperature_time < TEMP_TIMEOUT:
-            msg['flags'] |= WIND_INFO_TEMPERATURE
             msg['temp'] = self.temperature
         self.ivy.send_raw_datalink(msg)
 

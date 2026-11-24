@@ -31,6 +31,7 @@
 #include "math/pprz_geodetic_float.h"
 #include "generated/modules.h"
 #include "state.h"
+#include "modules/core/abi.h"
 #include <string.h>
 #ifndef SITL // no chibios threads in sim
 #if !USE_CHIBIOS_RTOS
@@ -393,12 +394,8 @@ void wind_estimator_event(void)
 #ifndef SITL
     if (chMtxTryLock(&we_ukf_mtx)) {
 #endif
-      struct FloatVect2 wind_ne = {
-        wind_estimator.wind.x,
-        wind_estimator.wind.y
-      };
-      stateSetHorizontalWindspeed_f(MODULE_WIND_ESTIMATOR_ID, &wind_ne);            //NEED CHECK
-      stateSetVerticalWindspeed_f(MODULE_WIND_ESTIMATOR_ID, wind_estimator.wind.z); //NEED CHECK
+      // wind north/east/down to air_data, which selects the wind of the state
+      AbiSendMsgWIND_RAW(WIND_ESTIMATOR_ID, get_sys_time_usec(), &wind_estimator.wind);
 
       // TODO do something with corrected airspeed norm
 
