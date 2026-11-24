@@ -53,7 +53,7 @@ static const uint8_t EKF2_INPUT_ID = 195;
 enum ekf2_input_type {
   EKF2_IN_IMU, EKF2_IN_UPDATE, EKF2_IN_MAG, EKF2_IN_BARO, EKF2_IN_GNSS, EKF2_IN_GNSS_YAW,
   EKF2_IN_AIRSPEED, EKF2_IN_RANGE, EKF2_IN_FLOW, EKF2_IN_EV, EKF2_IN_FLAGS, EKF2_IN_ORIGIN,
-  EKF2_IN_PARAMS, EKF2_IN_CONFIG, EKF2_IN_OUTPUT
+  EKF2_IN_PARAMS, EKF2_IN_CONFIG, EKF2_IN_OUTPUT, EKF2_IN_ALT_RESET
 };
 
 struct input_t {
@@ -274,6 +274,9 @@ int main(int argc, char **argv)
       }
       case EKF2_IN_ORIGIN:
         ekf.setEkfGlobalOrigin(I[0] * 1e-7, I[1] * 1e-7, V[0]);
+        break;
+      case EKF2_IN_ALT_RESET:
+        ekf.resetGlobalPositionTo(I[0] * 1e-7, I[1] * 1e-7, V[0]);
         break;
       case EKF2_IN_IMU: {
         imuSample s{};
