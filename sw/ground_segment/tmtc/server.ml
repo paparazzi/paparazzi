@@ -26,6 +26,7 @@ let my_id = "ground"
 let gps_mode_3D = 3
 let no_md5_check = ref false
 let replay_old_log = ref false
+let wind_info = ref false
 let log_name_arg = ref ""
 let udp_json_stream_addr = ref "127.0.0.1"
 let udp_json_stream_port = ref 9870
@@ -60,6 +61,7 @@ let aircrafts = Hashtbl.create 3
 
 (** Broadcast of the received aircrafts *)
 let aircraft_msg_period = 500 (* ms *)
+let wind_msg_period = 5000 (* ms *)
 let aircraft_alerts_period = 1000 (* ms *)
 let send_aircrafts_msg = fun _asker _values ->
   assert(_values = []);
@@ -404,6 +406,32 @@ let send_survey_status = fun a ->
 
 
 
+let send_wind = fun a ->
+  let id = a.id in
+  try
+    let (wind_cap_rad, wind_polar, mean, stddev, _nb_sample) = Wind.get id in
+    let vs =
+      ["ac_id", PprzLink.String id;
+       "dir", PprzLink.Float ((Rad>>Deg)wind_cap_rad);
+       "wspeed", PprzLink.Float wind_polar;
+       "mean_aspeed", PprzLink.Float mean;
+       "stddev", PprzLink.Float stddev] in
+    Ground_Pprz.message_send my_id "WIND" vs;
+    if !wind_info then begin
+      (* WIND_INFO is the vector the wind blows to, north/east/down, NaN unknown *)
+      let to_dir = wind_cap_rad +. Latlong.pi in
+      let vs =
+        ["ac_id", PprzLink.String id;
+         "wind", PprzLink.Array [| PprzLink.Float (wind_polar *. cos to_dir);
+                                   PprzLink.Float (wind_polar *. sin to_dir);
+                                   PprzLink.Float nan |];
+         "airspeed", PprzLink.Float nan;
+         "temp", PprzLink.Float nan] in
+      Dl_Pprz.message_send dl_id "WIND_INFO" vs
+    end
+  with
+      _exc -> ()
+
 let send_telemetry_status = fun a ->
   let id = a.id in
   let tl_payload = fun link_id datalink_status link_status ->
@@ -731,6 +759,9 @@ let check_alerts = fun a ->
   else if a.bat < critic_level then send "CRITIC"
   else if a.bat < warning_level then send "WARNING"
 
+let wind_clear = fun _sender vs ->
+  Wind.clear (PprzLink.string_assoc "ac_id" vs)
+
 let periodic = fun period cb ->
   Glib.Timeout.add ~ms:period ~callback:(fun () -> cb (); true)
 
@@ -761,6 +792,8 @@ let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
   register_periodic a (periodic aircraft_msg_period (fun () -> send_aircraft_msg name));
   register_periodic a (periodic aircraft_alerts_period (fun () -> check_alerts a));
+  register_periodic a (periodic wind_msg_period (fun () -> send_wind a));
+  Wind.new_ac name 36;
 
   if !Kml.enabled then
     Kml.build_files a
@@ -1082,6 +1115,7 @@ let () =
       "-udp_json_stream_addr", Arg.Set_string udp_json_stream_addr, "Address of the server to stream udp JSON telemetry messages (default is localhost)";
       "-udp_json_stream_port", Arg.Set_int udp_json_stream_port, "Port of the server to stream udp JSON telemetry messages (default is 9870)";
       "-udp_json_stream_disable", Arg.Set udp_json_stream_disable, "Disable udp JSON stream";
+      "-wind_info", Arg.Set wind_info, "Send the wind estimated from the tracks to the aircraft (WIND_INFO)";
       "-replay_old_log", Arg.Set replay_old_log, "Enable aircraft registering on PPRZ_MODE messages"] in
 
   Arg.parse
@@ -1103,6 +1137,7 @@ let () =
   listen_acs logging !timestamp;
 
   ignore(Ground_Pprz.message_bind "AIRCRAFT_DIE" remove_aircraft);
+  ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear);
 
   (* wait for new external vehicles/intruders *)
   listen_intruders logging;
