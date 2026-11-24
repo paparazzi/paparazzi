@@ -88,17 +88,6 @@ static void send_euler(struct transport_tx *trans, struct link_device *dev)
                            &id);
 }
 
-static void send_wind(struct transport_tx *trans, struct link_device *dev)
-{
-  struct NedCoor_f wind_ned = ins_mekf_wind_get_wind_ned();
-  struct EnuCoor_f wind_enu;
-  ENU_OF_TO_NED(wind_enu, wind_ned);
-  float va = ins_mekf_wind_get_airspeed_norm();
-  uint8_t flags = 7; // 3D wind + airspeed
-  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags,
-      &wind_enu.x, &wind_enu.y, &wind_enu.z, &va);
-}
-
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t mde = 3; // OK
@@ -509,6 +498,13 @@ static void set_state_from_ins(void)
 
   struct NedCoor_f accel = ins_mekf_wind_get_accel_ned();
   stateSetAccelNed_f(MODULE_INS_MEKF_WIND_ID, &accel);
+
+  if (!ins_mekf_wind_params.disable_wind) {
+    // wind to air_data, which selects the wind of the state
+    struct NedCoor_f wind_ned = ins_mekf_wind_get_wind_ned();
+    struct FloatVect3 wind = { wind_ned.x, wind_ned.y, wind_ned.z };
+    AbiSendMsgWIND_RAW(WIND_MEKF_ID, get_sys_time_usec(), &wind);
+  }
 }
 
 /**
@@ -569,7 +565,6 @@ void ins_mekf_wind_wrapper_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_EULER, send_euler);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STATE_FILTER_STATUS, send_filter_status);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INV_FILTER, send_inv_filter);
 #endif
