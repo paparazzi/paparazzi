@@ -177,7 +177,7 @@
       <message name="ROTORCRAFT_CAM"           period="1."/>
       <message name="LIDAR"                    period="1.2"/>
       <message name="INS_EKF2"                 period=".25"/>
-      <message name="WIND_INFO_RET"            period="2."/>
+      <message name="AIR_DATA"                 period="2."/>
     </mode>
 
   </process>
