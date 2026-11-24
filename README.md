@@ -9,7 +9,7 @@ Paparazzi UAS
 </a>
 
 Paparazzi is a free open source software package for Unmanned (Air) Vehicle Systems.
-For many years, the system has been used successfuly by hobbyists, universities and companies all over the world, on vehicles of various sizes (11.9g to 25kg).
+For many years, the system has been used successfully by hobbyists, universities and companies all over the world, on vehicles of various sizes (11.9g to 25kg).
 Paparazzi supports fixed wing, rotorcraft, hybrids, flapping vehicles and it is even possible to use it for boats and surface vehicles.
 
 Documentation is available here https://paparazzi-uav.readthedocs.io/en/latest/
