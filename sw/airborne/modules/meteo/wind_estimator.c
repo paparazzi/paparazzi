@@ -77,30 +77,7 @@
 #define WE_UKF_Q_WIND 0.001f    // wind model confidence
 #endif
 
-#ifndef SEND_WIND_ESTIMATOR
-#define SEND_WIND_ESTIMATOR TRUE
-#endif
-
 #include "modules/datalink/downlink.h"
-
-static void send_wind_estimator(struct transport_tx *trans, struct link_device *dev)
-{
-  uint8_t flags = 7; // send all data
-  float temp = -1000.f; // unknown
-  float upwind = -wind_estimator.wind.z;
-  float airspeed = float_vect3_norm(&wind_estimator.airspeed);
-  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID,
-      &flags,
-      &wind_estimator.wind.y, // east
-      &wind_estimator.wind.x, // north
-      &upwind,
-      &airspeed,
-      &temp);
-}
-
-#if PERIODIC_TELEMETRY
-#include "modules/datalink/telemetry.h"
-#endif
 
 #ifndef LOG_WIND_ESTIMATOR
 #define LOG_WIND_ESTIMATOR FALSE
@@ -425,11 +402,6 @@ void wind_estimator_event(void)
 
       // TODO do something with corrected airspeed norm
 
-#if SEND_WIND_ESTIMATOR
-      // send over telemetry
-      send_wind_estimator(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
-#endif
-
       wind_estimator.data_available = false;
 #ifndef SITL
       chMtxUnlock(&we_ukf_mtx);
@@ -493,11 +465,6 @@ void wind_estimator_init(void)
   // Start wind estimation thread
   chThdCreateStatic(wa_thd_windestimation, sizeof(wa_thd_windestimation),
                     NORMALPRIO + 2, thd_windestimate, NULL);
-#endif
-
-#if PERIODIC_TELEMETRY
-  // register for periodic telemetry (for logging with flight recorder)
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind_estimator);
 #endif
 }
 

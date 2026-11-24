@@ -33,6 +33,7 @@
 
 #include "std.h"
 #include "filters/low_pass_filter.h"
+#include "math/pprz_algebra_float.h"
 #include "pprzlink/pprzlink_device.h"
 #include "pprzlink/pprzlink_transport.h"
 
@@ -67,6 +68,20 @@ struct air_data_sensor_t {
   float filter_freq;                  ///< Low-pass filter cut-off frequency (Hz), 0 for no filter
   float filter_dt;                    ///< Interval the filter is set up for (s), 0 if not running
   Butterworth2LowPass filter;         ///< Low-pass filter of the raw value
+};
+
+/** Last WIND_INFO received from the ground (ground wind estimator or ground wind sensor).
+ * With to_state the wind goes in the state and the airspeed is an airspeed estimate,
+ * otherwise they are only kept here (a ground wind sensor measures the wind at the ground, not at the aircraft).
+ * The temperature is always a temperature sensor (WIND_INFO_SENDER_ID, TEMPERATURE_TYPE_GROUND).
+ */
+struct air_data_wind_info_t {
+  bool to_state;          ///< Use the wind and airspeed in the state, otherwise only keep them
+  uint8_t flags;          ///< Flags of the last message (bit 0: horizontal wind, 1: vertical wind, 2: airspeed, 3: temperature)
+  struct FloatVect3 wind; ///< Wind (m/s), north/east/down like the state
+  float airspeed;         ///< True airspeed (m/s)
+  float temp;             ///< Temperature (deg Celcius)
+  float time;             ///< System time of the last message (s), 0 if never
 };
 
 /** Air Data structure */
@@ -105,15 +120,7 @@ struct AirData {
 
   float aoa;          ///< angle of attack (rad)
   float sideslip;     ///< sideslip angle (rad)
-  uint8_t wind_flags; ///< last received wind-info flags
-  float wind_north;   ///< north component of the wind (m/s)
-  float wind_east;    ///< east component of the wind (m/s)
-  float wind_up;      ///< vertical component of the wind (m/s)
-  float wind_airspeed; ///< airspeed reported by wind-info (m/s)
-  float wind_temp;    ///< temperature reported by wind-info (deg C)
-  uint64_t wind_last_stamp; ///< timestamp of last wind-info message (usec)
-  float wind_speed;   ///< wind speed (m/s)
-  float wind_dir;     ///< wind direction (rad, 0 north, >0 clockwise)
+  struct air_data_wind_info_t wind_info; ///< Last WIND_INFO received from the ground
 };
 
 /** global AirData state
@@ -148,7 +155,7 @@ extern void air_data_SetAirspeedFilter(float freq);
  */
 extern struct air_data_sensor_t *air_data_get_sensor(struct air_data_sensor_t *sensors, uint8_t abi_id, bool create);
 
-/** Parse datalink wind info message
+/** Parse the WIND_INFO datalink message (see #air_data_wind_info_t)
  */
 extern void air_data_parse_WIND_INFO(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
 
