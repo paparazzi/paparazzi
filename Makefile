@@ -341,6 +341,7 @@ test_examples: all
 
 # test compilation of modules
 test_modules: all
+	prove -v tests/modules/test_module_msgs.py
 	prove -v tests/modules/test_modules.py
 
 # start every Paparazzi Center tool (conf/tools) with --help

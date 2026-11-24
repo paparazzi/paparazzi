@@ -1,6 +1,6 @@
 <!-- Paparazzi Modules DTD -->
 
-<!ELEMENT module (doc,settings_file*,settings*,dep?,header?,init*,periodic*,event*,datalink*,makefile*)>
+<!ELEMENT module (doc,settings_file*,settings*,dep?,header?,init*,periodic*,event*,datalink*,messages?,makefile*)>
 <!ELEMENT doc (description,(define|configure|section)*)>
 <!ELEMENT settings_file (file*)>
 <!ELEMENT settings (dl_settings?)>
@@ -16,6 +16,9 @@
 <!ELEMENT event EMPTY>
 <!ELEMENT handler EMPTY>
 <!ELEMENT datalink EMPTY>
+<!ELEMENT messages (message+)>
+<!ELEMENT message (description?,field*)>
+<!ELEMENT field (#PCDATA)>
 <!ELEMENT makefile (configure|define|include|flag|file|file_arch|raw|test)*>
 <!ELEMENT test (configure|define|include|file|file_arch|shell)*>
 <!ELEMENT section (define|configure)*>
@@ -63,6 +66,29 @@ message CDATA #REQUIRED
 fun CDATA #REQUIRED
 class CDATA #IMPLIED
 cond CDATA #IMPLIED>
+
+<!-- module specific messages (MODULE_SPECIFIC / MODULE_SPECIFIC_UP), see sw/lib/python/module_msgs.py
+     id: static unique module id (1-65535) -->
+<!ATTLIST messages
+id CDATA #REQUIRED>
+
+<!-- id: message id inside the module (0-255), per class
+     class: telemetry (default, to the ground) or datalink (from the ground)
+     fun: callback name for datalink messages -->
+<!ATTLIST message
+name CDATA #REQUIRED
+id CDATA #REQUIRED
+class (telemetry|datalink) #IMPLIED
+fun CDATA #IMPLIED>
+
+<!-- type: pprzlink type (int8, uint8, ..., float, double, char), type[N] fixed array,
+     type[] variable array (last field only) -->
+<!ATTLIST field
+name CDATA #REQUIRED
+type CDATA #REQUIRED
+unit CDATA #IMPLIED
+alt_unit CDATA #IMPLIED
+alt_unit_coef CDATA #IMPLIED>
 
 <!ATTLIST makefile
 target CDATA #IMPLIED
