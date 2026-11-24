@@ -289,6 +289,7 @@ type t = {
   periodics: periodic list;
   events: event list;
   datalinks: datalink list;
+  messages: Xml.xml option;
   makefiles: makefile list;
   xml: Xml.xml
 }
@@ -298,7 +299,7 @@ let empty =
     task = None; path = ""; doc = Xml.Element ("doc", [], []);
     dependencies = None; settings = [];
     headers = []; inits = []; periodics = []; events = []; datalinks = [];
-    makefiles = []; xml = Xml.Element ("module", [], []) }
+    messages = None; makefiles = []; xml = Xml.Element ("module", [], []) }
 
 let rec parse_xml m = function
   | Xml.Element ("module", _, children) as xml ->
@@ -332,6 +333,9 @@ let rec parse_xml m = function
     and dl_class = ExtXml.attrib_opt xml "class"
     and c = ExtXml.attrib_opt xml "cond" in
     { m with datalinks = make_datalink func  message dl_class c :: m.datalinks }
+  | Xml.Element ("messages", _, _) as xml ->
+    (* module specific messages, parsed by sw/tools/generators/gen_module_msgs.py *)
+    { m with messages = Some xml }
   | Xml.Element ("makefile", _, _) as xml ->
     { m with makefiles = parse_makefile empty_makefile xml :: m.makefiles }
   | _ -> failwith "Module.parse_xml: unreachable"
@@ -372,6 +376,15 @@ let from_module_name = fun mtype name ->
   let m = from_xml (ExtXml.parse_file name) in
   let settings = List.map (fun s -> { s with Settings.filename = name }) m.settings in
   { m with xml_filename = name; settings }
+
+(** true if the module declares module specific messages *)
+let has_messages = fun m -> m.messages <> None
+
+(** true if the module declares a module specific message from the ground *)
+let has_uplink_messages = fun m ->
+  match m.messages with
+  | None -> false
+  | Some xml -> List.exists (fun c -> Xml.tag c = "uplink") (Xml.children xml)
 
 (** check if a makefile node is compatible with a target and a firmware
  * TODO add 'board' type filter ? *)

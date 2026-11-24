@@ -26,8 +26,12 @@ import re
 from os import path, getenv
 import os
 import argparse
+import atexit
+import shutil
 import subprocess
 import shlex
+import sys
+import tempfile
 
 import TAP
 
@@ -48,7 +52,8 @@ OTHER_PARAMS: List[str] = [
 
 
 class Test:
-    def __init__(self, tst, files, files_arch, includes, test_name, test_id):
+    def __init__(self, tst, files, files_arch, includes, test_name, test_id, gen_include=None):
+        self.gen_include = [f"-I{gen_include}"] if gen_include is not None else []  # generated module messages
         self.configure_regex = re.compile(r"(\$\([a-zA-Z_][a-zA-Z_0-9]*\))")
         self.files = files              # type: List[str]
         self.files_arch = files_arch    # type: List[str]
@@ -146,14 +151,14 @@ class Test:
             # build with the "test" arch.
             arch_include = f"-I../../tests/modules/test_arch"
             arch_modules_include = f"-I../../tests/modules/test_arch/modules"
-            cmd_args = [gcc] + GCC_PARAMS + [file] + OTHER_PARAMS + module_id + defines + includes + [arch_include, arch_modules_include] + shells
+            cmd_args = [gcc] + GCC_PARAMS + [file] + self.gen_include + OTHER_PARAMS + module_id + defines + includes + [arch_include, arch_modules_include] + shells
             cmds.append(cmd_args)
 
         for file in self.files_arch:
             for arch in self.archs:
                 file_path = f"arch/{arch}/{file}"
                 arch_include = f"-Iarch/{arch}"
-                cmd_args = [gcc] + GCC_PARAMS + [file_path] + OTHER_PARAMS + module_id + defines + includes + [arch_include] + shells
+                cmd_args = [gcc] + GCC_PARAMS + [file_path] + self.gen_include + OTHER_PARAMS + module_id + defines + includes + [arch_include] + shells
                 # TODO: uncomment to build <file_arch/> files.
                 # cmds.append(cmd_args)
         return cmds
@@ -213,14 +218,26 @@ class Module:
         # if dir is not specified, the name of the module is used as default directory name
         self.dir = mod_elt.attrib.get("dir", self.name)
         self.tests = []
+        tests = [tst for mkf in mod_elt.findall("makefile") for tst in mkf.findall("test")]
+        gen_include = self.gen_messages(filename) if mod_elt.find("messages") is not None and tests else None
 
         for mkf in mod_elt.findall("makefile"):
             files = self.get_files(mkf)
             files_arch = self.get_files_arch(mkf)
             includes = self.get_includes(mkf)
             for i, tst in enumerate(mkf.findall("test")):
-                test = Test(tst, files, files_arch, includes, f"{self.name}", i)
+                test = Test(tst, files, files_arch, includes, f"{self.name}", i, gen_include)
                 self.tests.append(test)
+
+    @staticmethod
+    def gen_messages(filename):
+        """ generate generated/modules_msgs.h for the module messages, return the include dir """
+        inc_dir = tempfile.mkdtemp(prefix="pprz_module_msgs_")
+        atexit.register(shutil.rmtree, inc_dir, True)
+        os.mkdir(path.join(inc_dir, "generated"))
+        gen = path.join(PPRZ_HOME, "sw", "tools", "generators", "gen_module_msgs.py")
+        subprocess.run([sys.executable, gen, "-o", path.join(inc_dir, "generated", "modules_msgs.h"), filename])
+        return inc_dir
 
     def get_files(self, mkf):
         files = []

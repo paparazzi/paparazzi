@@ -331,6 +331,8 @@ let print_datalink_functions = fun out modules ->
   lprintf out "\n#include \"pprzlink/dl_protocol.h\"\n";
   lprintf out "\n#include \"pprzlink/intermcu_msg.h\"\n";
   lprintf out "#include \"generated/airframe.h\"\n";
+  if List.exists Module.has_messages modules then
+    lprintf out "#include \"generated/modules_msgs.h\"\n";
   lprintf out "static inline void modules_parse_datalink(uint8_t msg_id __attribute__((unused)),
                                           uint8_t class_id __attribute__((unused)),
                                           struct link_device *dev __attribute__((unused)),
@@ -350,6 +352,14 @@ let print_datalink_functions = fun out modules ->
         Hashtbl.add c d.Module.message [new_cb]
     ) m.Module.datalinks
   ) modules;
+  (* module specific messages from the ground are dispatched by generated/modules_msgs.h *)
+  if List.exists Module.has_uplink_messages modules then begin
+    if not (Hashtbl.mem msgs None) then Hashtbl.add msgs None (Hashtbl.create 15);
+    let c = Hashtbl.find msgs None in
+    let cb = ("module_msgs_parse_uplink(buf)", None) in
+    let msg = "MODULE_SPECIFIC_UP" in
+    Hashtbl.replace c msg (cb :: (try Hashtbl.find c msg with Not_found -> []))
+  end;
 
   lprintf out "switch (class_id) {\n";
   right ();
