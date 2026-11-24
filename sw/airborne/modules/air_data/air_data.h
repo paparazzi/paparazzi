@@ -96,7 +96,6 @@ struct AirData {
   uint8_t temp_used;    ///< Temperature in use (ABI id), ABI_DISABLE if none
   uint8_t wind_id;      ///< Wind source to use (ABI id), ABI_BROADCAST for automatic (estimators, then WIND_INFO)
   uint8_t wind_used;    ///< Wind source in use (ABI id), ABI_DISABLE if none
-  bool wind_info_auto;  ///< WIND_INFO (wind and airspeed) can be selected automatically, false for a ground wind sensor
   uint8_t baro_send_id;     ///< Barometer in the BARO_RAW telemetry (ABI id), ABI_BROADCAST for all in turn, ABI_DISABLE for none
   uint8_t airspeed_send_id; ///< Airspeed sensor in the AIRSPEED_RAW telemetry (ABI id), ABI_BROADCAST for all in turn, ABI_DISABLE for none
   uint8_t wind_send_id;     ///< Wind source in the WIND_RAW telemetry (ABI id), ABI_BROADCAST for all in turn, ABI_DISABLE for none

@@ -148,13 +148,6 @@
 /** Airspeed estimates (not sensors): only used when no sensor is healthy, and not sent as AIRSPEED */
 #define AIR_DATA_IS_ESTIMATE(_id) ((_id) == AIRSPEED_WE_QUAD_ID || (_id) == WIND_INFO_SENDER_ID)
 
-/** WIND_INFO (wind and airspeed) can be selected automatically, after the estimators on board (ground wind estimator).
- * FALSE for a ground wind sensor, it measures the wind at the ground, not at the aircraft: only used when forced with wind_id.
- */
-#ifndef AIR_DATA_WIND_INFO_AUTO
-#define AIR_DATA_WIND_INFO_AUTO TRUE
-#endif
-
 /** Set the airspeed in the state interface */
 #ifndef USE_AIRSPEED_AIR_DATA
 #define USE_AIRSPEED_AIR_DATA TRUE
@@ -176,7 +169,6 @@ struct AirData air_data = {
   .airspeed_send_id = AIR_DATA_AIRSPEED_SEND_ID,
   .wind_send_id = AIR_DATA_WIND_SEND_ID,
   .calib_armed = AIR_DATA_CALIB_ARMED,
-  .wind_info_auto = AIR_DATA_WIND_INFO_AUTO,
 };
 
 static abi_event baro_raw_ev, diff_raw_ev, airspeed_raw_ev, temp_raw_ev, wind_raw_ev, incidence_ev;
@@ -314,9 +306,6 @@ static uint8_t air_data_rank_baro(struct air_data_sensor_t *s)
 /** Airspeed: first the differential pressures, then the airspeed sensors, then an airspeed estimate */
 static uint8_t air_data_rank_airspeed(struct air_data_sensor_t *s)
 {
-  if (s->abi_id == WIND_INFO_SENDER_ID && !air_data.wind_info_auto) {
-    return UINT8_MAX;
-  }
   return AIR_DATA_IS_ESTIMATE(s->abi_id) ? 1 : 0;
 }
 
@@ -377,13 +366,10 @@ static struct air_data_wind_t *air_data_get_wind(uint8_t abi_id, bool create)
   return NULL;
 }
 
-/** Wind: first the estimators on board, then WIND_INFO (never automatically without wind_info_auto) */
+/** Wind: first the estimators on board, then WIND_INFO from the ground */
 static uint8_t air_data_rank_wind(struct air_data_wind_t *w)
 {
-  if (w->abi_id == WIND_INFO_SENDER_ID) {
-    return air_data.wind_info_auto ? 1 : UINT8_MAX;
-  }
-  return 0;
+  return (w->abi_id == WIND_INFO_SENDER_ID) ? 1 : 0;
 }
 
 /** Select the wind source: the one of the setting if healthy, otherwise the healthy one with the lowest rank */
@@ -1000,7 +986,7 @@ void air_data_parse_WIND_INFO(struct link_device *dev __attribute__((unused)),
   }
   float airspeed = DL_WIND_INFO_airspeed(buf);
   if (isfinite(airspeed)) {
-    // an airspeed estimate: only used without a healthy airspeed sensor, and with wind_info_auto
+    // an airspeed estimate: only used without a healthy airspeed sensor
     AbiSendMsgAIRSPEED_RAW(WIND_INFO_SENDER_ID, stamp, eas_from_tas(airspeed));
   }
   float temp = DL_WIND_INFO_temp(buf);

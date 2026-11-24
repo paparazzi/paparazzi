@@ -27,10 +27,9 @@ The sensor is polled over serial with `$//,WV?*//` and answers with
 `$<talker>,WVP=<speed>,<angle>,<status>*<checksum>`. Temperature is read
 with `$//,HT?*//` when --temperature is given.
 
-On the aircraft air_data receives it as a wind source (WIND_INFO_SENDER_ID). Turn off its
-windInfoAuto setting (AIR_DATA_WIND_INFO_AUTO) to not use this ground wind as the wind at
-the aircraft unless forced with windId. The temperature is used as air temperature only
-without one on board.
+On the aircraft air_data receives it as a wind source (WIND_INFO_SENDER_ID), only used
+without a wind estimator on board or when forced with its windId setting. The temperature
+is used as air temperature only without one on board.
 
 Usage: ./ft742.py /dev/ttyUSB0 --ac-id 2 [--temperature]
 """
