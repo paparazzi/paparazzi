@@ -28,7 +28,6 @@
       <message name="LOGGER_STATUS"            period="5.1"/>
       <message name="LIDAR"                    period="1.2"/>
       <message name="INS_EKF2"                 period=".25"/>
-      <message name="WIND_INFO_RET"            period="1."/>
       <message name="AHRS_REF_QUAT"            period="0.5"/>
       <message name="STAB_ATTITUDE"            period=".1"/>
       <!-- <message name="STAB_THRUST"              period=".1"/> -->
@@ -218,7 +217,6 @@
       <!-- <message name="LIDAR"                    period="0.05"/> -->
       <message name="INS_EKF2"                 period="0.05"/>
       <message name="INS_EKF2_EXT"             period="0.1"/>
-      <!-- <message name="WIND_INFO_RET"            period="0.2"/> -->
       <message name="AHRS_BIAS"                period="0.5"/>
       <message name="AHRS_REF_QUAT"            period="0.002"/>
       <message name="GUIDANCE_H_REF_INT"       period="0.02"/>
