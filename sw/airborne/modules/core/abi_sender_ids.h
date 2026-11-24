@@ -161,7 +161,7 @@
  * a wind source (WIND_RAW), an airspeed estimate (AIRSPEED_RAW) and the ground temperature (TEMPERATURE_RAW)
  */
 #ifndef WIND_INFO_SENDER_ID
-#define WIND_INFO_SENDER_ID 50
+#define WIND_INFO_SENDER_ID 60
 #endif
 
 
