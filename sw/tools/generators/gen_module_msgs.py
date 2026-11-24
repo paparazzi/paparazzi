@@ -36,37 +36,17 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../
 import module_msgs as mm  # noqa: E402
 
 
-def c_name(s):
-    return s.replace('.', '_').replace('-', '_')
-
-
-def prefix(msg):
-    return "MODULE_MSG_%s_%s" % (c_name(msg.module.name).upper(), msg.name.upper())
-
-
-def lower_name(msg):
-    return "%s_%s" % (c_name(msg.module.name).lower(), msg.name.lower())
+def upper(module):
+    return module.name.upper()
 
 
 def module_id_name(module):
-    return "MODULE_MSGS_ID_%s" % c_name(module.name).upper()
+    return "MODULE_MSGS_ID_%s" % upper(module)
 
 
-def gen_struct(msg):
-    out = "struct __attribute__((packed)) module_msg_%s {\n" % lower_name(msg)
-    for f in msg.fields:
-        if f.is_var:
-            out += "  %s %s[0];\n" % (f.c_type, f.name)
-        elif f.is_array:
-            out += "  %s %s[%d];\n" % (f.c_type, f.name, f.array_len)
-        else:
-            out += "  %s %s;\n" % (f.c_type, f.name)
-    out += "};\n"
-    return out
-
-
-def gen_send(msg):
-    p = prefix(msg)
+def gen_downlink(msg):
+    m = msg.module
+    p = "MODULE_MSG_%s" % upper(m)
     args = []
     for f in msg.fields:
         if f.is_var:
@@ -78,16 +58,19 @@ def gen_send(msg):
             args.append(("%s " % f.c_type, f.name))
     params = "".join(", %s%s" % (t, n) for t, n in args)
     unused = "".join(", %s%s __attribute__((unused))" % (t, n) for t, n in args)
-    fname = "module_msg_send_%s" % lower_name(msg)
+    fname = "module_msg_send_%s" % m.name.lower()
     buf_size = "MODULE_MSGS_MAX_DATA" if msg.var_field else "%s_SIZE" % p
-    out = "#if DOWNLINK\n"
+    out = "\n/* %s downlink (MODULE_SPECIFIC) */\n" % m.name
+    out += "#define %s_SIZE %d\n" % (p, msg.fixed_size)
+    out += "#if DOWNLINK\n"
     out += "static inline void %s(struct transport_tx *trans, struct link_device *dev%s)\n{\n" % (fname, params)
     out += "  uint8_t _data[%s > 0 ? %s : 1];\n" % (buf_size, buf_size)
     out += "  uint8_t _len = 0;\n"
     for f in msg.fields:
         if f.is_var:
-            out += "  if (nb_%s > (MODULE_MSGS_MAX_DATA - _len) / %d) { nb_%s = (MODULE_MSGS_MAX_DATA - _len) / %d; }\n" \
+            out += "  if (nb_%s > (MODULE_MSGS_MAX_DATA - _len - 1) / %d) { nb_%s = (MODULE_MSGS_MAX_DATA - _len - 1) / %d; }\n" \
                 % (f.name, f.elem_size, f.name, f.elem_size)
+            out += "  _data[_len++] = nb_%s;\n" % f.name
             out += "  memcpy(&_data[_len], %s, nb_%s * %d);\n" % (f.name, f.name, f.elem_size)
             out += "  _len += nb_%s * %d;\n" % (f.name, f.elem_size)
         elif f.is_array:
@@ -96,8 +79,8 @@ def gen_send(msg):
         else:
             out += "  memcpy(&_data[_len], &%s, %d);\n" % (f.name, f.size)
             out += "  _len += %d;\n" % f.size
-    out += "  uint16_t _module_id = %s;\n" % module_id_name(msg.module)
-    out += "  uint16_t _reserved = MODULE_MSGS_RESERVED(%s_ID, 0);\n" % p
+    out += "  uint16_t _module_id = %s;\n" % module_id_name(m)
+    out += "  uint16_t _reserved = 0;\n"
     out += "  pprz_msg_send_MODULE_SPECIFIC(trans, dev, AC_ID, &_module_id, &_reserved, _len, _data);\n"
     out += "}\n"
     if args:
@@ -113,25 +96,25 @@ def gen_send(msg):
     return out
 
 
-def gen_message(msg):
-    p = prefix(msg)
-    out = "\n/* %s.%s (%s)%s */\n" % (msg.module.name, msg.name, msg.msg_class,
-                                     (": " + msg.description) if msg.description else "")
-    out += "#define %s_ID %d\n" % (p, msg.id)
+def gen_uplink(msg):
+    m = msg.module
+    p = "MODULE_MSG_UP_%s" % upper(m)
+    out = "\n/* %s uplink (MODULE_SPECIFIC_UP) */\n" % m.name
     out += "#define %s_SIZE %d\n" % (p, msg.fixed_size)
-    if msg.var_field:
-        f = msg.var_field
-        out += "#define %s_%s_LENGTH(_len) (((_len) - %s_SIZE) / %d)\n" % (p, f.name, p, f.elem_size)
     if msg.fields:
-        out += gen_struct(msg)
-    if msg.msg_class == 'telemetry':
-        out += gen_send(msg)
+        out += "struct __attribute__((packed)) module_msg_up_%s {\n" % m.name.lower()
+        for f in msg.fields:
+            if f.is_var:
+                out += "  uint8_t nb_%s;\n" % f.name
+                out += "  %s %s[0];\n" % (f.c_type, f.name)
+            elif f.is_array:
+                out += "  %s %s[%d];\n" % (f.c_type, f.name, f.array_len)
+            else:
+                out += "  %s %s;\n" % (f.c_type, f.name)
+        out += "};\n"
+        out += "extern void %s(const struct module_msg_up_%s *msg);\n" % (msg.fun, m.name.lower())
     else:
-        if msg.fields:
-            out += "extern void %s(uint8_t instance, const struct module_msg_%s *msg, uint8_t len);\n" \
-                % (msg.fun, lower_name(msg))
-        else:
-            out += "extern void %s(uint8_t instance);\n" % msg.fun
+        out += "extern void %s(void);\n" % msg.fun
     return out
 
 
@@ -139,31 +122,26 @@ def gen_uplink_parser(modules):
     out = "\n/** Parse a MODULE_SPECIFIC_UP message and call the callback of the module */\n"
     out += "static inline void module_msgs_parse_uplink(uint8_t *buf)\n{\n"
     out += "  if (DL_MODULE_SPECIFIC_UP_ac_id(buf) != AC_ID) { return; }\n"
-    out += "  uint16_t module_id = DL_MODULE_SPECIFIC_UP_module_id(buf);\n"
-    out += "  uint16_t reserved = DL_MODULE_SPECIFIC_UP_reserved(buf);\n"
-    out += "  uint8_t msg_id = MODULE_MSGS_MSG_ID(reserved);\n"
-    out += "  uint8_t instance __attribute__((unused)) = MODULE_MSGS_INSTANCE(reserved);\n"
     out += "  uint8_t len __attribute__((unused)) = DL_MODULE_SPECIFIC_UP_data_length(buf);\n"
     out += "  uint8_t *data __attribute__((unused)) = DL_MODULE_SPECIFIC_UP_data(buf);\n"
-    out += "  switch (module_id) {\n"
+    out += "  switch (DL_MODULE_SPECIFIC_UP_module_id(buf)) {\n"
     for module in modules:
-        msgs = [m for m in module.messages if m.msg_class == 'datalink']
-        if not msgs:
+        msg = module.uplink
+        if msg is None:
             continue
-        out += "    case %s:\n" % module_id_name(module)
-        out += "      switch (msg_id) {\n"
-        for msg in msgs:
-            p = prefix(msg)
-            out += "        case %s_ID:\n" % p
-            if msg.fields:
-                out += "          if (len >= %s_SIZE) { %s(instance, (const struct module_msg_%s *)data, len); }\n" \
-                    % (p, msg.fun, lower_name(msg))
-            else:
-                out += "          %s(instance);\n" % msg.fun
-            out += "          break;\n"
-        out += "        default: break;\n"
-        out += "      }\n"
+        p = "MODULE_MSG_UP_%s" % upper(module)
+        out += "    case %s: {\n" % module_id_name(module)
+        if msg.fields:
+            st = "struct module_msg_up_%s" % module.name.lower()
+            cond = "len >= %s_SIZE" % p
+            if msg.var_field:
+                f = msg.var_field
+                cond += " && len >= %s_SIZE + ((const %s *)data)->nb_%s * %d" % (p, st, f.name, f.elem_size)
+            out += "      if (%s) { %s((const %s *)data); }\n" % (cond, msg.fun, st)
+        else:
+            out += "      %s();\n" % msg.fun
         out += "      break;\n"
+        out += "    }\n"
     out += "    default: break;\n"
     out += "  }\n"
     out += "}\n"
@@ -179,17 +157,15 @@ def gen_header(modules):
     out += "#include \"pprzlink/messages.h\"\n"
     out += "#include \"pprzlink/dl_protocol.h\"\n\n"
     out += "/** Max size of the data of a module message */\n"
-    out += "#define MODULE_MSGS_MAX_DATA %d\n" % mm.MAX_DATA
-    out += "/** The reserved field holds the message id (low byte) and the module instance (high byte) */\n"
-    out += "#define MODULE_MSGS_RESERVED(_msg_id, _instance) ((uint16_t)(((_msg_id) & 0xFF) | (((_instance) & 0xFF) << 8)))\n"
-    out += "#define MODULE_MSGS_MSG_ID(_reserved) ((uint8_t)((_reserved) & 0xFF))\n"
-    out += "#define MODULE_MSGS_INSTANCE(_reserved) ((uint8_t)(((_reserved) >> 8) & 0xFF))\n\n"
+    out += "#define MODULE_MSGS_MAX_DATA %d\n\n" % mm.MAX_DATA
     for module in modules:
         out += "#define %s %d\n" % (module_id_name(module), module.id)
     for module in modules:
-        for msg in module.messages:
-            out += gen_message(msg)
-    if any(m.msg_class == 'datalink' for module in modules for m in module.messages):
+        if module.downlink is not None:
+            out += gen_downlink(module.downlink)
+        if module.uplink is not None:
+            out += gen_uplink(module.uplink)
+    if any(m.uplink is not None for m in modules):
         out += "\n#define MODULE_MSGS_UPLINK 1\n"
         out += gen_uplink_parser(modules)
     out += "\n#endif /* MODULES_MSGS_H */\n"

@@ -380,13 +380,11 @@ let from_module_name = fun mtype name ->
 (** true if the module declares module specific messages *)
 let has_messages = fun m -> m.messages <> None
 
-(** true if the module declares module specific messages from the ground (class datalink) *)
+(** true if the module declares a module specific message from the ground *)
 let has_uplink_messages = fun m ->
   match m.messages with
   | None -> false
-  | Some xml ->
-    List.exists (fun msg -> ExtXml.attrib_or_default msg "class" "telemetry" = "datalink")
-      (Xml.children xml)
+  | Some xml -> List.exists (fun c -> Xml.tag c = "uplink") (Xml.children xml)
 
 (** check if a makefile node is compatible with a target and a firmware
  * TODO add 'board' type filter ? *)
