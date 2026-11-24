@@ -60,7 +60,6 @@ let aircrafts = Hashtbl.create 3
 
 (** Broadcast of the received aircrafts *)
 let aircraft_msg_period = 500 (* ms *)
-let wind_msg_period = 5000 (* ms *)
 let aircraft_alerts_period = 1000 (* ms *)
 let send_aircrafts_msg = fun _asker _values ->
   assert(_values = []);
@@ -405,20 +404,6 @@ let send_survey_status = fun a ->
 
 
 
-let send_wind = fun a ->
-  let id = a.id in
-  try
-    let (wind_cap_rad, wind_polar, mean, stddev, _nb_sample) = Wind.get id in
-    let vs =
-      ["ac_id", PprzLink.String id;
-       "dir", PprzLink.Float ((Rad>>Deg)wind_cap_rad);
-       "wspeed", PprzLink.Float wind_polar;
-       "mean_aspeed", PprzLink.Float mean;
-       "stddev", PprzLink.Float stddev] in
-    Ground_Pprz.message_send my_id "WIND" vs
-  with
-      _exc -> ()
-
 let send_telemetry_status = fun a ->
   let id = a.id in
   let tl_payload = fun link_id datalink_status link_status ->
@@ -746,9 +731,6 @@ let check_alerts = fun a ->
   else if a.bat < critic_level then send "CRITIC"
   else if a.bat < warning_level then send "WARNING"
 
-let wind_clear = fun _sender vs ->
-  Wind.clear (PprzLink.string_assoc "ac_id" vs)
-
 let periodic = fun period cb ->
   Glib.Timeout.add ~ms:period ~callback:(fun () -> cb (); true)
 
@@ -779,8 +761,6 @@ let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
   register_periodic a (periodic aircraft_msg_period (fun () -> send_aircraft_msg name));
   register_periodic a (periodic aircraft_alerts_period (fun () -> check_alerts a));
-  register_periodic a (periodic wind_msg_period (fun () -> send_wind a));
-  Wind.new_ac name 36;
 
   if !Kml.enabled then
     Kml.build_files a
@@ -1123,7 +1103,6 @@ let () =
   listen_acs logging !timestamp;
 
   ignore(Ground_Pprz.message_bind "AIRCRAFT_DIE" remove_aircraft);
-  ignore(Ground_Pprz.message_bind "WIND_CLEAR" wind_clear);
 
   (* wait for new external vehicles/intruders *)
   listen_intruders logging;
