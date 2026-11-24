@@ -185,7 +185,6 @@ NOTES:
     <define name="TUNE_AGRESSIVE_CLIMB"/>
 
     <define name="STRONG_WIND"/>
-    <define name="WIND_INFO"/>
 
     <define name="autopilot_motors_on" value="TRUE"/>
     <configure name="BARO_PERIODIC_FREQUENCY" value="100"/>

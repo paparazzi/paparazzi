@@ -80,8 +80,6 @@
       <!--<module name="uart"/>--><!-- TODO: Exteral HITL PC debugging e.g test external device triggering while mission flying in sim -->
     </target>
 
-    <define name="WIND_INFO"/>
-
     <!--<define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>--><!-- TODO test on Busybox -->
 
     <!-- amount of time it take for the bat to trigger check -->

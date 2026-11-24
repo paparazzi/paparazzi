@@ -319,7 +319,6 @@ Safety
     </target>
 
     <!-- ============== COMMON ================= -->
-    <define name="WIND_INFO"/>
 
     <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
     <define name="AUTOPILOT_DISABLE_AHRS_KILL"/> <!--  Starts in KILL, but can now switch to NAV -->

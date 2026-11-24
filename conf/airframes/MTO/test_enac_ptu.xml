@@ -25,7 +25,6 @@
     <define name="USE_I2C2"/>
     <define name="AGR_CLIMB"/>
   <!--  <define name="STRONG_WIND"/> -->
-    <define name="WIND_INFO"/>
     <configure name="PERIODIC_FREQUENCY" value="100"/>
 
     <target name="ap" board="apogee_1.0_chibios">
