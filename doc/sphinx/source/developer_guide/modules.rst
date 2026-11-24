@@ -280,6 +280,9 @@ Here is an overview of all possible Module XML nodes:
 | | (0 or more) +---------------+-------------------------------------------------------------------------+
 |               | fun           | Name of the function called when a message arrived                      |
 +---------------+---------------+-------------------------------------------------------------------------+
+| | messages    | id            | Static unique module id for the module specific messages, see           |
+| | (0 or 1)    |               | `Module specific messages`_                                             |
++---------------+---------------+-------------------------------------------------------------------------+
 | | makefile    | target        | A list of build targets separated with pipes                            |
 | | (0 or more) |               | (ex: ``<makefile target="tunnel|foo">``)                                |
 |               |               | (default is ``ap|sim|nps``)                                             |
@@ -362,6 +365,64 @@ By convention any variable and function that is defined in a module header, espe
 another module or XML, should be prefixed with the module name or some other unique identifier to help avoid name
 collision.
 
+
+.. _label-module-messages:
+
+Module specific messages
+------------------------
+
+A module can send and receive its own structured data without adding a new pprzlink message, with the generic
+``MODULE_SPECIFIC`` (telemetry) and ``MODULE_SPECIFIC_UP`` (datalink) messages.
+The messages are described in the module XML with a ``messages`` node:
+
+.. code-block:: xml
+
+    <messages id="1">
+      <message name="STATUS" id="0">
+        <field name="position" type="uint16">Raw encoder position</field>
+        <field name="cg" type="float[3]" unit="m"/>
+        <field name="values" type="int16[]"/>
+      </message>
+      <message name="SET_MASS" id="0" class="datalink" fun="foo_set_mass">
+        <field name="mass" type="float" unit="kg"/>
+      </message>
+    </messages>
+
+- ``messages@id`` is the static unique id of the module (1 to 65535). It must be unique among all modules, which is
+  checked at build time for the loaded modules and by ``make test_modules`` (``tests/modules/test_module_msgs.py``) for
+  all modules. ``sw/tools/generators/gen_module_msgs.py --check`` checks all the modules.
+- ``message@id`` is the id of the message in the module (0 to 255), per class. ``class`` is ``telemetry`` (default,
+  to the ground) or ``datalink`` (from the ground, ``fun`` is then the name of the callback).
+- ``field@type`` is a pprzlink type (``int8`` to ``uint64``, ``float``, ``double``, ``char``), a fixed array
+  (``float[3]``) or a variable array (``int16[]``, last field only).
+
+The data of the message is packed little endian without padding.
+The ``reserved`` field of ``MODULE_SPECIFIC`` holds the message id (low byte) and the module instance (high byte,
+always 0 for now).
+
+The header ``generated/modules_msgs.h`` provides, for each message ``<MSG>`` of module ``<mod>``:
+
+- ``DOWNLINK_SEND_MODULE_MSG_<MOD>_<MSG>(DefaultChannel, DefaultDevice, ...)`` and
+  ``module_msg_send_<mod>_<msg>(trans, dev, ...)`` for telemetry messages, with scalars by value, arrays as pointers,
+  and a ``uint8_t nb_<field>`` before a variable array;
+- a packed ``struct module_msg_<mod>_<msg>`` with the fields, and ``MODULE_MSG_<MOD>_<MSG>_<field>_LENGTH(len)`` for
+  the number of elements of a variable array;
+- for datalink messages, the callback is called as
+  ``void fun(uint8_t instance, const struct module_msg_<mod>_<msg> *msg, uint8_t len)`` (or ``void fun(uint8_t
+  instance)`` without fields) when a ``MODULE_SPECIFIC_UP`` for this aircraft and module arrives with enough data.
+
+.. code-block:: c
+
+    #include "generated/modules_msgs.h"
+
+    DOWNLINK_SEND_MODULE_MSG_FOO_STATUS(DefaultChannel, DefaultDevice, position, cg, nb_values, values);
+
+    void foo_set_mass(uint8_t instance, const struct module_msg_foo_set_mass *msg, uint8_t len) {
+      foo_mass = msg->mass;
+    }
+
+On the ground, ``sw/lib/python/module_msgs.py`` decodes (and encodes) the messages from the module XML files, and
+``sw/ground_segment/python/module_msgs/module_msgs_viewer.py`` prints the decoded messages from the Ivy bus.
 
 .. _label-module-source-file:
 
