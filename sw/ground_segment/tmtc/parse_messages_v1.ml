@@ -175,9 +175,7 @@ let log_and_parse = fun ac_name (a:Aircraft_server.aircraft) msg values ->
           a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
           if !heading_from_course then
             a.heading <- a.course;
-          a.agl     <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt);
-          if a.gspeed > 3. && a.ap_mode = _AUTO2 then
-            Wind.update ac_name a.gspeed a.course
+          a.agl     <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt)
         end
     | "GPS_LLA" ->
       let lat = ivalue "lat"
@@ -191,9 +189,7 @@ let log_and_parse = fun ac_name (a:Aircraft_server.aircraft) msg values ->
       if !heading_from_course then
         a.heading <- a.course;
       a.agl     <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt);
-      a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
-      if a.gspeed > 3. && a.ap_mode = _AUTO2 then
-        Wind.update ac_name a.gspeed a.course
+      a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE"
     | "GPS_SOL" ->
       a.gps_Pacc <- ivalue "Pacc"
     | "GPS_INT" ->
@@ -235,9 +231,7 @@ let log_and_parse = fun ac_name (a:Aircraft_server.aircraft) msg values ->
         a.roll    <- foi32value "phi" /. angle_frac;
         a.pitch   <- foi32value "theta" /. angle_frac;
         a.throttle <- foi32value "thrust" /. 9600. *. 100.;
-        a.flight_time   <- ivalue "flight_time";
-        (*if a.gspeed > 3. && a.ap_mode = _AUTO2 then
-          Wind.update ac_name a.gspeed a.course*)
+        a.flight_time   <- ivalue "flight_time"
     | "ROTORCRAFT_FP_MIN" ->
         begin match a.nav_ref with
             None -> (); (* No nav_ref yet *)
@@ -517,9 +511,7 @@ let log_and_parse = fun ac_name (a:Aircraft_server.aircraft) msg values ->
       a.ap_mode <- check_index (ivalue "ap_mode") (modes_of_aircraft a) "AP_MODE";
       a.cur_block <- ivalue "nav_block";
       a.gps_mode <- check_index (ivalue "gps_mode") gps_modes "GPS_MODE";
-      a.flight_time <- ivalue "flight_time";
-      if a.gspeed > 3. && a.ap_mode = _AUTO2 then
-        Wind.update ac_name a.gspeed a.course
+      a.flight_time <- ivalue "flight_time"
     | "FORMATION_SLOT_TM" ->
       Dl_Pprz.message_send "ground_dl" "FORMATION_SLOT" values
     | "FORMATION_STATUS_TM" ->
