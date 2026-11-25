@@ -44,7 +44,6 @@ module LL = Latlong
 module Ground = struct let name = "ground" end
 module Ground_Pprz = PprzLink.Messages(Ground)
 module Tm_Pprz = PprzLink.Messages (struct let name = "telemetry" end)
-module Alerts_Pprz = PprzLink.Messages(struct let name = "alert" end)
 module Dl_Pprz = PprzLink.Messages (struct let name = "datalink" end)
 
 let dl_id = "ground_dl" (* Hack, should be [my_id] *)
@@ -61,8 +60,8 @@ let aircrafts = Hashtbl.create 3
 
 (** Broadcast of the received aircrafts *)
 let aircraft_msg_period = 500 (* ms *)
+let aircraft_msg_slow_period = 2000 (* ms *)
 let wind_msg_period = 5000 (* ms *)
-let aircraft_alerts_period = 1000 (* ms *)
 let send_aircrafts_msg = fun _asker _values ->
   assert(_values = []);
   let names = String.concat "," (Hashtbl.fold (fun k _v r -> k::r) aircrafts []) ^ "," in
@@ -268,68 +267,6 @@ let ac_msg = fun messages_xml logging ac_name ac ->
       | PprzLink.Unknown_msg_name (x, c) ->
         fprintf stderr "Unknown message %s in class %s from %s: %s\n%!" x c ac_name m
       | x -> prerr_endline (Printexc.to_string x)
-
-
-(** If you are 1km above the ground, an angle of 89 degrees between the vertical and
-    your camera axis allow you to look 57km away: it should be enough ! **)
-let cam_max_angle = (Deg>>Rad) 89.
-
-let send_cam_status = fun a ->
-  if a.gps_mode >= gps_mode_3D then
-    match a.nav_ref with
-        None -> () (* No geo ref for camera target *)
-      | Some nav_ref ->
-        let (hfv, vfv) = a.camaov in
-
-        let tr = quaternion_from_angle (hfv /. -2.0) (vfv /.  2.0) 0.0
-        and tl = quaternion_from_angle (hfv /.  2.0) (vfv /.  2.0) 0.0
-        and br = quaternion_from_angle (hfv /. -2.0) (vfv /. -2.0) 0.0
-        and bl = quaternion_from_angle (hfv /.  2.0) (vfv /. -2.0) 0.0 in
-
-        let gimRot = quaternion_from_angle 0.0 (-. (a.cam.tilt -. (Deg>>Rad) 90.)) (-.a.cam.pan)
-        and acRot = quaternion_from_angle a.roll a.pitch (-.a.heading) in
-
-        let tr_rotated = multiply_quaternion acRot (multiply_quaternion gimRot tr)
-        and tl_rotated = multiply_quaternion acRot (multiply_quaternion gimRot tl) 
-        and br_rotated = multiply_quaternion acRot (multiply_quaternion gimRot br) 
-        and bl_rotated = multiply_quaternion acRot (multiply_quaternion gimRot bl) in
-        
-        let bind_max_angles a =
-          if abs_float a > cam_max_angle then copysign cam_max_angle a else a in
-        
-        let find_point_on_ground q =
-          let angles = quaternion_to_angle q in
-          let dx = a.agl *. tan(bind_max_angles angles.r) 
-          and dy = a.agl *. tan(bind_max_angles angles.p) in
-
-          let utmx = dx *. cos angles.y -. dy *. sin angles.y
-          and utmy = dx *. sin angles.y +. dy *. cos angles.y in
-            
-          Aircraft_server.add_pos_to_nav_ref (Geo a.pos) (utmx, utmy) in
-    
-        let geo_1 = find_point_on_ground tr_rotated
-        and geo_2 = find_point_on_ground tl_rotated
-        and geo_3 = find_point_on_ground bl_rotated
-        and geo_4 = find_point_on_ground br_rotated in
-        
-        let lats = sprintf "%f,%f,%f,%f," ((Rad>>Deg)geo_1.posn_lat) ((Rad>>Deg)geo_2.posn_lat) ((Rad>>Deg)geo_3.posn_lat) ((Rad>>Deg)geo_4.posn_lat) in  
-        let longs = sprintf "%f,%f,%f,%f," ((Rad>>Deg)geo_1.posn_long) ((Rad>>Deg)geo_2.posn_long) ((Rad>>Deg)geo_3.posn_long) ((Rad>>Deg)geo_4.posn_long) in 
-        
-        let twgs84 = Aircraft_server.add_pos_to_nav_ref nav_ref a.cam.target in
-        let values = ["ac_id", PprzLink.String a.id;
-                      "lats", PprzLink.String lats;
-                      "longs", PprzLink.String longs;
-                      "cam_target_lat", PprzLink.Float ((Rad>>Deg)twgs84.posn_lat);
-                      "cam_target_long", PprzLink.Float ((Rad>>Deg)twgs84.posn_long)] in
-        Ground_Pprz.message_send my_id "CAM_STATUS" values
-          
-let send_if_calib = fun a ->
-  let if_mode = get_indexed_value if_modes a.inflight_calib.if_mode in
-  let values = ["ac_id", PprzLink.String a.id;
-                "if_mode", PprzLink.String if_mode;
-                "if_value1", PprzLink.Float a.inflight_calib.if_val1;
-                "if_value2", PprzLink.Float a.inflight_calib.if_val2] in
-  Ground_Pprz.message_send my_id "INFLIGH_CALIB" values
 
 let send_fbw = fun a ->
   let values = [ "ac_id", PprzLink.String a.id;
@@ -588,22 +525,26 @@ let send_aircraft_msg = fun ac ->
                  ] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
-    send_cam_status a;
-    send_if_calib a;
     send_fbw a;
-    send_svsinfo a;
     send_horiz_status a;
+    send_telemetry_status a
 
-    a.time_since_last_survey_msg <- a.time_since_last_survey_msg +. float aircraft_msg_period /. 1000.;
+  with
+      Not_found -> prerr_endline ac
+    | x -> prerr_endline (Printexc.to_string x)
+
+let send_aircraft_msg_slow = fun ac ->
+  try
+    let a = Hashtbl.find aircrafts ac in
+    a.time_since_last_survey_msg <- a.time_since_last_survey_msg +. float aircraft_msg_slow_period /. 1000.;
     if a.time_since_last_survey_msg > 5. then (* FIXME Two missed messages *)
       a.survey <- None;
-
     send_survey_status a;
+    send_svsinfo a;
     send_dl_values a;
     send_moved_waypoints a;
     if !Kml.enabled then
       Kml.update_waypoints a;
-    send_telemetry_status a
   with
       Not_found -> prerr_endline ac
     | x -> prerr_endline (Printexc.to_string x)
@@ -738,27 +679,6 @@ let new_aircraft = fun get_alive_md5sum real_id ->
   let messages_xml = ExtXml.parse_file (Env.paparazzi_home // root_dir // "var" // "messages.xml") in
   ac, messages_xml
 
-let check_alerts = fun a ->
-  let bat_section = ExtXml.child a.airframe ~select:(fun x -> Xml.attrib x "name" = "BAT") "section" in
-  let fvalue = fun name default ->
-    try ExtXml.float_attrib (ExtXml.child bat_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
-
-  (* default levels per cell, as in electrical.h (default 3S) *)
-  let nb_cells = fvalue "BAT_NB_CELLS" 3. in
-  let catastrophic_level = fvalue "CATASTROPHIC_BAT_LEVEL" (3.0 *. nb_cells)
-  and critic_level = fvalue "CRITIC_BAT_LEVEL" (3.25 *. nb_cells)
-  and warning_level = fvalue "LOW_BAT_LEVEL" (3.5 *. nb_cells) in
-
-  let send = fun level ->
-    let vs = [ "ac_id", PprzLink.String a.id;
-               "level", PprzLink.String level;
-               "value", PprzLink.Float a.bat] in
-    Alerts_Pprz.message_send my_id "BAT_LOW" vs in
-  if a.bat < 1. then send "INVALID"
-  else if a.bat < catastrophic_level then send "CATASTROPHIC"
-  else if a.bat < critic_level then send "CRITIC"
-  else if a.bat < warning_level then send "WARNING"
-
 let wind_clear = fun _sender vs ->
   Wind.clear (PprzLink.string_assoc "ac_id" vs)
 
@@ -769,29 +689,10 @@ let periodic = fun period cb ->
 let register_periodic = fun ac x ->
   ac.periodic_callbacks <- x :: ac.periodic_callbacks
 
-(** periodic airprox check of each pair of aircraft *)
-let periodic_airprox_check = fun () ->
-  let acs = Hashtbl.fold (fun _ a l -> a :: l) aircrafts [] in
-  let rec check = function
-    | [] -> ()
-    | a :: others ->
-      List.iter (fun b ->
-        try
-          match Airprox.check_airprox a b with
-              None -> ()
-            | Some level ->
-              let vs = ["ac_id", PprzLink.String (a.id ^ "," ^ b.id) ; "level", PprzLink.String level] in
-              Alerts_Pprz.message_send my_id "AIR_PROX" vs
-        with x -> fprintf stderr "check_airprox: %s\n%!" (Printexc.to_string x)
-      ) others;
-      check others in
-  check acs
-
-
 let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
   register_periodic a (periodic aircraft_msg_period (fun () -> send_aircraft_msg name));
-  register_periodic a (periodic aircraft_alerts_period (fun () -> check_alerts a));
+  register_periodic a (periodic aircraft_msg_slow_period (fun () -> send_aircraft_msg_slow name));
   register_periodic a (periodic wind_msg_period (fun () -> send_wind a));
   Wind.new_ac name 36;
 
@@ -1147,7 +1048,6 @@ let () =
 
   (* call periodic_handle_intruders every second *)
   ignore (Glib.Timeout.add ~ms:1000 ~callback:(fun () -> periodic_handle_intruders (); true));
-  ignore (periodic aircraft_alerts_period periodic_airprox_check);
 
   (* Waits for client configurations requests on the Ivy bus *)
   ivy_server !http;

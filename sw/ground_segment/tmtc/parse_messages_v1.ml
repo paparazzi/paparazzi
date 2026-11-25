@@ -349,7 +349,6 @@ let log_and_parse = fun ac_name (a:Aircraft_server.aircraft) msg values ->
       a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
       a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
       a.horizontal_mode <- check_index (ivalue "ap_horizontal") horiz_modes "AP_HORIZ";
-      a.inflight_calib.if_mode <- check_index (ivalue "if_calib_mode") if_modes "IF_MODE";
       let mcu1_status = ivalue "mcu1_status" in
       (** c.f. link_autopilot.h *)
       if a.fbw.pprz_mode_msgs_since_last_fbw_status_msg < 10 then
@@ -396,10 +395,6 @@ let log_and_parse = fun ac_name (a:Aircraft_server.aircraft) msg values ->
       a.datalink_status.uplink_msgs <- ivalue "uplink_nb_msgs";
       a.datalink_status.downlink_rate <- ivalue "downlink_rate";
       a.datalink_status.downlink_msgs <- ivalue "downlink_nb_msgs"
-    | "CAM" ->
-      a.cam.pan <- (Deg>>Rad) (fvalue  "pan");
-      a.cam.tilt <- (Deg>>Rad) (fvalue  "tilt");
-      a.cam.target <- (fvalue  "target_x", fvalue  "target_y")
     | "SVINFO" ->
       let i = ivalue "chn" in
       assert(i < Array.length a.svinfo);
@@ -430,9 +425,6 @@ let log_and_parse = fun ac_name (a:Aircraft_server.aircraft) msg values ->
               if !Kml.enabled then Kml.update_horiz_mode a
           | _ -> ()
       end
-    | "SETTINGS" ->
-      a.inflight_calib.if_val1 <- fvalue "slider_1_val";
-      a.inflight_calib.if_val2 <- fvalue "slider_2_val";
     | "SURVEY" ->
       begin
         a.time_since_last_survey_msg <- 0.;
