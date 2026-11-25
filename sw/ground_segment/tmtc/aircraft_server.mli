@@ -22,18 +22,6 @@
 
 (** State of an A/C handled by the server *)
 
-type ac_cam = {
-    mutable pan : float; (* Rad, right = >0 *)
-    mutable tilt : float; (* Rad, front = >0 *)
-    mutable target : (float * float) (* meter*meter relative *)
-  }
-
-type inflight_calib = {
-    mutable if_mode : int;
-    mutable if_val1 : float;
-    mutable if_val2 : float;
-  }
-
 type rc_status = string
 type rc_mode = string
 type fbw = { mutable fbw_bat : float; mutable rc_status : rc_status; mutable rc_mode : rc_mode; mutable rc_rate : int; mutable pprz_mode_msgs_since_last_fbw_status_msg : int; }
@@ -129,8 +117,6 @@ type aircraft = {
     mutable lateral_mode : int;
     mutable horizontal_mode : int;
     mutable periodic_callbacks : Glib.Timeout.id list;
-    cam : ac_cam;
-    camaov : (float * float);
     mutable gps_mode : int;
     mutable gps_Pacc : int;
     mutable state_filter_mode : int;
@@ -149,7 +135,6 @@ type aircraft = {
     mutable last_msg_date : float;
     mutable time_since_last_survey_msg : float;
     mutable dist_to_wp : float;
-    inflight_calib : inflight_calib;
     mutable ap_modes : string array option
 }
 
