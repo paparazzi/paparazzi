@@ -166,6 +166,9 @@ bool nps_main_parse_options(int argc, char **argv)
   nps_main.host_time_factor = 1.0;
   nps_main.fg_fdm = 0;
   nps_main.nodisplay = false;
+  nps_main.initial_pos_lla[0] = NAN;
+  nps_main.initial_pos_lla[1] = NAN;
+  nps_main.initial_pos_lla[2] = NAN;
 
   static const char *usage =
     "Usage: %s [options]\n"
@@ -182,6 +185,7 @@ bool nps_main_parse_options(int argc, char **argv)
     "   --ivy_bus <ivy bus>                    e.g. 127.255.255.255\n"
     "   --time_factor <factor>                 e.g. 2.5\n"
     "   --nodisplay                            e.g. disable NPS ivy messages\n"
+    "   --initial_pos_lla <lat> <lon> <hmsl>   e.g. specify initial position in LLA format\n"
     "   --fg_fdm";
 
 
@@ -200,8 +204,10 @@ bool nps_main_parse_options(int argc, char **argv)
       {"fg_fdm", 0, NULL, 0},
       {"fg_port_in", 1, NULL, 0},
       {"nodisplay", 0, NULL, 0},
+      {"initial_pos_lla", 1, NULL, 0},
       {0, 0, 0, 0}
     };
+    int idx_pos = 0;
     int option_index = 0;
     int c = getopt_long(argc, argv, "jh",
                         long_options, &option_index);
@@ -238,6 +244,13 @@ bool nps_main_parse_options(int argc, char **argv)
             nps_main.fg_port_in = atoi(optarg); break;
           case 11:
             nps_main.nodisplay = true; break;
+          case 12:
+            optind--;
+            idx_pos=0;
+            for( ;optind < argc && *argv[optind] != '-'; optind++) {
+              nps_main.initial_pos_lla[idx_pos++] = atof(argv[optind]);
+            }
+            break;
           default:
             break;
         }

@@ -67,6 +67,7 @@ struct NpsMain {
   bool norc;
   char *ivy_bus;
   bool nodisplay;
+  double initial_pos_lla[3];
 };
 
 extern struct NpsMain nps_main;
