@@ -87,7 +87,15 @@
  * @brief   Enables the EFlash subsystem.
  */
 #if !defined(HAL_USE_EFL) || defined(__DOXYGEN__)
+#if USE_PERSISTENT_SETTINGS
+#if defined(STM32H7xx_MCUCONF) || defined(STM32F722_MCUCONF) || defined(STM32F732_MCUCONF) || \
+    defined(STM32F745_MCUCONF) || defined(STM32F746_MCUCONF) || defined(STM32F756_MCUCONF)
+#error "USE_PERSISTENT_SETTINGS: ChibiOS has no EFL flash driver for this MCU yet"
+#endif
+#define HAL_USE_EFL                         TRUE
+#else
 #define HAL_USE_EFL                         FALSE
+#endif
 #endif
 
 /**
