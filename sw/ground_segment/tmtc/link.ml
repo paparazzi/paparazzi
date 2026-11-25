@@ -55,9 +55,6 @@ let my_id = 0
 let link_id = ref (-1)
 let red_link = ref false
 
-(* enable broadcast messages by default *)
-let ac_info = ref true
-
 (* Listening on an UDP port *)
 let udp = ref false
 let udp_broadcast = ref false
@@ -494,7 +491,7 @@ let message_uplink = fun device ->
   Hashtbl.iter
     (fun _m_id msg ->
       match msg.PprzLink.link, msg.PprzLink.name with
-        | _, "ACINFO" | _, "ACINFO_LLA" -> if !ac_info then set_broadcaster msg.PprzLink.name
+        | _, "ACINFO" | _, "ACINFO_LLA" -> set_broadcaster msg.PprzLink.name
         | Some PprzLink.Forwarded, _ -> set_forwarder msg.PprzLink.name
         | Some PprzLink.Broadcasted, _ -> set_broadcaster msg.PprzLink.name
         | _ -> ())
@@ -540,7 +537,6 @@ let () =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
       "-fg",  Arg.Set gen_stat_trafic, "Enable trafic statistics on standard output";
-      "-noac_info", Arg.Clear ac_info, (sprintf "Disables AC traffic info (uplink).");
       "-nouplink", Arg.Clear uplink, (sprintf "Disables the uplink (from the ground to the aircraft).");
       "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate);
       "-ch", Arg.String (fun channel_string -> channel := Some (int_of_string channel_string)), "<channel>  Default does not change configuration.";

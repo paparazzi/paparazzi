@@ -54,6 +54,9 @@ let conf_xml = ExtXml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 let get_indexed_value = fun ?(text="UNK") t i ->
   if i >= 0 then t.(i) else text
 
+(* enable aircraft traffic info messages by default *)
+let ac_info = ref true
+
 (** The aircrafts store *)
 let aircrafts = Hashtbl.create 3
 
@@ -432,7 +435,7 @@ let send_aircraft_msg = fun ac ->
     Ground_Pprz.message_send my_id "FLIGHT_PARAM" values;
 
     (** send ACINFO messages if more than one A/C registered *)
-    if Hashtbl.length aircrafts > 1 then
+    if !ac_info && Hashtbl.length aircrafts > 1 then
       begin
         let cm_of_m_32 = fun f -> PprzLink.Int32 (Int32.of_int (truncate (100. *. f))) in
         let cm_of_m = fun f -> PprzLink.Int (truncate (100. *. f)) in
@@ -999,6 +1002,7 @@ let () =
       "-n", Arg.Clear logging, "Disable log";
       "-timestamp", Arg.Set timestamp, "Bind on timestampped messages";
       "-no_md5_check", Arg.Set no_md5_check, "Disable safety matching of live and current configurations";
+      "-noac_info", Arg.Clear ac_info, "Disables AC traffic info (uplink).";
       "-log_name", Arg.Set_string log_name_arg, "Name for output log (Time stamp will be";
       "-udp_json_stream_addr", Arg.Set_string udp_json_stream_addr, "Address of the server to stream udp JSON telemetry messages (default is localhost)";
       "-udp_json_stream_port", Arg.Set_int udp_json_stream_port, "Port of the server to stream udp JSON telemetry messages (default is 9870)";
