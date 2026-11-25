@@ -7,7 +7,7 @@
     <define name="ACTUATOR_TIME_CONSTANTS" value="0.02, 0.02, 0.02, 0.02" type="float[]"/>
     <define name="ACTUATOR_MAX_ANGULAR_MOMENTUM" value="0.19, 0.19, 0.19, 0.19" type="float[]"/>
     <define name="GAZEBO_AC_NAME" value="bebop" type="string"/>
-    <define name="BYPASS_AHRS" value="1"/>
-    <define name="BYPASS_INS" value="1"/>
+    <define name="BYPASS_AHRS" value="TRUE"/>
+    <define name="BYPASS_INS" value="TRUE"/>
   </section>
 </airframe>
