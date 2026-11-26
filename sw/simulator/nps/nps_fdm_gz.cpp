@@ -73,6 +73,7 @@
 
 extern "C" {
 #include "nps_fdm.h"
+#include "nps_main.h"
 #include "nps_autopilot.h"
 
 #include "generated/airframe.h"
@@ -401,6 +402,11 @@ static void init_gazebo(void)
   if (vehicle_file.empty() || !sdf::readFile(vehicle_file, vehicle_sdf)) {
     fprintf(stderr, "NPS gz: could not load vehicle '%s'\n", vehicle_uri.c_str());
     exit(EXIT_FAILURE);
+  }
+
+  if (!isnan(nps_main.initial_pos_lla[0]) && !isnan(nps_main.initial_pos_lla[1]) && !isnan(nps_main.initial_pos_lla[2]) ||
+      !isnan(nps_main.initial_pos_enu[0]) && !isnan(nps_main.initial_pos_enu[1]) && !isnan(nps_main.initial_pos_enu[2])) {
+    cout << "NPS gz: ignoring initial_pos argument" << endl;
   }
 
   std::string world_uri = std::string("world://") + NPS_GAZEBO_WORLD;

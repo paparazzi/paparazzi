@@ -44,6 +44,7 @@
 
 extern "C" {
 #include "nps_fdm.h"
+#include "nps_main.h"
 #include "nps_autopilot.h"
 
 #include "generated/airframe.h"
@@ -455,6 +456,12 @@ static void init_gazebo(void)
          << endl;
     std::exit(-1);
   }
+
+  if (!isnan(nps_main.initial_pos_lla[0]) && !isnan(nps_main.initial_pos_lla[1]) && !isnan(nps_main.initial_pos_lla[2]) ||
+      !isnan(nps_main.initial_pos_enu[0]) && !isnan(nps_main.initial_pos_enu[1]) && !isnan(nps_main.initial_pos_enu[2])) {
+    cout << "Ignoring initial_pos argument" << endl;
+  }
+
 
   // Initialize sensors
   gazebo::sensors::run_once(true);

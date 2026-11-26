@@ -72,6 +72,10 @@ def main():
                       help="Use FlightGear native-fdm protocol instead of native-gui")
     parser.add_option("--nodisplay", dest="nodisplay", action="store_true",
                       help="Don't send NPS Ivy messages")
+    parser.add_option("--initial_pos_lla", dest="initial_pos_lla", nargs=3,
+                      help="Set initial position in LLA format")
+    parser.add_option("--initial_pos_enu", dest="initial_pos_enu", nargs=3,
+                      help="Set initial position in ENU format")
 
     (options, args) = parser.parse_args()
 
@@ -135,6 +139,14 @@ def main():
             simargs.append("--fg_fdm")
         if options.nodisplay:
             simargs.append("--nodisplay")
+        if options.initial_pos_lla:
+            simargs.append("--initial_pos_lla")
+            for x in options.initial_pos_lla:
+                simargs.append(str(x))
+        if options.initial_pos_enu:
+            simargs.append("--initial_pos_enu")
+            for x in options.initial_pos_enu:
+                simargs.append(str(x))
     else:
         parser.error("Please specify a valid sim type.")
 
