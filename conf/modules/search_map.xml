@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="search_map" dir="search_and_rescue">
+  <doc>
+    <description>
+      Library for generic map to store data and update waypoints based on the collected information.
+
+      Map is a 2D grid of predefined size, resolution and central point can be adapted.
+    </description>
+  </doc>
+  <header>
+    <file name="search_map.h"/>
+  </header>
+  <makefile>
+    <file name="search_map.c"/>
+    <test firmware="rotorcraft"/>
+  </makefile>
+</module>
