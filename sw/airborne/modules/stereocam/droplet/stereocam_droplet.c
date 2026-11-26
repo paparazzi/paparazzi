@@ -60,6 +60,7 @@ struct link_device *xdev = STEREO_PORT;
 #include "modules/datalink/downlink.h"
 
 #include "led.h"
+#include "generated/modules_msgs.h"
 
 
 
@@ -111,7 +112,7 @@ void stereocam_droplet_periodic(void)
   avoid_navigation_data.timeout --;
 
   // Results
-  DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 1, avoid_navigation_data.stereo_bin);
+  DOWNLINK_SEND_MODULE_MSG_STEREOCAM_DROPLET(DefaultChannel, DefaultDevice, avoid_navigation_data.stereo_bin[0]);
 
   volatile bool once = true;
   // Move waypoint with constant speed in current direction

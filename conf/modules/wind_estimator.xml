@@ -35,6 +35,14 @@
   <init fun="wind_estimator_init()"/>
   <periodic fun="wind_estimator_periodic()" freq="10."  autorun="TRUE"/>
   <event fun="wind_estimator_event()"/>
+  <messages>
+    <downlink>
+      <field name="accel_meas" type="float[3]" unit="m/s2">Measured body acceleration</field>
+      <field name="gravity_body" type="float[3]" unit="m/s2">Gravity in body frame</field>
+      <field name="accel_body" type="float[3]" unit="m/s2">Body acceleration with gravity removed</field>
+      <field name="accel_ned" type="float[3]" unit="m/s2">NED acceleration</field>
+    </downlink>
+  </messages>
   <makefile target="ap|nps">
     <file name="wind_estimator.c"/>
     <file name="lib_ukf_wind_estimator/UKF_Wind_Estimator.c"/>

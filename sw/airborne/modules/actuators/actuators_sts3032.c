@@ -31,6 +31,7 @@
 #include "mcu_periph/sys_time.h"
 #include <stdint.h>
 #include "peripherals/sts3032_regs.h"
+#include "generated/modules_msgs.h"
 
 #ifndef STS3032_IDS
 #error "STS3032_IDS must be defined"
@@ -110,12 +111,8 @@ void actuators_sts3032_periodic(void)
   }
 
 #if STS3032_DEBUG
-  float data[SERVOS_STS3032_NB + 1];
-  data[0] = sts.nb_failed_checksum;
-  for (int i = 0; i < SERVOS_STS3032_NB; i++) {
-    data[i + 1] = sts.pos[i];
-  }
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, SERVOS_STS3032_NB + 1, data);
+  DOWNLINK_SEND_MODULE_MSG_ACTUATORS_STS3032(DefaultChannel, DefaultDevice,
+      sts.nb_failed_checksum, SERVOS_STS3032_NB, sts.pos);
 #endif
 
 }

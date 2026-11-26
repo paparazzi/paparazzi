@@ -38,6 +38,14 @@
   <init fun="wind_estimation_quadrotor_init()"/>
   <periodic fun="wind_estimation_quadrotor_periodic()" freq="10.0" start="wind_estimation_quadrotor_stop()" stop="wind_estimation_quadrotor_start()" autorun="FALSE"/>
   <periodic fun="wind_estimation_quadrotor_report()" freq="10.0" autorun="FALSE"/>
+  <messages>
+    <downlink>
+      <field name="va_x" type="float" unit="m/s">Airspeed along x</field>
+      <field name="w_x" type="float" unit="m/s">Wind along x</field>
+      <field name="va_y" type="float" unit="m/s">Airspeed along y</field>
+      <field name="w_y" type="float" unit="m/s">Wind along y</field>
+    </downlink>
+  </messages>
   <makefile>
     <file name="wind_estimation_quadrotor.c"/>
     <file name="linear_kalman_filter.c" dir="filters"/>

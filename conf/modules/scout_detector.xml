@@ -20,6 +20,12 @@
   <init fun="scout_detector_init()"/>
   <periodic fun="scout_detector_report()" freq="2.0" autorun="TRUE"/>
   <periodic fun="scout_detector_sim()" freq="3.0" autorun="TRUE"/>
+  <messages>
+    <downlink>
+      <field name="snr" type="float">Signal to noise ratio</field>
+      <field name="lit" type="float">Lit value, in [0,1]</field>
+    </downlink>
+  </messages>
   <makefile>
     <file name="scout_detector.c"/>
 

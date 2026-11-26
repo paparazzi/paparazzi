@@ -59,6 +59,7 @@
 #include "modules/datalink/downlink.h"
 #include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
+#include "generated/modules_msgs.h"
 #endif
 
 float object_tracking_rate; // in rad/s
@@ -113,13 +114,8 @@ void object_tracking_run(void)
     BoundAbs(diff, object_tracking_rate * nav_dt)
     nav.heading += diff;
 #if OBJECT_TRACKING_DEBUG
-    float msg[] = {
-      target_heading,
-      object_bearing,
-      object_height,
-      timeout
-    };
-    DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 4, msg);
+    DOWNLINK_SEND_MODULE_MSG_OBJECT_TRACKING(DefaultChannel, DefaultDevice,
+        target_heading, object_bearing, object_height, timeout);
 #endif
   } else {
     nav.heading += object_tracking_search_rate * nav_dt;

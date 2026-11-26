@@ -33,6 +33,7 @@
 #include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
 #include "modules/air_data/air_data.h"
+#include "generated/modules_msgs.h"
 
 #define WE_QUAD_STATUS_IDLE 0
 #define WE_QUAD_STATUS_RUN  1
@@ -197,6 +198,8 @@ float wind_estimation_quadrotor_SetR(float R)
 
 void wind_estimation_quadrotor_report(void)
 {
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, WE_QUAD_STATE_SIZE, we_quad.filter.X);
+  DOWNLINK_SEND_MODULE_MSG_WIND_ESTIMATION_QUADROTOR(DefaultChannel, DefaultDevice,
+      we_quad.filter.X[WE_QUAD_VA_X], we_quad.filter.X[WE_QUAD_W_X],
+      we_quad.filter.X[WE_QUAD_VA_Y], we_quad.filter.X[WE_QUAD_W_Y]);
 }
 

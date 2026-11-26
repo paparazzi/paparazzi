@@ -34,6 +34,7 @@
 #include "modules/core/abi.h"
 #include <math.h>
 #include "modules/datalink/downlink.h"
+#include "generated/modules_msgs.h"
 
 #include "generated/flight_plan.h"
 
@@ -472,16 +473,8 @@ void tag_tracking_report()
       continue;
     }
 #if TAG_TRACKING_DEBUG
-    float msg[] = {
-      tag_infos[i].kalman.state[0],
-      tag_infos[i].kalman.state[1],
-      tag_infos[i].kalman.state[2],
-      tag_infos[i].kalman.state[3],
-      tag_infos[i].kalman.state[4],
-      tag_infos[i].kalman.state[5],
-      (float)tag_infos[i].tag_tracking.status
-    };
-    DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 7, msg);
+    DOWNLINK_SEND_MODULE_MSG_TAG_TRACKING(DefaultChannel, DefaultDevice,
+        tag_infos[i].tag_track_private.id, tag_infos[i].kalman.state, tag_infos[i].tag_tracking.status);
 #endif
 
     if (tag_infos[i].tag_tracking.status == TAG_TRACKING_RUNNING || tag_infos[i].tag_track_private.updated) {

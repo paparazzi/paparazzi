@@ -29,6 +29,7 @@
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
+#include "generated/modules_msgs.h"
 #include "modules/core/abi.h"
 #include "modules/decawave/trilateration.h"
 #include "modules/gps/gps.h"
@@ -557,20 +558,15 @@ void uwb_positioning_range_periodic(void) {
 
 void uwb_positioning_report(void)
 {
-  float buf[12];
-  buf[0] = uwb_positioning.anchors[0].distance;
-  buf[1] = uwb_positioning.anchors[1].distance;
-  buf[2] = uwb_positioning.anchors[2].distance;
-  buf[3] = uwb_positioning.raw_dist[0];
-  buf[4] = uwb_positioning.raw_dist[1];
-  buf[5] = uwb_positioning.raw_dist[2];
-  buf[6] = uwb_positioning.pos.x;
-  buf[7] = uwb_positioning.pos.y;
-  buf[8] = uwb_positioning.pos.z;
-  buf[9] = uwb_positioning.speed.x;
-  buf[10] = uwb_positioning.speed.y;
-  buf[11] = uwb_positioning.speed.z;
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 12, buf);
+  float distance[3] = {
+    uwb_positioning.anchors[0].distance,
+    uwb_positioning.anchors[1].distance,
+    uwb_positioning.anchors[2].distance
+  };
+  float raw_dist[3] = { uwb_positioning.raw_dist[0], uwb_positioning.raw_dist[1], uwb_positioning.raw_dist[2] };
+  float pos[3] = { uwb_positioning.pos.x, uwb_positioning.pos.y, uwb_positioning.pos.z };
+  float speed[3] = { uwb_positioning.speed.x, uwb_positioning.speed.y, uwb_positioning.speed.z };
+  DOWNLINK_SEND_MODULE_MSG_UWB_POSITIONING(DefaultChannel, DefaultDevice, distance, raw_dist, pos, speed);
 }
 
 

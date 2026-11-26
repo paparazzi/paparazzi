@@ -29,6 +29,7 @@
 #include "state.h"
 
 #include "modules/datalink/downlink.h"
+#include "generated/modules_msgs.h"
 
 // Airspeed at which only with motor
 #ifndef EFF_SCHEDULING_FALCON_LOW_AIRSPEED
@@ -112,11 +113,9 @@ void eff_scheduling_falcon_periodic(void)
 
 extern void eff_scheduling_falcon_report(void)
 {
-  float f[6] = {
-    g1g2[1][4], g1g2[1][5],
-    g1g2[2][4], g1g2[2][5],
-    g1g2[1][0], g1g2[2][0]
-  };
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 6, f);
+  DOWNLINK_SEND_MODULE_MSG_EFF_SCHEDULING_FALCON(DefaultChannel, DefaultDevice,
+      g1g2[1][4], g1g2[1][5],
+      g1g2[2][4], g1g2[2][5],
+      g1g2[1][0], g1g2[2][0]);
 }
 

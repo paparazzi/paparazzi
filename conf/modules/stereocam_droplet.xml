@@ -9,6 +9,11 @@
   </header>
   <init fun="stereocam_droplet_init()"/>
   <periodic fun="stereocam_droplet_periodic()" freq="20" autorun="TRUE"/>
+  <messages>
+    <downlink>
+      <field name="bin" type="uint8">First stereo bin</field>
+    </downlink>
+  </messages>
   <makefile target="ap">
     <file name="droplet/stereocam_droplet.c"/>
     <configure name="STEREO_UART" default="uart1" case="upper|lower"/>
