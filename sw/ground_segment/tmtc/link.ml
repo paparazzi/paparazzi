@@ -506,8 +506,6 @@ let message_uplink = fun device ->
     (fun _m_id msg ->
       match msg.PprzLink.link, msg.PprzLink.name with
         | _, "ACINFO" | _, "ACINFO_LLA" -> set_broadcaster msg.PprzLink.name
-        (* not tagged as forwarded in messages.xml *)
-        | _, "MODULE_SPECIFIC_UP" -> set_forwarder msg.PprzLink.name
         | Some PprzLink.Forwarded, _ -> set_forwarder msg.PprzLink.name
         | Some PprzLink.Broadcasted, _ -> set_broadcaster msg.PprzLink.name
         | _ -> ())
