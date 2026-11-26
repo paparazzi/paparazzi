@@ -241,6 +241,7 @@ let check_reboot = fun ac_name msg_name values ->
 (** Callback for a message from a registered A/C *)
 let ac_msg = fun messages_xml logging ac_name ac ->
   let module Tele_Pprz = PprzLink.MessagesOfXml(struct let xml = messages_xml let name="telemetry" end) in
+  let module_msgs = Module_msgs.of_xml messages_xml in
   fun ts m ->
     try
       let timestamp = try Some (float_of_string ts) with _ -> None in
@@ -268,7 +269,9 @@ let ac_msg = fun messages_xml logging ac_name ac ->
           Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", PprzLink.String ac_name;"message", PprzLink.String msg];
           prerr_endline msg
       | PprzLink.Unknown_msg_name (x, c) ->
-        fprintf stderr "Unknown message %s in class %s from %s: %s\n%!" x c ac_name m
+        (* the messages of the modules are decoded by link from MODULE_SPECIFIC, which is logged *)
+        if not (Module_msgs.mem module_msgs x) then
+          fprintf stderr "Unknown message %s in class %s from %s: %s\n%!" x c ac_name m
       | x -> prerr_endline (Printexc.to_string x)
 
 let send_fbw = fun a ->
