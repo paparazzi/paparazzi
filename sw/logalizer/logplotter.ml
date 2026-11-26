@@ -692,6 +692,8 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 
   let module M = struct let name = class_name let xml = protocol end in
   let module P = PprzLink.MessagesOfXml(M) in
+  (* messages of the modules, decoded from MODULE_SPECIFIC with the messages.xml of the log *)
+  let module_msgs = Module_msgs.of_xml protocol in
 
   let f =
     try
@@ -718,28 +720,39 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 	      Hashtbl.add acs ac (Hashtbl.create 97, ref []);
 	    let msgs, raw_msgs = Hashtbl.find acs ac in
 
-	    (*Elements of [acs] are assoc lists of [fields] indexed by msg id*)
+	    (*Elements of [acs] are the message and its [fields], indexed by msg name
+	      (the module messages have their own ids) *)
+	    let add_msg = fun (msg:PprzLink.message) vs ->
+	      let msg_name = msg.PprzLink.name in
+	      if not (Hashtbl.mem msgs msg_name) then
+	        Hashtbl.add msgs msg_name (msg, Hashtbl.create 97);
+	      let fields = snd (Hashtbl.find msgs msg_name) in
+
+	      (* Elements of [fields] are values indexed by field name *)
+	      List.iter
+	        (fun (f, value) ->
+		  match value with
+		    PprzLink.Array array ->
+		      Array.iteri
+		        (fun i scalar ->
+			  let f = sprintf "%s[%d]" f i in
+			  Hashtbl.add fields f (t, scalar))
+		        array
+		  | scalar ->
+		      Hashtbl.add fields f (t, scalar))
+	        vs in
+
 	    let msg_id, vs = P.values_of_string m in
-	    if not (Hashtbl.mem msgs msg_id) then
-	      Hashtbl.add msgs msg_id (Hashtbl.create 97);
-	    let fields = Hashtbl.find msgs msg_id in
+	    let msg = P.message_of_id msg_id in
+	    add_msg msg vs;
+	    raw_msgs := (t, msg.PprzLink.name, vs) :: !raw_msgs;
 
-	    (* Elements of [fields] are values indexed by field name *)
-	    List.iter
-	      (fun (f, value) ->
-		match value with
-		  PprzLink.Array array ->
-		    Array.iteri
-		      (fun i scalar ->
-			let f = sprintf "%s[%d]" f i in
-			Hashtbl.add fields f (t, scalar))
-		      array
-		| scalar ->
-		    Hashtbl.add fields f (t, scalar))
-	      vs;
-
-	    let msg_name = (P.message_of_id msg_id).PprzLink.name in
-	    raw_msgs := (t, msg_name, vs) :: !raw_msgs
+	    if msg.PprzLink.name = Module_msgs.carrier then begin
+	      let sender_id = try int_of_string ac with _ -> 0 in
+	      match Module_msgs.decode module_msgs sender_id vs with
+	      | Some (msg, vs) -> add_msg msg vs
+	      | None -> ()
+	    end
 	  )
       with
 	exc ->
@@ -757,7 +770,7 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 
 	  (* First sort by message id *)
 	  let l = ref [] in
-	  Hashtbl.iter (fun msg fields -> l := (P.message_of_id msg, fields):: !l) msgs;
+	  Hashtbl.iter (fun _ (msg, fields) -> l := (msg, fields):: !l) msgs;
 	  let msgs = List.sort (fun (a,_) (b,_) -> compare a b) !l in
 
 	  let msgs =
