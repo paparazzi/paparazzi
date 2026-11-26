@@ -21,6 +21,13 @@
   <init fun="agl_dist_init()"/>
   <periodic fun="agl_dist_timeout()" freq="10"/>
   <periodic fun="agl_dist_report()" freq="2" autorun="FALSE"/>
+  <messages>
+    <downlink>
+      <field name="distance" type="float" unit="m">Last valid distance</field>
+      <field name="filtered" type="float" unit="m">Filtered distance</field>
+      <field name="valid" type="uint8">1 if the last measurement is valid</field>
+    </downlink>
+  </messages>
   <makefile>
     <file name="agl_dist.c"/>
     <test>

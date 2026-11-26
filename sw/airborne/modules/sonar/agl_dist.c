@@ -30,6 +30,7 @@
 #include "modules/core/abi.h"
 #include "generated/airframe.h"
 #include "modules/datalink/downlink.h"
+#include "generated/modules_msgs.h"
 
 float agl_dist_valid;
 float agl_dist_value;
@@ -113,6 +114,6 @@ void agl_dist_timeout(void) {
 
 
 void agl_dist_report(void) {
-  float f[3] = {agl_dist_value, agl_dist_value_filtered, agl_dist_valid};
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 3, f);
+  uint8_t valid = agl_dist_valid;
+  DOWNLINK_SEND_MODULE_MSG_AGL_DIST(DefaultChannel, DefaultDevice, agl_dist_value, agl_dist_value_filtered, valid);
 }

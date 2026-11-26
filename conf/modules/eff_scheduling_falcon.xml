@@ -18,6 +18,16 @@
   <init fun="eff_scheduling_falcon_init()"/>
   <periodic fun="eff_scheduling_falcon_periodic()" freq="20.0"/>
   <periodic fun="eff_scheduling_falcon_report()" freq="0.5" autorun="FALSE"/> <!-- TRUE  FALSE-->
+  <messages>
+    <downlink>
+      <field name="pitch_elevon_left" type="float">Pitch effectiveness of the left elevon</field>
+      <field name="pitch_elevon_right" type="float">Pitch effectiveness of the right elevon</field>
+      <field name="yaw_elevon_left" type="float">Yaw effectiveness of the left elevon</field>
+      <field name="yaw_elevon_right" type="float">Yaw effectiveness of the right elevon</field>
+      <field name="pitch_motor" type="float">Pitch effectiveness of the first motor</field>
+      <field name="yaw_motor" type="float">Yaw effectiveness of the first motor</field>
+    </downlink>
+  </messages>
   <makefile target="ap|nps" firmware="rotorcraft" >
     <file name="eff_scheduling_falcon.c"/>
   </makefile>

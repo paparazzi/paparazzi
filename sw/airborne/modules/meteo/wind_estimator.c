@@ -32,6 +32,7 @@
 #include "generated/modules.h"
 #include "state.h"
 #include "modules/core/abi.h"
+#include "generated/modules_msgs.h"
 #include <string.h>
 #ifndef SITL // no chibios threads in sim
 #if !USE_CHIBIOS_RTOS
@@ -351,21 +352,11 @@ void wind_estimator_periodic(void)
 
     //DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 16, (float *)(&ukf_U));
 
-    float msg[] = {
-      tmp.x,
-      tmp.y,
-      tmp.z,
-      gravity_body.x,
-      gravity_body.y,
-      gravity_body.z,
-      accel_body.x,
-      accel_body.y,
-      accel_body.z,
-      accel_ned.x,
-      accel_ned.y,
-      accel_ned.z
-    };
-    DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 12, msg);
+    float accel_meas[3] = { tmp.x, tmp.y, tmp.z };
+    float gravity[3] = { gravity_body.x, gravity_body.y, gravity_body.z };
+    float accel_b[3] = { accel_body.x, accel_body.y, accel_body.z };
+    float accel_n[3] = { accel_ned.x, accel_ned.y, accel_ned.z };
+    DOWNLINK_SEND_MODULE_MSG_WIND_ESTIMATOR(DefaultChannel, DefaultDevice, accel_meas, gravity, accel_b, accel_n);
 
     // compute DT and set input vector
     if (time_step_before == 0) {

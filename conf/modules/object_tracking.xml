@@ -27,6 +27,14 @@
     <file name="object_tracking.h"/>
   </header>
   <init fun="object_tracking_init()"/>
+  <messages>
+    <downlink>
+      <field name="target_heading" type="float" unit="rad">Expected heading</field>
+      <field name="bearing" type="float" unit="rad">Object bearing</field>
+      <field name="height" type="float">Object height</field>
+      <field name="timeout" type="float" unit="s">Time since the last detection</field>
+    </downlink>
+  </messages>
   <makefile>
     <file name="object_tracking.c"/>
   </makefile>

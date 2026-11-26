@@ -35,6 +35,12 @@
   </header>
   <periodic fun="actuators_sts3032_periodic()" freq="20" autorun="TRUE"/>
   <event fun="actuators_sts3032_event()"/>
+  <messages>
+    <downlink>
+      <field name="nb_failed_checksum" type="uint16">Number of failed checksums</field>
+      <field name="pos" type="uint16[]">Servo positions</field>
+    </downlink>
+  </messages>
   <makefile>
     <configure name="STS3032_UART" case="upper|lower"/>
     <configure name="STS3032_BAUD" default="B1000000"/>

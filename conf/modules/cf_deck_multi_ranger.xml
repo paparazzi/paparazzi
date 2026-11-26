@@ -14,6 +14,15 @@
   <periodic fun="multi_ranger_periodic()" freq="50.0" autorun="TRUE"/>
   <periodic fun="multi_ranger_report()" freq="5.0" autorun="TRUE"/>
   <event fun="multi_ranger_event()"/>
+  <messages>
+    <downlink>
+      <field name="front" type="float" unit="m">Front distance</field>
+      <field name="back" type="float" unit="m">Back distance</field>
+      <field name="right" type="float" unit="m">Right distance</field>
+      <field name="left" type="float" unit="m">Left distance</field>
+      <field name="up" type="float" unit="m">Up distance</field>
+    </downlink>
+  </messages>
   <makefile target="ap">
     <configure name="MULTI_RANGER_I2C_DEV" default="i2c1" case="lower|upper"/>
     <define name="MULTI_RANGER_I2C_DEV" value="$(MULTI_RANGER_I2C_DEV_LOWER)"/>

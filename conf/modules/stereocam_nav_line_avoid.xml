@@ -13,6 +13,11 @@
   <init fun="stereo_avoid_init()"/>
   <periodic fun="stereo_avoid_run()" freq="20" autorun="TRUE"/>
 
+  <messages>
+    <downlink>
+      <field name="stereo_bin" type="uint8[5]">Stereo bins</field>
+    </downlink>
+  </messages>
   <makefile>
     <configure name="STEREO_UART" default="uart1" case="upper|lower"/>
     <configure name="STEREO_BAUD" default="B9600"/>

@@ -10,7 +10,7 @@
       - Temperature in ADC
       - Humidity in micro-seconds (period of the input signal)
 
-      When using SEND_PTU flag, scaled pressure, temperature and humidity data are sent over telemetry with the PAYLOAD_FLOAT message (array of float).
+      When using SEND_PTU flag, scaled pressure, temperature and humidity data are sent over telemetry in the MF_PTU module message.
       If scale factors and offset are not specified, raw values are sent (scale=1.0, offset=0).
 
       When using LOG_PTU flag, raw pressure, temperature and humidity data are stored with raw gps data (position, speed, time, status).
@@ -28,7 +28,7 @@
       <define name="PTU_HUMIDITY_OFFSET" value="0" description="Offset in micro seconds of the humidity sensor"/>
       <define name="PTU_HUMIDITY_SCALE" value="1." description="Scale factor of the pressure sensor"/>
       <define name="LOG_PTU" value="TRUE|FALSE" description="Log data on SD card (ascii format, raw PTU data + GPS data)"/>
-      <define name="SEND_PTU" value="TRU|FALSE" description="Send data over telemetry (PAYLOAD_FLOAT message, scaled PTU data)"/>
+      <define name="SEND_PTU" value="TRU|FALSE" description="Send data over telemetry (MF_PTU module message, scaled PTU data)"/>
     </section>
   </doc>
   <dep>
@@ -39,6 +39,13 @@
   </header>
   <init fun="mf_ptu_init()"/>
   <periodic fun="mf_ptu_periodic()" freq="10" autorun="TRUE"/>
+  <messages>
+    <downlink>
+      <field name="pressure" type="float">Pressure</field>
+      <field name="temperature" type="float">Temperature</field>
+      <field name="humidity" type="float">Humidity</field>
+    </downlink>
+  </messages>
   <makefile target="ap">
     <file name="mf_ptu.c"/>
     <define name="ADC_CHANNEL_PRESSURE" value="$(ADC_PRESSURE)"/>

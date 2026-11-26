@@ -71,6 +71,7 @@ bool log_ptu_started;
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 #include "modules/gps/gps.h"
+#include "generated/modules_msgs.h"
 #endif
 
 void mf_ptu_init(void)
@@ -119,12 +120,10 @@ void mf_ptu_periodic(void)
 
   // Send data
 #if SEND_PTU
-#define PTU_DATA_SIZE 3
-  float ptu_data[PTU_DATA_SIZE];
-  ptu_data[0] = (float)(PTU_PRESSURE_SCALE * ((int16_t)pressure_adc - PTU_PRESSURE_OFFSET));
-  ptu_data[1] = (float)(PTU_TEMPERATURE_SCALE * ((int16_t)temp_adc - PTU_TEMPERATURE_OFFSET));
-  ptu_data[2] = (float)(PTU_HUMIDTY_SCALE * ((int16_t)humid_period - PTU_HUMIDTY_OFFSET));
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, PTU_DATA_SIZE, ptu_data);
+  float pressure = (float)(PTU_PRESSURE_SCALE * ((int16_t)pressure_adc - PTU_PRESSURE_OFFSET));
+  float temperature = (float)(PTU_TEMPERATURE_SCALE * ((int16_t)temp_adc - PTU_TEMPERATURE_OFFSET));
+  float humidity = (float)(PTU_HUMIDTY_SCALE * ((int16_t)humid_period - PTU_HUMIDTY_OFFSET));
+  DOWNLINK_SEND_MODULE_MSG_MF_PTU(DefaultChannel, DefaultDevice, pressure, temperature, humidity);
 #endif
 }
 

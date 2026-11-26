@@ -29,6 +29,7 @@
 #include "uavcan/uavcan.h"
 #include "uavcan.protocol.debug.KeyValue.h"
 #include "modules/datalink/downlink.h"
+#include "generated/modules_msgs.h"
 #ifdef SITL
 #include "generated/flight_plan.h"
 #endif
@@ -73,8 +74,7 @@ void scout_detector_init(void)
 
 void scout_detector_report(void) {
   if(scout_data.snr > 0 || scout_data.lit > 0) {
-    float f[2] = {scout_data.snr, scout_data.lit};
-    DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 2, f);
+    DOWNLINK_SEND_MODULE_MSG_SCOUT_DETECTOR(DefaultChannel, DefaultDevice, scout_data.snr, scout_data.lit);
   }
 }
 

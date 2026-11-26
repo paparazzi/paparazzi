@@ -35,6 +35,7 @@
 #include "generated/airframe.h"
 #include "modules/ahrs/ahrs_magnetic_field_model.h"
 #include "modules/datalink/telemetry.h"
+#include "generated/modules_msgs.h"
 #include "TRICAL.h"
 
 //
@@ -209,7 +210,7 @@ void mag_calib_update_field(uint8_t __attribute__((unused)) sender_id, struct Fl
 
 void mag_calib_send_state(void)
 {
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 12, mag_calib.state);
+  DOWNLINK_SEND_MODULE_MSG_MAG_CALIB_UKF(DefaultChannel, DefaultDevice, &mag_calib.state[0], &mag_calib.state[3]);
 }
 
 void mag_calib_hotstart_read(void)

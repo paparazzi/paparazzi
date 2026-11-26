@@ -49,6 +49,13 @@
   <periodic fun="tag_tracking_propagate()" freq="10.0" start="tag_tracking_propagate_start()" autorun="TRUE"/>
   <periodic fun="tag_tracking_report()" freq="1.0" autorun="TRUE"/>
   <datalink message="TARGET_POS" fun="tag_tracking_parse_target_pos(buf)"/>
+  <messages>
+    <downlink>
+      <field name="tag_id" type="int16">Tag id</field>
+      <field name="state" type="float[6]">Kalman state: x, vx, y, vy, z, vz (NED)</field>
+      <field name="status" type="uint8">Tracking status</field>
+    </downlink>
+  </messages>
   <makefile>
     <file name="tag_tracking.c"/>
     <file name="simple_kinematic_kalman.c" dir="filters"/>

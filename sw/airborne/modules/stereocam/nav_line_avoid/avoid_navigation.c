@@ -48,6 +48,7 @@
 #include "modules/datalink/downlink.h"
 
 #include "led.h"
+#include "generated/modules_msgs.h"
 
 
 struct AvoidNavigationStruct avoid_navigation_data;
@@ -65,7 +66,7 @@ void init_avoid_navigation()
 void run_avoid_navigation_onvision(void)
 {
   // Send ALL vision data to the ground
-  DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 5, avoid_navigation_data.stereo_bin);
+  DOWNLINK_SEND_MODULE_MSG_STEREOCAM_NAV_LINE_AVOID(DefaultChannel, DefaultDevice, avoid_navigation_data.stereo_bin);
 
   switch (avoid_navigation_data.mode) {
     case 0:     // Go to Goal and stop at obstacles

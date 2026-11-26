@@ -29,6 +29,7 @@
 #include "peripherals/vl53l1x_api.h"
 #include "modules/core/abi.h"
 #include "modules/datalink/downlink.h"
+#include "generated/modules_msgs.h"
 
 // By default, do early init to be compatible with the flow_deck
 // Blocking i2c is only possible with ChibiOS
@@ -260,10 +261,11 @@ void multi_ranger_event(void)
 
 void multi_ranger_report(void)
 {
-  float dist_array[MULTI_RANGER_NB];
-  for (int i = 0; i < MULTI_RANGER_NB; i++) {
-    dist_array[i] = multi_ranger.ranger[i].distance;
-  }
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, MULTI_RANGER_NB, dist_array);
+  DOWNLINK_SEND_MODULE_MSG_CF_DECK_MULTI_RANGER(DefaultChannel, DefaultDevice,
+      multi_ranger.ranger[MULTI_RANGER_FRONT].distance,
+      multi_ranger.ranger[MULTI_RANGER_BACK].distance,
+      multi_ranger.ranger[MULTI_RANGER_RIGHT].distance,
+      multi_ranger.ranger[MULTI_RANGER_LEFT].distance,
+      multi_ranger.ranger[MULTI_RANGER_UP].distance);
 }
 
