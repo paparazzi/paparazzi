@@ -7,13 +7,13 @@
       Load cells are received over uavcan (pprz.equipment.loadcell.Measurement) and optionally
       from one ADS1220 connected to an SPI bus of the autopilot (configure WEIGHT_BALANCE_SPI_DEV).
       Each wheel is mapped to a load cell id, from the wheel forces the total mass and the CG
-      position in the body frame are computed. The PAYLOAD_FLOAT telemetry message contains:
-      mass [kg], cg_x [m], cg_y [m], valid, followed by the force [N] and raw reading [counts] of every wheel.
+      position in the body frame are computed and sent in the WEIGHT_BALANCE module message
+      (add it to the telemetry XML of the aircraft).
       Calibrate by setting the offsets with the wheels unloaded (tare) and then placing a known mass
       on each wheel (calibrate), and copy the resulting values to the airframe file.
     </description>
-    <configure name="WEIGHT_BALANCE_SPI_DEV" value="spi6" description="SPI bus of a local ADS1220 (optional)"/>
-    <configure name="WEIGHT_BALANCE_SPI_SLAVE_IDX" value="6" description="SPI slave select of a local ADS1220"/>
+    <configure name="WEIGHT_BALANCE_SPI_DEV" value="spi6" description="SPI bus of a local ADS1220 (optional), spi6 is the external SPI port of the Pixhawk 6X"/>
+    <configure name="WEIGHT_BALANCE_SPI_SLAVE_IDX" value="7" description="SPI slave select of a local ADS1220, 7 is CS1 of the external SPI port of the Pixhawk 6X"/>
     <section name="WEIGHT_BALANCE" prefix="WEIGHT_BALANCE_">
       <define name="NB_WHEELS" value="3" description="Number of wheels with a load cell (max 4)"/>
       <define name="WHEEL_IDS" value="{0, 1, 2}" description="Load cell id per wheel"/>
@@ -59,6 +59,16 @@
   <init fun="weight_balance_init()"/>
   <periodic fun="weight_balance_periodic()" freq="100" autorun="TRUE"/>
   <event fun="weight_balance_event()"/>
+  <messages>
+    <downlink>
+      <field name="mass" type="float" unit="kg"/>
+      <field name="cg_x" type="float" unit="m">CG forward in the body frame</field>
+      <field name="cg_y" type="float" unit="m">CG right in the body frame</field>
+      <field name="valid" type="uint8" values="NO|YES">Every wheel has a recent reading and the total force is above MIN_FORCE</field>
+      <field name="force" type="float[4]" unit="N">Force per wheel, NaN for unused wheels (WEIGHT_BALANCE_MAX_WHEELS)</field>
+      <field name="raw" type="float[4]">Load cell reading per wheel [counts], NaN for unused wheels</field>
+    </downlink>
+  </messages>
   <makefile target="ap">
     <file name="weight_balance.c"/>
 

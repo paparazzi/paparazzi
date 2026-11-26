@@ -235,21 +235,20 @@ static void weight_balance_ads1220_event(void)
  */
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
+#include "generated/modules_msgs.h"
 
 static void weight_balance_send(struct transport_tx *trans, struct link_device *dev)
 {
-  // mass, cg_x, cg_y, valid, then the force and raw reading of every wheel
-  float values[4 + 2 * WEIGHT_BALANCE_MAX_WHEELS];
-  uint8_t nb = 0;
-  values[nb++] = weight_balance.mass;
-  values[nb++] = weight_balance.cg_x;
-  values[nb++] = weight_balance.cg_y;
-  values[nb++] = weight_balance.valid ? 1.f : 0.f;
-  for (uint8_t i = 0; i < weight_balance.nb_wheels; i++) {
-    values[nb++] = weight_balance.wheels[i].force;
-    values[nb++] = weight_balance.wheels[i].raw;
+  // force and raw reading per wheel, NaN for the unused wheels
+  float force[WEIGHT_BALANCE_MAX_WHEELS], raw[WEIGHT_BALANCE_MAX_WHEELS];
+  for (uint8_t i = 0; i < WEIGHT_BALANCE_MAX_WHEELS; i++) {
+    bool used = i < weight_balance.nb_wheels;
+    force[i] = used ? weight_balance.wheels[i].force : NAN;
+    raw[i] = used ? weight_balance.wheels[i].raw : NAN;
   }
-  pprz_msg_send_PAYLOAD_FLOAT(trans, dev, AC_ID, nb, values);
+  uint8_t valid = weight_balance.valid ? 1 : 0;
+  module_msg_send_weight_balance(trans, dev, weight_balance.mass, weight_balance.cg_x, weight_balance.cg_y,
+                                 valid, force, raw);
 }
 #endif
 
@@ -326,7 +325,7 @@ void weight_balance_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PAYLOAD_FLOAT, weight_balance_send);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WEIGHT_BALANCE, weight_balance_send);
 #endif
 
 #if PREFLIGHT_CHECKS

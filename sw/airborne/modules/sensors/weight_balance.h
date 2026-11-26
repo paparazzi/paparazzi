@@ -28,7 +28,7 @@
 
 #include "std.h"
 
-#define WEIGHT_BALANCE_MAX_WHEELS 4
+#define WEIGHT_BALANCE_MAX_WHEELS 4  ///< also the array length of force and raw in the WEIGHT_BALANCE module message
 
 struct weight_balance_wheel_t {
   uint8_t cell_id;          ///< Load cell id (from uavcan or the local ADS1220)
