@@ -280,6 +280,9 @@ Here is an overview of all possible Module XML nodes:
 | | (0 or more) +---------------+-------------------------------------------------------------------------+
 |               | fun           | Name of the function called when a message arrived                      |
 +---------------+---------------+-------------------------------------------------------------------------+
+| | messages    |               | Module specific messages, see `Module specific messages`_               |
+| | (0 or 1)    |               |                                                                         |
++---------------+---------------+-------------------------------------------------------------------------+
 | | makefile    | target        | A list of build targets separated with pipes                            |
 | | (0 or more) |               | (ex: ``<makefile target="tunnel|foo">``)                                |
 |               |               | (default is ``ap|sim|nps``)                                             |
@@ -362,6 +365,90 @@ By convention any variable and function that is defined in a module header, espe
 another module or XML, should be prefixed with the module name or some other unique identifier to help avoid name
 collision.
 
+
+.. _label-module-messages:
+
+Module specific messages
+------------------------
+
+A module can send and receive its own structured data without adding a new pprzlink message, with the generic
+``MODULE_SPECIFIC`` (telemetry) and ``MODULE_SPECIFIC_UP`` (datalink) messages.
+Each module can have one message to the ground and one from the ground, described in the module XML with the same
+fields as a pprzlink message:
+
+.. code-block:: xml
+
+    <messages>
+      <downlink>
+        <field name="position" type="uint16">Raw encoder position</field>
+        <field name="cg" type="float[3]" unit="m"/>
+        <field name="values" type="int16[]"/>
+      </downlink>
+      <uplink fun="foo_parse_uplink">
+        <field name="mass" type="float" unit="kg"/>
+      </uplink>
+    </messages>
+
+- At the top level ``make``, the messages of all the modules are added to ``var/messages.xml``, as the classes
+  ``module_telemetry`` (downlink) and ``module_datalink`` (uplink), with the module name in upper case as message
+  name. The module id, sent in the ``module_id`` field, is the message id: it is assigned automatically, the modules
+  with messages sorted by name from 1. ``var/messages.xml`` is part of the aircraft configuration, so the aircraft MD5
+  changes with the module ids, and a log keeps the ``messages.xml`` it was recorded with.
+- ``make test_modules`` (``tests/modules/test_module_msgs.py``) checks the messages of all the modules,
+  ``sw/tools/generators/gen_module_msgs.py --check`` checks them without building.
+- ``field`` has the attributes of a pprzlink field (``unit``, ``alt_unit``, ``values``, ``format``, ...).
+  The types are ``int8`` to ``uint32``, ``float``, ``double``, ``char``, fixed arrays (``float[3]``) and a variable
+  array (``int16[]``) as last field only.
+- ``data`` holds the fields encoded as a pprzlink payload (a variable array has its length first),
+  ``reserved`` is 0.
+
+The header ``generated/modules_msgs.h`` provides, for a module ``<mod>``:
+
+- ``DOWNLINK_SEND_MODULE_MSG_<MOD>(DefaultChannel, DefaultDevice, ...)`` and
+  ``module_msg_send_<mod>(trans, dev, ...)`` to send the downlink message, with scalars by value, arrays as pointers,
+  and a ``uint8_t nb_<field>`` before a variable array;
+- ``PPRZ_MSG_ID_<MOD>`` to send the downlink message as periodic telemetry, see below;
+- for the uplink message, a packed ``struct module_msg_up_<mod>`` (``nb_<field>`` before a variable array) and the
+  callback ``void fun(const struct module_msg_up_<mod> *msg)`` called when a ``MODULE_SPECIFIC_UP`` for this aircraft
+  and module arrives with a consistent length.
+
+.. code-block:: c
+
+    #include "generated/modules_msgs.h"
+
+    DOWNLINK_SEND_MODULE_MSG_FOO(DefaultChannel, DefaultDevice, position, cg, nb_values, values);
+
+    void foo_parse_uplink(const struct module_msg_up_foo *msg) {
+      foo_mass = msg->mass;
+    }
+
+Like a pprzlink message, the downlink message is usually sent as periodic telemetry: the module registers a callback
+with ``PPRZ_MSG_ID_<MOD>`` and the period is set per telemetry mode in the telemetry XML of the aircraft, with the
+module name in upper case as message name. ``PPRZ_MSG_ID_<MOD>`` is the module id plus 256, so it is different from
+the pprzlink message ids, and a module with messages can't have the name of a pprzlink message.
+
+.. code-block:: c
+
+    #if PERIODIC_TELEMETRY
+    #include "modules/datalink/telemetry.h"
+    static void send_foo(struct transport_tx *trans, struct link_device *dev) {
+      module_msg_send_foo(trans, dev, position, cg, nb_values, values);
+    }
+    #endif
+
+    void foo_init(void) {
+    #if PERIODIC_TELEMETRY
+      register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_FOO, send_foo);
+    #endif
+    }
+
+.. code-block:: xml
+
+    <message name="FOO" period="0.5"/>
+
+On the ground, the Messages tool also shows the decoded messages in the ``module_telemetry`` and
+``module_datalink`` classes, with the message name of the module.
+``sw/lib/python/module_msgs.py`` (``ModuleMsgs``) decodes and encodes them with the pprzlink python lib.
 
 .. _label-module-source-file:
 
