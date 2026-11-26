@@ -169,6 +169,9 @@ bool nps_main_parse_options(int argc, char **argv)
   nps_main.initial_pos_lla[0] = NAN;
   nps_main.initial_pos_lla[1] = NAN;
   nps_main.initial_pos_lla[2] = NAN;
+  nps_main.initial_pos_enu[0] = NAN;
+  nps_main.initial_pos_enu[1] = NAN;
+  nps_main.initial_pos_enu[2] = NAN;
 
   static const char *usage =
     "Usage: %s [options]\n"
@@ -186,6 +189,7 @@ bool nps_main_parse_options(int argc, char **argv)
     "   --time_factor <factor>                 e.g. 2.5\n"
     "   --nodisplay                            e.g. disable NPS ivy messages\n"
     "   --initial_pos_lla <lat> <lon> <hmsl>   e.g. specify initial position in LLA format\n"
+    "   --initial_pos_enu <x> <y> <z>          e.g. specify initial position in ENU format\n"
     "   --fg_fdm";
 
 
@@ -205,9 +209,9 @@ bool nps_main_parse_options(int argc, char **argv)
       {"fg_port_in", 1, NULL, 0},
       {"nodisplay", 0, NULL, 0},
       {"initial_pos_lla", 1, NULL, 0},
+      {"initial_pos_enu", 1, NULL, 0},
       {0, 0, 0, 0}
     };
-    int idx_pos = 0;
     int option_index = 0;
     int c = getopt_long(argc, argv, "jh",
                         long_options, &option_index);
@@ -246,10 +250,23 @@ bool nps_main_parse_options(int argc, char **argv)
             nps_main.nodisplay = true; break;
           case 12:
             optind--;
-            idx_pos=0;
-            for( ;optind < argc && *argv[optind] != '-'; optind++) {
-              nps_main.initial_pos_lla[idx_pos++] = atof(argv[optind]);
+            if (optind + 3 > argc) {
+              fprintf(stderr, "invalid number of args for initial_pos_lla option");
+              exit(EXIT_FAILURE);
             }
+            nps_main.initial_pos_lla[0] = atof(argv[optind++]);
+            nps_main.initial_pos_lla[1] = atof(argv[optind++]);
+            nps_main.initial_pos_lla[2] = atof(argv[optind++]);
+            break;
+          case 13:
+            optind--;
+            if (optind + 3 > argc) {
+              fprintf(stderr, "invalid number of args for initial_pos_enu option");
+              exit(EXIT_FAILURE);
+            }
+            nps_main.initial_pos_enu[0] = atof(argv[optind++]);
+            nps_main.initial_pos_enu[1] = atof(argv[optind++]);
+            nps_main.initial_pos_enu[2] = atof(argv[optind++]);
             break;
           default:
             break;
