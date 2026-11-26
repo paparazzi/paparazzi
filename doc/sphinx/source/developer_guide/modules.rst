@@ -446,8 +446,11 @@ the pprzlink message ids, and a module with messages can't have the name of a pp
 
     <message name="FOO" period="0.5"/>
 
-On the ground, the Messages tool also shows the decoded messages in the ``module_telemetry`` and
-``module_datalink`` classes, with the message name of the module.
+On the ground, ``link`` also sends the decoded downlink message on the Ivy bus, as a message of the
+``module_telemetry`` class with the module name, so it can be shown in the real-time plotter. The logs keep the
+``MODULE_SPECIFIC`` messages, the logplotter decodes them with the ``messages.xml`` of the log. The Messages tool
+shows the decoded messages in the ``module_telemetry`` and ``module_datalink`` classes.
+``MODULE_SPECIFIC_UP`` messages sent on the Ivy bus are forwarded to the aircraft by ``link``.
 ``sw/lib/python/module_msgs.py`` (``ModuleMsgs``) decodes and encodes them with the pprzlink python lib.
 
 .. _label-module-source-file:

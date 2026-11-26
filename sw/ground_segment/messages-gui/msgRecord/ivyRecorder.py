@@ -109,6 +109,9 @@ class IvyRecorder(QObject):
         if isinstance(sender_id,str) and sender_id[:6] == "replay":
             sender_id = sender_id[6:]
         sender_id = int(sender_id)
+        # the module messages decoded by link are decoded here from MODULE_SPECIFIC, with the right sender
+        if msg.msg_class in ('module_telemetry','module_datalink'):
+            return
         self.__logPprzMessage(sender_id,msg)
         
         # also show the module specific messages decoded, as a message of the module_telemetry / module_datalink class
