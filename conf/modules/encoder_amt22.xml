@@ -11,7 +11,7 @@
   </header>
   <init fun="encoder_amt22_init()"/>
   <periodic fun="encoder_amt22_periodic()" freq="50.0" autorun="TRUE"/>
-  <messages id="1">
+  <messages>
     <downlink>
       <field name="position" type="uint16">Position in the turn (raw encoder value)</field>
       <field name="turns" type="int16">Number of turns</field>

@@ -24,7 +24,7 @@ Module specific messages (MODULE_SPECIFIC / MODULE_SPECIFIC_UP).
 A module can declare one message to the ground and one from the ground in its XML file,
 with the same fields as a pprzlink message:
 
-    <messages id="1">
+    <messages>
       <downlink>
         <field name="position" type="uint16"/>
         <field name="cg" type="float[3]" unit="m"/>
@@ -34,21 +34,24 @@ with the same fields as a pprzlink message:
       </uplink>
     </messages>
 
-`messages@id` is the static unique id of the module, sent in the `module_id` field.
-The `data` field holds the fields encoded as a pprzlink payload (little endian, a uint8 length
-before a variable array), so they are decoded with the pprzlink parser: the module messages are
-added in memory (not in messages.xml) to the pprzlink python lib as the classes `module_telemetry`
-and `module_datalink`, the message name is the module name and the message id the module id.
+At the top level make, the messages of all the modules are added to var/messages.xml, as the
+classes `module_telemetry` and `module_datalink`: the message name is the module name (upper case),
+and the message id is the module id, assigned automatically (modules sorted by name). It is sent
+in the `module_id` field of MODULE_SPECIFIC / MODULE_SPECIFIC_UP. As var/messages.xml is part of
+the aircraft configuration, the aircraft MD5 changes when an id changes, and logs keep the
+messages.xml they were recorded with.
 
-This file is used to generate the airborne header (sw/tools/generators/gen_module_msgs.py),
-to check that the module ids are unique, and to decode the messages on the ground.
+The `data` field holds the fields encoded as a pprzlink payload (little endian, a uint8 length
+before a variable array), so they are decoded with the pprzlink parser.
+
+This file is used to generate messages.xml and the airborne header (sw/tools/generators/gen_module_msgs.py),
+and to decode the messages on the ground.
 """
 
 import glob
 import os
 import re
 import sys
-import tempfile
 from xml.etree import ElementTree
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../..')))
@@ -74,7 +77,8 @@ PPRZ_CLASSES = {'downlink': ('module_telemetry', 'MODULE_SPECIFIC'),
 # Max size of the data array: a pprzlink v2 frame is at most 255 bytes,
 # the MODULE_SPECIFIC_UP header (ac_id, module_id, reserved, data length) takes 6 of them
 MAX_DATA = 240
-MODULE_ID_MAX = 0xFFFF
+# message ids of a pprzlink class are a uint8 in messages.xml (pprz_schema.xsd)
+MODULE_ID_MAX = 255
 FIELD_ATTRIBS = ('name', 'type', 'unit', 'alt_unit', 'alt_unit_coef', 'values', 'format')
 
 
@@ -138,9 +142,9 @@ class ModuleMsg(object):
 
 
 class Module(object):
-    def __init__(self, name, module_id, filename):
+    def __init__(self, name, filename):
         self.name = name
-        self.id = module_id
+        self.id = None  # assigned by assign_ids()
         self.filename = filename
         self.downlink = None
         self.uplink = None
@@ -162,16 +166,12 @@ def parse_module(filename):
     if node is None:
         return None
     try:
-        try:
-            module_id = int(node.get('id'), 0)
-        except (TypeError, ValueError):
-            raise ModuleMsgsError("invalid module id '%s'" % node.get('id'))
-        if not 0 < module_id <= MODULE_ID_MAX:
-            raise ModuleMsgsError("module id %d out of range [1, %d]" % (module_id, MODULE_ID_MAX))
+        if node.get('id') is not None:
+            raise ModuleMsgsError("the module id is assigned automatically, remove messages@id")
         name = root.get('name')
         if not re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', name or ''):
             raise ModuleMsgsError("module name '%s' can't be used in C names" % name)
-        module = Module(name, module_id, filename)
+        module = Module(name, filename)
         for direction in DIRECTIONS:
             nodes = node.findall(direction)
             if not nodes:
@@ -199,17 +199,54 @@ def parse_module(filename):
     return module
 
 
-def check_unique_ids(modules):
-    """ Raise ModuleMsgsError if two modules use the same id """
-    ids = {}
+def assign_ids(modules):
+    """
+    Assign the module ids: modules sorted by name, from 1.
+    Raise ModuleMsgsError if two modules have the same name (case insensitive) or if there are too many
+    """
+    by_name = {}
     errors = []
     for m in modules:
-        if m.id in ids and ids[m.id].name != m.name:
-            errors.append("module id %d used by '%s' (%s) and '%s' (%s)"
-                          % (m.id, ids[m.id].name, ids[m.id].filename, m.name, m.filename))
-        ids.setdefault(m.id, m)
+        key = m.name.upper()
+        if key in by_name:
+            errors.append("module '%s' (%s) and '%s' (%s) declare messages with the same name"
+                          % (by_name[key].name, by_name[key].filename, m.name, m.filename))
+        by_name[key] = m
     if errors:
         raise ModuleMsgsError("\n".join(errors))
+    if len(by_name) > MODULE_ID_MAX:
+        raise ModuleMsgsError("%d modules with messages, max is %d" % (len(by_name), MODULE_ID_MAX))
+    for i, key in enumerate(sorted(by_name)):
+        by_name[key].id = i + 1
+    return sorted(modules, key=lambda m: m.id)
+
+
+def read_ids(messages_file):
+    """ The module ids from a messages.xml file: dict module name (upper case) -> id """
+    try:
+        root = ElementTree.parse(messages_file).getroot()
+    except (IOError, ElementTree.ParseError) as e:
+        raise ModuleMsgsError("can't read %s: %s" % (messages_file, e))
+    ids = {}
+    for direction in DIRECTIONS:
+        cls = root.find("msg_class[@name='%s']" % PPRZ_CLASSES[direction][0])
+        if cls is None:
+            continue
+        for msg in cls.findall('message'):
+            ids[msg.get('name')] = int(msg.get('id'))
+    return ids
+
+
+def set_ids(modules, messages_file):
+    """ Set the module ids from a messages.xml file (generated by the top level make) """
+    ids = read_ids(messages_file)
+    missing = [m.name for m in modules if m.name.upper() not in ids]
+    if missing:
+        raise ModuleMsgsError("module(s) %s not in %s, run 'make' at the top level to update it"
+                              % (", ".join(missing), messages_file))
+    for m in modules:
+        m.id = ids[m.name.upper()]
+    return modules
 
 
 def module_xml_files(paths=None):
@@ -235,12 +272,12 @@ def load_modules(files=None):
     return modules
 
 
-def pprzlink_xml(modules, class_ids):
-    """ The module messages as pprzlink message classes (XML string) """
-    protocol = ElementTree.Element('protocol')
+def pprzlink_classes(modules, class_ids):
+    """ The module messages as pprzlink message classes, XML elements """
+    classes = []
     for direction in DIRECTIONS:
         cls_name = PPRZ_CLASSES[direction][0]
-        cls = ElementTree.SubElement(protocol, 'msg_class', name=cls_name, id=str(class_ids[cls_name]))
+        cls = ElementTree.Element('msg_class', name=cls_name, id=str(class_ids[cls_name]))
         for module in modules:
             msg = getattr(module, direction)
             if msg is None:
@@ -248,42 +285,69 @@ def pprzlink_xml(modules, class_ids):
             m = ElementTree.SubElement(cls, 'message', name=module.name.upper(), id=str(module.id))
             for f in msg.fields:
                 attribs = dict((a, f.xml.get(a)) for a in FIELD_ATTRIBS if f.xml.get(a) is not None)
-                ElementTree.SubElement(m, 'field', attribs).text = f.xml.text
-    return ElementTree.tostring(protocol, encoding='unicode')
+                field = ElementTree.SubElement(m, 'field', attribs)
+                if f.xml.text and f.xml.text.strip():
+                    field.text = f.xml.text.strip()
+        classes.append(cls)
+    return classes
+
+
+def merge_messages(base_file, modules):
+    """
+    The text of base_file (a pprzlink messages.xml) with the module messages classes added at the end,
+    the module ids must be assigned. The base file is kept as is, with its comments.
+    """
+    with open(base_file) as f:
+        text = f.read()
+    try:
+        root = ElementTree.fromstring(text.encode())
+    except ElementTree.ParseError as e:
+        raise ModuleMsgsError("%s: %s" % (base_file, e))
+    names = [c.get('name') for c in root.findall('msg_class')]
+    for direction in DIRECTIONS:
+        if PPRZ_CLASSES[direction][0] in names:
+            raise ModuleMsgsError("%s already has a %s class" % (base_file, PPRZ_CLASSES[direction][0]))
+    next_id = max([int(c.get('id')) for c in root.findall('msg_class')] + [0]) + 1
+    class_ids = {}
+    for direction in DIRECTIONS:
+        class_ids[PPRZ_CLASSES[direction][0]] = next_id
+        next_id += 1
+    end = text.rfind('</protocol>')
+    if end < 0:
+        raise ModuleMsgsError("%s: no </protocol>" % base_file)
+    out = " <!-- module specific messages, added from the module XML files by gen_module_msgs.py,\n"
+    out += "      carried by MODULE_SPECIFIC (module_telemetry) and MODULE_SPECIFIC_UP (module_datalink) -->\n"
+    for cls in pprzlink_classes(modules, class_ids):
+        if len(cls) == 0:
+            continue  # a class needs at least one message (messages.dtd)
+        ElementTree.indent(cls, space="  ", level=1)
+        out += " " + ElementTree.tostring(cls, encoding='unicode').rstrip() + "\n\n"
+    return text[:end] + out + text[end:]
 
 
 class ModuleMsgs(object):
     """
     Decode MODULE_SPECIFIC (telemetry) and MODULE_SPECIFIC_UP (datalink) pprzlink messages
     into messages of the classes module_telemetry / module_datalink, with the pprzlink python lib
+    (from var/messages.xml, or the messages_file given, e.g. the one of a log)
     """
 
-    def __init__(self, files=None):
-        self.modules = load_modules(files)
-        check_unique_ids(self.modules)
-        self.by_id = dict((m.id, m) for m in self.modules)
-        self.by_name = dict((m.name, m) for m in self.modules)
-        self._register()
-
-    def _register(self):
-        """ add the module messages to the pprzlink python lib (in memory) """
+    def __init__(self, messages_file=None):
         if PPRZ_HOME + "/var/lib/python" not in sys.path:
             sys.path.append(PPRZ_HOME + "/var/lib/python")
         from pprzlink import messages_xml_map
-        messages_xml_map._ensure_message_dictionary()  # the pprzlink messages first
-        self.class_ids = {}
-        next_id = max(messages_xml_map.message_dictionary_class_id_name) + 1
+        if messages_file is not None:
+            messages_xml_map.parse_messages(messages_file)
+        else:
+            messages_xml_map._ensure_message_dictionary()
+        self.id_name = {}
+        self.name_id = {}
         for direction in DIRECTIONS:
-            name = PPRZ_CLASSES[direction][0]
-            self.class_ids[name] = messages_xml_map.message_dictionary_class_name_id.get(name, next_id)
-            next_id = max(next_id, self.class_ids[name] + 1)
-        # parse_messages needs a file
-        with tempfile.NamedTemporaryFile('w', suffix='.xml', delete=False) as f:
-            f.write(pprzlink_xml(self.modules, self.class_ids))
-        try:
-            messages_xml_map.parse_messages(f.name)
-        finally:
-            os.remove(f.name)
+            cls = PPRZ_CLASSES[direction][0]
+            self.id_name[direction] = dict(messages_xml_map.message_dictionary_id_name.get(cls, {}))
+            self.name_id[direction] = dict(messages_xml_map.message_dictionary_name_id.get(cls, {}))
+        if not any(self.id_name.values()):
+            raise ModuleMsgsError("no module messages in messages.xml")
 
     def decode(self, pprz_msg):
         """
@@ -294,18 +358,18 @@ class ModuleMsgs(object):
         if pprz_msg.name not in ('MODULE_SPECIFIC', 'MODULE_SPECIFIC_UP'):
             return None
         direction = 'uplink' if pprz_msg.name == 'MODULE_SPECIFIC_UP' else 'downlink'
-        module = self.by_id.get(int(pprz_msg['module_id']))
-        if module is None or getattr(module, direction) is None:
+        name = self.id_name[direction].get(int(pprz_msg['module_id']))
+        if name is None:
             return None
         data = pprz_msg['data']
         if isinstance(data, str):
             data = data.split(',')
         data = bytes(int(x) for x in data if str(x).strip() != '')
-        msg = PprzMessage(PPRZ_CLASSES[direction][0], module.name.upper())
+        msg = PprzMessage(PPRZ_CLASSES[direction][0], name)
         try:
             msg.binary_to_payload(data)
         except Exception as e:
-            raise ModuleMsgsError("%s %s: can't decode %s (%s)" % (module.name, direction, data.hex(), e))
+            raise ModuleMsgsError("%s %s: can't decode %s (%s)" % (name, direction, data.hex(), e))
         return msg
 
     def encode(self, module_name, values, ac_id=None):
@@ -314,12 +378,12 @@ class ModuleMsgs(object):
         returns a MODULE_SPECIFIC_UP (or MODULE_SPECIFIC) PprzMessage
         """
         from pprzlink.message import PprzMessage
-        module = self.by_name[module_name]
         direction = 'downlink' if ac_id is None else 'uplink'
-        if getattr(module, direction) is None:
+        name = module_name.upper()
+        if name not in self.name_id[direction]:
             raise ModuleMsgsError("module %s has no %s message" % (module_name, direction))
         cls, carrier = PPRZ_CLASSES[direction]
-        inner = PprzMessage(cls, module.name.upper())
+        inner = PprzMessage(cls, name)
         inner.set_values([values[f] for f in inner.fieldnames])
         data = inner.payload_to_binary()
         if len(data) > MAX_DATA:
@@ -327,7 +391,7 @@ class ModuleMsgs(object):
         msg = PprzMessage('telemetry' if ac_id is None else 'datalink', carrier)
         if ac_id is not None:
             msg['ac_id'] = ac_id
-        msg['module_id'] = module.id
+        msg['module_id'] = self.name_id[direction][name]
         msg['reserved'] = 0
         msg['data'] = list(data)
         return msg

@@ -280,8 +280,8 @@ Here is an overview of all possible Module XML nodes:
 | | (0 or more) +---------------+-------------------------------------------------------------------------+
 |               | fun           | Name of the function called when a message arrived                      |
 +---------------+---------------+-------------------------------------------------------------------------+
-| | messages    | id            | Static unique module id for the module specific messages, see           |
-| | (0 or 1)    |               | `Module specific messages`_                                             |
+| | messages    |               | Module specific messages, see `Module specific messages`_               |
+| | (0 or 1)    |               |                                                                         |
 +---------------+---------------+-------------------------------------------------------------------------+
 | | makefile    | target        | A list of build targets separated with pipes                            |
 | | (0 or more) |               | (ex: ``<makefile target="tunnel|foo">``)                                |
@@ -378,7 +378,7 @@ fields as a pprzlink message:
 
 .. code-block:: xml
 
-    <messages id="1">
+    <messages>
       <downlink>
         <field name="position" type="uint16">Raw encoder position</field>
         <field name="cg" type="float[3]" unit="m"/>
@@ -389,10 +389,13 @@ fields as a pprzlink message:
       </uplink>
     </messages>
 
-- ``messages@id`` is the static unique id of the module (1 to 65535), sent in the ``module_id`` field. It must be
-  unique among all modules, which is checked at build time for the loaded modules and by ``make test_modules``
-  (``tests/modules/test_module_msgs.py``) for all modules. ``sw/tools/generators/gen_module_msgs.py --check`` checks
-  all the modules.
+- At the top level ``make``, the messages of all the modules are added to ``var/messages.xml``, as the classes
+  ``module_telemetry`` (downlink) and ``module_datalink`` (uplink), with the module name in upper case as message
+  name. The module id, sent in the ``module_id`` field, is the message id: it is assigned automatically, the modules
+  with messages sorted by name from 1. ``var/messages.xml`` is part of the aircraft configuration, so the aircraft MD5
+  changes with the module ids, and a log keeps the ``messages.xml`` it was recorded with.
+- ``make test_modules`` (``tests/modules/test_module_msgs.py``) checks the messages of all the modules,
+  ``sw/tools/generators/gen_module_msgs.py --check`` checks them without building.
 - ``field`` has the attributes of a pprzlink field (``unit``, ``alt_unit``, ``values``, ``format``, ...).
   The types are ``int8`` to ``uint32``, ``float``, ``double``, ``char``, fixed arrays (``float[3]``) and a variable
   array (``int16[]``) as last field only.
@@ -420,8 +423,7 @@ The header ``generated/modules_msgs.h`` provides, for a module ``<mod>``:
 
 On the ground, the Messages tool also shows the decoded messages in the ``module_telemetry`` and
 ``module_datalink`` classes, with the message name of the module.
-``sw/lib/python/module_msgs.py`` adds the module messages to the pprzlink python lib (in memory, not in
-``messages.xml``) to decode and encode them.
+``sw/lib/python/module_msgs.py`` (``ModuleMsgs``) decodes and encodes them with the pprzlink python lib.
 
 .. _label-module-source-file:
 

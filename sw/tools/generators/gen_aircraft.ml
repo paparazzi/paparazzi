@@ -372,15 +372,18 @@ let () =
       [ abs_modules_h, List.map (fun m -> m.Module.xml_filename) loaded_modules ];
     Printf.printf " done\n%!";
 
-    (* module specific messages header, also checks that the module ids are unique
+    (* module specific messages header, with the module ids from var/messages.xml
      * always called since the list of modules can change, the file is only written if changed *)
     Printf.printf "Dumping modules messages header...%!";
     let abs_modules_msgs_h = aircraft_gen_dir // modules_msgs_h in
     let msgs_files = List.map (fun m -> m.Module.xml_filename)
         (List.filter Module.has_messages loaded_modules) in
     let gen_msgs = Env.paparazzi_src // "sw" // "tools" // "generators" // "gen_module_msgs.py" in
-    let cmd = sprintf "python3 %s -o %s %s" (Filename.quote gen_msgs)
-        (Filename.quote abs_modules_msgs_h) (String.concat " " (List.map Filename.quote msgs_files)) in
+    (* var/messages.xml, also in the aircraft configuration, so the aircraft MD5 covers the module ids *)
+    let messages_xml = Env.paparazzi_home // "var" // "messages.xml" in
+    let cmd = sprintf "python3 %s --messages %s -o %s %s" (Filename.quote gen_msgs)
+        (Filename.quote messages_xml) (Filename.quote abs_modules_msgs_h)
+        (String.concat " " (List.map Filename.quote msgs_files)) in
     if Sys.command cmd <> 0 then failwith "Error while generating the modules messages header";
     Printf.printf " done\n%!";
     

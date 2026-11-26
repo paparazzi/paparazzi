@@ -69,10 +69,9 @@ class CDATA #IMPLIED
 cond CDATA #IMPLIED>
 
 <!-- module specific messages: one message to the ground (MODULE_SPECIFIC) and one from the ground
-     (MODULE_SPECIFIC_UP), see sw/lib/python/module_msgs.py
-     id: static unique module id (1-65535) -->
-<!ATTLIST messages
-id CDATA #REQUIRED>
+     (MODULE_SPECIFIC_UP), added to var/messages.xml with an automatic module id,
+     see sw/lib/python/module_msgs.py -->
+<!ATTLIST messages>
 
 <!ATTLIST downlink>
 

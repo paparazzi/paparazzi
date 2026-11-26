@@ -20,12 +20,14 @@
 #
 
 """
-Generate the airborne header for the module specific messages (MODULE_SPECIFIC / MODULE_SPECIFIC_UP)
-of the modules loaded in an aircraft, see sw/lib/python/module_msgs.py.
+Module specific messages (MODULE_SPECIFIC / MODULE_SPECIFIC_UP), see sw/lib/python/module_msgs.py.
 
-  gen_module_msgs.py -o modules_msgs.h module1.xml module2.xml ...   generate the header
-  gen_module_msgs.py --check [module.xml ...]                        check that module ids are unique
-                                                                      (all modules if no file given)
+  gen_module_msgs.py --merge base_messages.xml -o messages.xml
+      add the messages of all the modules to a pprzlink messages.xml, with the module ids (top level make)
+  gen_module_msgs.py --messages var/messages.xml -o modules_msgs.h module1.xml module2.xml ...
+      generate the airborne header for the modules loaded in an aircraft, with the ids from messages.xml
+  gen_module_msgs.py --check
+      check the messages of all the modules
 """
 
 import argparse
@@ -172,39 +174,51 @@ def gen_header(modules):
     return out
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Generate the module specific messages header")
-    parser.add_argument('-o', '--output', help="output header file")
-    parser.add_argument('--check', action='store_true',
-                        help="only check the module XML files (all modules if no file given)")
-    parser.add_argument('files', nargs='*', help="module XML files")
-    args = parser.parse_args()
-
+def write_if_changed(filename, text):
+    """ only write if changed, to avoid rebuilds """
     try:
-        files = args.files
-        if args.check and not files:
-            files = mm.module_xml_files()
-        modules = mm.load_modules(files)
-        mm.check_unique_ids(modules)
-    except mm.ModuleMsgsError as e:
-        print("Module messages error: %s" % e, file=sys.stderr)
-        sys.exit(1)
-
-    if args.check:
-        print("%d modules with messages, ids are unique" % len(modules))
-        return
-    if args.output is None:
-        parser.error("an output file is needed")
-    header = gen_header(modules)
-    # only write if changed, to avoid rebuilds
-    try:
-        with open(args.output) as f:
-            if f.read() == header:
+        with open(filename) as f:
+            if f.read() == text:
                 return
     except IOError:
         pass
-    with open(args.output, 'w') as f:
-        f.write(header)
+    d = os.path.dirname(filename)
+    if d and not os.path.isdir(d):
+        os.makedirs(d)
+    with open(filename, 'w') as f:
+        f.write(text)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Module specific messages generator")
+    parser.add_argument('-o', '--output', help="output file (messages.xml with --merge, header otherwise)")
+    parser.add_argument('--merge', metavar='BASE_XML',
+                        help="add the messages of all the modules to this pprzlink messages.xml")
+    parser.add_argument('--messages', metavar='MESSAGES_XML',
+                        default=os.path.join(mm.PPRZ_HOME, 'var', 'messages.xml'),
+                        help="messages.xml with the module ids, for the header (default: %(default)s)")
+    parser.add_argument('--check', action='store_true', help="only check the messages of all the modules")
+    parser.add_argument('files', nargs='*', help="module XML files of the aircraft, for the header")
+    args = parser.parse_args()
+
+    try:
+        if args.check or args.merge:
+            # all the modules, the ids depend on all of them
+            modules = mm.assign_ids(mm.load_modules())
+            if args.check:
+                print("%d modules with messages" % len(modules))
+                return
+            if args.output is None:
+                parser.error("an output file is needed")
+            write_if_changed(args.output, mm.merge_messages(args.merge, modules))
+        else:
+            if args.output is None:
+                parser.error("an output file is needed")
+            modules = mm.set_ids(mm.load_modules(args.files), args.messages)
+            write_if_changed(args.output, gen_header(sorted(modules, key=lambda m: m.id)))
+    except mm.ModuleMsgsError as e:
+        print("Module messages error: %s" % e, file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == '__main__':
