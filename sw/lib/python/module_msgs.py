@@ -79,6 +79,8 @@ PPRZ_CLASSES = {'downlink': ('module_telemetry', 'MODULE_SPECIFIC'),
 MAX_DATA = 240
 # message ids of a pprzlink class are a uint8 in messages.xml (pprz_schema.xsd)
 MODULE_ID_MAX = 255
+# PPRZ_MSG_ID_<MOD> = offset + module id for the periodic telemetry, after the pprzlink message ids (uint8)
+PERIODIC_ID_OFFSET = 256
 FIELD_ATTRIBS = ('name', 'type', 'unit', 'alt_unit', 'alt_unit_coef', 'values', 'format')
 
 
@@ -304,6 +306,12 @@ def merge_messages(base_file, modules):
     except ElementTree.ParseError as e:
         raise ModuleMsgsError("%s: %s" % (base_file, e))
     names = [c.get('name') for c in root.findall('msg_class')]
+    # PPRZ_MSG_ID_<NAME> is used by pprzlink and the module messages, so the names must be different
+    pprz_names = set(m.get('name') for m in root.iter('message'))
+    clash = sorted(m.name for m in modules if m.name.upper() in pprz_names)
+    if clash:
+        raise ModuleMsgsError("module(s) %s: name already used by a pprzlink message in %s"
+                              % (", ".join(clash), base_file))
     for direction in DIRECTIONS:
         if PPRZ_CLASSES[direction][0] in names:
             raise ModuleMsgsError("%s already has a %s class" % (base_file, PPRZ_CLASSES[direction][0]))

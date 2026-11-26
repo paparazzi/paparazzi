@@ -64,6 +64,8 @@ def gen_downlink(msg):
     buf_size = "MODULE_MSGS_MAX_DATA" if msg.var_field else "%s_SIZE" % p
     out = "\n/* %s downlink (MODULE_SPECIFIC) */\n" % m.name
     out += "#define %s_SIZE %d\n" % (p, msg.fixed_size)
+    out += "/** id for register_periodic_telemetry(), message %s in the telemetry XML */\n" % upper(m)
+    out += "#define PPRZ_MSG_ID_%s (MODULE_MSGS_PERIODIC_ID_OFFSET + %s)\n" % (upper(m), module_id_name(m))
     out += "#if DOWNLINK\n"
     out += "static inline void %s(struct transport_tx *trans, struct link_device *dev%s)\n{\n" % (fname, params)
     out += "  uint8_t _data[%s > 0 ? %s : 1];\n" % (buf_size, buf_size)
@@ -160,6 +162,8 @@ def gen_header(modules):
     out += "#include \"pprzlink/dl_protocol.h\"\n\n"
     out += "/** Max size of the data of a module message */\n"
     out += "#define MODULE_MSGS_MAX_DATA %d\n\n" % mm.MAX_DATA
+    out += "/** Offset of the periodic telemetry ids of the module messages, after the pprzlink ones */\n"
+    out += "#define MODULE_MSGS_PERIODIC_ID_OFFSET %d\n\n" % mm.PERIODIC_ID_OFFSET
     for module in modules:
         out += "#define %s %d\n" % (module_id_name(module), module.id)
     for module in modules:

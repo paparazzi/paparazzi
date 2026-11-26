@@ -407,6 +407,7 @@ The header ``generated/modules_msgs.h`` provides, for a module ``<mod>``:
 - ``DOWNLINK_SEND_MODULE_MSG_<MOD>(DefaultChannel, DefaultDevice, ...)`` and
   ``module_msg_send_<mod>(trans, dev, ...)`` to send the downlink message, with scalars by value, arrays as pointers,
   and a ``uint8_t nb_<field>`` before a variable array;
+- ``PPRZ_MSG_ID_<MOD>`` to send the downlink message as periodic telemetry, see below;
 - for the uplink message, a packed ``struct module_msg_up_<mod>`` (``nb_<field>`` before a variable array) and the
   callback ``void fun(const struct module_msg_up_<mod> *msg)`` called when a ``MODULE_SPECIFIC_UP`` for this aircraft
   and module arrives with a consistent length.
@@ -420,6 +421,30 @@ The header ``generated/modules_msgs.h`` provides, for a module ``<mod>``:
     void foo_parse_uplink(const struct module_msg_up_foo *msg) {
       foo_mass = msg->mass;
     }
+
+Like a pprzlink message, the downlink message is usually sent as periodic telemetry: the module registers a callback
+with ``PPRZ_MSG_ID_<MOD>`` and the period is set per telemetry mode in the telemetry XML of the aircraft, with the
+module name in upper case as message name. ``PPRZ_MSG_ID_<MOD>`` is the module id plus 256, so it is different from
+the pprzlink message ids, and a module with messages can't have the name of a pprzlink message.
+
+.. code-block:: c
+
+    #if PERIODIC_TELEMETRY
+    #include "modules/datalink/telemetry.h"
+    static void send_foo(struct transport_tx *trans, struct link_device *dev) {
+      module_msg_send_foo(trans, dev, position, cg, nb_values, values);
+    }
+    #endif
+
+    void foo_init(void) {
+    #if PERIODIC_TELEMETRY
+      register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_FOO, send_foo);
+    #endif
+    }
+
+.. code-block:: xml
+
+    <message name="FOO" period="0.5"/>
 
 On the ground, the Messages tool also shows the decoded messages in the ``module_telemetry`` and
 ``module_datalink`` classes, with the message name of the module.
