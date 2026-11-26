@@ -201,6 +201,16 @@ let print_persistent_settings = fun out settings settings_xml ->
   left();
   lprintf out "};\n\n";
   lprintf out "extern struct PersistentSettings pers_settings;\n\n";
+  (* 32 bit FNV-1a hash of the persistent settings list (type and variable of
+   * each setting, in order), so stored settings from a firmware with another
+   * list are not loaded into the wrong variables *)
+  let layout = String.concat "" (List.map (fun s ->
+      let t = try ExtXml.attrib s "type" with _ -> "float" in
+      sprintf "%s %s;" t (ExtXml.attrib s "var")) pers_settings) in
+  let hash = ref 0x811c9dc5 in
+  String.iter (fun c ->
+      hash := ((!hash lxor (Char.code c)) * 0x01000193) land 0xffffffff) layout;
+  lprintf out "#define PERSISTENT_SETTINGS_HASH 0x%08xUL\n\n" !hash;
   (*  Inline function to store persistent settings *)
   idx := 0;
   lprintf out "static inline void persistent_settings_store( void ) {\n";
