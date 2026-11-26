@@ -97,6 +97,10 @@ XSENS_XML = $(CONF)/xsens_MTi-G.xml
 PPRZLINK_DIR=sw/ext/pprzlink
 PPRZLINK_INSTALL=$(PAPARAZZI_HOME)/var/lib
 MESSAGES_INSTALL=$(PAPARAZZI_HOME)/var
+DEFAULT_MESSAGES_XML=$(PPRZLINK_DIR)/message_definitions/v1.0/messages.xml
+# pprzlink messages with the module messages, installed as var/messages.xml
+MODULES_MESSAGES_XML=$(PAPARAZZI_HOME)/var/build/messages/messages.xml
+MODULE_MSGS_GEN=PAPARAZZI_HOME=$(PAPARAZZI_HOME) python3 $(PAPARAZZI_SRC)/sw/tools/generators/gen_module_msgs.py
 UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
 MTK_PROTOCOL_H=$(STATICINCLUDE)/mtk_protocol.h
 XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
@@ -194,15 +198,18 @@ $(LOGALIZER): libpprz
 
 static_h: pprzlink_protocol $(GEN_HEADERS)
 
+# the messages of the modules (module_telemetry and module_datalink classes) are added to the pprzlink messages
 pprzlink_protocol : libpprz
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	$(Q)test -d $(STATICLIB) || mkdir -p $(STATICLIB)
 ifeq ("$(wildcard $(CUSTOM_MESSAGES_XML))","")
-	@echo GENERATE $@ with default messages
-	$(Q)Q=$(Q) MESSAGES_INSTALL=$(MESSAGES_INSTALL) VALIDATE_XML=FALSE PPRZLINK_LIB_VERSION=${PPRZLINK_LIB_VERSION} $(MAKE) -C $(PPRZLINK_DIR) pymessages
+	@echo GENERATE $@ with default messages and module messages
+	$(Q)$(MODULE_MSGS_GEN) --merge $(DEFAULT_MESSAGES_XML) -o $(MODULES_MESSAGES_XML)
+	$(Q)Q=$(Q) MESSAGES_XML=$(MODULES_MESSAGES_XML) MESSAGES_INSTALL=$(MESSAGES_INSTALL) VALIDATE_XML=FALSE PPRZLINK_LIB_VERSION=${PPRZLINK_LIB_VERSION} $(MAKE) -C $(PPRZLINK_DIR) pymessages
 else
-	@echo GENERATE $@ with custome messages from $(CUSTOM_MESSAGES_XML)
-	$(Q)Q=$(Q) MESSAGES_XML=$(CUSTOM_MESSAGES_XML) MESSAGES_INSTALL=$(MESSAGES_INSTALL) PPRZLINK_LIB_VERSION=${PPRZLINK_LIB_VERSION} $(MAKE) -C $(PPRZLINK_DIR) pymessages
+	@echo GENERATE $@ with custome messages from $(CUSTOM_MESSAGES_XML) and module messages
+	$(Q)$(MODULE_MSGS_GEN) --merge $(CUSTOM_MESSAGES_XML) -o $(MODULES_MESSAGES_XML)
+	$(Q)Q=$(Q) MESSAGES_XML=$(MODULES_MESSAGES_XML) MESSAGES_INSTALL=$(MESSAGES_INSTALL) PPRZLINK_LIB_VERSION=${PPRZLINK_LIB_VERSION} $(MAKE) -C $(PPRZLINK_DIR) pymessages
 endif
 
 
@@ -341,6 +348,7 @@ test_examples: all
 
 # test compilation of modules
 test_modules: all
+	prove -v tests/modules/test_module_msgs.py
 	prove -v tests/modules/test_modules.py
 
 # start every Paparazzi Center tool (conf/tools) with --help

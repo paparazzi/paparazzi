@@ -25,7 +25,7 @@
 
 #include "modules/sensors/encoder_amt22.h"
 #include "peripherals/amt22.h"
-#include "modules/datalink/downlink.h"
+#include "generated/modules_msgs.h"
 
 static amt22_t amt22;
 static amt22_config_t amt22_conf = {
@@ -34,14 +34,26 @@ static amt22_config_t amt22_conf = {
   .type = AMT22_12_SINGLE,
 };
 
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+
+/* ENCODER_AMT22 module message, its period is set in the telemetry XML */
+static void send_encoder_amt22(struct transport_tx *trans, struct link_device *dev)
+{
+  module_msg_send_encoder_amt22(trans, dev, amt22_get_position(&amt22), amt22_get_turns(&amt22));
+}
+#endif
+
 void encoder_amt22_init(void)
 {
   amt22_init(&amt22, &amt22_conf);
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ENCODER_AMT22, send_encoder_amt22);
+#endif
 }
 
 void encoder_amt22_periodic(void)
 {
   amt22_periodic(&amt22);
-  float f[2] = {amt22_get_position(&amt22), amt22_get_turns(&amt22)};
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 2, f);
 }

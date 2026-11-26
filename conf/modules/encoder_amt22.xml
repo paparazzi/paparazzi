@@ -11,6 +11,12 @@
   </header>
   <init fun="encoder_amt22_init()"/>
   <periodic fun="encoder_amt22_periodic()" freq="50.0" autorun="TRUE"/>
+  <messages>
+    <downlink>
+      <field name="position" type="uint16">Position in the turn (raw encoder value)</field>
+      <field name="turns" type="int16">Number of turns</field>
+    </downlink>
+  </messages>
   <makefile target="ap">
     <configure name="AMT22_SPI_DEV" default="SPI2" case="upper|lower"/>
     <configure name="AMT22_SPI_SLAVE_IDX" default="SPI_SLAVE0"/>

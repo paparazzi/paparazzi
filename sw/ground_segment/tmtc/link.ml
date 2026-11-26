@@ -86,6 +86,19 @@ let send_message_over_ivy = fun sender name vs ->
   else
     Tm_Pprz.message_send ?timestamp sender name vs
 
+(* MODULE_SPECIFIC is also sent decoded, as the message of the module (module_telemetry class) *)
+let send_module_msg_over_ivy = fun ac_id values ->
+  let m = Lazy.force Module_msgs.default in
+  match Module_msgs.decode m ac_id values with
+  | None -> ()
+  | Some (msg, vs) ->
+    let timestamp =
+      match !add_timestamp with
+        | None -> None
+        | Some start_time -> Some (Unix.gettimeofday () -. start_time) in
+    let link_id = if !red_link then Some !link_id else None in
+    Module_msgs.send ?timestamp ?link_id m (string_of_int ac_id) msg vs
+
 let send_ground_over_ivy = fun sender name vs ->
   let timestamp =
     match !add_timestamp with
@@ -242,6 +255,7 @@ let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
     let ac_id = header.PprzLink.sender_id in
     let msg = Tm_Pprz.message_of_id header.PprzLink.message_id in
     send_message_over_ivy (string_of_int ac_id) msg.PprzLink.name values;
+    if msg.PprzLink.name = Module_msgs.carrier then send_module_msg_over_ivy ac_id values;
     update_status ?udp_peername ac_id raw_data_size (msg.PprzLink.name = "PONG")
   with
       exc ->

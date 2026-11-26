@@ -201,6 +201,8 @@ let generate = fun telemetry out_file ->
   fprintf out "#include \"std.h\"\n";
   fprintf out "#include \"generated/airframe.h\"\n";
   fprintf out "#include \"modules/datalink/telemetry_common.h\"\n";
+  (* PPRZ_MSG_ID_<MOD> of the module specific messages *)
+  fprintf out "#include \"generated/modules_msgs.h\"\n";
   fprintf out "\n";
   fprintf out "#ifndef TELEMETRY_FREQUENCY\n";
   fprintf out "#ifdef PERIODIC_FREQUENCY\n";
