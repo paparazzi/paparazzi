@@ -984,6 +984,29 @@ let link_report = fun logging _sender vs ->
   with _ -> ()
 
 
+(** Got a LOG_MARK, log it under the aircraft it names, or under all aircraft if it names none *)
+let log_mark = fun logging _sender vs ->
+  (* a string as on the Ivy bus: quoted if it has spaces, "" if empty *)
+  let ivy_string = fun s ->
+    let s = String.trim (Str.global_replace (Str.regexp "\"") "" s) in
+    if s = "" then "\"\""
+    else if String.contains s ' ' || String.contains s '\t' then "\"" ^ s ^ "\""
+    else s in
+  let field = fun f -> ivy_string (try PprzLink.string_assoc f vs with _ -> "") in
+  let ac_id = Str.global_replace (Str.regexp "\"") "" (field "ac_id") in
+  let ac_ids =
+    if ac_id <> "" then [ac_id]
+    else
+      let l = Hashtbl.fold (fun id _ l -> id :: l) aircrafts [] in
+      if l = [] then ["ground"] else List.sort compare l in
+  let t = try PprzLink.float_assoc "unix_time" vs with _ -> U.gettimeofday () in
+  List.iter (fun id ->
+    let vs = [ "unix_time", PprzLink.String (sprintf "%.3f" t);
+               "source", PprzLink.String (field "source");
+               "ac_id", PprzLink.String (if id = "ground" then "\"\"" else id);
+               "text", PprzLink.String (field "text") ] in
+    log logging id "LOG_MARK" vs) ac_ids
+
 (** Get the 'ground' uplink messages, log them and send 'datalink' messages *)
 let ground_to_uplink = fun logging ->
   let bind_log_and_send = fun name handler ->
@@ -995,7 +1018,8 @@ let ground_to_uplink = fun logging ->
   bind_log_and_send "JUMP_TO_BLOCK" jump_block;
   bind_log_and_send "RAW_DATALINK" raw_datalink;
   bind_log_and_send "INFO_MSG_GROUND" info_msg_ground;
-  bind_log_and_send "LINK_REPORT" link_report
+  bind_log_and_send "LINK_REPORT" link_report;
+  bind_log_and_send "LOG_MARK" log_mark
 
 
 (* main loop *)
