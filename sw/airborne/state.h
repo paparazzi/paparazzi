@@ -64,6 +64,8 @@ extern "C" {
  * @{
  */
 
+#define LTP_F 0
+
 /**
  * @defgroup state_position Position representations
  * @{
@@ -96,6 +98,7 @@ extern "C" {
 #define SPEED_ENU_F   7
 #define SPEED_HNORM_F 8
 #define SPEED_HDIR_F  9
+#define SPEED_LTP_F  10
 #define SPEED_LOCAL_COORD ((1<<SPEED_NED_I)|(1<<SPEED_ENU_I)|(1<<SPEED_NED_F)|(1<<SPEED_ENU_F))
 /**@}*/
 
@@ -239,6 +242,22 @@ struct State {
   struct EcefCoor_f ecef_pos_f;
 
   /**
+   * Definition of a local (flat earth) coordinate system.
+   * Defines NorthEastDown coordinate system at the current position
+   * in ECEF (EarthCenteredEarthFixed) and LLA (LatitudeLongitudeAlt)
+   * coordinates and the roation matrix from ECEF to local frame.
+   * (float version)
+   */
+  struct LtpDef_f ltp_curpos_f;
+
+  /**
+   * Holds the status bits for the ltp at the current position.
+   * When the corresponding bit is one the representation
+   * is already computed.
+   */
+  uint16_t ltp_status;
+
+  /**
    * Definition of the local (flat earth) coordinate system.
    * Defines the origin of the local NorthEastDown coordinate system
    * in ECEF (EarthCenteredEarthFixed) and LLA (LatitudeLongitudeAlt)
@@ -352,6 +371,12 @@ struct State {
    * Unit: rad (clockwise, zero=north)
    */
   float h_speed_dir_f;
+
+  /**
+   * Velocity in LTP coordinates at the current position.
+   * Units: m/s
+   */
+  struct NedCoor_f ltp_speed_f;
   /** @}*/
 
 
@@ -608,6 +633,7 @@ extern float stateGetHmslOrigin_f(void);
  ******************************************************************************/
 
 /************* declaration of transformation functions ************/
+extern void stateCalcLtp_f(void);
 extern void stateCalcPositionEcef_i(void);
 extern void stateCalcPositionNed_i(void);
 extern void stateCalcPositionEnu_i(void);
@@ -643,6 +669,7 @@ static inline void stateSetPositionEcef_i(uint16_t id, struct EcefCoor_i *ecef_p
   VECT3_COPY(state.ecef_pos_i, *ecef_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_ECEF_I);
+  state.ltp_status = 0;
 }
 
 /// Set position from local NED coordinates (int).
@@ -653,6 +680,7 @@ static inline void stateSetPositionNed_i(uint16_t id, struct NedCoor_i *ned_pos)
   VECT3_COPY(state.ned_pos_i, *ned_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_NED_I);
+  state.ltp_status = 0;
 }
 
 /// Set position from local ENU coordinates (int).
@@ -663,6 +691,7 @@ static inline void stateSetPositionEnu_i(uint16_t id, struct EnuCoor_i *enu_pos)
   VECT3_COPY(state.enu_pos_i, *enu_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_ENU_I);
+  state.ltp_status = 0;
 }
 
 /// Set position from LLA coordinates (int).
@@ -673,6 +702,7 @@ static inline void stateSetPositionLla_i(uint16_t id, struct LlaCoor_i *lla_pos)
   LLA_COPY(state.lla_pos_i, *lla_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_LLA_I);
+  state.ltp_status = 0;
 }
 
 /// Set multiple position coordinates (int).
@@ -686,6 +716,7 @@ static inline void stateSetPosition_i(
   STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
 
   /* clear all status bit */
+  state.ltp_status = 0;
   state.pos_status = 0;
   if (ecef_pos != NULL) {
     VECT3_COPY(state.ecef_pos_i, *ecef_pos);
@@ -713,6 +744,7 @@ static inline void stateSetPositionUtm_f(uint16_t id, struct UtmCoor_f *utm_pos)
   state.utm_pos_f = *utm_pos;
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_UTM_F);
+  state.ltp_status = 0;
 }
 
 /// Set position from ECEF coordinates (float).
@@ -723,6 +755,7 @@ static inline void stateSetPositionEcef_f(uint16_t id, struct EcefCoor_f *ecef_p
   VECT3_COPY(state.ecef_pos_f, *ecef_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_ECEF_F);
+  state.ltp_status = 0;
 }
 
 /// Set position from local NED coordinates (float).
@@ -733,6 +766,7 @@ static inline void stateSetPositionNed_f(uint16_t id, struct NedCoor_f *ned_pos)
   VECT3_COPY(state.ned_pos_f, *ned_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_NED_F);
+  state.ltp_status = 0;
 }
 
 /// Set position from local ENU coordinates (float).
@@ -743,6 +777,7 @@ static inline void stateSetPositionEnu_f(uint16_t id, struct EnuCoor_f *enu_pos)
   VECT3_COPY(state.enu_pos_f, *enu_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_ENU_F);
+  state.ltp_status = 0;
 }
 
 /// Set position from LLA coordinates (float).
@@ -753,6 +788,7 @@ static inline void stateSetPositionLla_f(uint16_t id, struct LlaCoor_f *lla_pos)
   LLA_COPY(state.lla_pos_f, *lla_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_LLA_F);
+  state.ltp_status = 0;
 }
 
 /// Set multiple position coordinates (float).
@@ -768,6 +804,7 @@ static inline void stateSetPosition_f(
 
   /* clear all status bit */
   state.pos_status = 0;
+  state.ltp_status = 0;
   if (ecef_pos != NULL) {
     VECT3_COPY(state.ecef_pos_f, *ecef_pos);
     state.pos_status |= (1 << POS_ECEF_F);
@@ -791,6 +828,15 @@ static inline void stateSetPosition_f(
 }
 
 /************************ Get functions ****************************/
+
+/// Get LTP frame at the current position (float).
+static inline struct LtpDef_f *stateGetLtp_f(void)
+{
+  if (!bit_is_set(state.ltp_status, LTP_F)) {
+    stateCalcLtp_f();
+  }
+  return &state.ltp_curpos_f;
+}
 
 /// Get position in ECEF coordinates (int).
 static inline struct EcefCoor_i *stateGetPositionEcef_i(void)
@@ -894,6 +940,7 @@ extern void stateCalcHorizontalSpeedDir_i(void);
 extern void stateCalcSpeedNed_f(void);
 extern void stateCalcSpeedEnu_f(void);
 extern void stateCalcSpeedEcef_f(void);
+extern void stateCalcSpeedLtp_f(void);
 extern void stateCalcHorizontalSpeedNorm_f(void);
 extern void stateCalcHorizontalSpeedDir_f(void);
 
@@ -1081,6 +1128,15 @@ static inline struct EcefCoor_f *stateGetSpeedEcef_f(void)
     stateCalcSpeedEcef_f();
   }
   return &state.ecef_speed_f;
+}
+
+/// Get ground speed in LTP coordinates at the current position (float).
+static inline struct NedCoor_f *stateGetSpeedLtp_f(void)
+{
+  if (!bit_is_set(state.speed_status, SPEED_LTP_F)) {
+    stateCalcSpeedLtp_f();
+  }
+  return &state.ltp_speed_f;
 }
 
 /// Get norm of horizontal ground speed (float).

@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="60" ground_alt="0" lat0="52.168595" lon0="4.412444" max_dist_from_home="5000" name="Nederdrone Valkenburg" security_height="2">
+<flight_plan alt="60" ground_alt="0" lat0="52.168595" lon0="4.412444" max_dist_from_home="500000" name="Nederdrone Valkenburg" security_height="2">
   <header>
     #include "autopilot.h"
     #include "modules/datalink/datalink.h"
@@ -8,7 +8,8 @@
   <waypoints>
     <waypoint name="HOME" x="12.6" y="-48.7"/>
     <waypoint name="CLIMB" x="62.6" y="-80.4"/>
-    <waypoint name="STDBY" x="106.0" y="-55.1"/>
+    <!-- <waypoint name="STDBY" x="106.0" y="-55.1"/> -->
+    <waypoint name="STDBY" lat="51.168595" lon="4.412444"/>
     <waypoint name="p1" x="322.0" y="-254.3"/>
     <waypoint name="p2" x="696.0" y="-148.1"/>
     <waypoint name="p3" x="600.4" y="73.4"/>
@@ -46,17 +47,17 @@
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="100"/>
     </module>
   </modules>
-  <exceptions>
+  <!-- <exceptions>
     <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 1500) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point'))" deroute="Holding point"/>
     <exception cond="datalink_time @GT 25 @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
-  </exceptions>
+  </exceptions> -->
   <blocks>
     <block name="Wait GPS">
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid() || !state.ned_initialized_i"/>
     </block>
     <block name="Geo init">
-      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <!-- <while cond="LessThan(NavBlockTime(), 10)"/> -->
       <call_once fun="NavSetAltitudeReferenceHere()"/>
     </block>
     <block name="Holding point">
