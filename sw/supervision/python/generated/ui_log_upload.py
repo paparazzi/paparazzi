@@ -213,5 +213,5 @@ class Ui_LogUpload(object):
         self.ignore_button.setText(_translate("LogUpload", "Don\'t upload"))
         self.ignore_all_button.setToolTip(_translate("LogUpload", "Never upload any of the pending logs (unless they change). The files are not deleted."))
         self.ignore_all_button.setText(_translate("LogUpload", "Don\'t upload all"))
-        self.requeue_button.setToolTip(_translate("LogUpload", "Put the selected logs which were marked Don\'t upload back in the queue"))
+        self.requeue_button.setToolTip(_translate("LogUpload", "Upload the selected logs which were marked Don\'t upload or skipped (no flight, simulation)"))
         self.requeue_button.setText(_translate("LogUpload", "Upload anyway"))
