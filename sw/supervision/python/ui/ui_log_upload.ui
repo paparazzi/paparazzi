@@ -362,7 +362,7 @@
      <item>
       <widget class="QPushButton" name="requeue_button">
        <property name="toolTip">
-        <string>Put the selected logs which were marked Don't upload back in the queue</string>
+        <string>Upload the selected logs which were marked Don't upload or skipped (no flight, simulation)</string>
        </property>
        <property name="text">
         <string>Upload anyway</string>
