@@ -118,7 +118,7 @@
   </section>
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-    <!-- control effectiveness -->
+    <!-- control effectiveness 14, 10, 0.9 when using bumpers -->
     <define name="G1_ROLL" value="{20 , -20, -20 , 20 }"/>
     <define name="G1_PITCH" value="{14 , 14, -14 , -14 }"/>
     <define name="G1_YAW" value="{-1, 1, -1, 1}"/>

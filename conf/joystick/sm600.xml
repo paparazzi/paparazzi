@@ -27,10 +27,9 @@ The basis of steering is the standard signs of aerospace convention
 <joystick>
   <input>
     <axis index="4" name="LeftStickHorizontal"/>
-    <axis index="2" name="LeftStickVertical"/>
-    <axis index="0" name="RightStickHorizontal"/>
-    <axis index="1" name="RightStickVertical"/>
-    <axis index="3" name="VRB"/>
+    <axis index="1" name="LeftStickVertical"/>
+    <axis index="3" name="RightStickHorizontal"/>
+    <axis index="0" name="RightStickVertical"/>
     <button index="0" name="VRA"/>
   </input>
 
