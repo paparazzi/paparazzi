@@ -19,6 +19,7 @@
  */
 
 #include "nps_fdm.h"
+#include "nps_main.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -103,6 +104,8 @@ struct fixedwing_sim_state {
 };
 
 static struct fixedwing_sim_state sim_state;
+
+static const double earth_radius = 6378137.0;
 
 
 /** NPS FDM rover init ***************************/
@@ -265,9 +268,25 @@ static void init_ltp(void)
 {
 
   struct LlaCoor_d llh_nav0; /* Height above the ellipsoid */
-  llh_nav0.lat = RadOfDeg((double)NAV_LAT0 / 1e7);
-  llh_nav0.lon = RadOfDeg((double)NAV_LON0 / 1e7);
-  llh_nav0.alt = (double)(NAV_ALT0) / 1000.0;
+  if (!isnan(nps_main.initial_pos_lla[0]) && !isnan(nps_main.initial_pos_lla[1]) && !isnan(nps_main.initial_pos_lla[2])) {
+    // Use command-line lat lon alt
+    llh_nav0.lat = nps_main.initial_pos_lla[0];
+    llh_nav0.lon = nps_main.initial_pos_lla[1];
+    llh_nav0.alt = nps_main.initial_pos_lla[2];
+  } else if (!isnan(nps_main.initial_pos_enu[0]) && !isnan(nps_main.initial_pos_enu[1]) && !isnan(nps_main.initial_pos_enu[2])) {
+    // Use command-line ENU
+    double x = nps_main.initial_pos_enu[0];
+    double y = nps_main.initial_pos_enu[1];
+    double z = nps_main.initial_pos_enu[2];
+    // use a local approximation from the flight plan reference point
+    llh_nav0.lat = RadOfDeg((double)NAV_LAT0 / 1e7) + y / earth_radius;
+    llh_nav0.lon = RadOfDeg((double)NAV_LON0 / 1e7) + x / (earth_radius * cos(RadOfDeg(NAV_LAT0 / 1e7)));
+    llh_nav0.alt = (double)(NAV_ALT0) / 1000.0 + z;
+  } else {
+    llh_nav0.lat = RadOfDeg((double)NAV_LAT0 / 1e7);
+    llh_nav0.lon = RadOfDeg((double)NAV_LON0 / 1e7);
+    llh_nav0.alt = (double)(NAV_ALT0) / 1000.0;
+  }
 
   struct EcefCoor_d ecef_nav0;
 

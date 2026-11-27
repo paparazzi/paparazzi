@@ -53,6 +53,7 @@
 // end ignore unused param warnings in JSBSim
 #pragma GCC diagnostic pop
 
+#include "nps_main.h"
 #include "nps_autopilot.h"
 #include "nps_fdm.h"
 #include "math/pprz_geodetic.h"
@@ -148,6 +149,12 @@
 // TODO: maybe lower for slower CPUs & HITL?
 //#define MIN_DT (1.0/1000.0)
 
+#ifdef __APPLE__
+/* Why isn't this there when we include math.h (on osx with clang)? */
+/// Check if a double is NaN.
+static int isnan(double f) { return (f != f); }
+#endif
+
 using namespace JSBSim;
 using namespace std;
 
@@ -182,6 +189,8 @@ double vehicle_radius_max;
 
 /// Timestep used for higher fidelity near the ground
 double min_dt;
+
+static const double earth_radius = 6378137.0;
 
 void nps_fdm_init(double dt)
 {
@@ -635,22 +644,42 @@ static void init_jsbsim(double dt)
     // before itself
     IC->SetVgroundFpsIC(0.);
 
-    // Use flight plan initial conditions
+    double nav_lat0, nav_lon0, ground_alt = 0.;
+    if (!isnan(nps_main.initial_pos_lla[0]) && !isnan(nps_main.initial_pos_lla[1]) && !isnan(nps_main.initial_pos_lla[2])) {
+      // Use command-line lat lon alt
+      nav_lat0 = nps_main.initial_pos_lla[0];
+      nav_lon0 = nps_main.initial_pos_lla[1];
+      ground_alt = nps_main.initial_pos_lla[2];
+    } else if (!isnan(nps_main.initial_pos_enu[0]) && !isnan(nps_main.initial_pos_enu[1]) && !isnan(nps_main.initial_pos_enu[2])) {
+      // Use command-line ENU
+      double x = nps_main.initial_pos_enu[0];
+      double y = nps_main.initial_pos_enu[1];
+      double z = nps_main.initial_pos_enu[2];
+      // use a local approximation from the flight plan reference point
+      nav_lat0 = NAV_LAT0 / 1e7 + DegOfRad(y / earth_radius);
+      nav_lon0 = NAV_LON0 / 1e7 + DegOfRad(x / (earth_radius * cos(RadOfDeg(NAV_LAT0 / 1e7))));
+      ground_alt = GROUND_ALT + z;
+    } else {
+      // Use flight plan initial conditions
+      nav_lat0 = NAV_LAT0 / 1e7;
+      nav_lon0 = NAV_LON0 / 1e7;
+      ground_alt = GROUND_ALT;
+    }
     // convert geodetic lat from flight plan to geocentric
-    double gd_lat = RadOfDeg(NAV_LAT0 / 1e7);
-    double gc_lat = gc_of_gd_lat_d(gd_lat, GROUND_ALT);
+    double gd_lat = RadOfDeg(nav_lat0);
+    double gc_lat = gc_of_gd_lat_d(gd_lat, ground_alt);
     IC->SetLatitudeDegIC(DegOfRad(gc_lat));
-    IC->SetLongitudeDegIC(NAV_LON0 / 1e7);
+    IC->SetLongitudeDegIC(nav_lon0);
 
     IC->SetWindNEDFpsIC(0.0, 0.0, 0.0);
-    IC->SetAltitudeASLFtIC(FeetOfMeters(GROUND_ALT + 2.0));
-    IC->SetTerrainElevationFtIC(FeetOfMeters(GROUND_ALT));
+    IC->SetAltitudeASLFtIC(FeetOfMeters(ground_alt + 2.0));
+    IC->SetTerrainElevationFtIC(FeetOfMeters(ground_alt));
     IC->SetPsiDegIC(QFU);
     IC->SetVgroundFpsIC(0.);
 
-    lla0.lon = RadOfDeg(NAV_LON0 / 1e7);
+    lla0.lon = RadOfDeg(nav_lon0);
     lla0.lat = gd_lat;
-    lla0.alt = (double)(NAV_ALT0 + NAV_MSL0) / 1000.0;
+    lla0.alt = (double)(ground_alt + (NAV_MSL0 / 1000.0)); // might be wrong when using command line position far from flight plan reference point (wrong NAV_MSL0)
   }
 
   // initial commands to zero
@@ -861,12 +890,6 @@ void lla_from_jsbsim_geodetic(LlaCoor_d *fdm_lla, FGPropagate *propagate)
   fdm_lla->alt = MetersOfFeet(propagate->GetGeodeticAltitude());
 
 }
-
-#ifdef __APPLE__
-/* Why isn't this there when we include math.h (on osx with clang)? */
-/// Check if a double is NaN.
-static int isnan(double f) { return (f != f); }
-#endif
 
 /**
  * Checks NpsFdm struct for NaNs.
