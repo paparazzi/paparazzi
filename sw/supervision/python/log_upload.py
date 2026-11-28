@@ -11,6 +11,10 @@ during a session of this Paparazzi Center are uploaded when the session stops, l
 extracted from an SD card right after extraction; other logs (e.g. from a server
 started elsewhere) only after they were unchanged for QUIET_TIME, or right away when
 selected and uploaded with "Upload selected".
+Logs without a flight (no ROTORCRAFT_STATUS ap_in_flight, no BAT or NAVIGATION flight_time, the messages the
+logbook detects flights with) are skipped, unless uploaded with "Upload selected" or "Upload anyway".
+So are logs recorded during a session of this Paparazzi Center which ran the simulator or the log file player
+(a replay logs the old flight again); these sessions are remembered in the state file.
 Uploaded, skipped, rejected and ignored ("Don't upload") pairs are remembered in
 $PAPARAZZI_HOME/var/log_upload_state.json so they are not hashed or sent again.
 The tab lists the pending logs and why they wait, and uploading can be paused.
@@ -19,6 +23,7 @@ import hashlib
 import http.client
 import json
 import os
+import re
 import threading
 import time
 import uuid
@@ -36,6 +41,8 @@ QUIET_TIME = 60 * 60            # seconds without changes before a log from outs
 RETRY_INTERVAL = 60 * 60        # seconds between automatic runs, to retry when the server was not reachable
 SESSION_STOP_DELAY = 5          # seconds after a session stopped before uploading its logs
 HISTORY_SIZE = 200
+SIM_PROGRAMS = ("Simulator", "Log File Player")    # programs which make a session's logs not real flights
+SIM_SESSIONS_SIZE = 200
 STATE_COLORS = {"Ready": "#2e7d32", "Failed": "#c62828"}    # other states in grey
 STATE_GREY = "#757575"
 CAPACITY_WAIT = 60 * 60         # seconds to wait for server capacity before retrying in a later run
@@ -179,7 +186,60 @@ def is_complete(data, sig, data_stat, log_stat, sessions, finished, now):
     last_change = max(data_stat.st_mtime, log_stat.st_mtime)
     if now - last_change >= QUIET_TIME:
         return True
+    return recorded_in(data_stat, log_stat, sessions)
+
+
+def recorded_in(data_stat, log_stat, sessions):
+    """Whether the pair was recorded during one of the sessions [(start, stop)]: the server writes the
+    .log at start and the .data until it stops."""
+    last_change = max(data_stat.st_mtime, log_stat.st_mtime)
     return any(start <= log_stat.st_mtime and last_change <= stop for start, stop in sessions)
+
+
+# Messages and fields the logbook detects flights with: in flight while the field is not 0
+FLIGHT_FIELDS = {"ROTORCRAFT_STATUS": "ap_in_flight", "NAVIGATION": "flight_time", "BAT": "flight_time"}
+
+
+def flight_fields(log):
+    """{message name (bytes): token index of its in-flight field in a .data line} from the telemetry
+    class in the .log header. Like the logbook, BAT is not used when NAVIGATION has the flight time.
+    The header is searched as text: it is not always valid XML (e.g. && in flight plan conditions)."""
+    with open(log, encoding="utf-8", errors="replace") as f:
+        header = f.read()
+    telemetry = re.search(r'<msg_class\b[^>]*\bname="telemetry"[^>]*>(.*?)</msg_class>', header, re.I | re.S)
+    found = {}
+    for msg in re.finditer(r'<message\b[^>]*\bname="([^"]+)"[^>]*>(.*?)</message>',
+                           telemetry.group(1) if telemetry else "", re.I | re.S):
+        if msg.group(1) not in FLIGHT_FIELDS:
+            continue
+        names = re.findall(r'<field\b[^>]*\bname="([^"]+)"', msg.group(2), re.I)
+        if FLIGHT_FIELDS[msg.group(1)] in names:
+            found[msg.group(1).encode()] = 3 + names.index(FLIGHT_FIELDS[msg.group(1)])  # after time, ac_id, name
+    if b"NAVIGATION" in found:
+        found.pop(b"BAT", None)
+    return found
+
+
+def has_flight(data, log):
+    """True when the log has a flight, False when it has none, None when the .log does not tell how to
+    find out (then it is uploaded)."""
+    try:
+        fields = flight_fields(log)
+    except OSError:
+        return None
+    if not fields:
+        return None
+    with open(data, "rb") as f:
+        for line in f:
+            parts = line.split()
+            if len(parts) > 3 and parts[2] in fields:
+                i = fields[parts[2]]
+                try:
+                    if i < len(parts) and float(parts[i]) != 0:
+                        return True
+                except ValueError:
+                    pass
+    return False
 
 
 STATE_LOCK = threading.Lock()   # the state file is changed by the upload thread and the tab
@@ -194,6 +254,7 @@ def load_state():
     if not isinstance(state, dict) or not isinstance(state.get("servers"), dict):
         state = {"servers": {}, "history": []}
     state.setdefault("history", [])
+    state.setdefault("sim_sessions", [])
     return state
 
 
@@ -213,6 +274,13 @@ def update_state(change):
         return result
 
 
+def add_sim_session(start, stop):
+    """Remember a session which ran a simulation or replay, its logs are not uploaded automatically."""
+    def change(state):
+        state["sim_sessions"] = (state["sim_sessions"] + [[start, stop]])[-SIM_SESSIONS_SIZE:]
+    update_state(change)
+
+
 def server_key(server):
     return server.rstrip("/")
 
@@ -223,9 +291,12 @@ def signature(data_stat, log_stat):
 
 def scan_pending(server, sessions=(), finished={}, folder=LOGS_DIR):
     """The pairs below folder which were not handled for this server yet, as dicts with
-    name, data, log, sig, size, mtime and complete (finished recording)."""
+    name, data, log, sig, size, mtime, complete (finished recording) and simulated (recorded during
+    a simulation or replay session)."""
     with STATE_LOCK:
-        handled = load_state()["servers"].get(server_key(server), {})
+        state = load_state()
+    handled = state["servers"].get(server_key(server), {})
+    sim_sessions = state["sim_sessions"]
     now = time.time()
     pending = []
     for name, data, log, ds, ls in find_pairs(folder) if os.path.isdir(folder) else ():
@@ -234,7 +305,8 @@ def scan_pending(server, sessions=(), finished={}, folder=LOGS_DIR):
             continue
         pending.append({"name": name, "data": data, "log": log, "sig": sig, "size": ds.st_size + ls.st_size,
                         "mtime": max(ds.st_mtime, ls.st_mtime),
-                        "complete": is_complete(data, sig, ds, ls, sessions, finished, now)})
+                        "complete": is_complete(data, sig, ds, ls, sessions, finished, now),
+                        "simulated": recorded_in(ds, ls, sim_sessions)})
     return pending
 
 
@@ -267,11 +339,15 @@ def ignore_logs(server, logs):
     return entries
 
 
+REQUEUE_RESULTS = ("Ignored", "No flight", "Simulation")     # results which "Upload anyway" puts back in the queue
+
+
 def requeue_logs(server, names):
-    """Put logs which were marked Don't upload back in the queue."""
+    """Put logs which were marked Don't upload or skipped without a flight back in the queue,
+    returns the history entries; the names done are the entries' names."""
     def change(state):
         handled = state["servers"].setdefault(server_key(server), {})
-        names_done = [n for n in names if handled.get(n, {}).get("result") == "Ignored"]
+        names_done = [n for n in names if handled.get(n, {}).get("result") in REQUEUE_RESULTS]
         for n in names_done:
             del handled[n]
         entries = [new_entry(n, "Queued", "Upload anyway") for n in names_done]
@@ -286,10 +362,11 @@ def still_pending(server, name, sig):
 
 
 def upload_new_logs(server, key, sessions=(), finished={}, cancel=None, report=print, record=None,
-                    blocked=None, folder=LOGS_DIR):
+                    blocked=None, folder=LOGS_DIR, forced={}):
     """Upload the complete pairs below folder which were not handled for this server yet.
     sessions: list of (start, stop) times of finished sessions; finished: {real path of a .data file:
-    signature it is complete with, or None for any}; cancel: threading.Event to stop early.
+    signature it is complete with, or None for any}; forced: {real path of a .data file: signature}
+    to upload even without a flight; cancel: threading.Event to stop early.
     report(str) gets a short status, record(entry) every history entry [time, log, result, details],
     blocked(str) why the server cannot be used now ("" once it can)."""
     pending = scan_pending(server, sessions, finished, folder)
@@ -325,7 +402,7 @@ def upload_new_logs(server, key, sessions=(), finished={}, cancel=None, report=p
     if not todo:
         report(f"Log upload: up to date{waiting_txt}")
         return
-    counts = {"uploaded": 0, "on_server": 0, "skipped": 0, "failed": 0}
+    counts = {"uploaded": 0, "on_server": 0, "skipped": 0, "no_flight": 0, "simulated": 0, "failed": 0}
     for i, p in enumerate(todo):
         name, data, log, sig = p["name"], p["data"], p["log"], p["sig"]
         if cancel is not None and cancel.is_set():
@@ -337,8 +414,17 @@ def upload_new_logs(server, key, sessions=(), finished={}, cancel=None, report=p
             counts["skipped"] += 1
             add(name, sig, "Skipped", "empty .data file (no telemetry received)")
             continue
+        force = forced.get(os.path.realpath(data)) == sig
+        if p["simulated"] and not force:
+            counts["simulated"] += 1
+            add(name, sig, "Simulation", "recorded in a simulation or replay session (Upload anyway to upload it)")
+            continue
         report(f"Log upload: verifying {i + 1}/{len(todo)}...")
         try:
+            if not force and has_flight(data, log) is False:
+                counts["no_flight"] += 1
+                add(name, sig, "No flight", "no flight in the log (Upload anyway to upload it)")
+                continue
             digest = sha256_file(data)
             known = client.check([digest]).get(digest)
             if known and known.get("has_log") and known.get("mine", True):
@@ -375,6 +461,7 @@ def upload_new_logs(server, key, sessions=(), finished={}, cancel=None, report=p
             add(name, None, "Failed", f"{e} (retried later)")
             return
     others = ((counts["on_server"], "already on the server"), (counts["skipped"], "skipped (empty)"),
+              (counts["no_flight"], "skipped (no flight)"), (counts["simulated"], "skipped (simulation)"),
               (counts["failed"], "rejected"))
     others_txt = "".join(f", {n} {what}" for n, what in others if n)
     report(f"Log upload: {counts['uploaded']} uploaded{others_txt}{waiting_txt}")
@@ -407,8 +494,10 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         self.cancel = threading.Event()
         self.session = None
         self.session_start = None
+        self.session_simulated = False
         self.sessions = []
         self.finished = {}     # real .data path: signature it is complete with (None: any)
+        self.forced = {}       # real .data path: signature it is uploaded with even without a flight
         self.pending = []
         self.problem = ""
         self.connection = ""    # result of the last server check: "" (not checked yet), "ok" or the problem
@@ -416,8 +505,8 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         self.help_label.setStyleSheet(f"color: {STATE_GREY}")
         self.help_label.setText(
             f"Logs recorded in a session of this Center are uploaded when the session stops, SD logs after the "
-            f"extraction; other logs after {QUIET_TIME // 60} min without changes. Select logs and press "
-            f"\"Upload selected\" to upload them earlier.")
+            f"extraction; other logs after {QUIET_TIME // 60} min without changes. Logs without a flight and "
+            f"logs of simulation or replay sessions are skipped. Select logs and press \"Upload selected\" to upload them earlier, also without a flight.")
         self.status.connect(self.handle_status)
         self.recorded.connect(self.handle_recorded)
         self.blocked.connect(self.handle_blocked)
@@ -466,12 +555,18 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         # only update the statuses, no log can become complete while recording
         if self.session_start is None:
             self.session_start = time.time() - 1
+            self.session_simulated = False
+        if any(pw.shortname in SIM_PROGRAMS and pw.state() != QtCore.QProcess.NotRunning
+               for pw in self.session.program_widgets):     # not one left stopped from an earlier session
+            self.session_simulated = True
         self.cancel.set()
         self.fill_pending()
 
     def handle_session_stopped(self):
         if self.session_start is not None and not self.session_running():
             self.sessions.append((self.session_start, time.time()))
+            if self.session_simulated:
+                add_sim_session(self.session_start, time.time())
             self.session_start = None
             self.refresh_pending()
             QtCore.QTimer.singleShot(SESSION_STOP_DELAY * 1000, self.start)
@@ -545,7 +640,8 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
             self.connection = ""    # readable again
         self.cancel.clear()
         self.rerun = False
-        kwargs = {"sessions": list(self.sessions), "finished": dict(self.finished), "cancel": self.cancel,
+        kwargs = {"sessions": list(self.sessions), "finished": dict(self.finished), "forced": dict(self.forced),
+                  "cancel": self.cancel,
                   "report": self.status.emit, "record": self.recorded.emit, "blocked": self.blocked.emit}
 
         def run():
@@ -614,6 +710,9 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
                     f"or select it and press Upload selected")
         if p["sig"][0][0] == 0:
             return "Empty", "skipped", "Empty .data file (no telemetry received), it will be skipped"
+        if p["simulated"] and self.forced.get(os.path.realpath(p["data"])) != p["sig"]:
+            return ("Simulation", "skipped", "Recorded in a simulation or replay session, it will be skipped; "
+                    "select it and press Upload selected to upload it")
         if self.pause_button.isChecked():
             return "Paused", "after Resume", "Uploading is paused"
         if self.session_running():
@@ -690,11 +789,13 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         self.fill_pending()
 
     def force_selected(self):
-        """Upload the selected pending logs without waiting for QUIET_TIME, as if they were complete."""
+        """Upload the selected pending logs without waiting for QUIET_TIME, as if they were complete,
+        also when they have no flight."""
         names = set(self.selected_names(self.pending_table))
         for p in self.pending:
             if p["name"] in names:
                 self.finished[os.path.realpath(p["data"])] = p["sig"]    # until it changes
+                self.forced[os.path.realpath(p["data"])] = p["sig"]
         self.refresh_pending()
         self.start()
 
@@ -708,9 +809,14 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
     def requeue_selected(self):
         server, _ = self.settings()
         names = [n for n in dict.fromkeys(self.selected_names(self.history_table)) if n]
-        for entry in requeue_logs(server, names):
+        entries = requeue_logs(server, names)
+        for entry in entries:
             self.add_entry(entry)
         self.refresh_pending()
+        requeued = {entry[1] for entry in entries}
+        for p in self.pending:
+            if p["name"] in requeued:
+                self.forced[os.path.realpath(p["data"])] = p["sig"]     # also without a flight
         self.start()
 
     # --- view
@@ -734,7 +840,7 @@ class LogUploadWidget(QWidget, Ui_LogUpload):
         self.ignore_button.setEnabled(configured and selected)
         self.ignore_all_button.setEnabled(configured and bool(self.pending))
         ignored = [i for i in self.history_table.selectionModel().selectedRows()
-                   if self.history_table.item(i.row(), 2).text() == "Ignored"]
+                   if self.history_table.item(i.row(), 2).text() in REQUEUE_RESULTS]
         self.requeue_button.setEnabled(configured and bool(ignored))
         self.upload_button.setEnabled(configured and not self.pause_button.isChecked())
         self.pause_button.setEnabled(configured)
